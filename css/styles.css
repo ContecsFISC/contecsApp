@@ -1,0 +1,398 @@
+/* ===========================
+   CONTECS — Estilos Globales
+   Paleta: Verde institucional
+   =========================== */
+
+:root {
+  /* Paleta principal */
+  --verde:          #00722e;
+  --verde-oscuro:   #045223;
+  --verde-claro:    #39b54a;
+
+  /* Derivados para profundidad */
+  --verde-fondo:    #e8f5ec;
+  --verde-hover:    #005f26;
+  --verde-sombra:   rgba(0, 114, 46, 0.15);
+
+  /* Neutros */
+  --gris-texto:     #1a2e1e;
+  --gris-suave:     #f4f7f5;
+  --gris-borde:     #d0dbd2;
+  --gris-medio:     #8a9e8d;
+  --blanco:         #ffffff;
+
+  /* Semánticos */
+  --rojo:           #c0392b;
+  --rojo-fondo:     #fdedec;
+  --amarillo:       #d4850a;
+  --amarillo-fondo: #fef9e7;
+  --azul-info:      #2471a3;
+  
+
+  /* Sombras */
+  --sombra-sm:      0 2px 8px rgba(0,0,0,0.07);
+  --sombra-md:      0 4px 16px rgba(0,0,0,0.10);
+  --sombra-verde:   0 4px 16px rgba(0, 114, 46, 0.18);
+  --sombra-eurus:   rgba(0, 6, 114, 0.18);
+
+
+  /* Bordes */
+  --radio:          12px;
+  --radio-sm:       8px;
+  --radio-lg:       16px;
+
+  --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Animaciones */
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--fuente);
+  background: var(--gris-suave);
+  color: var(--gris-texto);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ════════════════════════════════════
+   ANIMACIONES DE ENTRADA DE PÁGINA
+   ════════════════════════════════════ */
+
+/* Slide-in principal del contenido */
+@keyframes pageSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade con scale para elementos destacados */
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide desde la izquierda */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Entrada en cascada para cards */
+@keyframes cardCascade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Rebote para modales */
+@keyframes modalBounceUp {
+  0%   { transform: translateY(100%); }
+  60%  { transform: translateY(-8px); }
+  80%  { transform: translateY(4px); }
+  100% { transform: translateY(0); }
+}
+
+/* Pulso suave para alertas */
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Aplicar animación de entrada al container ── */
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  animation: pageSlideUp 0.45s var(--ease-out) both;
+}
+
+/* ── Cards con cascada ── */
+.card {
+  background: var(--blanco);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-sm);
+  padding: 20px;
+  margin-bottom: 16px;
+  border-left: 3px solid var(--verde-claro);
+  animation: cardCascade 0.4s var(--ease-spring) both;
+}
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.10s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.20s; }
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--verde-oscuro);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--verde-fondo);
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
+  color: var(--blanco);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(4, 82, 35, 0.3);
+  animation: slideInLeft 0.35s var(--ease-out) both;
+}
+.topbar h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.topbar-link {
+  color: var(--blanco);
+  font-size: 13px;
+}
+.is-hidden { display: none; }
+.fondo-estado { font-size: 18px; }
+.btn-logout {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--blanco);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-logout:hover  { background: rgba(255,255,255,0.25); }
+.btn-logout:active { transform: scale(0.94); }
+
+/* ---- BOTONES ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: var(--radio-sm);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  min-height: 48px;
+  transition: opacity 0.18s, transform 0.15s var(--ease-spring), box-shadow 0.2s;
+  letter-spacing: 0.2px;
+}
+.btn:active {
+  transform: scale(0.95) !important;
+  transition-duration: 0.08s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%);
+  color: var(--blanco);
+  box-shadow: var(--sombra-verde);
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 24px rgba(0,114,46,0.32);
+  transform: translateY(-1px);
+}
+.btn-success  { background: var(--verde-claro); color: var(--blanco); }
+.btn-danger   { background: var(--rojo);        color: var(--blanco); }
+.btn-outline  {
+  background: transparent;
+  border: 1.5px solid var(--verde);
+  color: var(--verde);
+}
+.btn-outline:hover { background: var(--verde-fondo); transform: translateY(-1px); }
+.btn-sm { padding: 8px 14px; font-size: 13px; min-height: 36px; width: auto; }
+
+
+
+
+/* ---- FORMULARIOS ---- */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--verde-oscuro);
+  margin-bottom: 5px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gris-borde);
+  border-radius: var(--radio-sm);
+  font-size: 15px;
+  font-family: var(--fuente);
+  background: var(--blanco);
+  color: var(--gris-texto);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px rgba(0,114,46,0.12);
+  transform: translateY(-1px);
+}
+
+
+
+/* ---- FORMULARIOS EURUS ---- */
+.form-groupE { margin-bottom: 14px; }
+.form-groupE label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--eurus-oscuro);
+  margin-bottom: 5px;
+}
+.form-groupE input,
+.form-groupE select,
+.form-groupE textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--gris-borde);
+  border-radius: var(--radio-sm);
+  font-size: 15px;
+  font-family: var(--fuente);
+  background: var(--blanco);
+  color: var(--gris-texto);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.form-groupE input:focus,
+.form-groupE select:focus,
+.form-groupE textarea:focus {
+  outline: none;
+  border-color: var(--eurus);
+  box-shadow: 0 0 0 4px rgba(17, 0, 114, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ---- ALERTAS ---- */
+.alerta {
+  padding: 12px 16px;
+  border-radius: var(--radio-sm);
+  font-size: 14px;
+  margin-bottom: 14px;
+  display: none;
+  animation: fadeScaleIn 0.25s var(--ease-spring) both;
+}
+.alerta.show { display: block; }
+.alerta-error   { background: var(--rojo-fondo);     color: var(--rojo);         border-left: 4px solid var(--rojo); }
+.alerta-success { background: var(--verde-fondo);    color: var(--verde-oscuro); border-left: 4px solid var(--verde); }
+.alerta-aviso   { background: var(--amarillo-fondo); color: var(--amarillo);     border-left: 4px solid var(--amarillo); }
+
+/* ---- BADGES ---- */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-nivel-6 { background: #1a1a2e; color: #fff; }
+.badge-nivel-5 { background: #e8d5f5; color: #6c3483; }
+.badge-nivel-4 { background: var(--verde-fondo); color: var(--verde-oscuro); }
+.badge-nivel-3 { background: #d5f5e3; color: #1e8449; }
+.badge-nivel-2 { background: var(--amarillo-fondo); color: var(--amarillo); }
+.badge-nivel-1 { background: #f2f3f4; color: #717d7e; }
+.badge-sinrol  { background: var(--rojo-fondo); color: var(--rojo); }
+
+/* ---- SPINNER ---- */
+.spinner-wrap { display: flex; justify-content: center; padding: 40px 0; }
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--gris-borde);
+  border-top-color: var(--verde);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ---- TABLA ---- */
+.tabla-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  background: var(--verde-fondo);
+  color: var(--verde-oscuro);
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--verde-claro);
+}
+td { padding: 10px 12px; border-bottom: 1px solid var(--gris-borde); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--verde-fondo); }
+
+/* ---- STOCK ---- */
+.stock-ok    { color: var(--verde-claro); font-weight: 700; }
+.stock-bajo  { color: var(--rojo);        font-weight: 700; }
+.stock-medio { color: var(--amarillo);    font-weight: 700; }
+
+/* ---- SECCION TITULO ---- */
+.seccion-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gris-medio);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin: 20px 0 10px;
+}
+
+/* ════════════════════════════════════
+   CLASES DE ANIMACIÓN REUTILIZABLES
+   ════════════════════════════════════ */
+
+/* Entrada en cascada para grids dinámicos — aplicar por JS */
+.anim-cascade {
+  opacity: 0;
+  animation: cardCascade 0.4s var(--ease-spring) both;
+}
+
+/* Clase para trigger desde JS */
+.anim-page-in {
+  animation: pageSlideUp 0.45s var(--ease-out) both;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 400px) {
+  .topbar h1 { font-size: 16px; }
+  .container { padding: 14px 12px 32px; }
+  .card { padding: 16px; }
+}

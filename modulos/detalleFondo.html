@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>CONTECS — Detalle Fondo</title>
+	<link rel="stylesheet" href="../css/styles.css"/>
+	<style>
+		.kpi-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 10px;
+			margin-bottom: 14px;
+		}
+		.kpi-item {
+			background: #fff;
+			border-radius: 12px;
+			padding: 14px;
+			box-shadow: var(--sombra-sm);
+			border-left: 3px solid var(--verde-claro);
+		}
+		.kpi-item .lbl {
+			font-size: 11px;
+			color: var(--gris-medio);
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
+			margin-bottom: 4px;
+		}
+		.kpi-item .val {
+			font-size: 24px;
+			font-weight: 800;
+			color: var(--verde-oscuro);
+		}
+		.kpi-item.ingresos .val { color: var(--verde); }
+		.kpi-item.egresos .val { color: var(--rojo); }
+
+		.filtros-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 10px;
+			margin-bottom: 14px;
+		}
+		.filtros-acciones {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.tabla-contable-wrap {
+			overflow-x: auto;
+			border-radius: 12px;
+			box-shadow: var(--sombra-sm);
+			background: #fff;
+		}
+		.tabla-contable {
+			width: 100%;
+			border-collapse: collapse;
+			min-width: 900px;
+			font-size: 14px;
+		}
+		.tabla-contable th {
+			background: var(--verde-fondo);
+			color: var(--verde-oscuro);
+			text-align: left;
+			padding: 10px 12px;
+			border-bottom: 2px solid var(--verde-claro);
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.4px;
+		}
+		.tabla-contable td {
+			padding: 10px 12px;
+			border-bottom: 1px solid var(--gris-borde);
+			vertical-align: top;
+		}
+		.tabla-contable tr:hover td { background: #f9fcfa; }
+		.col-fecha { white-space: nowrap; font-size: 12px; color: var(--gris-medio); }
+		.col-mov { font-weight: 700; color: var(--gris-texto); }
+		.col-usuario { color: var(--gris-texto); }
+		.col-ingreso { color: var(--verde); font-weight: 800; text-align: right; }
+		.col-egreso { color: var(--rojo); font-weight: 800; text-align: right; }
+		.col-tipo { font-size: 12px; color: var(--gris-medio); }
+		.th-right { text-align: right; }
+		.estado-cargando {
+			text-align: center;
+			color: var(--gris-medio);
+			padding: 20px;
+		}
+
+		.fila-totales td {
+			font-weight: 800;
+			background: #f2faf5;
+			border-top: 2px solid var(--verde-claro);
+			border-bottom: none;
+		}
+		.fila-totales .label-total { color: var(--verde-oscuro); }
+		.fila-totales .total-in { color: var(--verde); text-align: right; }
+		.fila-totales .total-out { color: var(--rojo); text-align: right; }
+
+		@media (min-width: 740px) {
+			.kpi-grid { grid-template-columns: repeat(3, 1fr); }
+			.filtros-grid { grid-template-columns: repeat(4, 1fr); }
+		}
+	</style>
+</head>
+<body>
+	<div class="topbar">
+		<h1>Detalle Fondo</h1>
+		<a href="fondos.html" class="topbar-link">← Volver</a>
+	</div>
+
+	<div class="container">
+		<div class="alerta alerta-error" id="detalle-error"></div>
+
+		<div class="card">
+			<div class="card-title">Resumen contable</div>
+			<div class="kpi-grid">
+				<div class="kpi-item">
+					<div class="lbl">Balance</div>
+					<div class="val" id="kpi-balance">USD 0.00</div>
+				</div>
+				<div class="kpi-item ingresos">
+					<div class="lbl">Ingresos filtrados</div>
+					<div class="val" id="kpi-ingresos">USD 0.00</div>
+				</div>
+				<div class="kpi-item egresos">
+					<div class="lbl">Egresos filtrados</div>
+					<div class="val" id="kpi-egresos">USD 0.00</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-title">Filtros</div>
+			<div class="filtros-grid">
+				<div class="form-group">
+					<label for="filtro-texto">Buscar</label>
+					<input id="filtro-texto" type="text" placeholder="Movimiento, usuario o referencia"/>
+				</div>
+				<div class="form-group">
+					<label for="filtro-tipo">Tipo</label>
+					<select id="filtro-tipo">
+						<option value="todos">Todos</option>
+						<option value="ingreso">Ingresos</option>
+						<option value="salida">Egresos</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="filtro-origen">Origen</label>
+					<select id="filtro-origen">
+						<option value="todos">Todos</option>
+						<option value="venta">Ventas</option>
+						<option value="compra">Compras</option>
+						<option value="manual">Manuales</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="filtro-usuario">Usuario</label>
+					<select id="filtro-usuario">
+						<option value="todos">Todos</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="filtro-desde">Desde</label>
+					<input id="filtro-desde" type="date"/>
+				</div>
+				<div class="form-group">
+					<label for="filtro-hasta">Hasta</label>
+					<input id="filtro-hasta" type="date"/>
+				</div>
+			</div>
+			<div class="filtros-acciones">
+				<button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-filtros">Limpiar filtros</button>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-title">Libro de movimientos</div>
+			<div class="tabla-contable-wrap">
+				<table class="tabla-contable" id="tabla-detalle-fondo">
+					<thead>
+						<tr>
+							<th>Fecha</th>
+							<th>Movimiento</th>
+							<th>Usuario</th>
+							<th>Origen</th>
+							<th>Referencia</th>
+							<th class="th-right">Ingresos</th>
+							<th class="th-right">Egresos</th>
+						</tr>
+					</thead>
+					<tbody id="detalle-body">
+						<tr>
+							<td colspan="7" class="estado-cargando">Cargando movimientos...</td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr class="fila-totales">
+							<td colspan="5" class="label-total">Totales</td>
+							<td class="total-in" id="total-ingresos">USD 0.00</td>
+							<td class="total-out" id="total-egresos">USD 0.00</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script type="module" src="../js/modulos/detalleFondo.js"></script>
+</body>
+</html>

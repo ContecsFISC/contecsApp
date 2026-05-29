@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Voluntarios</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <script src="../js/libs/qrcode.min.js"></script>
+  <script src="../js/libs/papaparse.min.js"></script>
+  <script src="../js/libs/xlsx.full.min.js"></script>
+  <script type="module">
+    import { guardRoute, requirePermiso } from "../js/core/auth.js";
+    guardRoute();
+    requirePermiso("gestionar_voluntarios");
+  </script>
+  <style>
+    :root {
+      --vol:        #0E6655;
+      --vol-medio:  #117A65;
+      --vol-claro:  #1ABC9C;
+      --vol-fondo:  #D1F2EB;
+      --vol-sombra: rgba(14, 102, 85, 0.20);
+    }
+    .topbar { background: linear-gradient(135deg, var(--vol) 0%, var(--vol-claro) 100%); box-shadow: 0 2px 12px var(--vol-sombra); }
+    .btn-primary { background: linear-gradient(135deg, var(--vol-medio) 0%, var(--vol-claro) 100%); box-shadow: 0 4px 12px var(--vol-sombra); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-outline { color: var(--vol); border-color: var(--vol); }
+    .btn-outline:hover { background: var(--vol-fondo); color: var(--vol); }
+    .card-title { color: var(--vol); }
+    .container { max-width: 960px; }
+
+    .tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:20px; background:#fff; border-radius:var(--radio); padding:6px; box-shadow:var(--sombra-sm); }
+    .tab-btn { flex:1; min-width:80px; padding:9px 10px; border:none; background:transparent; border-radius:var(--radio-sm); font-size:13px; font-weight:600; cursor:pointer; color:var(--gris-medio); transition:background 0.2s,color 0.2s; }
+    .tab-btn.active { background:var(--vol-claro); color:#fff; }
+    .tab-btn:hover:not(.active) { background:var(--vol-fondo); color:var(--vol); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
+    .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
+
+    .upload-zone { border:2px dashed var(--gris-borde); border-radius:var(--radio); padding:36px 20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
+    .upload-zone:hover,.upload-zone.dragover { border-color:var(--vol-claro); background:var(--vol-fondo); }
+    .upload-zone p { color:var(--gris-medio); font-size:14px; margin-top:8px; }
+
+    .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+    .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--vol-claro); }
+    .stat-mini .num { font-size:26px; font-weight:700; color:var(--vol); }
+    .stat-mini .lbl { font-size:12px; color:var(--gris-medio); margin-top:4px; }
+
+    .turno-tag { display:inline-flex; align-items:center; gap:6px; background:var(--vol-fondo); border:1px solid var(--vol-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--vol); }
+    .turno-tag button { background:none; border:none; cursor:pointer; color:#dc3545; font-size:15px; line-height:1; padding:0 2px; }
+
+    .firma-badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+    .firma-faltante { background:#fef3cd; color:#856404; border:1px solid #ffc107; }
+    .firma-aceptada { background:#d4edda; color:#155724; border:1px solid #28a745; }
+    .firma-select { font-size:12px; border:1.5px solid var(--gris-borde); border-radius:8px; padding:4px 8px; cursor:pointer; background:#fff; }
+
+    .horas-badge { display:inline-block; background:var(--vol-fondo); color:var(--vol); font-weight:700; padding:3px 10px; border-radius:12px; font-size:13px; }
+
+    .mapeo-table { width:100%; font-size:13px; margin-top:12px; }
+    .mapeo-table td { padding:6px 8px; border-bottom:1px solid var(--gris-borde); vertical-align:middle; }
+    .mapeo-table select { width:100%; padding:6px 8px; border:1.5px solid var(--vol-claro); border-radius:6px; font-size:13px; }
+
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:#fff; border-radius:16px; padding:28px 24px; max-width:420px; width:100%; position:relative; animation:modalBounceUp 0.35s var(--ease-spring,ease) both; max-height:90vh; overflow-y:auto; }
+    .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--gris-medio); }
+    .modal-title { font-size:16px; font-weight:700; color:var(--vol); margin-bottom:16px; }
+    #qr-canvas-wrap { display:flex; justify-content:center; margin:16px 0; }
+
+    @media(max-width:600px) {
+      .stats-grid { grid-template-columns:1fr 1fr; }
+      .tab-btn { font-size:11px; padding:8px 6px; min-width:60px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🤝 Voluntarios CONTECS</h1>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="lecturaQRVoluntarios.html" class="btn-qr-scan">📷 Escanear QR</a>
+    <a href="../dashboard.html" class="topbar-link">← Panel</a>
+  </div>
+</div>
+
+<div class="container anim-page-in">
+  <div id="alerta-global" class="alerta"></div>
+
+  <!-- ACTIVIDAD ACTIVA -->
+  <div class="card" style="margin-bottom:16px;border-left:3px solid var(--vol-claro);">
+    <div class="card-title">Actividad activa</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-groupE" style="flex:1;margin:0;">
+        <select id="sel-actividad"><option value="">— Selecciona una actividad —</option></select>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-nueva-actividad" style="width:auto">+ Nueva</button>
+    </div>
+    <div id="actividad-info" style="margin-top:8px;font-size:13px;color:var(--gris-medio);"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tab-actividades">📅 Actividades</button>
+    <button class="tab-btn" data-tab="tab-importar">📥 Importar</button>
+    <button class="tab-btn" data-tab="tab-voluntarios">🤝 Voluntarios</button>
+    <button class="tab-btn" data-tab="tab-asistencias">🕐 Asistencias</button>
+  </div>
+
+  <!-- TAB ACTIVIDADES -->
+  <div class="tab-panel active" id="tab-actividades">
+    <div class="card" style="border-left:3px solid var(--vol-claro);">
+      <div class="card-title" id="form-actividad-titulo">Crear nueva actividad</div>
+      <div class="form-groupE">
+        <label style="color:var(--vol)">Nombre de la actividad *</label>
+        <input type="text" id="act-nombre" placeholder="ej. Venta CONTECS — Lunes 1 junio 2026"/>
+      </div>
+      <div class="form-groupE">
+        <label style="color:var(--vol)">Descripción</label>
+        <textarea id="act-descripcion" rows="2" placeholder="Descripción breve"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-groupE">
+          <label style="color:var(--vol)">Fecha *</label>
+          <input type="date" id="act-fecha"/>
+        </div>
+        <div class="form-groupE">
+          <label style="color:var(--vol)">Área CONTECS *</label>
+          <select id="act-area">
+            <option value="">— Selecciona —</option>
+            <option>Ventas</option><option>Actividades</option><option>Patrocinios</option>
+            <option>Comunicaciones</option><option>Investigación</option><option>Giras</option><option>Finanzas</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-groupE">
+        <label style="color:var(--vol)">Turnos de la actividad</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
+          <input type="text" id="turno-nombre" placeholder="ej. Turno 1"/>
+          <input type="time" id="turno-inicio" title="Hora inicio"/>
+          <input type="time" id="turno-fin"    title="Hora fin"/>
+          <button class="btn btn-outline btn-sm" id="btn-add-turno" style="width:auto">+ Agregar</button>
+        </div>
+        <div id="turnos-lista" style="min-height:32px;"></div>
+        <small style="color:var(--gris-medio);font-size:12px;">Ej: Turno 1 — 09:00 a 13:00 · Turno 2 — 13:00 a 17:00</small>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-guardar-actividad" style="flex:1">Guardar actividad</button>
+        <button class="btn btn-outline btn-sm" id="btn-cancelar-actividad" style="width:auto;display:none">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--vol-claro);">
+      <div class="card-title">Actividades registradas</div>
+      <div class="tabla-wrap">
+        <table>
+          <thead><tr>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Nombre</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Fecha</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Área</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Turnos</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Estado</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)"></th>
+          </tr></thead>
+          <tbody id="tabla-actividades-body"><tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB IMPORTAR -->
+  <div class="tab-panel" id="tab-importar">
+    <div class="card" style="border:2px solid var(--vol-claro);">
+      <div class="card-title">Importar desde CSV / Excel</div>
+      <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
+        Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. El sistema detectará las columnas automáticamente.
+      </p>
+      <div class="upload-zone" id="upload-zone">
+        <div style="font-size:36px;">📂</div>
+        <p>Arrastra tu archivo CSV o Excel aquí<br/>o <strong>haz clic</strong> para seleccionar</p>
+        <input type="file" id="input-archivo" accept=".csv,.xlsx,.xls" style="display:none"/>
+      </div>
+      <div id="mapeo-section" style="display:none;margin-top:20px;">
+        <div class="card-title">Mapeo de columnas</div>
+        <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
+          Verifica que cada campo corresponda a la columna correcta. Los campos con ⚠️ no se detectaron automáticamente.
+        </p>
+        <table class="mapeo-table">
+          <thead><tr><th style="text-align:left;font-weight:600">Campo</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
+          <tbody id="mapeo-tbody"></tbody>
+        </table>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" id="btn-preview-importar" style="width:auto">👁 Vista previa</button>
+          <button class="btn btn-primary" id="btn-confirmar-importar" style="flex:1">⬇ Importar voluntarios</button>
+        </div>
+        <div id="importar-progreso" style="display:none;margin-top:12px;font-size:13px;color:var(--gris-medio);text-align:center;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB VOLUNTARIOS -->
+  <div class="tab-panel" id="tab-voluntarios">
+    <div class="stats-grid">
+      <div class="stat-mini"><div class="num" id="stat-total">—</div><div class="lbl">Total voluntarios</div></div>
+      <div class="stat-mini"><div class="num" id="stat-horas">—</div><div class="lbl">Horas totales</div></div>
+      <div class="stat-mini"><div class="num" id="stat-firmas">—</div><div class="lbl">Firmas aceptadas</div></div>
+    </div>
+    <div class="card" style="border:2px solid var(--vol-claro);">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+        <input type="text" id="buscar-voluntario" placeholder="🔍 Buscar nombre o cédula..." style="flex:1;padding:10px 14px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;"/>
+        <button class="btn btn-outline btn-sm" id="btn-exportar-excel" style="width:auto">📊 Exportar Excel</button>
+      </div>
+      <div class="tabla-wrap">
+        <table>
+          <thead><tr>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Nombre</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Cédula</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Área</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Horas</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Firma física</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)"></th>
+          </tr></thead>
+          <tbody id="tabla-voluntarios-body"></tbody>
+        </table>
+      </div>
+      <div id="voluntarios-spinner" class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- TAB ASISTENCIAS -->
+  <div class="tab-panel" id="tab-asistencias">
+    <div class="card" style="border-left:3px solid var(--vol-claro);margin-bottom:16px;">
+      <div class="card-title">Filtrar asistencias</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-groupE" style="margin:0;">
+          <label>Actividad</label>
+          <select id="filtro-actividad"><option value="">Todas las actividades</option></select>
+        </div>
+        <div class="form-groupE" style="margin:0;">
+          <label>Turno</label>
+          <select id="filtro-turno"><option value="">Todos los turnos</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border:2px solid var(--vol-claro);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div class="card-title" style="margin:0;">Registro de asistencias</div>
+        <button class="btn btn-outline btn-sm" id="btn-exportar-asistencias" style="width:auto">📊 Exportar Excel</button>
+      </div>
+      <div class="tabla-wrap">
+        <table>
+          <thead><tr>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Voluntario</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Actividad</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Turno</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Entrada</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Salida</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Horas</th>
+            <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Calificación</th>
+          </tr></thead>
+          <tbody id="tabla-asistencias-body"><tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">Selecciona una actividad para ver las asistencias</td></tr></tbody>
+        </table>
+      </div>
+      <div id="asistencias-spinner" class="spinner-wrap" style="display:none"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QR -->
+<div class="modal-overlay" id="modal-qr">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-qr-close">✕</button>
+    <div class="modal-title" id="qr-modal-nombre"></div>
+    <div id="qr-canvas-wrap"></div>
+    <p id="qr-modal-info" style="text-align:center;font-size:13px;color:var(--gris-medio);margin-bottom:16px;"></p>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary btn-sm" id="btn-descargar-qr" style="flex:1">⬇ Descargar</button>
+      <button class="btn btn-outline btn-sm" id="btn-copiar-qr" style="flex:1">📋 Copiar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PREVIEW IMPORTAR -->
+<div class="modal-overlay" id="modal-preview">
+  <div class="modal-box" style="max-width:720px;width:100%;">
+    <button class="modal-close" id="modal-preview-close">✕</button>
+    <div class="modal-title">Vista previa (primeras 5 filas)</div>
+    <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
+    <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
+      <table><thead id="preview-thead"></thead><tbody id="preview-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../js/modulos/voluntarios.js"></script>
+</body>
+</html>

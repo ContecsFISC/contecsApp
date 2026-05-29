@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Panel Principal</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    /* ── BIENVENIDA ── */
+    .bienvenida {
+      background: linear-gradient(135deg, #045223 0%, #00722e 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 22px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 28px rgba(4,82,35,0.30);
+      position: relative;
+      overflow: hidden;
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation-delay: 0.05s;
+    }
+    .bienvenida::after {
+      content: '🏛️';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 52px;
+      opacity: 0.12;
+    }
+    .bienvenida .saludo { font-size: 13px; opacity: 0.8; }
+    .bienvenida .nombre { font-size: 21px; font-weight: 700; margin: 3px 0 10px; }
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rol-pill {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .nivel-pill {
+      display: inline-block;
+      background: rgba(57,181,74,0.3);
+      border: 1px solid rgba(57,181,74,0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    /* ── MINI STATS ── */
+    .mini-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-left: 3px solid #39b54a;
+      animation: cardCascade 0.45s var(--ease-spring) both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.12s; }
+    .stat-card:nth-child(2) { animation-delay: 0.20s; }
+
+    .stat-label  { font-size: 12px; color: #8a9e8d; margin-bottom: 4px; }
+    .stat-valor  { font-size: 19px; font-weight: 700; color: #00722e; }
+    .stat-alerta { font-size: 19px; font-weight: 700; color: #c0392b; }
+    .stat-ok     { font-size: 15px; font-weight: 700; color: #39b54a; }
+
+    /* ── GRID DE MÓDULOS ── */
+    .grid-modulos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .modulo-btn {
+      background: #fff;
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      padding: 22px 14px 18px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 3px solid #39b54a;
+      /* Animación en cascada — se asigna delay por JS */
+      opacity: 0;
+      animation: cardCascade 0.42s var(--ease-spring) both;
+      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+    }
+    .modulo-btn:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 28px rgba(0,114,46,0.18);
+    }
+    .modulo-btn:active {
+      transform: scale(0.94) !important;
+      transition-duration: 0.08s;
+    }
+    .modulo-btn .icono { font-size: 30px; line-height: 1; }
+    .modulo-btn .label { font-size: 13px; font-weight: 600; color: #1a2e1e; line-height: 1.3; }
+    .modulo-btn.bloqueado {
+      opacity: 0.3 !important;
+      cursor: not-allowed;
+      pointer-events: none;
+      border-bottom-color: #d0dbd2;
+    }
+    .modulo-btn.mod-admin { border-bottom-color: #045223; }
+
+    /* ── SIN ROL ── */
+    .sin-rol-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-top: 4px solid #d4850a;
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation-delay: 0.1s;
+    }
+    .sin-rol-card .icono { font-size: 48px; margin-bottom: 12px; }
+    .sin-rol-card h3 { font-size: 17px; color: #1a2e1e; margin-bottom: 8px; }
+    .sin-rol-card p  { font-size: 14px; color: #8a9e8d; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>CONTECS</h1>
+    <button class="btn-logout" id="btn-logout">Salir</button>
+  </div>
+
+  <div class="container">
+    <div class="bienvenida">
+      <div class="saludo">Bienvenido,</div>
+      <div class="nombre" id="nombre-usuario">...</div>
+      <div class="pills">
+        <span class="rol-pill"  id="rol-label">...</span>
+        <span class="nivel-pill" id="nivel-label"></span>
+      </div>
+    </div>
+
+    <div id="contenido-principal"></div>
+  </div>
+
+  <script type="module">
+    import { guardRoute, getUsuarioActual, cerrarSesion } from "./js/core/auth.js";
+    import { tienePermiso, infoRol } from "./js/core/permisos.js";
+    import { db } from "./js/core/firebase-config.js";
+    import {
+      doc, getDoc, onSnapshot, collection, query, where
+    } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+    function manejarErrorSnapshot(error, contexto) {
+      if (error?.code === "permission-denied" || error?.code === "firestore/permission-denied") {
+        console.warn(`[Dashboard] Firestore denegó el listener en ${contexto}. Revisa las reglas de seguridad.`, error);
+        return;
+      }
+      console.error(`[Dashboard] Error en listener ${contexto}:`, error);
+    }
+
+    guardRoute();
+
+    const usuario = getUsuarioActual();
+    const rol     = usuario.rol || "sin_rol";
+    const info    = infoRol(rol);
+
+    document.getElementById("nombre-usuario").textContent = usuario.nombre || "Usuario";
+    document.getElementById("rol-label").textContent      = info.label || "Sin rol";
+    document.getElementById("nivel-label").textContent    = info.nivel ? `Nivel ${info.nivel}` : "";
+
+    const contenido = document.getElementById("contenido-principal");
+
+    if (rol === "sin_rol") {
+      contenido.innerHTML = `
+        <div class="sin-rol-card">
+          <div class="icono">⏳</div>
+          <h3>Acceso pendiente de activación</h3>
+          <p>Tu cuenta fue registrada correctamente.<br>Un administrador de CONTECS te asignará un rol — <strong>entrarás automáticamente</strong> en cuanto sea activado.</p>
+          <div style="margin-top:16px;">
+            <div class="spinner" style="margin:0 auto;"></div>
+            <p style="font-size:12px;color:#8a9e8d;margin-top:10px;">Esperando activación...</p>
+          </div>
+        </div>`;
+
+          const refreshRol = async () => {
+            try {
+              const snap = await getDoc(doc(db, "usuarios", usuario.uid));
+              if (!snap.exists()) return;
+              const nuevoRol = snap.data().rol || "sin_rol";
+              if (nuevoRol !== "sin_rol") {
+                sessionStorage.setItem("rol", nuevoRol);
+                window.location.reload();
+              }
+            } catch (error) {
+              manejarErrorSnapshot(error, "usuarios/{uid} refresh");
+            }
+          };
+
+          setInterval(refreshRol, 30000);
+          refreshRol();
+
+    } else {
+      // ── Stats ───────────────────────────────────────────────────────────────
+      const mostrarStats = tienePermiso(rol, "ver_fondos") || tienePermiso(rol, "ver_inventario");
+      if (mostrarStats) {
+        const statsEl = document.createElement("div");
+        statsEl.className = "mini-stats";
+        statsEl.style.marginBottom = "16px";
+        statsEl.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-label">🎉 CONTECS 2026 en...</div>
+            <div class="stat-valor" id="stat-fondo">Cargando...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⚠️ Stock bajo</div>
+            <div id="stat-alertas" class="stat-valor">${tienePermiso(rol,"ver_inventario") ? "Cargando..." : "—"}</div>
+          </div>`;
+        contenido.appendChild(statsEl);
+
+        // Cuenta regresiva dinámica al evento (19 de octubre de 2026)
+        const calcularCuentaRegresiva = () => {
+          const ahora = new Date();
+          const evento = new Date(2026, 9, 19, 0, 0, 0); // Octubre es mes 9 (0-indexed), a las 00:00:00
+          const diferencia = evento - ahora;
+          
+          const el = document.getElementById("stat-fondo");
+          
+          if (diferencia > 0) {
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+            
+            el.textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+            el.className = "stat-valor";
+          } else if (diferencia >= -86400000) { // Dentro de 24 horas después del evento
+            el.textContent = "¡Evento en curso!";
+            el.className = "stat-ok";
+          } else {
+            el.textContent = "Evento pasado";
+            el.className = "stat-alerta";
+          }
+        };
+        
+        calcularCuentaRegresiva();
+        // Actualizar cada segundo para que sea dinámico
+        setInterval(calcularCuentaRegresiva, 1000);
+
+        if (tienePermiso(rol, "ver_inventario")) {
+          onSnapshot(
+            query(collection(db, "productos"), where("activo","==",true)),
+            (snap) => {
+              let bajos = 0;
+              snap.forEach(d => { const p = d.data(); if ((p.stock??0) <= (p.alertaMinima??0)) bajos++; });
+              const el = document.getElementById("stat-alertas");
+              el.textContent = bajos === 0 ? "Todo OK" : `${bajos} producto${bajos>1?"s":""}`;
+              el.className   = bajos === 0 ? "stat-ok" : "stat-alerta";
+            },
+            (error) => {
+              const el = document.getElementById("stat-alertas");
+              el.textContent = "No disponible";
+              el.className = "stat-valor";
+              manejarErrorSnapshot(error, "productos activos");
+            }
+          );
+        }
+      }
+
+      // ── Módulos ─────────────────────────────────────────────────────────────
+      const MODULOS = [
+        { label: "Bitácora",         icono: "📋", href: "modulos/bitacora.html",   permiso: "ver_bitacora",       admin: false },
+        { label: "Inventario",       icono: "📦", href: "modulos/inventario.html", permiso: "ver_inventario",     admin: false },
+        { label: "Compras",          icono: "🛒", href: "modulos/compras2.html",    permiso: "registrar_compras",  admin: true  },
+        { label: "Ventas", icono: "🧾", href: "modulos/ventas2.html",     permiso: "registrar_ventas",   admin: false },
+        { label: "Catálogo",         icono: "🗂️", href: "modulos/catalogo.html",   permiso: "editar_catalogo",    admin: true  },
+        { label: "Reportes",         icono: "📈", href: "modulos/reportes.html",   permiso: "ver_reportes",       admin: false },        
+        { label: "Inscripciones",    icono: "🎓", href: "modulos/inscripciones.html", permiso: "gestionar_inscripciones", admin: true  },
+        { label: "Exportar",         icono: "📤", href: "modulos/exportar.html",   permiso: "exportar_datos",     admin: true  },
+        { label: "Voluntarios",       icono: "🤝", href: "modulos/voluntarios.html", permiso: "gestionar_voluntarios", admin: true  },
+        { label: "Usuarios",         icono: "👥", href: "modulos/usuarios.html",   permiso: "gestionar_usuarios", admin: true  },
+      ];
+
+      const tituloEl = document.createElement("div");
+      tituloEl.className = "seccion-titulo";
+      tituloEl.textContent = "Módulos disponibles";
+      contenido.appendChild(tituloEl);
+
+      const grid = document.createElement("div");
+      grid.className = "grid-modulos";
+
+      MODULOS.forEach((mod, idx) => {
+        const tiene = tienePermiso(rol, mod.permiso);
+        const a = document.createElement("a");
+        a.href = tiene ? mod.href : "#";
+        a.className = "modulo-btn" + (tiene ? (mod.admin ? " mod-admin" : "") : " bloqueado");
+        a.innerHTML = `<span class="icono">${mod.icono}</span><span class="label">${mod.label}</span>`;
+        // Delay escalonado para cascada
+        a.style.animationDelay = `${0.18 + idx * 0.06}s`;
+        grid.appendChild(a);
+      });
+
+      contenido.appendChild(grid);
+    }
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+  </script>
+</body>
+</html>
