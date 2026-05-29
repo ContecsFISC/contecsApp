@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Lectura de QR</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <script src="../js/libs/html5-qrcode.min.js"></script>
+  <script type="module">
+    import { guardRoute, requirePermiso } from "../js/core/auth.js";
+    guardRoute();
+    requirePermiso("gestionar_inscripciones");
+  </script>
+  <style>
+    /* ── Paleta CONTECS: verde institucional ── */
+    :root {
+      --eurus:        #045223;
+      --eurus-medio:  #00722e;
+      --eurus-claro:  #39b54a;
+      --eurus-fondo:  #e8f5ec;
+      --eurus-sombra: rgba(0, 114, 46, 0.20);
+    }
+
+    .container { max-width: 560px; }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--eurus) 0%, var(--eurus-claro) 100%);
+      box-shadow: 0 2px 12px var(--eurus-sombra);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--eurus-medio) 0%, var(--eurus-claro) 100%);
+      box-shadow: 0 4px 12px var(--eurus-sombra);
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-outline { color: var(--eurus); border-color: var(--eurus); }
+    .btn-outline:hover { background: var(--eurus-fondo); color: var(--eurus); }
+
+    .card-title { color: var(--eurus); }
+
+    #reader { width: 100%; border-radius: var(--radio); overflow: hidden; }
+
+    .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--eurus-claro); }
+    .info-nombre { font-size: 22px; font-weight: 700; color: var(--eurus); margin-bottom: 6px; }
+    .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
+    .info-fila strong { color: var(--gris-texto); }
+
+    .cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .cp-card { background: var(--eurus-fondo); border-radius: var(--radio-sm); padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--eurus); cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, background 0.2s; }
+    .cp-card:hover { border-color: var(--eurus-claro); }
+    .cp-card.selected { border-color: var(--eurus-claro); background: var(--eurus-claro); color: #fff; }
+    .cp-card.ya-marcado { background: var(--eurus-fondo); border-color: var(--eurus-claro); color: var(--eurus-medio); opacity: 0.7; cursor: default; }
+
+    .estado-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .estado-ok  { background: var(--eurus-fondo); color: var(--eurus); }
+    .estado-err { background: var(--rojo-fondo);  color: var(--rojo); }
+
+    #cp-seleccionado { color: var(--eurus); }
+
+    #log-recientes td { font-size: 12px; }
+
+    .scanner-overlay { position: relative; }
+    .scanner-overlay::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:200px; height:200px; border:3px solid var(--eurus-claro); border-radius:12px; pointer-events:none; box-shadow:0 0 0 9999px rgba(0,0,0,0.4); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>CONTECS — Lectura de QR</h1>
+  <a href="inscripciones.html" class="topbar-link">← Inscripciones</a>
+</div>
+
+<div class="container anim-page-in">
+
+  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+  <!-- SELECTOR EVENTO Y CHECKPOINT -->
+  <div class="card" style="border: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card-title">Configuración de sesión</div>
+    <div class="form-groupE">
+      <label>Evento</label>
+      <select id="sel-evento-qr"><option value="">— Selecciona un evento —</option></select>
+    </div>
+    <div class="form-groupE" id="cp-section" style="display:none;">
+      <label>Checkpoint que estás registrando ahora</label>
+      <div class="cp-grid" id="cp-grid"></div>
+    </div>
+    <div id="cp-seleccionado" style="font-size:13px;color:var(--eurus-medio);font-weight:600;margin-top:4px;"></div>
+  </div>
+
+  <!-- CÁMARA -->
+  <div class="card" style="border-left: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card-title">Escanear QR</div>
+    <div class="scanner-overlay">
+      <div id="reader"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn btn-primary" id="btn-iniciar" style="flex:1">▶ Iniciar cámara</button>
+      <button class="btn btn-outline btn-sm" id="btn-detener" style="width:auto;display:none">⏹ Detener</button>
+    </div>
+    <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">Apunta la cámara al QR del participante</p>
+  </div>
+
+  <!-- RESULTADO DEL ESCANEO -->
+  <div id="resultado-box" style="display:none;">
+    <div class="info-box" id="info-participante">
+      <div class="info-nombre" id="res-nombre"></div>
+      <div class="info-fila"><span>📧</span><strong id="res-correo"></strong></div>
+      <div class="info-fila"><span>🪪</span><strong id="res-cedula"></strong></div>
+      <div class="info-fila"><span>🏛</span><strong id="res-universidad"></strong></div>
+      <div class="info-fila"><span>🎓</span><strong id="res-carrera"></strong></div>
+      <div style="margin-top:14px;">
+        <span id="res-estado-badge" class="estado-badge"></span>
+      </div>
+      <div id="res-asistencias-actuales" style="margin-top:10px;font-size:13px;color:var(--gris-medio);"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-confirmar-asistencia" style="flex:1">✅ Confirmar asistencia</button>
+        <button class="btn btn-outline btn-sm" id="btn-cancelar-scan" style="width:auto">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG DE ÚLTIMOS ESCANEOS -->
+  <div class="card" style="margin-top:20px;border: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card-title">Últimos registros de esta sesión</div>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Nombre</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Checkpoint</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Hora</th></tr></thead>
+        <tbody id="log-recientes"><tr><td colspan="3" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="../js/modulos/lecturaQR.js"></script>
+</body>
+</html>
