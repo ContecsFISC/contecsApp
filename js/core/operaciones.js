@@ -194,6 +194,12 @@ export function formatearMoneda(valor) {
   });
 }
 
+export function resumenItemPrincipal(items) {
+  if (!Array.isArray(items) || items.length === 0) return "Movimiento";
+  if (items.length === 1) return items[0].nombre || "Movimiento";
+  return `${items[0].nombre || "Movimiento"} +${items.length - 1} más`;
+}
+
 export async function registrarVenta({ usuarioId, usuarioNombre = "", items, metodoPago = "efectivo", nota = "" }) {
   if (!usuarioId) throw new Error("No se pudo identificar al usuario.");
   if (!Array.isArray(items) || items.length === 0) throw new Error("Agrega al menos un producto.");

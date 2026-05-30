@@ -570,7 +570,7 @@ Firebase Storage (contects-54be8.firebasestorage.app)
 - Migración del proyecto Firebase a cuenta oficial de CONTECS
 - Pruebas completas de integración entre módulos
 
-### 8.2 Archivos que Maria NO modificó
+### 8.2 Archivos que NO se modificó
 
 Los siguientes archivos se mantienen tal como fueron recibidos:
 - `index.html` — Página de login

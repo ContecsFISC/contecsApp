@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -12,19 +12,12 @@
     requirePermiso("gestionar_voluntarios");
   </script>
   <style>
-    :root {
-      --vol:        #0E6655;
-      --vol-medio:  #117A65;
-      --vol-claro:  #1ABC9C;
-      --vol-fondo:  #D1F2EB;
-      --vol-sombra: rgba(14, 102, 85, 0.20);
-    }
-    .topbar { background: linear-gradient(135deg, var(--vol) 0%, var(--vol-claro) 100%); box-shadow: 0 2px 12px var(--vol-sombra); }
-    .btn-primary { background: linear-gradient(135deg, var(--vol-medio) 0%, var(--vol-claro) 100%); box-shadow: 0 4px 12px var(--vol-sombra); }
+    .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+    .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
     .btn-primary:hover { opacity: 0.88; }
-    .btn-outline { color: var(--vol); border-color: var(--vol); }
-    .btn-outline:hover { background: var(--vol-fondo); color: var(--vol); }
-    .card-title { color: var(--vol); }
+    .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+    .btn-outline:hover { background: var(--verde-fondo); color: var(--verde-oscuro); }
+    .card-title { color: var(--verde-oscuro); }
     .container { max-width: 560px; }
 
     #reader { width: 100%; border-radius: var(--radio); overflow: hidden; }
@@ -34,21 +27,21 @@
       content: ''; position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       width: 200px; height: 200px;
-      border: 3px solid var(--vol-claro); border-radius: 12px;
+      border: 3px solid var(--verde-claro); border-radius: 12px;
       pointer-events: none;
       box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
     }
 
-    .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--vol-claro); }
-    .info-nombre { font-size: 22px; font-weight: 700; color: var(--vol); margin-bottom: 6px; }
+    .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
+    .info-nombre { font-size: 22px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 6px; }
     .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
     .info-fila strong { color: var(--gris-texto); }
 
     .estado-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-    .estado-entrada  { background: var(--vol-fondo); color: var(--vol); }
-    .estado-salida   { background: #fff3cd; color: #856404; }
-    .estado-completo { background: #d4edda; color: #155724; }
-    .estado-err      { background: #f8d7da; color: #721c24; }
+    .estado-entrada  { background: var(--verde-fondo);    color: var(--verde-oscuro); }
+    .estado-salida   { background: var(--amarillo-fondo); color: var(--amarillo); }
+    .estado-completo { background: var(--verde-fondo);    color: var(--verde-oscuro); }
+    .estado-err      { background: var(--rojo-fondo);     color: var(--rojo); }
 
     .rating-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-top: 12px; }
     .rating-btn {
@@ -56,12 +49,12 @@
       border-radius: var(--radio-sm); cursor: pointer; font-size: 11px; font-weight: 600;
       color: var(--gris-medio); text-align: center; transition: all 0.15s; line-height: 1.4;
     }
-    .rating-btn:hover { border-color: var(--vol-claro); background: var(--vol-fondo); color: var(--vol); }
-    .rating-btn.selected { border-color: var(--vol-claro); background: var(--vol-claro); color: #fff; }
+    .rating-btn:hover { border-color: var(--verde-claro); background: var(--verde-fondo); color: var(--verde-oscuro); }
+    .rating-btn.selected { border-color: var(--verde-claro); background: var(--verde-claro); color: #fff; }
 
     #log-recientes td { font-size: 12px; }
-    .log-entrada { color: var(--vol); font-weight: 600; }
-    .log-salida  { color: #856404; font-weight: 600; }
+    .log-entrada { color: var(--verde-oscuro); font-weight: 600; }
+    .log-salida  { color: var(--amarillo);     font-weight: 600; }
   </style>
 </head>
 <body>
@@ -75,7 +68,7 @@
   <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
   <!-- CONFIGURACIÓN SESIÓN -->
-  <div class="card" style="border:2px solid var(--vol-claro);">
+  <div class="card" style="border:2px solid var(--verde-claro);">
     <div class="card-title">Configuración de sesión</div>
     <div class="form-groupE">
       <label>Actividad</label>
@@ -85,11 +78,11 @@
       <label>Turno</label>
       <div id="turnos-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"></div>
     </div>
-    <div id="sesion-activa" style="font-size:13px;color:var(--vol-medio);font-weight:600;margin-top:4px;"></div>
+    <div id="sesion-activa" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
   </div>
 
   <!-- CÁMARA -->
-  <div class="card" style="border-left:2px solid var(--vol-claro);">
+  <div class="card" style="border-left:2px solid var(--verde-claro);">
     <div class="card-title">Escanear QR del voluntario</div>
     <div class="scanner-overlay">
       <div id="reader"></div>
@@ -119,7 +112,7 @@
 
       <!-- Sección de rating (solo visible en SALIDA) -->
       <div id="rating-section" style="display:none;">
-        <div style="font-size:14px;font-weight:600;color:var(--vol);margin-top:16px;margin-bottom:6px;">
+        <div style="font-size:14px;font-weight:600;color:var(--verde-oscuro);margin-top:16px;margin-bottom:6px;">
           Califica la participación del voluntario:
         </div>
         <div class="rating-grid" id="rating-grid">
@@ -139,16 +132,16 @@
   </div>
 
   <!-- LOG SESIÓN -->
-  <div class="card" style="margin-top:20px;border:2px solid var(--vol-claro);">
+  <div class="card" style="margin-top:20px;border:2px solid var(--verde-claro);">
     <div class="card-title">Últimos registros de esta sesión</div>
     <div class="tabla-wrap">
       <table>
         <thead><tr>
-          <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Voluntario</th>
-          <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Tipo</th>
-          <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Turno</th>
-          <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Hora</th>
-          <th style="color:var(--vol);border-bottom:2px solid var(--vol-claro)">Horas</th>
+          <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Voluntario</th>
+          <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Tipo</th>
+          <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Turno</th>
+          <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Hora</th>
+          <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horas</th>
         </tr></thead>
         <tbody id="log-recientes"><tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
       </table>

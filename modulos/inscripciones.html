@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -15,73 +15,62 @@
     requirePermiso("gestionar_inscripciones");
   </script>
   <style>
-    /* ── Paleta CONTECS: verde institucional ── */
-    :root {
-      --eurus:        #045223;
-      --eurus-medio:  #00722e;
-      --eurus-claro:  #39b54a;
-      --eurus-fondo:  #e8f5ec;
-      --eurus-sombra: rgba(0, 114, 46, 0.20);
-    }
-
     .container { max-width: 960px; }
 
     .topbar {
-      background: linear-gradient(135deg, var(--eurus) 0%, var(--eurus-claro) 100%);
-      box-shadow: 0 2px 12px var(--eurus-sombra);
+      background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%);
+      box-shadow: 0 2px 12px var(--verde-sombra);
     }
 
-    /* Botones primarios con color EURUS */
     .btn-primary {
-      background: linear-gradient(135deg, var(--eurus-medio) 0%, var(--eurus-claro) 100%);
-      box-shadow: 0 4px 12px var(--eurus-sombra);
+      background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
+      box-shadow: 0 4px 12px var(--verde-sombra);
     }
     .btn-primary:hover { opacity: 0.88; }
-    .btn-outline { color: var(--eurus); border-color: var(--eurus); }
-    .btn-outline:hover { background: var(--eurus-fondo); color: var(--eurus); }
+    .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+    .btn-outline:hover { background: var(--verde-fondo); color: var(--verde-oscuro); }
 
     .tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:20px; background:#fff; border-radius:var(--radio); padding:6px; box-shadow:var(--sombra-sm); }
     .tab-btn { flex:1; min-width:90px; padding:9px 10px; border:none; background:transparent; border-radius:var(--radio-sm); font-size:13px; font-weight:600; cursor:pointer; color:var(--gris-medio); transition:background 0.2s,color 0.2s; }
-    .tab-btn.active { background:var(--eurus-claro); color:#fff; }
-    .tab-btn:hover:not(.active) { background:var(--eurus-fondo); color:var(--eurus); }
+    .tab-btn.active { background:var(--verde-claro); color:#fff; }
+    .tab-btn:hover:not(.active) { background:var(--verde-fondo); color:var(--verde-oscuro); }
     .tab-panel { display:none; }
     .tab-panel.active { display:block; }
 
     .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
     .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
 
-    .checkpoint-tag { display:inline-flex; align-items:center; gap:6px; background:var(--eurus-fondo); border:1px solid var(--eurus-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--eurus); }
+    .checkpoint-tag { display:inline-flex; align-items:center; gap:6px; background:var(--verde-fondo); border:1px solid var(--verde-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--verde-oscuro); }
     .checkpoint-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
 
     .upload-zone { border:2px dashed var(--gris-borde); border-radius:var(--radio); padding:36px 20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
-    .upload-zone:hover,.upload-zone.dragover { border-color:var(--eurus-claro); background:var(--eurus-fondo); }
+    .upload-zone:hover,.upload-zone.dragover { border-color:var(--verde-claro); background:var(--verde-fondo); }
     .upload-zone p { color:var(--gris-medio); font-size:14px; margin-top:8px; }
 
-    .tabla-asistencia th,.tabla-asistencia td { font-size:12px; padding:8px 10px; text-align:center; white-space:nowrap; color:var(--eurus-claro); }
-    .tabla-asistencia th { background:var(--eurus-fondo); color:var(--eurus);border-bottom: 2px solid var(--eurus); }
-    .tabla-asistencia th:first-child,.tabla-asistencia td:first-child { text-align:left; min-width:140px; position:sticky; left:0; background:#fff; color:var(--eurus);}
-    .tabla-asistencia th:first-child { background:var(--eurus-fondo); color:var(--eurus);border-bottom: 2px solid var(--eurus); }
-    .asistio { color:var(--eurus-claro); font-size:18px; }
+    .tabla-asistencia th,.tabla-asistencia td { font-size:12px; padding:8px 10px; text-align:center; white-space:nowrap; color:var(--verde-claro); }
+    .tabla-asistencia th { background:var(--verde-fondo); color:var(--verde-oscuro); border-bottom:2px solid var(--verde-oscuro); }
+    .tabla-asistencia th:first-child,.tabla-asistencia td:first-child { text-align:left; min-width:140px; position:sticky; left:0; background:#fff; color:var(--verde-oscuro); }
+    .tabla-asistencia th:first-child { background:var(--verde-fondo); color:var(--verde-oscuro); border-bottom:2px solid var(--verde-oscuro); }
+    .asistio { color:var(--verde-claro); font-size:18px; }
     .no-asistio { color:var(--gris-borde); font-size:16px; }
 
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
     .modal-overlay.open { display:flex; }
     .modal-box { background:#fff; border-radius:var(--radio-lg); padding:28px 24px; max-width:400px; width:100%; position:relative; animation:modalBounceUp 0.35s var(--ease-spring) both; max-height:90vh; overflow-y:auto; }
     .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--gris-medio); }
-    .modal-title { font-size:16px; font-weight:700; color:var(--eurus); margin-bottom:16px; }
+    .modal-title { font-size:16px; font-weight:700; color:var(--verde-oscuro); margin-bottom:16px; }
     #qr-canvas-wrap { display:flex; justify-content:center; margin:16px 0; }
 
     .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
-    .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--eurus-claro); }
-    .stat-mini .num { font-size:26px; font-weight:700; color:var(--eurus); }
+    .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--verde-claro); }
+    .stat-mini .num { font-size:26px; font-weight:700; color:var(--verde-oscuro); }
     .stat-mini .lbl { font-size:12px; color:var(--gris-medio); margin-top:4px; }
 
     .mapeo-table { width:100%; font-size:13px; margin-top:12px; }
     .mapeo-table td { padding:6px 8px; border-bottom:1px solid var(--gris-borde); vertical-align:middle; }
-    .mapeo-table select { width:100%; padding:6px 8px; border:1.5px solid var(--eurus-claro); border-radius:6px; font-size:13px; }
+    .mapeo-table select { width:100%; padding:6px 8px; border:1.5px solid var(--verde-claro); border-radius:6px; font-size:13px; }
 
-    /* Card title con acento EURUS */
-    .card-title { color: var(--eurus); }
+    .card-title { color: var(--verde-oscuro); }
 
     @media(max-width:600px) {
       .stats-grid { grid-template-columns:1fr 1fr; }
@@ -105,7 +94,7 @@
   <div id="alerta-global" class="alerta"></div>
 
   <!-- SELECTOR EVENTO ACTIVO -->
-  <div class="card" style="margin-bottom:16px; border-left: 3px solid var(--eurus-claro);">
+  <div class="card" style="margin-bottom:16px; border-left: 3px solid var(--verde-claro);">
     <div class="card-title">Evento activo</div>
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
       <div class="form-groupE" style="flex:1;margin:0;">
@@ -127,33 +116,33 @@
 
   <!-- TAB EVENTO -->
   <div class="tab-panel active" id="tab-evento">
-    <div class="card" style="border-left: 3px solid var(--eurus-claro);">
+    <div class="card" style="border-left: 3px solid var(--verde-claro);">
       <div class="card-title" id="form-evento-titulo">Crear nuevo evento</div>
       <div class="form-groupE">
-        <label style="color:var(--eurus)">Nombre del evento *</label>
-        <input type="text" id="ev-nombre" placeholder="ej. EURUS 2026"/>
+        <label style="color:var(--verde-oscuro)">Nombre del evento *</label>
+        <input type="text" id="ev-nombre" placeholder="ej. Conferencia Magistral"/>
       </div>
       <div class="form-groupE">
-        <label style="color:var(--eurus)">Descripción</label>
+        <label style="color:var(--verde-oscuro)">Descripción</label>
         <textarea id="ev-descripcion" rows="2" placeholder="Descripción breve"></textarea>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-groupE">
-          <label style="color:var(--eurus)">Fecha inicio *</label>
+          <label style="color:var(--verde-oscuro)">Fecha inicio *</label>
           <input type="date" id="ev-fecha-inicio"/>
         </div>
         <div class="form-groupE">
-          <label style="color:var(--eurus)">Fecha fin *</label>
+          <label style="color:var(--verde-oscuro)">Fecha fin *</label>
           <input type="date" id="ev-fecha-fin"/>
         </div>
       </div>
       <div class="form-groupE">
-        <label style="color:var(--eurus)">Mínimo de checkpoints para certificado *</label>
+        <label style="color:var(--verde-oscuro)">Mínimo de checkpoints para certificado *</label>
         <input type="number" id="ev-min-cert" min="1" value="3"/>
         <small style="color:var(--gris-medio);font-size:12px;">Ej: si el evento tiene 5 momentos y pones 3, el participante necesita 3 para recibir certificado.</small>
       </div>
       <div class="form-groupE">
-        <label style="color:var(--eurus)">Checkpoints del evento (momentos donde se escanea el QR)</label>
+        <label style="color:var(--verde-oscuro)">Checkpoints del evento (momentos donde se escanea el QR)</label>
         <div style="display:flex;gap:8px;">
           <input type="text" id="cp-nombre-input" placeholder="ej. Conferencia Magistral" style="flex:1"/>
           <button class="btn btn-outline btn-sm" id="btn-add-checkpoint" style="width:auto">+ Agregar</button>
@@ -166,11 +155,17 @@
       </div>
     </div>
 
-    <div class="card" style="border-left: 3px solid var(--eurus-claro);">
+    <div class="card" style="border-left: 3px solid var(--verde-claro);">
       <div class="card-title">Eventos registrados</div>
       <div class="tabla-wrap">
         <table>
-          <thead><tr><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus)">Nombre</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus)">Fecha inicio</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus)">Checkpoints</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus)">Min. cert.</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus)"></th></tr></thead>
+          <thead><tr>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Nombre</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Fecha inicio</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Checkpoints</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Min. cert.</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)"></th>
+          </tr></thead>
           <tbody id="tabla-eventos-body"><tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
         </table>
       </div>
@@ -179,7 +174,7 @@
 
   <!-- TAB IMPORTAR -->
   <div class="tab-panel" id="tab-importar">
-    <div class="card" style="border: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card" style="border: 2px solid var(--verde-claro);">
       <div class="card-title">Importar desde CSV / Excel</div>
       <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
         Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. El sistema intentará detectar las columnas automáticamente.
@@ -192,10 +187,10 @@
       <div id="mapeo-section" style="display:none;margin-top:20px;">
         <div class="card-title">Mapeo de columnas</div>
         <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
-          Verifica que cada campo EURUS corresponda a la columna correcta del archivo. Los campos marcados con ⚠️ no se detectaron automáticamente.
+          Verifica que cada campo corresponda a la columna correcta del archivo. Los campos marcados con ⚠️ no se detectaron automáticamente.
         </p>
         <table class="mapeo-table">
-          <thead><tr><th style="text-align:left;font-weight:600">Campo EURUS</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
+          <thead><tr><th style="text-align:left;font-weight:600">Campo contecs</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
           <tbody id="mapeo-tbody"></tbody>
         </table>
         <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -214,14 +209,21 @@
       <div class="stat-mini"><div class="num" id="stat-asistentes">—</div><div class="lbl">Con asistencia</div></div>
       <div class="stat-mini"><div class="num" id="stat-certificados">—</div><div class="lbl">Certificados</div></div>
     </div>
-    <div class="card" style="border: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card" style="border: 2px solid var(--verde-claro);">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
         <input type="text" id="buscar-participante" placeholder="🔍 Buscar nombre o correo..." style="flex:1;padding:10px 14px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;"/>
         <button class="btn btn-outline btn-sm" id="btn-gen-todos-qr" style="width:auto">📤 Exportar todos los QR</button>
       </div>
       <div class="tabla-wrap">
         <table>
-          <thead><tr><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Nombre</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Correo</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Universidad</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Asistencias</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Cert.</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);"></th></tr></thead>
+          <thead><tr>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Nombre</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Correo</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Universidad</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Asistencias</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cert.</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);"></th>
+          </tr></thead>
           <tbody id="tabla-participantes-body"></tbody>
         </table>
       </div>
@@ -231,13 +233,13 @@
 
   <!-- TAB ASISTENCIA -->
   <div class="tab-panel" id="tab-asistencia">
-    <div class="card" style="border: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card" style="border: 2px solid var(--verde-claro);">
       <div class="card-title">Matriz de asistencia</div>
-      <p style="font-size:13px;color:var(--eurus);margin-bottom:14px;">✅ = presente &nbsp;·&nbsp; — = ausente</p>
-      <div class="tabla-wrap" style="overflow-x:auto; color:var(--eurus);">
-        <table class="tabla-asistencia" style="color:var(--eurus);">
-          <thead id="asistencia-thead" style="border-bottom-right-radius: 2px solid var(--eurus-claro);color:var(--eurus);"></thead>
-          <tbody id="asistencia-tbody" style="color:var(--eurus);"></tbody>
+      <p style="font-size:13px;color:var(--verde-oscuro);margin-bottom:14px;">✅ = presente &nbsp;·&nbsp; — = ausente</p>
+      <div class="tabla-wrap" style="overflow-x:auto;">
+        <table class="tabla-asistencia">
+          <thead id="asistencia-thead"></thead>
+          <tbody id="asistencia-tbody"></tbody>
         </table>
       </div>
       <div id="asistencia-spinner" class="spinner-wrap"><div class="spinner"></div></div>
@@ -246,7 +248,7 @@
 
   <!-- TAB CERTIFICADOS -->
   <div class="tab-panel" id="tab-certificados">
-    <div class="card" style="border-left: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card" style="border-left: 2px solid var(--verde-claro);">
       <div class="card-title">Generar certificados</div>
       <p style="font-size:13px;color:var(--gris-medio);margin-bottom:14px;">Solo participantes que cumplieron el mínimo de checkpoints recibirán certificado.</p>
       <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
@@ -255,11 +257,17 @@
       </div>
       <button class="btn btn-primary" id="btn-gen-todos-cert">🏅 Generar todos los certificados</button>
     </div>
-    <div class="card" style="border-left: 2px solid var(--eurus-claro);color:var(--eurus);">
+    <div class="card" style="border-left: 2px solid var(--verde-claro);">
       <div class="card-title">Participantes elegibles</div>
       <div class="tabla-wrap">
         <table>
-          <thead><tr><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Nombre</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Cédula</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Universidad</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Asistencias</th><th style="border-bottom: 2px solid var(--eurus-claro);color:var(--eurus);">Cert.</th></tr></thead>
+          <thead><tr>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Nombre</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cédula</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Universidad</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Asistencias</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cert.</th>
+          </tr></thead>
           <tbody id="tabla-cert-body"></tbody>
         </table>
       </div>

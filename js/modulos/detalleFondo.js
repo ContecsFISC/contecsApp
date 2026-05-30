@@ -1,6 +1,6 @@
 ﻿import { guardRoute, requirePermiso } from "../core/auth.js";
 import { db } from "../core/firebase-config.js";
-import { formatearMoneda } from "../core/operaciones.js";
+import { formatearMoneda, resumenItemPrincipal } from "../core/operaciones.js";
 import {
   doc, getDoc, collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -38,12 +38,6 @@ function ocultarError() {
   errorEl.className = "alerta alerta-error";
   errorEl.style.display = "none";
   errorEl.textContent = "";
-}
-
-function resumenItemPrincipal(items) {
-  if (!Array.isArray(items) || items.length === 0) return "Movimiento";
-  if (items.length === 1) return items[0].nombre || "Movimiento";
-  return `${items[0].nombre || "Movimiento"} +${items.length - 1} más`;
 }
 
 function fechaTexto(ts) {

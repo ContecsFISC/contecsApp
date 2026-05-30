@@ -104,16 +104,16 @@ function renderTablaActividades() {
       <td>${fmtFecha(a.fecha)}</td>
       <td>${a.area || "—"}</td>
       <td>
-        ${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--vol-fondo);color:var(--vol);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`).join("") || "—"}
+        ${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`).join("") || "—"}
       </td>
       <td>
-        <span style="font-size:12px;background:${a.activo ? "var(--vol-fondo)" : "#f8f9fa"};color:${a.activo ? "var(--vol)" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
+        <span style="font-size:12px;background:${a.activo ? "var(--verde-fondo)" : "#f8f9fa"};color:${a.activo ? "var(--verde-oscuro)" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
           ${a.activo ? "Activa" : "Inactiva"}
         </span>
       </td>
       <td style="white-space:nowrap;">
         <button class="btn btn-outline btn-sm" onclick="editarActividad('${a.id}')" style="width:auto;margin-right:4px">✏️</button>
-        <button onclick="toggleActividad('${a.id}',${!!a.activo})" style="background:${a.activo?"#dc3545":"var(--vol-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
+        <button onclick="toggleActividad('${a.id}',${!!a.activo})" style="background:${a.activo?"var(--rojo)":"var(--verde-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${a.activo ? "Desactivar" : "Activar"}
         </button>
       </td>
@@ -468,7 +468,7 @@ window.verQR = function(id) {
     text:         id,
     width:        200,
     height:       200,
-    colorDark:    "#0E6655",
+    colorDark:    "#045223",
     colorLight:   "#ffffff",
     correctLevel: QRCode.CorrectLevel.H,
   });
@@ -571,7 +571,7 @@ function renderTablaAsistencias(lista) {
       <td>${nomAct}</td>
       <td>${nomTurno}</td>
       <td>${fmtHora(a.horaEntrada)}</td>
-      <td>${a.horaSalida ? fmtHora(a.horaSalida) : '<span style="color:var(--vol-claro);font-weight:600">En curso</span>'}</td>
+      <td>${a.horaSalida ? fmtHora(a.horaSalida) : '<span style="color:var(--verde-claro);font-weight:600">En curso</span>'}</td>
       <td><span class="horas-badge">${a.horasGanadas != null ? a.horasGanadas.toFixed(2) + "h" : "—"}</span></td>
       <td title="${ETIQUETAS[a.calificacion] || "Sin calificar"}">${ESTRELLAS[a.calificacion] || "—"}</td>
     </tr>`;

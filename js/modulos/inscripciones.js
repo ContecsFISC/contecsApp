@@ -3,7 +3,6 @@ import {
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc,
   query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { getUsuarioActual } from "../core/auth.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
@@ -53,7 +52,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 // ═══════════════════════════════════════════════════════════
 
 async function cargarEventos() {
-  const snap = await getDocs(query(collection(db, "eventos_eurus"), orderBy("creadoEn", "desc")));
+  const snap = await getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")));
   const eventos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderTablaEventos(eventos);
   renderSelectorEventos(eventos);
@@ -134,13 +133,13 @@ el("btn-guardar-evento").addEventListener("click", async () => {
   try {
     el("btn-guardar-evento").disabled = true;
     if (editandoEventoId) {
-      await updateDoc(doc(db, "eventos_eurus", editandoEventoId), datos);
+      await updateDoc(doc(db, "eventos", editandoEventoId), datos);
       mostrarAlerta("success", "Evento actualizado.");
       editandoEventoId = null;
     } else {
       datos.creadoEn  = serverTimestamp();
       datos.creadoPor = auth.currentUser?.uid || "";
-      await addDoc(collection(db, "eventos_eurus"), datos);
+      await addDoc(collection(db, "eventos"), datos);
       mostrarAlerta("success", "Evento creado.");
     }
     limpiarFormEvento();
@@ -166,7 +165,7 @@ function limpiarFormEvento() {
 }
 
 window._editarEvento = async id => {
-  const snap = await getDoc(doc(db, "eventos_eurus", id));
+  const snap = await getDoc(doc(db, "eventos", id));
   if (!snap.exists()) return;
   const ev = snap.data();
   editandoEventoId = id;
@@ -185,7 +184,7 @@ window._editarEvento = async id => {
 
 window._eliminarEvento = async id => {
   if (!confirm("¿Eliminar este evento? No se eliminarán los participantes.")) return;
-  await deleteDoc(doc(db, "eventos_eurus", id));
+  await deleteDoc(doc(db, "eventos", id));
   if (eventoActivo?.id === id) { eventoActivo = null; el("sel-evento").value = ""; }
   await cargarEventos();
 };
@@ -197,7 +196,7 @@ el("btn-nuevo-evento").addEventListener("click", () => { limpiarFormEvento(); do
 el("sel-evento").addEventListener("change", async () => {
   const id = el("sel-evento").value;
   if (!id) { eventoActivo = null; el("evento-info").textContent = ""; inscripciones = []; return; }
-  const snap = await getDoc(doc(db, "eventos_eurus", id));
+  const snap = await getDoc(doc(db, "eventos", id));
   if (!snap.exists()) return;
   eventoActivo = { id, ...snap.data() };
   const cps = (eventoActivo.checkpoints || []).map(c => c.nombre).join(" · ") || "Sin checkpoints";
@@ -212,7 +211,7 @@ el("sel-evento").addEventListener("change", async () => {
 async function cargarInscripciones() {
   if (!eventoActivo) { inscripciones = []; return; }
   el("participantes-spinner").style.display = "flex";
-  const snap = await getDocs(query(collection(db, "inscripciones_eurus"), where("eventoId", "==", eventoActivo.id)));
+  const snap = await getDocs(query(collection(db, "inscripciones"), where("eventoId", "==", eventoActivo.id)));
   inscripciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   el("participantes-spinner").style.display = "none";
 }
@@ -370,7 +369,7 @@ el("btn-confirmar-importar").addEventListener("click", async () => {
     const fallo = validarInscripcion(ins);
     if (fallo) { err++; continue; }
     try {
-      const ref = doc(collection(db, "inscripciones_eurus"));
+      const ref = doc(collection(db, "inscripciones"));
       await setDoc(ref, {
         ...ins,
         eventoId:    eventoActivo.id,
@@ -565,7 +564,7 @@ window._generarCertificado = async id => {
   if (!p || !eventoActivo) return;
   await emitirCertificado(p, eventoActivo);
   // Marcar como emitido en Firestore
-  await updateDoc(doc(db, "inscripciones_eurus", id), {
+  await updateDoc(doc(db, "inscripciones", id), {
     certificadoEmitido: true,
     certificadoEmitidoEn: serverTimestamp(),
   });
@@ -695,12 +694,6 @@ el("modal-preview-close").addEventListener("click", () => el("modal-preview").cl
 // INIT
 // ═══════════════════════════════════════════════════════════
 async function init() {
-  // Ajustar link "← Panel" según el rol del usuario
-  const usuario = getUsuarioActual();
-  const linkPanel = document.querySelector(".topbar-link");
-  if (linkPanel && usuario.rol === "eurus") {
-    linkPanel.href = "dashboardEurus.html";
-  }
   await cargarEventos();
 }
 init();

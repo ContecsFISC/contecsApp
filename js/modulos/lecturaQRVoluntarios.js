@@ -77,7 +77,7 @@ function renderTurnos() {
       data-id="${t.id}"
       data-nombre="${t.nombre} (${t.horaInicio}–${t.horaFin})"
       onclick="seleccionarTurno(this,'${t.id}','${t.nombre}','${t.horaInicio}','${t.horaFin}')"
-      style="background:var(--vol-fondo);border-radius:var(--radio-sm,8px);padding:10px 14px;font-size:13px;font-weight:600;color:var(--vol);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s,background 0.2s;"
+      style="background:var(--verde-fondo);border-radius:var(--radio-sm,8px);padding:10px 14px;font-size:13px;font-weight:600;color:var(--verde-oscuro);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s,background 0.2s;"
     >
       🕐 ${t.nombre}<br/><small style="font-weight:400">${t.horaInicio} – ${t.horaFin}</small>
     </div>`).join("");
@@ -86,10 +86,10 @@ function renderTurnos() {
 window.seleccionarTurno = function(card, id, nombre, horaInicio, horaFin) {
   document.querySelectorAll("[data-id]").forEach(c => {
     c.style.borderColor = "transparent";
-    c.style.background  = "var(--vol-fondo)";
+    c.style.background  = "var(--verde-fondo)";
   });
-  card.style.borderColor = "var(--vol-claro)";
-  card.style.background  = "var(--vol-claro)";
+  card.style.borderColor = "var(--verde-claro)";
+  card.style.background  = "var(--verde-claro)";
   card.style.color       = "#fff";
   turnoActivo = { id, nombre, horaInicio, horaFin };
   el("sesion-activa").textContent = `Sesión activa: ${actividadActiva.nombre} · ${nombre} (${horaInicio}–${horaFin})`;

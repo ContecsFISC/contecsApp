@@ -13,7 +13,6 @@ export const ROLES = {
   junta:          { label: "Junta Directiva",        nivel: 5, color: "#6C3483" },
   junta_principal: { label: "Junta Directiva_A",    nivel: 6, color: "#1a1a2e" },
   coordinador:    { label: "Coordinador",            nivel: 5, color: "#6C3483" },
-  eurus:          { label: "EURUS",      nivel: 3, color: "#154360" },
   finanzas:       { label: "Líder de Finanzas",      nivel: 5, color: "#6C3483" },
   logistica:      { label: "Líder de Logística",     nivel: 5, color: "#6C3483" },
   ventas:         { label: "Líder de Ventas",        nivel: 4, color: "#1A5276" },
@@ -42,7 +41,7 @@ export const PERMISOS = {
   aprobar_gastos:    ["junta_principal","ceo"],
   exportar_datos:    ["junta_principal","ceo"],
   gestionar_usuarios:   ["junta_principal","ceo"],
-  gestionar_inscripciones: ["eurus","ceo"],
+  gestionar_inscripciones: ["ceo"],
   gestionar_voluntarios:   ["junta_principal","voluntariado", "ceo"],
 };
 

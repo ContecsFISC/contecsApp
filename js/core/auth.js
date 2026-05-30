@@ -11,7 +11,7 @@ import {
 import { tienePermiso } from "./permisos.js";
 
 const provider = new GoogleAuthProvider();
-const PUBLIC_PAGES = ["index.html", "indexEurus.html", ""];
+const PUBLIC_PAGES = ["index.html"];
 
 function esErrorDePermisosFirestore(error) {
   return error?.code === "permission-denied" || error?.code === "firestore/permission-denied";
@@ -51,10 +51,9 @@ export function escucharCambiosDeRol(uid) {
     const rolNuevo   = data.rol || "sin_rol";
 
     if (rolActual !== rolNuevo) {
-      // El admin cambió el rol — actualizar y redirigir al dashboard correcto
       sessionStorage.setItem("rol",    rolNuevo);
       sessionStorage.setItem("nombre", data.nombre || sessionStorage.getItem("nombre"));
-      window.location.href = rolNuevo === "eurus" ? "dashboardEurus.html" : "dashboard.html";
+      window.location.href = "dashboard.html";
     }
   });
 }
@@ -67,18 +66,9 @@ export function guardRoute() {
         window.location.href = "index.html";
       } else if (user && PUBLIC_PAGES.includes(page)) {
         await cargarUsuario(user);
-        const rol = sessionStorage.getItem("rol");
-        window.location.href = rol === "eurus" ? "dashboardEurus.html" : "dashboard.html";
+        window.location.href = "dashboard.html";
       } else if (user && !PUBLIC_PAGES.includes(page)) {
-        // Ya autenticado en página protegida — verificar que esté en el dashboard correcto
-        const rol = sessionStorage.getItem("rol");
-        if (rol === "eurus" && page === "dashboard.html") {
-          window.location.href = "dashboardEurus.html";
-        } else if (rol && rol !== "eurus" && rol !== "sin_rol" && page === "dashboardEurus.html") {
-          window.location.href = "dashboard.html";
-        } else {
-          escucharCambiosDeRol(user.uid);
-        }
+        escucharCambiosDeRol(user.uid);
       }
     } catch (error) {
       manejarErrorAuth(error, "guardRoute/onAuthStateChanged");
@@ -147,10 +137,9 @@ export async function loginConGoogle() {
 }
 
 export async function cerrarSesion() {
-  const rol = sessionStorage.getItem("rol");
   sessionStorage.clear();
   await signOut(auth);
-  window.location.href = rol === "eurus" ? "indexEurus.html" : "index.html";
+  window.location.href = "index.html";
 }
 
 export function getUsuarioActual() {

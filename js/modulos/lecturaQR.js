@@ -23,7 +23,7 @@ function alerta(tipo, msg) {
 
 // ─── Cargar eventos ──────────────────────────────────────────────────────────
 async function cargarEventos() {
-  const snap = await getDocs(query(collection(db, "eventos_eurus"), orderBy("creadoEn", "desc")));
+  const snap = await getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")));
   const sel  = el("sel-evento-qr");
   snap.docs.forEach(d => {
     const ev  = d.data();
@@ -37,7 +37,7 @@ async function cargarEventos() {
 el("sel-evento-qr").addEventListener("change", async () => {
   const id = el("sel-evento-qr").value;
   if (!id) { eventoActivo = null; el("cp-section").style.display = "none"; return; }
-  const snap = await getDoc(doc(db, "eventos_eurus", id));
+  const snap = await getDoc(doc(db, "eventos", id));
   if (!snap.exists()) return;
   eventoActivo = { id, ...snap.data() };
   renderCheckpoints();
@@ -98,7 +98,7 @@ async function onScanExito(inscripcionId) {
   // Pausar scanner mientras se procesa
   await scanner.pause(true);
 
-  const snap = await getDoc(doc(db, "inscripciones_eurus", inscripcionId));
+  const snap = await getDoc(doc(db, "inscripciones", inscripcionId));
   if (!snap.exists()) {
     alerta("error", "QR no reconocido. Participante no encontrado.");
     await scanner.resume();
@@ -168,7 +168,7 @@ el("btn-confirmar-asistencia").addEventListener("click", async () => {
   const nuevoTotal = Object.keys(nuevaAsistencias).length;
 
   try {
-    await updateDoc(doc(db, "inscripciones_eurus", participanteSel.id), {
+    await updateDoc(doc(db, "inscripciones", participanteSel.id), {
       [`asistencias.${checkpointSel.id}`]: nuevaAsis,
       totalAsistencias: nuevoTotal,
       estado: "presente",
