@@ -187,6 +187,45 @@
     .stock-badge.entrada { background: var(--verde-fondo); color: var(--verde-oscuro); }
     .stock-badge.salida  { background: var(--rojo-fondo);  color: var(--rojo); }
 
+    /* ── RESUMEN FONDOS ── */
+    .fondos-resumen {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 800px) { .fondos-resumen { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .fondos-resumen { grid-template-columns: 1fr; } }
+    .fondos-stat {
+      background: #fff;
+      border: 1px solid #e0e7e3;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .fondos-stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8a9e8d;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+    .fondos-stat-valor {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .fondos-stat-valor.ingreso { color: var(--verde-oscuro); }
+    .fondos-stat-valor.egreso  { color: var(--rojo); }
+    .fondos-stat-valor.neutro  { color: var(--gris-texto); }
+    .fondos-seccion-titulo {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8a9e8d;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
     /* ── SPINNER SECCION ── */
     .tab-spinner {
       display: flex;
@@ -238,7 +277,7 @@
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
     import {
-      collection, query, orderBy, limit, onSnapshot
+      collection, query, orderBy, limit, onSnapshot, getDocs, where
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
     guardRoute();
@@ -424,7 +463,7 @@
             </div>
             <div class="bita-body">
               <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
-                <span class="stock-badge entrada">Ganancia total: ${utilidadFormateada(utilidadTotal)}</span>
+                <span class="stock-badge ${utilidadTotal >= 0 ? "entrada" : "salida"}">${utilidadTotal >= 0 ? "Ganancia total" : "Pérdida total"}: ${utilidadFormateada(utilidadTotal)}</span>
                 ${perdidaSinVender > 0 ? `<span class="stock-badge salida">Pérdida contemplada: ${formatearMoneda(perdidaSinVender)}</span>` : ""}
               </div>
               <table class="items-tabla">
@@ -547,18 +586,87 @@
     // ════════════════════════════════════════════════════════════════════════
     const contenedorFondos = document.getElementById("tab-fondos");
 
+    async function cargarResumenFondos() {
+      const el = document.getElementById("fondos-resumen-datos");
+      if (!el) return;
+      try {
+        const [snapFondos, snapProductos, snapVentas] = await Promise.all([
+          getDocs(collection(db, "fondos_entrada")),
+          getDocs(collection(db, "productos")),
+          getDocs(collection(db, "ventas"))
+        ]);
+
+        let totalCompras = 0, totalVentas = 0;
+        snapFondos.forEach(d => {
+          const f = d.data();
+          if (f.origen === "compra") totalCompras += numeroSeguro(f.monto);
+          if (f.origen === "venta")  totalVentas  += numeroSeguro(f.monto);
+        });
+
+        // utilidadTotal ya incluye merma sin vender como negativo — no restar perdidaTotal
+        let gananciaRealizada = 0;
+        snapVentas.forEach(d => {
+          gananciaRealizada += numeroSeguro(d.data().utilidadTotal);
+        });
+
+        let gananciaStock = 0;
+        snapProductos.forEach(d => {
+          const p = d.data();
+          if (p.activo === false) return;
+          const stock  = numeroSeguro(p.stock);
+          const costo  = numeroSeguro(p.precioCompra ?? p.ultimoCosto ?? 0);
+          const precio = numeroSeguro(p.precioVenta ?? 0);
+          if (stock > 0) gananciaStock += (precio - costo) * stock;
+        });
+
+        const fmtSig = (v) => `${v >= 0 ? "+" : "−"}${formatearMoneda(Math.abs(v))}`;
+
+        el.innerHTML = `
+          <div class="fondos-stat">
+            <div class="fondos-stat-label">Total de compras</div>
+            <div class="fondos-stat-valor egreso">−${formatearMoneda(totalCompras)}</div>
+          </div>
+          <div class="fondos-stat">
+            <div class="fondos-stat-label">Total de ventas</div>
+            <div class="fondos-stat-valor ingreso">+${formatearMoneda(totalVentas)}</div>
+          </div>
+          <div class="fondos-stat">
+            <div class="fondos-stat-label">Ganancia de ventas realizada</div>
+            <div class="fondos-stat-valor ${gananciaRealizada >= 0 ? "ingreso" : "egreso"}">
+              ${fmtSig(gananciaRealizada)}
+            </div>
+          </div>
+          <div class="fondos-stat">
+            <div class="fondos-stat-label">Ganancia en stock por vender</div>
+            <div class="fondos-stat-valor ${gananciaStock >= 0 ? "ingreso" : "egreso"}">
+              ${fmtSig(gananciaStock)}
+            </div>
+          </div>`;
+      } catch (e) {
+        console.error("Resumen fondos:", e);
+      }
+    }
+
     unsubs.fondos = onSnapshot(
       query(collection(db, "fondos_entrada"), orderBy("creadoEn", "desc"), limit(50)),
       (snap) => {
+        contenedorFondos.innerHTML = `
+          <div class="fondos-resumen" id="fondos-resumen-datos">
+            <div class="fondos-stat"><div class="fondos-stat-label">Cargando...</div></div>
+          </div>
+          <div class="fondos-seccion-titulo">HISTORIAL DE OPERACIONES</div>`;
+
+        cargarResumenFondos();
+
         if (snap.empty) {
-          contenedorFondos.innerHTML = `
+          contenedorFondos.insertAdjacentHTML("beforeend", `
             <div class="empty-state">
               <div class="emoji">💳</div>
               <p>No hay movimientos de fondos aún.</p>
-            </div>`;
+            </div>`);
           return;
         }
-        contenedorFondos.innerHTML = "";
+
         snap.forEach((docSnap, idx) => {
           const f = docSnap.data();
           const esIngreso = f.tipo === "ingreso";

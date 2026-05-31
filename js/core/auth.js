@@ -2,6 +2,7 @@ import { auth, db } from "./firebase-config.js";
 import {
   signInWithPopup,
   GoogleAuthProvider,
+  OAuthProvider,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
@@ -11,6 +12,7 @@ import {
 import { tienePermiso } from "./permisos.js";
 
 const provider = new GoogleAuthProvider();
+const microsoftProvider = new OAuthProvider("microsoft.com");
 const PUBLIC_PAGES = ["index.html"];
 
 function esErrorDePermisosFirestore(error) {
@@ -132,6 +134,17 @@ export async function loginConGoogle() {
     return result.user;
   } catch (error) {
     manejarErrorAuth(error, "loginConGoogle");
+    throw error;
+  }
+}
+
+export async function loginConMicrosoft() {
+  try {
+    const result = await signInWithPopup(auth, microsoftProvider);
+    await cargarUsuario(result.user);
+    return result.user;
+  } catch (error) {
+    manejarErrorAuth(error, "loginConMicrosoft");
     throw error;
   }
 }

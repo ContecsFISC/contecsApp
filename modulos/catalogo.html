@@ -438,7 +438,7 @@
             <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar">🗑️</button>
           </div>`;
 
-        import("./js/catalogo.js").then(({ escucharProductosPorCategoria }) => {
+        import("../js/modulos/catalogo.js").then(({ escucharProductosPorCategoria }) => {
           escucharProductosPorCategoria(cat.id, (prods) => {
             const countEl = document.getElementById(`count-${cat.id}`);
             if (countEl) {

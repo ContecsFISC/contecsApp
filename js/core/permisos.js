@@ -29,15 +29,20 @@ export const ROLES = {
 // Permisos por módulo
 // Cada permiso lista los roles que tienen acceso
 export const PERMISOS = {
+
+  ver_bitacora:      ["junta_principal","finanzas","ceo"],
   ver_inventario:    ["junta_principal", "junta", "ventas","ceo"],
+
   registrar_ventas:  ["junta_principal","junta","logistica", "ventas","ceo"],
   registrar_compras: ["junta_principal", "junta", "finanzas", "ventas","ceo"],
+
   ver_fondos:        ["junta_principal", "finanzas","ceo"],
   editar_fondos:     ["junta_principal", "finanzas","ceo"],
-  ver_bitacora:      ["junta_principal","finanzas","ceo"],
-  ver_reportes:      ["junta_principal","junta","finanzas","ceo"],
+  
+  ver_reportes:      ["junta_principal","finanzas","ceo"],
+
   editar_catalogo:   ["junta_principal", "ventas","ceo"],
-  ver_precios:       ["junta_principal","junta","finanzas","ventas","ceo"],
+  ver_precios:       ["junta_principal","finanzas","ventas","ceo"],
   aprobar_gastos:    ["junta_principal","ceo"],
   exportar_datos:    ["junta_principal","ceo"],
   gestionar_usuarios:   ["junta_principal","ceo"],

@@ -286,6 +286,7 @@
         { label: "Exportar",         icono: "📤", href: "modulos/exportar.html",   permiso: "exportar_datos",     admin: true  },
         { label: "Voluntarios",       icono: "🤝", href: "modulos/voluntarios.html", permiso: "gestionar_voluntarios", admin: true  },
         { label: "Usuarios",         icono: "👥", href: "modulos/usuarios.html",   permiso: "gestionar_usuarios", admin: true  },
+        { label: "Fondos",         icono: "🪙", href: "modulos/fondos.html",   permiso: "ver_fondos", admin: true  },
       ];
 
       const tituloEl = document.createElement("div");
@@ -296,13 +297,11 @@
       const grid = document.createElement("div");
       grid.className = "grid-modulos";
 
-      MODULOS.forEach((mod, idx) => {
-        const tiene = tienePermiso(rol, mod.permiso);
+      MODULOS.filter(mod => tienePermiso(rol, mod.permiso)).forEach((mod, idx) => {
         const a = document.createElement("a");
-        a.href = tiene ? mod.href : "#";
-        a.className = "modulo-btn" + (tiene ? (mod.admin ? " mod-admin" : "") : " bloqueado");
+        a.href = mod.href;
+        a.className = "modulo-btn" + (mod.admin ? " mod-admin" : "");
         a.innerHTML = `<span class="icono">${mod.icono}</span><span class="label">${mod.label}</span>`;
-        // Delay escalonado para cascada
         a.style.animationDelay = `${0.18 + idx * 0.06}s`;
         grid.appendChild(a);
       });

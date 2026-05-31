@@ -93,12 +93,6 @@ function crearMovimientoFondoRef() {
   return doc(collection(db, "fondos_entrada"));
 }
 
-function resumenItemPrincipal(items) {
-  if (!Array.isArray(items) || items.length === 0) return "Movimiento";
-  if (items.length === 1) return items[0].nombre || "Movimiento";
-  return `${items[0].nombre || "Movimiento"} +${items.length - 1} más`;
-}
-
 export async function esperarAuthListo(timeout = 10000) {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(), timeout);
