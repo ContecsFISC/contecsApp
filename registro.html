@@ -505,11 +505,11 @@
     <div class="card">
       <div class="card-title">Método de pago</div>
       <div class="pago-opciones">
-        <div class="pago-opcion" id="opt-transferencia" id="opt-pago-transferencia">
+        <div class="pago-opcion" id="opt-pago-transferencia">
           <div class="po-label">Transferencia</div>
           <div class="po-desc">Pago en línea / Yappy</div>
         </div>
-        <div class="pago-opcion" id="opt-efectivo" id="opt-pago-efectivo">
+        <div class="pago-opcion" id="opt-pago-efectivo">
           <div class="po-label">Efectivo</div>
           <div class="po-desc">El día del evento</div>
         </div>
@@ -792,14 +792,14 @@ el("btn-add-estudiante").addEventListener("click", agregarEstudiante);
 
 function agregarEstudiante() {
   contadorEstudiantes++;
-  const idx  = contadorEstudiantes;
+  const idx   = contadorEstudiantes;
   const lista = el("lista-estudiantes");
   const div   = document.createElement("div");
   div.className = "estudiante-item";
   div.id = `est-${idx}`;
   div.innerHTML = `
     <div class="estudiante-num">Estudiante ${idx}</div>
-    ${idx > 1 ? `<button class="btn-remove-estudiante" data-idx="${idx}">x</button>` : ""}
+    <button class="btn-remove-estudiante" data-idx="${idx}">x</button>
     <div class="form-row">
       <div class="form-group"><label>Nombre <span class="req">*</span></label><input type="text" id="est-${idx}-nombre" placeholder="Nombre"/></div>
       <div class="form-group"><label>Apellido <span class="req">*</span></label><input type="text" id="est-${idx}-apellido" placeholder="Apellido"/></div>
@@ -811,6 +811,7 @@ function agregarEstudiante() {
     <div class="form-row">
       <div class="form-group"><label>Grado <span class="req">*</span></label>
         <select id="est-${idx}-grado"><option value="">Selecciona</option>
+          <option>7mo grado</option><option>8vo grado</option><option>9no grado</option>
           <option>10mo grado</option><option>11mo grado</option><option>12mo grado</option>
         </select></div>
       <div class="form-group"><label>Bachiller <span class="req">*</span></label>
@@ -818,10 +819,25 @@ function agregarEstudiante() {
           ${BACHILLERES.map(b => `<option>${b}</option>`).join("")}
         </select></div>
     </div>`;
-  lista.appendChild(div);
-  // Bind remove button using event delegation
+  // Insertar al principio: el nuevo estudiante aparece arriba
+  lista.prepend(div);
+  actualizarNumerosEstudiantes();
+  // Bind boton eliminar
   const btn = div.querySelector(".btn-remove-estudiante");
-  if (btn) btn.addEventListener("click", () => div.remove());
+  if (btn) btn.addEventListener("click", () => { div.remove(); actualizarNumerosEstudiantes(); });
+  // Focus en nombre del nuevo estudiante
+  div.querySelector(`#est-${idx}-nombre`)?.focus();
+}
+
+function actualizarNumerosEstudiantes() {
+  // Los items en el DOM están en orden visual: el más nuevo (prepend) queda arriba.
+  // El número visual del de arriba = total de estudiantes, el de abajo = 1.
+  const items = Array.from(document.querySelectorAll(".estudiante-item"));
+  const total = items.length;
+  items.forEach((item, i) => {
+    const numEl = item.querySelector(".estudiante-num");
+    if (numEl) numEl.textContent = `Estudiante ${total - i}`;
+  });
 }
 
 function recogerEstudiantes() {
