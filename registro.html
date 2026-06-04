@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CONTECS 2026 — Inscripción</title>
+  <title>II CONTECS 2026 — Inscripción</title>
   <style>
     :root {
       --verde: #00722e;
@@ -380,8 +380,8 @@
       <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>
-  <h1>CONTECS 2026</h1>
-  <p>Congreso de Tecnología y Ciencias de la Computación</p>
+  <h1>II CONTECS 2026</h1>
+  <p>II Congreso de Tecnologías en Ciencias Computacionales</p>
   <span class="hero-badge">Universidad Tecnológica de Panamá · FISC</span>
 </div>
 
@@ -432,10 +432,10 @@
       <div class="card-title">Procedencia</div>
       <p class="colegio-pregunta">¿Perteneces a algún colegio?</p>
       <div class="colegio-opciones">
-        <div class="colegio-opt" id="opt-colegio-si" onclick="seleccionarColegio(true)">
+        <div class="colegio-opt" id="opt-colegio-si">
           <span class="opt-label">Si, pertenezco a un colegio</span>
         </div>
-        <div class="colegio-opt" id="opt-colegio-no" onclick="seleccionarColegio(false)">
+        <div class="colegio-opt" id="opt-colegio-no">
           <span class="opt-label">No, soy universitario / profesional</span>
         </div>
       </div>
@@ -468,7 +468,7 @@
         <div style="margin-top:8px;">
           <div class="estudiantes-header">
             <div class="estudiantes-titulo">Estudiantes del grupo</div>
-            <button class="btn-add-estudiante" onclick="agregarEstudiante()">+ Agregar estudiante</button>
+            <button class="btn-add-estudiante" id="btn-add-estudiante">+ Agregar estudiante</button>
           </div>
           <div id="lista-estudiantes"></div>
           <div class="estudiantes-nota">
@@ -505,11 +505,11 @@
     <div class="card">
       <div class="card-title">Método de pago</div>
       <div class="pago-opciones">
-        <div class="pago-opcion" id="opt-transferencia" onclick="seleccionarPago('transferencia')">
+        <div class="pago-opcion" id="opt-transferencia" id="opt-pago-transferencia">
           <div class="po-label">Transferencia</div>
           <div class="po-desc">Pago en línea / Yappy</div>
         </div>
-        <div class="pago-opcion" id="opt-efectivo" onclick="seleccionarPago('efectivo')">
+        <div class="pago-opcion" id="opt-efectivo" id="opt-pago-efectivo">
           <div class="po-label">Efectivo</div>
           <div class="po-desc">El día del evento</div>
         </div>
@@ -604,7 +604,7 @@
   </div>
 
   <div class="footer">
-    CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
+    II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026<br/>
     Universidad Tecnológica de Panamá · congresofisc@utp.ac.pa
   </div>
 </div>
@@ -910,20 +910,23 @@ window._selCat = function(id) {
 };
 
 // ─── TOGGLE COLEGIO ───────────────────────────────────────────────────────────
-window.seleccionarColegio = function(valor) {
+function seleccionarColegio(valor) {
   esColegio = valor;
-  el("opt-colegio-si").classList.toggle("seleccionado-si",  valor === true);
-  el("opt-colegio-si").classList.toggle("seleccionado-no",  false);
-  el("opt-colegio-no").classList.toggle("seleccionado-no",  valor === false);
-  el("opt-colegio-no").classList.toggle("seleccionado-si",  false);
+  el("opt-colegio-si").classList.toggle("seleccionado-si", valor === true);
+  el("opt-colegio-si").classList.toggle("seleccionado-no", false);
+  el("opt-colegio-no").classList.toggle("seleccionado-no", valor === false);
+  el("opt-colegio-no").classList.toggle("seleccionado-si", false);
   el("tutor-campos").classList.toggle("visible", valor === true);
   if (valor === true && el("lista-estudiantes").children.length === 0) {
-    agregarEstudiante(); // Agregar el primer estudiante automáticamente
+    agregarEstudiante();
   }
-};
+}
+el("opt-colegio-si").addEventListener("click", () => seleccionarColegio(true));
+el("opt-colegio-no").addEventListener("click", () => seleccionarColegio(false));
+el("btn-add-estudiante").addEventListener("click", () => agregarEstudiante());
 
 // ─── GESTIÓN DE ESTUDIANTES ───────────────────────────────────────────────────
-window.agregarEstudiante = function() {
+function agregarEstudiante() {
   contadorEstudiantes++;
   const idx = contadorEstudiantes;
   const lista = el("lista-estudiantes");
@@ -973,7 +976,7 @@ window.agregarEstudiante = function() {
     </div>
   `;
   lista.appendChild(div);
-};
+}
 
 window.quitarEstudiante = function(idx) {
   const div = el(`est-${idx}`);
@@ -1035,7 +1038,7 @@ function validarCamposExtra() {
 }
 
 // ─── PAGO ─────────────────────────────────────────────────────────────────────
-window.seleccionarPago = function(metodo) {
+function seleccionarPago(metodo) {
   metodoPago = metodo;
   el("opt-transferencia").classList.toggle("seleccionada", metodo === "transferencia");
   el("opt-efectivo").classList.toggle("seleccionada", metodo === "efectivo");
@@ -1047,7 +1050,9 @@ window.seleccionarPago = function(metodo) {
       : `$${categoriaSeleccionada.precio}.00`;
     el("monto-transferencia").classList.remove("precio-pendiente");
   }
-};
+}
+el("opt-pago-transferencia").addEventListener("click", () => seleccionarPago("transferencia"));
+el("opt-pago-efectivo").addEventListener("click", () => seleccionarPago("efectivo"));
 
 // Upload comprobante
 const uploadZone = el("upload-zone-comp");
