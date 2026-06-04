@@ -505,11 +505,11 @@
     <div class="card">
       <div class="card-title">Método de pago</div>
       <div class="pago-opciones">
-        <div class="pago-opcion" id="opt-transferencia" id="opt-pago-transferencia">
+        <div class="pago-opcion" id="opt-pago-transferencia">
           <div class="po-label">Transferencia</div>
           <div class="po-desc">Pago en línea / Yappy</div>
         </div>
-        <div class="pago-opcion" id="opt-efectivo" id="opt-pago-efectivo">
+        <div class="pago-opcion" id="opt-pago-efectivo">
           <div class="po-label">Efectivo</div>
           <div class="po-desc">El día del evento</div>
         </div>
@@ -811,6 +811,7 @@ function agregarEstudiante() {
     <div class="form-row">
       <div class="form-group"><label>Grado <span class="req">*</span></label>
         <select id="est-${idx}-grado"><option value="">Selecciona</option>
+          <option>7mo grado</option><option>8vo grado</option><option>9no grado</option>
           <option>10mo grado</option><option>11mo grado</option><option>12mo grado</option>
         </select></div>
       <div class="form-group"><label>Bachiller <span class="req">*</span></label>
@@ -818,8 +819,9 @@ function agregarEstudiante() {
           ${BACHILLERES.map(b => `<option>${b}</option>`).join("")}
         </select></div>
     </div>`;
-  lista.appendChild(div);
-  // Bind remove button using event delegation
+  // Insertar al inicio — el más reciente aparece arriba
+  lista.insertBefore(div, lista.firstChild);
+  // Bind remove button
   const btn = div.querySelector(".btn-remove-estudiante");
   if (btn) btn.addEventListener("click", () => div.remove());
 }
@@ -961,6 +963,7 @@ function validarPaso1() {
 }
 
 function validarPaso2() {
+  if (esColegio === true) return true; // Colegio no necesita seleccionar categoría
   if (!categoriaSeleccionada) { mostrarAlerta("error", "Selecciona tu categoria de participante."); return false; }
   return validarCamposExtra();
 }
@@ -972,7 +975,17 @@ function validarPaso3() {
 }
 
 // ─── BOTONES NAV ─────────────────────────────────────────────────────────────
-el("btn-paso1").addEventListener("click",   () => { if (validarPaso1()) irAPaso(2); });
+el("btn-paso1").addEventListener("click", () => {
+  if (!validarPaso1()) return;
+  if (esColegio === true) {
+    // Colegio: categoría asignada automáticamente, saltar paso 2
+    categoriaSeleccionada = { id: "colegio", label: "Colegio", precio: null };
+    renderResumen();
+    irAPaso(3);
+  } else {
+    irAPaso(2);
+  }
+});
 el("btn-paso2").addEventListener("click",   () => { if (validarPaso2()) { renderResumen(); irAPaso(3); } });
 el("btn-paso3").addEventListener("click",   () => { if (validarPaso3()) { renderResumen(); irAPaso(4); } });
 el("btn-atras-2").addEventListener("click", () => irAPaso(1));
