@@ -505,11 +505,11 @@
     <div class="card">
       <div class="card-title">Método de pago</div>
       <div class="pago-opciones">
-        <div class="pago-opcion" id="opt-pago-transferencia">
+        <div class="pago-opcion" id="opt-transferencia" id="opt-pago-transferencia">
           <div class="po-label">Transferencia</div>
           <div class="po-desc">Pago en línea / Yappy</div>
         </div>
-        <div class="pago-opcion" id="opt-pago-efectivo">
+        <div class="pago-opcion" id="opt-efectivo" id="opt-pago-efectivo">
           <div class="po-label">Efectivo</div>
           <div class="po-desc">El día del evento</div>
         </div>
@@ -645,13 +645,9 @@ const CAMPOS_EXTRA = {
           <option>Facultad de Ingenieria Mecanica</option>
         </select></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Ingenieria de Sistemas"/></div>
-      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
+      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
         <select id="ex-anio"><option value="">Selecciona</option>
-          <option>1er año — 1er semestre</option><option>1er año — 2do semestre</option>
-          <option>2do año — 1er semestre</option><option>2do año — 2do semestre</option>
-          <option>3er año — 1er semestre</option><option>3er año — 2do semestre</option>
-          <option>4to año — 1er semestre</option><option>4to año — 2do semestre</option>
-          <option>5to año — 1er semestre</option><option>5to año — 2do semestre</option>
+          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
         </select></div>
     </div>`,
   estudiante_externo: `
@@ -660,13 +656,9 @@ const CAMPOS_EXTRA = {
       <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/></div>
       <div class="form-group"><label>Correo institucional <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@universidad.ac.pa"/></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Informatica"/></div>
-      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
+      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
         <select id="ex-anio"><option value="">Selecciona</option>
-          <option>1er año — 1er semestre</option><option>1er año — 2do semestre</option>
-          <option>2do año — 1er semestre</option><option>2do año — 2do semestre</option>
-          <option>3er año — 1er semestre</option><option>3er año — 2do semestre</option>
-          <option>4to año — 1er semestre</option><option>4to año — 2do semestre</option>
-          <option>5to año — 1er semestre</option><option>5to año — 2do semestre</option>
+          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
         </select></div>
     </div>`,
   academico_utp: `
@@ -800,14 +792,14 @@ el("btn-add-estudiante").addEventListener("click", agregarEstudiante);
 
 function agregarEstudiante() {
   contadorEstudiantes++;
-  const idx   = contadorEstudiantes;
+  const idx  = contadorEstudiantes;
   const lista = el("lista-estudiantes");
   const div   = document.createElement("div");
   div.className = "estudiante-item";
   div.id = `est-${idx}`;
   div.innerHTML = `
     <div class="estudiante-num">Estudiante ${idx}</div>
-    <button class="btn-remove-estudiante" data-idx="${idx}">x</button>
+    ${idx > 1 ? `<button class="btn-remove-estudiante" data-idx="${idx}">x</button>` : ""}
     <div class="form-row">
       <div class="form-group"><label>Nombre <span class="req">*</span></label><input type="text" id="est-${idx}-nombre" placeholder="Nombre"/></div>
       <div class="form-group"><label>Apellido <span class="req">*</span></label><input type="text" id="est-${idx}-apellido" placeholder="Apellido"/></div>
@@ -819,7 +811,6 @@ function agregarEstudiante() {
     <div class="form-row">
       <div class="form-group"><label>Grado <span class="req">*</span></label>
         <select id="est-${idx}-grado"><option value="">Selecciona</option>
-          <option>7mo grado</option><option>8vo grado</option><option>9no grado</option>
           <option>10mo grado</option><option>11mo grado</option><option>12mo grado</option>
         </select></div>
       <div class="form-group"><label>Bachiller <span class="req">*</span></label>
@@ -827,21 +818,10 @@ function agregarEstudiante() {
           ${BACHILLERES.map(b => `<option>${b}</option>`).join("")}
         </select></div>
     </div>`;
-  // Insertar al principio: el nuevo estudiante aparece arriba
-  lista.prepend(div);
-  actualizarNumerosEstudiantes();
+  lista.appendChild(div);
+  // Bind remove button using event delegation
   const btn = div.querySelector(".btn-remove-estudiante");
-  if (btn) btn.addEventListener("click", () => { div.remove(); actualizarNumerosEstudiantes(); });
-  div.querySelector(`#est-${idx}-nombre`)?.focus();
-}
-
-function actualizarNumerosEstudiantes() {
-  const items = Array.from(document.querySelectorAll(".estudiante-item"));
-  const total = items.length;
-  items.forEach((item, i) => {
-    const numEl = item.querySelector(".estudiante-num");
-    if (numEl) numEl.textContent = `Estudiante ${total - i}`;
-  });
+  if (btn) btn.addEventListener("click", () => div.remove());
 }
 
 function recogerEstudiantes() {
@@ -1016,49 +996,71 @@ function renderResumen() {
     <div class="resumen-total"><span class="rt-label">Total</span><span class="rt-precio">${precioStr}</span></div>`;
 }
 
-// ─── CONFIRMAR — Firebase se carga aquí, solo si el usuario llega al submit ──
+// ─── CONFIRMAR ───────────────────────────────────────────────────────────────
+// Flag anti-multiclic: bloquea cualquier reintento mientras se procesa
+let enviando = false;
+
 el("btn-confirmar").addEventListener("click", async () => {
+  if (enviando) return;
+  enviando = true;
   el("btn-confirmar").disabled = true;
   el("btn-confirmar-txt").style.display = "none";
   el("spinner-confirmar").style.display = "block";
+  limpiarAlerta();
+
+  let storageRef = null; // referencia guardada para rollback si Firestore falla
 
   try {
-    // Importar Firebase dinámicamente solo cuando se necesita
+    // ── Importar Firebase dinámicamente (no bloquea la UI al cargar la página) ──
     const { db, storage } = await import("./js/core/firebase-config.js");
-    const { collection, doc, setDoc, getDocs, query, where, serverTimestamp, writeBatch } =
-      await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
-    const { ref, uploadBytes, getDownloadURL } =
+    const {
+      collection, doc, setDoc, getDoc, getDocs,
+      query, where, serverTimestamp, writeBatch
+    } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
+    const { ref, uploadBytes } =
       await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js");
 
     const correo = el("inp-correo").value.trim().toLowerCase();
     const cedula = el("inp-cedula").value.trim();
 
-    // Duplicado por correo
-    const dupCorreo = await getDocs(query(collection(db, "participantes"), where("correo", "==", correo)));
-    if (!dupCorreo.empty) throw new Error("Ya existe una inscripcion con este correo electronico.");
+    // ── Validar duplicado por cédula usando ID determinístico ─────────────────
+    // El documento se guarda con ID = cedula (si existe) o hash del correo.
+    // Esto hace que setDoc con { merge: false } falle atómicamente si ya existe,
+    // sin necesidad de una query previa que podría dar race condition.
+    const docId = cedula
+      ? `c_${cedula.replace(/[^a-zA-Z0-9]/g, "_")}`
+      : `e_${correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
 
-    // Duplicado por cedula
-    if (cedula) {
-      const dupCedula = await getDocs(query(collection(db, "participantes"), where("cedula", "==", cedula)));
-      if (!dupCedula.empty) throw new Error("Ya existe una inscripcion con esta cedula. Contacta al staff si crees que es un error.");
+    const existeSnap = await getDoc(doc(db, "participantes", docId));
+    if (existeSnap.exists()) {
+      throw new Error("Ya existe una inscripcion con esta cedula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
     }
 
-    // Secuencial
+    // ── Generar código secuencial ─────────────────────────────────────────────
     const countSnap = await getDocs(collection(db, "participantes"));
     const seq    = countSnap.size + 1;
     const codigo = generarCodigo(seq);
     const token  = generarToken();
 
-    // Comprobante
-    let comprobanteUrl = null;
+    // ── Subir comprobante (sin getDownloadURL — almacenamos solo la ruta) ─────
+    // getDownloadURL requiere permiso de lectura en Storage.
+    // Guardamos la ruta relativa; el staff la descarga desde el panel con Auth.
+    // Nombre determinístico: si el mismo usuario reintenta, sobreescribe el mismo archivo.
+    let comprobanteRuta = null;
     if (metodoPago === "transferencia" && archivoComprobante) {
-      const ext = archivoComprobante.name.split(".").pop();
-      const storageRef = ref(storage, `comprobantes/${cedula || correo}_${Date.now()}.${ext}`);
-      const snap = await uploadBytes(storageRef, archivoComprobante);
-      comprobanteUrl = await getDownloadURL(snap.ref);
+      const ext = archivoComprobante.name.split(".").pop().toLowerCase();
+      const nombreArchivo = `${docId}.${ext}`;
+      storageRef = ref(storage, `comprobantes/${nombreArchivo}`);
+      await uploadBytes(storageRef, archivoComprobante, {
+        contentType: archivoComprobante.type,
+        customMetadata: { correo, cedula: cedula || "sin_cedula" }
+      });
+      // Solo guardamos la ruta relativa — no hacemos getDownloadURL
+      comprobanteRuta = `comprobantes/${nombreArchivo}`;
     }
 
-    const camposExtra   = recogerCamposExtra();
+    // ── Recoger datos ─────────────────────────────────────────────────────────
+    const camposExtra     = recogerCamposExtra();
     const estudiantesData = esColegio ? recogerEstudiantes() : [];
     const tutorData = esColegio ? {
       nombre:   el("inp-tutor-nombre").value.trim(),
@@ -1067,8 +1069,8 @@ el("btn-confirmar").addEventListener("click", async () => {
       colegio:  el("inp-colegio").value.trim(),
     } : null;
 
-    // Documento principal
-    const docRef = doc(collection(db, "participantes"));
+    // ── Documento principal (ID determinístico = sin race condition) ──────────
+    const docRef = doc(db, "participantes", docId);
     await setDoc(docRef, {
       codigo, token,
       nombre:          el("inp-nombre").value.trim(),
@@ -1076,57 +1078,69 @@ el("btn-confirmar").addEventListener("click", async () => {
       nombreCompleto:  `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`,
       cedula, correo,
       telefono:        el("inp-telefono").value.trim(),
-      categoria:       esColegio ? "colegio"        : categoriaSeleccionada.id,
-      categoriaNombre: esColegio ? "Colegio"        : categoriaSeleccionada.label,
+      categoria:       esColegio ? "colegio"  : categoriaSeleccionada.id,
+      categoriaNombre: esColegio ? "Colegio"  : categoriaSeleccionada.label,
       camposExtra,
       pago: {
-        metodo: metodoPago,
-        estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-        comprobanteUrl,
-        monto:  esColegio ? null : (categoriaSeleccionada?.precio ?? null),
-        aprobadoPor: null, aprobadoEn: null, notas: null,
+        metodo:          metodoPago,
+        estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+        comprobanteRuta,              // ruta relativa en Storage, no URL pública
+        monto:           esColegio ? null : (categoriaSeleccionada?.precio ?? null),
+        aprobadoPor:     null,
+        aprobadoEn:      null,
+        notas:           null,
       },
       esColegio,
-      tutor:      tutorData,
-      colegio:    esColegio ? el("inp-colegio").value.trim() : null,
-      estudiantes: estudiantesData,
-      estadoRegistro: "activo",
-      asistencias: {},
-      fechaRegistro:  serverTimestamp(),
-      actualizadoEn:  serverTimestamp(),
+      tutor:           tutorData,
+      colegio:         esColegio ? el("inp-colegio").value.trim() : null,
+      estudiantes:     estudiantesData,
+      estadoRegistro:  "activo",
+      asistencias:     {},
+      fechaRegistro:   serverTimestamp(),
+      actualizadoEn:   serverTimestamp(),
     });
 
-    // Documentos individuales de estudiantes
+    // ── Documentos individuales de estudiantes (batch atómico) ────────────────
     if (esColegio && estudiantesData.length > 0) {
       const batch   = writeBatch(db);
       const baseSeq = seq + 1;
       estudiantesData.forEach((est, i) => {
-        const estRef    = doc(collection(db, "participantes"));
+        const estCedula = est.cedula || "";
+        const estId = estCedula
+          ? `c_${estCedula.replace(/[^a-zA-Z0-9]/g, "_")}`
+          : `e_${est.correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        const estRef    = doc(db, "participantes", estId);
         const estToken  = generarToken();
         const estCodigo = generarCodigo(baseSeq + i);
         batch.set(estRef, {
           codigo: estCodigo, token: estToken,
           nombre: est.nombre, apellido: est.apellido,
           nombreCompleto: `${est.nombre} ${est.apellido}`,
-          cedula: est.cedula || "", correo: est.correo, telefono: "",
+          cedula: estCedula, correo: est.correo, telefono: "",
           categoria: "colegio_estudiante", categoriaNombre: "Colegio",
           camposExtra: { grado: est.grado, bachiller: est.bachiller },
           pago: {
-            metodo: metodoPago,
-            estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-            comprobanteUrl, monto: null,
-            aprobadoPor: null, aprobadoEn: null, notas: null,
+            metodo:          metodoPago,
+            estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+            comprobanteRuta,
+            monto:           null,
+            aprobadoPor:     null, aprobadoEn: null, notas: null,
           },
-          esColegio: true, tutorCodigo: codigo,
-          tutor: tutorData, colegio: tutorData.colegio,
-          estudiantes: [], estadoRegistro: "activo", asistencias: {},
-          fechaRegistro: serverTimestamp(), actualizadoEn: serverTimestamp(),
+          esColegio:       true,
+          tutorCodigo:     codigo,
+          tutor:           tutorData,
+          colegio:         tutorData.colegio,
+          estudiantes:     [],
+          estadoRegistro:  "activo",
+          asistencias:     {},
+          fechaRegistro:   serverTimestamp(),
+          actualizadoEn:   serverTimestamp(),
         });
       });
       await batch.commit();
     }
 
-    // Éxito
+    // ── Éxito ─────────────────────────────────────────────────────────────────
     document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("activo"));
     document.querySelector(".steps-wrap").style.display = "none";
     el("exito-wrap").classList.add("visible");
@@ -1135,10 +1149,11 @@ el("btn-confirmar").addEventListener("click", async () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
   } catch (err) {
-    mostrarAlerta("error", err.message || "Error al registrar. Intenta de nuevo.");
+    mostrarAlerta("error", err.message || "Ocurrio un error al registrar. Intenta de nuevo.");
     el("btn-confirmar").disabled = false;
     el("btn-confirmar-txt").style.display = "inline";
     el("spinner-confirmar").style.display = "none";
+    enviando = false;  // rehabilitar solo en error — en éxito el formulario ya no existe
   }
 });
 </script>
