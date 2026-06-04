@@ -645,9 +645,13 @@ const CAMPOS_EXTRA = {
           <option>Facultad de Ingenieria Mecanica</option>
         </select></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Ingenieria de Sistemas"/></div>
-      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
+      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
         <select id="ex-anio"><option value="">Selecciona</option>
-          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+          <option>1er año — 1er semestre</option><option>1er año — 2do semestre</option>
+          <option>2do año — 1er semestre</option><option>2do año — 2do semestre</option>
+          <option>3er año — 1er semestre</option><option>3er año — 2do semestre</option>
+          <option>4to año — 1er semestre</option><option>4to año — 2do semestre</option>
+          <option>5to año — 1er semestre</option><option>5to año — 2do semestre</option>
         </select></div>
     </div>`,
   estudiante_externo: `
@@ -656,9 +660,13 @@ const CAMPOS_EXTRA = {
       <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/></div>
       <div class="form-group"><label>Correo institucional <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@universidad.ac.pa"/></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Informatica"/></div>
-      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
+      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
         <select id="ex-anio"><option value="">Selecciona</option>
-          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+          <option>1er año — 1er semestre</option><option>1er año — 2do semestre</option>
+          <option>2do año — 1er semestre</option><option>2do año — 2do semestre</option>
+          <option>3er año — 1er semestre</option><option>3er año — 2do semestre</option>
+          <option>4to año — 1er semestre</option><option>4to año — 2do semestre</option>
+          <option>5to año — 1er semestre</option><option>5to año — 2do semestre</option>
         </select></div>
     </div>`,
   academico_utp: `
@@ -822,16 +830,12 @@ function agregarEstudiante() {
   // Insertar al principio: el nuevo estudiante aparece arriba
   lista.prepend(div);
   actualizarNumerosEstudiantes();
-  // Bind boton eliminar
   const btn = div.querySelector(".btn-remove-estudiante");
   if (btn) btn.addEventListener("click", () => { div.remove(); actualizarNumerosEstudiantes(); });
-  // Focus en nombre del nuevo estudiante
   div.querySelector(`#est-${idx}-nombre`)?.focus();
 }
 
 function actualizarNumerosEstudiantes() {
-  // Los items en el DOM están en orden visual: el más nuevo (prepend) queda arriba.
-  // El número visual del de arriba = total de estudiantes, el de abajo = 1.
   const items = Array.from(document.querySelectorAll(".estudiante-item"));
   const total = items.length;
   items.forEach((item, i) => {
@@ -1020,7 +1024,7 @@ el("btn-confirmar").addEventListener("click", async () => {
 
   try {
     // Importar Firebase dinámicamente solo cuando se necesita
-    const { db, storage } = await import("../js/core/firebase-config.js");
+    const { db, storage } = await import("./js/core/firebase-config.js");
     const { collection, doc, setDoc, getDocs, query, where, serverTimestamp, writeBatch } =
       await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
     const { ref, uploadBytes, getDownloadURL } =
