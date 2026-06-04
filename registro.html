@@ -609,414 +609,248 @@
   </div>
 </div>
 
-<script type="module">
-import { db, storage } from "../js/core/firebase-config.js";
-import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs,
-  query, where, serverTimestamp, writeBatch
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import {
-  ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
 
+<script>
 // ─── CATEGORÍAS ───────────────────────────────────────────────────────────────
-// Precios por definir — se actualizarán en configuracion/evento_actual en Firestore
 const CATEGORIAS = [
-  { id: "estudiante_utp",     label: "Estudiante UTP",              precio: null },
-  { id: "estudiante_externo", label: "Estudiante Externo",          precio: null },
-  { id: "academico_utp",      label: "Academico UTP",               precio: null },
-  { id: "academico_externo",  label: "Academico Externo",           precio: null },
-  { id: "profesional",        label: "Profesional",                 precio: null },
-  { id: "autor",              label: "Autor Cientifico",            precio: null },
-  { id: "otros",              label: "Otros",                       precio: null },
+  { id: "estudiante_utp",     label: "Estudiante UTP",     precio: null },
+  { id: "estudiante_externo", label: "Estudiante Externo", precio: null },
+  { id: "academico_utp",      label: "Academico UTP",      precio: null },
+  { id: "academico_externo",  label: "Academico Externo",  precio: null },
+  { id: "profesional",        label: "Profesional",        precio: null },
+  { id: "autor",              label: "Autor Cientifico",   precio: null },
+  { id: "otros",              label: "Otros",              precio: null },
 ];
 
-// Categoría colegio no aparece en el grid — se asigna automáticamente si esColegio
+const BACHILLERES = ["Ciencias","Informatica / Tecnologia","Comercio","Letras","Industrial","Otro"];
 
-// ─── CAMPOS PERSONALIZADOS POR CATEGORÍA ─────────────────────────────────────
 const CAMPOS_EXTRA = {
   estudiante_utp: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion academica — Estudiante UTP</div>
-      <div class="form-group">
-        <label>Correo institucional UTP <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="nombre@utp.ac.pa"/>
-      </div>
-      <div class="form-group">
-        <label>Centro Regional <span class="req">*</span></label>
-        <select id="ex-centro">
-          <option value="">Selecciona tu campus</option>
+      <div class="form-group"><label>Correo institucional UTP <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@utp.ac.pa"/></div>
+      <div class="form-group"><label>Centro Regional <span class="req">*</span></label>
+        <select id="ex-centro"><option value="">Selecciona tu campus</option>
           <option>Campus Central Dr. Victor Levi Sasso (Panama)</option>
-          <option>Centro Regional de Azuero</option>
-          <option>Centro Regional de Bocas del Toro</option>
-          <option>Centro Regional de Chiriqui</option>
-          <option>Centro Regional de Cocle</option>
-          <option>Centro Regional de Colon</option>
-          <option>Centro Regional de Panama Oeste</option>
+          <option>Centro Regional de Azuero</option><option>Centro Regional de Bocas del Toro</option>
+          <option>Centro Regional de Chiriqui</option><option>Centro Regional de Cocle</option>
+          <option>Centro Regional de Colon</option><option>Centro Regional de Panama Oeste</option>
           <option>Centro Regional de Veraguas</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Facultad <span class="req">*</span></label>
-        <select id="ex-facultad">
-          <option value="">Selecciona tu facultad</option>
+        </select></div>
+      <div class="form-group"><label>Facultad <span class="req">*</span></label>
+        <select id="ex-facultad"><option value="">Selecciona tu facultad</option>
           <option>Facultad de Ingenieria de Sistemas Computacionales</option>
-          <option>Facultad de Ciencias y Tecnologia</option>
-          <option>Facultad de Ingenieria Civil</option>
-          <option>Facultad de Ingenieria Electrica</option>
-          <option>Facultad de Ingenieria Industrial</option>
+          <option>Facultad de Ciencias y Tecnologia</option><option>Facultad de Ingenieria Civil</option>
+          <option>Facultad de Ingenieria Electrica</option><option>Facultad de Ingenieria Industrial</option>
           <option>Facultad de Ingenieria Mecanica</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Carrera <span class="req">*</span></label>
-        <input type="text" id="ex-carrera" placeholder="Ej: Ingenieria de Sistemas"/>
-      </div>
-      <div class="form-group">
-        <label>Ano que cursas <span class="req">*</span></label>
-        <select id="ex-anio">
-          <option value="">Selecciona</option>
-          <option>I ano</option>
-          <option>II ano</option>
-          <option>III ano</option>
-          <option>IV ano</option>
-          <option>V ano</option>
-        </select>
-      </div>
+        </select></div>
+      <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Ingenieria de Sistemas"/></div>
+      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
+        <select id="ex-anio"><option value="">Selecciona</option>
+          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+        </select></div>
     </div>`,
-
   estudiante_externo: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion academica — Estudiante Externo</div>
-      <div class="form-group">
-        <label>Universidad o institucion <span class="req">*</span></label>
-        <input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/>
-      </div>
-      <div class="form-group">
-        <label>Correo institucional <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="nombre@universidad.ac.pa"/>
-      </div>
-      <div class="form-group">
-        <label>Carrera <span class="req">*</span></label>
-        <input type="text" id="ex-carrera" placeholder="Ej: Informatica"/>
-      </div>
-      <div class="form-group">
-        <label>Ano que cursas <span class="req">*</span></label>
-        <select id="ex-anio">
-          <option value="">Selecciona</option>
-          <option>I ano</option>
-          <option>II ano</option>
-          <option>III ano</option>
-          <option>IV ano</option>
-          <option>V ano</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/></div>
+      <div class="form-group"><label>Correo institucional <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@universidad.ac.pa"/></div>
+      <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Informatica"/></div>
+      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
+        <select id="ex-anio"><option value="">Selecciona</option>
+          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+        </select></div>
     </div>`,
-
   academico_utp: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion — Academico UTP</div>
-      <div class="form-group">
-        <label>Correo institucional UTP <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="nombre@utp.ac.pa"/>
-      </div>
-      <div class="form-group">
-        <label>Rol que desempenas <span class="req">*</span></label>
-        <select id="ex-rol">
-          <option value="">Selecciona</option>
-          <option>Profesor</option>
-          <option>Administrativo</option>
-          <option>Investigador</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Departamento o area</label>
-        <input type="text" id="ex-departamento" placeholder="Ej: Departamento de Informatica"/>
-      </div>
-      <div class="form-group">
-        <label>Presentara ponencia?</label>
-        <select id="ex-ponencia">
-          <option value="no">No</option>
-          <option value="si">Si</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Correo institucional UTP <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@utp.ac.pa"/></div>
+      <div class="form-group"><label>Rol que desempenas <span class="req">*</span></label>
+        <select id="ex-rol"><option value="">Selecciona</option>
+          <option>Profesor</option><option>Administrativo</option><option>Investigador</option>
+        </select></div>
+      <div class="form-group"><label>Departamento o area</label><input type="text" id="ex-departamento" placeholder="Ej: Departamento de Informatica"/></div>
+      <div class="form-group"><label>Presentara ponencia?</label>
+        <select id="ex-ponencia"><option value="no">No</option><option value="si">Si</option></select></div>
     </div>`,
-
   academico_externo: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion — Academico de otra institucion</div>
-      <div class="form-group">
-        <label>Universidad o institucion <span class="req">*</span></label>
-        <input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/>
-      </div>
-      <div class="form-group">
-        <label>Correo institucional <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="nombre@institucion.ac.pa"/>
-      </div>
-      <div class="form-group">
-        <label>Rol que desempenas <span class="req">*</span></label>
-        <select id="ex-rol">
-          <option value="">Selecciona</option>
-          <option>Profesor</option>
-          <option>Administrativo</option>
-          <option>Investigador</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Presentara ponencia?</label>
-        <select id="ex-ponencia">
-          <option value="no">No</option>
-          <option value="si">Si</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/></div>
+      <div class="form-group"><label>Correo institucional <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@institucion.ac.pa"/></div>
+      <div class="form-group"><label>Rol que desempenas <span class="req">*</span></label>
+        <select id="ex-rol"><option value="">Selecciona</option>
+          <option>Profesor</option><option>Administrativo</option><option>Investigador</option>
+        </select></div>
+      <div class="form-group"><label>Presentara ponencia?</label>
+        <select id="ex-ponencia"><option value="no">No</option><option value="si">Si</option></select></div>
     </div>`,
-
   profesional: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion profesional</div>
-      <div class="form-group">
-        <label>Empresa u organizacion <span class="req">*</span></label>
-        <input type="text" id="ex-empresa" placeholder="Ej: Mi Empresa S.A."/>
-      </div>
-      <div class="form-group">
-        <label>Cargo o posicion</label>
-        <input type="text" id="ex-cargo" placeholder="Ej: Desarrollador de Software"/>
-      </div>
-      <div class="form-group">
-        <label>Area de trabajo</label>
-        <select id="ex-area">
-          <option value="">Selecciona (opcional)</option>
-          <option>Desarrollo de software</option>
-          <option>Redes y telecomunicaciones</option>
-          <option>Ciberseguridad</option>
-          <option>Gestion de TI</option>
-          <option>Inteligencia Artificial / Data</option>
-          <option>Otra</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Empresa u organizacion <span class="req">*</span></label><input type="text" id="ex-empresa" placeholder="Ej: Mi Empresa S.A."/></div>
+      <div class="form-group"><label>Cargo o posicion</label><input type="text" id="ex-cargo" placeholder="Ej: Desarrollador de Software"/></div>
+      <div class="form-group"><label>Area de trabajo</label>
+        <select id="ex-area"><option value="">Selecciona (opcional)</option>
+          <option>Desarrollo de software</option><option>Redes y telecomunicaciones</option>
+          <option>Ciberseguridad</option><option>Gestion de TI</option>
+          <option>Inteligencia Artificial / Data</option><option>Otra</option>
+        </select></div>
     </div>`,
-
   autor: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion — Autor Cientifico</div>
-      <div class="form-group">
-        <label>Correo del autor principal <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="Debe coincidir con el correo enviado a CMT"/>
-      </div>
-      <div class="form-group">
-        <label>Titulo del paper o trabajo <span class="req">*</span></label>
-        <input type="text" id="ex-titulo-paper" placeholder="Titulo completo del trabajo"/>
-      </div>
-      <div class="form-group">
-        <label>Universidad o institucion <span class="req">*</span></label>
-        <input type="text" id="ex-universidad" placeholder="Ej: Universidad Tecnologica de Panama"/>
-      </div>
-      <div class="form-group">
-        <label>Modalidad de presentacion <span class="req">*</span></label>
-        <select id="ex-modalidad">
-          <option value="">Selecciona</option>
-          <option>Presentacion oral</option>
-          <option>Poster</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Coautores (opcional)</label>
-        <textarea id="ex-coautores" placeholder="Nombres de coautores separados por coma"></textarea>
-      </div>
-      <p style="font-size:12px;color:var(--gris-medio);margin-top:-8px;">
-        Envia tu trabajo en: <a href="https://cmt3.research.microsoft.com/CONTECS2026" target="_blank" style="color:var(--azul-info);">cmt3.research.microsoft.com/CONTECS2026</a>
-      </p>
+      <div class="form-group"><label>Correo del autor principal <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="Debe coincidir con el correo enviado a CMT"/></div>
+      <div class="form-group"><label>Titulo del paper o trabajo <span class="req">*</span></label><input type="text" id="ex-titulo-paper" placeholder="Titulo completo del trabajo"/></div>
+      <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad Tecnologica de Panama"/></div>
+      <div class="form-group"><label>Modalidad de presentacion <span class="req">*</span></label>
+        <select id="ex-modalidad"><option value="">Selecciona</option>
+          <option>Presentacion oral</option><option>Poster</option>
+        </select></div>
+      <div class="form-group"><label>Coautores (opcional)</label><textarea id="ex-coautores" placeholder="Nombres de coautores separados por coma"></textarea></div>
+      <p style="font-size:12px;color:var(--gris-medio);">Envia tu trabajo en: <a href="https://cmt3.research.microsoft.com/CONTECS2026" target="_blank" style="color:var(--azul-info);">cmt3.research.microsoft.com/CONTECS2026</a></p>
     </div>`,
-
   otros: `
-    <div class="card campos-extra visible" id="extra-card">
+    <div class="card" style="animation:cardIn 0.35s var(--ease-spring) both">
       <div class="card-title">Informacion adicional</div>
-      <div class="form-group">
-        <label>Correo de contacto <span class="req">*</span></label>
-        <input type="email" id="ex-correo-inst" placeholder="nombre@correo.com"/>
-      </div>
-      <div class="form-group">
-        <label>Como nos conociste?</label>
-        <select id="ex-como">
-          <option value="">Selecciona (opcional)</option>
-          <option>Redes sociales</option>
-          <option>Un amigo o colega</option>
-          <option>Correo electronico</option>
-          <option>Cartel o afiche</option>
-          <option>Otro</option>
-        </select>
-      </div>
+      <div class="form-group"><label>Correo de contacto <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@correo.com"/></div>
+      <div class="form-group"><label>Como nos conociste?</label>
+        <select id="ex-como"><option value="">Selecciona (opcional)</option>
+          <option>Redes sociales</option><option>Un amigo o colega</option>
+          <option>Correo electronico</option><option>Cartel o afiche</option><option>Otro</option>
+        </select></div>
     </div>`,
 };
 
-// Campos para colegio — usados en Paso 1 dentro de cada fila de estudiante
-const BACHILLERES = [
-  "Ciencias",
-  "Informatica / Tecnologia",
-  "Comercio",
-  "Letras",
-  "Industrial",
-  "Otro",
-];
-
 // ─── ESTADO ───────────────────────────────────────────────────────────────────
-let pasoActual       = 1;
+let pasoActual            = 1;
 let categoriaSeleccionada = null;
-let metodoPago       = null;
-let archivoComprobante = null;
-let esColegio        = false;
-let contadorEstudiantes = 0;
+let metodoPago            = null;
+let archivoComprobante    = null;
+let esColegio             = null;  // null = sin responder, true/false = respondido
+let contadorEstudiantes   = 0;
 
 const el = id => document.getElementById(id);
 
 function mostrarAlerta(tipo, msg) {
   const div = el("alerta-global");
   div.className = `alerta alerta-${tipo} show`;
-  div.innerHTML = msg;
+  div.textContent = msg;
   div.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  if (tipo !== "error") setTimeout(() => div.classList.remove("show"), 6000);
+  if (tipo !== "error") setTimeout(() => div.classList.remove("show"), 5000);
+}
+
+function limpiarAlerta() {
+  el("alerta-global").classList.remove("show");
 }
 
 // ─── CÓDIGO / TOKEN ───────────────────────────────────────────────────────────
-function generarCodigo(seq) {
-  return `CTCS-2026-${String(seq).padStart(5, "0")}`;
-}
-
+function generarCodigo(seq) { return `CTCS-2026-${String(seq).padStart(5, "0")}`; }
 function generarToken() {
   const arr = new Uint8Array(24);
   crypto.getRandomValues(arr);
   return Array.from(arr, b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// ─── RENDER CATEGORÍAS ────────────────────────────────────────────────────────
+// ─── CATEGORÍAS ───────────────────────────────────────────────────────────────
 function renderCategorias() {
-  const grid = el("cat-grid");
-  grid.innerHTML = CATEGORIAS.map(cat => `
-    <div class="cat-card" data-id="${cat.id}" onclick="window._selCat('${cat.id}')">
+  el("cat-grid").innerHTML = CATEGORIAS.map(cat => `
+    <div class="cat-card" data-id="${cat.id}">
       <div class="cat-label">${cat.label}</div>
-      <div class="cat-precio">${cat.precio === null ? "Precio por definir" : cat.precio === 0 ? "Gratuito" : `$${cat.precio}.00`}</div>
-    </div>
-  `).join("");
+      <div class="cat-precio">${cat.precio === null ? "Precio por definir" : cat.precio === 0 ? "Gratuito" : "$" + cat.precio + ".00"}</div>
+    </div>`).join("");
+  document.querySelectorAll(".cat-card").forEach(card => {
+    card.addEventListener("click", () => seleccionarCategoria(card.dataset.id));
+  });
 }
-renderCategorias();
 
-window._selCat = function(id) {
+function seleccionarCategoria(id) {
   categoriaSeleccionada = CATEGORIAS.find(c => c.id === id);
   document.querySelectorAll(".cat-card").forEach(c => c.classList.remove("seleccionada"));
   document.querySelector(`.cat-card[data-id="${id}"]`).classList.add("seleccionada");
-  // Render campos extra
-  const wrap = el("campos-extra-wrap");
-  wrap.innerHTML = CAMPOS_EXTRA[id] || "";
-};
+  el("campos-extra-wrap").innerHTML = CAMPOS_EXTRA[id] || "";
+}
+
+renderCategorias();
 
 // ─── TOGGLE COLEGIO ───────────────────────────────────────────────────────────
 function seleccionarColegio(valor) {
   esColegio = valor;
-  el("opt-colegio-si").classList.toggle("seleccionado-si", valor === true);
-  el("opt-colegio-si").classList.toggle("seleccionado-no", false);
-  el("opt-colegio-no").classList.toggle("seleccionado-no", valor === false);
-  el("opt-colegio-no").classList.toggle("seleccionado-si", false);
+  el("opt-colegio-si").className = "colegio-opt" + (valor === true  ? " seleccionado-si" : "");
+  el("opt-colegio-no").className = "colegio-opt" + (valor === false ? " seleccionado-no" : "");
   el("tutor-campos").classList.toggle("visible", valor === true);
   if (valor === true && el("lista-estudiantes").children.length === 0) {
     agregarEstudiante();
   }
 }
+
 el("opt-colegio-si").addEventListener("click", () => seleccionarColegio(true));
 el("opt-colegio-no").addEventListener("click", () => seleccionarColegio(false));
-el("btn-add-estudiante").addEventListener("click", () => agregarEstudiante());
 
-// ─── GESTIÓN DE ESTUDIANTES ───────────────────────────────────────────────────
+// ─── ESTUDIANTES ──────────────────────────────────────────────────────────────
+el("btn-add-estudiante").addEventListener("click", agregarEstudiante);
+
 function agregarEstudiante() {
   contadorEstudiantes++;
-  const idx = contadorEstudiantes;
+  const idx  = contadorEstudiantes;
   const lista = el("lista-estudiantes");
-  const div = document.createElement("div");
+  const div   = document.createElement("div");
   div.className = "estudiante-item";
   div.id = `est-${idx}`;
   div.innerHTML = `
     <div class="estudiante-num">Estudiante ${idx}</div>
-    ${idx > 1 ? `<button class="btn-remove-estudiante" onclick="quitarEstudiante(${idx})">x</button>` : ""}
+    ${idx > 1 ? `<button class="btn-remove-estudiante" data-idx="${idx}">x</button>` : ""}
     <div class="form-row">
-      <div class="form-group">
-        <label>Nombre <span class="req">*</span></label>
-        <input type="text" id="est-${idx}-nombre" placeholder="Nombre del estudiante"/>
-      </div>
-      <div class="form-group">
-        <label>Apellido <span class="req">*</span></label>
-        <input type="text" id="est-${idx}-apellido" placeholder="Apellido"/>
-      </div>
+      <div class="form-group"><label>Nombre <span class="req">*</span></label><input type="text" id="est-${idx}-nombre" placeholder="Nombre"/></div>
+      <div class="form-group"><label>Apellido <span class="req">*</span></label><input type="text" id="est-${idx}-apellido" placeholder="Apellido"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Correo personal <span class="req">*</span></label>
-        <input type="email" id="est-${idx}-correo" placeholder="correo@ejemplo.com"/>
-      </div>
-      <div class="form-group">
-        <label>Cedula (opcional)</label>
-        <input type="text" id="est-${idx}-cedula" placeholder="8-888-8888"/>
-      </div>
+      <div class="form-group"><label>Correo personal <span class="req">*</span></label><input type="email" id="est-${idx}-correo" placeholder="correo@ejemplo.com"/></div>
+      <div class="form-group"><label>Cedula (opcional)</label><input type="text" id="est-${idx}-cedula" placeholder="8-888-8888"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>Grado <span class="req">*</span></label>
-        <select id="est-${idx}-grado">
-          <option value="">Selecciona</option>
-          <option>10mo grado</option>
-          <option>11mo grado</option>
-          <option>12mo grado</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Bachiller <span class="req">*</span></label>
-        <select id="est-${idx}-bachiller">
-          <option value="">Selecciona</option>
+      <div class="form-group"><label>Grado <span class="req">*</span></label>
+        <select id="est-${idx}-grado"><option value="">Selecciona</option>
+          <option>10mo grado</option><option>11mo grado</option><option>12mo grado</option>
+        </select></div>
+      <div class="form-group"><label>Bachiller <span class="req">*</span></label>
+        <select id="est-${idx}-bachiller"><option value="">Selecciona</option>
           ${BACHILLERES.map(b => `<option>${b}</option>`).join("")}
-        </select>
-      </div>
-    </div>
-  `;
+        </select></div>
+    </div>`;
   lista.appendChild(div);
+  // Bind remove button using event delegation
+  const btn = div.querySelector(".btn-remove-estudiante");
+  if (btn) btn.addEventListener("click", () => div.remove());
 }
-
-window.quitarEstudiante = function(idx) {
-  const div = el(`est-${idx}`);
-  if (div) div.remove();
-};
 
 function recogerEstudiantes() {
-  const estudiantes = [];
-  document.querySelectorAll(".estudiante-item").forEach(item => {
-    const id = item.id.replace("est-", "");
-    const nombre   = (el(`est-${id}-nombre`)?.value || "").trim();
-    const apellido = (el(`est-${id}-apellido`)?.value || "").trim();
-    const correo   = (el(`est-${id}-correo`)?.value || "").trim().toLowerCase();
-    const cedula   = (el(`est-${id}-cedula`)?.value || "").trim();
-    const grado    = (el(`est-${id}-grado`)?.value || "").trim();
-    const bachiller= (el(`est-${id}-bachiller`)?.value || "").trim();
-    if (nombre && correo) {
-      estudiantes.push({ nombre, apellido, correo, cedula, grado, bachiller });
-    }
-  });
-  return estudiantes;
+  return Array.from(document.querySelectorAll(".estudiante-item")).map(item => {
+    const idx = item.id.replace("est-", "");
+    return {
+      nombre:    (el(`est-${idx}-nombre`)?.value   || "").trim(),
+      apellido:  (el(`est-${idx}-apellido`)?.value || "").trim(),
+      correo:    (el(`est-${idx}-correo`)?.value   || "").trim().toLowerCase(),
+      cedula:    (el(`est-${idx}-cedula`)?.value   || "").trim(),
+      grado:     (el(`est-${idx}-grado`)?.value    || "").trim(),
+      bachiller: (el(`est-${idx}-bachiller`)?.value|| "").trim(),
+    };
+  }).filter(e => e.nombre && e.correo);
 }
 
-// ─── CAMPOS EXTRA — recoger datos ─────────────────────────────────────────────
+// ─── CAMPOS EXTRA ─────────────────────────────────────────────────────────────
 function recogerCamposExtra() {
-  const datos = {};
   const ids = ["ex-correo-inst","ex-centro","ex-facultad","ex-carrera","ex-anio",
-                "ex-universidad","ex-rol","ex-departamento","ex-ponencia",
-                "ex-empresa","ex-cargo","ex-area","ex-titulo-paper",
-                "ex-modalidad","ex-coautores","ex-como"];
-  ids.forEach(id => {
-    const elem = el(id);
-    if (elem) datos[id.replace("ex-", "")] = elem.value.trim();
-  });
+               "ex-universidad","ex-rol","ex-departamento","ex-ponencia",
+               "ex-empresa","ex-cargo","ex-area","ex-titulo-paper",
+               "ex-modalidad","ex-coautores","ex-como"];
+  const datos = {};
+  ids.forEach(id => { const e = el(id); if (e) datos[id.replace("ex-","")] = e.value.trim(); });
   return datos;
 }
 
 function validarCamposExtra() {
   if (!categoriaSeleccionada) return true;
-  const cat = categoriaSeleccionada.id;
   const reqs = {
     estudiante_utp:    ["ex-correo-inst","ex-centro","ex-facultad","ex-carrera","ex-anio"],
     estudiante_externo:["ex-correo-inst","ex-universidad","ex-carrera","ex-anio"],
@@ -1026,11 +860,11 @@ function validarCamposExtra() {
     autor:             ["ex-correo-inst","ex-titulo-paper","ex-universidad","ex-modalidad"],
     otros:             ["ex-correo-inst"],
   };
-  for (const id of (reqs[cat] || [])) {
-    const elem = el(id);
-    if (!elem || !elem.value.trim()) {
+  for (const id of (reqs[categoriaSeleccionada.id] || [])) {
+    const e = el(id);
+    if (!e || !e.value.trim()) {
       mostrarAlerta("error", "Completa todos los campos obligatorios de tu categoria.");
-      elem?.focus();
+      e?.focus();
       return false;
     }
   }
@@ -1040,24 +874,23 @@ function validarCamposExtra() {
 // ─── PAGO ─────────────────────────────────────────────────────────────────────
 function seleccionarPago(metodo) {
   metodoPago = metodo;
-  el("opt-transferencia").classList.toggle("seleccionada", metodo === "transferencia");
-  el("opt-efectivo").classList.toggle("seleccionada", metodo === "efectivo");
+  el("opt-pago-transferencia").classList.toggle("seleccionada", metodo === "transferencia");
+  el("opt-pago-efectivo").classList.toggle("seleccionada", metodo === "efectivo");
   el("info-transferencia").classList.toggle("visible", metodo === "transferencia");
   el("info-efectivo").classList.toggle("visible", metodo === "efectivo");
-  if (categoriaSeleccionada?.precio !== null) {
-    el("monto-transferencia").textContent = categoriaSeleccionada.precio === 0
-      ? "Gratuito"
-      : `$${categoriaSeleccionada.precio}.00`;
+  if (categoriaSeleccionada?.precio !== null && categoriaSeleccionada?.precio !== undefined) {
+    el("monto-transferencia").textContent = categoriaSeleccionada.precio === 0 ? "Gratuito" : `$${categoriaSeleccionada.precio}.00`;
     el("monto-transferencia").classList.remove("precio-pendiente");
   }
 }
+
 el("opt-pago-transferencia").addEventListener("click", () => seleccionarPago("transferencia"));
-el("opt-pago-efectivo").addEventListener("click", () => seleccionarPago("efectivo"));
+el("opt-pago-efectivo").addEventListener("click",      () => seleccionarPago("efectivo"));
 
 // Upload comprobante
 const uploadZone = el("upload-zone-comp");
 uploadZone.addEventListener("click", () => el("inp-comprobante").click());
-uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+uploadZone.addEventListener("dragover",  e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
 uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
 uploadZone.addEventListener("drop", e => {
   e.preventDefault(); uploadZone.classList.remove("dragover");
@@ -1069,6 +902,7 @@ el("btn-quitar-archivo").addEventListener("click", () => {
   el("upload-preview").classList.remove("visible");
   el("inp-comprobante").value = "";
 });
+
 function asignarArchivo(f) {
   if (f.size > 10 * 1024 * 1024) { mostrarAlerta("error", "El archivo no debe superar 10 MB."); return; }
   archivoComprobante = f;
@@ -1078,9 +912,10 @@ function asignarArchivo(f) {
 
 // ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
 function irAPaso(nuevo) {
+  limpiarAlerta();
   el(`panel-${pasoActual}`).classList.remove("activo");
   el(`step-ind-${pasoActual}`).classList.remove("activo");
-  el(`step-ind-${pasoActual}`).classList.add("completado");
+  if (nuevo > pasoActual) el(`step-ind-${pasoActual}`).classList.add("completado");
   if (nuevo < pasoActual) {
     for (let i = nuevo; i <= pasoActual; i++) el(`step-ind-${i}`).classList.remove("completado");
   }
@@ -1092,114 +927,109 @@ function irAPaso(nuevo) {
 
 // ─── VALIDACIONES ─────────────────────────────────────────────────────────────
 function validarPaso1() {
-  const nombre  = el("inp-nombre").value.trim();
-  const apellido= el("inp-apellido").value.trim();
-  const correo  = el("inp-correo").value.trim();
-  const tel     = el("inp-telefono").value.trim();
+  const nombre   = el("inp-nombre").value.trim();
+  const apellido = el("inp-apellido").value.trim();
+  const correo   = el("inp-correo").value.trim();
+  const tel      = el("inp-telefono").value.trim();
 
-  if (!nombre)  { mostrarAlerta("error", "El nombre es obligatorio."); el("inp-nombre").focus(); return false; }
-  if (!apellido){ mostrarAlerta("error", "El apellido es obligatorio."); el("inp-apellido").focus(); return false; }
-  if (!correo || !correo.includes("@")) { mostrarAlerta("error", "Ingresa un correo valido."); el("inp-correo").focus(); return false; }
-  if (!tel)     { mostrarAlerta("error", "El telefono es obligatorio."); el("inp-telefono").focus(); return false; }
+  if (!nombre)                      { mostrarAlerta("error", "El nombre es obligatorio.");          el("inp-nombre").focus();   return false; }
+  if (!apellido)                    { mostrarAlerta("error", "El apellido es obligatorio.");        el("inp-apellido").focus(); return false; }
+  if (!correo || !correo.includes("@")) { mostrarAlerta("error", "Ingresa un correo valido.");     el("inp-correo").focus();   return false; }
+  if (!tel)                         { mostrarAlerta("error", "El telefono es obligatorio.");        el("inp-telefono").focus(); return false; }
 
-  // Si responde colegio, validar datos del tutor y estudiantes
-  if (esColegio) {
-    if (!el("inp-colegio").value.trim())       { mostrarAlerta("error", "Escribe el nombre del colegio."); return false; }
-    if (!el("inp-tutor-nombre").value.trim())   { mostrarAlerta("error", "El nombre del tutor es obligatorio."); return false; }
-    if (!el("inp-tutor-correo").value.trim())   { mostrarAlerta("error", "El correo del tutor es obligatorio."); return false; }
-    if (!el("inp-tutor-tel").value.trim())      { mostrarAlerta("error", "El telefono del tutor es obligatorio."); return false; }
+  if (esColegio === null) {
+    mostrarAlerta("error", "Indica si perteneces a un colegio o no.");
+    el("card-colegio").scrollIntoView({ behavior: "smooth", block: "center" });
+    return false;
+  }
+
+  if (esColegio === true) {
+    if (!el("inp-colegio").value.trim())      { mostrarAlerta("error", "Escribe el nombre del colegio.");              return false; }
+    if (!el("inp-tutor-nombre").value.trim()) { mostrarAlerta("error", "El nombre del tutor es obligatorio.");         return false; }
+    if (!el("inp-tutor-correo").value.trim()) { mostrarAlerta("error", "El correo del tutor es obligatorio.");         return false; }
+    if (!el("inp-tutor-tel").value.trim())    { mostrarAlerta("error", "El telefono del tutor es obligatorio.");       return false; }
     const ests = recogerEstudiantes();
-    if (ests.length === 0) { mostrarAlerta("error", "Agrega al menos un estudiante al grupo."); return false; }
+    if (ests.length === 0)                    { mostrarAlerta("error", "Agrega al menos un estudiante al grupo.");     return false; }
     for (const est of ests) {
       if (!est.nombre || !est.apellido) { mostrarAlerta("error", "Todos los estudiantes deben tener nombre y apellido."); return false; }
-      if (!est.correo) { mostrarAlerta("error", "Todos los estudiantes deben tener correo."); return false; }
-      if (!est.grado)  { mostrarAlerta("error", "Selecciona el grado de todos los estudiantes."); return false; }
-      if (!est.bachiller) { mostrarAlerta("error", "Selecciona el bachiller de todos los estudiantes."); return false; }
+      if (!est.correo)                  { mostrarAlerta("error", "Todos los estudiantes deben tener correo.");            return false; }
+      if (!est.grado)                   { mostrarAlerta("error", "Selecciona el grado de cada estudiante.");              return false; }
+      if (!est.bachiller)               { mostrarAlerta("error", "Selecciona el bachiller de cada estudiante.");          return false; }
     }
   }
   return true;
 }
 
 function validarPaso2() {
-  if (!categoriaSeleccionada) {
-    mostrarAlerta("error", "Selecciona tu categoria de participante.");
-    return false;
-  }
+  if (!categoriaSeleccionada) { mostrarAlerta("error", "Selecciona tu categoria de participante."); return false; }
   return validarCamposExtra();
 }
 
 function validarPaso3() {
-  if (!metodoPago) { mostrarAlerta("error", "Selecciona un metodo de pago."); return false; }
-  if (metodoPago === "transferencia" && !archivoComprobante) {
-    mostrarAlerta("error", "Adjunta el comprobante de tu transferencia.");
-    return false;
-  }
+  if (!metodoPago)                                     { mostrarAlerta("error", "Selecciona un metodo de pago."); return false; }
+  if (metodoPago === "transferencia" && !archivoComprobante) { mostrarAlerta("error", "Adjunta el comprobante de tu transferencia."); return false; }
   return true;
 }
 
-// ─── BOTONES NAV ──────────────────────────────────────────────────────────────
-el("btn-paso1").addEventListener("click", () => { if (validarPaso1()) irAPaso(2); });
-el("btn-paso2").addEventListener("click", () => { if (validarPaso2()) { renderResumen(); irAPaso(3); } });
-el("btn-paso3").addEventListener("click", () => { if (validarPaso3()) { renderResumen(); irAPaso(4); } });
+// ─── BOTONES NAV ─────────────────────────────────────────────────────────────
+el("btn-paso1").addEventListener("click",   () => { if (validarPaso1()) irAPaso(2); });
+el("btn-paso2").addEventListener("click",   () => { if (validarPaso2()) { renderResumen(); irAPaso(3); } });
+el("btn-paso3").addEventListener("click",   () => { if (validarPaso3()) { renderResumen(); irAPaso(4); } });
 el("btn-atras-2").addEventListener("click", () => irAPaso(1));
 el("btn-atras-3").addEventListener("click", () => irAPaso(2));
 el("btn-atras-4").addEventListener("click", () => irAPaso(3));
 
-// ─── RESUMEN ──────────────────────────────────────────────────────────────────
+// ─── RESUMEN ─────────────────────────────────────────────────────────────────
 function renderResumen() {
   const nombre = `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`;
-  const cat = categoriaSeleccionada;
+  const cat    = esColegio ? { label: "Colegio", precio: null } : categoriaSeleccionada;
   const precioStr = cat.precio === null ? "Por confirmar" : cat.precio === 0 ? "Gratuito" : `$${cat.precio}.00`;
-
-  let filas = `
+  const ests = esColegio ? recogerEstudiantes() : [];
+  el("resumen-card").innerHTML = `
+    <div class="resumen-titulo">Resumen de inscripcion</div>
     <div class="resumen-fila"><span class="rf-label">Nombre</span><span class="rf-valor">${nombre}</span></div>
     <div class="resumen-fila"><span class="rf-label">Cedula</span><span class="rf-valor">${el("inp-cedula").value.trim() || "—"}</span></div>
     <div class="resumen-fila"><span class="rf-label">Correo</span><span class="rf-valor" style="font-size:13px;">${el("inp-correo").value.trim()}</span></div>
     <div class="resumen-fila"><span class="rf-label">Categoria</span><span class="rf-valor">${cat.label}</span></div>
+    ${esColegio ? `<div class="resumen-fila"><span class="rf-label">Estudiantes</span><span class="rf-valor">${ests.length} en el grupo</span></div>` : ""}
     <div class="resumen-fila"><span class="rf-label">Pago</span><span class="rf-valor">${metodoPago === "transferencia" ? "Transferencia" : "Efectivo"}</span></div>
-  `;
-  if (esColegio) {
-    const ests = recogerEstudiantes();
-    filas += `<div class="resumen-fila"><span class="rf-label">Estudiantes</span><span class="rf-valor">${ests.length} en el grupo</span></div>`;
-  }
-
-  el("resumen-card").innerHTML = `
-    <div class="resumen-titulo">Resumen de inscripcion</div>
-    ${filas}
-    <div class="resumen-total">
-      <span class="rt-label">Total a pagar</span>
-      <span class="rt-precio">${precioStr}</span>
-    </div>
-  `;
+    <div class="resumen-total"><span class="rt-label">Total</span><span class="rt-precio">${precioStr}</span></div>`;
 }
 
-// ─── CONFIRMAR INSCRIPCIÓN ────────────────────────────────────────────────────
+// ─── CONFIRMAR — Firebase se carga aquí, solo si el usuario llega al submit ──
 el("btn-confirmar").addEventListener("click", async () => {
   el("btn-confirmar").disabled = true;
   el("btn-confirmar-txt").style.display = "none";
   el("spinner-confirmar").style.display = "block";
 
   try {
+    // Importar Firebase dinámicamente solo cuando se necesita
+    const { db, storage } = await import("../js/core/firebase-config.js");
+    const { collection, doc, setDoc, getDocs, query, where, serverTimestamp, writeBatch } =
+      await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
+    const { ref, uploadBytes, getDownloadURL } =
+      await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js");
+
     const correo = el("inp-correo").value.trim().toLowerCase();
     const cedula = el("inp-cedula").value.trim();
 
-    // Verificar duplicado por correo
+    // Duplicado por correo
     const dupCorreo = await getDocs(query(collection(db, "participantes"), where("correo", "==", correo)));
     if (!dupCorreo.empty) throw new Error("Ya existe una inscripcion con este correo electronico.");
 
-    // Verificar duplicado por cedula (solo si se ingresó)
+    // Duplicado por cedula
     if (cedula) {
       const dupCedula = await getDocs(query(collection(db, "participantes"), where("cedula", "==", cedula)));
-      if (!dupCedula.empty) throw new Error("Ya existe una inscripcion con esta cedula. Si crees que es un error, contacta al staff.");
+      if (!dupCedula.empty) throw new Error("Ya existe una inscripcion con esta cedula. Contacta al staff si crees que es un error.");
     }
 
-    // Generar secuencial
+    // Secuencial
     const countSnap = await getDocs(collection(db, "participantes"));
-    const seq   = countSnap.size + 1;
+    const seq    = countSnap.size + 1;
     const codigo = generarCodigo(seq);
     const token  = generarToken();
 
-    // Subir comprobante si aplica
+    // Comprobante
     let comprobanteUrl = null;
     if (metodoPago === "transferencia" && archivoComprobante) {
       const ext = archivoComprobante.name.split(".").pop();
@@ -1208,95 +1038,69 @@ el("btn-confirmar").addEventListener("click", async () => {
       comprobanteUrl = await getDownloadURL(snap.ref);
     }
 
-    const camposExtra = recogerCamposExtra();
+    const camposExtra   = recogerCamposExtra();
+    const estudiantesData = esColegio ? recogerEstudiantes() : [];
+    const tutorData = esColegio ? {
+      nombre:   el("inp-tutor-nombre").value.trim(),
+      correo:   el("inp-tutor-correo").value.trim().toLowerCase(),
+      telefono: el("inp-tutor-tel").value.trim(),
+      colegio:  el("inp-colegio").value.trim(),
+    } : null;
 
-    // Datos tutor/estudiantes si es colegio
-    let tutorData = null;
-    let estudiantesData = [];
-    if (esColegio) {
-      tutorData = {
-        nombre:   el("inp-tutor-nombre").value.trim(),
-        correo:   el("inp-tutor-correo").value.trim().toLowerCase(),
-        telefono: el("inp-tutor-tel").value.trim(),
-        colegio:  el("inp-colegio").value.trim(),
-      };
-      estudiantesData = recogerEstudiantes();
-    }
-
-    // Documento principal (tutor si es colegio, o participante individual)
+    // Documento principal
     const docRef = doc(collection(db, "participantes"));
-    const docData = {
+    await setDoc(docRef, {
       codigo, token,
-      nombre:         el("inp-nombre").value.trim(),
-      apellido:       el("inp-apellido").value.trim(),
-      nombreCompleto: `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`,
-      cedula,
-      correo,
-      telefono:       el("inp-telefono").value.trim(),
-      categoria:      esColegio ? "colegio" : categoriaSeleccionada.id,
-      categoriaNombre:esColegio ? "Colegio" : categoriaSeleccionada.label,
+      nombre:          el("inp-nombre").value.trim(),
+      apellido:        el("inp-apellido").value.trim(),
+      nombreCompleto:  `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`,
+      cedula, correo,
+      telefono:        el("inp-telefono").value.trim(),
+      categoria:       esColegio ? "colegio"        : categoriaSeleccionada.id,
+      categoriaNombre: esColegio ? "Colegio"        : categoriaSeleccionada.label,
       camposExtra,
       pago: {
-        metodo:        metodoPago,
-        estado:        metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+        metodo: metodoPago,
+        estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
         comprobanteUrl,
-        monto:         esColegio ? null : (categoriaSeleccionada?.precio ?? null),
-        aprobadoPor:   null,
-        aprobadoEn:    null,
-        notas:         null,
+        monto:  esColegio ? null : (categoriaSeleccionada?.precio ?? null),
+        aprobadoPor: null, aprobadoEn: null, notas: null,
       },
       esColegio,
-      tutor:          tutorData,
-      colegio:        esColegio ? el("inp-colegio").value.trim() : null,
-      estudiantes:    estudiantesData,  // Array vacío si no es colegio
+      tutor:      tutorData,
+      colegio:    esColegio ? el("inp-colegio").value.trim() : null,
+      estudiantes: estudiantesData,
       estadoRegistro: "activo",
-      asistencias:    {},
+      asistencias: {},
       fechaRegistro:  serverTimestamp(),
       actualizadoEn:  serverTimestamp(),
-    };
-    await setDoc(docRef, docData);
+    });
 
-    // Si es colegio, crear documentos individuales por cada estudiante
+    // Documentos individuales de estudiantes
     if (esColegio && estudiantesData.length > 0) {
-      const batch = writeBatch(db);
+      const batch   = writeBatch(db);
       const baseSeq = seq + 1;
       estudiantesData.forEach((est, i) => {
-        const estRef = doc(collection(db, "participantes"));
-        const estToken = generarToken();
+        const estRef    = doc(collection(db, "participantes"));
+        const estToken  = generarToken();
         const estCodigo = generarCodigo(baseSeq + i);
         batch.set(estRef, {
-          codigo:          estCodigo,
-          token:           estToken,
-          nombre:          est.nombre,
-          apellido:        est.apellido,
-          nombreCompleto:  `${est.nombre} ${est.apellido}`,
-          cedula:          est.cedula || "",
-          correo:          est.correo,
-          telefono:        "",
-          categoria:       "colegio_estudiante",
-          categoriaNombre: "Colegio",
-          camposExtra: {
-            grado:    est.grado,
-            bachiller:est.bachiller,
-          },
+          codigo: estCodigo, token: estToken,
+          nombre: est.nombre, apellido: est.apellido,
+          nombreCompleto: `${est.nombre} ${est.apellido}`,
+          cedula: est.cedula || "", correo: est.correo, telefono: "",
+          categoria: "colegio_estudiante", categoriaNombre: "Colegio",
+          camposExtra: { grado: est.grado, bachiller: est.bachiller },
           pago: {
-            metodo:        metodoPago,
-            estado:        metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-            comprobanteUrl,          // mismo comprobante del tutor
-            monto:         null,
-            aprobadoPor:   null,
-            aprobadoEn:    null,
-            notas:         null,
+            metodo: metodoPago,
+            estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+            comprobanteUrl, monto: null,
+            aprobadoPor: null, aprobadoEn: null, notas: null,
           },
-          esColegio:       true,
-          tutorCodigo:     codigo,   // referencia al tutor
-          tutor:           tutorData,
-          colegio:         tutorData.colegio,
-          estudiantes:     [],
-          estadoRegistro:  "activo",
-          asistencias:     {},
-          fechaRegistro:   serverTimestamp(),
-          actualizadoEn:   serverTimestamp(),
+          esColegio: true, tutorCodigo: codigo,
+          tutor: tutorData, colegio: tutorData.colegio,
+          estudiantes: [], estadoRegistro: "activo", asistencias: {},
+          fechaRegistro: serverTimestamp(), actualizadoEn: serverTimestamp(),
         });
       });
       await batch.commit();
@@ -1304,7 +1108,7 @@ el("btn-confirmar").addEventListener("click", async () => {
 
     // Éxito
     document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("activo"));
-    el("steps-wrap") && (document.querySelector(".steps-wrap").style.display = "none");
+    document.querySelector(".steps-wrap").style.display = "none";
     el("exito-wrap").classList.add("visible");
     el("exito-codigo").textContent = codigo;
     el("exito-correo").textContent = correo;
@@ -1318,5 +1122,6 @@ el("btn-confirmar").addEventListener("click", async () => {
   }
 });
 </script>
+
 </body>
 </html>
