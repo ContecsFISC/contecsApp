@@ -645,9 +645,18 @@ const CAMPOS_EXTRA = {
           <option>Facultad de Ingenieria Mecanica</option>
         </select></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Ingenieria de Sistemas"/></div>
-      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
-        <select id="ex-anio"><option value="">Selecciona</option>
-          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
+        <select id="ex-anio"><option value="">Selecciona tu semestre</option>
+          <option>1er año — 1er semestre</option>
+          <option>1er año — 2do semestre</option>
+          <option>2do año — 1er semestre</option>
+          <option>2do año — 2do semestre</option>
+          <option>3er año — 1er semestre</option>
+          <option>3er año — 2do semestre</option>
+          <option>4to año — 1er semestre</option>
+          <option>4to año — 2do semestre</option>
+          <option>5to año — 1er semestre</option>
+          <option>5to año — 2do semestre</option>
         </select></div>
     </div>`,
   estudiante_externo: `
@@ -656,9 +665,18 @@ const CAMPOS_EXTRA = {
       <div class="form-group"><label>Universidad o institucion <span class="req">*</span></label><input type="text" id="ex-universidad" placeholder="Ej: Universidad de Panama"/></div>
       <div class="form-group"><label>Correo institucional <span class="req">*</span></label><input type="email" id="ex-correo-inst" placeholder="nombre@universidad.ac.pa"/></div>
       <div class="form-group"><label>Carrera <span class="req">*</span></label><input type="text" id="ex-carrera" placeholder="Ej: Informatica"/></div>
-      <div class="form-group"><label>Ano que cursas <span class="req">*</span></label>
-        <select id="ex-anio"><option value="">Selecciona</option>
-          <option>I ano</option><option>II ano</option><option>III ano</option><option>IV ano</option><option>V ano</option>
+      <div class="form-group"><label>Año que cursas <span class="req">*</span></label>
+        <select id="ex-anio"><option value="">Selecciona tu semestre</option>
+          <option>1er año — 1er semestre</option>
+          <option>1er año — 2do semestre</option>
+          <option>2do año — 1er semestre</option>
+          <option>2do año — 2do semestre</option>
+          <option>3er año — 1er semestre</option>
+          <option>3er año — 2do semestre</option>
+          <option>4to año — 1er semestre</option>
+          <option>4to año — 2do semestre</option>
+          <option>5to año — 1er semestre</option>
+          <option>5to año — 2do semestre</option>
         </select></div>
     </div>`,
   academico_utp: `
@@ -1027,8 +1045,8 @@ el("btn-confirmar").addEventListener("click", async () => {
     // ── Importar Firebase dinámicamente (no bloquea la UI al cargar la página) ──
     const { db, storage } = await import("./js/core/firebase-config.js");
     const {
-      collection, doc, setDoc, getDoc, getDocs,
-      query, where, serverTimestamp, writeBatch
+      collection, doc, setDoc, getDoc,
+      serverTimestamp, writeBatch
     } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
     const { ref, uploadBytes } =
       await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js");
@@ -1049,9 +1067,10 @@ el("btn-confirmar").addEventListener("click", async () => {
       throw new Error("Ya existe una inscripcion con esta cedula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
     }
 
-    // ── Generar código secuencial ─────────────────────────────────────────────
-    const countSnap = await getDocs(collection(db, "participantes"));
-    const seq    = countSnap.size + 1;
+    // ── Generar código único sin necesidad de leer la colección ────────────────
+    // Usamos timestamp + random de 3 dígitos para evitar colisiones
+    // sin hacer getDocs() que requiere "list" permission (bloqueado por reglas)
+    const seq    = Date.now() % 100000; // últimos 5 dígitos del timestamp
     const codigo = generarCodigo(seq);
     const token  = generarToken();
 
