@@ -803,14 +803,7 @@
 </div>
 
 <script type="module">
-import { db, storage } from "../js/core/firebase-config.js";
-import {
-  collection, doc, addDoc, setDoc, getDoc, getDocs,
-  query, where, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import {
-  ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
+import { registrarParticipante, archivoABase64 } from "../js/core/participantes-api.js";
 
 // ─── CONFIGURACIÓN DE CATEGORÍAS ────────────────────────────────────────────
 // (En producción esto viene de configuracion/evento_actual en Firestore)
@@ -839,17 +832,6 @@ function mostrarAlerta(tipo, msg) {
   div.innerHTML = msg;
   div.scrollIntoView({ behavior: "smooth", block: "nearest" });
   if (tipo !== "error") setTimeout(() => div.classList.remove("show"), 6000);
-}
-
-// ─── GENERACIÓN CÓDIGO/TOKEN ─────────────────────────────────────────────────
-function generarCodigo(seq) {
-  return `CTCS-2025-${String(seq).padStart(5, "0")}`;
-}
-
-function generarToken() {
-  const arr = new Uint8Array(24);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, b => b.toString(16).padStart(2, "0")).join("");
 }
 
 // ─── RENDER CATEGORÍAS ───────────────────────────────────────────────────────
@@ -1042,42 +1024,17 @@ el("btn-confirmar").addEventListener("click", async () => {
 
   try {
     const correo = el("inp-correo").value.trim().toLowerCase();
-
-    // Verificar duplicado por cédula
     const cedula = el("inp-cedula").value.trim();
-    const dupSnap = await getDocs(query(
-      collection(db, "participantes"),
-      where("cedula", "==", cedula)
-    ));
-    if (!dupSnap.empty) {
-      throw new Error("Ya existe una inscripción con esta cédula. Si crees que es un error, contacta al staff.");
-    }
 
-    // Verificar duplicado por correo
-    const dupCorreo = await getDocs(query(
-      collection(db, "participantes"),
-      where("correo", "==", correo)
-    ));
-    if (!dupCorreo.empty) {
-      throw new Error("Ya existe una inscripción con este correo electrónico.");
-    }
-
-    // Generar número secuencial simple (en producción usar Cloud Function con counter)
-    const countSnap = await getDocs(collection(db, "participantes"));
-    const seq = countSnap.size + 1;
-    const codigo = generarCodigo(seq);
-    const token  = generarToken();
-
-    // Subir comprobante si aplica
-    let comprobanteUrl = null;
+    let comprobanteBase64 = null;
+    let comprobanteContentType = null;
+    let comprobanteNombre = null;
     if (metodoPago === "transferencia" && archivoComprobante) {
-      const ext = archivoComprobante.name.split(".").pop();
-      const storageRef = ref(storage, `comprobantes/${cedula}_${Date.now()}.${ext}`);
-      const snap = await uploadBytes(storageRef, archivoComprobante);
-      comprobanteUrl = await getDownloadURL(snap.ref);
+      comprobanteBase64 = await archivoABase64(archivoComprobante);
+      comprobanteContentType = archivoComprobante.type;
+      comprobanteNombre = archivoComprobante.name;
     }
 
-    // Datos del tutor si aplica
     let tutorData = null;
     if (esColegio) {
       tutorData = {
@@ -1088,52 +1045,33 @@ el("btn-confirmar").addEventListener("click", async () => {
       };
     }
 
-    // Guardar en Firestore
-    const docRef = doc(collection(db, "participantes"));
-    await setDoc(docRef, {
-      // Identificadores
-      codigo,
-      token,
-      // Datos personales
+    const resultado = await registrarParticipante({
       nombre:      el("inp-nombre").value.trim(),
       apellido:    el("inp-apellido").value.trim(),
-      nombreCompleto: `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`,
       cedula,
       correo,
       telefono:    el("inp-telefono").value.trim(),
-      institucion: el("inp-institucion").value.trim(),
-      carrera:     el("inp-carrera").value.trim(),
-      // Categoría
       categoria:   categoriaSeleccionada.id,
       categoriaNombre: categoriaSeleccionada.label,
-      // Pago
-      pago: {
-        metodo:         metodoPago,
-        estado:         metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-        comprobanteUrl: comprobanteUrl,
-        monto:          categoriaSeleccionada.precio,
-        aprobadoPor:    null,
-        aprobadoEn:     null,
-        notas:          null,
-      },
-      // Colegio / tutor
+      monto:       categoriaSeleccionada.precio,
+      metodoPago,
       esColegio,
       tutor: tutorData,
-      colegio: esColegio ? el("inp-colegio").value.trim() : null,
-      // Estado general
-      estadoRegistro: "activo",
-      asistencias:    {},
-      // Metadata
-      fechaRegistro:  serverTimestamp(),
-      actualizadoEn:  serverTimestamp(),
+      estudiantes: [],
+      camposExtra: {
+        institucion: el("inp-institucion").value.trim(),
+        carrera: el("inp-carrera").value.trim(),
+      },
+      comprobanteBase64,
+      comprobanteContentType,
+      comprobanteNombre,
     });
 
-    // Mostrar éxito
     document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("activo"));
     document.querySelector(".steps-wrap").style.display = "none";
     el("exito-wrap").classList.add("visible");
-    el("exito-codigo").textContent = codigo;
-    el("exito-correo").textContent = correo;
+    el("exito-codigo").textContent = resultado.codigo;
+    el("exito-correo").textContent = resultado.correo;
     window.scrollTo({ top: 0, behavior: "smooth" });
 
   } catch (err) {

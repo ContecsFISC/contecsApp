@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function userExists() {
+      return signedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function userRol() {
+      return userExists() ? userDoc().data.rol : '';
+    }
+
+    function hasRol(roles) {
+      return userExists() && userRol() in roles;
+    }
+
+    function isStaff() {
+      return userExists() && userRol() != 'sin_rol';
+    }
+
+    function canGestionarParticipantes() {
+      return hasRol([
+        'ceo', 'junta_principal', 'junta', 'coordinador',
+        'actividades', 'finanzas', 'secretario', 'comunicaciones'
+      ]);
+    }
+
+    // ── Usuarios ─────────────────────────────────────────────────────────────
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (
+        request.auth.uid == uid
+        || hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'finanzas'])
+      );
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.rol == 'sin_rol';
+      allow update: if signedIn() && (
+        (request.auth.uid == uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol']))
+        || hasRol(['ceo', 'junta_principal'])
+      );
+    }
+
+    // ── Participantes — CVE-C01 / CVE-C02: sin acceso público ─────────────────
+    // Lectura/escritura solo staff. Registro público vía Cloud Function (Admin SDK).
+    match /participantes/{docId} {
+      allow read, write: if canGestionarParticipantes();
+    }
+
+    // Contador secuencial de inscripciones — solo Admin SDK
+    match /contadores/{id} {
+      allow read, write: if false;
+    }
+
+    // ── Inventario y catálogo ────────────────────────────────────────────────
+    match /productos/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+    }
+
+    match /categorias/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+    }
+
+    // ── Operaciones financieras ──────────────────────────────────────────────
+    match /ventas/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+    }
+
+    match /compras/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+    }
+
+    match /mermas/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+    }
+
+    match /fondos/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'finanzas']);
+    }
+
+    match /fondos_entrada/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+    }
+
+    match /movimientos_inventario/{id} {
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+    }
+
+    // ── Eventos e inscripciones internas ─────────────────────────────────────
+    match /eventos/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
+    match /inscripciones/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
+    // ── Voluntarios ──────────────────────────────────────────────────────────
+    match /actividades_voluntarios/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+    }
+
+    match /voluntarios/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+    }
+
+    match /asistencias_voluntarios/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+    }
+
+    // ── Denegar todo lo no definido explícitamente ───────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
