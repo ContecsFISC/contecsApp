@@ -15,6 +15,7 @@ const provider = new GoogleAuthProvider();
 const microsoftProvider = new OAuthProvider("microsoft.com");
 const PUBLIC_PAGES = ["index.html"];
 
+
 function esErrorDePermisosFirestore(error) {
   return error?.code === "permission-denied" || error?.code === "firestore/permission-denied";
 }
@@ -169,8 +170,11 @@ export function usuarioTienePermiso(permiso) {
   return tienePermiso(rol, permiso);
 }
 
-export function requirePermiso(permiso) {
-  if (!usuarioTienePermiso(permiso)) {
-    window.location.href = "dashboard.html";
+export function requirePermiso(...permisos) {
+  const tiene = permisos.some(p => usuarioTienePermiso(p));
+  if (!tiene) {
+    const depth = window.location.pathname.split("/").length - 2;
+    const prefix = depth > 0 ? "../".repeat(depth) : "";
+    window.location.href = prefix + "dashboard.html";
   }
 }

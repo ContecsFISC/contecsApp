@@ -47,9 +47,13 @@ export const PERMISOS = {
   exportar_datos:    ["junta_principal","ceo"],
   gestionar_usuarios:   ["junta_principal","ceo"],
   gestionar_inscripciones: ["ceo"],
-  gestionar_voluntarios:   ["junta_principal","voluntariado", "ceo"],
-  ver_participantes:       ["ceo", "junta_principal", "junta", "coordinador", "actividades", "finanzas", "secretario", "comunicaciones"],
+  gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
+  gestionar_actividades:   ["junta_principal","actividades","ceo"],
+  gestionar_ventas:        ["junta_principal","junta","ventas","logistica","ceo"],
+  gestionar_giras:         ["junta_principal","giras","ceo"],
+  ver_participantes:       ["ceo", "junta_principal", "junta"],
   aprobar_pagos:           ["ceo", "junta_principal", "junta", "finanzas", "secretario"],
+  ver_calendario:         ["ceo", "junta_principal", "junta", "coordinador","finanzas","logistica","ventas","secretario","actividades", "patrocinios","investigacion","voluntariado","giras", "comunicaciones","miembro"],
 };
 
 // Función para verificar si un rol tiene un permiso

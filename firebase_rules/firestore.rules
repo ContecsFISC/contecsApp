@@ -119,8 +119,31 @@ service cloud.firestore {
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
     }
 
+    // Checkpoints detallados del programa (colección separada)
+    match /checkpoints/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
+    // Inscripciones in-situ a talleres por QR (decrementa cupos)
+    match /inscripciones_checkpoint/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
     // ── Voluntarios ──────────────────────────────────────────────────────────
     match /actividades_voluntarios/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+    }
+
+    match /giras_voluntarios/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras']);
+    }
+
+    match /asignaciones_voluntarios/{id} {
       allow read: if isStaff();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
     }
@@ -133,6 +156,12 @@ service cloud.firestore {
     match /asistencias_voluntarios/{id} {
       allow read: if isStaff();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+    }
+
+    // ── Actividades de Ventas ────────────────────────────────────────────────
+    match /actividades_ventas/{id} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
     }
 
     // ── Denegar todo lo no definido explícitamente ───────────────────────────
