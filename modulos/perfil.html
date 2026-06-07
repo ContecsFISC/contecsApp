@@ -502,10 +502,7 @@
 </div>
 
 <script type="module">
-import { db } from "../js/core/firebase-config.js";
-import {
-  collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { accederParticipante } from "../js/core/participantes-api.js";
 
 const el = id => document.getElementById(id);
 
@@ -585,24 +582,11 @@ el("inp-token").addEventListener("keydown",  e => { if (e.key === "Enter") el("b
 
 async function acceder(codigo, token) {
   try {
-    const snap = await getDocs(query(
-      collection(db, "participantes"),
-      where("codigo", "==", codigo),
-      where("token", "==", token)
-    ));
-
-    if (snap.empty) {
-      el("acceso-wrap").style.display = "flex";
-      mostrarErrorAcceso("❌ Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
-      return;
-    }
-
-    const data = snap.docs[0].data();
+    const data = await accederParticipante(codigo, token);
     renderPerfil(data);
-
   } catch (err) {
     el("acceso-wrap").style.display = "flex";
-    mostrarErrorAcceso("Error de conexión. Verifica tu internet e intenta de nuevo.");
+    mostrarErrorAcceso(err.message || "Error de conexión. Verifica tu internet e intenta de nuevo.");
   }
 }
 

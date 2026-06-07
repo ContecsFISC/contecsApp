@@ -812,14 +812,14 @@ el("btn-add-estudiante").addEventListener("click", agregarEstudiante);
 
 function agregarEstudiante() {
   contadorEstudiantes++;
-  const idx  = contadorEstudiantes;
+  const idx   = contadorEstudiantes;
   const lista = el("lista-estudiantes");
   const div   = document.createElement("div");
   div.className = "estudiante-item";
   div.id = `est-${idx}`;
   div.innerHTML = `
     <div class="estudiante-num">Estudiante ${idx}</div>
-    ${idx > 1 ? `<button class="btn-remove-estudiante" data-idx="${idx}">x</button>` : ""}
+    <button class="btn-remove-estudiante" data-idx="${idx}">x</button>
     <div class="form-row">
       <div class="form-group"><label>Nombre <span class="req">*</span></label><input type="text" id="est-${idx}-nombre" placeholder="Nombre"/></div>
       <div class="form-group"><label>Apellido <span class="req">*</span></label><input type="text" id="est-${idx}-apellido" placeholder="Apellido"/></div>
@@ -839,11 +839,25 @@ function agregarEstudiante() {
           ${BACHILLERES.map(b => `<option>${b}</option>`).join("")}
         </select></div>
     </div>`;
-  // Insertar al inicio — el más reciente aparece arriba
-  lista.insertBefore(div, lista.firstChild);
-  // Bind remove button
+  // El más nuevo aparece arriba — el tutor no tiene que bajar a agregar
+  lista.prepend(div);
+  actualizarNumerosEstudiantes();
+  // Bind botón eliminar — siempre visible en todos los estudiantes
   const btn = div.querySelector(".btn-remove-estudiante");
-  if (btn) btn.addEventListener("click", () => div.remove());
+  if (btn) btn.addEventListener("click", () => { div.remove(); actualizarNumerosEstudiantes(); });
+  // Focus en el nombre del nuevo estudiante
+  div.querySelector(`#est-${idx}-nombre`)?.focus();
+}
+
+function actualizarNumerosEstudiantes() {
+  // Items en DOM: el más nuevo (prepend) está arriba = índice 0
+  // El número visual del de arriba es el total, el de abajo es 1
+  const items = Array.from(document.querySelectorAll(".estudiante-item"));
+  const total = items.length;
+  items.forEach((item, i) => {
+    const numEl = item.querySelector(".estudiante-num");
+    if (numEl) numEl.textContent = `Estudiante ${total - i}`;
+  });
 }
 
 function recogerEstudiantes() {
