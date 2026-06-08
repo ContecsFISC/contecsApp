@@ -11,14 +11,7 @@ const db = getFirestore();
 const bucket = getStorage().bucket();
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
-// ⚠️  SEGURIDAD: La API key ya NO está hardcodeada aquí.
-//     Configúrala como variable de entorno con:
-//       firebase functions:secrets:set BREVO_API_KEY
-//     Y luego despliega: firebase deploy --only functions
-//
-//     Si usas dotenv en local, crea functions/.env con:
-//       BREVO_API_KEY=tu_nueva_key_aqui
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_API_KEY = "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";
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "congresofisc@utp.ac.pa"};
 const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
 
@@ -101,10 +94,6 @@ function sanitizarParticipante(data) {
 // ─── BREVO: ENVÍO DE CORREO ───────────────────────────────────────────────────
 function brevoRequest(payload) {
   return new Promise((resolve, reject) => {
-    if (!BREVO_API_KEY) {
-      reject(new Error("BREVO_API_KEY no está configurada. Ejecuta: firebase functions:secrets:set BREVO_API_KEY"));
-      return;
-    }
     const body = JSON.stringify(payload);
     const req = https.request({
       hostname: "api.brevo.com",
@@ -131,9 +120,6 @@ function brevoRequest(payload) {
   });
 }
 
-// ─── CORREO HTML ──────────────────────────────────────────────────────────────
-// FIX: ahora el correo muestra claramente AMBOS códigos (participante + acceso)
-// para que el usuario pueda entrar manualmente si el link falla
 function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
   const estadoMensaje = metodoPago === "transferencia" ?
     "Tu comprobante fue recibido. El staff lo revisará y activará tu acceso pronto." :
@@ -159,7 +145,7 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
       Tu inscripción al <strong>II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026</strong> fue registrada exitosamente.
     </p>
 
-    <!-- BOTÓN PRINCIPAL — acceso directo con un clic -->
+    <!-- BOTÓN PRINCIPAL -->
     <div style="text-align:center;margin:0 0 24px;">
       <a href="${linkPerfil}" style="display:inline-block;background:linear-gradient(135deg,#00722e,#045223);color:#fff;padding:16px 36px;border-radius:10px;text-decoration:none;font-weight:800;font-size:16px;letter-spacing:0.5px;">
         🎟️ Ver mi credencial y QR
@@ -168,16 +154,16 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
     </div>
 
     <!-- CÓDIGO DE PARTICIPANTE -->
-    <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:16px;">
+    <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:12px;">
       <p style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Código de participante</p>
       <p style="color:#fff;font-size:26px;font-weight:800;letter-spacing:4px;margin:0;font-family:'Courier New',monospace;">${codigo}</p>
     </div>
 
     <!-- CÓDIGO DE ACCESO — visible para entrada manual si el link falla -->
-    <div style="background:#e8f5ec;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px;">
+    <div style="background:#e8f5ec;border:1.5px solid #a5d6a7;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px;">
       <p style="color:#045223;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;font-weight:700;">Código de acceso</p>
       <p style="color:#1a2e1e;font-size:13px;font-weight:700;margin:0 0 6px;font-family:'Courier New',monospace;word-break:break-all;">${token}</p>
-      <p style="color:#8a9e8d;font-size:11px;margin:0;">Úsalo junto a tu código de participante si el botón no funciona</p>
+      <p style="color:#8a9e8d;font-size:11px;margin:0;">Úsalo junto a tu código de participante si el botón de arriba no funciona</p>
     </div>
 
     <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
@@ -195,7 +181,6 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
         <strong style="color:#d4850a;">${estadoMensaje}</strong>
       </td></tr>
     </table>
-
     <div style="border-top:1px solid #e8f5ec;margin:24px 0;"></div>
     <div style="background:#e8f5ec;border-radius:10px;padding:16px 18px;">
       <p style="font-size:13px;font-weight:700;color:#045223;margin:0 0 8px;">Sobre el evento</p>
@@ -220,17 +205,17 @@ function construirTextoCorreo({nombre, codigo, token, categoriaNombre, metodoPag
 
 Tu inscripción al II CONTECS 2026 fue registrada exitosamente.
 
-ACCEDE A TU CREDENCIAL Y QR:
-${linkPerfil}
-
-─────────────────────────────────
-CÓDIGO DE PARTICIPANTE: ${codigo}
-CÓDIGO DE ACCESO:        ${token}
-─────────────────────────────────
-Guarda estos códigos — los necesitarás si el link no funciona.
+─────────────────────────────────────────
+CÓDIGO DE PARTICIPANTE : ${codigo}
+CÓDIGO DE ACCESO       : ${token}
+─────────────────────────────────────────
+Guarda estos datos — los necesitarás si el botón no funciona.
 
 Categoría: ${categoriaNombre}
 Método de pago: ${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}
+
+Accede a tu credencial aquí:
+${linkPerfil}
 
 II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá
 congresofisc@utp.ac.pa
@@ -443,8 +428,6 @@ exports.accederParticipante = onCall(
         throw new HttpsError("invalid-argument", "Credenciales inválidas.");
       }
 
-      // FIX: manejo explícito de errores de Firestore para dar mensaje claro
-      // en lugar de "INTERNAL" genérico
       let snap;
       try {
         snap = await db.collection("participantes")
@@ -453,14 +436,11 @@ exports.accederParticipante = onCall(
             .limit(1)
             .get();
       } catch (e) {
-        console.error("Firestore error en accederParticipante:", e.message, e.code);
-        // El error más común es índice faltante — se crea en Firebase Console
-        // Firestore > Indexes > Agregar índice compuesto:
+        console.error("[accederParticipante] Firestore error:", e.code, e.message);
+        // Error más común: índice compuesto faltante.
+        // Créalo en Firebase Console → Firestore → Indexes → Add composite index
         //   Colección: participantes | codigo ASC, token ASC
-        if (e.code === 9 || (e.message && e.message.includes("index"))) {
-          throw new HttpsError("internal", "Error de configuración del servidor. Contacta al equipo técnico.");
-        }
-        throw new HttpsError("internal", "Error al buscar tu inscripción. Intenta de nuevo.");
+        throw new HttpsError("internal", "Error al consultar la base de datos. Intenta de nuevo en unos segundos.");
       }
 
       if (snap.empty) {
