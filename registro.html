@@ -765,7 +765,11 @@ function limpiarAlerta() {
 }
 
 // ─── CÓDIGO / TOKEN ───────────────────────────────────────────────────────────
-function generarCodigo(seq) { return `CTCS-2026-${String(seq).padStart(5, "0")}`; }
+function generarCodigo() {
+  const ts  = String(Date.now()).slice(-4);
+  const rnd = String(Math.floor(Math.random() * 10));
+  return `CTCS-2026-${ts}${rnd}`;
+}
 function generarToken() {
   const arr = new Uint8Array(24);
   crypto.getRandomValues(arr);
@@ -1083,11 +1087,7 @@ el("btn-confirmar").addEventListener("click", async () => {
       throw new Error("Ya existe una inscripcion con esta cedula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
     }
 
-    // ── Generar código único sin necesidad de leer la colección ────────────────
-    // Usamos timestamp + random de 3 dígitos para evitar colisiones
-    // sin hacer getDocs() que requiere "list" permission (bloqueado por reglas)
-    const seq    = Date.now() % 100000; // últimos 5 dígitos del timestamp
-    const codigo = generarCodigo(seq);
+    const codigo = generarCodigo();
     const token  = generarToken();
 
     // ── Subir comprobante (sin getDownloadURL — almacenamos solo la ruta) ─────
@@ -1153,7 +1153,7 @@ el("btn-confirmar").addEventListener("click", async () => {
     const estudiantesGuardados = []; // [{docId, codigo, token, nombre, correo}]
     if (esColegio && estudiantesData.length > 0) {
       const batch   = writeBatch(db);
-      const baseSeq = seq + 1;
+
       estudiantesData.forEach((est, i) => {
         const estCedula = est.cedula || "";
         const estId = estCedula
@@ -1161,7 +1161,7 @@ el("btn-confirmar").addEventListener("click", async () => {
           : `e_${est.correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
         const estRef    = doc(db, "participantes", estId);
         const estToken  = generarToken();
-        const estCodigo = generarCodigo(baseSeq + i);
+        const estCodigo = generarCodigo();
         // Guardar para usarlos en los correos con los valores reales
         estudiantesGuardados.push({
           docId:  estId,
@@ -1206,40 +1206,8 @@ el("btn-confirmar").addEventListener("click", async () => {
     el("exito-correo").textContent = correo;
     window.scrollTo({ top: 0, behavior: "smooth" });
 
-    // ── Correos via Brevo (no bloquea la UI — fire and forget con manejo de error) ──
-    // El registro ya está guardado en Firestore. Si el correo falla, se marca
-    // correo_pendiente: true para que el staff pueda reenviarlo manualmente.
-    const datosParticipante = {
-      docId,
-      codigo,
-      token,
-      nombre:          el("inp-nombre").value.trim(),
-      correo,
-      categoriaNombre: esColegio ? "Colegio" : categoriaSeleccionada.label,
-      metodoPago,
-    };
-
-    // Correo del participante/tutor principal
-    enviarCorreoBienvenida(datosParticipante, db)
-      .catch(e => console.warn("Correo principal fallido, marcado en Firestore:", e.message));
-
-    // Correos individuales de cada estudiante — usando los tokens REALES del batch
-    if (esColegio && estudiantesGuardados.length > 0) {
-      const tutorNombreVal = el("inp-tutor-nombre").value.trim();
-      estudiantesGuardados.forEach(est => {
-        enviarCorreoBienvenida({
-          docId:               est.docId,
-          codigo:              est.codigo,
-          token:               est.token,   // token real guardado en Firestore
-          nombre:              est.nombre,
-          correo:              est.correo,
-          categoriaNombre:     "Colegio",
-          metodoPago,
-          esEstudianteColegio: true,
-          tutorNombre:         tutorNombreVal,
-        }, db).catch(e => console.warn(`Correo estudiante ${est.correo} fallido:`, e.message));
-      });
-    }
+    // El correo lo envía automáticamente el trigger de Firestore (enviarCorreoAlRegistrar)
+    // No hay nada que hacer aquí — el registro en Firestore es suficiente.
 
   } catch (err) {
     mostrarAlerta("error", err.message || "Ocurrio un error al registrar. Intenta de nuevo.");
@@ -1250,219 +1218,7 @@ el("btn-confirmar").addEventListener("click", async () => {
   }
 });
 
-// ════════════════════════════════════════════════════════════════════════════
-// BREVO — Integración de correos
-// ════════════════════════════════════════════════════════════════════════════
-
-const CORREO_FUNCTION_URL = "https://us-central1-contecs-fa6e6.cloudfunctions.net/enviarCorreo";
-const URL_BASE_PERFIL  = "https://contecsfisc.github.io/contecsApp/perfil.html";
-
-// ── Generar QR como PNG base64 ────────────────────────────────────────────
-// Renderiza en un <div> temporal off-screen, extrae el canvas/img y convierte a base64.
-async function generarQRBase64(codigo, token) {
-  return new Promise((resolve, reject) => {
-    const contenedor = document.createElement("div");
-    contenedor.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:200px;height:200px;";
-    document.body.appendChild(contenedor);
-
-    try {
-      new QRCode(contenedor, {
-        text: JSON.stringify({ codigo, token }),
-        width: 200, height: 200,
-        colorDark:  "#045223",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H,
-      });
-
-      // QRCode.js puede renderizar como canvas o como img dependiendo del navegador
-      setTimeout(() => {
-        try {
-          const canvas = contenedor.querySelector("canvas");
-          const img    = contenedor.querySelector("img");
-          let base64   = null;
-
-          if (canvas) {
-            base64 = canvas.toDataURL("image/png").split(",")[1];
-          } else if (img) {
-            // Fallback: dibujar el img en un canvas temporal
-            const c   = document.createElement("canvas");
-            c.width   = 200; c.height = 200;
-            const ctx = c.getContext("2d");
-            ctx.drawImage(img, 0, 0, 200, 200);
-            base64 = c.toDataURL("image/png").split(",")[1];
-          }
-
-          document.body.removeChild(contenedor);
-
-          if (base64) resolve(base64);
-          else reject(new Error("No se pudo extraer el QR como base64"));
-        } catch (e) {
-          document.body.removeChild(contenedor);
-          reject(e);
-        }
-      }, 300); // dar tiempo al render del QR
-
-    } catch (e) {
-      document.body.removeChild(contenedor);
-      reject(e);
-    }
-  });
-}
-
-// ── Construir HTML del correo ─────────────────────────────────────────────
-function construirHTMLCorreo({ nombre, codigo, categoriaNombre, metodoPago, linkPerfil, qrBase64, esEstudianteColegio, tutorNombre }) {
-  const estadoPagoMensaje = metodoPago === "transferencia"
-    ? "Tu comprobante fue recibido. El staff lo revisará y activará tu acceso pronto."
-    : "Debes realizar tu pago en efectivo el día del evento en la mesa de inscripciones.";
-
-  const notaColegio = esEstudianteColegio && tutorNombre
-    ? `<tr><td style="padding:12px 0;border-bottom:1px solid #e0e0e0;">
-        <span style="color:#8a9e8d;font-size:13px;">Tutor responsable</span><br/>
-        <strong style="color:#1a2e1e;">${tutorNombre}</strong>
-       </td></tr>`
-    : "";
-
-  const qrSeccion = qrBase64
-    ? `<div style="text-align:center;margin:28px 0;">
-        <p style="font-size:13px;color:#8a9e8d;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;">Tu código QR de acceso</p>
-        <img src="cid:qr_code" alt="Código QR CONTECS 2026"
-          width="180" height="180"
-          style="border-radius:12px;border:3px solid #e8f5ec;display:block;margin:0 auto;"/>
-        <p style="font-size:11px;color:#8a9e8d;margin-top:8px;">Preséntalo en la entrada el día del evento</p>
-       </div>`
-    : `<div style="text-align:center;margin:28px 0;">
-        <a href="${linkPerfil}" style="display:inline-block;background:#00722e;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">
-          Ver mi QR de acceso
-        </a>
-       </div>`;
-
-  return `<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/></head>
-<body style="margin:0;padding:0;background:#f4f7f5;font-family:'Segoe UI',system-ui,sans-serif;">
-  <div style="max-width:580px;margin:0 auto;padding:24px 16px;">
-
-    <!-- HEADER -->
-    <div style="background:linear-gradient(135deg,#045223 0%,#00722e 60%,#39b54a 100%);border-radius:16px 16px 0 0;padding:32px 28px;text-align:center;">
-      <div style="font-size:36px;margin-bottom:8px;">🏛️</div>
-      <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0;letter-spacing:1px;">CONTECS 2026</h1>
-      <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:6px 0 0;">II Congreso de Tecnologías en Ciencias Computacionales</p>
-    </div>
-
-    <!-- BODY -->
-    <div style="background:#fff;padding:28px;border-radius:0 0 16px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-
-      <p style="font-size:16px;color:#1a2e1e;margin:0 0 20px;">Hola, <strong>${nombre}</strong></p>
-      <p style="font-size:14px;color:#8a9e8d;line-height:1.6;margin:0 0 24px;">
-        Tu inscripción al <strong>II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026</strong> fue registrada exitosamente.
-      </p>
-
-      <!-- CÓDIGO -->
-      <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
-        <p style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Tu código de participante</p>
-        <p style="color:#fff;font-size:26px;font-weight:800;letter-spacing:4px;margin:0;font-family:'Courier New',monospace;">${codigo}</p>
-      </div>
-
-      <!-- DETALLES -->
-      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-        <tr><td style="padding:12px 0;border-bottom:1px solid #e0e0e0;">
-          <span style="color:#8a9e8d;font-size:13px;">Categoría</span><br/>
-          <strong style="color:#1a2e1e;">${categoriaNombre}</strong>
-        </td></tr>
-        <tr><td style="padding:12px 0;border-bottom:1px solid #e0e0e0;">
-          <span style="color:#8a9e8d;font-size:13px;">Método de pago</span><br/>
-          <strong style="color:#1a2e1e;">${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}</strong>
-        </td></tr>
-        ${notaColegio}
-        <tr><td style="padding:12px 0;">
-          <span style="color:#8a9e8d;font-size:13px;">Estado del pago</span><br/>
-          <strong style="color:#d4850a;">${estadoPagoMensaje}</strong>
-        </td></tr>
-      </table>
-
-      <!-- QR -->
-      ${qrSeccion}
-
-      <!-- BOTÓN PERFIL -->
-      <div style="text-align:center;margin:20px 0 28px;">
-        <a href="${linkPerfil}"
-          style="display:inline-block;background:linear-gradient(135deg,#00722e,#045223);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 4px 12px rgba(0,114,46,0.25);">
-          Acceder a mi credencial
-        </a>
-        <p style="font-size:11px;color:#8a9e8d;margin:10px 0 0;">Guarda este link — lo necesitarás el día del evento</p>
-      </div>
-
-      <!-- DIVIDER -->
-      <div style="border-top:1px solid #e8f5ec;margin:24px 0;"></div>
-
-      <!-- INFO EVENTO -->
-      <div style="background:#e8f5ec;border-radius:10px;padding:16px 18px;">
-        <p style="font-size:13px;font-weight:700;color:#045223;margin:0 0 8px;">Sobre el evento</p>
-        <p style="font-size:13px;color:#1a2e1e;margin:0;line-height:1.6;">
-          <strong>II CONTECS 2026</strong><br/>
-          Facultad de Ingeniería de Sistemas Computacionales<br/>
-          Universidad Tecnológica de Panamá<br/>
-          <a href="mailto:congresofisc@utp.ac.pa" style="color:#00722e;">congresofisc@utp.ac.pa</a>
-        </p>
-      </div>
-
-      <p style="font-size:11px;color:#8a9e8d;text-align:center;margin:24px 0 0;line-height:1.6;">
-        Este correo fue generado automáticamente. No respondas a este mensaje.<br/>
-        CONTECS 2026 · FISC · Universidad Tecnológica de Panamá
-      </p>
-
-    </div>
-  </div>
-</body>
-</html>`;
-}
-
-// ── Texto plano del correo (fallback para clientes sin HTML) ──────────────
-function construirTextoCorreo({ nombre, codigo, categoriaNombre, metodoPago, linkPerfil }) {
-  return `Hola ${nombre},
-
-Tu inscripción al II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026 fue registrada exitosamente.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-TU CÓDIGO DE PARTICIPANTE
-${codigo}
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Categoría: ${categoriaNombre}
-Método de pago: ${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}
-
-Accede a tu credencial y código QR aquí:
-${linkPerfil}
-
-Guarda ese link — lo necesitarás el día del evento para presentar tu QR en la entrada.
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-SOBRE EL EVENTO
-II CONTECS 2026
-Facultad de Ingeniería de Sistemas Computacionales
-Universidad Tecnológica de Panamá
-Consultas: congresofisc@utp.ac.pa
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-Este correo fue generado automáticamente. No respondas a este mensaje.`;
-}
-
-// ── Función principal: enviar correo via Brevo ────────────────────────────
-async function enviarCorreoBienvenida(datos, db) {
-  const { docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre } = datos;
-
-  // Llamar al proxy en Cloud Functions — Brevo no acepta llamadas directas desde el browser (CORS)
-  const resp = await fetch(CORREO_FUNCTION_URL, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio: !!esEstudianteColegio, tutorNombre: tutorNombre || null }),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Error al enviar correo (HTTP ${resp.status})`);
-  }
-}
+// Correos manejados por Cloud Function trigger — ver functions/index.js
 </script>
 
 </body>
