@@ -120,7 +120,7 @@ function brevoRequest(payload) {
   });
 }
 
-function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
+function construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
   const estadoMensaje = metodoPago === "transferencia" ?
     "Tu comprobante fue recibido. El staff lo revisará y activará tu acceso pronto." :
     "Debes realizar tu pago en efectivo el día del evento en la mesa de inscripciones.";
@@ -144,28 +144,10 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
     <p style="font-size:14px;color:#8a9e8d;line-height:1.6;margin:0 0 24px;">
       Tu inscripción al <strong>II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026</strong> fue registrada exitosamente.
     </p>
-
-    <!-- BOTÓN PRINCIPAL -->
-    <div style="text-align:center;margin:0 0 24px;">
-      <a href="${linkPerfil}" style="display:inline-block;background:linear-gradient(135deg,#00722e,#045223);color:#fff;padding:16px 36px;border-radius:10px;text-decoration:none;font-weight:800;font-size:16px;letter-spacing:0.5px;">
-        🎟️ Ver mi credencial y QR
-      </a>
-      <p style="font-size:11px;color:#8a9e8d;margin:10px 0 0;">Toca el botón para acceder directamente — guarda este correo</p>
-    </div>
-
-    <!-- CÓDIGO DE PARTICIPANTE -->
-    <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:12px;">
-      <p style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Código de participante</p>
+    <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
+      <p style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Tu código de participante</p>
       <p style="color:#fff;font-size:26px;font-weight:800;letter-spacing:4px;margin:0;font-family:'Courier New',monospace;">${codigo}</p>
     </div>
-
-    <!-- CÓDIGO DE ACCESO — visible para entrada manual si el link falla -->
-    <div style="background:#e8f5ec;border:1.5px solid #a5d6a7;border-radius:12px;padding:16px;text-align:center;margin-bottom:24px;">
-      <p style="color:#045223;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 6px;font-weight:700;">Código de acceso</p>
-      <p style="color:#1a2e1e;font-size:13px;font-weight:700;margin:0 0 6px;font-family:'Courier New',monospace;word-break:break-all;">${token}</p>
-      <p style="color:#8a9e8d;font-size:11px;margin:0;">Úsalo junto a tu código de participante si el botón de arriba no funciona</p>
-    </div>
-
     <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
       <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;">
         <span style="color:#8a9e8d;font-size:13px;">Categoría</span><br/>
@@ -181,6 +163,12 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
         <strong style="color:#d4850a;">${estadoMensaje}</strong>
       </td></tr>
     </table>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="${linkPerfil}" style="display:inline-block;background:linear-gradient(135deg,#00722e,#045223);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">
+        Acceder a mi credencial y QR
+      </a>
+      <p style="font-size:11px;color:#8a9e8d;margin:10px 0 0;">Guarda este link — lo necesitarás el día del evento</p>
+    </div>
     <div style="border-top:1px solid #e8f5ec;margin:24px 0;"></div>
     <div style="background:#e8f5ec;border-radius:10px;padding:16px 18px;">
       <p style="font-size:13px;font-weight:700;color:#045223;margin:0 0 8px;">Sobre el evento</p>
@@ -200,22 +188,20 @@ function construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago
 </body></html>`;
 }
 
-function construirTextoCorreo({nombre, codigo, token, categoriaNombre, metodoPago, linkPerfil}) {
+function construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil}) {
   return `Hola ${nombre},
 
 Tu inscripción al II CONTECS 2026 fue registrada exitosamente.
 
-─────────────────────────────────────────
-CÓDIGO DE PARTICIPANTE : ${codigo}
-CÓDIGO DE ACCESO       : ${token}
-─────────────────────────────────────────
-Guarda estos datos — los necesitarás si el botón no funciona.
+TU CÓDIGO DE PARTICIPANTE: ${codigo}
 
 Categoría: ${categoriaNombre}
 Método de pago: ${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}
 
-Accede a tu credencial aquí:
+Accede a tu credencial y QR aquí:
 ${linkPerfil}
+
+Guarda ese link — lo necesitarás el día del evento.
 
 II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá
 congresofisc@utp.ac.pa
@@ -225,8 +211,8 @@ Este correo fue generado automáticamente. No respondas a este mensaje.`;
 
 async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre}) {
   const linkPerfil = `${URL_BASE_PERFIL}?c=${encodeURIComponent(codigo)}&t=${encodeURIComponent(token)}`;
-  const htmlContent = construirHTMLCorreo({nombre, codigo, token, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre});
-  const textContent = construirTextoCorreo({nombre, codigo, token, categoriaNombre, metodoPago, linkPerfil});
+  const htmlContent = construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre});
+  const textContent = construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil});
 
   let correoEnviado = false;
   let correoError = null;
@@ -260,7 +246,7 @@ async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, cat
 
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
 exports.registrarParticipante = onCall(
-    {region: "us-central1", maxInstances: 20},
+    {region: "us-central1", maxInstances: 20, cors: true},
     async (request) => {
       const data = request.data || {};
 
@@ -416,7 +402,7 @@ exports.registrarParticipante = onCall(
 
 // ─── CLOUD FUNCTION: accederParticipante ──────────────────────────────────────
 exports.accederParticipante = onCall(
-    {region: "us-central1", maxInstances: 30},
+    {region: "us-central1", maxInstances: 30, cors: true},
     async (request) => {
       const codigo = String(request.data?.codigo || "").trim().toUpperCase();
       const token = String(request.data?.token || "").trim();
@@ -428,20 +414,11 @@ exports.accederParticipante = onCall(
         throw new HttpsError("invalid-argument", "Credenciales inválidas.");
       }
 
-      let snap;
-      try {
-        snap = await db.collection("participantes")
-            .where("codigo", "==", codigo)
-            .where("token", "==", token)
-            .limit(1)
-            .get();
-      } catch (e) {
-        console.error("[accederParticipante] Firestore error:", e.code, e.message);
-        // Error más común: índice compuesto faltante.
-        // Créalo en Firebase Console → Firestore → Indexes → Add composite index
-        //   Colección: participantes | codigo ASC, token ASC
-        throw new HttpsError("internal", "Error al consultar la base de datos. Intenta de nuevo en unos segundos.");
-      }
+      const snap = await db.collection("participantes")
+          .where("codigo", "==", codigo)
+          .where("token", "==", token)
+          .limit(1)
+          .get();
 
       if (snap.empty) {
         throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
