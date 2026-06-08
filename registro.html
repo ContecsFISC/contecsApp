@@ -1254,9 +1254,7 @@ el("btn-confirmar").addEventListener("click", async () => {
 // BREVO — Integración de correos
 // ════════════════════════════════════════════════════════════════════════════
 
-const BREVO_API_KEY = "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";
-const BREVO_URL     = "https://api.brevo.com/v3/smtp/email";
-const CORREO_REMITENTE = { name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa" };
+const CORREO_FUNCTION_URL = "https://us-central1-contecs-fa6e6.cloudfunctions.net/enviarCorreo";
 const URL_BASE_PERFIL  = "https://contecsfisc.github.io/contecsApp/perfil.html";
 
 // ── Generar QR como PNG base64 ────────────────────────────────────────────
@@ -1453,85 +1451,16 @@ Este correo fue generado automáticamente. No respondas a este mensaje.`;
 async function enviarCorreoBienvenida(datos, db) {
   const { docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre } = datos;
 
-  const linkPerfil = `${URL_BASE_PERFIL}?c=${encodeURIComponent(codigo)}&t=${encodeURIComponent(token)}`;
+  // Llamar al proxy en Cloud Functions — Brevo no acepta llamadas directas desde el browser (CORS)
+  const resp = await fetch(CORREO_FUNCTION_URL, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio: !!esEstudianteColegio, tutorNombre: tutorNombre || null }),
+  });
 
-  // Generar QR como base64 (si falla, el correo se envía sin imagen QR)
-  let qrBase64 = null;
-  try {
-    qrBase64 = await generarQRBase64(codigo, token);
-  } catch (e) {
-    console.warn("No se pudo generar el QR como imagen para el correo:", e.message);
-  }
-
-  const htmlContent  = construirHTMLCorreo({ nombre, codigo, categoriaNombre, metodoPago, linkPerfil, qrBase64, esEstudianteColegio, tutorNombre });
-  const textContent  = construirTextoCorreo({ nombre, codigo, categoriaNombre, metodoPago, linkPerfil });
-
-  // Construir payload Brevo
-  const payload = {
-    sender:  CORREO_REMITENTE,
-    to:      [{ email: correo, name: nombre }],
-    subject: `CONTECS 2026 — Tu inscripción: ${codigo}`,
-    htmlContent,
-    textContent,
-  };
-
-  // Adjuntar QR como imagen inline si se generó correctamente
-  if (qrBase64) {
-    payload.attachment = [{
-      name:    "qr_acceso.png",
-      content: qrBase64,
-    }];
-    // Usar cid para el embed inline en el HTML
-    payload.inlineImages = [{
-      name:    "qr_code",
-      content: qrBase64,
-    }];
-  }
-
-  let correoEnviado = false;
-  let correoError   = null;
-
-  try {
-    const resp = await fetch(BREVO_URL, {
-      method:  "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key":       BREVO_API_KEY,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (resp.ok) {
-      correoEnviado = true;
-    } else {
-      const errBody = await resp.json().catch(() => ({}));
-      correoError   = errBody.message || `HTTP ${resp.status}`;
-      console.warn("Brevo respondió con error:", correoError);
-    }
-  } catch (fetchErr) {
-    correoError = fetchErr.message;
-    console.warn("Error de red al contactar Brevo:", correoError);
-  }
-
-  // ── Actualizar Firestore con el estado del correo ─────────────────────
-  // Esto es fire-and-forget también — no bloquea al usuario.
-  try {
-    const { updateDoc, doc: firestoreDoc, serverTimestamp: st } =
-      await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
-    const ref = firestoreDoc(db, "participantes", docId);
-    await updateDoc(ref, {
-      correo_enviado:   correoEnviado,
-      correo_pendiente: !correoEnviado,
-      correo_error:     correoError || null,
-      correo_enviadoEn: correoEnviado ? st() : null,
-    });
-  } catch (fsErr) {
-    // No crítico — el registro principal ya fue guardado
-    console.warn("No se pudo actualizar estado del correo en Firestore:", fsErr.message);
-  }
-
-  if (!correoEnviado) {
-    throw new Error(correoError || "Error desconocido al enviar correo");
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Error al enviar correo (HTTP ${resp.status})`);
   }
 }
 </script>

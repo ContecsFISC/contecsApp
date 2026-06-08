@@ -1,4 +1,4 @@
-const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {initializeApp} = require("firebase-admin/app");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
@@ -425,5 +425,74 @@ exports.accederParticipante = onCall(
       }
 
       return sanitizarParticipante(snap.docs[0].data());
+    },
+);
+
+// ─── CLOUD FUNCTION: enviarCorreo (HTTP — proxy Brevo) ───────────────────────
+// El browser no puede llamar a Brevo directamente (CORS). Esta función actúa
+// de proxy: recibe los datos del correo desde registro.html y hace el fetch
+// a Brevo desde el servidor, donde no hay restricción de CORS.
+exports.enviarCorreo = onRequest(
+    {region: "us-central1", cors: ["https://contecsfisc.github.io"]},
+    async (req, res) => {
+      if (req.method === "OPTIONS") {
+        res.set("Access-Control-Allow-Origin", "https://contecsfisc.github.io");
+        res.set("Access-Control-Allow-Methods", "POST");
+        res.set("Access-Control-Allow-Headers", "Content-Type");
+        res.set("Access-Control-Max-Age", "3600");
+        res.status(204).send("");
+        return;
+      }
+
+      if (req.method !== "POST") {
+        res.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      const {docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre} = req.body || {};
+
+      if (!docId || !codigo || !token || !nombre || !correo) {
+        res.status(400).json({error: "Faltan campos requeridos."});
+        return;
+      }
+
+      const linkPerfil = `${URL_BASE_PERFIL}?c=${encodeURIComponent(codigo)}&t=${encodeURIComponent(token)}`;
+      const htmlContent = construirHTMLCorreo({nombre, codigo, categoriaNombre: categoriaNombre || "Participante", metodoPago: metodoPago || "efectivo", linkPerfil, esEstudianteColegio: !!esEstudianteColegio, tutorNombre: tutorNombre || null});
+      const textContent = construirTextoCorreo({nombre, codigo, categoriaNombre: categoriaNombre || "Participante", metodoPago: metodoPago || "efectivo", linkPerfil});
+
+      let correoEnviado = false;
+      let correoError = null;
+
+      try {
+        await brevoRequest({
+          sender: CORREO_REMITENTE,
+          to: [{email: correo, name: nombre}],
+          subject: `CONTECS 2026 — Tu inscripción: ${codigo}`,
+          htmlContent,
+          textContent,
+        });
+        correoEnviado = true;
+      } catch (e) {
+        correoError = e.message;
+        console.error("Brevo error para", correo, ":", e.message);
+      }
+
+      // Actualizar Firestore con estado del correo
+      try {
+        await db.collection("participantes").doc(docId).update({
+          correo_enviado: correoEnviado,
+          correo_pendiente: !correoEnviado,
+          correo_error: correoError || null,
+          correo_enviadoEn: correoEnviado ? FieldValue.serverTimestamp() : null,
+        });
+      } catch (e) {
+        console.error("No se pudo actualizar estado correo:", e.message);
+      }
+
+      if (correoEnviado) {
+        res.status(200).json({ok: true});
+      } else {
+        res.status(500).json({error: correoError || "Error al enviar correo"});
+      }
     },
 );
