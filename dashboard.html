@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
@@ -228,7 +228,7 @@
         // Cuenta regresiva dinámica al evento (19 de octubre de 2026)
         const calcularCuentaRegresiva = () => {
           const ahora = new Date();
-          const evento = new Date(2026, 9, 19, 0, 0, 0); // Octubre es mes 9 (0-indexed), a las 00:00:00
+          const evento = new Date(2026, 9, 19, 0, 0, 0);
           const diferencia = evento - ahora;
           
           const el = document.getElementById("stat-fondo");
@@ -241,7 +241,7 @@
             
             el.textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
             el.className = "stat-valor";
-          } else if (diferencia >= -86400000) { // Dentro de 24 horas después del evento
+          } else if (diferencia >= -86400000) {
             el.textContent = "¡Evento en curso!";
             el.className = "stat-ok";
           } else {
@@ -251,7 +251,6 @@
         };
         
         calcularCuentaRegresiva();
-        // Actualizar cada segundo para que sea dinámico
         setInterval(calcularCuentaRegresiva, 1000);
 
         if (tienePermiso(rol, "ver_inventario")) {
@@ -276,17 +275,19 @@
 
       // ── Módulos ─────────────────────────────────────────────────────────────
       const MODULOS = [
-        { label: "Bitácora",         icono: "📋", href: "modulos/bitacora.html",   permiso: "ver_bitacora",       admin: false },
-        { label: "Inventario",       icono: "📦", href: "modulos/inventario.html", permiso: "ver_inventario",     admin: false },
-        { label: "Compras",          icono: "🛒", href: "modulos/compras2.html",    permiso: "registrar_compras",  admin: true  },
-        { label: "Ventas", icono: "🧾", href: "modulos/ventas2.html",     permiso: "registrar_ventas",   admin: false },
-        { label: "Catálogo",         icono: "🗂️", href: "modulos/catalogo.html",   permiso: "editar_catalogo",    admin: true  },
-        { label: "Reportes",         icono: "📈", href: "modulos/reportes.html",   permiso: "ver_reportes",       admin: false },        
-        { label: "Inscripciones",    icono: "🎓", href: "modulos/inscripciones.html", permiso: "gestionar_inscripciones", admin: true  },
-        { label: "Exportar",         icono: "📤", href: "modulos/exportar.html",   permiso: "exportar_datos",     admin: true  },
-        { label: "Voluntarios",       icono: "🤝", href: "modulos/voluntarios.html", permiso: "gestionar_voluntarios", admin: true  },
-        { label: "Usuarios",         icono: "👥", href: "modulos/usuarios.html",   permiso: "gestionar_usuarios", admin: true  },
-        { label: "Fondos",         icono: "🪙", href: "modulos/fondos.html",   permiso: "ver_fondos", admin: true  },
+        { label: "Bitácora",        icono: "📋", href: "modulos/bitacora.html",              permiso: "ver_bitacora",              admin: false },
+        { label: "Inventario",      icono: "📦", href: "modulos/inventario.html",            permiso: "ver_inventario",            admin: false },
+        { label: "Compras",         icono: "🛒", href: "modulos/compras2.html",              permiso: "registrar_compras",         admin: true  },
+        { label: "Ventas",          icono: "🧾", href: "modulos/ventas2.html",               permiso: "registrar_ventas",          admin: false },
+        { label: "Catálogo",        icono: "🗂️", href: "modulos/catalogo.html",             permiso: "editar_catalogo",           admin: true  },
+        { label: "Reportes",        icono: "📈", href: "modulos/reportes.html",             permiso: "ver_reportes",              admin: false },
+        { label: "Inscripciones",   icono: "🎓", href: "modulos/inscripciones.html",        permiso: "gestionar_inscripciones",   admin: true  },
+        // ── FIX: módulo Participantes agregado ──
+        { label: "Participantes",   icono: "🎟️", href: "modulos/modulos_participantes.html", permiso: "ver_participantes",         admin: false },
+        { label: "Exportar",        icono: "📤", href: "modulos/exportar.html",             permiso: "exportar_datos",            admin: true  },
+        { label: "Voluntarios",     icono: "🤝", href: "modulos/voluntarios.html",          permiso: "gestionar_voluntarios",     admin: true  },
+        { label: "Usuarios",        icono: "👥", href: "modulos/usuarios.html",             permiso: "gestionar_usuarios",        admin: true  },
+        { label: "Fondos",          icono: "🪙", href: "modulos/fondos.html",               permiso: "ver_fondos",                admin: true  },
       ];
 
       const tituloEl = document.createElement("div");

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CONTECS 2025 — Mi Credencial</title>
+  <title>CONTECS 2026 — Mi Credencial</title>
   <script src="../js/libs/qrcode.min.js"></script>
   <style>
     :root {
@@ -386,7 +386,7 @@
   <div class="acceso-card">
     <div class="acceso-logo">
       <div class="logo-circulo">🏛️</div>
-      <h1>CONTECS 2025</h1>
+      <h1>CONTECS 2026</h1>
       <p>Ingresa tu código para ver tu credencial</p>
     </div>
 
@@ -394,7 +394,7 @@
 
     <div class="form-group">
       <label>Código de participante</label>
-      <input type="text" id="inp-codigo" placeholder="Ej: CTCS-2025-00001"
+      <input type="text" id="inp-codigo" placeholder="Ej: CTCS-2026-00001"
         style="text-transform:uppercase; font-family:'Courier New',monospace; font-weight:700;"/>
     </div>
     <div class="form-group">
@@ -409,7 +409,8 @@
     </button>
 
     <p style="font-size:12px;color:var(--gris-medio);text-align:center;margin-top:16px;line-height:1.6;">
-      ¿Perdiste tu código? Revisa el correo que recibiste al inscribirte.
+      ¿Perdiste tu código? Revisa el correo que recibiste al inscribirte.<br/>
+      Ambos códigos están en ese correo.
     </p>
   </div>
 </div>
@@ -438,9 +439,9 @@
       <div class="credencial-header">
         <div>
           <div class="ch-titulo">🎟️ CREDENCIAL DE ACCESO</div>
-          <div class="ch-codigo" id="ch-codigo">CTCS-2025-00000</div>
+          <div class="ch-codigo" id="ch-codigo">CTCS-2026-00000</div>
         </div>
-        <div style="color:rgba(255,255,255,0.6);font-size:11px;">CONTECS 2025</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:11px;">CONTECS 2026</div>
       </div>
       <div class="credencial-qr">
         <div class="qr-contenedor" id="qr-contenedor">
@@ -450,7 +451,7 @@
             <div class="qo-txt">QR disponible cuando tu pago sea validado</div>
           </div>
         </div>
-        <div class="credencial-codigo" id="cred-codigo">CTCS-2025-00000</div>
+        <div class="credencial-codigo" id="cred-codigo">CTCS-2026-00000</div>
       </div>
       <div class="credencial-footer">
         <div>
@@ -494,7 +495,7 @@
     </div>
 
     <div class="footer">
-      CONTECS 2025 · Facultad de Ingeniería de Sistemas Computacionales<br/>
+      CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
       Universidad Tecnológica de Panamá
     </div>
 
@@ -503,6 +504,9 @@
 
 <script type="module">
 import { accederParticipante } from "./js/core/participantes-api.js";
+
+// URL base del perfil — debe coincidir con la que usan las Cloud Functions
+const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
 
 const el = id => document.getElementById(id);
 
@@ -548,7 +552,7 @@ async function init() {
   el("loading-wrap").style.display = "none";
 
   if (codigoUrl && tokenUrl) {
-    // Llegó desde el QR — intentar acceso directo
+    // Llegó desde el link del correo o el QR — intentar acceso directo
     await acceder(codigoUrl.toUpperCase(), tokenUrl);
   } else {
     el("acceso-wrap").style.display = "flex";
@@ -617,10 +621,11 @@ function renderPerfil(p) {
   el("cf-categoria").textContent  = CATEGORIA_LABELS[p.categoria] || p.categoria;
   el("cf-institucion").textContent = p.institucion || p.colegio || "UTP";
 
-  // Generar QR
+  // ── FIX: QR codifica la URL completa en lugar del JSON crudo ──
+  // Así cualquier cámara que escanee abre directamente la página del participante
   const qrCanvas = el("qr-canvas");
   qrCanvas.innerHTML = "";
-  const qrData = JSON.stringify({ codigo: p.codigo, token: p.token });
+  const qrData = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
   new QRCode(qrCanvas, {
     text: qrData,
     width: 194, height: 194,
@@ -684,7 +689,7 @@ function descargarCredencial(p) {
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 22px 'Segoe UI', sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("CONTECS 2025", W/2, 42);
+  ctx.fillText("CONTECS 2026", W/2, 42);
   ctx.font = "14px 'Segoe UI', sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.75)";
   ctx.fillText("Credencial de Participante", W/2, 68);
