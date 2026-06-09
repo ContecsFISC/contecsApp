@@ -266,6 +266,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      width: 100%;
       background: #fff;
       border: 1.5px solid var(--gris-borde);
       border-radius: var(--radio-sm);
@@ -275,6 +276,7 @@
       font-size: 13px;
       font-weight: 600;
       margin-top: 10px;
+      cursor: pointer;
       transition: background 0.2s;
     }
     .comprobante-link:hover { background: var(--azul-fondo); }
@@ -459,8 +461,8 @@ import {
   query, orderBy, serverTimestamp, where
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-// Importar db desde firebase-config si no está en auth
-import { db as fireDb } from "../js/core/firebase-config.js";
+import { db as fireDb, storage } from "../js/core/firebase-config.js";
+import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
 
 const el   = id => document.getElementById(id);
 const rol  = sessionStorage.getItem("rol") || "";
@@ -600,6 +602,17 @@ window.cerrarSheet = function() {
   participanteSeleccionado = null;
 };
 
+window._verComprobante = async function(rutaEnc) {
+  try {
+    const ruta = decodeURIComponent(rutaEnc);
+    const url = await getDownloadURL(ref(storage, ruta));
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (e) {
+    alert("No se pudo cargar el comprobante. Verifica que tienes permisos de staff.");
+    console.error(e);
+  }
+};
+
 function renderSheet(p) {
   const canAprobar  = tienePermiso(rol, "aprobar_pagos");
   const estadoPago  = p.pago?.estado || "pendiente_efectivo";
@@ -644,10 +657,12 @@ function renderSheet(p) {
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
-      ${p.pago?.comprobanteUrl ? `
-      <a class="comprobante-link" href="${p.pago.comprobanteUrl}" target="_blank">
+      ${p.pago?.comprobanteRuta ? `
+      <button type="button" class="comprobante-link"
+        data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
+        onclick="window._verComprobante(this.dataset.ruta)">
         📎 Ver comprobante adjunto
-      </a>` : ""}
+      </button>` : ""}
     </div>
 
     ${canAprobar && !yaAprobado ? `

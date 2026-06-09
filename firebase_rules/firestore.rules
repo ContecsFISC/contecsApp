@@ -50,13 +50,19 @@ service cloud.firestore {
       );
     }
 
-    // ── Participantes — CVE-C01 / CVE-C02: sin acceso público ─────────────────
-    // Lectura/escritura solo staff. Registro público vía Cloud Function (Admin SDK).
+    // ── Participantes ─────────────────────────────────────────────────────────
+    // Escritura pública: el formulario de registro escribe directamente desde el browser.
+    // ── Participantes ────────────────────────────────────────────────────────
     match /participantes/{docId} {
-      allow read, write: if canGestionarParticipantes();
+      // Lectura pública: perfil.html consulta por codigo+token sin auth
+      allow read: if true;
+      // Escritura pública: registro desde el browser sin auth
+      allow create: if true;
+      allow update: if canGestionarParticipantes();
+      allow delete: if hasRol(["ceo","junta_principal"]);
     }
 
-    // Contador secuencial de inscripciones — solo Admin SDK
+    // Contador secuencial — solo Admin SDK (Cloud Functions)
     match /contadores/{id} {
       allow read, write: if false;
     }
