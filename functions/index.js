@@ -35,7 +35,7 @@ async function generarCodigo() {
   const counterRef = db.doc("contadores/inscripciones2026");
   const seq = await db.runTransaction(async (tx) => {
     const snap = await tx.get(counterRef);
-    const current = snap.exists() ? (snap.data().valor || 0) : 0;
+    const current = snap.exists ? (snap.data().valor || 0) : 0;
     const next = current + 1;
     tx.set(counterRef, {valor: next, actualizadoEn: FieldValue.serverTimestamp()}, {merge: true});
     return next;
