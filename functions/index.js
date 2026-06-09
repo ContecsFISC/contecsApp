@@ -250,155 +250,155 @@ exports.registrarParticipante = onCall(
     {region: "us-central1", maxInstances: 20, invoker: "public"},
     async (request) => {
       try {
-      const data = request.data || {};
+        const data = request.data || {};
 
-      const nombre = validarTexto(data.nombre, "nombre", {requerido: true, max: 100});
-      const apellido = validarTexto(data.apellido, "apellido", {requerido: true, max: 100});
-      const correo = validarTexto(data.correo, "correo", {requerido: true, max: 254}).toLowerCase();
-      const telefono = validarTexto(data.telefono, "telefono", {requerido: true, max: 30});
-      const cedula = validarTexto(data.cedula, "cedula", {max: 30});
-      const metodoPago = data.metodoPago;
+        const nombre = validarTexto(data.nombre, "nombre", {requerido: true, max: 100});
+        const apellido = validarTexto(data.apellido, "apellido", {requerido: true, max: 100});
+        const correo = validarTexto(data.correo, "correo", {requerido: true, max: 254}).toLowerCase();
+        const telefono = validarTexto(data.telefono, "telefono", {requerido: true, max: 30});
+        const cedula = validarTexto(data.cedula, "cedula", {max: 30});
+        const metodoPago = data.metodoPago;
 
-      if (!validarCorreo(correo)) {
-        throw new HttpsError("invalid-argument", "Ingresa un correo válido.");
-      }
-      if (!["transferencia", "efectivo"].includes(metodoPago)) {
-        throw new HttpsError("invalid-argument", "Selecciona un método de pago válido.");
-      }
-      if (metodoPago === "transferencia" && !data.comprobanteBase64) {
-        throw new HttpsError("invalid-argument", "Adjunta el comprobante de transferencia.");
-      }
-
-      const docId = generarDocId(cedula, correo);
-      if (!docId) throw new HttpsError("invalid-argument", "Se requiere cédula o correo.");
-
-      const docRef = db.collection("participantes").doc(docId);
-      const existe = await docRef.get();
-      if (existe.data()) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
-
-      const codigo = await generarCodigo();
-      const token = generarToken();
-
-      let comprobanteRuta = null;
-      if (metodoPago === "transferencia" && data.comprobanteBase64) {
-        comprobanteRuta = await subirComprobante({
-          docId,
-          base64: data.comprobanteBase64,
-          contentType: data.comprobanteContentType,
-          nombre: data.comprobanteNombre,
-        });
-      }
-
-      const esColegio = !!data.esColegio;
-      const camposExtra = typeof data.camposExtra === "object" && data.camposExtra ? data.camposExtra : {};
-      const estudiantesData = Array.isArray(data.estudiantes) ? data.estudiantes : [];
-      const tutorData = data.tutor && typeof data.tutor === "object" ? data.tutor : null;
-
-      const participante = {
-        codigo, token,
-        nombre, apellido, nombreCompleto: `${nombre} ${apellido}`,
-        cedula, correo, telefono,
-        categoria: esColegio ? "colegio" : (data.categoria || "otros"),
-        categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
-        camposExtra,
-        pago: {
-          metodo: metodoPago,
-          estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-          comprobanteRuta,
-          monto: esColegio ? null : (data.monto ?? null),
-          aprobadoPor: null,
-          aprobadoEn: null,
-          notas: null,
-        },
-        esColegio,
-        tutor: tutorData,
-        colegio: esColegio ? (tutorData?.colegio || null) : null,
-        estudiantes: estudiantesData,
-        estadoRegistro: "activo",
-        asistencias: {},
-        correo_enviado: false,
-        correo_pendiente: true,
-        fechaRegistro: FieldValue.serverTimestamp(),
-        actualizadoEn: FieldValue.serverTimestamp(),
-      };
-
-      await docRef.set(participante);
-
-      // Guardar estudiantes si es colegio
-      const estudiantesGuardados = [];
-      if (esColegio && estudiantesData.length > 0) {
-        const batch = db.batch();
-        let ops = 0;
-        for (const est of estudiantesData) {
-          const estCedula = String(est.cedula || "").trim();
-          const estCorreo = String(est.correo || "").trim().toLowerCase();
-          const estId = generarDocId(estCedula, estCorreo);
-          if (!estId) continue;
-          const estRef = db.collection("participantes").doc(estId);
-          const estExiste = await estRef.get();
-          if (estExiste.data()) continue;
-          const estCodigo = await generarCodigo();
-          const estToken = generarToken();
-          estudiantesGuardados.push({
-            docId: estId,
-            codigo: estCodigo,
-            token: estToken,
-            nombre: `${String(est.nombre || "").trim()} ${String(est.apellido || "").trim()}`,
-            correo: estCorreo,
-          });
-          batch.set(estRef, {
-            codigo: estCodigo, token: estToken,
-            nombre: String(est.nombre || "").trim(),
-            apellido: String(est.apellido || "").trim(),
-            nombreCompleto: `${String(est.nombre||"").trim()} ${String(est.apellido||"").trim()}`,
-            cedula: estCedula, correo: estCorreo, telefono: "",
-            categoria: "colegio_estudiante", categoriaNombre: "Colegio",
-            camposExtra: {grado: est.grado || "", bachiller: est.bachiller || ""},
-            pago: {
-              metodo: metodoPago,
-              estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-              comprobanteRuta, monto: null,
-              aprobadoPor: null, aprobadoEn: null, notas: null,
-            },
-            esColegio: true, tutorCodigo: codigo,
-            tutor: tutorData, colegio: tutorData?.colegio || null,
-            estudiantes: [], estadoRegistro: "activo", asistencias: {},
-            correo_enviado: false, correo_pendiente: true,
-            fechaRegistro: FieldValue.serverTimestamp(),
-            actualizadoEn: FieldValue.serverTimestamp(),
-          });
-          ops++;
+        if (!validarCorreo(correo)) {
+          throw new HttpsError("invalid-argument", "Ingresa un correo válido.");
         }
-        if (ops > 0) await batch.commit();
-      }
-
-      // Enviar correos — no bloqueamos la respuesta si falla
-      enviarCorreoBienvenida({
-        docId, codigo, token, nombre, correo,
-        categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
-        metodoPago,
-        esEstudianteColegio: false,
-        tutorNombre: null,
-      }).catch((e) => console.error("Correo tutor/principal fallido:", e.message));
-
-      if (estudiantesGuardados.length > 0) {
-        const tutorNombreVal = tutorData?.nombre || "";
-        for (const est of estudiantesGuardados) {
-          enviarCorreoBienvenida({
-            docId: est.docId,
-            codigo: est.codigo,
-            token: est.token,
-            nombre: est.nombre,
-            correo: est.correo,
-            categoriaNombre: "Colegio",
-            metodoPago,
-            esEstudianteColegio: true,
-            tutorNombre: tutorNombreVal,
-          }).catch((e) => console.error("Correo estudiante fallido:", est.correo, e.message));
+        if (!["transferencia", "efectivo"].includes(metodoPago)) {
+          throw new HttpsError("invalid-argument", "Selecciona un método de pago válido.");
         }
-      }
+        if (metodoPago === "transferencia" && !data.comprobanteBase64) {
+          throw new HttpsError("invalid-argument", "Adjunta el comprobante de transferencia.");
+        }
 
-      return {codigo, correo};
+        const docId = generarDocId(cedula, correo);
+        if (!docId) throw new HttpsError("invalid-argument", "Se requiere cédula o correo.");
+
+        const docRef = db.collection("participantes").doc(docId);
+        const existe = await docRef.get();
+        if (existe.data()) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+
+        const codigo = await generarCodigo();
+        const token = generarToken();
+
+        let comprobanteRuta = null;
+        if (metodoPago === "transferencia" && data.comprobanteBase64) {
+          comprobanteRuta = await subirComprobante({
+            docId,
+            base64: data.comprobanteBase64,
+            contentType: data.comprobanteContentType,
+            nombre: data.comprobanteNombre,
+          });
+        }
+
+        const esColegio = !!data.esColegio;
+        const camposExtra = typeof data.camposExtra === "object" && data.camposExtra ? data.camposExtra : {};
+        const estudiantesData = Array.isArray(data.estudiantes) ? data.estudiantes : [];
+        const tutorData = data.tutor && typeof data.tutor === "object" ? data.tutor : null;
+
+        const participante = {
+          codigo, token,
+          nombre, apellido, nombreCompleto: `${nombre} ${apellido}`,
+          cedula, correo, telefono,
+          categoria: esColegio ? "colegio" : (data.categoria || "otros"),
+          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
+          camposExtra,
+          pago: {
+            metodo: metodoPago,
+            estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+            comprobanteRuta,
+            monto: esColegio ? null : (data.monto ?? null),
+            aprobadoPor: null,
+            aprobadoEn: null,
+            notas: null,
+          },
+          esColegio,
+          tutor: tutorData,
+          colegio: esColegio ? (tutorData?.colegio || null) : null,
+          estudiantes: estudiantesData,
+          estadoRegistro: "activo",
+          asistencias: {},
+          correo_enviado: false,
+          correo_pendiente: true,
+          fechaRegistro: FieldValue.serverTimestamp(),
+          actualizadoEn: FieldValue.serverTimestamp(),
+        };
+
+        await docRef.set(participante);
+
+        // Guardar estudiantes si es colegio
+        const estudiantesGuardados = [];
+        if (esColegio && estudiantesData.length > 0) {
+          const batch = db.batch();
+          let ops = 0;
+          for (const est of estudiantesData) {
+            const estCedula = String(est.cedula || "").trim();
+            const estCorreo = String(est.correo || "").trim().toLowerCase();
+            const estId = generarDocId(estCedula, estCorreo);
+            if (!estId) continue;
+            const estRef = db.collection("participantes").doc(estId);
+            const estExiste = await estRef.get();
+            if (estExiste.data()) continue;
+            const estCodigo = await generarCodigo();
+            const estToken = generarToken();
+            estudiantesGuardados.push({
+              docId: estId,
+              codigo: estCodigo,
+              token: estToken,
+              nombre: `${String(est.nombre || "").trim()} ${String(est.apellido || "").trim()}`,
+              correo: estCorreo,
+            });
+            batch.set(estRef, {
+              codigo: estCodigo, token: estToken,
+              nombre: String(est.nombre || "").trim(),
+              apellido: String(est.apellido || "").trim(),
+              nombreCompleto: `${String(est.nombre||"").trim()} ${String(est.apellido||"").trim()}`,
+              cedula: estCedula, correo: estCorreo, telefono: "",
+              categoria: "colegio_estudiante", categoriaNombre: "Colegio",
+              camposExtra: {grado: est.grado || "", bachiller: est.bachiller || ""},
+              pago: {
+                metodo: metodoPago,
+                estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+                comprobanteRuta, monto: null,
+                aprobadoPor: null, aprobadoEn: null, notas: null,
+              },
+              esColegio: true, tutorCodigo: codigo,
+              tutor: tutorData, colegio: tutorData?.colegio || null,
+              estudiantes: [], estadoRegistro: "activo", asistencias: {},
+              correo_enviado: false, correo_pendiente: true,
+              fechaRegistro: FieldValue.serverTimestamp(),
+              actualizadoEn: FieldValue.serverTimestamp(),
+            });
+            ops++;
+          }
+          if (ops > 0) await batch.commit();
+        }
+
+        // Enviar correos — no bloqueamos la respuesta si falla
+        enviarCorreoBienvenida({
+          docId, codigo, token, nombre, correo,
+          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
+          metodoPago,
+          esEstudianteColegio: false,
+          tutorNombre: null,
+        }).catch((e) => console.error("Correo tutor/principal fallido:", e.message));
+
+        if (estudiantesGuardados.length > 0) {
+          const tutorNombreVal = tutorData?.nombre || "";
+          for (const est of estudiantesGuardados) {
+            enviarCorreoBienvenida({
+              docId: est.docId,
+              codigo: est.codigo,
+              token: est.token,
+              nombre: est.nombre,
+              correo: est.correo,
+              categoriaNombre: "Colegio",
+              metodoPago,
+              esEstudianteColegio: true,
+              tutorNombre: tutorNombreVal,
+            }).catch((e) => console.error("Correo estudiante fallido:", est.correo, e.message));
+          }
+        }
+
+        return {codigo, correo};
       } catch (e) {
         if (e instanceof HttpsError) throw e;
         console.error("registrarParticipante:", e);
@@ -412,27 +412,27 @@ exports.accederParticipante = onCall(
     {region: "us-central1", maxInstances: 30, invoker: "public"},
     async (request) => {
       try {
-      const codigo = String(request.data?.codigo || "").trim().toUpperCase();
-      const token = String(request.data?.token || "").trim();
+        const codigo = String(request.data?.codigo || "").trim().toUpperCase();
+        const token = String(request.data?.token || "").trim();
 
-      if (!codigo || !token) {
-        throw new HttpsError("invalid-argument", "Ingresa tu código de participante y tu clave de acceso.");
-      }
-      if (codigo.length > 30 || token.length > 64) {
-        throw new HttpsError("invalid-argument", "Credenciales inválidas.");
-      }
+        if (!codigo || !token) {
+          throw new HttpsError("invalid-argument", "Ingresa tu código de participante y tu clave de acceso.");
+        }
+        if (codigo.length > 30 || token.length > 64) {
+          throw new HttpsError("invalid-argument", "Credenciales inválidas.");
+        }
 
-      const snap = await db.collection("participantes")
-          .where("codigo", "==", codigo)
-          .where("token", "==", token)
-          .limit(1)
-          .get();
+        const snap = await db.collection("participantes")
+            .where("codigo", "==", codigo)
+            .where("token", "==", token)
+            .limit(1)
+            .get();
 
-      if (snap.empty) {
-        throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
-      }
+        if (snap.empty) {
+          throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
+        }
 
-      return sanitizarParticipante(snap.docs[0].data());
+        return sanitizarParticipante(snap.docs[0].data());
       } catch (e) {
         if (e instanceof HttpsError) throw e;
         console.error("accederParticipante:", e);
