@@ -246,7 +246,7 @@ async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, cat
 
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
 exports.registrarParticipante = onCall(
-    {region: "us-central1", maxInstances: 20},
+    {region: "us-central1", maxInstances: 20, invoker: "public"},
     async (request) => {
       const data = request.data || {};
 
@@ -402,7 +402,7 @@ exports.registrarParticipante = onCall(
 
 // ─── CLOUD FUNCTION: accederParticipante ──────────────────────────────────────
 exports.accederParticipante = onCall(
-    {region: "us-central1", maxInstances: 30},
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
     async (request) => {
       const codigo = String(request.data?.codigo || "").trim().toUpperCase();
       const token = String(request.data?.token || "").trim();
