@@ -1,9 +1,12 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
+const {linkPerfilParticipante, generarQrDataUrl} = require("./qr-participante");
+const {cargarCorreoPagoAprobado} = require("./plantillas");
 
 initializeApp();
 
@@ -13,7 +16,6 @@ const bucket = getStorage().bucket();
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 const BREVO_API_KEY = "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";
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "congresofisc@utp.ac.pa"};
-const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -211,7 +213,7 @@ Este correo fue generado automáticamente. No respondas a este mensaje.`;
 }
 
 async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre}) {
-  const linkPerfil = `${URL_BASE_PERFIL}?c=${encodeURIComponent(codigo)}&t=${encodeURIComponent(token)}`;
+  const linkPerfil = linkPerfilParticipante(codigo, token);
   const htmlContent = construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre});
   const textContent = construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil});
 
@@ -243,6 +245,44 @@ async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, cat
   } catch (e) {
     console.error("No se pudo actualizar estado correo en Firestore:", e.message);
   }
+}
+
+async function enviarCorreoPagoAprobado({docId, participante}) {
+  const codigo = participante.codigo;
+  const token = participante.token;
+  const correo = participante.correo;
+  const nombre = participante.nombreCompleto ||
+    `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
+  if (!codigo || !token || !correo) {
+    throw new Error("Participante sin codigo, token o correo");
+  }
+
+  const linkPerfil = linkPerfilParticipante(codigo, token);
+  const vars = {
+    nombre,
+    codigo,
+    categoria: participante.categoriaNombre || participante.categoria || "Participante",
+    link_perfil: linkPerfil,
+  };
+
+  const plantilla = cargarCorreoPagoAprobado(vars);
+  if (!plantilla.activo) {
+    console.log("Correo pago aprobado desactivado en plantilla — omitido para", docId);
+    return {enviado: false, omitido: true};
+  }
+
+  const qrDataUrl = await generarQrDataUrl(codigo, token);
+  const htmlContent = plantilla.htmlContent.replace("{{qr_img}}", qrDataUrl);
+
+  await brevoRequest({
+    sender: CORREO_REMITENTE,
+    to: [{email: correo, name: nombre}],
+    subject: plantilla.subject,
+    htmlContent,
+    textContent: plantilla.textContent,
+  });
+
+  return {enviado: true};
 }
 
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
@@ -437,6 +477,44 @@ exports.accederParticipante = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("accederParticipante:", e);
         throw new HttpsError("internal", "Error al consultar credencial. Intenta de nuevo.");
+      }
+    },
+);
+
+// ─── TRIGGER: correo con QR al aprobar pago ───────────────────────────────────
+exports.notificarPagoAprobado = onDocumentUpdated(
+    {document: "participantes/{docId}", region: "us-central1"},
+    async (event) => {
+      const before = event.data.before.data();
+      const after = event.data.after.data();
+      if (!before || !after) return;
+
+      const estadoAntes = before.pago?.estado;
+      const estadoDespues = after.pago?.estado;
+      if (estadoAntes === estadoDespues || estadoDespues !== "aprobado") return;
+      if (after.pago?.correo_aprobacion_enviado) return;
+
+      const docId = event.params.docId;
+      let enviado = false;
+      let errorMsg = null;
+
+      try {
+        await enviarCorreoPagoAprobado({docId, participante: after});
+        enviado = true;
+      } catch (e) {
+        errorMsg = e.message;
+        console.error("Error correo pago aprobado para", docId, ":", e.message);
+      }
+
+      try {
+        await event.data.after.ref.update({
+          "pago.correo_aprobacion_enviado": enviado,
+          "pago.correo_aprobacion_pendiente": !enviado,
+          "pago.correo_aprobacion_error": errorMsg,
+          "pago.correo_aprobacion_enviadoEn": enviado ? FieldValue.serverTimestamp() : null,
+        });
+      } catch (e) {
+        console.error("No se pudo marcar estado correo aprobacion:", e.message);
       }
     },
 );

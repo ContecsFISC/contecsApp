@@ -457,7 +457,7 @@
 import { tienePermiso } from "../js/core/permisos.js";
 import {
   collection, getDocs, doc, updateDoc,
-  query, orderBy, serverTimestamp, where
+  query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import { db as fireDb, storage } from "../js/core/firebase-config.js";
@@ -656,6 +656,8 @@ function renderSheet(p) {
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
+      ${p.pago?.correo_aprobacion_enviado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--verde-oscuro);">✅ Enviado</span></div>` : ""}
+      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">⚠️ ${p.pago.correo_aprobacion_error}</span></div>` : ""}
       ${p.pago?.comprobanteRuta ? `
       <button type="button" class="comprobante-link"
         data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
@@ -742,6 +744,7 @@ window._aprobar = async function() {
     cerrarSheet();
     actualizarStats();
     aplicarFiltros();
+    alert("Pago aprobado. Se enviará un correo con el QR al participante.");
   } catch (err) {
     alert("Error al aprobar: " + err.message);
     document.getElementById("btn-aprobar-sh").disabled = false;

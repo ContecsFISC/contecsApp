@@ -1,0 +1,171 @@
+<!-- subject: CONTECS 2026 — Pago aprobado: {{codigo}} -->
+<!-- activo: true -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    :root {
+      --verde-oscuro: #045223;
+      --verde-claro: #39b54a;
+      --verde-fondo: #e8f5ec;
+      --fondo-pagina: #f4f7f5;
+      --texto-principal: #1a2e1e;
+      --texto-secundario: #8a9e8d;
+      --blanco: #ffffff;
+      --fuente: 'Segoe UI', system-ui, sans-serif;
+      --fuente-codigo: 'Courier New', monospace;
+      --ancho-max: 580px;
+      --radio: 16px;
+      --radio-sm: 8px;
+      --radio-btn: 8px;
+      --sombra: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--fondo-pagina);
+      font-family: var(--fuente);
+    }
+
+    .email-wrapper {
+      max-width: var(--ancho-max);
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .email-header {
+      background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-claro));
+      border-radius: var(--radio) var(--radio) 0 0;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .email-header__titulo {
+      color: var(--blanco);
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .email-header__subtitulo {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 13px;
+      margin: 8px 0 0;
+    }
+
+    .email-body {
+      background: var(--blanco);
+      padding: 28px;
+      border-radius: 0 0 var(--radio) var(--radio);
+      box-shadow: var(--sombra);
+    }
+
+    .email-body__titulo {
+      color: var(--verde-oscuro);
+      font-size: 18px;
+      margin: 0 0 16px;
+    }
+
+    .email-texto {
+      font-size: 14px;
+      color: var(--texto-principal);
+      line-height: 1.7;
+      margin: 0 0 8px;
+    }
+
+    .email-texto--ultimo {
+      margin-bottom: 24px;
+    }
+
+    .email-qr {
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .email-qr__img {
+      border: 8px solid var(--verde-fondo);
+      border-radius: var(--radio-sm);
+    }
+
+    .email-qr__hint {
+      font-size: 12px;
+      color: var(--texto-secundario);
+      margin: 12px 0 0;
+    }
+
+    .email-qr__codigo {
+      font-size: 13px;
+      color: var(--verde-oscuro);
+      font-weight: 700;
+      margin: 8px 0 0;
+      font-family: var(--fuente-codigo);
+    }
+
+    .email-cta {
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .email-cta__btn {
+      display: inline-block;
+      background: var(--verde-oscuro);
+      color: var(--blanco);
+      padding: 12px 28px;
+      border-radius: var(--radio-btn);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .email-footer {
+      border-top: 1px solid var(--verde-fondo);
+      padding-top: 16px;
+    }
+
+    .email-footer__texto {
+      font-size: 12px;
+      color: var(--texto-secundario);
+      line-height: 1.6;
+      margin: 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-header">
+      <h1 class="email-header__titulo">CONTECS 2026</h1>
+      <p class="email-header__subtitulo">Credencial activada</p>
+    </div>
+    <div class="email-body">
+      <h2 class="email-body__titulo">¡Tu pago fue confirmado!</h2>
+      <p class="email-texto">Hola {{nombre}},</p>
+      <p class="email-texto">
+        Nuestro equipo validó tu pago para el II CONTECS 2026. Tu credencial con código QR ya está activa.
+      </p>
+      <p class="email-texto">
+        Código: <strong>{{codigo}}</strong><br/>
+        Categoría: {{categoria}}
+      </p>
+      <p class="email-texto email-texto--ultimo">
+        Presenta el QR adjunto en la entrada del evento.
+      </p>
+      <div class="email-qr">
+        <img class="email-qr__img" src="{{qr_img}}" alt="QR de acceso CONTECS 2026" width="194" height="194"/>
+        <p class="email-qr__hint">Escanea este código en la entrada</p>
+        <p class="email-qr__codigo">{{codigo}}</p>
+      </div>
+      <div class="email-cta">
+        <a class="email-cta__btn" href="{{link_perfil}}">Abrir mi credencial</a>
+      </div>
+      <div class="email-footer">
+        <p class="email-footer__texto">
+          II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá<br/>
+          congresofisc@utp.ac.pa
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
