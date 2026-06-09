@@ -489,18 +489,33 @@ exports.notificarPagoAprobado = onDocumentUpdated(
       const after = event.data.after.data();
       if (!before || !after) return;
 
+      const docId = event.params.docId;
       const estadoAntes = before.pago?.estado;
       const estadoDespues = after.pago?.estado;
-      if (estadoAntes === estadoDespues || estadoDespues !== "aprobado") return;
+
+      if (estadoDespues !== "aprobado") return;
       if (after.pago?.correo_aprobacion_enviado) return;
 
-      const docId = event.params.docId;
+      const transicionAAprobado = estadoAntes !== "aprobado";
+      const reenvioSolicitado = after.pago?.reenviar_correo_qr_at &&
+        before.pago?.reenviar_correo_qr_at !== after.pago?.reenviar_correo_qr_at;
+
+      if (!transicionAAprobado && !reenvioSolicitado) return;
+
+      console.log("notificarPagoAprobado: procesando", docId,
+          reenvioSolicitado ? "(reenvío)" : "(aprobación)");
+
       let enviado = false;
       let errorMsg = null;
 
       try {
-        await enviarCorreoPagoAprobado({docId, participante: after});
+        const resultado = await enviarCorreoPagoAprobado({docId, participante: after});
+        if (resultado?.omitido) {
+          console.log("notificarPagoAprobado: plantilla desactivada —", docId);
+          return;
+        }
         enviado = true;
+        console.log("notificarPagoAprobado: correo enviado a", after.correo, "—", docId);
       } catch (e) {
         errorMsg = e.message;
         console.error("Error correo pago aprobado para", docId, ":", e.message);

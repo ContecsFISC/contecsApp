@@ -657,7 +657,8 @@ function renderSheet(p) {
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
       ${p.pago?.correo_aprobacion_enviado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--verde-oscuro);">✅ Enviado</span></div>` : ""}
-      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">⚠️ ${p.pago.correo_aprobacion_error}</span></div>` : ""}
+      ${!p.pago?.correo_aprobacion_enviado && yaAprobado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--amarillo);">⏳ Pendiente o fallido</span></div>` : ""}
+      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Error correo</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">${p.pago.correo_aprobacion_error}</span></div>` : ""}
       ${p.pago?.comprobanteRuta ? `
       <button type="button" class="comprobante-link"
         data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
@@ -691,6 +692,11 @@ function renderSheet(p) {
     <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:14px;margin-top:8px;text-align:center;">
       <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);">✅ Pago validado</div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">QR activo para el evento</div>
+      ${canAprobar && !p.pago?.correo_aprobacion_enviado ? `
+      <button type="button" class="btn-grande btn-aprobar-grande" id="btn-reenviar-qr"
+        style="margin-top:12px;width:100%;" onclick="window._reenviarCorreoQr()">
+        ✉️ Reenviar correo con QR
+      </button>` : ""}
     </div>` : ""}
   `;
 
@@ -749,6 +755,24 @@ window._aprobar = async function() {
     alert("Error al aprobar: " + err.message);
     document.getElementById("btn-aprobar-sh").disabled = false;
     document.getElementById("btn-rechazar-sh").disabled = false;
+  }
+};
+
+// ── REENVIAR CORREO QR ────────────────────────────────────────────────────
+window._reenviarCorreoQr = async function() {
+  if (!participanteSeleccionado) return;
+  const btn = document.getElementById("btn-reenviar-qr");
+  if (btn) btn.disabled = true;
+  try {
+    await updateDoc(doc(fireDb, "participantes", participanteSeleccionado.id), {
+      "pago.reenviar_correo_qr_at": serverTimestamp(),
+      "actualizadoEn": serverTimestamp(),
+    });
+    alert("Solicitud de reenvío enviada. Revisa en unos segundos el estado del correo QR.");
+    setTimeout(() => cargar(), 4000);
+  } catch (err) {
+    alert("Error al solicitar reenvío: " + err.message);
+    if (btn) btn.disabled = false;
   }
 };
 
