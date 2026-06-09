@@ -35,7 +35,8 @@ async function generarCodigo() {
   const counterRef = db.doc("contadores/inscripciones2026");
   const seq = await db.runTransaction(async (tx) => {
     const snap = await tx.get(counterRef);
-    const current = snap.exists ? (snap.data().valor || 0) : 0;
+    const snapData = snap.data();
+    const current = snapData ? (snapData.valor || 0) : 0;
     const next = current + 1;
     tx.set(counterRef, {valor: next, actualizadoEn: FieldValue.serverTimestamp()}, {merge: true});
     return next;
@@ -248,6 +249,7 @@ async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, cat
 exports.registrarParticipante = onCall(
     {region: "us-central1", maxInstances: 20, invoker: "public"},
     async (request) => {
+      try {
       const data = request.data || {};
 
       const nombre = validarTexto(data.nombre, "nombre", {requerido: true, max: 100});
@@ -272,7 +274,7 @@ exports.registrarParticipante = onCall(
 
       const docRef = db.collection("participantes").doc(docId);
       const existe = await docRef.get();
-      if (existe.exists) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+      if (existe.data()) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
 
       const codigo = await generarCodigo();
       const token = generarToken();
@@ -334,7 +336,7 @@ exports.registrarParticipante = onCall(
           if (!estId) continue;
           const estRef = db.collection("participantes").doc(estId);
           const estExiste = await estRef.get();
-          if (estExiste.exists) continue;
+          if (estExiste.data()) continue;
           const estCodigo = await generarCodigo();
           const estToken = generarToken();
           estudiantesGuardados.push({
@@ -397,6 +399,11 @@ exports.registrarParticipante = onCall(
       }
 
       return {codigo, correo};
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("registrarParticipante:", e);
+        throw new HttpsError("internal", "Error al registrar. Intenta de nuevo en unos segundos.");
+      }
     },
 );
 
@@ -404,6 +411,7 @@ exports.registrarParticipante = onCall(
 exports.accederParticipante = onCall(
     {region: "us-central1", maxInstances: 30, invoker: "public"},
     async (request) => {
+      try {
       const codigo = String(request.data?.codigo || "").trim().toUpperCase();
       const token = String(request.data?.token || "").trim();
 
@@ -425,5 +433,10 @@ exports.accederParticipante = onCall(
       }
 
       return sanitizarParticipante(snap.docs[0].data());
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("accederParticipante:", e);
+        throw new HttpsError("internal", "Error al consultar credencial. Intenta de nuevo.");
+      }
     },
 );
