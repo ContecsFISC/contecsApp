@@ -194,7 +194,7 @@ export function resumenItemPrincipal(items) {
   return `${items[0].nombre || "Movimiento"} +${items.length - 1} más`;
 }
 
-export async function registrarVenta({ usuarioId, usuarioNombre = "", items, metodoPago = "efectivo", nota = "" }) {
+export async function registrarVenta({ usuarioId, usuarioNombre = "", items, metodoPago = "efectivo", nota = "", actividadVentaId = "", actividadVentaNombre = "" }) {
   if (!usuarioId) throw new Error("No se pudo identificar al usuario.");
   if (!Array.isArray(items) || items.length === 0) throw new Error("Agrega al menos un producto.");
 
@@ -297,6 +297,8 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       total,
       metodoPago,
       nota,
+      actividadVentaId: actividadVentaId || null,
+      actividadVentaNombre: actividadVentaNombre || null,
       creadoEn: serverTimestamp(),
     });
 
@@ -609,6 +611,8 @@ export async function registrarVentaConMerma({
   metodoPago = "efectivo",
   mermaItems = [],       // items de merma (array, puede estar vacío)
   motivoMerma = "",
+  actividadVentaId = "",
+  actividadVentaNombre = "",
 }) {
   if (!usuarioId) throw new Error("No se pudo identificar al usuario.");
   if (!Array.isArray(items)) items = [];
@@ -779,6 +783,8 @@ export async function registrarVentaConMerma({
         nota,
         mermas: lineasMerma,
         motivoMerma: motivoMerma.trim() || null,
+        actividadVentaId: actividadVentaId || null,
+        actividadVentaNombre: actividadVentaNombre || null,
         creadoEn: serverTimestamp(),
       });
     }

@@ -136,6 +136,13 @@
 		<h1>Ventas 2</h1>
 		<a href="../dashboard.html" class="topbar-link">← Volver</a>
 	</div>
+
+	  <!-- ACCESO RÁPIDO CALENDARIO -->
+	<div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+		<a href="actividadVentas.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-claro);">
+		📅 Crear actividad de venta
+		</a>
+	</div>
 	<div class="container">
 		<div class="alerta alerta-error" id="alerta-venta"></div>
 
@@ -161,6 +168,17 @@
 		<div class="spinner-wrap" id="estado-carga"><div class="spinner"></div></div>
 
 		<div id="pantalla-venta" class="is-hidden">
+			<div class="card">
+				<div class="card-title">Actividad de Ventas</div>
+				<div class="form-group">
+					<label for="sel-actividad">Selecciona la actividad</label>
+					<select id="sel-actividad" aria-label="Actividad de ventas">
+						<option value="">— Cargando actividades… —</option>
+					</select>
+				</div>
+				<div id="actividad-info" style="display:none; padding:10px 12px; background:var(--verde-fondo); border-radius:10px; font-size:13px; color:var(--gris-medio);"></div>
+			</div>
+
 			<div class="card">
 				<div class="card-title">Buscar productos</div>
 				<div class="form-group">

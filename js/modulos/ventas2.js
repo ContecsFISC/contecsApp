@@ -3,7 +3,7 @@ import { escucharCategorias, getEmoji, estadoStock } from "./catalogo.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarVenta, registrarVentaConMerma, esperarAuthListo } from "../core/operaciones.js";
 import {
-	collection, query, where, onSnapshot
+	collection, query, where, onSnapshot, getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
@@ -12,6 +12,9 @@ requirePermiso("registrar_ventas");
 const estado = {
 	categorias: [],
 	productos: [],
+	actividades: [],
+	actividadVentaId: null,
+	actividadVentaNombre: "",
 	termino: "",
 	carrito: new Map(),
 	cargando: true,
@@ -185,6 +188,7 @@ function stockDisponible(productoId) {
 
 function carritoCompleto() {
 	if (estado.carrito.size === 0) return false;
+	if (!estado.actividadVentaId) return false;
 
 	return [...estado.carrito.values()].every((item) => {
 		const vendido = totalUnidadesVendidas(item);
@@ -681,6 +685,35 @@ function renderCarrito() {
 	actualizarResumen();
 }
 
+function fmtFecha(ts) {
+	if (!ts) return "";
+	const d = ts.toDate ? ts.toDate() : new Date(ts);
+	return d.toLocaleDateString("es-PA");
+}
+
+async function cargarActividades() {
+	const sel = $("sel-actividad");
+	try {
+		const snap = await getDocs(collection(db, "actividades_ventas"));
+		estado.actividades = snap.docs
+			.map(d => ({ id: d.id, ...d.data() }))
+			.filter(a => a.activo !== false)
+			.sort((a, b) => {
+				const fa = a.fecha?.toDate ? a.fecha.toDate() : new Date(a.fecha || 0);
+				const fb = b.fecha?.toDate ? b.fecha.toDate() : new Date(b.fecha || 0);
+				return fb - fa;
+			});
+		sel.innerHTML = `<option value="">— Selecciona una actividad —</option>` +
+			estado.actividades.map(a =>
+				`<option value="${a.id}">${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
+			).join("");
+	} catch (e) {
+		console.warn("No se pudieron cargar actividades:", e.message);
+		sel.innerHTML = `<option value="">— Sin actividades disponibles —</option>`;
+		estado.actividades = [];
+	}
+}
+
 function renderProductos() {
 	const termino = estado.termino.toLowerCase().trim();
 	const contenedor = productosWrap;
@@ -745,6 +778,11 @@ async function finalizarVenta() {
 		return;
 	}
 
+	if (!estado.actividadVentaId) {
+		mostrarAlerta("aviso", "Selecciona una actividad de ventas antes de registrar.");
+		return;
+	}
+
 	btn.disabled = true;
 	const textoOriginal = btn.textContent;
 	btn.textContent = "⏳ Procesando...";
@@ -803,6 +841,8 @@ async function finalizarVenta() {
 				nota: nota.value.trim(),
 				mermaItems,
 				motivoMerma: motivoMermaDefault(),
+				actividadVentaId: estado.actividadVentaId,
+				actividadVentaNombre: estado.actividadVentaNombre,
 			});
 		} else {
 			resultado = await registrarVenta({
@@ -811,6 +851,8 @@ async function finalizarVenta() {
 				items: itemsVenta,
 				metodoPago: metodoPago.value,
 				nota: nota.value.trim(),
+				actividadVentaId: estado.actividadVentaId,
+				actividadVentaNombre: estado.actividadVentaNombre,
 			});
 		}
 
@@ -858,6 +900,20 @@ buscador.addEventListener("input", (e) => {
 	renderProductos();
 });
 
+$("sel-actividad").addEventListener("change", (e) => {
+	const a = estado.actividades.find(x => x.id === e.target.value) || null;
+	estado.actividadVentaId = a ? a.id : null;
+	estado.actividadVentaNombre = a ? a.nombre : "";
+	const info = $("actividad-info");
+	if (a) {
+		info.textContent = [fmtFecha(a.fecha), a.lugar, a.responsables].filter(Boolean).join(" · ");
+		info.style.display = "block";
+	} else {
+		info.style.display = "none";
+	}
+	actualizarResumen();
+});
+
 metodoPago.addEventListener("change", actualizarResumen);
 nota.addEventListener("input", actualizarResumen);
 
@@ -869,6 +925,7 @@ $("btn-limpiar-carrito").addEventListener("click", () => {
 
 btnFinalizar.addEventListener("click", finalizarVenta);
 
+cargarActividades();
 renderCarrito();
 renderEstadoCarga();
 actualizarResumen();

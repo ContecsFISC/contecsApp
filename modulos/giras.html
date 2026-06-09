@@ -11,7 +11,7 @@
   <script type="module">
     import { guardRoute, requirePermiso } from "../js/core/auth.js";
     guardRoute();
-    requirePermiso("gestionar_voluntarios", "gestionar_actividades", "gestionar_giras");
+    requirePermiso("gestionar_voluntarios");
   </script>
   <style>
     .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
@@ -78,7 +78,7 @@
 <body>
 
 <div class="topbar">
-  <h1>🤝 Contecs 2026</h1>
+  <h1>🤝 Voluntarios CONTECS</h1>
   <div style="display:flex;align-items:center;gap:10px;">
     <a href="lecturaQRVoluntarios.html" class="btn-qr-scan">📷 Escanear QR</a>
     <a href="../dashboard.html" class="topbar-link">← Panel</a>
@@ -141,11 +141,6 @@
           <input type="number" id="act-voluntarios-req" placeholder="ej. 10" min="0"/>
         </div>
       </div>
-      <div class="form-groupE" id="act-cupo-group" style="display:none;">
-        <label style="color:var(--verde-oscuro)">Cupo máximo de asistentes</label>
-        <input type="number" id="act-cupo" placeholder="ej. 30" min="1"/>
-        <small style="color:var(--gris-medio);font-size:12px;">Límite de personas que pueden asistir al taller.</small>
-      </div>
       <div class="form-groupE">
         <label style="color:var(--verde-oscuro)">Colaboración</label>
         <textarea id="act-colaboracion" rows="2" placeholder="Empresas o agrupaciones que apoyan (separadas por coma)"></textarea>
@@ -166,12 +161,11 @@
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Tipo</th>
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Lugar</th>
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Vol. req.</th>
-            <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Cupo</th>
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Turnos</th>
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Estado</th>
             <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)"></th>
           </tr></thead>
-          <tbody id="tabla-actividades-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+          <tbody id="tabla-actividades-body"><tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -204,7 +198,7 @@
           </select>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-groupE">
           <label style="color:#856404;">Lugar *</label>
           <input type="text" id="gira-lugar" placeholder="ej. Chiriquí, Panamá"/>
@@ -212,10 +206,6 @@
         <div class="form-groupE">
           <label style="color:#856404;">Voluntarios requeridos</label>
           <input type="number" id="gira-voluntarios-req" placeholder="ej. 15" min="0"/>
-        </div>
-        <div class="form-groupE">
-          <label style="color:#856404;">Cupo máximo de asistentes</label>
-          <input type="number" id="gira-cupo" placeholder="ej. 50" min="1"/>
         </div>
       </div>
       <div class="form-groupE">
@@ -238,12 +228,11 @@
             <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
             <th style="color:#856404;border-bottom:2px solid #ffc107">Lugar</th>
             <th style="color:#856404;border-bottom:2px solid #ffc107">Vol. req.</th>
-            <th style="color:#856404;border-bottom:2px solid #ffc107">Cupo</th>
             <th style="color:#856404;border-bottom:2px solid #ffc107">Turnos</th>
             <th style="color:#856404;border-bottom:2px solid #ffc107">Estado</th>
             <th style="color:#856404;border-bottom:2px solid #ffc107"></th>
           </tr></thead>
-          <tbody id="tabla-giras-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+          <tbody id="tabla-giras-body"><tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
         </table>
       </div>
     </div>
