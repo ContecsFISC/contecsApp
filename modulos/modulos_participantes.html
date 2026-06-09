@@ -455,6 +455,7 @@
 
 <script type="module">
 import { tienePermiso } from "../js/core/permisos.js";
+import { enviarCorreoQrParticipante } from "../js/core/participantes-api.js";
 import {
   collection, getDocs, doc, updateDoc, getDoc,
   query, orderBy, serverTimestamp
@@ -736,15 +737,29 @@ window._selMetodo = function(metodo, el) {
   el.classList.add("seleccionado");
 };
 
+async function enviarCorreoQrAlParticipante(docId, forzarReenvio = false) {
+  const resultado = await enviarCorreoQrParticipante(docId, { forzarReenvio });
+  if (resultado?.omitido && resultado?.razon === "ya_enviado") {
+    return "Pago aprobado. El correo con QR ya había sido enviado.";
+  }
+  if (resultado?.enviado) {
+    return forzarReenvio ?
+      "Correo con QR reenviado correctamente." :
+      "Pago aprobado. Correo con QR enviado al participante.";
+  }
+  return resultado?.mensaje || "Operación completada.";
+}
+
 // ── APROBAR ───────────────────────────────────────────────────────────────
 window._aprobar = async function() {
   if (!participanteSeleccionado) return;
   const notas = document.getElementById("notas-pago")?.value.trim() || "";
   const metodo = metodoPagoSeleccionado || participanteSeleccionado.pago?.metodo;
+  const docId = participanteSeleccionado.id;
   document.getElementById("btn-aprobar-sh").disabled = true;
   document.getElementById("btn-rechazar-sh").disabled = true;
   try {
-    await updateDoc(doc(fireDb, "participantes", participanteSeleccionado.id), {
+    await updateDoc(doc(fireDb, "participantes", docId), {
       "pago.estado":     "aprobado",
       "pago.metodo":     metodo,
       "pago.aprobadoPor": uid,
@@ -752,18 +767,24 @@ window._aprobar = async function() {
       "pago.notas":       notas || null,
       "actualizadoEn":    serverTimestamp(),
     });
-    // Actualizar local
-    const idx = todosParticipantes.findIndex(p => p.id === participanteSeleccionado.id);
+    const idx = todosParticipantes.findIndex(p => p.id === docId);
     if (idx >= 0) {
       todosParticipantes[idx].pago = {
         ...todosParticipantes[idx].pago,
         estado: "aprobado", metodo, aprobadoPor: uid, notas,
       };
     }
+    let mensaje = "Pago aprobado.";
+    try {
+      mensaje = await enviarCorreoQrAlParticipante(docId);
+    } catch (correoErr) {
+      mensaje = "Pago aprobado, pero el correo falló: " + correoErr.message;
+    }
     cerrarSheet();
     actualizarStats();
     aplicarFiltros();
-    alert("Pago aprobado. Se enviará un correo con el QR al participante.");
+    alert(mensaje);
+    cargar();
   } catch (err) {
     alert("Error al aprobar: " + err.message);
     document.getElementById("btn-aprobar-sh").disabled = false;
@@ -777,17 +798,12 @@ window._reenviarCorreoQr = async function() {
   const btn = document.getElementById("btn-reenviar-qr");
   if (btn) btn.disabled = true;
   try {
-    await updateDoc(doc(fireDb, "participantes", participanteSeleccionado.id), {
-      "pago.reenviar_correo_qr_at": serverTimestamp(),
-      "pago.correo_aprobacion_enviado": false,
-      "pago.correo_aprobacion_error": null,
-      "actualizadoEn": serverTimestamp(),
-    });
-    alert("Solicitud de reenvío enviada. Revisa en unos segundos el estado del correo QR.");
+    const mensaje = await enviarCorreoQrAlParticipante(participanteSeleccionado.id, true);
+    alert(mensaje);
     cerrarSheet();
-    setTimeout(() => cargar(), 4000);
+    cargar();
   } catch (err) {
-    alert("Error al solicitar reenvío: " + err.message);
+    alert("Error al reenviar correo: " + err.message);
     if (btn) btn.disabled = false;
   }
 };

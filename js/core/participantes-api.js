@@ -50,3 +50,22 @@ export async function accederParticipante(codigo, token) {
     throw new Error(msg);
   }
 }
+
+const ERRORES_CORREO_QR = {
+  "unauthenticated":  "Debes iniciar sesión para enviar correos.",
+  "permission-denied": "No tienes permiso para enviar este correo.",
+  "invalid-argument": "Participante no válido.",
+  "internal":         "Error al enviar el correo. Intenta de nuevo.",
+  "unavailable":      "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+export async function enviarCorreoQrParticipante(docId, { forzarReenvio = false } = {}) {
+  try {
+    const fn = httpsCallable(functions, "enviarCorreoQrParticipante");
+    const result = await fn({ docId, forzarReenvio });
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_CORREO_QR[error.code] || error.message || "Error al enviar el correo.";
+    throw new Error(msg);
+  }
+}

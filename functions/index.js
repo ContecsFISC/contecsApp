@@ -5,7 +5,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
-const {linkPerfilParticipante, generarQrDataUrl} = require("./qr-participante");
+const {linkPerfilParticipante, generarQrAdjunto} = require("./qr-participante");
 const {cargarCorreoPagoAprobado} = require("./plantillas");
 
 initializeApp();
@@ -19,6 +19,11 @@ const CORREO_REMITENTE = {name: "CONTECS 2026", email: "congresofisc@utp.ac.pa"}
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
+
+const ROLES_ENVIAR_CORREO_QR = new Set([
+  "ceo", "junta_principal", "junta", "coordinador",
+  "actividades", "finanzas", "secretario", "comunicaciones",
+]);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function generarDocId(cedula, correo) {
@@ -95,13 +100,14 @@ function sanitizarParticipante(data) {
 }
 
 // ─── BREVO: ENVÍO DE CORREO ───────────────────────────────────────────────────
-function brevoRequest(payload) {
+function brevoRequestOnce(payload) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify(payload);
     const req = https.request({
       hostname: "api.brevo.com",
       path: "/v3/smtp/email",
       method: "POST",
+      timeout: 25000,
       headers: {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(body),
@@ -113,14 +119,49 @@ function brevoRequest(payload) {
         data += chunk;
       });
       res.on("end", () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) resolve(true);
-        else reject(new Error(`Brevo ${res.statusCode}: ${data}`));
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data || "{}"));
+          } catch (e) {
+            resolve({});
+          }
+          return;
+        }
+        reject(new Error(`Brevo ${res.statusCode}: ${data}`));
       });
+    });
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Brevo timeout: sin respuesta en 25s"));
     });
     req.on("error", reject);
     req.write(body);
     req.end();
   });
+}
+
+async function brevoRequest(payload) {
+  try {
+    return await brevoRequestOnce(payload);
+  } catch (e) {
+    if (/Brevo 5\d\d/.test(e.message)) {
+      await new Promise((r) => setTimeout(r, 2000));
+      return brevoRequestOnce(payload);
+    }
+    throw e;
+  }
+}
+
+async function verificarStaffCorreo(request) {
+  if (!request.auth?.uid) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión para enviar correos.");
+  }
+  const snap = await db.collection("usuarios").doc(request.auth.uid).get();
+  const rol = snap.data()?.rol;
+  if (!ROLES_ENVIAR_CORREO_QR.has(rol)) {
+    throw new HttpsError("permission-denied", "No tienes permiso para enviar este correo.");
+  }
+  return rol;
 }
 
 function construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
@@ -271,18 +312,78 @@ async function enviarCorreoPagoAprobado({docId, participante}) {
     return {enviado: false, omitido: true};
   }
 
-  const qrDataUrl = await generarQrDataUrl(codigo, token);
-  const htmlContent = plantilla.htmlContent.replace("{{qr_img}}", qrDataUrl);
-
-  await brevoRequest({
+  const qrAdjunto = await generarQrAdjunto(codigo, token);
+  const brevoResp = await brevoRequest({
     sender: CORREO_REMITENTE,
     to: [{email: correo, name: nombre}],
     subject: plantilla.subject,
-    htmlContent,
+    htmlContent: plantilla.htmlContent,
     textContent: plantilla.textContent,
+    attachment: [{
+      content: qrAdjunto.content,
+      name: qrAdjunto.name,
+      contentId: qrAdjunto.contentId,
+    }],
   });
 
-  return {enviado: true};
+  return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
+}
+
+async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
+  const docRef = db.collection("participantes").doc(docId);
+  const bloqueo = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(docRef);
+    const participante = snap.data();
+    if (!participante) return {omitir: true, razon: "no_existe"};
+    if (participante.pago?.estado !== "aprobado") {
+      return {omitir: true, razon: "no_aprobado"};
+    }
+    if (participante.pago?.correo_aprobacion_enviado && !forzarReenvio) {
+      return {omitir: true, razon: "ya_enviado"};
+    }
+    if (participante.pago?.correo_aprobacion_enviando) {
+      return {omitir: true, razon: "en_proceso"};
+    }
+    tx.update(docRef, {"pago.correo_aprobacion_enviando": true});
+    return {omitir: false, participante};
+  });
+
+  if (bloqueo.omitir) {
+    return {enviado: false, omitido: true, razon: bloqueo.razon};
+  }
+
+  let enviado = false;
+  let errorMsg = null;
+  let brevoMessageId = null;
+  let omitidoPlantilla = false;
+
+  try {
+    const resultado = await enviarCorreoPagoAprobado({
+      docId,
+      participante: bloqueo.participante,
+    });
+    if (resultado?.omitido) {
+      omitidoPlantilla = true;
+    } else {
+      enviado = true;
+      brevoMessageId = resultado.brevoMessageId;
+    }
+  } catch (e) {
+    errorMsg = e.message;
+  }
+
+  await docRef.update({
+    "pago.correo_aprobacion_enviado": enviado,
+    "pago.correo_aprobacion_pendiente": !enviado && !omitidoPlantilla,
+    "pago.correo_aprobacion_error": errorMsg,
+    "pago.correo_aprobacion_enviando": false,
+    "pago.correo_aprobacion_enviadoEn": enviado ? FieldValue.serverTimestamp() : null,
+    "pago.correo_aprobacion_brevo_id": brevoMessageId,
+  }).catch((e) => console.error("No se pudo marcar estado correo:", e.message));
+
+  if (errorMsg) throw new Error(errorMsg);
+  if (omitidoPlantilla) return {enviado: false, omitido: true, razon: "plantilla_desactivada"};
+  return {enviado: true, brevoMessageId};
 }
 
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
@@ -481,7 +582,44 @@ exports.accederParticipante = onCall(
     },
 );
 
-// ─── TRIGGER: correo con QR al aprobar pago ───────────────────────────────────
+// ─── CALLABLE: enviar correo QR (panel staff) ─────────────────────────────────
+exports.enviarCorreoQrParticipante = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        await verificarStaffCorreo(request);
+        const docId = validarTexto(request.data?.docId, "docId", {requerido: true, max: 200});
+        const forzarReenvio = !!request.data?.forzarReenvio;
+
+        console.log("enviarCorreoQrParticipante:", docId, forzarReenvio ? "(reenvío)" : "(envío)");
+
+        const resultado = await procesarCorreoQrAprobado({docId, forzarReenvio});
+        if (resultado.omitido) {
+          return {
+            enviado: false,
+            omitido: true,
+            razon: resultado.razon,
+            mensaje: resultado.razon === "ya_enviado" ?
+              "El correo ya fue enviado." :
+              "No se pudo enviar en este momento.",
+          };
+        }
+
+        console.log("enviarCorreoQrParticipante: OK", docId, resultado.brevoMessageId || "");
+        return {
+          enviado: true,
+          brevoMessageId: resultado.brevoMessageId,
+          mensaje: "Correo con QR enviado correctamente.",
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("enviarCorreoQrParticipante:", e);
+        throw new HttpsError("internal", e.message || "Error al enviar el correo.");
+      }
+    },
+);
+
+// ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
 exports.notificarPagoAprobado = onDocumentUpdated(
     {document: "participantes/{docId}", region: "us-central1"},
     async (event) => {
@@ -501,37 +639,23 @@ exports.notificarPagoAprobado = onDocumentUpdated(
       if (after.pago?.correo_aprobacion_enviado && !reenvioSolicitado) return;
 
       const transicionAAprobado = estadoAntes !== "aprobado";
-
       if (!transicionAAprobado && !reenvioSolicitado) return;
 
       console.log("notificarPagoAprobado: procesando", docId,
           reenvioSolicitado ? "(reenvío)" : "(aprobación)");
 
-      let enviado = false;
-      let errorMsg = null;
-
       try {
-        const resultado = await enviarCorreoPagoAprobado({docId, participante: after});
-        if (resultado?.omitido) {
-          console.log("notificarPagoAprobado: plantilla desactivada —", docId);
+        const resultado = await procesarCorreoQrAprobado({
+          docId,
+          forzarReenvio: reenvioSolicitado,
+        });
+        if (resultado.omitido) {
+          console.log("notificarPagoAprobado: omitido", docId, resultado.razon);
           return;
         }
-        enviado = true;
-        console.log("notificarPagoAprobado: correo enviado a", after.correo, "—", docId);
+        console.log("notificarPagoAprobado: correo enviado —", docId);
       } catch (e) {
-        errorMsg = e.message;
         console.error("Error correo pago aprobado para", docId, ":", e.message);
-      }
-
-      try {
-        await event.data.after.ref.update({
-          "pago.correo_aprobacion_enviado": enviado,
-          "pago.correo_aprobacion_pendiente": !enviado,
-          "pago.correo_aprobacion_error": errorMsg,
-          "pago.correo_aprobacion_enviadoEn": enviado ? FieldValue.serverTimestamp() : null,
-        });
-      } catch (e) {
-        console.error("No se pudo marcar estado correo aprobacion:", e.message);
       }
     },
 );
