@@ -494,11 +494,13 @@ exports.notificarPagoAprobado = onDocumentUpdated(
       const estadoDespues = after.pago?.estado;
 
       if (estadoDespues !== "aprobado") return;
-      if (after.pago?.correo_aprobacion_enviado) return;
 
-      const transicionAAprobado = estadoAntes !== "aprobado";
       const reenvioSolicitado = after.pago?.reenviar_correo_qr_at &&
         before.pago?.reenviar_correo_qr_at !== after.pago?.reenviar_correo_qr_at;
+
+      if (after.pago?.correo_aprobacion_enviado && !reenvioSolicitado) return;
+
+      const transicionAAprobado = estadoAntes !== "aprobado";
 
       if (!transicionAAprobado && !reenvioSolicitado) return;
 

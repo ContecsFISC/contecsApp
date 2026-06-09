@@ -456,7 +456,7 @@
 <script type="module">
 import { tienePermiso } from "../js/core/permisos.js";
 import {
-  collection, getDocs, doc, updateDoc,
+  collection, getDocs, doc, updateDoc, getDoc,
   query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
@@ -586,11 +586,22 @@ function renderTabla() {
 }
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────
-window._abrirPerfil = function(id) {
-  participanteSeleccionado = todosParticipantes.find(p => p.id === id);
-  if (!participanteSeleccionado) return;
-  metodoPagoSeleccionado = participanteSeleccionado.pago?.metodo || null;
-  renderSheet(participanteSeleccionado);
+window._abrirPerfil = async function(id) {
+  let p = todosParticipantes.find(x => x.id === id);
+  if (!p) return;
+  try {
+    const snap = await getDoc(doc(fireDb, "participantes", id));
+    if (snap.exists()) {
+      p = { id: snap.id, ...snap.data() };
+      const idx = todosParticipantes.findIndex(x => x.id === id);
+      if (idx >= 0) todosParticipantes[idx] = p;
+    }
+  } catch (e) {
+    console.warn("No se pudo refrescar participante:", e);
+  }
+  participanteSeleccionado = p;
+  metodoPagoSeleccionado = p.pago?.metodo || null;
+  renderSheet(p);
   el("overlay").classList.add("show");
   setTimeout(() => el("bottom-sheet").classList.add("show"), 10);
 };
@@ -614,6 +625,7 @@ window._verComprobante = async function(rutaEnc) {
 
 function renderSheet(p) {
   const canAprobar  = tienePermiso(rol, "aprobar_pagos");
+  const puedeReenviar = tienePermiso(rol, "ver_participantes");
   const estadoPago  = p.pago?.estado || "pendiente_efectivo";
   const yaAprobado  = estadoPago === "aprobado";
   const fecha = p.fechaRegistro?.toDate?.()
@@ -665,6 +677,12 @@ function renderSheet(p) {
         onclick="window._verComprobante(this.dataset.ruta)">
         📎 Ver comprobante adjunto
       </button>` : ""}
+      ${yaAprobado && puedeReenviar ? `
+      <button type="button" class="comprobante-link" id="btn-reenviar-qr"
+        style="margin-top:10px;background:var(--verde-fondo);color:var(--verde-oscuro);font-weight:700;"
+        onclick="window._reenviarCorreoQr()">
+        ✉️ Reenviar correo con QR
+      </button>` : ""}
     </div>
 
     ${canAprobar && !yaAprobado ? `
@@ -692,11 +710,6 @@ function renderSheet(p) {
     <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:14px;margin-top:8px;text-align:center;">
       <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);">✅ Pago validado</div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">QR activo para el evento</div>
-      ${canAprobar && !p.pago?.correo_aprobacion_enviado ? `
-      <button type="button" class="btn-grande btn-aprobar-grande" id="btn-reenviar-qr"
-        style="margin-top:12px;width:100%;" onclick="window._reenviarCorreoQr()">
-        ✉️ Reenviar correo con QR
-      </button>` : ""}
     </div>` : ""}
   `;
 
@@ -766,9 +779,12 @@ window._reenviarCorreoQr = async function() {
   try {
     await updateDoc(doc(fireDb, "participantes", participanteSeleccionado.id), {
       "pago.reenviar_correo_qr_at": serverTimestamp(),
+      "pago.correo_aprobacion_enviado": false,
+      "pago.correo_aprobacion_error": null,
       "actualizadoEn": serverTimestamp(),
     });
     alert("Solicitud de reenvío enviada. Revisa en unos segundos el estado del correo QR.");
+    cerrarSheet();
     setTimeout(() => cargar(), 4000);
   } catch (err) {
     alert("Error al solicitar reenvío: " + err.message);
