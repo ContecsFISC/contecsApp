@@ -304,26 +304,6 @@
     .btn-aprobar-grande:disabled,
     .btn-rechazar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .metodo-seleccion {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .met-opt {
-      border: 2px solid var(--gris-borde);
-      border-radius: var(--radio-sm);
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gris-texto);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .met-opt:hover { border-color: var(--verde-claro); background: var(--verde-fondo); }
-    .met-opt.seleccionado { border-color: var(--verde); background: var(--verde-fondo); color: var(--verde-oscuro); }
-
     .notas-area {
       width: 100%;
       padding: 10px 12px;
@@ -586,21 +566,10 @@ function renderTabla() {
 }
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────
-window._abrirPerfil = async function(id) {
-  let p = todosParticipantes.find(x => x.id === id);
-  if (!p) return;
-  try {
-    const snap = await getDoc(doc(fireDb, "participantes", id));
-    if (snap.exists()) {
-      p = { id: snap.id, ...snap.data() };
-      const idx = todosParticipantes.findIndex(x => x.id === id);
-      if (idx >= 0) todosParticipantes[idx] = p;
-    }
-  } catch (e) {
-    console.warn("No se pudo refrescar participante:", e);
-  }
-  participanteSeleccionado = p;
-  renderSheet(p);
+window._abrirPerfil = function(id) {
+  participanteSeleccionado = todosParticipantes.find(p => p.id === id);
+  if (!participanteSeleccionado) return;
+  renderSheet(participanteSeleccionado);
   el("overlay").classList.add("show");
   setTimeout(() => el("bottom-sheet").classList.add("show"), 10);
 };
@@ -667,21 +636,10 @@ function renderSheet(p) {
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
-      ${p.pago?.correo_aprobacion_enviado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--verde-oscuro);">Enviado</span></div>` : ""}
-      ${!p.pago?.correo_aprobacion_enviado && yaAprobado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--amarillo);">⏳ Pendiente o fallido</span></div>` : ""}
-      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Error correo</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">${p.pago.correo_aprobacion_error}</span></div>` : ""}
-      ${p.pago?.comprobanteRuta ? `
-      <button type="button" class="comprobante-link"
-        data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
-        onclick="window._verComprobante(this.dataset.ruta)">
+      ${p.pago?.comprobanteUrl ? `
+      <a class="comprobante-link" href="${p.pago.comprobanteUrl}" target="_blank">
         Ver comprobante adjunto
-      </button>` : ""}
-      ${yaAprobado && puedeReenviar ? `
-      <button type="button" class="comprobante-link" id="btn-reenviar-qr"
-        style="margin-top:10px;background:var(--verde-fondo);color:var(--verde-oscuro);font-weight:700;"
-        onclick="window._reenviarCorreoQr()">
-        Reenviar correo con QR
-      </button>` : ""}
+      </a>` : ""}
     </div>
 
     ${canAprobar && !yaAprobado ? `
@@ -727,19 +685,6 @@ function renderSheet(p) {
 }
 
 
-async function enviarCorreoQrAlParticipante(docId, forzarReenvio = false) {
-  const resultado = await enviarCorreoQrParticipante(docId, { forzarReenvio });
-  if (resultado?.omitido && resultado?.razon === "ya_enviado") {
-    return "Pago aprobado. El correo con QR ya había sido enviado.";
-  }
-  if (resultado?.enviado) {
-    return forzarReenvio ?
-      "Correo con QR reenviado correctamente." :
-      "Pago aprobado. Correo con QR enviado al participante.";
-  }
-  return resultado?.mensaje || "Operación completada.";
-}
-
 // ── APROBAR ───────────────────────────────────────────────────────────────
 window._aprobar = async function() {
   if (!participanteSeleccionado) return;
@@ -749,11 +694,11 @@ window._aprobar = async function() {
   document.getElementById("btn-rechazar-sh").disabled = true;
   try {
     await updateDoc(doc(fireDb, "participantes", docId), {
-      "pago.estado":     "aprobado",
+      "pago.estado": "aprobado",
       "pago.aprobadoPor": uid,
-      "pago.aprobadoEn":  serverTimestamp(),
-      "pago.notas":       notas || null,
-      "actualizadoEn":    serverTimestamp(),
+      "pago.aprobadoEn": serverTimestamp(),
+      "pago.notas": notas || null,
+      "actualizadoEn": serverTimestamp(),
     });
     const idx = todosParticipantes.findIndex(p => p.id === docId);
     if (idx >= 0) {

@@ -15,7 +15,7 @@ const bucket = getStorage().bucket();
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 const BREVO_API_KEY = "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";
-const CORREO_REMITENTE = {name: "CONTECS 2026", email: "congresofisc@utp.ac.pa"};
+const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa"};
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -164,130 +164,6 @@ async function verificarStaffCorreo(request) {
   return rol;
 }
 
-function construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
-  const estadoMensaje = metodoPago === "transferencia" ?
-    "Tu comprobante fue recibido. El staff lo revisará y activará tu acceso pronto." :
-    "Debes realizar tu pago en efectivo el día del evento en la mesa de inscripciones.";
-
-  const notaColegio = esEstudianteColegio && tutorNombre ?
-    `<tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;">
-        <span style="color:#8a9e8d;font-size:13px;">Tutor responsable</span><br/>
-        <strong style="color:#1a2e1e;">${tutorNombre}</strong>
-       </td></tr>` :
-    "";
-
-  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background:#f4f7f5;font-family:'Segoe UI',system-ui,sans-serif;">
-<div style="max-width:580px;margin:0 auto;padding:24px 16px;">
-  <div style="background:linear-gradient(135deg,#045223 0%,#00722e 60%,#39b54a 100%);border-radius:16px 16px 0 0;padding:32px 28px;text-align:center;">
-    <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0;letter-spacing:1px;">CONTECS 2026</h1>
-    <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:6px 0 0;">II Congreso de Tecnologías en Ciencias Computacionales</p>
-  </div>
-  <div style="background:#fff;padding:28px;border-radius:0 0 16px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-    <p style="font-size:16px;color:#1a2e1e;margin:0 0 20px;">Hola, <strong>${nombre}</strong></p>
-    <p style="font-size:14px;color:#8a9e8d;line-height:1.6;margin:0 0 24px;">
-      Tu inscripción al <strong>II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026</strong> fue registrada exitosamente.
-    </p>
-    <div style="background:#045223;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;">
-      <p style="color:rgba(255,255,255,0.6);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px;">Tu código de participante</p>
-      <p style="color:#fff;font-size:26px;font-weight:800;letter-spacing:4px;margin:0;font-family:'Courier New',monospace;">${codigo}</p>
-    </div>
-    <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-      <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;">
-        <span style="color:#8a9e8d;font-size:13px;">Categoría</span><br/>
-        <strong style="color:#1a2e1e;">${categoriaNombre}</strong>
-      </td></tr>
-      <tr><td style="padding:10px 0;border-bottom:1px solid #e0e0e0;">
-        <span style="color:#8a9e8d;font-size:13px;">Método de pago</span><br/>
-        <strong style="color:#1a2e1e;">${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}</strong>
-      </td></tr>
-      ${notaColegio}
-      <tr><td style="padding:10px 0;">
-        <span style="color:#8a9e8d;font-size:13px;">Estado</span><br/>
-        <strong style="color:#d4850a;">${estadoMensaje}</strong>
-      </td></tr>
-    </table>
-    <div style="text-align:center;margin:24px 0;">
-      <a href="${linkPerfil}" style="display:inline-block;background:linear-gradient(135deg,#00722e,#045223);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">
-        Acceder a mi credencial y QR
-      </a>
-      <p style="font-size:11px;color:#8a9e8d;margin:10px 0 0;">Guarda este link — lo necesitarás el día del evento</p>
-    </div>
-    <div style="border-top:1px solid #e8f5ec;margin:24px 0;"></div>
-    <div style="background:#e8f5ec;border-radius:10px;padding:16px 18px;">
-      <p style="font-size:13px;font-weight:700;color:#045223;margin:0 0 8px;">Sobre el evento</p>
-      <p style="font-size:13px;color:#1a2e1e;margin:0;line-height:1.6;">
-        <strong>II CONTECS 2026</strong><br/>
-        Facultad de Ingeniería de Sistemas Computacionales<br/>
-        Universidad Tecnológica de Panamá<br/>
-        <a href="mailto:congresofisc@utp.ac.pa" style="color:#00722e;">congresofisc@utp.ac.pa</a>
-      </p>
-    </div>
-    <p style="font-size:11px;color:#8a9e8d;text-align:center;margin:24px 0 0;line-height:1.6;">
-      Este correo fue generado automáticamente. No respondas a este mensaje.<br/>
-      CONTECS 2026 · FISC · Universidad Tecnológica de Panamá
-    </p>
-  </div>
-</div>
-</body></html>`;
-}
-
-function construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil}) {
-  return `Hola ${nombre},
-
-Tu inscripción al II CONTECS 2026 fue registrada exitosamente.
-
-TU CÓDIGO DE PARTICIPANTE: ${codigo}
-
-Categoría: ${categoriaNombre}
-Método de pago: ${metodoPago === "transferencia" ? "Transferencia bancaria" : "Efectivo"}
-
-Accede a tu credencial y QR aquí:
-${linkPerfil}
-
-Guarda ese link — lo necesitarás el día del evento.
-
-II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá
-congresofisc@utp.ac.pa
-
-Este correo fue generado automáticamente. No respondas a este mensaje.`;
-}
-
-async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre}) {
-  const linkPerfil = linkPerfilParticipante(codigo, token);
-  const htmlContent = construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre});
-  const textContent = construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil});
-
-  let correoEnviado = false;
-  let correoError = null;
-
-  try {
-    await brevoRequest({
-      sender: CORREO_REMITENTE,
-      to: [{email: correo, name: nombre}],
-      subject: `CONTECS 2026 — Tu inscripción: ${codigo}`,
-      htmlContent,
-      textContent,
-    });
-    correoEnviado = true;
-  } catch (e) {
-    correoError = e.message;
-    console.error("Brevo error para", correo, ":", e.message);
-  }
-
-  // Marcar en Firestore si el correo falló — staff puede reenviarlo
-  try {
-    await db.collection("participantes").doc(docId).update({
-      correo_enviado: correoEnviado,
-      correo_pendiente: !correoEnviado,
-      correo_error: correoError || null,
-      correo_enviadoEn: correoEnviado ? FieldValue.serverTimestamp() : null,
-    });
-  } catch (e) {
-    console.error("No se pudo actualizar estado correo en Firestore:", e.message);
-  }
-}
-
 async function enviarCorreoPagoAprobado({docId, participante}) {
   const codigo = participante.codigo;
   const token = participante.token;
@@ -304,6 +180,7 @@ async function enviarCorreoPagoAprobado({docId, participante}) {
     codigo,
     categoria: participante.categoriaNombre || participante.categoria || "Participante",
     link_perfil: linkPerfil,
+    metodo_pago: participante.pago?.metodo === "transferencia" ? "Transferencia bancaria" : "Efectivo",
   };
 
   const plantilla = cargarCorreoPagoAprobado(vars);
@@ -513,32 +390,6 @@ exports.registrarParticipante = onCall(
           if (ops > 0) await batch.commit();
         }
 
-        // Enviar correos — no bloqueamos la respuesta si falla
-        enviarCorreoBienvenida({
-          docId, codigo, token, nombre, correo,
-          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
-          metodoPago,
-          esEstudianteColegio: false,
-          tutorNombre: null,
-        }).catch((e) => console.error("Correo tutor/principal fallido:", e.message));
-
-        if (estudiantesGuardados.length > 0) {
-          const tutorNombreVal = tutorData?.nombre || "";
-          for (const est of estudiantesGuardados) {
-            enviarCorreoBienvenida({
-              docId: est.docId,
-              codigo: est.codigo,
-              token: est.token,
-              nombre: est.nombre,
-              correo: est.correo,
-              categoriaNombre: "Colegio",
-              metodoPago,
-              esEstudianteColegio: true,
-              tutorNombre: tutorNombreVal,
-            }).catch((e) => console.error("Correo estudiante fallido:", est.correo, e.message));
-          }
-        }
-
         return {codigo, correo};
       } catch (e) {
         if (e instanceof HttpsError) throw e;
@@ -656,6 +507,41 @@ exports.notificarPagoAprobado = onDocumentUpdated(
         console.log("notificarPagoAprobado: correo enviado —", docId);
       } catch (e) {
         console.error("Error correo pago aprobado para", docId, ":", e.message);
+      }
+
+      // ── Aprobación en lote para colegios ──────────────────────────────────
+      // Si el aprobado es el tutor (categoria "colegio"), aprobar y enviar
+      // correo QR a todos sus estudiantes vinculados via tutorCodigo
+      if (after.esColegio === true && after.categoria === "colegio" && transicionAAprobado) {
+        console.log("notificarPagoAprobado: aprobando estudiantes del tutor", after.codigo);
+        try {
+          const estudiantesSnap = await db.collection("participantes")
+              .where("tutorCodigo", "==", after.codigo)
+              .get();
+
+          if (!estudiantesSnap.empty) {
+            const tareas = estudiantesSnap.docs.map(async (estDoc) => {
+              const estData = estDoc.data();
+              if (estData.pago?.estado === "aprobado") return; // ya aprobado
+              try {
+                await estDoc.ref.update({
+                  "pago.estado": "aprobado",
+                  "pago.aprobadoPor": after.pago?.aprobadoPor || null,
+                  "pago.aprobadoEn": FieldValue.serverTimestamp(),
+                  "actualizadoEn": FieldValue.serverTimestamp(),
+                });
+                await procesarCorreoQrAprobado({docId: estDoc.id});
+                console.log("notificarPagoAprobado: estudiante aprobado —", estDoc.id);
+              } catch (e) {
+                console.error("Error aprobando estudiante", estDoc.id, ":", e.message);
+              }
+            });
+            await Promise.allSettled(tareas);
+            console.log("notificarPagoAprobado: lote colegio finalizado —", estudiantesSnap.size, "estudiantes");
+          }
+        } catch (e) {
+          console.error("Error en aprobación en lote colegio:", e.message);
+        }
       }
     },
 );
