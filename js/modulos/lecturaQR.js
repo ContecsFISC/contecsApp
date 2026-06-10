@@ -137,14 +137,16 @@ async function onScanExito(rawQR) {
   if (!escaneando) return;
   await scanner.pause(true);
 
-  // Intentar parsear como JSON {codigo, token} (nuevo formato)
   let participante = null;
   let esNuevoFormato = false;
 
+  // ── Formato CONTECS 2026: URL perfil.html?c=CODIGO&t=TOKEN ────────────────
   try {
-    const qrData = JSON.parse(rawQR);
-    if (qrData.codigo && qrData.token) {
-      const snap = await getDocs(query(collection(db, "participantes"), where("codigo", "==", qrData.codigo)));
+    const url = new URL(rawQR);
+    const codigo = url.searchParams.get("c");
+    const token  = url.searchParams.get("t");
+    if (codigo && token) {
+      const snap = await getDocs(query(collection(db, "participantes"), where("codigo", "==", codigo)));
       if (snap.empty) {
         alerta("error", "QR no reconocido. Participante no encontrado.");
         await scanner.resume();
@@ -152,7 +154,7 @@ async function onScanExito(rawQR) {
       }
       const d = snap.docs[0];
       participante = { id: d.id, ...d.data() };
-      if (participante.token !== qrData.token) {
+      if (participante.token !== token) {
         alerta("error", "QR inválido (token no coincide).");
         await scanner.resume();
         return;
@@ -160,7 +162,32 @@ async function onScanExito(rawQR) {
       esNuevoFormato = true;
     }
   } catch (_) {
-    // No es JSON — intentar con el formato legacy (ID de inscripción)
+    // No es URL válida — continuar con otros formatos
+  }
+
+  // ── Formato JSON {codigo, token} (fallback) ───────────────────────────────
+  if (!participante) {
+    try {
+      const qrData = JSON.parse(rawQR);
+      if (qrData.codigo && qrData.token) {
+        const snap = await getDocs(query(collection(db, "participantes"), where("codigo", "==", qrData.codigo)));
+        if (snap.empty) {
+          alerta("error", "QR no reconocido. Participante no encontrado.");
+          await scanner.resume();
+          return;
+        }
+        const d = snap.docs[0];
+        participante = { id: d.id, ...d.data() };
+        if (participante.token !== qrData.token) {
+          alerta("error", "QR inválido (token no coincide).");
+          await scanner.resume();
+          return;
+        }
+        esNuevoFormato = true;
+      }
+    } catch (_) {
+      // No es JSON — intentar con el formato legacy (ID de inscripción)
+    }
   }
 
   if (!participante) {
