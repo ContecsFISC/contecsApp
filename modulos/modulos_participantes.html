@@ -586,11 +586,21 @@ function renderTabla() {
 }
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────
-window._abrirPerfil = function(id) {
-  participanteSeleccionado = todosParticipantes.find(p => p.id === id);
-  if (!participanteSeleccionado) return;
-  metodoPagoSeleccionado = participanteSeleccionado.pago?.metodo || null;
-  renderSheet(participanteSeleccionado);
+window._abrirPerfil = async function(id) {
+  let p = todosParticipantes.find(x => x.id === id);
+  if (!p) return;
+  try {
+    const snap = await getDoc(doc(fireDb, "participantes", id));
+    if (snap.exists()) {
+      p = { id: snap.id, ...snap.data() };
+      const idx = todosParticipantes.findIndex(x => x.id === id);
+      if (idx >= 0) todosParticipantes[idx] = p;
+    }
+  } catch (e) {
+    console.warn("No se pudo refrescar participante:", e);
+  }
+  participanteSeleccionado = p;
+  renderSheet(p);
   el("overlay").classList.add("show");
   setTimeout(() => el("bottom-sheet").classList.add("show"), 10);
 };
@@ -657,10 +667,21 @@ function renderSheet(p) {
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
-      ${p.pago?.comprobanteUrl ? `
-      <a class="comprobante-link" href="${p.pago.comprobanteUrl}" target="_blank">
-        📎 Ver comprobante adjunto
-      </a>` : ""}
+      ${p.pago?.correo_aprobacion_enviado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--verde-oscuro);">Enviado</span></div>` : ""}
+      ${!p.pago?.correo_aprobacion_enviado && yaAprobado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--amarillo);">⏳ Pendiente o fallido</span></div>` : ""}
+      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Error correo</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">${p.pago.correo_aprobacion_error}</span></div>` : ""}
+      ${p.pago?.comprobanteRuta ? `
+      <button type="button" class="comprobante-link"
+        data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
+        onclick="window._verComprobante(this.dataset.ruta)">
+        Ver comprobante adjunto
+      </button>` : ""}
+      ${yaAprobado && puedeReenviar ? `
+      <button type="button" class="comprobante-link" id="btn-reenviar-qr"
+        style="margin-top:10px;background:var(--verde-fondo);color:var(--verde-oscuro);font-weight:700;"
+        onclick="window._reenviarCorreoQr()">
+        Reenviar correo con QR
+      </button>` : ""}
     </div>
 
     ${canAprobar && !yaAprobado ? `
@@ -705,17 +726,25 @@ function renderSheet(p) {
   }
 }
 
-window._selMetodo = function(metodo, el) {
-  metodoPagoSeleccionado = metodo;
-  document.querySelectorAll(".met-opt").forEach(o => o.classList.remove("seleccionado"));
-  el.classList.add("seleccionado");
-};
+
+async function enviarCorreoQrAlParticipante(docId, forzarReenvio = false) {
+  const resultado = await enviarCorreoQrParticipante(docId, { forzarReenvio });
+  if (resultado?.omitido && resultado?.razon === "ya_enviado") {
+    return "Pago aprobado. El correo con QR ya había sido enviado.";
+  }
+  if (resultado?.enviado) {
+    return forzarReenvio ?
+      "Correo con QR reenviado correctamente." :
+      "Pago aprobado. Correo con QR enviado al participante.";
+  }
+  return resultado?.mensaje || "Operación completada.";
+}
 
 // ── APROBAR ───────────────────────────────────────────────────────────────
 window._aprobar = async function() {
   if (!participanteSeleccionado) return;
   const notas = document.getElementById("notas-pago")?.value.trim() || "";
-  const metodo = metodoPagoSeleccionado || participanteSeleccionado.pago?.metodo;
+  const docId = participanteSeleccionado.id;
   document.getElementById("btn-aprobar-sh").disabled = true;
   document.getElementById("btn-rechazar-sh").disabled = true;
   try {
@@ -732,12 +761,6 @@ window._aprobar = async function() {
         ...todosParticipantes[idx].pago,
         estado: "aprobado", aprobadoPor: uid, notas,
       };
-    }
-    let mensaje = "Pago aprobado.";
-    try {
-      mensaje = await enviarCorreoQrAlParticipante(docId);
-    } catch (correoErr) {
-      mensaje = "Pago aprobado, pero el correo falló: " + correoErr.message;
     }
     let mensaje = "Pago aprobado.";
     try {
