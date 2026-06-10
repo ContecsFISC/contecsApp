@@ -41,6 +41,10 @@
     .cp-card:hover { border-color: var(--verde-claro); }
     .cp-card.selected { border-color: var(--verde-claro); background: var(--verde-claro); color: #fff; }
     .cp-card.ya-marcado { background: var(--verde-fondo); border-color: var(--verde-claro); color: var(--verde); opacity: 0.7; cursor: default; }
+    .cp-card .cp-tipo-tag { display:block; font-size:10px; font-weight:400; opacity:0.8; margin-top:2px; }
+    .cp-card .cp-cupos-tag { display:block; font-size:11px; margin-top:4px; }
+    .cp-card.taller { border-left: 3px solid #e65100; }
+    .cp-card.gira   { border-left: 3px solid #283593; }
 
     .estado-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
     .estado-ok  { background: var(--verde-fondo); color: var(--verde-oscuro); }
@@ -58,7 +62,7 @@
 
 <div class="topbar">
   <h1>CONTECS — Lectura de QR</h1>
-  <a href="inscripciones.html" class="topbar-link">← Inscripciones</a>
+  <a href="inscripciones.html" class="topbar-link">←Eventos</a>
 </div>
 
 <div class="container anim-page-in">
@@ -100,6 +104,11 @@
       <div class="info-fila"><span>🪪</span><strong id="res-cedula"></strong></div>
       <div class="info-fila"><span>🏛</span><strong id="res-universidad"></strong></div>
       <div class="info-fila"><span>🎓</span><strong id="res-carrera"></strong></div>
+      <!-- Cupos (solo para talleres/giras) -->
+      <div id="res-cupos-wrap" style="display:none;margin-top:10px;padding:10px 14px;background:var(--verde-fondo);border-radius:var(--radio-sm);">
+        <div style="font-size:13px;font-weight:700;color:var(--verde-oscuro);">Cupos disponibles</div>
+        <div id="res-cupos-display" style="font-size:22px;font-weight:700;color:var(--verde-oscuro);margin-top:4px;"></div>
+      </div>
       <div style="margin-top:14px;">
         <span id="res-estado-badge" class="estado-badge"></span>
       </div>
