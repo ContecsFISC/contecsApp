@@ -1,9 +1,12 @@
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
+const {linkPerfilParticipante, generarQrAdjunto} = require("./qr-participante");
+const {cargarCorreoPagoAprobado} = require("./plantillas");
 
 initializeApp();
 
@@ -13,10 +16,14 @@ const bucket = getStorage().bucket();
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 const BREVO_API_KEY = "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";
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "congresofisc@utp.ac.pa"};
-const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
+
+const ROLES_ENVIAR_CORREO_QR = new Set([
+  "ceo", "junta_principal", "junta", "coordinador",
+  "actividades", "finanzas", "secretario", "comunicaciones",
+]);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function generarDocId(cedula, correo) {
@@ -35,7 +42,8 @@ async function generarCodigo() {
   const counterRef = db.doc("contadores/inscripciones2026");
   const seq = await db.runTransaction(async (tx) => {
     const snap = await tx.get(counterRef);
-    const current = snap.exists() ? (snap.data().valor || 0) : 0;
+    const snapData = snap.data();
+    const current = snapData ? (snapData.valor || 0) : 0;
     const next = current + 1;
     tx.set(counterRef, {valor: next, actualizadoEn: FieldValue.serverTimestamp()}, {merge: true});
     return next;
@@ -92,13 +100,14 @@ function sanitizarParticipante(data) {
 }
 
 // ─── BREVO: ENVÍO DE CORREO ───────────────────────────────────────────────────
-function brevoRequest(payload) {
+function brevoRequestOnce(payload) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify(payload);
     const req = https.request({
       hostname: "api.brevo.com",
       path: "/v3/smtp/email",
       method: "POST",
+      timeout: 25000,
       headers: {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(body),
@@ -110,14 +119,49 @@ function brevoRequest(payload) {
         data += chunk;
       });
       res.on("end", () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) resolve(true);
-        else reject(new Error(`Brevo ${res.statusCode}: ${data}`));
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data || "{}"));
+          } catch (e) {
+            resolve({});
+          }
+          return;
+        }
+        reject(new Error(`Brevo ${res.statusCode}: ${data}`));
       });
+    });
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Brevo timeout: sin respuesta en 25s"));
     });
     req.on("error", reject);
     req.write(body);
     req.end();
   });
+}
+
+async function brevoRequest(payload) {
+  try {
+    return await brevoRequestOnce(payload);
+  } catch (e) {
+    if (/Brevo 5\d\d/.test(e.message)) {
+      await new Promise((r) => setTimeout(r, 2000));
+      return brevoRequestOnce(payload);
+    }
+    throw e;
+  }
+}
+
+async function verificarStaffCorreo(request) {
+  if (!request.auth?.uid) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión para enviar correos.");
+  }
+  const snap = await db.collection("usuarios").doc(request.auth.uid).get();
+  const rol = snap.data()?.rol;
+  if (!ROLES_ENVIAR_CORREO_QR.has(rol)) {
+    throw new HttpsError("permission-denied", "No tienes permiso para enviar este correo.");
+  }
+  return rol;
 }
 
 function construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre}) {
@@ -210,7 +254,7 @@ Este correo fue generado automáticamente. No respondas a este mensaje.`;
 }
 
 async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, categoriaNombre, metodoPago, esEstudianteColegio, tutorNombre}) {
-  const linkPerfil = `${URL_BASE_PERFIL}?c=${encodeURIComponent(codigo)}&t=${encodeURIComponent(token)}`;
+  const linkPerfil = linkPerfilParticipante(codigo, token);
   const htmlContent = construirHTMLCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil, esEstudianteColegio, tutorNombre});
   const textContent = construirTextoCorreo({nombre, codigo, categoriaNombre, metodoPago, linkPerfil});
 
@@ -244,186 +288,374 @@ async function enviarCorreoBienvenida({docId, codigo, token, nombre, correo, cat
   }
 }
 
+async function enviarCorreoPagoAprobado({docId, participante}) {
+  const codigo = participante.codigo;
+  const token = participante.token;
+  const correo = participante.correo;
+  const nombre = participante.nombreCompleto ||
+    `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
+  if (!codigo || !token || !correo) {
+    throw new Error("Participante sin codigo, token o correo");
+  }
+
+  const linkPerfil = linkPerfilParticipante(codigo, token);
+  const vars = {
+    nombre,
+    codigo,
+    categoria: participante.categoriaNombre || participante.categoria || "Participante",
+    link_perfil: linkPerfil,
+  };
+
+  const plantilla = cargarCorreoPagoAprobado(vars);
+  if (!plantilla.activo) {
+    console.log("Correo pago aprobado desactivado en plantilla — omitido para", docId);
+    return {enviado: false, omitido: true};
+  }
+
+  const qrAdjunto = await generarQrAdjunto(codigo, token);
+  const brevoResp = await brevoRequest({
+    sender: CORREO_REMITENTE,
+    to: [{email: correo, name: nombre}],
+    subject: plantilla.subject,
+    htmlContent: plantilla.htmlContent,
+    textContent: plantilla.textContent,
+    attachment: [{
+      content: qrAdjunto.content,
+      name: qrAdjunto.name,
+      contentId: qrAdjunto.contentId,
+    }],
+  });
+
+  return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
+}
+
+async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
+  const docRef = db.collection("participantes").doc(docId);
+  const bloqueo = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(docRef);
+    const participante = snap.data();
+    if (!participante) return {omitir: true, razon: "no_existe"};
+    if (participante.pago?.estado !== "aprobado") {
+      return {omitir: true, razon: "no_aprobado"};
+    }
+    if (participante.pago?.correo_aprobacion_enviado && !forzarReenvio) {
+      return {omitir: true, razon: "ya_enviado"};
+    }
+    if (participante.pago?.correo_aprobacion_enviando) {
+      return {omitir: true, razon: "en_proceso"};
+    }
+    tx.update(docRef, {"pago.correo_aprobacion_enviando": true});
+    return {omitir: false, participante};
+  });
+
+  if (bloqueo.omitir) {
+    return {enviado: false, omitido: true, razon: bloqueo.razon};
+  }
+
+  let enviado = false;
+  let errorMsg = null;
+  let brevoMessageId = null;
+  let omitidoPlantilla = false;
+
+  try {
+    const resultado = await enviarCorreoPagoAprobado({
+      docId,
+      participante: bloqueo.participante,
+    });
+    if (resultado?.omitido) {
+      omitidoPlantilla = true;
+    } else {
+      enviado = true;
+      brevoMessageId = resultado.brevoMessageId;
+    }
+  } catch (e) {
+    errorMsg = e.message;
+  }
+
+  await docRef.update({
+    "pago.correo_aprobacion_enviado": enviado,
+    "pago.correo_aprobacion_pendiente": !enviado && !omitidoPlantilla,
+    "pago.correo_aprobacion_error": errorMsg,
+    "pago.correo_aprobacion_enviando": false,
+    "pago.correo_aprobacion_enviadoEn": enviado ? FieldValue.serverTimestamp() : null,
+    "pago.correo_aprobacion_brevo_id": brevoMessageId,
+  }).catch((e) => console.error("No se pudo marcar estado correo:", e.message));
+
+  if (errorMsg) throw new Error(errorMsg);
+  if (omitidoPlantilla) return {enviado: false, omitido: true, razon: "plantilla_desactivada"};
+  return {enviado: true, brevoMessageId};
+}
+
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
 exports.registrarParticipante = onCall(
-    {region: "us-central1", maxInstances: 20},
+    {region: "us-central1", maxInstances: 20, invoker: "public"},
     async (request) => {
-      const data = request.data || {};
+      try {
+        const data = request.data || {};
 
-      const nombre = validarTexto(data.nombre, "nombre", {requerido: true, max: 100});
-      const apellido = validarTexto(data.apellido, "apellido", {requerido: true, max: 100});
-      const correo = validarTexto(data.correo, "correo", {requerido: true, max: 254}).toLowerCase();
-      const telefono = validarTexto(data.telefono, "telefono", {requerido: true, max: 30});
-      const cedula = validarTexto(data.cedula, "cedula", {max: 30});
-      const metodoPago = data.metodoPago;
+        const nombre = validarTexto(data.nombre, "nombre", {requerido: true, max: 100});
+        const apellido = validarTexto(data.apellido, "apellido", {requerido: true, max: 100});
+        const correo = validarTexto(data.correo, "correo", {requerido: true, max: 254}).toLowerCase();
+        const telefono = validarTexto(data.telefono, "telefono", {requerido: true, max: 30});
+        const cedula = validarTexto(data.cedula, "cedula", {max: 30});
+        const metodoPago = data.metodoPago;
 
-      if (!validarCorreo(correo)) {
-        throw new HttpsError("invalid-argument", "Ingresa un correo válido.");
-      }
-      if (!["transferencia", "efectivo"].includes(metodoPago)) {
-        throw new HttpsError("invalid-argument", "Selecciona un método de pago válido.");
-      }
-      if (metodoPago === "transferencia" && !data.comprobanteBase64) {
-        throw new HttpsError("invalid-argument", "Adjunta el comprobante de transferencia.");
-      }
-
-      const docId = generarDocId(cedula, correo);
-      if (!docId) throw new HttpsError("invalid-argument", "Se requiere cédula o correo.");
-
-      const docRef = db.collection("participantes").doc(docId);
-      const existe = await docRef.get();
-      if (existe.exists) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
-
-      const codigo = await generarCodigo();
-      const token = generarToken();
-
-      let comprobanteRuta = null;
-      if (metodoPago === "transferencia" && data.comprobanteBase64) {
-        comprobanteRuta = await subirComprobante({
-          docId,
-          base64: data.comprobanteBase64,
-          contentType: data.comprobanteContentType,
-          nombre: data.comprobanteNombre,
-        });
-      }
-
-      const esColegio = !!data.esColegio;
-      const camposExtra = typeof data.camposExtra === "object" && data.camposExtra ? data.camposExtra : {};
-      const estudiantesData = Array.isArray(data.estudiantes) ? data.estudiantes : [];
-      const tutorData = data.tutor && typeof data.tutor === "object" ? data.tutor : null;
-
-      const participante = {
-        codigo, token,
-        nombre, apellido, nombreCompleto: `${nombre} ${apellido}`,
-        cedula, correo, telefono,
-        categoria: esColegio ? "colegio" : (data.categoria || "otros"),
-        categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
-        camposExtra,
-        pago: {
-          metodo: metodoPago,
-          estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-          comprobanteRuta,
-          monto: esColegio ? null : (data.monto ?? null),
-          aprobadoPor: null,
-          aprobadoEn: null,
-          notas: null,
-        },
-        esColegio,
-        tutor: tutorData,
-        colegio: esColegio ? (tutorData?.colegio || null) : null,
-        estudiantes: estudiantesData,
-        estadoRegistro: "activo",
-        asistencias: {},
-        correo_enviado: false,
-        correo_pendiente: true,
-        fechaRegistro: FieldValue.serverTimestamp(),
-        actualizadoEn: FieldValue.serverTimestamp(),
-      };
-
-      await docRef.set(participante);
-
-      // Guardar estudiantes si es colegio
-      const estudiantesGuardados = [];
-      if (esColegio && estudiantesData.length > 0) {
-        const batch = db.batch();
-        let ops = 0;
-        for (const est of estudiantesData) {
-          const estCedula = String(est.cedula || "").trim();
-          const estCorreo = String(est.correo || "").trim().toLowerCase();
-          const estId = generarDocId(estCedula, estCorreo);
-          if (!estId) continue;
-          const estRef = db.collection("participantes").doc(estId);
-          const estExiste = await estRef.get();
-          if (estExiste.exists) continue;
-          const estCodigo = await generarCodigo();
-          const estToken = generarToken();
-          estudiantesGuardados.push({
-            docId: estId,
-            codigo: estCodigo,
-            token: estToken,
-            nombre: `${String(est.nombre || "").trim()} ${String(est.apellido || "").trim()}`,
-            correo: estCorreo,
-          });
-          batch.set(estRef, {
-            codigo: estCodigo, token: estToken,
-            nombre: String(est.nombre || "").trim(),
-            apellido: String(est.apellido || "").trim(),
-            nombreCompleto: `${String(est.nombre||"").trim()} ${String(est.apellido||"").trim()}`,
-            cedula: estCedula, correo: estCorreo, telefono: "",
-            categoria: "colegio_estudiante", categoriaNombre: "Colegio",
-            camposExtra: {grado: est.grado || "", bachiller: est.bachiller || ""},
-            pago: {
-              metodo: metodoPago,
-              estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-              comprobanteRuta, monto: null,
-              aprobadoPor: null, aprobadoEn: null, notas: null,
-            },
-            esColegio: true, tutorCodigo: codigo,
-            tutor: tutorData, colegio: tutorData?.colegio || null,
-            estudiantes: [], estadoRegistro: "activo", asistencias: {},
-            correo_enviado: false, correo_pendiente: true,
-            fechaRegistro: FieldValue.serverTimestamp(),
-            actualizadoEn: FieldValue.serverTimestamp(),
-          });
-          ops++;
+        if (!validarCorreo(correo)) {
+          throw new HttpsError("invalid-argument", "Ingresa un correo válido.");
         }
-        if (ops > 0) await batch.commit();
-      }
-
-      // Enviar correos — no bloqueamos la respuesta si falla
-      enviarCorreoBienvenida({
-        docId, codigo, token, nombre, correo,
-        categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
-        metodoPago,
-        esEstudianteColegio: false,
-        tutorNombre: null,
-      }).catch((e) => console.error("Correo tutor/principal fallido:", e.message));
-
-      if (estudiantesGuardados.length > 0) {
-        const tutorNombreVal = tutorData?.nombre || "";
-        for (const est of estudiantesGuardados) {
-          enviarCorreoBienvenida({
-            docId: est.docId,
-            codigo: est.codigo,
-            token: est.token,
-            nombre: est.nombre,
-            correo: est.correo,
-            categoriaNombre: "Colegio",
-            metodoPago,
-            esEstudianteColegio: true,
-            tutorNombre: tutorNombreVal,
-          }).catch((e) => console.error("Correo estudiante fallido:", est.correo, e.message));
+        if (!["transferencia", "efectivo"].includes(metodoPago)) {
+          throw new HttpsError("invalid-argument", "Selecciona un método de pago válido.");
         }
-      }
+        if (metodoPago === "transferencia" && !data.comprobanteBase64) {
+          throw new HttpsError("invalid-argument", "Adjunta el comprobante de transferencia.");
+        }
 
-      return {codigo, correo};
+        const docId = generarDocId(cedula, correo);
+        if (!docId) throw new HttpsError("invalid-argument", "Se requiere cédula o correo.");
+
+        const docRef = db.collection("participantes").doc(docId);
+        const existe = await docRef.get();
+        if (existe.data()) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+
+        const codigo = await generarCodigo();
+        const token = generarToken();
+
+        let comprobanteRuta = null;
+        if (metodoPago === "transferencia" && data.comprobanteBase64) {
+          comprobanteRuta = await subirComprobante({
+            docId,
+            base64: data.comprobanteBase64,
+            contentType: data.comprobanteContentType,
+            nombre: data.comprobanteNombre,
+          });
+        }
+
+        const esColegio = !!data.esColegio;
+        const camposExtra = typeof data.camposExtra === "object" && data.camposExtra ? data.camposExtra : {};
+        const estudiantesData = Array.isArray(data.estudiantes) ? data.estudiantes : [];
+        const tutorData = data.tutor && typeof data.tutor === "object" ? data.tutor : null;
+
+        const participante = {
+          codigo, token,
+          nombre, apellido, nombreCompleto: `${nombre} ${apellido}`,
+          cedula, correo, telefono,
+          categoria: esColegio ? "colegio" : (data.categoria || "otros"),
+          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
+          camposExtra,
+          pago: {
+            metodo: metodoPago,
+            estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+            comprobanteRuta,
+            monto: esColegio ? null : (data.monto ?? null),
+            aprobadoPor: null,
+            aprobadoEn: null,
+            notas: null,
+          },
+          esColegio,
+          tutor: tutorData,
+          colegio: esColegio ? (tutorData?.colegio || null) : null,
+          estudiantes: estudiantesData,
+          estadoRegistro: "activo",
+          asistencias: {},
+          correo_enviado: false,
+          correo_pendiente: true,
+          fechaRegistro: FieldValue.serverTimestamp(),
+          actualizadoEn: FieldValue.serverTimestamp(),
+        };
+
+        await docRef.set(participante);
+
+        // Guardar estudiantes si es colegio
+        const estudiantesGuardados = [];
+        if (esColegio && estudiantesData.length > 0) {
+          const batch = db.batch();
+          let ops = 0;
+          for (const est of estudiantesData) {
+            const estCedula = String(est.cedula || "").trim();
+            const estCorreo = String(est.correo || "").trim().toLowerCase();
+            const estId = generarDocId(estCedula, estCorreo);
+            if (!estId) continue;
+            const estRef = db.collection("participantes").doc(estId);
+            const estExiste = await estRef.get();
+            if (estExiste.data()) continue;
+            const estCodigo = await generarCodigo();
+            const estToken = generarToken();
+            estudiantesGuardados.push({
+              docId: estId,
+              codigo: estCodigo,
+              token: estToken,
+              nombre: `${String(est.nombre || "").trim()} ${String(est.apellido || "").trim()}`,
+              correo: estCorreo,
+            });
+            batch.set(estRef, {
+              codigo: estCodigo, token: estToken,
+              nombre: String(est.nombre || "").trim(),
+              apellido: String(est.apellido || "").trim(),
+              nombreCompleto: `${String(est.nombre||"").trim()} ${String(est.apellido||"").trim()}`,
+              cedula: estCedula, correo: estCorreo, telefono: "",
+              categoria: "colegio_estudiante", categoriaNombre: "Colegio",
+              camposExtra: {grado: est.grado || "", bachiller: est.bachiller || ""},
+              pago: {
+                metodo: metodoPago,
+                estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+                comprobanteRuta, monto: null,
+                aprobadoPor: null, aprobadoEn: null, notas: null,
+              },
+              esColegio: true, tutorCodigo: codigo,
+              tutor: tutorData, colegio: tutorData?.colegio || null,
+              estudiantes: [], estadoRegistro: "activo", asistencias: {},
+              correo_enviado: false, correo_pendiente: true,
+              fechaRegistro: FieldValue.serverTimestamp(),
+              actualizadoEn: FieldValue.serverTimestamp(),
+            });
+            ops++;
+          }
+          if (ops > 0) await batch.commit();
+        }
+
+        // Enviar correos — no bloqueamos la respuesta si falla
+        enviarCorreoBienvenida({
+          docId, codigo, token, nombre, correo,
+          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
+          metodoPago,
+          esEstudianteColegio: false,
+          tutorNombre: null,
+        }).catch((e) => console.error("Correo tutor/principal fallido:", e.message));
+
+        if (estudiantesGuardados.length > 0) {
+          const tutorNombreVal = tutorData?.nombre || "";
+          for (const est of estudiantesGuardados) {
+            enviarCorreoBienvenida({
+              docId: est.docId,
+              codigo: est.codigo,
+              token: est.token,
+              nombre: est.nombre,
+              correo: est.correo,
+              categoriaNombre: "Colegio",
+              metodoPago,
+              esEstudianteColegio: true,
+              tutorNombre: tutorNombreVal,
+            }).catch((e) => console.error("Correo estudiante fallido:", est.correo, e.message));
+          }
+        }
+
+        return {codigo, correo};
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("registrarParticipante:", e);
+        throw new HttpsError("internal", "Error al registrar. Intenta de nuevo en unos segundos.");
+      }
     },
 );
 
 // ─── CLOUD FUNCTION: accederParticipante ──────────────────────────────────────
 exports.accederParticipante = onCall(
-    {region: "us-central1", maxInstances: 30},
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
     async (request) => {
-      const codigo = String(request.data?.codigo || "").trim().toUpperCase();
-      const token = String(request.data?.token || "").trim();
+      try {
+        const codigo = String(request.data?.codigo || "").trim().toUpperCase();
+        const token = String(request.data?.token || "").trim();
 
-      if (!codigo || !token) {
-        throw new HttpsError("invalid-argument", "Ingresa tu código de participante y tu clave de acceso.");
+        if (!codigo || !token) {
+          throw new HttpsError("invalid-argument", "Ingresa tu código de participante y tu clave de acceso.");
+        }
+        if (codigo.length > 30 || token.length > 64) {
+          throw new HttpsError("invalid-argument", "Credenciales inválidas.");
+        }
+
+        const snap = await db.collection("participantes")
+            .where("codigo", "==", codigo)
+            .where("token", "==", token)
+            .limit(1)
+            .get();
+
+        if (snap.empty) {
+          throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
+        }
+
+        return sanitizarParticipante(snap.docs[0].data());
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("accederParticipante:", e);
+        throw new HttpsError("internal", "Error al consultar credencial. Intenta de nuevo.");
       }
-      if (codigo.length > 30 || token.length > 64) {
-        throw new HttpsError("invalid-argument", "Credenciales inválidas.");
+    },
+);
+
+// ─── CALLABLE: enviar correo QR (panel staff) ─────────────────────────────────
+exports.enviarCorreoQrParticipante = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        await verificarStaffCorreo(request);
+        const docId = validarTexto(request.data?.docId, "docId", {requerido: true, max: 200});
+        const forzarReenvio = !!request.data?.forzarReenvio;
+
+        console.log("enviarCorreoQrParticipante:", docId, forzarReenvio ? "(reenvío)" : "(envío)");
+
+        const resultado = await procesarCorreoQrAprobado({docId, forzarReenvio});
+        if (resultado.omitido) {
+          return {
+            enviado: false,
+            omitido: true,
+            razon: resultado.razon,
+            mensaje: resultado.razon === "ya_enviado" ?
+              "El correo ya fue enviado." :
+              "No se pudo enviar en este momento.",
+          };
+        }
+
+        console.log("enviarCorreoQrParticipante: OK", docId, resultado.brevoMessageId || "");
+        return {
+          enviado: true,
+          brevoMessageId: resultado.brevoMessageId,
+          mensaje: "Correo con QR enviado correctamente.",
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("enviarCorreoQrParticipante:", e);
+        throw new HttpsError("internal", e.message || "Error al enviar el correo.");
       }
+    },
+);
 
-      const snap = await db.collection("participantes")
-          .where("codigo", "==", codigo)
-          .where("token", "==", token)
-          .limit(1)
-          .get();
+// ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
+exports.notificarPagoAprobado = onDocumentUpdated(
+    {document: "participantes/{docId}", region: "us-central1"},
+    async (event) => {
+      const before = event.data.before.data();
+      const after = event.data.after.data();
+      if (!before || !after) return;
 
-      if (snap.empty) {
-        throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte.");
+      const docId = event.params.docId;
+      const estadoAntes = before.pago?.estado;
+      const estadoDespues = after.pago?.estado;
+
+      if (estadoDespues !== "aprobado") return;
+
+      const reenvioSolicitado = after.pago?.reenviar_correo_qr_at &&
+        before.pago?.reenviar_correo_qr_at !== after.pago?.reenviar_correo_qr_at;
+
+      if (after.pago?.correo_aprobacion_enviado && !reenvioSolicitado) return;
+
+      const transicionAAprobado = estadoAntes !== "aprobado";
+      if (!transicionAAprobado && !reenvioSolicitado) return;
+
+      console.log("notificarPagoAprobado: procesando", docId,
+          reenvioSolicitado ? "(reenvío)" : "(aprobación)");
+
+      try {
+        const resultado = await procesarCorreoQrAprobado({
+          docId,
+          forzarReenvio: reenvioSolicitado,
+        });
+        if (resultado.omitido) {
+          console.log("notificarPagoAprobado: omitido", docId, resultado.razon);
+          return;
+        }
+        console.log("notificarPagoAprobado: correo enviado —", docId);
+      } catch (e) {
+        console.error("Error correo pago aprobado para", docId, ":", e.message);
       }
-
-      return sanitizarParticipante(snap.docs[0].data());
     },
 );

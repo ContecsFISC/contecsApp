@@ -764,18 +764,6 @@ function limpiarAlerta() {
   el("alerta-global").classList.remove("show");
 }
 
-// ─── CÓDIGO / TOKEN ───────────────────────────────────────────────────────────
-function generarCodigo() {
-  const ts  = String(Date.now()).slice(-4);
-  const rnd = String(Math.floor(Math.random() * 10));
-  return `CTCS-2026-${ts}${rnd}`;
-}
-function generarToken() {
-  const arr = new Uint8Array(24);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, b => b.toString(16).padStart(2, "0")).join("");
-}
-
 // ─── CATEGORÍAS ───────────────────────────────────────────────────────────────
 function renderCategorias() {
   el("cat-grid").innerHTML = CATEGORIAS.map(cat => `
@@ -1059,57 +1047,22 @@ el("btn-confirmar").addEventListener("click", async () => {
   el("spinner-confirmar").style.display = "block";
   limpiarAlerta();
 
-  let storageRef = null; // referencia guardada para rollback si Firestore falla
-
   try {
-    // ── Importar Firebase dinámicamente (no bloquea la UI al cargar la página) ──
-    const { db, storage } = await import("./js/core/firebase-config.js");
-    const {
-      collection, doc, setDoc, getDoc,
-      serverTimestamp, writeBatch
-    } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
-    const { ref, uploadBytes } =
-      await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js");
+    const { registrarParticipante, archivoABase64 } =
+      await import("./js/core/participantes-api.js");
 
     const correo = el("inp-correo").value.trim().toLowerCase();
     const cedula = el("inp-cedula").value.trim();
 
-    // ── Validar duplicado por cédula usando ID determinístico ─────────────────
-    // El documento se guarda con ID = cedula (si existe) o hash del correo.
-    // Esto hace que setDoc con { merge: false } falle atómicamente si ya existe,
-    // sin necesidad de una query previa que podría dar race condition.
-    const docId = cedula
-      ? `c_${cedula.replace(/[^a-zA-Z0-9]/g, "_")}`
-      : `e_${correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
-
-    const existeSnap = await getDoc(doc(db, "participantes", docId));
-    if (existeSnap.exists()) {
-      throw new Error("Ya existe una inscripcion con esta cedula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
-    }
-
-    const codigo = generarCodigo();
-    const token  = generarToken();
-
-    // ── Subir comprobante (sin getDownloadURL — almacenamos solo la ruta) ─────
-    // getDownloadURL requiere permiso de lectura en Storage.
-    // Guardamos la ruta relativa; el staff la descarga desde el panel con Auth.
-    // Nombre determinístico: si el mismo usuario reintenta, sobreescribe el mismo archivo.
-    let comprobanteRuta = null;
+    let comprobanteBase64 = null;
+    let comprobanteContentType = null;
+    let comprobanteNombre = null;
     if (metodoPago === "transferencia" && archivoComprobante) {
-      const ext = archivoComprobante.name.split(".").pop().toLowerCase();
-      const nombreArchivo = `${docId}.${ext}`;
-      storageRef = ref(storage, `comprobantes/${nombreArchivo}`);
-      await uploadBytes(storageRef, archivoComprobante, {
-        contentType: archivoComprobante.type,
-        customMetadata: { correo, cedula: cedula || "sin_cedula" }
-      });
-      // Solo guardamos la ruta relativa — no hacemos getDownloadURL
-      comprobanteRuta = `comprobantes/${nombreArchivo}`;
+      comprobanteBase64 = await archivoABase64(archivoComprobante);
+      comprobanteContentType = archivoComprobante.type;
+      comprobanteNombre = archivoComprobante.name;
     }
 
-    // ── Recoger datos ─────────────────────────────────────────────────────────
-    const camposExtra     = recogerCamposExtra();
-    const estudiantesData = esColegio ? recogerEstudiantes() : [];
     const tutorData = esColegio ? {
       nombre:   el("inp-tutor-nombre").value.trim(),
       correo:   el("inp-tutor-correo").value.trim().toLowerCase(),
@@ -1117,97 +1070,31 @@ el("btn-confirmar").addEventListener("click", async () => {
       colegio:  el("inp-colegio").value.trim(),
     } : null;
 
-    // ── Documento principal (ID determinístico = sin race condition) ──────────
-    const docRef = doc(db, "participantes", docId);
-    await setDoc(docRef, {
-      codigo, token,
+    const resultado = await registrarParticipante({
       nombre:          el("inp-nombre").value.trim(),
       apellido:        el("inp-apellido").value.trim(),
-      nombreCompleto:  `${el("inp-nombre").value.trim()} ${el("inp-apellido").value.trim()}`,
-      cedula, correo,
+      cedula,
+      correo,
       telefono:        el("inp-telefono").value.trim(),
-      categoria:       esColegio ? "colegio"  : categoriaSeleccionada.id,
-      categoriaNombre: esColegio ? "Colegio"  : categoriaSeleccionada.label,
-      camposExtra,
-      pago: {
-        metodo:          metodoPago,
-        estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-        comprobanteRuta,              // ruta relativa en Storage, no URL pública
-        monto:           esColegio ? null : (categoriaSeleccionada?.precio ?? null),
-        aprobadoPor:     null,
-        aprobadoEn:      null,
-        notas:           null,
-      },
+      categoria:       esColegio ? "colegio" : categoriaSeleccionada.id,
+      categoriaNombre: esColegio ? "Colegio" : categoriaSeleccionada.label,
+      monto:           esColegio ? null : (categoriaSeleccionada?.precio ?? null),
+      metodoPago,
       esColegio,
       tutor:           tutorData,
-      colegio:         esColegio ? el("inp-colegio").value.trim() : null,
-      estudiantes:     estudiantesData,
-      estadoRegistro:  "activo",
-      asistencias:     {},
-      fechaRegistro:   serverTimestamp(),
-      actualizadoEn:   serverTimestamp(),
+      estudiantes:     esColegio ? recogerEstudiantes() : [],
+      camposExtra:     recogerCamposExtra(),
+      comprobanteBase64,
+      comprobanteContentType,
+      comprobanteNombre,
     });
 
-    // ── Documentos individuales de estudiantes (batch atómico) ────────────────
-    // Guardar estudiantes — capturamos id+codigo+token reales para los correos
-    const estudiantesGuardados = []; // [{docId, codigo, token, nombre, correo}]
-    if (esColegio && estudiantesData.length > 0) {
-      const batch   = writeBatch(db);
-
-      estudiantesData.forEach((est, i) => {
-        const estCedula = est.cedula || "";
-        const estId = estCedula
-          ? `c_${estCedula.replace(/[^a-zA-Z0-9]/g, "_")}`
-          : `e_${est.correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
-        const estRef    = doc(db, "participantes", estId);
-        const estToken  = generarToken();
-        const estCodigo = generarCodigo();
-        // Guardar para usarlos en los correos con los valores reales
-        estudiantesGuardados.push({
-          docId:  estId,
-          codigo: estCodigo,
-          token:  estToken,
-          nombre: `${est.nombre} ${est.apellido}`,
-          correo: est.correo,
-        });
-        batch.set(estRef, {
-          codigo: estCodigo, token: estToken,
-          nombre: est.nombre, apellido: est.apellido,
-          nombreCompleto: `${est.nombre} ${est.apellido}`,
-          cedula: estCedula, correo: est.correo, telefono: "",
-          categoria: "colegio_estudiante", categoriaNombre: "Colegio",
-          camposExtra: { grado: est.grado, bachiller: est.bachiller },
-          pago: {
-            metodo:          metodoPago,
-            estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-            comprobanteRuta,
-            monto:           null,
-            aprobadoPor:     null, aprobadoEn: null, notas: null,
-          },
-          esColegio:       true,
-          tutorCodigo:     codigo,
-          tutor:           tutorData,
-          colegio:         tutorData.colegio,
-          estudiantes:     [],
-          estadoRegistro:  "activo",
-          asistencias:     {},
-          fechaRegistro:   serverTimestamp(),
-          actualizadoEn:   serverTimestamp(),
-        });
-      });
-      await batch.commit();
-    }
-
-    // ── Éxito — mostrar pantalla ─────────────────────────────────────────────
     document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("activo"));
     document.querySelector(".steps-wrap").style.display = "none";
     el("exito-wrap").classList.add("visible");
-    el("exito-codigo").textContent = codigo;
-    el("exito-correo").textContent = correo;
+    el("exito-codigo").textContent = resultado.codigo;
+    el("exito-correo").textContent = resultado.correo;
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // El correo lo envía automáticamente el trigger de Firestore (enviarCorreoAlRegistrar)
-    // No hay nada que hacer aquí — el registro en Firestore es suficiente.
 
   } catch (err) {
     mostrarAlerta("error", err.message || "Ocurrio un error al registrar. Intenta de nuevo.");
@@ -1218,7 +1105,7 @@ el("btn-confirmar").addEventListener("click", async () => {
   }
 });
 
-// Correos manejados por Cloud Function trigger — ver functions/index.js
+// Registro y correos vía Cloud Function registrarParticipante — ver functions/index.js
 </script>
 
 </body>
