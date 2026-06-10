@@ -709,7 +709,7 @@ window._aprobar = async function() {
     }
     let mensaje = "Pago aprobado.";
     try {
-      mensaje = await enviarCorreoQrAlParticipante(docId);
+      mensaje = await enviarCorreoQrParticipante(docId);
     } catch (correoErr) {
       mensaje = "Pago aprobado, pero el correo falló: " + correoErr.message;
     }
@@ -731,7 +731,7 @@ window._reenviarCorreoQr = async function() {
   const btn = document.getElementById("btn-reenviar-qr");
   if (btn) btn.disabled = true;
   try {
-    const mensaje = await enviarCorreoQrAlParticipante(participanteSeleccionado.id, true);
+    const mensaje = await enviarCorreoQrParticipante(participanteSeleccionado.id, true);
     alert(mensaje);
     cerrarSheet();
     cargar();
