@@ -1049,13 +1049,21 @@ el("btn-confirmar").addEventListener("click", async () => {
     let comprobanteContentType = null;
     let comprobanteNombre = null;
     if (metodoPago === "transferencia" && archivoComprobante) {
-      comprobanteBase64 = await archivoABase64(archivoComprobante);
-      comprobanteContentType = archivoComprobante.type;
-      comprobanteNombre = archivoComprobante.name;
+      const ext = archivoComprobante.name.split(".").pop().toLowerCase();
+      const nombreArchivo = `${docId}.${ext}`;
+      storageRef = ref(storage, `comprobantes/${nombreArchivo}`);
+      await uploadBytes(storageRef, archivoComprobante, {
+        contentType: archivoComprobante.type,
+        customMetadata: { correo, cedula: cedula || "sin_cedula" }
+      });
+      // Solo guardamos la ruta relativa — no hacemos getDownloadURL
+      comprobanteRuta = `comprobantes/${nombreArchivo}`;
     }
 
-    const isColegio = categoriaSeleccionada.id === "colegio";
-    const tutorData = isColegio ? {
+    // ── Recoger datos ─────────────────────────────────────────────────────────
+    const camposExtra     = recogerCamposExtra();
+    const estudiantesData = esColegio ? recogerEstudiantes() : [];
+    const tutorData = esColegio ? {
       nombre:   el("inp-tutor-nombre").value.trim(),
       apellido: el("inp-tutor-apellido").value.trim(),
       correo:   el("inp-tutor-correo").value.trim().toLowerCase(),
@@ -1069,19 +1077,79 @@ el("btn-confirmar").addEventListener("click", async () => {
       cedula,
       correo,
       telefono:        el("inp-telefono").value.trim(),
-      categoria:       categoriaSeleccionada.id,
-      categoriaNombre: categoriaSeleccionada.label,
-      monto:           categoriaSeleccionada?.precio ?? null,
-      metodoPago,
-      esColegio:       isColegio,
+      categoria:       esColegio ? "colegio"  : categoriaSeleccionada.id,
+      categoriaNombre: esColegio ? "Colegio"  : categoriaSeleccionada.label,
+      camposExtra,
+      pago: {
+        metodo:          metodoPago,
+        estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+        comprobanteRuta,              // ruta relativa en Storage, no URL pública
+        monto:           esColegio ? null : (categoriaSeleccionada?.precio ?? null),
+        aprobadoPor:     null,
+        aprobadoEn:      null,
+        notas:           null,
+      },
+      esColegio,
       tutor:           tutorData,
-      estudiantes:     isColegio ? recogerEstudiantes() : [],
-      camposExtra:     recogerCamposExtra(),
-      comprobanteBase64,
-      comprobanteContentType,
-      comprobanteNombre,
+      colegio:         esColegio ? el("inp-colegio").value.trim() : null,
+      estudiantes:     estudiantesData,
+      estadoRegistro:  "activo",
+      asistencias:     {},
+      fechaRegistro:   serverTimestamp(),
+      actualizadoEn:   serverTimestamp(),
     });
 
+    // ── Documentos individuales de estudiantes (batch atómico) ────────────────
+    // Guardar estudiantes — capturamos id+codigo+token reales para los correos
+    const estudiantesGuardados = []; // [{docId, codigo, token, nombre, correo}]
+    if (esColegio && estudiantesData.length > 0) {
+      const batch   = writeBatch(db);
+
+      estudiantesData.forEach((est, i) => {
+        const estCedula = est.cedula || "";
+        const estId = estCedula
+          ? `c_${estCedula.replace(/[^a-zA-Z0-9]/g, "_")}`
+          : `e_${est.correo.replace(/[^a-zA-Z0-9]/g, "_")}`;
+        const estRef    = doc(db, "participantes", estId);
+        const estToken  = generarToken();
+        const estCodigo = generarCodigo();
+        // Guardar para usarlos en los correos con los valores reales
+        estudiantesGuardados.push({
+          docId:  estId,
+          codigo: estCodigo,
+          token:  estToken,
+          nombre: `${est.nombre} ${est.apellido}`,
+          correo: est.correo,
+        });
+        batch.set(estRef, {
+          codigo: estCodigo, token: estToken,
+          nombre: est.nombre, apellido: est.apellido,
+          nombreCompleto: `${est.nombre} ${est.apellido}`,
+          cedula: estCedula, correo: est.correo, telefono: "",
+          categoria: "colegio_estudiante", categoriaNombre: "Colegio",
+          camposExtra: { grado: est.grado, bachiller: est.bachiller },
+          pago: {
+            metodo:          metodoPago,
+            estado:          metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
+            comprobanteRuta,
+            monto:           null,
+            aprobadoPor:     null, aprobadoEn: null, notas: null,
+          },
+          esColegio:       true,
+          tutorCodigo:     codigo,
+          tutor:           tutorData,
+          colegio:         tutorData.colegio,
+          estudiantes:     [],
+          estadoRegistro:  "activo",
+          asistencias:     {},
+          fechaRegistro:   serverTimestamp(),
+          actualizadoEn:   serverTimestamp(),
+        });
+      });
+      await batch.commit();
+    }
+
+    // ── Éxito — mostrar pantalla ─────────────────────────────────────────────
     document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("activo"));
     document.querySelector(".steps-wrap").style.display = "none";
     el("exito-wrap").classList.add("visible");
