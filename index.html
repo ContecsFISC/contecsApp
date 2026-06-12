@@ -161,14 +161,14 @@
         <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
         <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
       </svg>
-      Continuar con Microsoft
+      Continuar con Microsoft (UTP)
     </button>
 
     <p class="nota">Solo miembros de <strong>CONTECS</strong> pueden ingresar.<br>Si eres nuevo, tu acceso será activado por un administrador.</p>
   </div>
 
   <script type="module">
-    import { loginConGoogle, loginConMicrosoft, guardRoute } from "./js/core/auth.js";
+    import { loginConGoogle, loginConSSO, guardRoute } from "./js/core/auth.js";
 
     guardRoute();
 
@@ -226,9 +226,10 @@
       manejarLogin(loginConGoogle, btnGoogle, " Continuar con Google")
     );
 
-    btnMicrosoft.addEventListener("click", () =>
-      manejarLogin(loginConMicrosoft, btnMicrosoft, " Continuar con Microsoft")
-    );
+    btnMicrosoft.addEventListener("click", () => {
+      btnMicrosoft.disabled = true;
+      loginConSSO();
+    });
   </script>
 </body>
 </html>

@@ -2,18 +2,24 @@ import { auth, db } from "./firebase-config.js";
 import {
   signInWithPopup,
   GoogleAuthProvider,
-  OAuthProvider,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { SSO_LOGIN_URL } from "./sso-config.js";
 import {
   doc, getDoc, setDoc, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { tienePermiso } from "./permisos.js";
 
 const provider = new GoogleAuthProvider();
-const microsoftProvider = new OAuthProvider("microsoft.com");
-const PUBLIC_PAGES = ["index.html"];
+const PUBLIC_PAGES = ["index.html", "auth.html"];
+
+function esPaginaPublica() {
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  if (PUBLIC_PAGES.includes(page)) return true;
+  const path = window.location.pathname;
+  return path.endsWith("/ms/auth") || path.includes("/ms/auth");
+}
 
 function esErrorDePermisosFirestore(error) {
   return error?.code === "permission-denied" || error?.code === "firestore/permission-denied";
@@ -61,15 +67,15 @@ export function escucharCambiosDeRol(uid) {
 }
 
 export function guardRoute() {
-  const page = window.location.pathname.split("/").pop() || "index.html";
   onAuthStateChanged(auth, async (user) => {
     try {
-      if (!user && !PUBLIC_PAGES.includes(page)) {
+      const esPublica = esPaginaPublica();
+      if (!user && !esPublica) {
         window.location.href = "index.html";
-      } else if (user && PUBLIC_PAGES.includes(page)) {
+      } else if (user && esPublica) {
         await cargarUsuario(user);
         window.location.href = "dashboard.html";
-      } else if (user && !PUBLIC_PAGES.includes(page)) {
+      } else if (user && !esPublica) {
         escucharCambiosDeRol(user.uid);
       }
     } catch (error) {
@@ -78,7 +84,7 @@ export function guardRoute() {
   });
 }
 
-async function cargarUsuario(user) {
+export async function cargarUsuario(user) {
   const ref  = doc(db, "usuarios", user.uid);
   const nombreFallback = user.displayName || user.email;
   const rolFallback = "sin_rol";
@@ -138,15 +144,8 @@ export async function loginConGoogle() {
   }
 }
 
-export async function loginConMicrosoft() {
-  try {
-    const result = await signInWithPopup(auth, microsoftProvider);
-    await cargarUsuario(result.user);
-    return result.user;
-  } catch (error) {
-    manejarErrorAuth(error, "loginConMicrosoft");
-    throw error;
-  }
+export function loginConSSO() {
+  window.location.href = SSO_LOGIN_URL;
 }
 
 export async function cerrarSesion() {

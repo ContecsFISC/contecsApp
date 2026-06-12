@@ -1,6 +1,7 @@
-const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
+const {getAuth} = require("firebase-admin/auth");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
@@ -23,6 +24,15 @@ const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
 const ROLES_ENVIAR_CORREO_QR = new Set([
   "ceo", "junta_principal", "junta", "coordinador",
   "actividades", "finanzas", "secretario", "comunicaciones",
+]);
+
+const SSO_USER_URL = "https://sso.utp.ac.pa/ms/user";
+const ORIGENES_SSO_PERMITIDOS = new Set([
+  "https://contecsfisc.github.io",
+  "http://localhost:5000",
+  "http://127.0.0.1:5000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ]);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -53,6 +63,54 @@ async function generarCodigo() {
 
 function validarCorreo(correo) {
   return typeof correo === "string" && correo.includes("@") && correo.length <= 254;
+}
+
+function esTokenSSOValido(tokenSSO) {
+  return tokenSSO && typeof tokenSSO === "object" && Object.keys(tokenSSO).length > 0;
+}
+
+function extraerEmailSSO(datosUsuario) {
+  if (!datosUsuario || typeof datosUsuario !== "object") return null;
+  const candidatos = [
+    datosUsuario.email,
+    datosUsuario.correo,
+    datosUsuario.mail,
+    datosUsuario.userPrincipalName,
+  ];
+  for (const valor of candidatos) {
+    if (typeof valor === "string" && valor.includes("@")) {
+      return valor.trim().toLowerCase();
+    }
+  }
+  return null;
+}
+
+function extraerNombreSSO(datosUsuario) {
+  if (!datosUsuario || typeof datosUsuario !== "object") return null;
+  return datosUsuario.nombre ||
+    datosUsuario.name ||
+    datosUsuario.displayName ||
+    datosUsuario.nombreCompleto ||
+    null;
+}
+
+async function consultarUsuarioSSO(tokenSSO) {
+  const resp = await fetch(SSO_USER_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(tokenSSO),
+  });
+  if (!resp.ok) {
+    const detalle = await resp.text().catch(() => "");
+    throw new Error(`SSO rechazó el token (${resp.status})${detalle ? `: ${detalle.slice(0, 200)}` : ""}`);
+  }
+  return resp.json();
+}
+
+function origenPermitidoParaSSO(req) {
+  const origin = req.get("Origin");
+  if (!origin) return true;
+  return ORIGENES_SSO_PERMITIDOS.has(origin);
 }
 
 function validarTexto(valor, campo, {requerido = false, max = 200} = {}) {
@@ -385,6 +443,71 @@ async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
   if (omitidoPlantilla) return {enviado: false, omitido: true, razon: "plantilla_desactivada"};
   return {enviado: true, brevoMessageId};
 }
+
+// ─── HTTP: validar token SSO UTP y emitir Firebase Custom Token ────────────────
+exports.validarTokenSSO = onRequest(
+    {
+      region: "us-central1",
+      maxInstances: 20,
+      cors: [
+        "https://contecsfisc.github.io",
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+      ],
+    },
+    async (req, res) => {
+      if (req.method !== "POST") {
+        res.status(405).json({error: "Método no permitido"});
+        return;
+      }
+
+      if (!origenPermitidoParaSSO(req)) {
+        res.status(403).json({error: "Origen no permitido"});
+        return;
+      }
+
+      const {tokenSSO} = req.body || {};
+      if (!esTokenSSOValido(tokenSSO)) {
+        res.status(400).json({error: "Token SSO requerido"});
+        return;
+      }
+
+      try {
+        const datosUsuario = await consultarUsuarioSSO(tokenSSO);
+        const email = extraerEmailSSO(datosUsuario);
+        if (!email) {
+          res.status(400).json({error: "No se pudo obtener el email del usuario"});
+          return;
+        }
+
+        const auth = getAuth();
+        let uid;
+        try {
+          const userRecord = await auth.getUserByEmail(email);
+          uid = userRecord.uid;
+        } catch (e) {
+          if (e.code === "auth/user-not-found") {
+            const nombre = extraerNombreSSO(datosUsuario) || email;
+            const nuevoUsuario = await auth.createUser({
+              email,
+              displayName: nombre,
+            });
+            uid = nuevoUsuario.uid;
+          } else {
+            throw e;
+          }
+        }
+
+        const firebaseToken = await auth.createCustomToken(uid);
+        res.json({firebaseToken});
+      } catch (e) {
+        console.error("validarTokenSSO:", e);
+        res.status(401).json({error: "No se pudo validar el token SSO"});
+      }
+    },
+);
 
 // ─── CLOUD FUNCTION: registrarParticipante ────────────────────────────────────
 exports.registrarParticipante = onCall(
