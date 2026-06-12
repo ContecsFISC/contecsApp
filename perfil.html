@@ -385,7 +385,12 @@
 <div class="acceso-wrap" id="acceso-wrap" style="display:none;">
   <div class="acceso-card">
     <div class="acceso-logo">
-      <div class="logo-circulo">🏛️</div>
+      <div class="logo-circulo">
+        <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
+          <rect x="4" y="8" width="30" height="22" rx="3" stroke="white" stroke-width="2.2"/>
+          <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <h1>CONTECS 2026</h1>
       <p>Ingresa tu código para ver tu credencial</p>
     </div>
@@ -404,7 +409,7 @@
     </div>
 
     <button class="btn-acceso" id="btn-acceder">
-      <span id="btn-acceder-txt">🔐 Ver mi credencial</span>
+      <span id="btn-acceder-txt">Ver mi credencial</span>
       <div class="spinner-sm" id="spinner-acceso" style="display:none;"></div>
     </button>
 
@@ -419,7 +424,14 @@
 <div class="perfil-wrap" id="perfil-wrap">
 
   <div class="hero-perfil" id="hero-perfil">
-    <div style="font-size:42px;margin-bottom:12px;position:relative;">🎓</div>
+    <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <svg width="32" height="32" viewBox="0 0 38 38" fill="none">
+            <rect x="4" y="8" width="30" height="22" rx="3" stroke="white" stroke-width="2.2"/>
+            <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
     <div class="hp-nombre" id="hp-nombre">—</div>
     <div class="hp-categoria" id="hp-categoria">—</div>
     <div class="hp-estado" id="hp-estado">—</div>
@@ -429,7 +441,7 @@
 
     <!-- ESTADO DE PAGO -->
     <div class="pago-estado-card" id="pago-estado-card">
-      <div class="pe-icono" id="pe-icono">⏳</div>
+      <div class="pe-icono" id="pe-icono" style="display:none;"></div>
       <div class="pe-titulo" id="pe-titulo">Procesando...</div>
       <div class="pe-desc" id="pe-desc"></div>
     </div>
@@ -438,7 +450,7 @@
     <div class="credencial" id="credencial-card">
       <div class="credencial-header">
         <div>
-          <div class="ch-titulo">🎟️ CREDENCIAL DE ACCESO</div>
+          <div class="ch-titulo">CREDENCIAL DE ACCESO</div>
           <div class="ch-codigo" id="ch-codigo">CTCS-2026-00000</div>
         </div>
         <div style="color:rgba(255,255,255,0.6);font-size:11px;">CONTECS 2026</div>
@@ -447,7 +459,11 @@
         <div class="qr-contenedor" id="qr-contenedor">
           <div id="qr-canvas"></div>
           <div class="qr-overlay-bloqueado" id="qr-overlay" style="display:none;">
-            <div class="qo-icono">🔒</div>
+            <div class="qo-icono">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4850a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
             <div class="qo-txt">QR disponible cuando tu pago sea validado</div>
           </div>
         </div>
@@ -465,14 +481,14 @@
       </div>
       <div style="padding: 0 20px 16px;">
         <button class="btn-descargar" id="btn-descargar" disabled>
-          📥 Descargar credencial
+          Descargar credencial
         </button>
       </div>
     </div>
 
     <!-- DATOS PERSONALES -->
     <div class="info-card" style="animation-delay:0.15s;">
-      <div class="ic-titulo">👤 Mis datos</div>
+      <div class="ic-titulo">Mis datos</div>
       <div class="ic-fila"><span class="ic-label">Nombre completo</span><span class="ic-valor" id="d-nombre">—</span></div>
       <div class="ic-fila"><span class="ic-label">Cédula</span><span class="ic-valor" id="d-cedula">—</span></div>
       <div class="ic-fila"><span class="ic-label">Correo</span><span class="ic-valor" id="d-correo">—</span></div>
@@ -483,7 +499,7 @@
 
     <!-- PAGO -->
     <div class="info-card" style="animation-delay:0.2s;">
-      <div class="ic-titulo">💳 Pago</div>
+      <div class="ic-titulo">Pago</div>
       <div class="ic-fila"><span class="ic-label">Método</span><span class="ic-valor" id="d-metodo">—</span></div>
       <div class="ic-fila"><span class="ic-label">Estado</span><span class="ic-valor" id="d-estado-pago">—</span></div>
       <div class="ic-fila"><span class="ic-label">Monto</span><span class="ic-valor" id="d-monto">—</span></div>
@@ -491,7 +507,7 @@
     </div>
 
     <div class="ayuda-card">
-      ℹ️ <strong>¿Tienes algún problema?</strong> Comunícate con el equipo de CONTECS antes del evento para resolver cualquier inconveniente con tu inscripción.
+      <strong>¿Tienes algún problema?</strong> Comunícate con el equipo de CONTECS antes del evento para resolver cualquier inconveniente con tu inscripción.
     </div>
 
     <div class="footer">
@@ -522,24 +538,24 @@ const CATEGORIA_LABELS = {
 
 const PAGO_ESTADO_INFO = {
   pendiente_efectivo: {
-    icono: "💵", titulo: "Pago en efectivo pendiente",
+    icono: "", titulo: "Pago en efectivo pendiente",
     desc: "Tu pago en efectivo será registrado el día del evento. Preséntate con el staff de inscripciones.",
-    clase: "pendiente_efectivo", badge: "⏳ Pendiente",
+    clase: "pendiente_efectivo", badge: "Pendiente",
   },
   comprobante_enviado: {
-    icono: "📋", titulo: "Comprobante enviado",
+    icono: "", titulo: "Comprobante enviado",
     desc: "Tu comprobante fue recibido. El staff lo está revisando. Te notificaremos cuando sea aprobado.",
-    clase: "comprobante_enviado", badge: "🔍 En revisión",
+    clase: "comprobante_enviado", badge: "En revision",
   },
   aprobado: {
-    icono: "✅", titulo: "Pago aprobado",
-    desc: "Tu pago fue validado. Tu QR de acceso está activo. ¡Nos vemos en el evento!",
-    clase: "aprobado", badge: "✅ Aprobado",
+    icono: "", titulo: "Pago aprobado",
+    desc: "Tu pago fue validado. Tu QR de acceso está activo. Nos vemos en el evento!",
+    clase: "aprobado", badge: "Aprobado",
   },
   rechazado: {
-    icono: "❌", titulo: "Comprobante rechazado",
-    desc: "Hubo un problema con tu comprobante. Comunícate con el staff para resolverlo.",
-    clase: "rechazado", badge: "❌ Rechazado",
+    icono: "", titulo: "Comprobante rechazado",
+    desc: "Hubo un problema con tu comprobante. Comunicate con el staff para resolverlo.",
+    clase: "rechazado", badge: "Rechazado",
   },
 };
 
@@ -569,7 +585,7 @@ el("btn-acceder").addEventListener("click", async () => {
   const codigo = el("inp-codigo").value.trim().toUpperCase();
   const token  = el("inp-token").value.trim();
   if (!codigo || !token) {
-    mostrarErrorAcceso("⚠️ Ingresa tu código de participante y tu código de acceso.");
+    mostrarErrorAcceso("Ingresa tu código de participante y tu código de acceso.");
     return;
   }
   el("btn-acceder").disabled = true;
@@ -654,7 +670,7 @@ function renderPerfil(p) {
   }
 
   // Pago
-  el("d-metodo").textContent = p.pago?.metodo === "transferencia" ? "🏦 Transferencia" : "💵 Efectivo";
+  el("d-metodo").textContent = p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo";
   el("d-estado-pago").textContent = pagoInfo.badge;
   el("d-monto").textContent = p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto || 0}.00`;
   if (p.pago?.aprobadoEn) {

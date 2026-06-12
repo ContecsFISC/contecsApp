@@ -72,6 +72,17 @@
 
     .card-title { color: var(--verde-oscuro); }
 
+    .dia-evento-fila { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--verde-fondo); border-radius:var(--radio-sm); margin-bottom:6px; gap:8px; flex-wrap:wrap; }
+    .dia-label { font-size:13px; font-weight:600; color:var(--verde-oscuro); text-transform:capitalize; min-width:160px; }
+    .cp-tipo-badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; background:var(--verde-fondo); color:var(--verde-oscuro); }
+    .cp-tipo-taller { background:#fff3e0; color:#e65100; }
+    .cp-tipo-gira   { background:#e8eaf6; color:#283593; }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     @media(max-width:600px) {
       .stats-grid { grid-template-columns:1fr 1fr; }
       .tabs { gap:2px; }
@@ -82,7 +93,7 @@
 <body>
 
 <div class="topbar">
-  <h1>CONTECS — Inscripciones</h1>
+  <h1>CONTECS 2026 — Gestión de Eventos </h1>
   <div style="display:flex;align-items:center;gap:10px;">
     <a href="lecturaQR.html" class="btn-qr-scan">📷 Leer QR</a>
     <a href="../dashboard.html" class="topbar-link">← Panel</a>
@@ -123,7 +134,7 @@
         <input type="text" id="ev-nombre" placeholder="ej. Conferencia Magistral"/>
       </div>
       <div class="form-groupE">
-        <label style="color:var(--verde-oscuro)">Descripción</label>
+        <label style="color:var(--verde-oscuro)">Descripción (objetivo)</label>
         <textarea id="ev-descripcion" rows="2" placeholder="Descripción breve"></textarea>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -136,18 +147,23 @@
           <input type="date" id="ev-fecha-fin"/>
         </div>
       </div>
-      <div class="form-groupE">
-        <label style="color:var(--verde-oscuro)">Mínimo de checkpoints para certificado *</label>
-        <input type="number" id="ev-min-cert" min="1" value="3"/>
-        <small style="color:var(--gris-medio);font-size:12px;">Ej: si el evento tiene 5 momentos y pones 3, el participante necesita 3 para recibir certificado.</small>
+      <div id="dias-evento-section" style="display:none;margin-top:4px;">
+        <label style="color:var(--verde-oscuro);font-size:13px;font-weight:600;display:block;margin-bottom:8px;">Horario por día del evento</label>
+        <div id="dias-evento-lista"></div>
       </div>
+
+      <!-- Botón checkpoints -->
+      <div style="margin:12px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button type="button" class="btn btn-outline" id="btn-abrir-modal-cp" style="width:auto">
+          📋 Gestionar checkpoints
+        </button>
+        <span id="cp-count-badge" style="font-size:13px;color:var(--gris-medio);"></span>
+      </div>
+
       <div class="form-groupE">
-        <label style="color:var(--verde-oscuro)">Checkpoints del evento (momentos donde se escanea el QR)</label>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="cp-nombre-input" placeholder="ej. Conferencia Magistral" style="flex:1"/>
-          <button class="btn btn-outline btn-sm" id="btn-add-checkpoint" style="width:auto">+ Agregar</button>
-        </div>
-        <div id="checkpoints-lista" style="margin-top:10px;min-height:32px;"></div>
+        <label style="color:var(--verde-oscuro)">Mínimo de asistencias para certificado</label>
+        <input type="number" id="ev-min-cert" min="1" value="1"/>
+        <small id="ev-min-cert-hint" style="color:var(--gris-medio);font-size:12px;">Se calcula automáticamente como el 60 % de los checkpoints del evento.</small>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-primary" id="btn-guardar-evento" style="flex:1">Guardar evento</button>
@@ -161,13 +177,27 @@
         <table>
           <thead><tr>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Nombre</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Fecha inicio</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Checkpoints</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Fechas</th>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Min. cert.</th>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)"></th>
           </tr></thead>
-          <tbody id="tabla-eventos-body"><tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+          <tbody id="tabla-eventos-body"><tr><td colspan="4" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- CARD CHECKPOINTS DEL EVENTO -->
+    <div class="card" style="border-left: 3px solid var(--verde-claro);" id="card-checkpoints-vista">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0" id="cp-vista-titulo">Checkpoints del evento</div>
+        <button class="btn btn-outline btn-sm" id="btn-abrir-modal-cp-vista" style="width:auto;display:none">📋 Gestionar checkpoints</button>
+      </div>
+      <div id="cp-vista-sin-evento" style="color:var(--gris-medio);font-size:13px;text-align:center;padding:16px 0;">
+        Selecciona un evento activo para ver sus checkpoints.
+      </div>
+      <div id="cp-vista-lista" style="display:none;"></div>
+      <div id="cp-vista-resumen" style="display:none;margin-top:12px;padding:10px 14px;background:var(--verde-fondo);border-radius:var(--radio-sm);font-size:13px;color:var(--verde-oscuro);">
+        <strong id="cp-vista-resumen-texto"></strong>
       </div>
     </div>
   </div>
@@ -177,7 +207,7 @@
     <div class="card" style="border: 2px solid var(--verde-claro);">
       <div class="card-title">Importar desde CSV / Excel</div>
       <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
-        Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. El sistema intentará detectar las columnas automáticamente.
+        Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. Los participantes se guardarán en la colección global. Los correos duplicados se omitirán automáticamente.
       </p>
       <div class="upload-zone" id="upload-zone">
         <div style="font-size:36px;">📂</div>
@@ -205,23 +235,25 @@
   <!-- TAB PARTICIPANTES -->
   <div class="tab-panel" id="tab-participantes">
     <div class="stats-grid" id="stats-participantes">
-      <div class="stat-mini"><div class="num" id="stat-total">—</div><div class="lbl">Total inscritos</div></div>
-      <div class="stat-mini"><div class="num" id="stat-asistentes">—</div><div class="lbl">Con asistencia</div></div>
-      <div class="stat-mini"><div class="num" id="stat-certificados">—</div><div class="lbl">Certificados</div></div>
+      <div class="stat-mini"><div class="num" id="stat-total">—</div><div class="lbl">Total registrados</div></div>
+      <div class="stat-mini"><div class="num" id="stat-asistentes">—</div><div class="lbl">Pagos aprobados</div></div>
+      <div class="stat-mini"><div class="num" id="stat-certificados">—</div><div class="lbl">Pendientes</div></div>
     </div>
     <div class="card" style="border: 2px solid var(--verde-claro);">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-        <input type="text" id="buscar-participante" placeholder="🔍 Buscar nombre o correo..." style="flex:1;padding:10px 14px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;"/>
+        <input type="text" id="buscar-participante" placeholder="🔍 Buscar nombre, cédula, correo o código..." style="flex:1;padding:10px 14px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;"/>
         <button class="btn btn-outline btn-sm" id="btn-gen-todos-qr" style="width:auto">📤 Exportar todos los QR</button>
       </div>
       <div class="tabla-wrap">
         <table>
           <thead><tr>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Nombre</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Correo</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Universidad</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Asistencias</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cert.</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Código</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Nombre / Correo</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cédula</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Categoría</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Pago</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Método</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Fecha</th>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);"></th>
           </tr></thead>
           <tbody id="tabla-participantes-body"></tbody>
@@ -249,13 +281,19 @@
   <!-- TAB CERTIFICADOS -->
   <div class="tab-panel" id="tab-certificados">
     <div class="card" style="border-left: 2px solid var(--verde-claro);">
-      <div class="card-title">Generar certificados</div>
-      <p style="font-size:13px;color:var(--gris-medio);margin-bottom:14px;">Solo participantes que cumplieron el mínimo de checkpoints recibirán certificado.</p>
-      <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card-title">Exportar documentos del evento</div>
+      <p style="font-size:13px;color:var(--gris-medio);margin-bottom:14px;">Genera los documentos oficiales del evento para archivos y certificación.</p>
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px;">
         <div class="stat-mini"><div class="num" id="cert-elegibles">—</div><div class="lbl">Elegibles</div></div>
-        <div class="stat-mini"><div class="num" id="cert-emitidos">—</div><div class="lbl">Emitidos</div></div>
+        <div class="stat-mini"><div class="num" id="cert-exponentes">—</div><div class="lbl">Exponentes</div></div>
+        <div class="stat-mini"><div class="num" id="cert-checkpoints">—</div><div class="lbl">Actividades</div></div>
       </div>
-      <button class="btn btn-primary" id="btn-gen-todos-cert">🏅 Generar todos los certificados</button>
+      <div style="display:grid;gap:10px;">
+        <button class="btn btn-primary" id="btn-export-pdf-programa">📄 PDF del programa del evento</button>
+        <button class="btn btn-primary" id="btn-export-excel-programa">📊 Excel del programa (2 hojas)</button>
+        <button class="btn btn-primary" id="btn-export-excel-exponentes">🎤 Excel — Lista de exponentes</button>
+        <button class="btn btn-primary" id="btn-export-excel-participantes">👥 Excel — Lista de participantes elegibles</button>
+      </div>
     </div>
     <div class="card" style="border-left: 2px solid var(--verde-claro);">
       <div class="card-title">Participantes elegibles</div>
@@ -264,9 +302,8 @@
           <thead><tr>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Nombre</th>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cédula</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Universidad</th>
+            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Origen</th>
             <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Asistencias</th>
-            <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro);">Cert.</th>
           </tr></thead>
           <tbody id="tabla-cert-body"></tbody>
         </table>
@@ -298,6 +335,98 @@
     <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
     <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
       <table><thead id="preview-thead"></thead><tbody id="preview-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CHECKPOINTS -->
+<div class="modal-overlay" id="modal-checkpoints">
+  <div class="modal-box" style="max-width:680px;width:100%;max-height:92vh;overflow-y:auto;">
+    <button class="modal-close" id="modal-cp-close">✕</button>
+    <div class="modal-title" id="modal-cp-titulo">Checkpoints del evento</div>
+    <div id="alerta-cp" class="alerta"></div>
+
+    <!-- Formulario para agregar/editar checkpoint -->
+    <div style="background:var(--verde-fondo);border-radius:var(--radio);padding:16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--verde-oscuro);margin-bottom:10px;" id="cp-form-titulo">Nuevo checkpoint</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Nombre corto *</label>
+          <input type="text" id="cp-nombre" placeholder="ej. Conf. Magistral IA"/>
+        </div>
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Tipo</label>
+          <select id="cp-tipo">
+            <option value="conferencia">Conferencia</option>
+            <option value="taller">Taller</option>
+            <option value="gira">Gira</option>
+            <option value="workshop">Workshop</option>
+            <option value="panel">Panel</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-groupE" style="margin-top:10px;">
+        <label style="color:var(--verde-oscuro)">Título formal completo</label>
+        <input type="text" id="cp-titulo" placeholder="ej. IA generativa para el acceso a la Medicina..."/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Día del evento</label>
+          <select id="cp-dia"><option value="">— Selecciona un día —</option></select>
+        </div>
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Salón / Lugar</label>
+          <input type="text" id="cp-salon" placeholder="ej. Auditorio A"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Hora inicio</label>
+          <input type="time" id="cp-hora-inicio"/>
+        </div>
+        <div class="form-groupE" style="margin:0;">
+          <label style="color:var(--verde-oscuro)">Hora fin</label>
+          <input type="time" id="cp-hora-fin"/>
+        </div>
+      </div>
+      <div class="form-groupE" style="margin-top:10px;">
+        <label style="color:var(--verde-oscuro)">Exponente / Ponente</label>
+        <select id="cp-ponente-select" style="margin-bottom:6px;">
+          <option value="">— Sin ponente / Seleccionar —</option>
+          <option value="_otro">✏️ Otro (ingresar manualmente)</option>
+        </select>
+        <input type="hidden" id="cp-ponente-id"/>
+        <input type="hidden" id="cp-exponente"/>
+        <input type="text" id="cp-exponente-manual" placeholder="ej. Dr. Juan Pérez"
+               style="display:none;width:100%;padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;font-family:inherit;box-sizing:border-box;"/>
+        <div id="cp-ponente-info" style="display:none;margin-top:6px;padding:8px 12px;background:var(--verde-fondo);border-radius:6px;font-size:12px;color:var(--verde-oscuro);line-height:1.6;"></div>
+      </div>
+      <div class="form-groupE" style="margin-top:10px;">
+        <label style="color:var(--verde-oscuro)">Tipo de presentación</label>
+        <select id="cp-tipo-presencia">
+          <option value="">— Selecciona —</option>
+          <option value="presencial">Presencial</option>
+          <option value="virtual">Virtual</option>
+          <option value="mixto">Mixto</option>
+        </select>
+      </div>
+      <div class="form-groupE" id="cp-cupos-section" style="display:none;margin-top:10px;">
+        <label style="color:var(--verde-oscuro)">Cupos (inscripción in-situ por QR)</label>
+        <input type="number" id="cp-cupos" min="1" placeholder="ej. 30"/>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-primary btn-sm" id="btn-guardar-cp" style="flex:1">+ Agregar checkpoint</button>
+        <button class="btn btn-outline btn-sm" id="btn-cancelar-cp" style="width:auto;display:none">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Lista de checkpoints existentes -->
+    <div id="cp-modal-lista" style="margin-bottom:14px;"></div>
+
+    <!-- Resumen mínimo certificado -->
+    <div id="cp-modal-resumen" style="padding:10px 14px;background:var(--verde-fondo);border-radius:var(--radio-sm);font-size:13px;color:var(--verde-oscuro);display:none;">
+      <strong id="cp-resumen-texto"></strong>
     </div>
   </div>
 </div>

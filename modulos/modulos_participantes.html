@@ -304,26 +304,6 @@
     .btn-aprobar-grande:disabled,
     .btn-rechazar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .metodo-seleccion {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .met-opt {
-      border: 2px solid var(--gris-borde);
-      border-radius: var(--radio-sm);
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gris-texto);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .met-opt:hover { border-color: var(--verde-claro); background: var(--verde-fondo); }
-    .met-opt.seleccionado { border-color: var(--verde); background: var(--verde-fondo); color: var(--verde-oscuro); }
-
     .notas-area {
       width: 100%;
       padding: 10px 12px;
@@ -355,7 +335,7 @@
 <body>
 
 <div class="topbar">
-  <h1>👥 Participantes</h1>
+  <h1>Participantes</h1>
   <a href="../dashboard.html" style="color:#fff;font-size:13px;">← Volver</a>
 </div>
 
@@ -383,13 +363,13 @@
 
   <!-- FILTROS -->
   <div class="filtros-bar">
-    <input type="text" id="inp-buscar" placeholder="🔍  Buscar por nombre, cédula o código..."/>
+    <input type="text" id="inp-buscar" placeholder="Buscar por nombre, cedula o codigo..."/>
     <select id="fil-estado">
       <option value="">Todos los estados</option>
-      <option value="aprobado">✅ Aprobado</option>
-      <option value="comprobante_enviado">🔍 Comprobante enviado</option>
-      <option value="pendiente_efectivo">💵 Pendiente efectivo</option>
-      <option value="rechazado">❌ Rechazado</option>
+      <option value="aprobado">Aprobado</option>
+      <option value="comprobante_enviado">Comprobante enviado</option>
+      <option value="pendiente_efectivo">Pendiente efectivo</option>
+      <option value="rechazado">Rechazado</option>
     </select>
     <select id="fil-categoria">
       <option value="">Todas las categorías</option>
@@ -402,8 +382,8 @@
     </select>
     <select id="fil-metodo">
       <option value="">Todos los métodos</option>
-      <option value="transferencia">🏦 Transferencia</option>
-      <option value="efectivo">💵 Efectivo</option>
+      <option value="transferencia">Transferencia</option>
+      <option value="efectivo">Efectivo</option>
     </select>
   </div>
 
@@ -412,7 +392,7 @@
     <div class="tabla-header">
       <div class="tabla-header-titulo" id="tabla-titulo">Cargando...</div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;">📤 Exportar CSV</button>
+        <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;">Exportar CSV</button>
       </div>
     </div>
     <div class="tabla-overflow">
@@ -446,7 +426,7 @@
   <div class="bs-handle"></div>
   <div class="bs-header">
     <span class="bs-titulo" id="bs-titulo">Perfil del participante</span>
-    <button class="bs-cerrar" onclick="cerrarSheet()">✕</button>
+    <button class="bs-cerrar" onclick="cerrarSheet()">&times;</button>
   </div>
   <div class="bs-body" id="bs-body">
     <!-- Contenido dinámico -->
@@ -471,7 +451,6 @@ const uid  = sessionStorage.getItem("uid") || "";
 let todosParticipantes = [];
 let participanteFiltrado = [];
 let participanteSeleccionado = null;
-let metodoPagoSeleccionado = null;
 
 const CATEGORIA_LABELS = {
   estudiante_utp:     "Est. UTP",
@@ -483,10 +462,10 @@ const CATEGORIA_LABELS = {
 };
 
 const ESTADO_BADGE = {
-  aprobado:            `<span class="badge badge-aprobado">✅ Aprobado</span>`,
-  comprobante_enviado: `<span class="badge badge-comprobante">🔍 En revisión</span>`,
+  aprobado:            `<span class="badge badge-aprobado">Aprobado</span>`,
+  comprobante_enviado: `<span class="badge badge-comprobante">En revision</span>`,
   pendiente_efectivo:  `<span class="badge badge-pendiente">⏳ Pendiente</span>`,
-  rechazado:           `<span class="badge badge-rechazado">❌ Rechazado</span>`,
+  rechazado:           `<span class="badge badge-rechazado">Rechazado</span>`,
 };
 
 // ── CARGAR ─────────────────────────────────────────────────────────────────
@@ -544,7 +523,7 @@ function renderTabla() {
     el("tabla-body").innerHTML = `
       <tr><td colspan="8">
         <div class="empty-state">
-          <div class="es-icono">🔍</div>
+          <div class="es-icono"></div>
           <div class="es-txt">No se encontraron participantes con ese filtro.</div>
         </div>
       </td></tr>`;
@@ -558,10 +537,10 @@ function renderTabla() {
       ? p.fechaRegistro.toDate().toLocaleDateString("es-PA")
       : "—";
     const estadoBadge = ESTADO_BADGE[p.pago?.estado] || `<span class="badge badge-pendiente">—</span>`;
-    const metodoIcon  = p.pago?.metodo === "transferencia" ? "🏦" : "💵";
+    const metodoIcon  = p.pago?.metodo === "transferencia" ? "T" : "E";
 
     const btnAprobar = canAprobar && p.pago?.estado !== "aprobado"
-      ? `<button class="btn-accion btn-aprobar" onclick="window._abrirPerfil('${p.id}')">✅ Revisar</button>`
+      ? `<button class="btn-accion btn-aprobar" onclick="window._abrirPerfil('${p.id}')">Revisar</button>`
       : "";
 
     return `
@@ -569,7 +548,7 @@ function renderTabla() {
         <td><code style="font-size:12px;color:var(--verde-oscuro);">${p.codigo || "—"}</code></td>
         <td>
           <strong>${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</strong>
-          ${p.esColegio ? '<br/><span style="font-size:11px;color:var(--gris-medio);">🏫 Colegio</span>' : ""}
+          ${p.esColegio ? '<br/><span style="font-size:11px;color:var(--gris-medio);">Colegio</span>' : ""}
         </td>
         <td style="font-family:'Courier New',monospace;font-size:12px;">${p.cedula || "—"}</td>
         <td><span style="font-size:12px;">${CATEGORIA_LABELS[p.categoria] || p.categoria || "—"}</span></td>
@@ -578,7 +557,7 @@ function renderTabla() {
         <td style="font-size:12px;color:var(--gris-medio);">${fecha}</td>
         <td>
           <div class="acciones-cel">
-            <button class="btn-accion btn-ver-perfil" onclick="window._abrirPerfil('${p.id}')">👁️ Ver</button>
+            <button class="btn-accion btn-ver-perfil" onclick="window._abrirPerfil('${p.id}')">Ver</button>
             ${btnAprobar}
           </div>
         </td>
@@ -587,22 +566,10 @@ function renderTabla() {
 }
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────
-window._abrirPerfil = async function(id) {
-  let p = todosParticipantes.find(x => x.id === id);
-  if (!p) return;
-  try {
-    const snap = await getDoc(doc(fireDb, "participantes", id));
-    if (snap.exists()) {
-      p = { id: snap.id, ...snap.data() };
-      const idx = todosParticipantes.findIndex(x => x.id === id);
-      if (idx >= 0) todosParticipantes[idx] = p;
-    }
-  } catch (e) {
-    console.warn("No se pudo refrescar participante:", e);
-  }
-  participanteSeleccionado = p;
-  metodoPagoSeleccionado = p.pago?.metodo || null;
-  renderSheet(p);
+window._abrirPerfil = function(id) {
+  participanteSeleccionado = todosParticipantes.find(p => p.id === id);
+  if (!participanteSeleccionado) return;
+  renderSheet(participanteSeleccionado);
   el("overlay").classList.add("show");
   setTimeout(() => el("bottom-sheet").classList.add("show"), 10);
 };
@@ -636,7 +603,7 @@ function renderSheet(p) {
   el("bs-titulo").textContent = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
 
   el("bs-body").innerHTML = `
-    <div class="perfil-avatar">🎓</div>
+    <div class="perfil-avatar">P</div>
     <div class="perfil-nombre">${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</div>
     <div class="perfil-codigo">${p.codigo || "—"}</div>
 
@@ -663,53 +630,39 @@ function renderSheet(p) {
 
     <!-- PAGO -->
     <div class="seccion-pago">
-      <div class="sp-titulo">💳 Estado del pago</div>
-      <div class="sp-fila"><span class="sp-label">Método</span><span class="sp-valor">${p.pago?.metodo === "transferencia" ? "🏦 Transferencia" : "💵 Efectivo"}</span></div>
+      <div class="sp-titulo">Estado del pago</div>
+      <div class="sp-fila"><span class="sp-label">Método</span><span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span></div>
       <div class="sp-fila"><span class="sp-label">Estado</span><span class="sp-valor">${ESTADO_BADGE[estadoPago] || estadoPago}</span></div>
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
-      ${p.pago?.correo_aprobacion_enviado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--verde-oscuro);">✅ Enviado</span></div>` : ""}
-      ${!p.pago?.correo_aprobacion_enviado && yaAprobado ? `<div class="sp-fila"><span class="sp-label">Correo QR</span><span class="sp-valor" style="font-size:12px;color:var(--amarillo);">⏳ Pendiente o fallido</span></div>` : ""}
-      ${p.pago?.correo_aprobacion_error ? `<div class="sp-fila"><span class="sp-label">Error correo</span><span class="sp-valor" style="font-size:12px;color:var(--rojo);">${p.pago.correo_aprobacion_error}</span></div>` : ""}
-      ${p.pago?.comprobanteRuta ? `
-      <button type="button" class="comprobante-link"
-        data-ruta="${encodeURIComponent(p.pago.comprobanteRuta)}"
-        onclick="window._verComprobante(this.dataset.ruta)">
-        📎 Ver comprobante adjunto
-      </button>` : ""}
-      ${yaAprobado && puedeReenviar ? `
-      <button type="button" class="comprobante-link" id="btn-reenviar-qr"
-        style="margin-top:10px;background:var(--verde-fondo);color:var(--verde-oscuro);font-weight:700;"
-        onclick="window._reenviarCorreoQr()">
-        ✉️ Reenviar correo con QR
-      </button>` : ""}
+      ${p.pago?.comprobanteUrl ? `
+      <a class="comprobante-link" href="${p.pago.comprobanteUrl}" target="_blank">
+        Ver comprobante adjunto
+      </a>` : ""}
     </div>
 
     ${canAprobar && !yaAprobado ? `
     <!-- ACCIONES -->
     <div style="margin-bottom:8px;">
-      <div style="font-size:13px;font-weight:700;color:var(--verde-oscuro);margin-bottom:10px;">Registrar método de pago:</div>
-      <div class="metodo-seleccion" id="metodo-sel">
-        <div class="met-opt ${metodoPagoSeleccionado === 'transferencia' ? 'seleccionado' : ''}"
-          onclick="window._selMetodo('transferencia',this)">🏦 Transferencia</div>
-        <div class="met-opt ${metodoPagoSeleccionado === 'efectivo' ? 'seleccionado' : ''}"
-          onclick="window._selMetodo('efectivo',this)">💵 Efectivo</div>
+      <div class="sp-fila" style="margin-bottom:10px;">
+        <span class="sp-label">Metodo registrado por el participante</span>
+        <span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span>
       </div>
       <textarea class="notas-area" id="notas-pago" placeholder="Notas internas (opcional)...">${p.pago?.notas || ""}</textarea>
     </div>
     <div class="acciones-pago">
       <button class="btn-grande btn-aprobar-grande" id="btn-aprobar-sh" onclick="window._aprobar()">
-        ✅ Aprobar pago
+        Aprobar pago
       </button>
       <button class="btn-grande btn-rechazar-grande" id="btn-rechazar-sh" onclick="window._rechazar()">
-        ❌ Rechazar
+        Rechazar
       </button>
     </div>` : ""}
 
     ${yaAprobado ? `
     <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:14px;margin-top:8px;text-align:center;">
-      <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);">✅ Pago validado</div>
+      <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);">Pago validado</div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">QR activo para el evento</div>
     </div>` : ""}
   `;
@@ -731,52 +684,33 @@ function renderSheet(p) {
   }
 }
 
-window._selMetodo = function(metodo, el) {
-  metodoPagoSeleccionado = metodo;
-  document.querySelectorAll(".met-opt").forEach(o => o.classList.remove("seleccionado"));
-  el.classList.add("seleccionado");
-};
-
-async function enviarCorreoQrAlParticipante(docId, forzarReenvio = false) {
-  const resultado = await enviarCorreoQrParticipante(docId, { forzarReenvio });
-  if (resultado?.omitido && resultado?.razon === "ya_enviado") {
-    return "Pago aprobado. El correo con QR ya había sido enviado.";
-  }
-  if (resultado?.enviado) {
-    return forzarReenvio ?
-      "Correo con QR reenviado correctamente." :
-      "Pago aprobado. Correo con QR enviado al participante.";
-  }
-  return resultado?.mensaje || "Operación completada.";
-}
 
 // ── APROBAR ───────────────────────────────────────────────────────────────
 window._aprobar = async function() {
   if (!participanteSeleccionado) return;
   const notas = document.getElementById("notas-pago")?.value.trim() || "";
-  const metodo = metodoPagoSeleccionado || participanteSeleccionado.pago?.metodo;
   const docId = participanteSeleccionado.id;
   document.getElementById("btn-aprobar-sh").disabled = true;
   document.getElementById("btn-rechazar-sh").disabled = true;
   try {
     await updateDoc(doc(fireDb, "participantes", docId), {
-      "pago.estado":     "aprobado",
-      "pago.metodo":     metodo,
+      "pago.estado": "aprobado",
       "pago.aprobadoPor": uid,
-      "pago.aprobadoEn":  serverTimestamp(),
-      "pago.notas":       notas || null,
-      "actualizadoEn":    serverTimestamp(),
+      "pago.aprobadoEn": serverTimestamp(),
+      "pago.notas": notas || null,
+      "actualizadoEn": serverTimestamp(),
     });
     const idx = todosParticipantes.findIndex(p => p.id === docId);
     if (idx >= 0) {
       todosParticipantes[idx].pago = {
         ...todosParticipantes[idx].pago,
-        estado: "aprobado", metodo, aprobadoPor: uid, notas,
+        estado: "aprobado", aprobadoPor: uid, notas,
       };
     }
     let mensaje = "Pago aprobado.";
     try {
-      mensaje = await enviarCorreoQrAlParticipante(docId);
+      const resCorreo = await enviarCorreoQrParticipante(docId);
+      mensaje = resCorreo?.mensaje ?? "Pago aprobado y correo enviado.";
     } catch (correoErr) {
       mensaje = "Pago aprobado, pero el correo falló: " + correoErr.message;
     }
@@ -798,7 +732,8 @@ window._reenviarCorreoQr = async function() {
   const btn = document.getElementById("btn-reenviar-qr");
   if (btn) btn.disabled = true;
   try {
-    const mensaje = await enviarCorreoQrAlParticipante(participanteSeleccionado.id, true);
+    const resCorreo = await enviarCorreoQrParticipante(participanteSeleccionado.id, true);
+    const mensaje = resCorreo?.mensaje ?? "Correo reenviado correctamente.";
     alert(mensaje);
     cerrarSheet();
     cargar();
