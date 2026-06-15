@@ -173,6 +173,7 @@ function renderSelectorActividades() {
 
 function renderFiltroActividades() {
   const sel = el("filtro-actividad");
+  if (!sel) return;
   sel.innerHTML = `<option value="">Todas las actividades</option>`;
   actividades.forEach(a => {
     const opt = document.createElement("option");
@@ -184,6 +185,7 @@ function renderFiltroActividades() {
 
 function renderTablaActividades() {
   const tb = el("tabla-actividades-body");
+  if (!tb) return;
   if (!actividades.length) {
     tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Sin actividades registradas. Crea la primera usando el formulario.</td></tr>`;
     return;
@@ -220,7 +222,7 @@ function renderTablaActividades() {
 }
 
 
-el("btn-guardar-actividad").addEventListener("click", async () => {
+el("btn-guardar-actividad")?.addEventListener("click", async () => {
   const nombre = el("act-nombre").value.trim();
   const desc   = el("act-descripcion").value.trim();
   const fecha  = el("act-fecha").value;
@@ -315,9 +317,9 @@ window.eliminarActividad = async function(id, nombre) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-el("btn-cancelar-actividad").addEventListener("click", limpiarFormActividad);
+el("btn-cancelar-actividad")?.addEventListener("click", limpiarFormActividad);
 
-el("act-area").addEventListener("change", () => {
+el("act-area")?.addEventListener("change", () => {
   const isTaller = el("act-area").value === "Taller";
   el("act-cupo-group").style.display = isTaller ? "block" : "none";
   if (!isTaller) el("act-cupo").value = "";
@@ -342,14 +344,16 @@ const CAMPOS_VOL = [
 ];
 
 const uploadZone = el("upload-zone");
-uploadZone.addEventListener("click", () => el("input-archivo").click());
-uploadZone.addEventListener("dragover",  e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
-uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-uploadZone.addEventListener("drop", e => {
-  e.preventDefault(); uploadZone.classList.remove("dragover");
-  if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
-});
-el("input-archivo").addEventListener("change", e => { if (e.target.files[0]) procesarArchivo(e.target.files[0]); });
+if (uploadZone) {
+  uploadZone.addEventListener("click", () => el("input-archivo").click());
+  uploadZone.addEventListener("dragover",  e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+  uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
+  uploadZone.addEventListener("drop", e => {
+    e.preventDefault(); uploadZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
+  });
+  el("input-archivo")?.addEventListener("change", e => { if (e.target.files[0]) procesarArchivo(e.target.files[0]); });
+}
 
 function procesarArchivo(file) {
   const ext = file.name.split(".").pop().toLowerCase();
@@ -398,7 +402,7 @@ function mostrarMapeo() {
   el("mapeo-section").style.display = "block";
 }
 
-el("btn-preview-importar").addEventListener("click", () => {
+el("btn-preview-importar")?.addEventListener("click", () => {
   const mapeo = CAMPOS_VOL.map(c => ({ key: c.key, label: c.label, col: el(`map-${c.key}`)?.value })).filter(m => m.col);
   el("preview-thead").innerHTML = `<tr>${mapeo.map(m => `<th>${m.label}</th>`).join("")}</tr>`;
   el("preview-tbody").innerHTML = filasArchivo.slice(0, 5).map(row =>
@@ -408,7 +412,7 @@ el("btn-preview-importar").addEventListener("click", () => {
   el("modal-preview").classList.add("open");
 });
 
-el("btn-confirmar-importar").addEventListener("click", async () => {
+el("btn-confirmar-importar")?.addEventListener("click", async () => {
   const nombreCol = el("map-nombre")?.value;
   if (!nombreCol) { mostrarAlerta("error", "El campo 'Nombre' es obligatorio en el mapeo."); return; }
 
@@ -452,30 +456,31 @@ el("btn-confirmar-importar").addEventListener("click", async () => {
   await cargarVoluntarios();
 });
 
-el("modal-preview-close").addEventListener("click", () => el("modal-preview").classList.remove("open"));
+el("modal-preview-close")?.addEventListener("click", () => el("modal-preview").classList.remove("open"));
 
 // ════════════════════════════════════════════════════════════
 // VOLUNTARIOS
 // ════════════════════════════════════════════════════════════
 
 async function cargarVoluntarios() {
-  el("voluntarios-spinner").style.display = "flex";
+  const spVol = el("voluntarios-spinner");
+  if (spVol) spVol.style.display = "flex";
   try {
     const snap = await getDocs(query(collection(db, "voluntarios"), orderBy("creadoEn", "desc")));
     voluntarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch {
     voluntarios = [];
   }
-  el("voluntarios-spinner").style.display = "none";
+  if (spVol) spVol.style.display = "none";
   renderVoluntarios();
   actualizarStats();
 }
 
 function actualizarStats() {
-  el("stat-total").textContent  = voluntarios.length;
-  const totalH  = voluntarios.reduce((s, v) => s + (v.totalHoras || 0), 0);
-  el("stat-horas").textContent  = totalH.toFixed(1) + "h";
-  el("stat-firmas").textContent = voluntarios.filter(v => v.firmaEstado === "Firma aceptada").length;
+  const totalH = voluntarios.reduce((s, v) => s + (v.totalHoras || 0), 0);
+  if (el("stat-total"))  el("stat-total").textContent  = voluntarios.length;
+  if (el("stat-horas"))  el("stat-horas").textContent  = totalH.toFixed(1) + "h";
+  if (el("stat-firmas")) el("stat-firmas").textContent = voluntarios.filter(v => v.firmaEstado === "Firma aceptada").length;
 }
 
 const HORARIO_CFG = {
@@ -486,6 +491,7 @@ const HORARIO_CFG = {
 
 function renderVoluntarios(filtro = "") {
   const tb = el("tabla-voluntarios-body");
+  if (!tb) return;
   let lista = voluntarios;
   if (filtro)         lista = lista.filter(v =>
     v.nombre.toLowerCase().includes(filtro) ||
@@ -564,8 +570,8 @@ window.eliminarVoluntario = async function(id, nombre) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-el("buscar-voluntario").addEventListener("input", e => renderVoluntarios(e.target.value.toLowerCase().trim()));
-el("filtro-horario-vol").addEventListener("change", e => { filtroHorarioVol = e.target.value; renderVoluntarios(el("buscar-voluntario").value.toLowerCase().trim()); });
+el("buscar-voluntario")?.addEventListener("input", e => renderVoluntarios(e.target.value.toLowerCase().trim()));
+el("filtro-horario-vol")?.addEventListener("change", e => { filtroHorarioVol = e.target.value; renderVoluntarios(el("buscar-voluntario")?.value.toLowerCase().trim() || ""); });
 
 // ── QR ────────────────────────────────────────────────────────────────────────
 window.verQR = function(id) {
@@ -586,9 +592,9 @@ window.verQR = function(id) {
   el("modal-qr").classList.add("open");
 };
 
-el("modal-qr-close").addEventListener("click", () => el("modal-qr").classList.remove("open"));
+el("modal-qr-close")?.addEventListener("click", () => el("modal-qr").classList.remove("open"));
 
-el("btn-descargar-qr").addEventListener("click", () => {
+el("btn-descargar-qr")?.addEventListener("click", () => {
   const img = el("qr-canvas-wrap").querySelector("img") || el("qr-canvas-wrap").querySelector("canvas");
   if (!img) return;
   const a = document.createElement("a");
@@ -597,7 +603,7 @@ el("btn-descargar-qr").addEventListener("click", () => {
   a.click();
 });
 
-el("btn-copiar-qr").addEventListener("click", async () => {
+el("btn-copiar-qr")?.addEventListener("click", async () => {
   const img = el("qr-canvas-wrap").querySelector("img") || el("qr-canvas-wrap").querySelector("canvas");
   if (!img) return;
   try {
@@ -610,7 +616,7 @@ el("btn-copiar-qr").addEventListener("click", async () => {
 });
 
 // ── EXPORTAR VOLUNTARIOS EXCEL ────────────────────────────────────────────────
-el("btn-exportar-excel").addEventListener("click", () => {
+el("btn-exportar-excel")?.addEventListener("click", () => {
   if (!voluntarios.length) { mostrarAlerta("warning", "No hay voluntarios para exportar."); return; }
   const filas = voluntarios.map(v => ({
     "ID":           v.id || "",
@@ -638,9 +644,10 @@ el("btn-exportar-excel").addEventListener("click", () => {
 // ════════════════════════════════════════════════════════════
 
 async function cargarAsistencias() {
-  const actividadId = el("filtro-actividad").value;
-  const turnoId     = el("filtro-turno").value;
-  el("asistencias-spinner").style.display = "flex";
+  const actividadId = el("filtro-actividad")?.value || "";
+  const turnoId     = el("filtro-turno")?.value || "";
+  const spAsist = el("asistencias-spinner");
+  if (spAsist) spAsist.style.display = "flex";
 
   try {
     let q = actividadId
@@ -653,7 +660,7 @@ async function cargarAsistencias() {
     asistenciasCache = [];
   }
   renderTablaAsistencias(asistenciasCache);
-  el("asistencias-spinner").style.display = "none";
+  if (spAsist) spAsist.style.display = "none";
 }
 
 const ESTRELLAS = { 1: "⭐", 2: "⭐⭐", 3: "⭐⭐⭐", 4: "⭐⭐⭐⭐", 5: "⭐⭐⭐⭐⭐" };
@@ -673,6 +680,7 @@ function resolverAsistencia(a) {
 
 function renderTablaAsistencias(lista) {
   const tb = el("tabla-asistencias-body");
+  if (!tb) return;
   if (!lista.length) {
     tb.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">Sin asistencias registradas</td></tr>`;
     return;
@@ -692,7 +700,7 @@ function renderTablaAsistencias(lista) {
   }).join("");
 }
 
-el("filtro-actividad").addEventListener("change", async () => {
+el("filtro-actividad")?.addEventListener("change", async () => {
   const actId    = el("filtro-actividad").value;
   const selTurno = el("filtro-turno");
   selTurno.innerHTML = `<option value="">Todos los turnos</option>`;
@@ -708,9 +716,9 @@ el("filtro-actividad").addEventListener("change", async () => {
   await cargarAsistencias();
 });
 
-el("filtro-turno").addEventListener("change", cargarAsistencias);
+el("filtro-turno")?.addEventListener("change", cargarAsistencias);
 
-el("btn-exportar-asistencias").addEventListener("click", () => {
+el("btn-exportar-asistencias")?.addEventListener("click", () => {
   if (!asistenciasCache.length) { mostrarAlerta("warning", "No hay asistencias para exportar."); return; }
   const filas = asistenciasCache.map(a => {
     const { nomVol, nomAct, nomTurno, area } = resolverAsistencia(a);
@@ -733,7 +741,9 @@ el("btn-exportar-asistencias").addEventListener("click", () => {
 
 // ─── Utilidad tab ─────────────────────────────────────────────────────────────
 function activarTab(tabId) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+  const btns = document.querySelectorAll(".tab-btn");
+  if (!btns.length) return;
+  btns.forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === tabId));
 }
 
@@ -751,6 +761,7 @@ async function cargarGiras() {
 
 function renderTablaGiras() {
   const tb = el("tabla-giras-body");
+  if (!tb) return;
   if (!giras.length) {
     tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Sin giras registradas. Crea la primera usando el formulario.</td></tr>`;
     return;
@@ -786,7 +797,7 @@ function renderTablaGiras() {
     </tr>`).join("");
 }
 
-el("btn-guardar-gira").addEventListener("click", async () => {
+el("btn-guardar-gira")?.addEventListener("click", async () => {
   const nombre = el("gira-nombre").value.trim();
   const fecha  = el("gira-fecha").value;
   const area   = el("gira-area").value;
@@ -866,7 +877,7 @@ window.eliminarGira = async function(id, nombre) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-el("btn-cancelar-gira").addEventListener("click", limpiarFormGira);
+el("btn-cancelar-gira")?.addEventListener("click", limpiarFormGira);
 
 // ════════════════════════════════════════════════════════════
 // VENTAS (para el selector de asignaciones)
@@ -884,31 +895,33 @@ async function cargarVentas() {
 // ════════════════════════════════════════════════════════════
 
 async function cargarAsignaciones() {
-  el("asignaciones-spinner").style.display = "flex";
+  const spAsig = el("asignaciones-spinner");
+  if (spAsig) spAsig.style.display = "flex";
   try {
     const snap = await getDocs(query(collection(db, "asignaciones_voluntarios"), orderBy("creadoEn", "desc")));
     asignaciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch { asignaciones = []; }
-  el("asignaciones-spinner").style.display = "none";
+  if (spAsig) spAsig.style.display = "none";
   renderTablaAsignaciones();
   actualizarStatsAsignaciones();
   renderCardPendientes();
 }
 
 function actualizarStatsAsignaciones() {
-  el("stat-asignados").textContent     = asignaciones.length;
-  el("stat-sin-area").textContent      = asignaciones.filter(a => !a.areaTrabajo).length;
   const uniqVols = new Set(asignaciones.map(a => a.voluntarioId));
-  el("stat-vol-asignados").textContent = uniqVols.size;
+  if (el("stat-asignados"))    el("stat-asignados").textContent     = asignaciones.length;
+  if (el("stat-sin-area"))     el("stat-sin-area").textContent      = asignaciones.filter(a => !a.areaTrabajo).length;
+  if (el("stat-vol-asignados")) el("stat-vol-asignados").textContent = uniqVols.size;
 }
 
 function renderTablaAsignaciones() {
-  const filtroTipo = el("filtro-asig-tipo").value;
-  const filtroArea = el("filtro-asig-area").value;
+  const filtroTipo = el("filtro-asig-tipo")?.value || "";
+  const filtroArea = el("filtro-asig-area")?.value || "";
   let lista = asignaciones;
   if (filtroTipo) lista = lista.filter(a => a.tipo === filtroTipo);
   if (filtroArea) lista = lista.filter(a => a.areaTrabajo === filtroArea);
   const tb = el("tabla-asignaciones-body");
+  if (!tb) return;
   if (!lista.length) {
     tb.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">Sin asignaciones${filtroTipo || filtroArea ? " con ese filtro" : ""}</td></tr>`;
     return;
@@ -928,6 +941,7 @@ function renderTablaAsignaciones() {
 
 function poblarSelectorVoluntarios() {
   const sel = el("asig-voluntario");
+  if (!sel) return;
   const actual = sel.value;
   sel.innerHTML = `<option value="">— Selecciona voluntario —</option>`;
   voluntarios.forEach(v => {
@@ -939,7 +953,7 @@ function poblarSelectorVoluntarios() {
   sel.value = actual;
 }
 
-el("asig-tipo").addEventListener("change", () => {
+el("asig-tipo")?.addEventListener("change", () => {
   const tipo = el("asig-tipo").value;
   const selEvento = el("asig-evento");
   const selTurno  = el("asig-turno");
@@ -957,7 +971,7 @@ el("asig-tipo").addEventListener("change", () => {
   });
 });
 
-el("asig-evento").addEventListener("change", () => {
+el("asig-evento")?.addEventListener("change", () => {
   const tipo     = el("asig-tipo").value;
   const eventoId = el("asig-evento").value;
   const selTurno = el("asig-turno");
@@ -977,7 +991,7 @@ el("asig-evento").addEventListener("change", () => {
   }
 });
 
-el("btn-asignar").addEventListener("click", async () => {
+el("btn-asignar")?.addEventListener("click", async () => {
   const volId    = el("asig-voluntario").value;
   const areaTrab = el("asig-area-trabajo").value;
   const tipo     = el("asig-tipo").value;
@@ -1070,10 +1084,10 @@ window.eliminarAsignacion = async function(id) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-el("filtro-asig-tipo").addEventListener("change", renderTablaAsignaciones);
-el("filtro-asig-area").addEventListener("change", renderTablaAsignaciones);
+el("filtro-asig-tipo")?.addEventListener("change", renderTablaAsignaciones);
+el("filtro-asig-area")?.addEventListener("change", renderTablaAsignaciones);
 
-el("btn-exportar-asignaciones").addEventListener("click", () => {
+el("btn-exportar-asignaciones")?.addEventListener("click", () => {
   if (!asignaciones.length) { mostrarAlerta("warning", "No hay asignaciones para exportar."); return; }
   const tipoLabel = { actividad: "Actividad", gira: "Gira", venta: "Venta" };
   const filas = asignaciones.map(a => ({
@@ -1131,7 +1145,7 @@ function renderTurnosEvt() {
     </span>`).join("");
 }
 
-el("turno-evt-tipo").addEventListener("change", () => {
+el("turno-evt-tipo")?.addEventListener("change", () => {
   const tipo = el("turno-evt-tipo").value;
   const sel  = el("turno-evt-evento");
   sel.innerHTML = `<option value="">— Selecciona evento —</option>`;
@@ -1157,7 +1171,7 @@ el("turno-evt-tipo").addEventListener("change", () => {
   el("turno-evt-form").style.display = "none";
 });
 
-el("turno-evt-evento").addEventListener("change", () => {
+el("turno-evt-evento")?.addEventListener("change", () => {
   const eventoId = el("turno-evt-evento").value;
   if (!eventoId) {
     el("turno-evt-lista").innerHTML = "";
@@ -1168,7 +1182,7 @@ el("turno-evt-evento").addEventListener("change", () => {
   el("turno-evt-form").style.display = "block";
 });
 
-el("btn-add-turno-evt").addEventListener("click", async () => {
+el("btn-add-turno-evt")?.addEventListener("click", async () => {
   const tipo     = el("turno-evt-tipo").value;
   const eventoId = el("turno-evt-evento").value;
   const nombre   = el("turno-evt-nombre").value.trim();
@@ -1353,10 +1367,10 @@ function resetModalGrupo() {
   el("grupo-progreso").style.display = "none";
 }
 
-el("btn-abrir-grupo").addEventListener("click", () => { resetModalGrupo(); el("modal-grupo").classList.add("open"); });
-el("modal-grupo-close").addEventListener("click", () => el("modal-grupo").classList.remove("open"));
+el("btn-abrir-grupo")?.addEventListener("click", () => { resetModalGrupo(); el("modal-grupo").classList.add("open"); });
+el("modal-grupo-close")?.addEventListener("click", () => el("modal-grupo").classList.remove("open"));
 
-el("grupo-tipo").addEventListener("change", () => {
+el("grupo-tipo")?.addEventListener("change", () => {
   const tipo = el("grupo-tipo").value;
   const selEvt = el("grupo-evento");
   selEvt.innerHTML = `<option value="">— Selecciona evento —</option>`;
@@ -1378,7 +1392,7 @@ el("grupo-tipo").addEventListener("change", () => {
   });
 });
 
-el("grupo-evento").addEventListener("change", () => {
+el("grupo-evento")?.addEventListener("change", () => {
   const tipo = el("grupo-tipo").value;
   const eventoId = el("grupo-evento").value;
   const selTurno = el("grupo-turno");
@@ -1409,8 +1423,8 @@ el("grupo-evento").addEventListener("change", () => {
   renderVoluntariosGrupo();
 });
 
-el("grupo-turno").addEventListener("change", () => { if (el("grupo-evento").value) renderVoluntariosGrupo(); });
-el("grupo-area").addEventListener("change",  () => { if (el("grupo-evento").value) actualizarBtnGrupo(); });
+el("grupo-turno")?.addEventListener("change", () => { if (el("grupo-evento")?.value) renderVoluntariosGrupo(); });
+el("grupo-area")?.addEventListener("change",  () => { if (el("grupo-evento")?.value) actualizarBtnGrupo(); });
 
 function renderVoluntariosGrupo() {
   const tipo = el("grupo-tipo").value;
@@ -1495,7 +1509,7 @@ window.actualizarBtnGrupo = function() {
     : "Asignar grupo";
 };
 
-el("btn-confirmar-grupo").addEventListener("click", async () => {
+el("btn-confirmar-grupo")?.addEventListener("click", async () => {
   const tipo = el("grupo-tipo").value;
   const eventoId = el("grupo-evento").value;
   const areaTrab = el("grupo-area").value;
@@ -1536,4 +1550,7 @@ el("btn-confirmar-grupo").addEventListener("click", async () => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas()]);
+Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas()]).then(() => {
+  const tabActivo = document.querySelector(".tab-btn.active");
+  if (tabActivo?.dataset.tab === "tab-voluntariado") iniciarTabVoluntariado();
+});
