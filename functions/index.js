@@ -6,7 +6,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
-const {linkPerfilParticipante, generarQrAdjunto} = require("./qr-participante");
+const {linkPerfilParticipante} = require("./qr-participante");
 const {cargarCorreoPagoAprobado} = require("./plantillas");
 
 initializeApp();
@@ -247,18 +247,12 @@ async function enviarCorreoPagoAprobado({docId, participante}) {
     return {enviado: false, omitido: true};
   }
 
-  const qrAdjunto = await generarQrAdjunto(codigo, token);
   const brevoResp = await brevoRequest({
     sender: CORREO_REMITENTE,
     to: [{email: correo, name: nombre}],
     subject: plantilla.subject,
     htmlContent: plantilla.htmlContent,
     textContent: plantilla.textContent,
-    attachment: [{
-      content: qrAdjunto.content,
-      name: qrAdjunto.name,
-      contentId: qrAdjunto.contentId,
-    }],
   });
 
   return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
