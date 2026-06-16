@@ -563,13 +563,22 @@ exports.enviarCorreoQrParticipante = onCall(
 
         const resultado = await procesarCorreoQrAprobado({docId, forzarReenvio});
         if (resultado.omitido) {
+          // "en_proceso" significa que el trigger de Firestore ya está enviando el correo
+          // en paralelo — no es un error, el correo llegará igual.
+          // "ya_enviado" tampoco es un error.
+          const razonesOk = new Set(["en_proceso", "ya_enviado", "plantilla_desactivada"]);
+          const esOk = razonesOk.has(resultado.razon);
           return {
             enviado: false,
             omitido: true,
             razon: resultado.razon,
             mensaje: resultado.razon === "ya_enviado" ?
-              "El correo ya fue enviado." :
-              "No se pudo enviar en este momento.",
+              "El correo ya fue enviado anteriormente." :
+              resultado.razon === "en_proceso" ?
+                "El correo está siendo enviado (procesado por el sistema)." :
+                "No se pudo enviar en este momento.",
+            // El panel debe tratar esto como éxito si esOk === true
+            ok: esOk,
           };
         }
 
@@ -578,6 +587,7 @@ exports.enviarCorreoQrParticipante = onCall(
           enviado: true,
           brevoMessageId: resultado.brevoMessageId,
           mensaje: "Correo con QR enviado correctamente.",
+          ok: true,
         };
       } catch (e) {
         if (e instanceof HttpsError) throw e;
