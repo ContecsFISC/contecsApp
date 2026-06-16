@@ -4,138 +4,173 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS 2026 — Credencial activada</title>
   <style>
-    :root {
-      --verde-oscuro: #045223;
-      --verde-claro: #39b54a;
-      --verde-fondo: #e8f5ec;
-      --fondo-pagina: #f4f7f5;
-      --texto-principal: #1a2e1e;
-      --texto-secundario: #8a9e8d;
-      --blanco: #ffffff;
-      --fuente: 'Segoe UI', system-ui, sans-serif;
-      --fuente-codigo: 'Courier New', monospace;
-      --ancho-max: 580px;
-      --radio: 16px;
-      --radio-sm: 8px;
-      --radio-btn: 8px;
-      --sombra: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--fondo-pagina);
-      font-family: var(--fuente);
-    }
-
-    .email-wrapper {
-      max-width: var(--ancho-max);
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
-
-    .email-header {
-      background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-claro));
-      border-radius: var(--radio) var(--radio) 0 0;
-      padding: 28px;
-      text-align: center;
-    }
-
-    .email-header__titulo {
-      color: var(--blanco);
-      font-size: 22px;
-      margin: 0;
-    }
-
-    .email-header__subtitulo {
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 13px;
-      margin: 8px 0 0;
-    }
-
-    .email-body {
-      background: var(--blanco);
-      padding: 28px;
-      border-radius: 0 0 var(--radio) var(--radio);
-      box-shadow: var(--sombra);
-    }
-
-
-    .email-texto {
-      font-size: 14px;
-      color: var(--texto-principal);
-      line-height: 1.7;
-      margin: 0 0 8px;
-    }
-
-    .email-texto--ultimo {
-      margin-bottom: 24px;
-    }
-
-    .email-cta {
-      text-align: center;
-      margin: 24px 0;
-    }
-
-    .email-cta__btn {
-      display: inline-block;
-      background: var(--verde-oscuro);
-      color: var(--blanco);
-      padding: 12px 28px;
-      border-radius: var(--radio-btn);
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .email-footer {
-      border-top: 1px solid var(--verde-fondo);
-      padding-top: 16px;
-    }
-
-    .email-footer__texto {
-      font-size: 12px;
-      color: var(--texto-secundario);
-      line-height: 1.6;
-      margin: 0;
-      text-align: center;
-    }
+    body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    body { margin: 0; padding: 0; background-color: #f0f4f1; font-family: 'Segoe UI', Arial, sans-serif; }
   </style>
 </head>
-<body>
-  <div class="email-wrapper">
-    <div class="email-header">
-      <img src="https://contecsfisc.github.io/contecsApp/logocontecs.png"
-           alt="CONTECS 2026" width="120"
-           style="margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;"/>
-      <h1 class="email-header__titulo">CONTECS 2026</h1>
-      <p class="email-header__subtitulo">Credencial activada</p>
-    </div>
-    <div class="email-body">
-      <p class="email-texto">Hola {{nombre}},</p>
-      <p class="email-texto">
-        Nuestro equipo te da la bienvenida para el II CONTECS 2026.
-        Tu credencial con código QR ya está activa.
-      </p>
-      <p class="email-texto">
-        Código: <strong>{{codigo}}</strong><br/>
-        Categoría: {{categoria}}<br/>
-        Método de pago: {{metodo_pago}}
-      </p>
-      <p class="email-texto email-texto--ultimo">
-        Abre tu credencial desde el botón de abajo y presenta el QR en la entrada del evento.
-      </p>
-      <div class="email-cta">
-        <a class="email-cta__btn" href="{{link_perfil}}">Abrir mi credencial</a>
-      </div>
-      <div class="email-footer">
-        <p class="email-footer__texto">
-          II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá<br/>
-          Para mayor información o consulta escribir a: congresofisc@utp.ac.pa
-        </p>
-      </div>
-    </div>
-  </div>
+<body style="margin:0;padding:0;background-color:#f0f4f1;">
+
+  <!-- Wrapper -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+         style="background-color:#f0f4f1;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <!-- Card -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:560px;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+
+          <!-- ── HEADER ── -->
+          <tr>
+            <td align="center"
+                style="background:linear-gradient(135deg,#045223 0%,#1a7a3e 60%,#39b54a 100%);padding:36px 28px 28px;">
+              <img src="https://contecsfisc.github.io/contecsApp/logocontecs.png"
+                   alt="CONTECS" width="90"
+                   style="display:block;margin:0 auto 14px;"/>
+              <p style="margin:0;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:1px;">
+                CONTECS <span style="color:#7de89a;">2026</span>
+              </p>
+              <p style="margin:8px 0 0;font-size:11px;font-weight:700;color:rgba(255,255,255,0.70);
+                         letter-spacing:3px;text-transform:uppercase;">
+                Credencial activada
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── BADGE CONFIRMACIÓN ── -->
+          <tr>
+            <td align="center" style="background:#ffffff;padding:28px 28px 8px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center"
+                      style="background:#e8f5ec;border:2px solid #39b54a;border-radius:50px;
+                             padding:10px 22px;">
+                    <!-- checkmark SVG como texto Unicode para compatibilidad -->
+                    <span style="color:#045223;font-size:15px;font-weight:700;">
+                      ✔&nbsp;&nbsp;¡Tu pago fue confirmado!
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── SALUDO ── -->
+          <tr>
+            <td style="background:#ffffff;padding:20px 28px 4px;">
+              <p style="margin:0;font-size:15px;color:#1a2e1e;line-height:1.6;">
+                Hola <strong>{{nombre}}</strong>,
+              </p>
+              <p style="margin:8px 0 0;font-size:14px;color:#3a4e3e;line-height:1.7;">
+                Nuestro equipo validó tu pago para el <strong>II CONTECS 2026</strong>.<br/>
+                Tu credencial con código QR ya está activa.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── DATOS ── -->
+          <tr>
+            <td style="background:#ffffff;padding:20px 28px 8px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="border:1px solid #d8e8dc;border-radius:10px;overflow:hidden;">
+
+                <!-- Fila: Código -->
+                <tr>
+                  <td style="padding:13px 16px;border-bottom:1px solid #e8f2ec;" valign="middle">
+                    <span style="font-size:12px;color:#6a8a70;">Código</span>
+                  </td>
+                  <td style="padding:13px 16px 13px 0;border-bottom:1px solid #e8f2ec;text-align:right;" valign="middle">
+                    <strong style="font-size:14px;color:#045223;font-family:'Courier New',monospace;letter-spacing:1px;">{{codigo}}</strong>
+                  </td>
+                </tr>
+
+                <!-- Fila: Categoría -->
+                <tr>
+                  <td style="padding:13px 16px;border-bottom:1px solid #e8f2ec;" valign="middle">
+                    <span style="font-size:12px;color:#6a8a70;">Categoría</span>
+                  </td>
+                  <td style="padding:13px 16px 13px 0;border-bottom:1px solid #e8f2ec;text-align:right;" valign="middle">
+                    <strong style="font-size:14px;color:#1a2e1e;">{{categoria}}</strong>
+                  </td>
+                </tr>
+
+                <!-- Fila: Método de pago -->
+                <tr>
+                  <td style="padding:13px 16px;" valign="middle">
+                    <span style="font-size:12px;color:#6a8a70;">Método de pago</span>
+                  </td>
+                  <td style="padding:13px 16px 13px 0;text-align:right;" valign="middle">
+                    <strong style="font-size:14px;color:#1a2e1e;">{{metodo_pago}}</strong>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── INSTRUCCIÓN QR ── -->
+          <tr>
+            <td style="background:#ffffff;padding:16px 28px 8px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:#f0f9f3;border-radius:8px;">
+                <tr>
+                  <td style="padding:12px 16px;" valign="middle">
+
+                  </td>
+                  <td style="padding:12px 8px 12px 0;font-size:13px;color:#2e5e38;line-height:1.5;" valign="middle">
+                    Abre tu credencial y <strong>presenta el QR</strong> en la entrada del evento.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── BOTÓN CTA ── -->
+          <tr>
+            <td align="center" style="background:#ffffff;padding:24px 28px 28px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                     style="border-radius:10px;overflow:hidden;background:#045223;">
+                <tr>
+                  <td align="center" style="padding:0;">
+                    <a href="{{link_perfil}}"
+                       style="display:inline-block;padding:14px 36px;font-size:15px;font-weight:700;
+                              color:#ffffff;text-decoration:none;background:#045223;border-radius:10px;
+                              font-family:'Segoe UI',Arial,sans-serif;">
+                      Abrir mi credencial &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── FOOTER ── -->
+          <tr>
+            <td align="center"
+                style="background:#f8fbf9;border-top:1px solid #e0ece3;padding:20px 28px;
+                       border-radius:0 0 16px 16px;">
+              <p style="margin:0;font-size:13px;font-weight:700;color:#045223;">
+                II CONTECS 2026
+              </p>
+              <p style="margin:4px 0 0;font-size:12px;color:#6a8a70;line-height:1.6;">
+                FISC · Universidad Tecnológica de Panamá<br/>
+                <a href="mailto:congresofisc@utp.ac.pa"
+                   style="color:#39b54a;text-decoration:none;">congresofisc@utp.ac.pa</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 </html>
