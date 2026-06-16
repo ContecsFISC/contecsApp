@@ -78,30 +78,6 @@
       margin-bottom: 24px;
     }
 
-    .email-qr {
-      text-align: center;
-      margin: 24px 0;
-    }
-
-    .email-qr__img {
-      border: 8px solid var(--verde-fondo);
-      border-radius: var(--radio-sm);
-    }
-
-    .email-qr__hint {
-      font-size: 12px;
-      color: var(--texto-secundario);
-      margin: 12px 0 0;
-    }
-
-    .email-qr__codigo {
-      font-size: 13px;
-      color: var(--verde-oscuro);
-      font-weight: 700;
-      margin: 8px 0 0;
-      font-family: var(--fuente-codigo);
-    }
-
     .email-cta {
       text-align: center;
       margin: 24px 0;
@@ -142,10 +118,11 @@
       <p class="email-header__subtitulo">Credencial activada</p>
     </div>
     <div class="email-body">
-      <h2 class="email-body__titulo">¡Tu pago fue confirmado!</h2>
+      <h2 class="email-body__titulo">¡Bienvenido a CONTECS 2026!</h2>
       <p class="email-texto">Hola {{nombre}},</p>
       <p class="email-texto">
-        Nuestro equipo validó tu pago para el II CONTECS 2026. Tu credencial con código QR ya está activa.
+        Nuestro equipo te da la bienvenida para el II CONTECS 2026.
+        Tu credencial con código QR ya está activa.
       </p>
       <p class="email-texto">
         Código: <strong>{{codigo}}</strong><br/>
@@ -153,20 +130,16 @@
         Método de pago: {{metodo_pago}}
       </p>
       <p class="email-texto email-texto--ultimo">
-        Presenta el QR adjunto en la entrada del evento.
+        Abre tu credencial desde el botón de abajo — ahí encontrarás
+        tu código QR de acceso listo para presentar en la entrada del evento.
       </p>
-      <div class="email-qr">
-        <img class="email-qr__img" src="cid:qr_credencial" alt="QR de acceso CONTECS 2026" width="194" height="194"/>
-        <p class="email-qr__hint">Escanea este código en la entrada</p>
-        <p class="email-qr__codigo">{{codigo}}</p>
-      </div>
       <div class="email-cta">
         <a class="email-cta__btn" href="{{link_perfil}}">Abrir mi credencial</a>
       </div>
       <div class="email-footer">
         <p class="email-footer__texto">
           II CONTECS 2026 · FISC · Universidad Tecnológica de Panamá<br/>
-          congresofisc@utp.ac.pa
+          Para mayor información o consulta escribir a: congresofisc@utp.ac.pa
         </p>
       </div>
     </div>

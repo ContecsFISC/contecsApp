@@ -185,10 +185,7 @@
 <!-- HERO -->
 <div class="hero">
   <div class="hero-logo">
-    <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-      <rect x="4" y="8" width="30" height="22" rx="3" stroke="white" stroke-width="2.2"/>
-      <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <img src="https://contecsfisc.github.io/contecsApp/logocontecs.png" alt="CONTECS 2026" width="54" height="54" style="border-radius:50%;object-fit:contain;"/>
   </div>
   <h1>II CONTECS 2026</h1>
   <p>II Congreso de Tecnologías en Ciencias Computacionales</p>
@@ -251,7 +248,7 @@
         <div class="info-transferencia">
           <div class="it-titulo">Datos para transferencia / Yappy</div>
           <div class="it-fila"><strong>Beneficiario:</strong> CONTECS — FISC UTP</div>
-          <div class="it-fila"><strong>Yappy:</strong> 6926-2577</div>
+          <div class="it-fila"><strong>Yappy:</strong> Angelica Montenegro — 6926-2577</div>
           <div class="it-fila"><strong>Banco:</strong> Banco General de Panamá</div>
           <div class="it-fila"><strong>Monto:</strong> <span id="monto-transferencia">—</span></div>
           <div class="it-fila" style="margin-top:8px;font-size:12px;color:var(--gris-medio);">Usa tu cédula como referencia de pago.</div>
@@ -374,11 +371,11 @@ const FACULTADES = [
   "Facultad de Ingenieria Mecanica",
 ];
 const SEMESTRES = [
-  "1er año — 1er semestre","1er año — 2do semestre",
-  "2do año — 1er semestre","2do año — 2do semestre",
-  "3er año — 1er semestre","3er año — 2do semestre",
-  "4to año — 1er semestre","4to año — 2do semestre",
-  "5to año — 1er semestre","5to año — 2do semestre",
+  "1er año",
+  "2do año",
+  "3er año",
+  "4to año",
+  "5to año",
 ];
 
 // ─── HELPERS HTML ─────────────────────────────────────────────────────────────
@@ -403,12 +400,18 @@ const FORMULARIOS = {
   estudiante_utp: () => `
     <div class="card">
       <div class="card-title">Estudiante UTP — Datos de inscripción</div>
-      ${CAMPOS_IDENTIDAD()}
+      ${row(
+        fg('Nombre', true, inp('inp-nombre', 'text', 'Ej: María', 'autocomplete="given-name"')),
+        fg('Apellido', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+      )}
+      ${fg('Cédula o Pasaporte', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+      ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
       ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
+      ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
       ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
       ${fg('Facultad', true, sel('ex-facultad', FACULTADES, 'Selecciona tu facultad'))}
       ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Ingenieria de Sistemas'))}
-      ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu semestre'))}
+      ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
     </div>`,
 
   estudiante_externo: () => `
@@ -418,14 +421,20 @@ const FORMULARIOS = {
       ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad de Panama'))}
       ${fg('Correo institucional', true, inp('ex-correo-inst', 'email', 'nombre@universidad.ac.pa'))}
       ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Informatica'))}
-      ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu semestre'))}
+      ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
     </div>`,
 
   academico_utp: () => `
     <div class="card">
       <div class="card-title">Académico UTP — Datos de inscripción</div>
-      ${CAMPOS_IDENTIDAD()}
+      ${row(
+        fg('Nombre', true, inp('inp-nombre', 'text', 'Ej: María', 'autocomplete="given-name"')),
+        fg('Apellido', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+      )}
+      ${fg('Cédula o Pasaporte', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+      ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
       ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
+      ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
       ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
       ${fg('Facultad o unidad', true, sel('ex-facultad', [...FACULTADES, 'Administracion Central'], 'Selecciona'))}
       ${fg('Rol que desempeñas', true, sel('ex-rol', ['Profesor', 'Administrativo', 'Investigador']))}
@@ -558,6 +567,9 @@ function renderFormulario() {
     // Agregar un estudiante inicial
     agregarEstudiante();
   }
+
+  // Conectar validación inline del campo GMAIL para categorías UTP
+  conectarValidacionGmail();
 }
 
 // ─── PRECIO DINÁMICO COLEGIO ──────────────────────────────────────────────────
@@ -782,6 +794,35 @@ function irAPaso(nuevo) {
   el(`panel-${pasoActual}`).classList.add('activo');
   el(`step-ind-${pasoActual}`).classList.add('activo');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── VALIDACIÓN INLINE GMAIL (@utp.ac.pa) ────────────────────────────────────
+// Solo aplica al campo inp-correo en categorías estudiante_utp / academico_utp.
+// Se conecta cada vez que se renderiza el formulario (en renderFormulario).
+function conectarValidacionGmail() {
+  const inpCorreo = el('inp-correo');
+  if (!inpCorreo) return;
+  const cats = ['estudiante_utp', 'academico_utp'];
+  if (!categoriaSeleccionada || !cats.includes(categoriaSeleccionada.id)) return;
+
+  // Crear o reutilizar aviso
+  let aviso = document.getElementById('aviso-gmail-utp');
+  if (!aviso) {
+    aviso = document.createElement('p');
+    aviso.id = 'aviso-gmail-utp';
+    aviso.style.cssText = 'font-size:12px;color:var(--amarillo);margin-top:4px;display:none;line-height:1.4;';
+    aviso.textContent = '⚠ Este campo debe ser tu GMAIL, no tu correo @utp.ac.pa. Usa el campo de abajo para el correo institucional.';
+    inpCorreo.parentNode.appendChild(aviso);
+  }
+
+  inpCorreo.addEventListener('input', function() {
+    const val = this.value.trim().toLowerCase();
+    aviso.style.display = val.endsWith('@utp.ac.pa') ? 'block' : 'none';
+  });
+  inpCorreo.addEventListener('blur', function() {
+    const val = this.value.trim().toLowerCase();
+    aviso.style.display = val.endsWith('@utp.ac.pa') ? 'block' : 'none';
+  });
 }
 
 el('btn-paso1').addEventListener('click', () => {
