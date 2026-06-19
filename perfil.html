@@ -61,12 +61,13 @@
       margin-bottom: 24px;
     }
     .acceso-logo .logo-circulo {
-      width: 70px; height: 70px;
-      background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-claro));
+      width: 80px; height: 80px;
+      background: #ffffff;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
       margin: 0 auto 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
     .acceso-logo h1 { font-size: 20px; font-weight: 800; color: var(--verde-oscuro); }
     .acceso-logo p  { font-size: 13px; color: var(--gris-medio); margin-top: 4px; }
@@ -239,26 +240,6 @@
     .cf-label { font-size: 11px; color: var(--gris-medio); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .cf-valor { font-size: 13px; font-weight: 700; color: var(--gris-texto); }
 
-    .btn-descargar {
-      width: 100%;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%);
-      color: #fff;
-      border: none;
-      border-radius: var(--radio-sm);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      box-shadow: 0 4px 14px rgba(0,114,46,0.25);
-      transition: opacity 0.18s, transform 0.15s;
-      font-family: var(--fuente);
-      margin-top: 12px;
-    }
-    .btn-descargar:hover  { opacity: 0.9; transform: translateY(-1px); }
-    .btn-descargar:active { transform: scale(0.97); }
-    .btn-descargar:disabled { opacity: 0.4; cursor: not-allowed; }
-
     /* ── CARDS INFO ── */
     .info-card {
       background: #fff;
@@ -386,10 +367,9 @@
   <div class="acceso-card">
     <div class="acceso-logo">
       <div class="logo-circulo">
-        <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
-          <rect x="4" y="8" width="30" height="22" rx="3" stroke="white" stroke-width="2.2"/>
-          <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img src="logocontecs.png" alt="CONTECS"
+             style="width:54px;height:54px;object-fit:contain;"
+             onerror="this.style.display='none';this.parentElement.innerHTML='🎓'"/>
       </div>
       <h1>CONTECS 2026</h1>
       <p>Ingresa tu código para ver tu credencial</p>
@@ -425,13 +405,12 @@
 
   <div class="hero-perfil" id="hero-perfil">
     <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-          <svg width="32" height="32" viewBox="0 0 38 38" fill="none">
-            <rect x="4" y="8" width="30" height="22" rx="3" stroke="white" stroke-width="2.2"/>
-            <path d="M13 19l4 4 8-8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+      <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);">
+        <img src="logocontecs.png" alt="CONTECS"
+             style="width:74px;height:74px;object-fit:contain;"
+             onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-size:28px;\'>🎓</span>'"/>
       </div>
+    </div>
     <div class="hp-nombre" id="hp-nombre">—</div>
     <div class="hp-categoria" id="hp-categoria">—</div>
     <div class="hp-estado" id="hp-estado">—</div>
@@ -470,29 +449,29 @@
         <div class="credencial-codigo" id="cred-codigo">CTCS-2026-00000</div>
       </div>
       <div class="credencial-footer">
-        <div>
-          <div class="cf-label">Categoría</div>
-          <div class="cf-valor" id="cf-categoria">—</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="cf-label">Institución</div>
-          <div class="cf-valor" id="cf-institucion">—</div>
+        <div style="text-align:center;width:100%;">
+          <div style="font-size:18px;margin-bottom:4px;">🎉</div>
+          <div style="font-size:14px;font-weight:800;color:var(--verde-oscuro);">¡Disfruta del Congreso!</div>
+          <div style="font-size:12px;color:var(--gris-medio);margin-top:6px;line-height:1.5;">
+            Permite que los Staff escaneen tu QR de acceso al Congreso
+          </div>
         </div>
       </div>
       <div style="padding: 0 20px 16px;">
-        <button class="btn-descargar" id="btn-descargar" disabled>
-          Descargar credencial
-        </button>
+        <p style="text-align:center;font-size:13px;color:var(--gris-medio);line-height:1.6;margin:0;">
+          📸 <strong>Guarda tu Credencial y QR</strong><br/>tomándole captura de pantalla.
+        </p>
       </div>
     </div>
 
     <!-- DATOS PERSONALES -->
     <div class="info-card" style="animation-delay:0.15s;">
-      <div class="ic-titulo">Mis datos</div>
+      <div class="ic-titulo">📋 Mis datos</div>
       <div class="ic-fila"><span class="ic-label">Nombre completo</span><span class="ic-valor" id="d-nombre">—</span></div>
       <div class="ic-fila"><span class="ic-label">Cédula</span><span class="ic-valor" id="d-cedula">—</span></div>
       <div class="ic-fila"><span class="ic-label">Correo</span><span class="ic-valor" id="d-correo">—</span></div>
       <div class="ic-fila"><span class="ic-label">Teléfono</span><span class="ic-valor" id="d-telefono">—</span></div>
+      <div class="ic-fila"><span class="ic-label">Categoría</span><span class="ic-valor" id="d-categoria">—</span></div>
       <div class="ic-fila"><span class="ic-label">Institución</span><span class="ic-valor" id="d-institucion">—</span></div>
       <div class="ic-fila" id="row-colegio" style="display:none;"><span class="ic-label">Colegio</span><span class="ic-valor" id="d-colegio">—</span></div>
     </div>
@@ -508,6 +487,11 @@
 
     <div class="ayuda-card">
       <strong>¿Tienes algún problema?</strong> Comunícate con el equipo de CONTECS antes del evento para resolver cualquier inconveniente con tu inscripción.
+      <br/><br/>
+      📧 <a href="mailto:contecsfisc@utp.ac.pa" style="color:var(--verde-oscuro);font-weight:700;">contecsfisc@utp.ac.pa</a><br/>
+      <span style="font-size:12px;color:var(--gris-medio);margin-top:6px;display:block;">
+        Contacta con el desarrollador encargado: <strong style="color:var(--gris-texto);">Vilchez Alpha — 6290-1553</strong>
+      </span>
     </div>
 
     <div class="footer">
@@ -638,8 +622,6 @@ function renderPerfil(p) {
   // Credencial
   el("ch-codigo").textContent   = p.codigo;
   el("cred-codigo").textContent = p.codigo;
-  el("cf-categoria").textContent  = CATEGORIA_LABELS[p.categoria] || p.categoria;
-  el("cf-institucion").textContent = p.institucion || p.colegio || "UTP";
 
   // ── FIX: QR codifica la URL completa en lugar del JSON crudo ──
   // Así cualquier cámara que escanee abre directamente la página del participante
@@ -656,18 +638,17 @@ function renderPerfil(p) {
   // Bloquear QR si no está aprobado
   if (!pagoAprobado) {
     el("qr-overlay").style.display = "flex";
-    el("btn-descargar").disabled = true;
   } else {
     el("qr-overlay").style.display = "none";
-    el("btn-descargar").disabled = false;
   }
 
   // Datos personales
-  el("d-nombre").textContent    = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
-  el("d-cedula").textContent    = p.cedula;
-  el("d-correo").textContent    = p.correo;
-  el("d-telefono").textContent  = p.telefono;
-  el("d-institucion").textContent = p.institucion || "—";
+  el("d-nombre").textContent      = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
+  el("d-cedula").textContent      = p.cedula;
+  el("d-correo").textContent      = p.correo;
+  el("d-telefono").textContent    = p.telefono;
+  el("d-categoria").textContent   = CATEGORIA_LABELS[p.categoria] || p.categoria || "—";
+  el("d-institucion").textContent = p.institucion || p.colegio || "Universidad Tecnológica de Panamá";
   if (p.esColegio && p.colegio) {
     el("row-colegio").style.display = "flex";
     el("d-colegio").textContent = p.colegio;
@@ -682,80 +663,6 @@ function renderPerfil(p) {
     el("d-aprobado").textContent = new Date(p.pago.aprobadoEn?.toDate?.() || p.pago.aprobadoEn).toLocaleDateString("es-PA");
   }
 
-  // Botón descargar (genera imagen del QR)
-  el("btn-descargar").addEventListener("click", () => descargarCredencial(p));
-}
-
-// ── DESCARGAR CREDENCIAL ───────────────────────────────────────────────────
-function descargarCredencial(p) {
-  const canvas = document.createElement("canvas");
-  const W = 400, H = 520;
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext("2d");
-
-  // Fondo
-  ctx.fillStyle = "#ffffff";
-  ctx.roundRect(0, 0, W, H, 16);
-  ctx.fill();
-
-  // Header
-  const grad = ctx.createLinearGradient(0, 0, W, 100);
-  grad.addColorStop(0, "#045223");
-  grad.addColorStop(1, "#39b54a");
-  ctx.fillStyle = grad;
-  ctx.roundRect(0, 0, W, 100, [16, 16, 0, 0]);
-  ctx.fill();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 22px 'Segoe UI', sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("CONTECS 2026", W/2, 42);
-  ctx.font = "14px 'Segoe UI', sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.75)";
-  ctx.fillText("Credencial de Participante", W/2, 68);
-  ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.font = "11px 'Courier New', monospace";
-  ctx.fillText(p.codigo, W/2, 88);
-
-  // QR
-  const qrImg = el("qr-canvas").querySelector("img") || el("qr-canvas").querySelector("canvas");
-  if (qrImg) {
-    try { ctx.drawImage(qrImg, W/2 - 100, 112, 200, 200); } catch(e) {}
-  }
-
-  // Nombre
-  ctx.fillStyle = "#045223";
-  ctx.font = "bold 20px 'Segoe UI', sans-serif";
-  ctx.textAlign = "center";
-  const nombre = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
-  ctx.fillText(nombre.length > 28 ? nombre.substring(0, 26) + "…" : nombre, W/2, 342);
-
-  ctx.fillStyle = "#8a9e8d";
-  ctx.font = "13px 'Segoe UI', sans-serif";
-  ctx.fillText((CATEGORIA_LABELS[p.categoria] || p.categoria).toUpperCase(), W/2, 364);
-  ctx.fillText(p.institucion || p.colegio || "UTP", W/2, 384);
-
-  // Código
-  ctx.fillStyle = "#e8f5ec";
-  ctx.roundRect(W/2 - 100, 400, 200, 44, 8);
-  ctx.fill();
-  ctx.fillStyle = "#045223";
-  ctx.font = "bold 18px 'Courier New', monospace";
-  ctx.letterSpacing = "3px";
-  ctx.fillText(p.codigo, W/2, 428);
-
-  // Footer
-  ctx.fillStyle = "#d0dbd2";
-  ctx.fillRect(0, 460, W, 1);
-  ctx.fillStyle = "#8a9e8d";
-  ctx.font = "11px 'Segoe UI', sans-serif";
-  ctx.fillText("Universidad Tecnológica de Panamá · FISC", W/2, 490);
-  ctx.fillText("contecsfisc.github.io", W/2, 508);
-
-  const link = document.createElement("a");
-  link.download = `CONTECS_${p.codigo}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
 }
 
 init();

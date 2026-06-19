@@ -370,6 +370,78 @@ const FACULTADES = [
   "Facultad de Ingenieria Electrica", "Facultad de Ingenieria Industrial",
   "Facultad de Ingenieria Mecanica",
 ];
+
+const CARRERAS_POR_FACULTAD = {
+  "Facultad de Ingenieria de Sistemas Computacionales": [
+    "Licenciatura en Ingenieria de Sistemas y Computacion",
+    "Licenciatura en Ingenieria de Software",
+    "Licenciatura en Ingenieria de Sistemas de Informacion",
+    "Licenciatura en Ingenieria de Sistemas de Informacion Gerencial",
+    "Licenciatura en Ciencias de la Computacion",
+    "Licenciatura en Desarrollo y Gestion de Software",
+    "Licenciatura en Redes Informaticas",
+    "Licenciatura en Ciberseguridad",
+    "Licenciatura en Informatica Aplicada a la Educacion",
+    "Tecnico en Informatica para la Gestion Empresarial",
+  ],
+  "Facultad de Ciencias y Tecnologia": [
+    "Licenciatura en Ingenieria Forestal",
+    "Licenciatura en Ingenieria en Alimentos",
+    "Licenciatura en Ingenieria Quimica",
+    "Licenciatura en Comunicacion Ejecutiva Bilingue",
+  ],
+  "Facultad de Ingenieria Civil": [
+    "Licenciatura en Ingenieria Civil",
+    "Licenciatura en Ingenieria Ambiental",
+    "Licenciatura en Ingenieria Geologica",
+    "Licenciatura en Ingenieria Geomatica",
+    "Licenciatura en Ingenieria Maritima Portuaria",
+    "Licenciatura en Ingenieria en Administracion de Proyectos de Construccion",
+    "Licenciatura en Dibujo Automatizado",
+    "Licenciatura en Edificaciones",
+    "Licenciatura en Operaciones Maritimas y Portuarias",
+    "Licenciatura en Saneamiento y Ambiente",
+    "Licenciatura en Topografia",
+  ],
+  "Facultad de Ingenieria Electrica": [
+    "Licenciatura en Ingenieria Electrica",
+    "Licenciatura en Ingenieria Electrica y Electronica",
+    "Licenciatura en Ingenieria Electromecanica",
+    "Licenciatura en Ingenieria Electronica Industrial",
+    "Licenciatura en Ingenieria Electronica y Telecomunicaciones",
+    "Tecnico en Ingenieria con especializacion en Electronica Biomedica",
+    "Tecnico en Ingenieria con especializacion en Sistemas Electricos",
+    "Tecnico en Ingenieria con especializacion en Telecomunicaciones",
+    "Tecnico en Ingenieria Electromecanica Industrial",
+  ],
+  "Facultad de Ingenieria Industrial": [
+    "Licenciatura en Ingenieria Industrial",
+    "Licenciatura en Ingenieria Logistica y Cadena de Suministro",
+    "Licenciatura en Ingenieria Mecanica Industrial",
+    "Licenciatura en Ingenieria en Seguridad Industrial e Higiene Ocupacional",
+    "Licenciatura en Gestion Administrativa",
+    "Licenciatura en Gestion de la Produccion Industrial",
+    "Licenciatura en Logistica y Transporte Multimodal",
+    "Licenciatura en Mercadeo y Negocios Internacionales",
+    "Licenciatura en Recursos Humanos y Gestion de la Productividad",
+  ],
+  "Facultad de Ingenieria Mecanica": [
+    "Licenciatura en Ingenieria Mecanica",
+    "Licenciatura en Ingenieria de Mantenimiento",
+    "Licenciatura en Ingenieria Aeronautica",
+    "Licenciatura en Ingenieria Naval",
+    "Licenciatura en Ingenieria de Energia y Ambiente",
+    "Licenciatura en Administracion de Aviacion",
+    "Licenciatura en Administracion de Aviacion con Opcion a Vuelo (Piloto)",
+    "Licenciatura en Mecanica Automotriz",
+    "Licenciatura en Mecanica Industrial",
+    "Licenciatura en Refrigeracion y Aire Acondicionado",
+    "Licenciatura en Soldadura",
+    "Tecnico en Despacho de Vuelo",
+    "Tecnico en Ingenieria de Mantenimiento de Aeronaves con especializacion en Motores y Fuselajes",
+  ],
+  "Administracion Central": [],
+};
 const SEMESTRES = [
   "1er año",
   "2do año",
@@ -383,6 +455,11 @@ const fg  = (label, req, inner)       => `<div class="form-group"><label>${label
 const inp = (id, type, ph, extra='') => `<input type="${type}" id="${id}" placeholder="${ph}" ${extra}/>`;
 const sel = (id, opts, ph='Selecciona') => `<select id="${id}"><option value="">${ph}</option>${opts.map(o=>`<option>${o}</option>`).join('')}</select>`;
 const row = (...fields) => `<div class="form-row">${fields.join('')}</div>`;
+// Select de carrera controlado — se puebla dinámicamente al elegir facultad
+const selCarrera = (id='ex-carrera') =>
+  `<select id="${id}" disabled style="opacity:0.5;cursor:not-allowed;">
+     <option value="">Primero selecciona tu facultad</option>
+   </select>`;
 
 // Campos comunes de identidad para todas las categorías normales
 const CAMPOS_IDENTIDAD = () => `
@@ -410,7 +487,7 @@ const FORMULARIOS = {
       ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
       ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
       ${fg('Facultad', true, sel('ex-facultad', FACULTADES, 'Selecciona tu facultad'))}
-      ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Ingenieria de Sistemas'))}
+      ${fg('Carrera', true, selCarrera())}
       ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
     </div>`,
 
@@ -557,6 +634,31 @@ renderCategorias();
 function renderFormulario() {
   const id = categoriaSeleccionada.id;
   el('formulario-dinamico').innerHTML = FORMULARIOS[id] ? FORMULARIOS[id]() : FORMULARIOS.otros();
+
+  // ── DROPDOWN CARRERA CONTROLADO ──────────────────────────────────────────
+  // Aplica a categorías que tienen ex-facultad + ex-carrera en el formulario
+  const selectFacultad = el('ex-facultad');
+  const selectCarrera  = el('ex-carrera');
+  if (selectFacultad && selectCarrera) {
+    selectFacultad.addEventListener('change', function() {
+      const facultad = this.value;
+      const carreras = CARRERAS_POR_FACULTAD[facultad] || [];
+      selectCarrera.innerHTML = '';
+      if (!facultad || carreras.length === 0) {
+        selectCarrera.innerHTML = '<option value="">Primero selecciona tu facultad</option>';
+        selectCarrera.disabled = true;
+        selectCarrera.style.opacity = '0.5';
+        selectCarrera.style.cursor = 'not-allowed';
+      } else {
+        selectCarrera.innerHTML =
+          '<option value="">Selecciona tu carrera</option>' +
+          carreras.map(c => `<option value="${c}">${c}</option>`).join('');
+        selectCarrera.disabled = false;
+        selectCarrera.style.opacity = '1';
+        selectCarrera.style.cursor = 'pointer';
+      }
+    });
+  }
 
   // Si es colegio, conectar lógica de estudiantes
   if (id === 'colegio') {

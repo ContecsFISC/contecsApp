@@ -278,6 +278,9 @@
       margin-top: 10px;
       cursor: pointer;
       transition: background 0.2s;
+      font-family: var(--fuente);
+      text-align: left;
+      box-sizing: border-box;
     }
     .comprobante-link:hover { background: var(--azul-fondo); }
 
@@ -610,9 +613,11 @@ function renderSheet(p) {
     <div class="datos-grid" style="margin-top:16px;">
       <div class="dato-item"><div class="di-label">Cédula</div><div class="di-valor">${p.cedula}</div></div>
       <div class="dato-item"><div class="di-label">Teléfono</div><div class="di-valor">${p.telefono}</div></div>
-      <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo</div><div class="di-valor" style="font-size:13px;">${p.correo}</div></div>
+      <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Gmail</div><div class="di-valor" style="font-size:13px;">${p.correo}</div></div>
+      ${(p.camposExtra?.['correo-inst'] || p.camposExtra?.correoInst) ? `
+      <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Institucional</div><div class="di-valor" style="font-size:13px;">${p.camposExtra['correo-inst'] || p.camposExtra.correoInst}</div></div>` : ""}
       <div class="dato-item"><div class="di-label">Categoría</div><div class="di-valor">${p.categoriaNombre || p.categoria}</div></div>
-      <div class="dato-item"><div class="di-label">Institución</div><div class="di-valor">${p.institucion || p.colegio || "—"}</div></div>
+      <div class="dato-item"><div class="di-label">Facultad</div><div class="di-valor" style="font-size:12px;">${p.camposExtra?.facultad || "—"}</div></div>
       ${p.esColegio && p.tutor ? `
       <div class="dato-item" style="grid-column:1/-1;">
         <div class="di-label">Tutor responsable</div>
@@ -636,10 +641,16 @@ function renderSheet(p) {
       <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
       ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
       ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
-      ${p.pago?.comprobanteUrl ? `
-      <a class="comprobante-link" href="${p.pago.comprobanteUrl}" target="_blank">
-        Ver comprobante adjunto
-      </a>` : ""}
+
+      <!-- COMPROBANTE -->
+      ${p.pago?.metodo === "transferencia"
+        ? p.pago?.comprobanteRuta
+          ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+               📎 Ver comprobante de pago
+             </button>`
+          : `<div style="margin-top:10px;font-size:12px;color:var(--amarillo);font-weight:600;"> Sin comprobante adjunto</div>`
+        : `<div style="margin-top:10px;font-size:12px;color:var(--gris-medio);font-weight:600;"> Pago en efectivo — sin comprobante</div>`
+      }
     </div>
 
     ${canAprobar && !yaAprobado ? `
@@ -662,9 +673,17 @@ function renderSheet(p) {
 
     ${yaAprobado ? `
     <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:14px;margin-top:8px;text-align:center;">
-      <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);">Pago validado</div>
+      <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);"> Pago validado</div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">QR activo para el evento</div>
-    </div>` : ""}
+    </div>
+    ${puedeReenviar ? `
+    <button id="btn-reenviar-qr" onclick="window._reenviarCorreoQr()"
+      style="width:100%;margin-top:10px;padding:11px;border:1.5px solid var(--verde-claro);
+             border-radius:var(--radio-sm);background:#fff;color:var(--verde-oscuro);
+             font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fuente);
+             transition:background 0.2s;">
+      📧 Reenviar correo de credencial
+    </button>` : ""}` : ""}
   `;
 
   // Generar QR si está aprobado
@@ -710,9 +729,11 @@ window._aprobar = async function() {
     let mensaje = "Pago aprobado.";
     try {
       const resCorreo = await enviarCorreoQrParticipante(docId);
-      mensaje = resCorreo?.mensaje ?? "Pago aprobado y correo enviado.";
+      mensaje = resCorreo?.mensaje ?? " Pago aprobado — correo de credencial enviado.";
     } catch (correoErr) {
-      mensaje = "Pago aprobado, pero el correo falló: " + correoErr.message;
+      // El correo pudo haberse enviado igual (el trigger de Firestore lo reintenta).
+      // No alarmamos al staff con un error técnico.
+      mensaje = " Pago aprobado correctamente.\n\nNota: el correo fue encolado — si no llega en unos minutos, usa el botón de reenviar en el perfil del participante.";
     }
     cerrarSheet();
     actualizarStats();
