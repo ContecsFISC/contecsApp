@@ -1,7 +1,7 @@
 ﻿import { db, auth } from "../core/firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc,
-  query, orderBy, increment, serverTimestamp
+  query, where, orderBy, increment, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const el = id => document.getElementById(id);
@@ -124,21 +124,38 @@ el("btn-detener").addEventListener("click", async () => {
 });
 
 // ─── Escaneo exitoso ─────────────────────────────────────────────────────────
-async function onScanExito(voluntarioId) {
+async function onScanExito(valorQR) {
   if (!escaneando) return;
   await scanner.pause(true);
 
-  // Buscar voluntario
-  const snapVol = await getDoc(doc(db, "voluntarios", voluntarioId));
-  if (!snapVol.exists()) {
+  // El QR contiene el campo "id" del voluntario (cédula/ID personal).
+  // Buscamos por ese campo porque el document ID de Firestore es distinto.
+  let docVol = null;
+  try {
+    const snap = await getDocs(query(collection(db, "voluntarios"), where("id", "==", valorQR)));
+    if (!snap.empty) docVol = snap.docs[0];
+  } catch (e) { /* seguimos con docVol null */ }
+
+  // Fallback: intentar por document ID por si el QR proviene de un sistema anterior
+  if (!docVol) {
+    try {
+      const snapDirect = await getDoc(doc(db, "voluntarios", valorQR));
+      if (snapDirect.exists()) docVol = snapDirect;
+    } catch (e) { /* ignorar */ }
+  }
+
+  if (!docVol) {
     alerta("error", "QR no reconocido. Voluntario no encontrado.");
     await scanner.resume();
     return;
   }
-  voluntarioActual = { id: voluntarioId, ...snapVol.data() };
+
+  // _docId = ID real del documento en Firestore (para updateDoc)
+  // id     = ID personal del voluntario (cédula / número de estudiante)
+  voluntarioActual = { _docId: docVol.id, ...docVol.data() };
 
   // Buscar asistencia existente (ID determinístico)
-  const asistenciaId  = `${voluntarioId}_${actividadActiva.id}_${turnoActivo.id}`;
+  const asistenciaId  = `${voluntarioActual._docId}_${actividadActiva.id}_${turnoActivo.id}`;
   const snapAsis      = await getDoc(doc(db, "asistencias_voluntarios", asistenciaId));
 
   if (!snapAsis.exists()) {
@@ -210,12 +227,12 @@ el("btn-confirmar").addEventListener("click", async () => {
   el("btn-confirmar").disabled    = true;
   el("btn-confirmar").textContent = "Guardando...";
 
-  const asistenciaId = `${voluntarioActual.id}_${actividadActiva.id}_${turnoActivo.id}`;
+  const asistenciaId = `${voluntarioActual._docId}_${actividadActiva.id}_${turnoActivo.id}`;
 
   try {
     if (modoActual === "entrada") {
       await setDoc(doc(db, "asistencias_voluntarios", asistenciaId), {
-        voluntarioId:  voluntarioActual.id,
+        voluntarioId:  voluntarioActual._docId,
         actividadId:   actividadActiva.id,
         turnoId:       turnoActivo.id,
         horaEntrada:   serverTimestamp(),
@@ -245,7 +262,7 @@ el("btn-confirmar").addEventListener("click", async () => {
       });
 
       // Sumar horas al voluntario de forma atómica
-      await updateDoc(doc(db, "voluntarios", voluntarioActual.id), {
+      await updateDoc(doc(db, "voluntarios", voluntarioActual._docId), {
         totalHoras: increment(horasGanadas),
       });
 
