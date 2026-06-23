@@ -15,6 +15,7 @@ let actividades       = [];
 let giras             = [];
 let ventas            = [];
 let voluntarios       = [];
+let voluntarioQRActual = null;
 let asignaciones      = [];
 let columnasArchivo   = [];
 let filasArchivo      = [];
@@ -577,6 +578,7 @@ el("filtro-horario-vol")?.addEventListener("change", e => { filtroHorarioVol = e
 window.verQR = function(id) {
   const v = voluntarios.find(x => x.id === id);
   if (!v) return;
+  voluntarioQRActual = v;
   el("qr-modal-nombre").textContent = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`;
   el("qr-modal-info").textContent   = `ID: ${id}${v.id ? " · ID: " + v.id : ""}`;
   const wrap = el("qr-canvas-wrap");
@@ -594,13 +596,26 @@ window.verQR = function(id) {
 
 el("modal-qr-close")?.addEventListener("click", () => el("modal-qr").classList.remove("open"));
 
-el("btn-descargar-qr")?.addEventListener("click", () => {
-  const img = el("qr-canvas-wrap").querySelector("img") || el("qr-canvas-wrap").querySelector("canvas");
-  if (!img) return;
-  const a = document.createElement("a");
-  a.href     = img.tagName === "CANVAS" ? img.toDataURL() : img.src;
-  a.download = `QR_voluntario_${el("qr-modal-nombre").textContent.replace(/\s+/g, "_")}.png`;
-  a.click();
+el("btn-descargar-qr")?.addEventListener("click", async () => {
+  if (!voluntarioQRActual) return;
+  const btn = el("btn-descargar-qr");
+  btn.disabled = true;
+  btn.textContent = "Generando…";
+
+  const node   = el("qr-canvas-wrap").querySelector("canvas") || el("qr-canvas-wrap").querySelector("img");
+  const qrURL  = node?.tagName === "CANVAS" ? node.toDataURL("image/png") : (node?.src || "");
+  const canvas = await dibujarCarnet(voluntarioQRActual, qrURL);
+  const blob   = await new Promise(res => canvas.toBlob(res, "image/png"));
+  const url    = URL.createObjectURL(blob);
+  const link   = document.createElement("a");
+  const slug   = `${voluntarioQRActual.nombre}${voluntarioQRActual.apellido ? "_" + voluntarioQRActual.apellido : ""}`.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, "");
+  link.href     = url;
+  link.download = `carnet_${slug}.png`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+  btn.disabled = false;
+  btn.textContent = "⬇ Descargar";
 });
 
 el("btn-copiar-qr")?.addEventListener("click", async () => {
@@ -637,6 +652,199 @@ el("btn-exportar-excel")?.addEventListener("click", () => {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Voluntarios");
   XLSX.writeFile(wb, `voluntarios_contecs_${new Date().toISOString().split("T")[0]}.xlsx`);
+});
+
+// ── EXPORTAR CARNETS QR (ZIP de PNGs) ─────────────────────────────────────────
+function generarQRDataURL(text, size) {
+  return new Promise(resolve => {
+    const tmp = document.createElement("div");
+    tmp.style.cssText = "position:fixed;left:-9999px;top:-9999px;visibility:hidden;";
+    document.body.appendChild(tmp);
+    new QRCode(tmp, {
+      text: text || "sin-id",
+      width: size, height: size,
+      colorDark: "#045223", colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+    setTimeout(() => {
+      const node = tmp.querySelector("canvas") || tmp.querySelector("img");
+      const url  = node?.tagName === "CANVAS" ? node.toDataURL("image/png") : (node?.src || "");
+      document.body.removeChild(tmp);
+      resolve(url);
+    }, 80);
+  });
+}
+
+function cargarImagen(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function fitTextSize(ctx, text, maxWidth, startSize) {
+  let size = startSize;
+  ctx.font = `bold ${size}px Arial`;
+  while (ctx.measureText(text).width > maxWidth && size > 10) {
+    size--;
+    ctx.font = `bold ${size}px Arial`;
+  }
+}
+
+function truncarTexto(ctx, text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (ctx.measureText(t + "…").width > maxWidth && t.length > 0) t = t.slice(0, -1);
+  return t + "…";
+}
+
+async function dibujarCarnet(v, qrDataURL) {
+  const W = 370, H = 500;
+  const canvas = document.createElement("canvas");
+  canvas.width  = W * 2;
+  canvas.height = H * 2;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(2, 2);
+
+  // Fondo blanco
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+
+  // Clip redondeado
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(0, 0, W, H, 16);
+  ctx.clip();
+
+  // Header gradiente
+  const grad = ctx.createLinearGradient(0, 0, W, 145);
+  grad.addColorStop(0, "#045223");
+  grad.addColorStop(1, "#1a7a3d");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, 145);
+
+  // "C O N T E C S"
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 26px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("C O N T E C S", W / 2, 42);
+
+  // "2026"
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.font = "12px Arial";
+  ctx.fillText("2026", W / 2, 65);
+
+  // Badge "Voluntario"
+  const badgeLabel = "Voluntario";
+  ctx.font = "bold 12px Arial";
+  const bw = ctx.measureText(badgeLabel).width + 36;
+  const bx = W / 2 - bw / 2, by = 80, bh = 28;
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.strokeStyle = "rgba(255,255,255,0.45)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(bx, by, bw, bh, 14);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(badgeLabel, W / 2, by + bh / 2 + 1);
+
+  // Cuerpo blanco
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 145, W, H - 165);
+
+  const maxW = W - 36;
+  const nombre = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`.toUpperCase();
+
+  // Nombre
+  ctx.fillStyle = "#045223";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  fitTextSize(ctx, nombre, maxW, 17);
+  ctx.fillText(nombre, W / 2, 175);
+
+  // Correo
+  ctx.fillStyle = "#555555";
+  ctx.font = "12px Arial";
+  ctx.fillText(truncarTexto(ctx, "✉  " + (v.correo || "—"), maxW), W / 2, 202);
+
+  // Carrera
+  ctx.fillText(truncarTexto(ctx, "🎓  " + (v.carrera || "—"), maxW), W / 2, 224);
+
+  // QR
+  if (qrDataURL) {
+    try {
+      const qrImg = await cargarImagen(qrDataURL);
+      const qrSize = 168;
+      ctx.drawImage(qrImg, (W - qrSize) / 2, 242, qrSize, qrSize);
+    } catch { /* sin QR */ }
+  }
+
+  // Footer
+  ctx.fillStyle = "#f0fdf4";
+  ctx.fillRect(0, 435, W, H - 435);
+  ctx.fillStyle = "#dcfce7";
+  ctx.fillRect(0, 435, W, 1);
+  ctx.fillStyle = "#6b7280";
+  ctx.font = "11px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("CONTECS 2026  ·  Voluntariado", W / 2, 467);
+
+  ctx.restore();
+  return canvas;
+}
+
+el("btn-exportar-qr")?.addEventListener("click", async () => {
+  const JSZip = window.JSZip;
+  if (!JSZip) { mostrarAlerta("error", "Librería JSZip no disponible."); return; }
+
+  let lista = [...voluntarios];
+  const textoBusqueda = el("buscar-voluntario")?.value.toLowerCase().trim() || "";
+  if (textoBusqueda) {
+    lista = lista.filter(v =>
+      v.nombre.toLowerCase().includes(textoBusqueda) ||
+      (v.apellido || "").toLowerCase().includes(textoBusqueda) ||
+      (v.id || "").toLowerCase().includes(textoBusqueda)
+    );
+  }
+  if (filtroHorarioVol) lista = lista.filter(v => v.horario === filtroHorarioVol);
+
+  if (!lista.length) { mostrarAlerta("warning", "No hay voluntarios para exportar."); return; }
+
+  const btn = el("btn-exportar-qr");
+  btn.disabled = true;
+  btn.textContent = `Generando 0/${lista.length}…`;
+
+  const zip     = new JSZip();
+  const carpeta = zip.folder("carnets_voluntarios");
+
+  for (let i = 0; i < lista.length; i++) {
+    const v = lista[i];
+    btn.textContent = `Generando ${i + 1}/${lista.length}…`;
+    const qrURL  = await generarQRDataURL(v.id, 168);
+    const canvas = await dibujarCarnet(v, qrURL);
+    const blob   = await new Promise(res => canvas.toBlob(res, "image/png"));
+    const slug   = `${v.nombre}${v.apellido ? "_" + v.apellido : ""}`
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, "");
+    carpeta.file(`${String(i + 1).padStart(3, "0")}_${slug}.png`, blob);
+  }
+
+  const zipBlob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } });
+  const url  = URL.createObjectURL(zipBlob);
+  const link = document.createElement("a");
+  link.href     = url;
+  link.download = `carnets_voluntarios_${new Date().toISOString().split("T")[0]}.zip`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+  btn.disabled = false;
+  btn.textContent = "🪪 Exportar QR";
+  mostrarAlerta("success", `ZIP con ${lista.length} carnet${lista.length !== 1 ? "s" : ""} descargado. ¡Listo para distribuir!`);
 });
 
 // ════════════════════════════════════════════════════════════
