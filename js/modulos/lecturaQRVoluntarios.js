@@ -16,6 +16,26 @@ let modoActual       = null;   // "entrada" | "salida" | "completo"
 let ratingSeleccionado = null;
 let logSesion        = [];
 
+// Cache de voluntarios cargados al iniciar: búsqueda local instantánea
+// Clave 1: campo "id" (personal/cédula)  →  objeto voluntario
+// Clave 2: Firestore document ID          →  objeto voluntario
+const volPorCampoId = new Map();
+const volPorDocId   = new Map();
+
+async function cargarVoluntariosLocal() {
+  try {
+    const snap = await getDocs(collection(db, "voluntarios"));
+    snap.docs.forEach(d => {
+      const datos = { _docId: d.id, ...d.data() };
+      volPorDocId.set(d.id, datos);
+      const campoId = String(d.data().id ?? "").trim();
+      if (campoId) volPorCampoId.set(campoId, datos);
+    });
+  } catch (e) {
+    alerta("warning", "No se pudo precargar voluntarios: " + e.message);
+  }
+}
+
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
   const div = el("alerta");
@@ -128,31 +148,45 @@ async function onScanExito(valorQR) {
   if (!escaneando) return;
   await scanner.pause(true);
 
-  // El QR contiene el campo "id" del voluntario (cédula/ID personal).
-  // Buscamos por ese campo porque el document ID de Firestore es distinto.
-  let docVol = null;
-  try {
-    const snap = await getDocs(query(collection(db, "voluntarios"), where("id", "==", valorQR)));
-    if (!snap.empty) docVol = snap.docs[0];
-  } catch (e) { /* seguimos con docVol null */ }
+  const qr = String(valorQR ?? "").trim();
 
-  // Fallback: intentar por document ID por si el QR proviene de un sistema anterior
-  if (!docVol) {
+  // 1. Buscar en caché local (instantáneo, sin red)
+  //    El QR puede contener el campo "id" (cédula) o el Firestore doc ID.
+  let volData = volPorCampoId.get(qr) || volPorDocId.get(qr);
+
+  // 2. Si no está en caché (p.ej. voluntario agregado después de cargar la página),
+  //    intentar búsqueda en tiempo real
+  if (!volData) {
     try {
-      const snapDirect = await getDoc(doc(db, "voluntarios", valorQR));
-      if (snapDirect.exists()) docVol = snapDirect;
-    } catch (e) { /* ignorar */ }
+      const snap = await getDocs(query(collection(db, "voluntarios"), where("id", "==", qr)));
+      if (!snap.empty) {
+        volData = { _docId: snap.docs[0].id, ...snap.docs[0].data() };
+        volPorCampoId.set(qr, volData);
+        volPorDocId.set(snap.docs[0].id, volData);
+      }
+    } catch (e) { /* continuar al siguiente intento */ }
   }
 
-  if (!docVol) {
-    alerta("error", "QR no reconocido. Voluntario no encontrado.");
+  // 3. Último recurso: buscar por Firestore document ID directamente
+  if (!volData) {
+    try {
+      const snapD = await getDoc(doc(db, "voluntarios", qr));
+      if (snapD.exists()) {
+        volData = { _docId: snapD.id, ...snapD.data() };
+        volPorDocId.set(snapD.id, volData);
+        const campoId = String(snapD.data().id ?? "").trim();
+        if (campoId) volPorCampoId.set(campoId, volData);
+      }
+    } catch (e) { /* no encontrado */ }
+  }
+
+  if (!volData) {
+    alerta("error", `QR no reconocido. Código escaneado: "${qr}"`);
     await scanner.resume();
     return;
   }
 
-  // _docId = ID real del documento en Firestore (para updateDoc)
-  // id     = ID personal del voluntario (cédula / número de estudiante)
-  voluntarioActual = { _docId: docVol.id, ...docVol.data() };
+  voluntarioActual = volData;
 
   // Buscar asistencia existente (ID determinístico)
   const asistenciaId  = `${voluntarioActual._docId}_${actividadActiva.id}_${turnoActivo.id}`;
@@ -170,10 +204,10 @@ async function onScanExito(valorQR) {
 
 function mostrarResultado() {
   const v = voluntarioActual;
-  el("res-nombre").textContent      = v.nombre;
-  el("res-cedula").textContent      = v.cedula      || "—";
-  el("res-correo").textContent      = v.correo      || "—";
-  el("res-universidad").textContent = v.universidad || "—";
+  el("res-nombre").textContent      = `${v.nombre || ""}${v.apellido ? " " + v.apellido : ""}`;
+  el("res-cedula").textContent      = v.id      || "—";
+  el("res-correo").textContent      = v.correo  || "—";
+  el("res-universidad").textContent = v.carrera || "—";
   el("res-horas-total").textContent = `${(v.totalHoras || 0).toFixed(2)}h acumuladas`;
 
   const badge    = el("res-estado-badge");
@@ -318,3 +352,4 @@ function renderLog() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 cargarActividades();
+cargarVoluntariosLocal();
