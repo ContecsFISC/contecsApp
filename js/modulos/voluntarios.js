@@ -23,6 +23,7 @@ let asistenciasCache  = [];
 let editandoActividadId = null;
 let editandoGiraId      = null;
 let filtroHorarioVol  = "";
+let solicitudesActividad = [];
 
 const HORARIOS = [
   { valor: "Diurno",     label: "Diurno (7:50 am – 12:00 pm)",    inicio: "07:50", fin: "12:00", kw: ["diurno","matutino","mañana","7:50"] },
@@ -319,6 +320,91 @@ window.eliminarActividad = async function(id, nombre) {
 };
 
 el("btn-cancelar-actividad")?.addEventListener("click", limpiarFormActividad);
+
+// ─── AUTOCOMPLETE: SOLICITUDES DE ACTIVIDAD ───────────────────────────────────
+async function cargarSolicitudesAutocomplete() {
+  try {
+    const snap = await getDocs(collection(db, "solicitudes_actividad"));
+    solicitudesActividad = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch {
+    solicitudesActividad = [];
+  }
+}
+
+(function iniciarAutocompleteSolicitud() {
+  const input = el("act-nombre");
+  if (!input) return;
+
+  const dropdown = document.createElement("div");
+  dropdown.id = "act-nombre-suggestions";
+  dropdown.style.cssText = "position:fixed;z-index:9999;background:#fff;border:1.5px solid #bbf7d0;border-radius:10px;box-shadow:0 6px 24px rgba(4,82,35,0.13);max-height:260px;overflow-y:auto;display:none;";
+  document.body.appendChild(dropdown);
+
+  function posicionar() {
+    const r = input.getBoundingClientRect();
+    dropdown.style.top   = (r.bottom + 2) + "px";
+    dropdown.style.left  = r.left + "px";
+    dropdown.style.width = r.width + "px";
+  }
+
+  function renderSugerencias(texto) {
+    if (!texto) { dropdown.style.display = "none"; return; }
+    const lower = texto.toLowerCase();
+    const matches = solicitudesActividad.filter(s =>
+      s.nombreActividad && s.nombreActividad.toLowerCase().includes(lower)
+    ).slice(0, 8);
+    if (!matches.length) { dropdown.style.display = "none"; return; }
+
+    dropdown.innerHTML = "";
+    matches.forEach(s => {
+      const item = document.createElement("div");
+      item.className = "act-sug-item";
+      item.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0fdf4;font-size:14px;";
+      item.innerHTML = `
+        <span style="flex:1;color:#1f2937;">${s.nombreActividad}</span>
+        <span style="font-size:11px;background:#d1fae5;color:#065f46;padding:2px 9px;border-radius:10px;white-space:nowrap;font-weight:600;border:1px solid #6ee7b7;">Solicitada</span>`;
+      item.addEventListener("mouseenter", () => { item.style.background = "#f0fdf4"; });
+      item.addEventListener("mouseleave", () => { item.style.background = ""; });
+      item.addEventListener("mousedown", e => {
+        e.preventDefault();
+        autorellenarDesdeSolicitud(s);
+        dropdown.style.display = "none";
+      });
+      dropdown.appendChild(item);
+    });
+
+    posicionar();
+    dropdown.style.display = "block";
+  }
+
+  input.addEventListener("input",  e => renderSugerencias(e.target.value.trim()));
+  input.addEventListener("focus",  e => { if (e.target.value.trim()) renderSugerencias(e.target.value.trim()); });
+  input.addEventListener("blur",   () => setTimeout(() => { dropdown.style.display = "none"; }, 160));
+  window.addEventListener("scroll", () => { dropdown.style.display = "none"; }, true);
+})();
+
+function autorellenarDesdeSolicitud(sol) {
+  el("act-nombre").value      = sol.nombreActividad || "";
+  el("act-descripcion").value = sol.descripcion     || "";
+  if (sol.fecha) el("act-fecha").value = sol.fecha;
+
+  const selArea = el("act-area");
+  if (sol.tiposActividad?.length) {
+    const primero = sol.tiposActividad[0];
+    for (const opt of selArea.options) {
+      if (opt.value === primero || opt.text === primero) { selArea.value = opt.value; break; }
+    }
+    selArea.dispatchEvent(new Event("change"));
+  }
+
+  el("act-lugar").value = sol.lugar || "";
+
+  if (sol.instituciones?.length) {
+    el("act-colaboracion").value = sol.instituciones.map(i => i.nombre).filter(Boolean).join(", ");
+  } else if (sol.procedencia) {
+    el("act-colaboracion").value = sol.procedencia;
+  }
+}
 
 el("act-area")?.addEventListener("change", () => {
   const isTaller = el("act-area").value === "Taller";
@@ -1758,7 +1844,7 @@ el("btn-confirmar-grupo")?.addEventListener("click", async () => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas()]).then(() => {
+Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas(), cargarSolicitudesAutocomplete()]).then(() => {
   const tabActivo = document.querySelector(".tab-btn.active");
   if (tabActivo?.dataset.tab === "tab-voluntariado") iniciarTabVoluntariado();
 });
