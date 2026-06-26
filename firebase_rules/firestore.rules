@@ -170,6 +170,19 @@ service cloud.firestore {
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
     }
 
+    // ── Formularios universitarios (Solicitud e Informe de Actividad) ─────────
+    match /solicitudes_actividad/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
+    match /informes_actividad/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+    }
+
     // ── Denegar todo lo no definido explícitamente ───────────────────────────
     match /{document=**} {
       allow read, write: if false;
