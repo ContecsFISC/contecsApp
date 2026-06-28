@@ -645,7 +645,17 @@ function renderPerfil(p) {
   // Datos personales
   el("d-nombre").textContent      = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
   el("d-cedula").textContent      = p.cedula;
-  el("d-correo").textContent      = p.correo;
+  // Correo: institucional para UTP, gmail para el resto
+  const esUTP = p.categoria === "estudiante_utp" || p.categoria === "academico_utp";
+  const correoInstitucional = p.camposExtra?.["correo-inst"] || p.camposExtra?.correoInst || "";
+  if (esUTP && correoInstitucional) {
+    el("d-correo").textContent = correoInstitucional;
+    // Agregar label de correo institucional
+    el("d-correo").closest(".ic-fila").querySelector(".ic-label").textContent = "Correo institucional";
+  } else {
+    el("d-correo").textContent = p.correo;
+    el("d-correo").closest(".ic-fila").querySelector(".ic-label").textContent = "Correo";
+  }
   el("d-telefono").textContent    = p.telefono;
   el("d-categoria").textContent   = CATEGORIA_LABELS[p.categoria] || p.categoria || "—";
   el("d-institucion").textContent = p.institucion || p.colegio || "Universidad Tecnológica de Panamá";

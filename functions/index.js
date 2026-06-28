@@ -672,3 +672,69 @@ exports.notificarPagoAprobado = onDocumentUpdated(
       }
     },
 );
+
+// ─── CLOUD FUNCTION: subirFotoEfectivo ───────────────────────────────────────
+// El staff sube una foto del participante pagando en efectivo a Finanzas.
+// Solo roles con permiso de aprobar_pagos pueden invocarla.
+exports.subirFotoEfectivo = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        // Verificar que el caller es staff con permiso de aprobar pagos
+        if (!request.auth?.uid) {
+          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+        }
+        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
+        const rolUsuario = snapUsuario.data()?.rol;
+        const ROLES_APROBAR = new Set(["ceo", "junta_principal", "junta", "finanzas"]);
+        if (!ROLES_APROBAR.has(rolUsuario)) {
+          throw new HttpsError("permission-denied", "No tienes permiso para registrar pagos en efectivo.");
+        }
+
+        const docId = String(request.data?.docId || "").trim();
+        const base64 = request.data?.base64;
+        const contentType = String(request.data?.contentType || "").trim();
+        const nombre = String(request.data?.nombre || "foto-efectivo").trim();
+
+        if (!docId) throw new HttpsError("invalid-argument", "docId requerido.");
+        if (!base64) throw new HttpsError("invalid-argument", "Foto requerida.");
+
+        // Solo imágenes (no PDF) para fotos de efectivo
+        const TIPOS_FOTO = new Set(["image/jpeg", "image/png", "image/webp"]);
+        if (!TIPOS_FOTO.has(contentType)) {
+          throw new HttpsError("invalid-argument", "La foto debe ser JPEG, PNG o WEBP.");
+        }
+
+        const buffer = Buffer.from(base64, "base64");
+        if (!buffer.length || buffer.length > LIMITE_COMPROBANTE) {
+          throw new HttpsError("invalid-argument", "La foto no puede superar 10 MB.");
+        }
+
+        const extMap = {"image/jpeg": "jpeg", "image/png": "png", "image/webp": "webp"};
+        const ruta = `comprobantes/${docId}_efectivo.${extMap[contentType]}`;
+
+        await bucket.file(ruta).save(buffer, {
+          metadata: {
+            contentType,
+            metadata: {
+              nombreOriginal: nombre.slice(0, 200),
+              subidoEn: new Date().toISOString(),
+              tipo: "foto_efectivo_staff",
+            },
+          },
+        });
+
+        // Guardar la ruta en Firestore
+        await db.collection("participantes").doc(docId).update({
+          "pago.comprobanteRuta": ruta,
+          "actualizadoEn": FieldValue.serverTimestamp(),
+        });
+
+        return {ok: true, ruta};
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("subirFotoEfectivo:", e);
+        throw new HttpsError("internal", "Error al subir la foto. Intenta de nuevo.");
+      }
+    },
+);

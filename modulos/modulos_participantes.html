@@ -446,6 +446,9 @@ import {
 
 import { db as fireDb, storage } from "../js/core/firebase-config.js";
 import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+
+const fireFunc = getFunctions(undefined, "us-central1");
 
 const el   = id => document.getElementById(id);
 const rol  = sessionStorage.getItem("rol") || "";
@@ -649,7 +652,31 @@ function renderSheet(p) {
                📎 Ver comprobante de pago
              </button>`
           : `<div style="margin-top:10px;font-size:12px;color:var(--amarillo);font-weight:600;"> Sin comprobante adjunto</div>`
-        : `<div style="margin-top:10px;font-size:12px;color:var(--gris-medio);font-weight:600;"> Pago en efectivo — sin comprobante</div>`
+        : canAprobar && !yaAprobado
+          ? `<div style="margin-top:12px;">
+               <div style="font-size:12px;font-weight:700;color:var(--gris-texto);margin-bottom:6px;">
+                 📷 Foto del pago en efectivo
+               </div>
+               <div style="font-size:11px;color:var(--gris-medio);margin-bottom:8px;">
+                 Sube una foto del participante pagando a Angie Montenegro (Finanzas).
+               </div>
+               <label id="label-foto-efectivo" style="display:flex;align-items:center;gap:8px;
+                      padding:10px 12px;border:1.5px dashed var(--gris-borde);border-radius:var(--radio-sm);
+                      cursor:pointer;font-size:13px;color:var(--verde-oscuro);font-weight:600;
+                      background:var(--verde-fondo);transition:border-color 0.2s;">
+                 <span>📁</span><span id="label-foto-texto">Seleccionar foto</span>
+                 <input type="file" id="input-foto-efectivo" accept="image/jpeg,image/png,image/webp"
+                        style="display:none;" onchange="window._onFotoEfectivoChange(this)"/>
+               </label>
+               <div id="preview-foto-efectivo" style="display:none;margin-top:8px;border-radius:var(--radio-sm);overflow:hidden;">
+                 <img id="img-preview-efectivo" style="width:100%;max-height:160px;object-fit:cover;border-radius:var(--radio-sm);" src="" alt="preview"/>
+               </div>
+             </div>`
+          : p.pago?.comprobanteRuta
+            ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+                 📎 Ver foto del pago en efectivo
+               </button>`
+            : `<div style="margin-top:10px;font-size:12px;color:var(--gris-medio);font-weight:600;">💵 Pago en efectivo — pendiente de registro</div>`
       }
     </div>
 
@@ -657,17 +684,17 @@ function renderSheet(p) {
     <!-- ACCIONES -->
     <div style="margin-bottom:8px;">
       <div class="sp-fila" style="margin-bottom:10px;">
-        <span class="sp-label">Metodo registrado por el participante</span>
+        <span class="sp-label">Método registrado por el participante</span>
         <span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span>
       </div>
       <textarea class="notas-area" id="notas-pago" placeholder="Notas internas (opcional)...">${p.pago?.notas || ""}</textarea>
     </div>
     <div class="acciones-pago">
       <button class="btn-grande btn-aprobar-grande" id="btn-aprobar-sh" onclick="window._aprobar()">
-        Aprobar pago
+        ✔ Aprobar pago
       </button>
       <button class="btn-grande btn-rechazar-grande" id="btn-rechazar-sh" onclick="window._rechazar()">
-        Rechazar
+        ✖ Rechazar
       </button>
     </div>` : ""}
 
@@ -704,14 +731,69 @@ function renderSheet(p) {
 }
 
 
+// ── FOTO EFECTIVO (staff sube foto del pago) ─────────────────────────────
+window._onFotoEfectivoChange = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const label = document.getElementById("label-foto-texto");
+  const preview = document.getElementById("preview-foto-efectivo");
+  const img = document.getElementById("img-preview-efectivo");
+  if (label) label.textContent = file.name.length > 28 ? file.name.slice(0, 25) + "..." : file.name;
+  if (preview && img) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; preview.style.display = "block"; };
+    reader.readAsDataURL(file);
+  }
+};
+
 // ── APROBAR ───────────────────────────────────────────────────────────────
 window._aprobar = async function() {
   if (!participanteSeleccionado) return;
   const notas = document.getElementById("notas-pago")?.value.trim() || "";
   const docId = participanteSeleccionado.id;
+  const esEfectivo = participanteSeleccionado.pago?.metodo === "efectivo";
+
+  // Si es efectivo, verificar si hay foto seleccionada
+  let fotoBase64 = null;
+  let fotoType = null;
+  let fotoNombre = null;
+  if (esEfectivo) {
+    const inputFoto = document.getElementById("input-foto-efectivo");
+    const file = inputFoto?.files[0];
+    if (file) {
+      fotoBase64 = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result.split(",")[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+      fotoType = file.type;
+      fotoNombre = file.name;
+    }
+  }
+
   document.getElementById("btn-aprobar-sh").disabled = true;
   document.getElementById("btn-rechazar-sh").disabled = true;
+
+  // Advertir si es efectivo y no hay foto
+  if (esEfectivo && !fotoBase64) {
+    const continuar = confirm(
+      "⚠️ No has subido una foto del pago en efectivo.\n\n¿Deseas aprobar el pago sin foto de respaldo?"
+    );
+    if (!continuar) {
+      document.getElementById("btn-aprobar-sh").disabled = false;
+      document.getElementById("btn-rechazar-sh").disabled = false;
+      return;
+    }
+  }
+
   try {
+    // Subir foto de efectivo si la hay
+    if (esEfectivo && fotoBase64) {
+      const subirFoto = httpsCallable(fireFunc, "subirFotoEfectivo");
+      await subirFoto({ docId, base64: fotoBase64, contentType: fotoType, nombre: fotoNombre });
+    }
+
     await updateDoc(doc(fireDb, "participantes", docId), {
       "pago.estado": "aprobado",
       "pago.aprobadoPor": uid,
@@ -731,8 +813,6 @@ window._aprobar = async function() {
       const resCorreo = await enviarCorreoQrParticipante(docId);
       mensaje = resCorreo?.mensaje ?? " Pago aprobado — correo de credencial enviado.";
     } catch (correoErr) {
-      // El correo pudo haberse enviado igual (el trigger de Firestore lo reintenta).
-      // No alarmamos al staff con un error técnico.
       mensaje = " Pago aprobado correctamente.\n\nNota: el correo fue encolado — si no llega en unos minutos, usa el botón de reenviar en el perfil del participante.";
     }
     cerrarSheet();
