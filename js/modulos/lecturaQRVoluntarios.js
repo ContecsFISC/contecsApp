@@ -132,6 +132,7 @@ el("btn-iniciar").addEventListener("click", async () => {
     escaneando = true;
     el("btn-iniciar").style.display = "none";
     el("btn-detener").style.display = "inline-flex";
+    el("reader").closest(".scanner-overlay").classList.add("activo");
   } catch (e) {
     alerta("error", "No se pudo acceder a la cámara: " + e.message);
   }
@@ -141,6 +142,7 @@ el("btn-detener").addEventListener("click", async () => {
   if (scanner && escaneando) { await scanner.stop(); escaneando = false; }
   el("btn-iniciar").style.display  = "inline-flex";
   el("btn-detener").style.display  = "none";
+  el("reader").closest(".scanner-overlay").classList.remove("activo");
 });
 
 // ─── Escaneo exitoso ─────────────────────────────────────────────────────────
