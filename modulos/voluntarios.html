@@ -45,11 +45,6 @@
  .turno-tag { display:inline-flex; align-items:center; gap:6px; background:var(--verde-fondo); border:1px solid var(--verde-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--verde-oscuro); }
  .turno-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
 
- .firma-badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; }
- .firma-faltante { background:var(--amarillo-fondo); color:var(--amarillo); border:1px solid var(--amarillo); }
- .firma-aceptada { background:var(--verde-fondo); color:var(--verde-oscuro); border:1px solid var(--verde-claro); }
- .firma-select { font-size:12px; border:1.5px solid var(--gris-borde); border-radius:8px; padding:4px 8px; cursor:pointer; background:#fff; }
-
  .horas-badge { display:inline-block; background:var(--verde-fondo); color:var(--verde-oscuro); font-weight:700; padding:3px 10px; border-radius:12px; font-size:13px; }
  .area-badge { display:inline-block; background:#e8f0fe; color:#1a56db; font-weight:600; padding:3px 10px; border-radius:12px; font-size:12px; border:1px solid #c7d9fc; }
  .tipo-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; }
@@ -301,7 +296,6 @@
  <div class="stats-grid">
  <div class="stat-mini"><div class="num" id="stat-total">—</div><div class="lbl">Total voluntarios</div></div>
  <div class="stat-mini"><div class="num" id="stat-horas">—</div><div class="lbl">Horas totales</div></div>
- <div class="stat-mini"><div class="num" id="stat-firmas">—</div><div class="lbl">Firmas aceptadas</div></div>
  </div>
  <div class="card" style="border:2px solid var(--verde-claro);">
  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -323,7 +317,6 @@
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Carrera</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horario</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horas</th>
- <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Firma física</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)"></th>
  </tr></thead>
  <tbody id="tabla-voluntarios-body"></tbody>
@@ -375,7 +368,7 @@
 <!-- MODAL QR -->
 <div class="modal-overlay" id="modal-qr">
  <div class="modal-box">
- <button class="modal-close" id="modal-qr-close"></button>
+ <button class="modal-close" id="modal-qr-close">&times;</button>
  <div class="modal-title" id="qr-modal-nombre"></div>
  <div id="qr-canvas-wrap"></div>
  <p id="qr-modal-info" style="text-align:center;font-size:13px;color:var(--gris-medio);margin-bottom:16px;"></p>
@@ -389,7 +382,7 @@
 <!-- MODAL PREVIEW IMPORTAR -->
 <div class="modal-overlay" id="modal-preview">
  <div class="modal-box" style="max-width:720px;width:100%;">
- <button class="modal-close" id="modal-preview-close"></button>
+ <button class="modal-close" id="modal-preview-close">&times;</button>
  <div class="modal-title">Vista previa (primeras 5 filas)</div>
  <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
  <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
@@ -401,7 +394,7 @@
 <!-- MODAL ASIGNAR GRUPO -->
 <div class="modal-overlay" id="modal-grupo">
  <div class="modal-box" style="max-width:620px;width:100%;">
- <button class="modal-close" id="modal-grupo-close"></button>
+ <button class="modal-close" id="modal-grupo-close">&times;</button>
  <div class="modal-title" style="color:#1a56db;"> Asignar grupo de voluntarios</div>
 
  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">

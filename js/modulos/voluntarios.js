@@ -11,6 +11,27 @@ const QRCode = window.QRCode;
 const Papa   = window.Papa;
 const XLSX   = window.XLSX;
 
+const DIACRITICOS_RE = new RegExp("[̀-ͯ]", "g");
+const normalizarParaComparar = s => s.toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
+
+function nombreCompletoVol(v) {
+  const nombre   = (v?.nombre || "").trim();
+  const apellido = (v?.apellido || "").trim();
+  if (!apellido) return nombre;
+
+  const nombreWords   = nombre.split(/\s+/);
+  const apellidoWords = apellido.split(/\s+/);
+  const maxSolape = Math.min(nombreWords.length, apellidoWords.length);
+  let solape = 0;
+  for (let i = maxSolape; i >= 1; i--) {
+    const colaNombre    = nombreWords.slice(-i).map(normalizarParaComparar).join(" ");
+    const cabezaApellido = apellidoWords.slice(0, i).map(normalizarParaComparar).join(" ");
+    if (colaNombre === cabezaApellido) { solape = i; break; }
+  }
+  const restante = apellidoWords.slice(solape).join(" ");
+  return restante ? `${nombre} ${restante}` : nombre;
+}
+
 let actividades       = [];
 let giras             = [];
 let ventas            = [];
@@ -58,7 +79,6 @@ function hayConflictoHorario(horarioVol, horaInicioTurno, horaFinTurno) {
 }
 
 const usuario = getUsuarioActual();
-const puedeEditarFirma = ["voluntariado", "ceo", "junta_principal"].includes(usuario.rol);
 
 // ─── Alerta + Toast fijo ──────────────────────────────────────────────────────
 function mostrarAlerta(tipo, msg, duracion = 5000) {
@@ -529,7 +549,6 @@ el("btn-confirmar-importar")?.addEventListener("click", async () => {
       horario:     normalizarHorario(fila[mapeo.horario]?.toString().trim() || ""),
       habilidad:   fila[mapeo.habilidad]?.toString().trim() || "",
       totalHoras:  0,
-      firmaEstado: "Firma faltante",
       importadoDeArchivo: new Date().toISOString(),
       creadoEn:    serverTimestamp(),
     });
@@ -554,7 +573,7 @@ async function cargarVoluntarios() {
   if (spVol) spVol.style.display = "flex";
   try {
     const snap = await getDocs(query(collection(db, "voluntarios"), orderBy("creadoEn", "desc")));
-    voluntarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    voluntarios = snap.docs.map(d => ({ id: d.id, ...d.data(), _docId: d.id }));
   } catch {
     voluntarios = [];
   }
@@ -567,7 +586,6 @@ function actualizarStats() {
   const totalH = voluntarios.reduce((s, v) => s + (v.totalHoras || 0), 0);
   if (el("stat-total"))  el("stat-total").textContent  = voluntarios.length;
   if (el("stat-horas"))  el("stat-horas").textContent  = totalH.toFixed(1) + "h";
-  if (el("stat-firmas")) el("stat-firmas").textContent = voluntarios.filter(v => v.firmaEstado === "Firma aceptada").length;
 }
 
 const HORARIO_CFG = {
@@ -588,29 +606,17 @@ function renderVoluntarios(filtro = "") {
   if (filtroHorarioVol) lista = lista.filter(v => v.horario === filtroHorarioVol);
 
   if (!lista.length) {
-    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">${filtro || filtroHorarioVol ? "Sin coincidencias" : "Sin voluntarios registrados"}</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">${filtro || filtroHorarioVol ? "Sin coincidencias" : "Sin voluntarios registrados"}</td></tr>`;
     return;
   }
 
   tb.innerHTML = lista.map(v => {
-    const esFaltante = v.firmaEstado !== "Firma aceptada";
-    const firmaBadge = esFaltante
-      ? `<span class="firma-badge firma-faltante">⚠ Firma faltante</span>`
-      : `<span class="firma-badge firma-aceptada">✓ Firma aceptada</span>`;
-
-    const firmaControl = puedeEditarFirma
-      ? `<select class="firma-select" onchange="cambiarFirma('${v.id}',this.value)">
-           <option value="Firma faltante"${esFaltante ? " selected" : ""}>⚠ Firma faltante</option>
-           <option value="Firma aceptada"${!esFaltante ? " selected" : ""}>✓ Firma aceptada</option>
-         </select>`
-      : firmaBadge;
-
     const hCfg = HORARIO_CFG[v.horario];
     const horarioBadge = hCfg
       ? `<span style="font-size:11px;background:${hCfg.bg};color:${hCfg.color};padding:3px 9px;border-radius:12px;white-space:nowrap;font-weight:600;">${hCfg.icono} ${v.horario}</span>`
       : `<span style="color:var(--gris-medio);font-size:12px;">—</span>`;
 
-    const nombreCompleto = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`;
+    const nombreCompleto = nombreCompletoVol(v);
     return `<tr>
       <td>
         <strong>${nombreCompleto}</strong>
@@ -621,7 +627,6 @@ function renderVoluntarios(filtro = "") {
       <td>${v.carrera || "—"}</td>
       <td>${horarioBadge}</td>
       <td><span class="horas-badge">${(v.totalHoras || 0).toFixed(2)}h</span></td>
-      <td>${firmaControl}</td>
       <td style="white-space:nowrap;">
         <button class="btn btn-outline btn-sm" onclick="verQR('${v.id}')" style="width:auto;margin-right:4px" title="Ver QR del voluntario">📷</button>
         <button onclick="eliminarVoluntario('${v.id}','${v.nombre.replace(/'/g, "\\'")}')"
@@ -630,21 +635,6 @@ function renderVoluntarios(filtro = "") {
     </tr>`;
   }).join("");
 }
-
-window.cambiarFirma = async function(id, nuevoEstado) {
-  if (!puedeEditarFirma) return;
-  try {
-    await updateDoc(doc(db, "voluntarios", id), {
-      firmaEstado:         nuevoEstado,
-      firmaActualizadaPor: auth.currentUser?.uid || "",
-      firmaActualizadaEn:  serverTimestamp(),
-    });
-    const v = voluntarios.find(x => x.id === id);
-    if (v) v.firmaEstado = nuevoEstado;
-    actualizarStats();
-    mostrarAlerta("success", `Firma actualizada: ${nuevoEstado}`);
-  } catch (e) { mostrarAlerta("error", "Error al actualizar firma: " + e.message); }
-};
 
 window.eliminarVoluntario = async function(id, nombre) {
   if (!confirm(`¿Eliminar al voluntario "${nombre}"? Esta acción no se puede deshacer.`)) return;
@@ -665,8 +655,8 @@ window.verQR = function(id) {
   const v = voluntarios.find(x => x.id === id);
   if (!v) return;
   voluntarioQRActual = v;
-  el("qr-modal-nombre").textContent = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`;
-  el("qr-modal-info").textContent   = `ID: ${id}${v.id ? " · ID: " + v.id : ""}`;
+  el("qr-modal-nombre").textContent = nombreCompletoVol(v);
+  el("qr-modal-info").textContent   = `ID: ${id}`;
   const wrap = el("qr-canvas-wrap");
   wrap.innerHTML = "";
   new QRCode(wrap, {
@@ -694,7 +684,7 @@ el("btn-descargar-qr")?.addEventListener("click", async () => {
   const blob   = await new Promise(res => canvas.toBlob(res, "image/png"));
   const url    = URL.createObjectURL(blob);
   const link   = document.createElement("a");
-  const slug   = `${voluntarioQRActual.nombre}${voluntarioQRActual.apellido ? "_" + voluntarioQRActual.apellido : ""}`.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, "");
+  const slug   = nombreCompletoVol(voluntarioQRActual).replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, "");
   link.href     = url;
   link.download = `carnet_${slug}.png`;
   link.click();
@@ -732,7 +722,6 @@ el("btn-exportar-excel")?.addEventListener("click", () => {
     "Horario de clases":               v.horario || "",
     "Habilidad destacada":             v.habilidad || "",
     "Horas ganadas": +(v.totalHoras || 0).toFixed(2),
-    "Firma física":  v.firmaEstado || "Firma faltante",
   }));
   const ws = XLSX.utils.json_to_sheet(filas);
   const wb = XLSX.utils.book_new();
@@ -843,7 +832,7 @@ async function dibujarCarnet(v, qrDataURL) {
   ctx.fillRect(0, 145, W, H - 165);
 
   const maxW = W - 36;
-  const nombre = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`.toUpperCase();
+  const nombre = nombreCompletoVol(v).toUpperCase();
 
   // Nombre
   ctx.fillStyle = "#045223";
@@ -914,7 +903,7 @@ el("btn-exportar-qr")?.addEventListener("click", async () => {
     const qrURL  = await generarQRDataURL(v.id, 168);
     const canvas = await dibujarCarnet(v, qrURL);
     const blob   = await new Promise(res => canvas.toBlob(res, "image/png"));
-    const slug   = `${v.nombre}${v.apellido ? "_" + v.apellido : ""}`
+    const slug   = nombreCompletoVol(v)
       .replace(/\s+/g, "_")
       .replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ]/g, "");
     carpeta.file(`${String(i + 1).padStart(3, "0")}_${slug}.png`, blob);
@@ -961,7 +950,7 @@ const ESTRELLAS = { 1: "⭐", 2: "⭐⭐", 3: "⭐⭐⭐", 4: "⭐⭐⭐⭐", 5:
 const ETIQUETAS = { 1: "Necesita mejora", 2: "Regular", 3: "Bueno", 4: "Muy bueno", 5: "Excelente" };
 
 function resolverAsistencia(a) {
-  const vol   = voluntarios.find(v => v.id === a.voluntarioId);
+  const vol   = voluntarios.find(v => v._docId === a.voluntarioId);
   const act   = actividades.find(x => x.id === a.actividadId);
   const turno = act?.turnos?.find(t => t.id === a.turnoId);
   return {
@@ -1241,7 +1230,7 @@ function poblarSelectorVoluntarios() {
   voluntarios.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v.id;
-    opt.textContent = `${v.nombre}${v.apellido ? " " + v.apellido : ""}${v.cedula ? ` (${v.cedula})` : ""}`;
+    opt.textContent = `${nombreCompletoVol(v)}${v.cedula ? ` (${v.cedula})` : ""}`;
     sel.appendChild(opt);
   });
   sel.value = actual;
@@ -1312,7 +1301,7 @@ el("btn-asignar")?.addEventListener("click", async () => {
 
   // Validar conflicto con horario de clases del voluntario
   if (vol?.horario && turno && hayConflictoHorario(vol.horario, turno.horaInicio, turno.horaFin)) {
-    const nombreVol = `${vol.nombre}${vol.apellido ? " " + vol.apellido : ""}`;
+    const nombreVol = nombreCompletoVol(vol);
     const hCfg = HORARIOS.find(h => h.valor === vol.horario);
     mostrarAlerta("error", `${nombreVol} tiene clases en horario ${hCfg?.label || vol.horario}. El turno "${turno.nombre}" (${turno.horaInicio}–${turno.horaFin}) choca con su horario de clases.`);
     return;
@@ -1320,7 +1309,7 @@ el("btn-asignar")?.addEventListener("click", async () => {
 
   // Validar que el voluntario no esté ya asignado a otro evento en la misma fecha/turno
   const { yaAsignados: yaAsigEste, ocupados } = getEstadoVoluntarios(tipo, eventoId, turnoId);
-  const nombreVol = `${vol?.nombre || ""}${vol?.apellido ? " " + vol.apellido : ""}`;
+  const nombreVol = vol ? nombreCompletoVol(vol) : "";
   if (yaAsigEste.has(volId)) {
     mostrarAlerta("error", `${nombreVol} ya está asignado a este evento.`);
     return;
@@ -1343,7 +1332,7 @@ el("btn-asignar")?.addEventListener("click", async () => {
 
   const data = {
     voluntarioId:     volId,
-    voluntarioNombre: vol ? `${vol.nombre}${vol.apellido ? " " + vol.apellido : ""}` : "",
+    voluntarioNombre: vol ? nombreCompletoVol(vol) : "",
     areaTrabajo: areaTrab, tipo, eventoId,
     eventoNombre: evento?.nombre || "",
     turnoId: turnoId || "",
@@ -1753,7 +1742,7 @@ function renderVoluntariosGrupo() {
       ? hayConflictoHorario(v.horario, turno.horaInicio, turno.horaFin)
       : false;
     const disabled = esYaAsig || esOcupado || esConflictoHorario;
-    const nombre = `${v.nombre}${v.apellido ? " " + v.apellido : ""}`;
+    const nombre = nombreCompletoVol(v);
     let badge = "";
     if (esYaAsig)
       badge = `<span style="font-size:11px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:12px;white-space:nowrap;border:1px solid #6ee7b7;">Ya asignado</span>`;

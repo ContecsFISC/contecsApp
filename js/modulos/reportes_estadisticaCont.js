@@ -147,7 +147,7 @@ async function cargarEstadisticasVoluntarios() {
     getDocs(collection(db, "asistencias_voluntarios")),
   ]);
 
-  const voluntarios = volSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const voluntarios = volSnap.docs.map(d => ({ id: d.id, ...d.data(), _docId: d.id }));
   const actividades = actSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const asistencias = asistSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
@@ -234,7 +234,7 @@ async function cargarEstadisticasVoluntarios() {
   const tbody = document.getElementById("voluntariosTableBody");
   tbody.innerHTML = sortedVol.map((v, i) => {
     const horas  = +(v.totalHoras || 0).toFixed(2);
-    const partic = partPor[v.id] || 0;
+    const partic = partPor[v._docId] || 0;
     const barW   = maxHoras ? Math.round(horas / maxHoras * 100) : 0;
     return `<tr>
       <td style="color:var(--gris-medio);font-size:12px">${i + 1}</td>
@@ -283,8 +283,25 @@ function truncate(s, max) {
   return s && s.length > max ? s.slice(0, max) + "…" : (s || "—");
 }
 
+const DIACRITICOS_RE = new RegExp("[̀-ͯ]", "g");
+const normalizarParaComparar = s => s.toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
+
 function nombreVol(v) {
-  return `${v.nombre || ""}${v.apellido ? " " + v.apellido : ""}`.trim() || "—";
+  const nombre   = (v.nombre || "").trim();
+  const apellido = (v.apellido || "").trim();
+  if (!apellido) return nombre || "—";
+
+  const nombreWords   = nombre.split(/\s+/);
+  const apellidoWords = apellido.split(/\s+/);
+  const maxSolape = Math.min(nombreWords.length, apellidoWords.length);
+  let solape = 0;
+  for (let i = maxSolape; i >= 1; i--) {
+    const colaNombre     = nombreWords.slice(-i).map(normalizarParaComparar).join(" ");
+    const cabezaApellido = apellidoWords.slice(0, i).map(normalizarParaComparar).join(" ");
+    if (colaNombre === cabezaApellido) { solape = i; break; }
+  }
+  const restante = apellidoWords.slice(solape).join(" ");
+  return restante ? `${nombre} ${restante}` : (nombre || "—");
 }
 
 function badgeTipo(tipo) {
