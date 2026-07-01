@@ -236,6 +236,29 @@
  .tab-oculta {
  display: none;
  }
+
+ /* ── FILTROS VENTAS ── */
+ .ventas-filtros {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 12px;
+ margin-bottom: 14px;
+ align-items: flex-end;
+ }
+ .ventas-filtros .form-group { flex: 1; min-width: 180px; margin-bottom: 0; }
+ .ventas-filtros .btn { flex-shrink: 0; }
+ .ventas-resumen-filtro {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ font-size: 13px;
+ color: var(--gris-medio);
+ background: var(--gris-suave);
+ border-radius: var(--radio-sm);
+ padding: 8px 12px;
+ margin-bottom: 14px;
+ }
+ .ventas-resumen-filtro strong { color: var(--verde-oscuro); font-size: 14px; }
  </style>
 </head>
 <body>
@@ -256,7 +279,23 @@
  </div>
 
  <div id="tab-ventas">
+ <div class="ventas-filtros">
+ <div class="form-group">
+ <label for="filtro-actividad-venta">Actividad de venta</label>
+ <select id="filtro-actividad-venta" aria-label="Filtrar por actividad de venta">
+ <option value="">Todas las actividades</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label for="filtro-fecha-venta">Día</label>
+ <input type="date" id="filtro-fecha-venta" aria-label="Filtrar por día"/>
+ </div>
+ <button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-filtros-venta">Limpiar filtros</button>
+ </div>
+ <div class="ventas-resumen-filtro" id="ventas-resumen-filtro"></div>
+ <div id="ventas-lista">
  <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
  </div>
  <div id="tab-compras" class="tab-oculta">
  <div class="tab-spinner"><div class="spinner"></div></div>
@@ -341,22 +380,67 @@
  // ════════════════════════════════════════════════════════════════════════
  // TAB VENTAS
  // ════════════════════════════════════════════════════════════════════════
- const contenedorVentas = document.getElementById("tab-ventas");
+ const contenedorVentas = document.getElementById("ventas-lista");
+ const resumenFiltroVentas = document.getElementById("ventas-resumen-filtro");
+ const filtroActividadVenta = document.getElementById("filtro-actividad-venta");
+ const filtroFechaVenta = document.getElementById("filtro-fecha-venta");
+ const btnLimpiarFiltrosVenta = document.getElementById("btn-limpiar-filtros-venta");
 
- unsubs.ventas = onSnapshot(
- query(collection(db, "ventas"), orderBy("creadoEn", "desc"), limit(50)),
- (snap) => {
- if (snap.empty) {
+ let ventasCache = [];
+
+ function fechaLocalISO(ts) {
+ if (!ts) return "";
+ const f = ts.toDate ? ts.toDate() : new Date(ts);
+ const y = f.getFullYear();
+ const m = String(f.getMonth() + 1).padStart(2, "0");
+ const d = String(f.getDate()).padStart(2, "0");
+ return `${y}-${m}-${d}`;
+ }
+
+ async function cargarActividadesFiltroVentas() {
+ try {
+ const snap = await getDocs(collection(db, "actividades_ventas"));
+ const actividades = [];
+ snap.forEach(d => actividades.push({ id: d.id, ...d.data() }));
+ actividades.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+ actividades.forEach(a => {
+ const opt = document.createElement("option");
+ opt.value = a.id;
+ opt.textContent = a.activo === false ? `${a.nombre || "—"} (inactiva)` : (a.nombre || "—");
+ filtroActividadVenta.appendChild(opt);
+ });
+ } catch (e) {
+ console.error("Cargar actividades para filtro de ventas:", e);
+ }
+ }
+ cargarActividadesFiltroVentas();
+
+ function renderVentas() {
+ const actividadSel = filtroActividadVenta.value;
+ const fechaSel = filtroFechaVenta.value;
+
+ const filtradas = ventasCache.filter(v => {
+ if (actividadSel && v.actividadVentaId !== actividadSel) return false;
+ if (fechaSel && fechaLocalISO(v.creadoEn) !== fechaSel) return false;
+ return true;
+ });
+
+ const totalFiltrado = filtradas.reduce((acc, v) => acc + numeroSeguro(v.total), 0);
+ resumenFiltroVentas.innerHTML = `
+ <span>${filtradas.length} venta${filtradas.length === 1 ? "" : "s"}</span>
+ <strong>${formatearMoneda(totalFiltrado)}</strong>`;
+
+ if (filtradas.length === 0) {
  contenedorVentas.innerHTML = `
  <div class="empty-state">
  <div class="emoji"></div>
- <p>No hay ventas registradas aún.</p>
+ <p>No hay ventas que coincidan con el filtro.</p>
  </div>`;
  return;
  }
+
  contenedorVentas.innerHTML = "";
- snap.forEach((docSnap, idx) => {
- const v = docSnap.data();
+ filtradas.forEach((v, idx) => {
  const card = document.createElement("div");
  card.className = "bita-card";
  card.style.animationDelay = `${idx * 0.04}s`;
@@ -455,7 +539,7 @@
  <div class="bita-header">
  <div class="bita-meta">
  <div class="bita-fecha">${formatearFecha(v.creadoEn)}</div>
- <div class="bita-usuario"> ${v.usuarioNombre || "—"}</div>
+ <div class="bita-usuario"> ${v.usuarioNombre || "—"}${v.actividadVentaNombre ? ` &middot; ${v.actividadVentaNombre}` : ""}</div>
  </div>
  <span class="bita-total">${formatearMoneda(v.total ?? 0)}</span>
  <span class="bita-metodo">${metodoTexto}</span>
@@ -487,6 +571,21 @@
  card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
  contenedorVentas.appendChild(card);
  });
+ }
+
+ filtroActividadVenta.addEventListener("change", renderVentas);
+ filtroFechaVenta.addEventListener("change", renderVentas);
+ btnLimpiarFiltrosVenta.addEventListener("click", () => {
+ filtroActividadVenta.value = "";
+ filtroFechaVenta.value = "";
+ renderVentas();
+ });
+
+ unsubs.ventas = onSnapshot(
+ query(collection(db, "ventas"), orderBy("creadoEn", "desc"), limit(300)),
+ (snap) => {
+ ventasCache = snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+ renderVentas();
  },
  (err) => {
  console.error("Bitácora ventas:", err);
