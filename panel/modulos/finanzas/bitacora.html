@@ -298,7 +298,17 @@
  </div>
  </div>
  <div id="tab-compras" class="tab-oculta">
+ <div class="ventas-filtros">
+ <div class="form-group">
+ <label for="filtro-fecha-compra">Día</label>
+ <input type="date" id="filtro-fecha-compra" aria-label="Filtrar por día"/>
+ </div>
+ <button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-filtros-compra">Limpiar filtros</button>
+ </div>
+ <div class="ventas-resumen-filtro" id="compras-resumen-filtro"></div>
+ <div id="compras-lista">
  <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
  </div>
  <div id="tab-fondos" class="tab-oculta">
  <div class="tab-spinner"><div class="spinner"></div></div>
@@ -448,7 +458,8 @@
  const metodoTexto = {
  tarjeta: " Tarjeta",
  transferencia: " Transferencia",
- efectivo: " Efectivo"
+ efectivo: " Efectivo",
+ yappy: " Yappy"
  }[v.metodoPago] || " Efectivo";
  const itemsHTML = (v.items || []).map(it => `
  <tr>
@@ -599,22 +610,37 @@
  // ════════════════════════════════════════════════════════════════════════
  // TAB COMPRAS
  // ════════════════════════════════════════════════════════════════════════
- const contenedorCompras = document.getElementById("tab-compras");
+ const contenedorCompras = document.getElementById("compras-lista");
+ const resumenFiltroCompras = document.getElementById("compras-resumen-filtro");
+ const filtroFechaCompra = document.getElementById("filtro-fecha-compra");
+ const btnLimpiarFiltrosCompra = document.getElementById("btn-limpiar-filtros-compra");
 
- unsubs.compras = onSnapshot(
- query(collection(db, "compras"), orderBy("creadoEn", "desc"), limit(50)),
- (snap) => {
- if (snap.empty) {
+ let comprasCache = [];
+
+ function renderCompras() {
+ const fechaSel = filtroFechaCompra.value;
+
+ const filtradas = comprasCache.filter(c => {
+ if (fechaSel && fechaLocalISO(c.creadoEn) !== fechaSel) return false;
+ return true;
+ });
+
+ const totalFiltrado = filtradas.reduce((acc, c) => acc + numeroSeguro(c.total), 0);
+ resumenFiltroCompras.innerHTML = `
+ <span>${filtradas.length} compra${filtradas.length === 1 ? "" : "s"}</span>
+ <strong>${formatearMoneda(totalFiltrado)}</strong>`;
+
+ if (filtradas.length === 0) {
  contenedorCompras.innerHTML = `
  <div class="empty-state">
  <div class="emoji"></div>
- <p>No hay compras registradas aún.</p>
+ <p>No hay compras que coincidan con el filtro.</p>
  </div>`;
  return;
  }
+
  contenedorCompras.innerHTML = "";
- snap.forEach((docSnap, idx) => {
- const c = docSnap.data();
+ filtradas.forEach((c, idx) => {
  const card = document.createElement("div");
  card.className = "bita-card";
  card.style.animationDelay = `${idx * 0.04}s`;
@@ -670,6 +696,19 @@
  card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
  contenedorCompras.appendChild(card);
  });
+ }
+
+ filtroFechaCompra.addEventListener("change", renderCompras);
+ btnLimpiarFiltrosCompra.addEventListener("click", () => {
+ filtroFechaCompra.value = "";
+ renderCompras();
+ });
+
+ unsubs.compras = onSnapshot(
+ query(collection(db, "compras"), orderBy("creadoEn", "desc"), limit(300)),
+ (snap) => {
+ comprasCache = snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+ renderCompras();
  },
  (err) => {
  console.error("Bitácora compras:", err);
