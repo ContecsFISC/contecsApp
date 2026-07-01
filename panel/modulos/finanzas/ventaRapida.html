@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+	<title>CONTECS — Venta Rápida</title>
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2300722e'/%3E%3Cpath d='M16 22h32v6H16zm0 14h20v6H16z' fill='white'/%3E%3C/svg%3E"/>
+	<link rel="stylesheet" href="../../../css/styles.css"/>
+	<style>
+		body { padding-bottom: 90px; }
+		.container { max-width: 640px; }
+		.catalogo-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 10px;
+			margin-top: 10px;
+		}
+		@media (min-width: 480px) {
+			.catalogo-grid { grid-template-columns: repeat(4, 1fr); }
+		}
+		.item-card {
+			position: relative;
+			background: #fff;
+			border-radius: var(--radio);
+			box-shadow: var(--sombra-sm);
+			padding: 12px 8px 10px;
+			text-align: center;
+			cursor: pointer;
+			user-select: none;
+			border: 2px solid transparent;
+			transition: transform 0.1s, border-color 0.15s;
+			min-height: 108px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 4px;
+		}
+		.item-card:active { transform: scale(0.94); }
+		.item-card.tiene-cant { border-color: var(--verde-claro); }
+		.item-card.combo { border-color: var(--amarillo); }
+		.item-card.combo.tiene-cant { border-color: var(--verde-claro); }
+		.item-card .icono { font-size: 30px; line-height: 1; }
+		.item-card .nombre { font-size: 12px; font-weight: 700; color: var(--gris-texto); line-height: 1.2; }
+		.item-card .precio { font-size: 11px; color: var(--gris-medio); }
+		.item-card .badge-combo {
+			position: absolute; top: 4px; left: 4px;
+			background: var(--amarillo-fondo); color: var(--amarillo);
+			font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px;
+		}
+		.item-card .badge-cant {
+			position: absolute; top: -6px; right: -6px;
+			background: var(--verde-oscuro); color: #fff;
+			min-width: 22px; height: 22px; border-radius: 50%;
+			display: flex; align-items: center; justify-content: center;
+			font-size: 12px; font-weight: 700;
+			box-shadow: var(--sombra-sm);
+		}
+		.item-card .badge-cant:active { transform: scale(0.9); }
+		.item-card.agotado { opacity: 0.45; pointer-events: none; }
+
+		.seccion-titulo { font-weight: 700; color: var(--verde-oscuro); margin: 16px 0 4px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+		.seccion-titulo:first-child { margin-top: 4px; }
+
+		.pedido-fila {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 0;
+			border-bottom: 1px solid var(--gris-borde);
+		}
+		.pedido-fila:last-child { border-bottom: none; }
+		.pedido-fila .info { flex: 1; min-width: 0; }
+		.pedido-fila .info .nombre { font-weight: 700; font-size: 13px; }
+		.pedido-fila .info .meta { font-size: 11px; color: var(--gris-medio); }
+		.pedido-fila .stepper { display: flex; align-items: center; gap: 4px; }
+		.pedido-fila .stepper button {
+			width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--gris-borde);
+			background: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+		}
+		.pedido-fila .stepper input {
+			width: 34px; text-align: center; border: none; font-weight: 700; font-size: 13px;
+		}
+		.pedido-fila .quitar { background: none; border: none; color: var(--rojo); font-size: 16px; cursor: pointer; padding: 4px; }
+		.pedido-warn { color: var(--rojo); font-size: 11px; margin-top: 2px; }
+
+		.barra-total {
+			position: fixed; left: 0; right: 0; bottom: 0;
+			background: #fff;
+			box-shadow: 0 -2px 10px rgba(0,0,0,0.10);
+			padding: 10px 16px;
+			display: flex; align-items: center; gap: 12px;
+			z-index: 20;
+		}
+		.barra-total .resumen { flex: 1; }
+		.barra-total .resumen .lbl { font-size: 11px; color: var(--gris-medio); }
+		.barra-total .resumen .val { font-size: 20px; font-weight: 800; color: var(--verde-oscuro); }
+		.barra-total button { width: auto; padding: 12px 22px; font-size: 15px; }
+
+		.btn-volver {
+			display: inline-flex; align-items: center; justify-content: center;
+			width: 36px; height: 36px; border-radius: 50%;
+			background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+			color: var(--blanco, #fff);
+			transition: background 0.2s, transform 0.15s;
+			text-decoration: none;
+		}
+		.btn-volver:hover { background: rgba(255,255,255,0.28); }
+		.btn-volver:active { transform: scale(0.92); }
+	</style>
+</head>
+<body>
+	<div class="topbar">
+		<h1>Venta Rápida</h1>
+		<a href="ventas2.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+	</div>
+
+	<div class="container">
+		<div class="alerta alerta-error" id="alerta-venta"></div>
+
+		<div class="card">
+			<div class="form-group" style="margin-bottom:0;">
+				<label for="sel-actividad">Actividad de venta</label>
+				<select id="sel-actividad" aria-label="Actividad de ventas">
+					<option value="">— Cargando actividades… —</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="spinner-wrap" id="estado-carga"><div class="spinner"></div></div>
+
+		<div id="pantalla-venta" class="is-hidden">
+			<div id="sin-actividad" class="card is-hidden">
+				<div class="empty-state" style="padding:16px 4px;">
+					<div class="emoji">🛒</div>
+					<p>Selecciona una actividad de venta para ver sus productos y combos.</p>
+				</div>
+			</div>
+
+			<div id="sin-catalogo" class="card is-hidden">
+				<div class="empty-state" style="padding:16px 4px;">
+					<div class="emoji">⚠️</div>
+					<p>Esta actividad no tiene productos ni combos asignados.</p>
+					<p style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Asígnalos desde <a href="../logistica/actividadVentas.html">Crear actividad de venta</a>.</p>
+				</div>
+			</div>
+
+			<div class="card" id="card-catalogo" style="display:none;">
+				<div class="card-title">Toca para agregar</div>
+				<div id="catalogo-wrap"></div>
+			</div>
+
+			<div class="card" id="card-pedido" style="display:none;">
+				<div class="card-title">Pedido actual</div>
+				<div id="pedido-wrap"></div>
+				<div class="form-group" style="margin-top:10px;margin-bottom:0;">
+					<label for="metodo-pago">Método de pago</label>
+					<select id="metodo-pago" aria-label="Método de pago de la venta">
+						<option value="efectivo">Efectivo</option>
+						<option value="tarjeta">Tarjeta</option>
+						<option value="transferencia">Transferencia</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="barra-total is-hidden" id="barra-total">
+		<div class="resumen">
+			<div class="lbl">Total pedido</div>
+			<div class="val" id="pedido-total">$0.00</div>
+		</div>
+		<button class="btn btn-primary" id="btn-enviar-venta">Enviar venta</button>
+	</div>
+
+	<script type="module" src="../../../js/modulos/ventaRapida.js"></script>
+</body>
+</html>

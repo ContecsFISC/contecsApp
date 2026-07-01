@@ -27,6 +27,8 @@
 			grid-template-columns: 1fr;
 			gap: 10px;
 		}
+		.seccion-cat { margin-bottom: 18px; }
+		.seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
 		.venta-card {
 			background: #fff;
 			border-radius: 14px;
@@ -153,9 +155,12 @@
 	</div>
 
 	 <!-- ACCESO RÁPIDO CALENDARIO -->
-	<div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+	<div style="margin-bottom:16px;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;">
 		<a href="../logistica/actividadVentas.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-claro);">
 		 Crear actividad de venta
+		</a>
+		<a href="ventaRapida.html" class="btn btn-primary" style="width:auto;display:inline-flex;align-items:center;gap:8px;">
+		 ⚡ Venta rápida
 		</a>
 	</div>
 	<div class="container">
@@ -199,11 +204,13 @@
 				<div class="form-group">
 					<input type="text" id="buscador-productos" placeholder="Buscar por nombre..."/>
 				</div>
+				<div id="combos-wrap"></div>
 				<div id="productos-wrap"></div>
 			</div>
 
 			<div class="card">
 				<div class="card-title">Carrito</div>
+				<div id="carrito-combos-wrap"></div>
 				<div id="carrito-wrap"></div>
 
 				<div class="form-group">

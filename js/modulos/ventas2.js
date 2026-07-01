@@ -15,14 +15,18 @@ const estado = {
 	actividades: [],
 	actividadVentaId: null,
 	actividadVentaNombre: "",
+	combosDisponibles: [],
 	termino: "",
 	carrito: new Map(),
+	carritoCombos: new Map(),
 	cargando: true,
 };
 
 const $ = (id) => document.getElementById(id);
 const productosWrap = $("productos-wrap");
+const combosWrap = $("combos-wrap");
 const carritoWrap = $("carrito-wrap");
+const carritoCombosWrap = $("carrito-combos-wrap");
 const alerta = $("alerta-venta");
 const buscador = $("buscador-productos");
 const metodoPago = $("metodo-pago");
@@ -164,6 +168,7 @@ function totalCarrito() {
 function cantidadTotalVendida() {
 	let total = 0;
 	estado.carrito.forEach((item) => { total += totalUnidadesVendidas(item); });
+	total += totalUnidadesCombos();
 	return total;
 }
 
@@ -174,7 +179,53 @@ function cantidadTotalMerma() {
 }
 
 function hayVentaNormal() {
-	return [...estado.carrito.values()].some((item) => totalUnidadesVendidas(item) > 0);
+	return [...estado.carrito.values()].some((item) => totalUnidadesVendidas(item) > 0) || estado.carritoCombos.size > 0;
+}
+
+function totalUnidadesCombos() {
+	let total = 0;
+	estado.carritoCombos.forEach((c) => { total += c.cantidad * c.items.length; });
+	return total;
+}
+
+function totalMontoCombos() {
+	let total = 0;
+	estado.carritoCombos.forEach((c) => { total += c.precioTotal * c.cantidad; });
+	return total;
+}
+
+function gananciaCombos() {
+	let total = 0;
+	estado.carritoCombos.forEach((c) => {
+		c.items.forEach((it) => {
+			const producto = productoActual(it.productoId);
+			const costoProducto = Number(producto?.precioCompra ?? producto?.ultimoCosto ?? producto?.precioVenta ?? 0);
+			total += (Number(it.precio) - costoProducto) * c.cantidad;
+		});
+	});
+	return total;
+}
+
+function unidadesRequeridasProducto(productoId) {
+	let total = 0;
+	const item = estado.carrito.get(productoId);
+	if (item) total += totalUnidadesMovimiento(item);
+	estado.carritoCombos.forEach((c) => {
+		if (c.items.some((it) => it.productoId === productoId)) {
+			total += c.cantidad;
+		}
+	});
+	return total;
+}
+
+function stockSuficienteParaTodo() {
+	const productosImplicados = new Set();
+	estado.carrito.forEach((item) => productosImplicados.add(item.productoId));
+	estado.carritoCombos.forEach((c) => c.items.forEach((it) => productosImplicados.add(it.productoId)));
+	for (const productoId of productosImplicados) {
+		if (unidadesRequeridasProducto(productoId) > stockDisponible(productoId)) return false;
+	}
+	return true;
 }
 
 function motivoMermaDefault() {
@@ -187,14 +238,13 @@ function stockDisponible(productoId) {
 }
 
 function carritoCompleto() {
-	if (estado.carrito.size === 0) return false;
+	if (estado.carrito.size === 0 && estado.carritoCombos.size === 0) return false;
 	if (!estado.actividadVentaId) return false;
 
-	return [...estado.carrito.values()].every((item) => {
+	const itemsValidos = [...estado.carrito.values()].every((item) => {
 		const vendido = totalUnidadesVendidas(item);
 		const mermaVendida = mermaVendidaCantidadItem(item);
 		const mermaSinVender = mermaSinVenderCantidadItem(item);
-		const stock = stockDisponible(item.productoId);
 		if (mermaVendidaActivadaItem(item)) {
 			if (mermaVendida <= 0) return false;
 			if (String(mermaVendidaDescripcionItem(item)).trim().length === 0) return false;
@@ -204,9 +254,13 @@ function carritoCompleto() {
 			if (mermaSinVender <= 0) return false;
 			if (String(mermaSinVenderDescripcionItem(item)).trim().length === 0) return false;
 		}
-		return (vendido > 0 || mermaVendida > 0 || mermaSinVender > 0)
-			&& totalUnidadesMovimiento(item) <= stock;
-	})
+		return vendido > 0 || mermaVendida > 0 || mermaSinVender > 0;
+	});
+	const combosValidos = [...estado.carritoCombos.values()].every((c) => c.cantidad > 0);
+
+	return itemsValidos
+		&& combosValidos
+		&& stockSuficienteParaTodo()
 		&& (
 			!hayVentaNormal()
 			|| String(metodoPago.value || "").trim().length > 0
@@ -239,8 +293,8 @@ function actualizarResumen() {
 		}
 	});
 
-	const totalCombinado = ventaTotal + mermaVendidaTotal;
-	const gananciaCombinada = ventaProfit + mermaVendidaProfit - perdidaMermaSinVender;
+	const totalCombinado = ventaTotal + mermaVendidaTotal + totalMontoCombos();
+	const gananciaCombinada = ventaProfit + mermaVendidaProfit - perdidaMermaSinVender + gananciaCombos();
 
 	$("resumen-vendidas").textContent = String(cantidadTotalVendida());
 	$("resumen-total").textContent = formatearMoneda(totalCombinado);
@@ -433,9 +487,11 @@ function actualizarMermaSinVenderDescripcion(productoId, valor) {
 }
 
 function renderCarrito() {
+	renderCarritoCombos();
+
 	const items = [...estado.carrito.values()];
 	if (items.length === 0) {
-		carritoWrap.innerHTML = `
+		carritoWrap.innerHTML = estado.carritoCombos.size > 0 ? "" : `
 			<div class="empty-state" style="padding:24px 16px;">
 				<div class="emoji">🧾</div>
 				<p>Aún no agregas productos a la venta.</p>
@@ -450,7 +506,7 @@ function renderCarrito() {
 		const vendido = totalUnidadesVendidas(item);
 		const mermaVendida = mermaVendidaCantidadItem(item);
 		const mermaSinVender = mermaSinVenderCantidadItem(item);
-		const restante = stock - vendido - mermaVendida - mermaSinVender;
+		const restante = stock - unidadesRequeridasProducto(item.productoId);
 		const estadoStockProd = producto ? estadoStock(producto.stock ?? 0, producto.alertaMinima ?? 0) : "ok";
 		const avisoStock = restante < 0 ? `<div class="carrito-warn">Excede el stock disponible por ${Math.abs(restante)} unidades.</div>` : "";
 		const costoProducto = Number(producto?.precioCompra ?? producto?.ultimoCosto ?? producto?.precioVenta ?? 0);
@@ -567,10 +623,10 @@ function renderCarrito() {
 								</div>
 							</div>
 						</div>
-						<div class="form-group" style="grid-column:1 / -1;">
-							<label for="precio-${item.productoId}">Precio unitario</label>
-							<input id="precio-${item.productoId}" type="text" inputmode="decimal" autocomplete="off" value="${precioItem(item)}" data-precio-id="${item.productoId}">
-						</div>
+					</div>
+					<div class="form-group" style="grid-column:1 / -1;">
+						<label for="precio-${item.productoId}">Precio unitario</label>
+						<input id="precio-${item.productoId}" type="text" inputmode="decimal" autocomplete="off" value="${precioItem(item)}" data-precio-id="${item.productoId}">
 					</div>
 					<div class="carrito-resumen-item">
 						${vendido} unidades vendidas · Total ${formatearMoneda(vendido * precioItem(item))}
@@ -685,6 +741,155 @@ function renderCarrito() {
 	actualizarResumen();
 }
 
+// ─── COMBOS ────────────────────────────────────────────────────────────────
+function renderCombosDisponibles() {
+	if (!combosWrap) return;
+	const combos = estado.combosDisponibles || [];
+
+	if (!estado.actividadVentaId) {
+		combosWrap.innerHTML = "";
+		return;
+	}
+	if (combos.length === 0) {
+		combosWrap.innerHTML = "";
+		return;
+	}
+
+	combosWrap.innerHTML = `
+		<div class="seccion-cat">
+			<div class="seccion-cat-titulo"><span style="font-size:20px;">🍔</span>Combos</div>
+			<div class="venta-grid">
+				${combos.map((c) => `
+					<div class="venta-card">
+						<div class="venta-icono">🍔</div>
+						<div class="venta-info">
+							<div class="venta-nombre">${c.nombre}</div>
+							<div class="venta-meta">${formatearMoneda(c.precioTotal)} · ${c.items.map((it) => it.nombre).join(" + ")}</div>
+						</div>
+						<button class="btn btn-sm btn-outline" style="width:auto;" data-combo-agregar-id="${c.id}">Agregar</button>
+					</div>`).join("")}
+			</div>
+		</div>`;
+
+	combosWrap.querySelectorAll("[data-combo-agregar-id]").forEach((btn) => {
+		btn.addEventListener("click", () => {
+			const combo = combos.find((c) => c.id === btn.getAttribute("data-combo-agregar-id"));
+			if (combo) agregarComboAlCarrito(combo);
+		});
+	});
+}
+
+function agregarComboAlCarrito(combo) {
+	const actual = estado.carritoCombos.get(combo.id);
+	if (actual) {
+		actual.cantidad += 1;
+	} else {
+		estado.carritoCombos.set(combo.id, {
+			comboId: combo.id,
+			nombre: combo.nombre,
+			items: combo.items || [],
+			precioTotal: Number(combo.precioTotal) || 0,
+			cantidad: 1,
+		});
+	}
+	ocultarAlerta();
+	renderCarrito();
+}
+
+function cambiarCantidadCombo(comboId, delta) {
+	const c = estado.carritoCombos.get(comboId);
+	if (!c) return;
+	const nuevo = c.cantidad + delta;
+	if (nuevo <= 0) {
+		estado.carritoCombos.delete(comboId);
+	} else {
+		c.cantidad = nuevo;
+	}
+	renderCarrito();
+}
+
+function actualizarCantidadCombo(comboId, valor) {
+	const c = estado.carritoCombos.get(comboId);
+	if (!c) return;
+	const numero = Math.trunc(Number(valor));
+	if (!Number.isFinite(numero)) return;
+	if (numero <= 0) {
+		estado.carritoCombos.delete(comboId);
+	} else {
+		c.cantidad = numero;
+	}
+	renderCarrito();
+}
+
+function renderCarritoCombos() {
+	if (!carritoCombosWrap) return;
+	const combos = [...estado.carritoCombos.values()];
+	if (combos.length === 0) {
+		carritoCombosWrap.innerHTML = "";
+		return;
+	}
+
+	carritoCombosWrap.innerHTML = combos.map((c) => {
+		const avisos = c.items
+			.map((it) => {
+				const stock = stockDisponible(it.productoId);
+				const requerido = unidadesRequeridasProducto(it.productoId);
+				const faltante = requerido - stock;
+				return faltante > 0 ? `${it.nombre} (${faltante} unidad${faltante === 1 ? "" : "es"} de más)` : null;
+			})
+			.filter(Boolean);
+		const avisoStock = avisos.length > 0 ? `<div class="carrito-warn">Excede el stock disponible: ${avisos.join(", ")}.</div>` : "";
+
+		let ganancia = 0;
+		c.items.forEach((it) => {
+			const producto = productoActual(it.productoId);
+			const costoProducto = Number(producto?.precioCompra ?? producto?.ultimoCosto ?? producto?.precioVenta ?? 0);
+			ganancia += (Number(it.precio) - costoProducto) * c.cantidad;
+		});
+		const lineaGanancia = ganancia >= 0 ? `Ganancia estimada ${formatearMoneda(ganancia)}` : `Pérdida estimada ${formatearMoneda(Math.abs(ganancia))}`;
+
+		return `
+			<div class="carrito-item">
+				<div class="carrito-nombre">🍔 ${c.nombre} <span style="font-size:12px;color:var(--gris-medio);font-weight:400;">(combo)</span></div>
+				<div class="carrito-meta">${c.items.map((it) => `${it.nombre} ${formatearMoneda(it.precio)}`).join(" + ")}</div>
+				<div class="carrito-meta">Precio del combo: ${formatearMoneda(c.precioTotal)}</div>
+				${avisoStock}
+				<div class="carrito-controles">
+					<button class="chip-btn" data-combo-action="menos" data-combo-id="${c.comboId}">−</button>
+					<button class="chip-btn" data-combo-action="mas" data-combo-id="${c.comboId}">+</button>
+					<button class="chip-btn chip-danger" data-combo-action="quitar" data-combo-id="${c.comboId}">✕</button>
+				</div>
+				<div class="carrito-campos">
+					<div class="form-group">
+						<label for="combo-cantidad-${c.comboId}">Combos vendidos</label>
+						<input id="combo-cantidad-${c.comboId}" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${c.cantidad}" data-combo-cantidad-id="${c.comboId}">
+					</div>
+				</div>
+				<div class="carrito-resumen-item">
+					${c.cantidad} combo${c.cantidad === 1 ? "" : "s"} vendidos · Total ${formatearMoneda(c.precioTotal * c.cantidad)}
+					<div class="carrito-meta" style="color:inherit;">${lineaGanancia}</div>
+				</div>
+			</div>`;
+	}).join("");
+
+	carritoCombosWrap.querySelectorAll("[data-combo-action]").forEach((btn) => {
+		btn.addEventListener("click", () => {
+			const id = btn.getAttribute("data-combo-id");
+			const action = btn.getAttribute("data-combo-action");
+			if (action === "menos") cambiarCantidadCombo(id, -1);
+			if (action === "mas") cambiarCantidadCombo(id, 1);
+			if (action === "quitar") { estado.carritoCombos.delete(id); renderCarrito(); }
+		});
+	});
+
+	carritoCombosWrap.querySelectorAll("[data-combo-cantidad-id]").forEach((input) => {
+		const handler = () => actualizarCantidadCombo(input.getAttribute("data-combo-cantidad-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+		input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); input.blur(); } });
+	});
+}
+
 function fmtFecha(ts) {
 	if (!ts) return "";
 	const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -768,13 +973,52 @@ function renderProductos() {
 	});
 }
 
+function itemsDeCombosVenta() {
+	const items = [];
+	estado.carritoCombos.forEach((c) => {
+		c.items.forEach((it) => {
+			items.push({
+				productoId: it.productoId,
+				nombre: it.nombre,
+				cantidad: c.cantidad,
+				precioUnitario: Number(it.precio) || 0,
+				motivo: `Venta combo: ${c.nombre}`,
+			});
+		});
+	});
+	return items;
+}
+
+// Combina líneas repetidas del mismo producto (venta directa + venta vía combo)
+// en una sola línea, para no decrementar el stock dos veces sobre el mismo documento
+// dentro de la misma transacción de Firestore.
+function combinarItemsPorProducto(items) {
+	const mapa = new Map();
+	items.forEach((item) => {
+		const cantidad = Math.trunc(Number(item.cantidad)) || 0;
+		if (cantidad <= 0) return;
+		const precio = Number(item.precioUnitario) || 0;
+		const existente = mapa.get(item.productoId);
+		if (existente) {
+			existente.ingreso += precio * cantidad;
+			existente.cantidad += cantidad;
+		} else {
+			mapa.set(item.productoId, { ...item, cantidad, ingreso: precio * cantidad });
+		}
+	});
+	return [...mapa.values()].map((it) => {
+		const { ingreso, ...resto } = it;
+		return { ...resto, precioUnitario: r2(ingreso / it.cantidad) };
+	});
+}
+
 async function finalizarVenta() {
 	const btn = $("btn-finalizar-venta");
 
 	if (btn.disabled) return;
 
-	if (estado.carrito.size === 0) {
-		mostrarAlerta("aviso", "Agrega al menos un producto.");
+	if (estado.carrito.size === 0 && estado.carritoCombos.size === 0) {
+		mostrarAlerta("aviso", "Agrega al menos un producto o combo.");
 		return;
 	}
 
@@ -798,12 +1042,15 @@ async function finalizarVenta() {
 		}
 
 		const datosUsuario = getUsuarioActual();
-		const itemsVenta = [...estado.carrito.values()]
-			.filter((item) => totalUnidadesVendidas(item) > 0)
-			.map((item) => ({
-				...item,
-				cantidad: totalUnidadesVendidas(item),
-			}));
+		const itemsVenta = combinarItemsPorProducto([
+			...[...estado.carrito.values()]
+				.filter((item) => totalUnidadesVendidas(item) > 0)
+				.map((item) => ({
+					...item,
+					cantidad: totalUnidadesVendidas(item),
+				})),
+			...itemsDeCombosVenta(),
+		]);
 		const mermaItems = [];
 		estado.carrito.forEach((item) => {
 			const tipoMermaPrincipal = tipoMermaPrincipalItem(item);
@@ -857,6 +1104,7 @@ async function finalizarVenta() {
 		}
 
 		estado.carrito.clear();
+		estado.carritoCombos.clear();
 		renderCarrito();
 		if (itemsVenta.length > 0) {
 			mostrarAlertaYScrollTop("success", `Venta registrada. Total ${formatearMoneda(resultado.total)}.`);
@@ -904,6 +1152,8 @@ $("sel-actividad").addEventListener("change", (e) => {
 	const a = estado.actividades.find(x => x.id === e.target.value) || null;
 	estado.actividadVentaId = a ? a.id : null;
 	estado.actividadVentaNombre = a ? a.nombre : "";
+	estado.combosDisponibles = a ? (a.combos || []) : [];
+	estado.carritoCombos.clear();
 	const info = $("actividad-info");
 	if (a) {
 		info.textContent = [fmtFecha(a.fecha), a.lugar, a.responsables].filter(Boolean).join(" · ");
@@ -911,7 +1161,8 @@ $("sel-actividad").addEventListener("change", (e) => {
 	} else {
 		info.style.display = "none";
 	}
-	actualizarResumen();
+	renderCombosDisponibles();
+	renderCarrito();
 });
 
 metodoPago.addEventListener("change", actualizarResumen);
@@ -919,6 +1170,7 @@ nota.addEventListener("input", actualizarResumen);
 
 $("btn-limpiar-carrito").addEventListener("click", () => {
 	estado.carrito.clear();
+	estado.carritoCombos.clear();
 	renderCarrito();
 	ocultarAlerta();
 });

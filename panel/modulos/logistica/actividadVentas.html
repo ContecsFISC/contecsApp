@@ -135,6 +135,34 @@
  <div id="venta-turnos-lista" style="min-height:32px;"></div>
  <small style="color:var(--gris-medio);font-size:12px;">Ej: Turno 1 — 09:00 a 13:00 · Turno 2 — 13:00 a 17:00</small>
  </div>
+ <div class="form-groupE">
+ <label style="color:#c81e1e;">Productos de la venta</label>
+ <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
+ <select id="venta-productos-sel">
+ <option value="">— Cargando productos… —</option>
+ </select>
+ <button class="btn btn-outline btn-sm" id="btn-add-producto-venta" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Agregar</button>
+ </div>
+ <div id="venta-productos-lista" style="min-height:28px;"></div>
+ <small style="color:var(--gris-medio);font-size:12px;">Selecciona los productos que se venderán en esta actividad.</small>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#c81e1e;">Combos de la venta</label>
+ <div style="background:#fde8e8;border:1px dashed #f98080;border-radius:var(--radio-sm);padding:10px;margin-bottom:8px;">
+ <input type="text" id="combo-nombre" placeholder="ej. Combo Vaquera" style="margin-bottom:8px;"/>
+ <div style="display:grid;grid-template-columns:1fr 100px auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
+ <select id="combo-producto-sel">
+ <option value="">— Cargando productos… —</option>
+ </select>
+ <input type="number" id="combo-producto-precio" placeholder="Precio" min="0" step="0.01"/>
+ <button class="btn btn-outline btn-sm" id="btn-add-item-combo" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Producto</button>
+ </div>
+ <div id="combo-items-lista" style="min-height:24px;margin-bottom:8px;"></div>
+ <button class="btn btn-primary btn-sm" id="btn-guardar-combo" style="width:auto;">Guardar combo</button>
+ <small style="display:block;color:var(--gris-medio);font-size:12px;margin-top:6px;">Agrega 2 o más productos con su precio dentro del combo (puede ser distinto al precio normal).</small>
+ </div>
+ <div id="venta-combos-lista" style="min-height:28px;"></div>
+ </div>
  <div style="display:flex;gap:10px;flex-wrap:wrap;">
  <button class="btn btn-primary" id="btn-guardar-venta" style="flex:1">Guardar venta</button>
  <button class="btn btn-outline btn-sm" id="btn-cancelar-venta" style="width:auto;display:none">Cancelar</button>
@@ -167,10 +195,12 @@
  <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Vol. req.</th>
  <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Responsables</th>
  <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Turnos</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Productos</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Combos</th>
  <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Estado</th>
  <th style="color:#c81e1e;border-bottom:2px solid #f98080;"></th>
  </tr></thead>
- <tbody id="tabla-ventas-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+ <tbody id="tabla-ventas-body"><tr><td colspan="11" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
  </table>
  </div>
  </div>
