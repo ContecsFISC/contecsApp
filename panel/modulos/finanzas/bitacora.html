@@ -1,0 +1,842 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Bitácora</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ /* ── Botón de volver estético ── */
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px;
+ height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.18);
+ border: 2px solid rgba(255,255,255,0.55);
+ color: #fff;
+ font-size: 17px;
+ font-weight: 900;
+ text-decoration: none;
+ transition: background 0.18s, border-color 0.18s, transform 0.15s;
+ flex-shrink: 0;
+ line-height: 1;
+ cursor: pointer;
+ }
+ .btn-volver:hover {
+ background: rgba(255,255,255,0.32);
+ border-color: #fff;
+ transform: scale(1.08);
+ }
+ /* ── TABS ── */
+ .tabs {
+ display: flex;
+ gap: 8px;
+ margin-bottom: 20px;
+ border-bottom: 2px solid var(--gris-borde);
+ overflow-x: auto;
+ }
+ .tab-btn {
+ padding: 10px 18px;
+ border: none;
+ background: none;
+ font-size: 14px;
+ font-weight: 600;
+ color: var(--gris-medio);
+ cursor: pointer;
+ border-bottom: 3px solid transparent;
+ margin-bottom: -2px;
+ transition: color 0.2s, border-color 0.2s;
+ white-space: nowrap;
+ }
+ .tab-btn.activo { color: var(--verde); border-bottom-color: var(--verde); }
+
+ /* ── CARDS COLAPSABLES ── */
+ .bita-card {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: var(--sombra-sm);
+ margin-bottom: 10px;
+ border-left: 3px solid var(--verde-claro);
+ overflow: hidden;
+ animation: fadeScaleIn 0.3s var(--ease-out) both;
+ }
+ .bita-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 14px 16px;
+ cursor: pointer;
+ gap: 8px;
+ -webkit-user-select: none;
+ user-select: none;
+ }
+ .bita-header:hover { background: var(--gris-suave); }
+ .bita-meta { flex: 1; min-width: 0; }
+ .bita-fecha { font-size: 12px; color: var(--gris-medio); margin-bottom: 2px; }
+ .bita-usuario { font-size: 13px; font-weight: 600; color: var(--gris-texto); }
+ .bita-total {
+ font-size: 16px;
+ font-weight: 700;
+ color: var(--verde);
+ white-space: nowrap;
+ }
+ .bita-metodo {
+ font-size: 11px;
+ background: var(--verde-fondo);
+ color: var(--verde-oscuro);
+ padding: 3px 8px;
+ border-radius: 20px;
+ white-space: nowrap;
+ }
+ .bita-chevron {
+ font-size: 12px;
+ color: var(--gris-medio);
+ transition: transform 0.25s;
+ }
+ .bita-card.abierto .bita-chevron { transform: rotate(180deg); }
+
+ .bita-body {
+ display: none;
+ padding: 0 16px 16px;
+ border-top: 1px solid var(--gris-borde);
+ }
+ .bita-card.abierto .bita-body { display: block; }
+
+ .items-tabla {
+ width: 100%;
+ border-collapse: collapse;
+ font-size: 13px;
+ margin-top: 10px;
+ }
+ .items-tabla th {
+ text-align: left;
+ color: var(--gris-medio);
+ font-weight: 600;
+ padding: 6px 8px;
+ border-bottom: 1px solid var(--gris-borde);
+ }
+ .items-tabla td {
+ padding: 7px 8px;
+ border-bottom: 1px solid #f0f4f1;
+ color: var(--gris-texto);
+ }
+ .items-tabla tr:last-child td { border-bottom: none; }
+ .items-tabla .num { text-align: right; }
+ .factura-link {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ margin-top: 10px;
+ font-size: 13px;
+ color: var(--verde);
+ text-decoration: none;
+ padding: 6px 12px;
+ border-radius: var(--radio-sm);
+ background: var(--verde-fondo);
+ border: 1px solid var(--verde-claro);
+ }
+ .factura-link:hover { background: #d0ecd8; }
+
+ /* ── LISTA SIMPLE (fondos e inventario) ── */
+ .mov-item {
+ display: flex;
+ align-items: flex-start;
+ gap: 12px;
+ padding: 12px 14px;
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: var(--sombra-sm);
+ margin-bottom: 8px;
+ animation: fadeScaleIn 0.3s var(--ease-out) both;
+ }
+ .mov-icono {
+ width: 32px;
+ height: 32px;
+ border-radius: 50%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 15px;
+ flex-shrink: 0;
+ }
+ .mov-icono.entrada { background: var(--verde-fondo); }
+ .mov-icono.salida { background: var(--rojo-fondo); }
+ .mov-info { flex: 1; min-width: 0; }
+ .mov-titulo { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
+ .mov-detalle { font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+ .mov-monto {
+ font-size: 15px;
+ font-weight: 700;
+ white-space: nowrap;
+ flex-shrink: 0;
+ }
+ .mov-monto.ingreso { color: var(--verde); }
+ .mov-monto.egreso { color: var(--rojo); }
+
+ /* ── STOCK BADGE ── */
+ .stock-badge {
+ display: inline-block;
+ font-size: 11px;
+ padding: 2px 8px;
+ border-radius: 20px;
+ font-weight: 600;
+ }
+ .stock-badge.entrada { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .stock-badge.salida { background: var(--rojo-fondo); color: var(--rojo); }
+
+ /* ── RESUMEN FONDOS ── */
+ .fondos-resumen {
+ display: grid;
+ grid-template-columns: repeat(4, 1fr);
+ gap: 12px;
+ margin-bottom: 20px;
+ }
+ @media (max-width: 800px) { .fondos-resumen { grid-template-columns: repeat(2, 1fr); } }
+ @media (max-width: 480px) { .fondos-resumen { grid-template-columns: 1fr; } }
+ .fondos-stat {
+ background: #fff;
+ border: 1px solid #e0e7e3;
+ border-radius: 12px;
+ padding: 14px 16px;
+ }
+ .fondos-stat-label {
+ font-size: 11px;
+ font-weight: 600;
+ color: #8a9e8d;
+ text-transform: uppercase;
+ letter-spacing: .5px;
+ margin-bottom: 6px;
+ }
+ .fondos-stat-valor {
+ font-size: 20px;
+ font-weight: 700;
+ }
+ .fondos-stat-valor.ingreso { color: var(--verde-oscuro); }
+ .fondos-stat-valor.egreso { color: var(--rojo); }
+ .fondos-stat-valor.neutro { color: var(--gris-texto); }
+ .fondos-seccion-titulo {
+ font-size: 11px;
+ font-weight: 700;
+ color: #8a9e8d;
+ letter-spacing: 1px;
+ text-transform: uppercase;
+ margin-bottom: 12px;
+ }
+
+ /* ── SPINNER SECCION ── */
+ .tab-spinner {
+ display: flex;
+ justify-content: center;
+ padding: 40px;
+ }
+
+ .tab-oculta {
+ display: none;
+ }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1> Bitácora</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+
+ <div class="container">
+ <div class="seccion-titulo">Historial de operaciones</div>
+
+ <div class="tabs">
+ <button class="tab-btn activo" data-tab="ventas"> Ventas</button>
+ <button class="tab-btn" data-tab="compras"> Compras</button>
+ <button class="tab-btn" data-tab="fondos"> Fondos</button>
+ <button class="tab-btn" data-tab="inventario"> Inventario</button>
+ <button class="tab-btn" data-tab="mermas">️ Mermas</button>
+ </div>
+
+ <div id="tab-ventas">
+ <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
+ <div id="tab-compras" class="tab-oculta">
+ <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
+ <div id="tab-fondos" class="tab-oculta">
+ <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
+ <div id="tab-inventario" class="tab-oculta">
+ <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
+ <div id="tab-mermas" class="tab-oculta">
+ <div class="tab-spinner"><div class="spinner"></div></div>
+ </div>
+ </div>
+
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { formatearMoneda } from "../../../js/core/operaciones.js";
+ import { db } from "../../../js/core/firebase-config.js";
+ import {
+ collection, query, orderBy, limit, onSnapshot, getDocs, where
+ } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+ guardRoute();
+ requirePermiso("ver_bitacora");
+
+ // ── Helper fecha ──────────────────────────────────────────────────────────
+ function formatearFecha(ts) {
+ if (!ts) return "—";
+ const f = ts.toDate ? ts.toDate() : new Date(ts);
+ return f.toLocaleDateString("es-PA", {
+ day: "2-digit", month: "short", year: "numeric",
+ hour: "2-digit", minute: "2-digit"
+ });
+ }
+
+ // ── Colapsar / expandir ───────────────────────────────────────────────────
+ function toggleCard(card) {
+ card.classList.toggle("abierto");
+ }
+
+ function numeroSeguro(valor) {
+ const numero = Number(valor);
+ return Number.isFinite(numero) ? numero : 0;
+ }
+
+ function utilidadFormateada(valor) {
+ const numero = numeroSeguro(valor);
+ return `${numero >= 0 ? "+" : "−"}${formatearMoneda(Math.abs(numero))}`;
+ }
+
+ function tipoLineaTexto(tipo) {
+ if (tipo === "merma_vendida" || tipo === "vendida") return "Merma vendida";
+ if (tipo === "merma_sin_vender" || tipo === "sin_vender") return "Merma sin vender";
+ return "Venta";
+ }
+
+ // ── TABS ─────────────────────────────────────────────────────────────────
+ const TABS = ["ventas", "compras", "fondos", "inventario", "mermas"];
+ const tabBtns = document.querySelectorAll(".tab-btn");
+ tabBtns.forEach(btn => {
+ btn.addEventListener("click", () => {
+ tabBtns.forEach(b => b.classList.remove("activo"));
+ btn.classList.add("activo");
+ TABS.forEach(t => {
+ const pane = document.getElementById("tab-" + t);
+ if (!pane) return;
+ if (t === btn.dataset.tab) {
+ pane.classList.remove("tab-oculta");
+ pane.style.display = "";
+ } else {
+ pane.classList.add("tab-oculta");
+ pane.style.display = "none";
+ }
+ });
+ });
+ });
+
+ // ── Unsubs para limpiar listeners si fuera necesario ─────────────────────
+ const unsubs = {};
+
+ // ════════════════════════════════════════════════════════════════════════
+ // TAB VENTAS
+ // ════════════════════════════════════════════════════════════════════════
+ const contenedorVentas = document.getElementById("tab-ventas");
+
+ unsubs.ventas = onSnapshot(
+ query(collection(db, "ventas"), orderBy("creadoEn", "desc"), limit(50)),
+ (snap) => {
+ if (snap.empty) {
+ contenedorVentas.innerHTML = `
+ <div class="empty-state">
+ <div class="emoji"></div>
+ <p>No hay ventas registradas aún.</p>
+ </div>`;
+ return;
+ }
+ contenedorVentas.innerHTML = "";
+ snap.forEach((docSnap, idx) => {
+ const v = docSnap.data();
+ const card = document.createElement("div");
+ card.className = "bita-card";
+ card.style.animationDelay = `${idx * 0.04}s`;
+
+ const metodoTexto = {
+ tarjeta: " Tarjeta",
+ transferencia: " Transferencia",
+ efectivo: " Efectivo"
+ }[v.metodoPago] || " Efectivo";
+ const itemsHTML = (v.items || []).map(it => `
+ <tr>
+ <td>
+ <div>${it.nombre || "—"}</div>
+ <div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${tipoLineaTexto(it.tipo)}</div>
+ </td>
+ <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${formatearMoneda(it.precioUnitario ?? 0)}</td>
+ <td class="num">${formatearMoneda(it.costoUnitario ?? 0)}</td>
+ <td class="num" style="color:${numeroSeguro(it.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(it.utilidadTotal)}</td>
+ <td class="num">${formatearMoneda(it.subtotal ?? 0)}</td>
+ </tr>`).join("");
+
+ const utilidadTotal = numeroSeguro(v.utilidadTotal);
+ const perdidaSinVender = numeroSeguro(v.perdidaTotal);
+
+ const notaHTML = v.nota
+ ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${v.nota}</p>`
+ : "";
+
+ const mermasVendidasHTML = (Array.isArray(v.mermas) && v.mermas.some(m => m.tipo === "vendida"))
+ ? `<div style="margin-top:12px;padding:10px 12px;background:var(--verde-fondo);border-radius:8px;border:1px solid rgba(24,128,56,.15);">
+ <div style="font-size:12px;font-weight:700;color:var(--verde-oscuro);margin-bottom:6px;"> Merma vendida</div>
+ <table class="items-tabla" style="margin-top:6px;">
+ <thead>
+ <tr>
+ <th>Producto</th>
+ <th class="num">Cant.</th>
+ <th class="num">P/U</th>
+ <th class="num">Costo</th>
+ <th class="num">Utilidad</th>
+ <th class="num">Subtotal</th>
+ </tr>
+ </thead>
+ <tbody>
+ ${v.mermas.filter(m => m.tipo === "vendida").map(m => `
+ <tr>
+ <td>
+ <div>${m.nombre || "—"}</div>
+ </td>
+ <td class="num">${m.cantidad ?? 0}</td>
+ <td class="num">${formatearMoneda(m.precioUnitario ?? m.precio ?? 0)}</td>
+ <td class="num">${formatearMoneda(m.costoUnitario ?? m.costo ?? 0)}</td>
+ <td class="num" style="color:${numeroSeguro(m.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(m.utilidadTotal)}</td>
+ <td class="num">${formatearMoneda((m.cantidad ?? 0) * (m.precioUnitario ?? m.precio ?? 0))}</td>
+ </tr>`).join("")}
+ </tbody>
+ </table>
+ </div>`
+ : "";
+
+ 
+
+ const mermasSinVenderHTML = (Array.isArray(v.mermas) && v.mermas.some(m => m.tipo === "sin_vender"))
+ ? `<div style="margin-top:12px;padding:10px 12px;background:var(--rojo-fondo);border-radius:8px;border:1px solid rgba(255,0,0,.15);">
+ <div style="font-size:12px;font-weight:700;color:var(--rojo);margin-bottom:6px;">️ Merma sin vender</div>
+
+ <table class="items-tabla" style="margin-top:6px;">
+ <thead>
+ <tr>
+ <th>Producto</th>
+ <th class="num">Cant.</th>
+ <th class="num">P/U</th>
+ <th class="num">Costo</th>
+ <th class="num">Utilidad</th>
+ <th class="num">Subtotal</th>
+ </tr>
+ </thead>
+ <tbody>
+ ${v.mermas.filter(m => m.tipo === "sin_vender").map(m => `
+ <tr>
+ <td>
+ <div>${m.nombre || "—"}</div>
+ </td>
+ <td class="num">${m.cantidad ?? 0}</td>
+ <td class="num">${formatearMoneda(m.precioUnitario ?? m.precio ?? 0)}</td>
+ <td class="num">${formatearMoneda(m.costoUnitario ?? m.costo ?? 0)}</td>
+ <td class="num" style="color:${numeroSeguro(m.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(m.utilidadTotal)}</td>
+ <td class="num">${formatearMoneda((m.cantidad ?? 0) * (m.precioUnitario ?? m.precio ?? 0))}</td>
+ </tr>`).join("")}
+ </tbody>
+ </table>
+ </div>`
+ : "";
+
+ card.innerHTML = `
+ <div class="bita-header">
+ <div class="bita-meta">
+ <div class="bita-fecha">${formatearFecha(v.creadoEn)}</div>
+ <div class="bita-usuario"> ${v.usuarioNombre || "—"}</div>
+ </div>
+ <span class="bita-total">${formatearMoneda(v.total ?? 0)}</span>
+ <span class="bita-metodo">${metodoTexto}</span>
+ <span class="bita-chevron">▼</span>
+ </div>
+ <div class="bita-body">
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+ <span class="stock-badge ${utilidadTotal >= 0 ? "entrada" : "salida"}">${utilidadTotal >= 0 ? "Ganancia total" : "Pérdida total"}: ${utilidadFormateada(utilidadTotal)}</span>
+ ${perdidaSinVender > 0 ? `<span class="stock-badge salida">Pérdida contemplada: ${formatearMoneda(perdidaSinVender)}</span>` : ""}
+ </div>
+ <table class="items-tabla">
+ <thead>
+ <tr>
+ <th>Producto</th>
+ <th class="num">Cant.</th>
+ <th class="num">P/U</th>
+ <th class="num">Costo</th>
+ <th class="num">Utilidad</th>
+ <th class="num">Subtotal</th>
+ </tr>
+ </thead>
+ <tbody>${itemsHTML}</tbody>
+ </table>
+ ${notaHTML}
+ ${mermasVendidasHTML}
+ ${mermasSinVenderHTML}
+ </div>`;
+
+ card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
+ contenedorVentas.appendChild(card);
+ });
+ },
+ (err) => {
+ console.error("Bitácora ventas:", err);
+ contenedorVentas.innerHTML = `
+ <div class="alerta alerta-error show">
+ ️ Error al cargar ventas. ${err.message}
+ </div>`;
+ }
+ );
+
+ // ════════════════════════════════════════════════════════════════════════
+ // TAB COMPRAS
+ // ════════════════════════════════════════════════════════════════════════
+ const contenedorCompras = document.getElementById("tab-compras");
+
+ unsubs.compras = onSnapshot(
+ query(collection(db, "compras"), orderBy("creadoEn", "desc"), limit(50)),
+ (snap) => {
+ if (snap.empty) {
+ contenedorCompras.innerHTML = `
+ <div class="empty-state">
+ <div class="emoji"></div>
+ <p>No hay compras registradas aún.</p>
+ </div>`;
+ return;
+ }
+ contenedorCompras.innerHTML = "";
+ snap.forEach((docSnap, idx) => {
+ const c = docSnap.data();
+ const card = document.createElement("div");
+ card.className = "bita-card";
+ card.style.animationDelay = `${idx * 0.04}s`;
+
+ const metodoTexto = c.metodoPago === "transferencia" ? " Transferencia" : " Efectivo";
+ const itemsHTML = (c.items || []).map(it => `
+ <tr>
+ <td>
+ <div>${it.nombre || "—"}</div>
+ ${Number(it.cantidadPaquete) > 0 || Number(it.unidadesPorPaquete) > 0 ? `<div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${Number(it.cantidadPaquete) || 0} paquetes x ${Number(it.unidadesPorPaquete) || 0} por paquete</div>` : ""}
+ </td>
+ <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${formatearMoneda(it.precioUnitario ?? 0)}</td>
+ <td class="num">${formatearMoneda(it.subtotal ?? 0)}</td>
+ </tr>`).join("");
+
+ const facturaHTML = c.factura?.url
+ ? `<a href="${c.factura.url}" target="_blank" rel="noopener" class="factura-link">
+ Ver factura: ${c.factura.name || "factura"}
+ </a>`
+ : "";
+
+ const notaHTML = c.nota
+ ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${c.nota}</p>`
+ : "";
+
+ card.innerHTML = `
+ <div class="bita-header">
+ <div class="bita-meta">
+ <div class="bita-fecha">${formatearFecha(c.creadoEn)}</div>
+ <div class="bita-usuario"> ${c.proveedor || "Sin proveedor"} &mdash; ${c.usuarioNombre || "—"}</div>
+ </div>
+ <span class="bita-total">${formatearMoneda(c.total ?? 0)}</span>
+ <span class="bita-metodo">${metodoTexto}</span>
+ <span class="bita-chevron">▼</span>
+ </div>
+ <div class="bita-body">
+ <table class="items-tabla">
+ <thead>
+ <tr>
+ <th>Producto</th>
+ <th class="num">Cant.</th>
+ <th class="num">P/U</th>
+ <th class="num">Subtotal</th>
+ </tr>
+ </thead>
+ <tbody>${itemsHTML}</tbody>
+ </table>
+ ${notaHTML}
+ ${facturaHTML}
+ </div>`;
+
+ card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
+ contenedorCompras.appendChild(card);
+ });
+ },
+ (err) => {
+ console.error("Bitácora compras:", err);
+ contenedorCompras.innerHTML = `
+ <div class="alerta alerta-error show">
+ ️ Error al cargar compras. ${err.message}
+ </div>`;
+ }
+ );
+
+ // ════════════════════════════════════════════════════════════════════════
+ // TAB FONDOS
+ // ════════════════════════════════════════════════════════════════════════
+ const contenedorFondos = document.getElementById("tab-fondos");
+
+ async function cargarResumenFondos() {
+ const el = document.getElementById("fondos-resumen-datos");
+ if (!el) return;
+ try {
+ const [snapFondos, snapProductos, snapVentas] = await Promise.all([
+ getDocs(collection(db, "fondos_entrada")),
+ getDocs(collection(db, "productos")),
+ getDocs(collection(db, "ventas"))
+ ]);
+
+ let totalCompras = 0, totalVentas = 0;
+ snapFondos.forEach(d => {
+ const f = d.data();
+ if (f.origen === "compra") totalCompras += numeroSeguro(f.monto);
+ if (f.origen === "venta") totalVentas += numeroSeguro(f.monto);
+ });
+
+ // utilidadTotal ya incluye merma sin vender como negativo — no restar perdidaTotal
+ let gananciaRealizada = 0;
+ snapVentas.forEach(d => {
+ gananciaRealizada += numeroSeguro(d.data().utilidadTotal);
+ });
+
+ let gananciaStock = 0;
+ snapProductos.forEach(d => {
+ const p = d.data();
+ if (p.activo === false) return;
+ const stock = numeroSeguro(p.stock);
+ const costo = numeroSeguro(p.precioCompra ?? p.ultimoCosto ?? 0);
+ const precio = numeroSeguro(p.precioVenta ?? 0);
+ if (stock > 0) gananciaStock += (precio - costo) * stock;
+ });
+
+ const fmtSig = (v) => `${v >= 0 ? "+" : "−"}${formatearMoneda(Math.abs(v))}`;
+
+ el.innerHTML = `
+ <div class="fondos-stat">
+ <div class="fondos-stat-label">Total de compras</div>
+ <div class="fondos-stat-valor egreso">−${formatearMoneda(totalCompras)}</div>
+ </div>
+ <div class="fondos-stat">
+ <div class="fondos-stat-label">Total de ventas</div>
+ <div class="fondos-stat-valor ingreso">+${formatearMoneda(totalVentas)}</div>
+ </div>
+ <div class="fondos-stat">
+ <div class="fondos-stat-label">Ganancia de ventas realizada</div>
+ <div class="fondos-stat-valor ${gananciaRealizada >= 0 ? "ingreso" : "egreso"}">
+ ${fmtSig(gananciaRealizada)}
+ </div>
+ </div>
+ <div class="fondos-stat">
+ <div class="fondos-stat-label">Ganancia en stock por vender</div>
+ <div class="fondos-stat-valor ${gananciaStock >= 0 ? "ingreso" : "egreso"}">
+ ${fmtSig(gananciaStock)}
+ </div>
+ </div>`;
+ } catch (e) {
+ console.error("Resumen fondos:", e);
+ }
+ }
+
+ unsubs.fondos = onSnapshot(
+ query(collection(db, "fondos_entrada"), orderBy("creadoEn", "desc"), limit(50)),
+ (snap) => {
+ contenedorFondos.innerHTML = `
+ <div class="fondos-resumen" id="fondos-resumen-datos">
+ <div class="fondos-stat"><div class="fondos-stat-label">Cargando...</div></div>
+ </div>
+ <div class="fondos-seccion-titulo">HISTORIAL DE OPERACIONES</div>`;
+
+ cargarResumenFondos();
+
+ if (snap.empty) {
+ contenedorFondos.insertAdjacentHTML("beforeend", `
+ <div class="empty-state">
+ <div class="emoji"></div>
+ <p>No hay movimientos de fondos aún.</p>
+ </div>`);
+ return;
+ }
+
+ snap.forEach((docSnap, idx) => {
+ const f = docSnap.data();
+ const esIngreso = f.tipo === "ingreso";
+ const item = document.createElement("div");
+ item.className = "mov-item";
+ item.style.animationDelay = `${idx * 0.04}s`;
+
+ const origenTexto = {
+ venta: "Venta",
+ compra: "Compra",
+ manual: "Manual"
+ }[f.origen] || f.origen || "—";
+
+ item.innerHTML = `
+ <div class="mov-icono ${esIngreso ? "entrada" : "salida"}">
+ ${esIngreso ? "▲" : "▼"}
+ </div>
+ <div class="mov-info">
+ <div class="mov-titulo">${f.titulo || "—"}</div>
+ <div class="mov-detalle">
+ ${origenTexto} · ${f.usuarioNombre || "—"} · ${formatearFecha(f.creadoEn)}
+ </div>
+ ${f.descripcion ? `<div class="mov-detalle" style="margin-top:2px;"> ${f.descripcion}</div>` : ""}
+ </div>
+ <div class="mov-monto ${esIngreso ? "ingreso" : "egreso"}">
+ ${esIngreso ? "+" : "−"}${formatearMoneda(f.monto ?? 0)}
+ </div>`;
+
+ contenedorFondos.appendChild(item);
+ });
+ },
+ (err) => {
+ console.error("Bitácora fondos:", err);
+ contenedorFondos.innerHTML = `
+ <div class="alerta alerta-error show">
+ ️ Error al cargar fondos. ${err.message}
+ </div>`;
+ }
+ );
+
+ // ════════════════════════════════════════════════════════════════════════
+ // TAB INVENTARIO
+ // ════════════════════════════════════════════════════════════════════════
+ const contenedorInventario = document.getElementById("tab-inventario");
+
+ unsubs.inventario = onSnapshot(
+ query(collection(db, "movimientos_inventario"), orderBy("creadoEn", "desc"), limit(50)),
+ (snap) => {
+ if (snap.empty) {
+ contenedorInventario.innerHTML = `
+ <div class="empty-state">
+ <div class="emoji"></div>
+ <p>No hay movimientos de inventario aún.</p>
+ </div>`;
+ return;
+ }
+ contenedorInventario.innerHTML = "";
+ snap.forEach((docSnap, idx) => {
+ const m = docSnap.data();
+ const esEntrada = m.tipo === "entrada";
+ const item = document.createElement("div");
+ item.className = "mov-item";
+ item.style.animationDelay = `${idx * 0.04}s`;
+
+ const origenTexto = {
+ venta: "Venta",
+ compra: "Compra",
+ ajuste: "Ajuste"
+ }[m.origen] || m.origen || "—";
+
+ item.innerHTML = `
+ <div class="mov-icono ${esEntrada ? "entrada" : "salida"}">
+ ${esEntrada ? "" : ""}
+ </div>
+ <div class="mov-info">
+ <div class="mov-titulo">
+ ${m.nombre || "—"}
+ <span class="stock-badge ${esEntrada ? "entrada" : "salida"}">
+ ${esEntrada ? "+" : "−"}${m.cantidad ?? 0}
+ </span>
+ </div>
+ <div class="mov-detalle">
+ ${m.antes ?? "?"} → ${m.despues ?? "?"} unidades · ${origenTexto} · ${formatearFecha(m.creadoEn)}
+ </div>
+ ${m.motivo ? `<div class="mov-detalle" style="margin-top:2px;"> ${m.motivo}</div>` : ""}
+ </div>`;
+
+ contenedorInventario.appendChild(item);
+ });
+ },
+ (err) => {
+ console.error("Bitácora inventario:", err);
+ contenedorInventario.innerHTML = `
+ <div class="alerta alerta-error show">
+ ️ Error al cargar inventario. ${err.message}
+ </div>`;
+ }
+ );
+
+ // ════════════════════════════════════════════════════════════════════════
+ // TAB MERMAS
+ // ════════════════════════════════════════════════════════════════════════
+ const contenedorMermas = document.getElementById("tab-mermas");
+
+ unsubs.mermas = onSnapshot(
+ query(collection(db, "mermas"), orderBy("creadoEn", "desc"), limit(50)),
+ (snap) => {
+ if (snap.empty) {
+ contenedorMermas.innerHTML = `
+ <div class="empty-state" style="text-align:center;padding:32px;color:var(--gris-medio);">
+ <div style="font-size:40px;margin-bottom:8px;">️</div>
+ <p>No hay mermas registradas.</p>
+ </div>`;
+ return;
+ }
+ contenedorMermas.innerHTML = "";
+ snap.forEach((docSnap, idx) => {
+ const m = docSnap.data();
+ const card = document.createElement("div");
+ card.className = "bita-card";
+ card.style.borderLeftColor = "var(--rojo)";
+ card.style.animationDelay = `${idx * 0.04}s`;
+
+ const itemsHTML = (m.items || []).map(it => `
+ <tr>
+ <td>
+ <div>${it.nombre || "—"}</div>
+ <div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${tipoLineaTexto(it.tipo)}</div>
+ </td>
+ <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${formatearMoneda(it.costoUnitario ?? 0)}</td>
+ <td class="num" style="color:${numeroSeguro(it.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(it.utilidadTotal)}</td>
+ </tr>`).join("");
+
+ const perdidaTotal = numeroSeguro(m.totalPerdida);
+ const utilidadTotal = numeroSeguro(m.utilidadTotal);
+
+ card.innerHTML = `
+ <div class="bita-header">
+ <div class="bita-meta">
+ <div class="bita-fecha">${formatearFecha(m.creadoEn)}</div>
+ <div class="bita-usuario"> ${m.usuarioNombre || "—"}</div>
+ </div>
+ <span class="bita-metodo" style="background:var(--rojo-fondo);color:var(--rojo);">
+ ️ Merma
+ </span>
+ <span class="bita-chevron">▼</span>
+ </div>
+ <div class="bita-body">
+ <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+ <span class="stock-badge salida">Pérdida total: ${formatearMoneda(perdidaTotal)}</span>
+ <span class="stock-badge entrada">Impacto neto: ${utilidadFormateada(utilidadTotal)}</span>
+ </div>
+ <table class="items-tabla">
+ <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Costo</th><th class="num">Impacto</th></tr></thead>
+ <tbody>${itemsHTML}</tbody>
+ </table>
+ ${m.motivo ? `<p style="margin-top:10px;font-size:13px;color:var(--rojo);"> Motivo: ${m.motivo}</p>` : ""}
+ </div>`;
+
+ card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
+ contenedorMermas.appendChild(card);
+ });
+ },
+ (err) => {
+ console.error("Bitácora mermas:", err);
+ contenedorMermas.innerHTML = `
+ <div class="alerta alerta-error show">️ Error al cargar mermas. ${err.message}</div>`;
+ }
+ );
+ </script>
+</body>
+</html>

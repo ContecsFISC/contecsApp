@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Giras</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script src="../../../js/libs/xlsx.full.min.js"></script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ requirePermiso("gestionar_giras");
+ </script>
+ <style>
+ .topbar { background: linear-gradient(135deg, #856404 0%, #ffc107 100%); box-shadow: 0 2px 12px rgba(133,100,4,0.3); }
+ .btn-primary { background: linear-gradient(135deg, #856404, #ffc107); box-shadow: 0 4px 12px rgba(133,100,4,0.3); color: #fff; }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: #856404; border-color: #856404; }
+ .btn-outline:hover { background: #fff3cd; color: #856404; }
+ .card-title { color: #856404; }
+ .container { max-width: 960px; }
+
+ .turno-tag { display:inline-flex; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:#856404; }
+ .turno-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
+
+ @media(max-width:600px) {
+ .container { padding: 12px; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1> Giras CONTECS</h1>
+ <div style="display:flex;align-items:center;gap:10px;">
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta-global" class="alerta"></div>
+
+ <!-- ACCESO RÁPIDO CALENDARIO -->
+ <div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+ <a href="calendario.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:#856404;border-color:#ffc107;">
+ Ver calendario de eventos
+ </a>
+ </div>
+
+ <!-- FORMULARIO GIRAS -->
+ <div class="card" style="border-left:3px solid #ffc107;">
+ <div class="card-title" id="form-gira-titulo">Crear nueva gira</div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Nombre de la gira *</label>
+ <input type="text" id="gira-nombre" placeholder="ej. Gira a Chiriquí — julio 2026"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Descripción</label>
+ <textarea id="gira-descripcion" rows="2" placeholder="Descripción breve"></textarea>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label style="color:#856404;">Fecha *</label>
+ <input type="date" id="gira-fecha"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Tipo de gira *</label>
+ <select id="gira-area">
+ <option value="">— Selecciona —</option>
+ <option>Visita empresarial</option><option>Investigación</option>
+ <option>Conferencia</option>
+ <option>Exposición</option><option>Otro</option>
+ </select>
+ </div>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label style="color:#856404;">Lugar *</label>
+ <input type="text" id="gira-lugar" placeholder="ej. Chiriquí, Panamá"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Voluntarios requeridos</label>
+ <input type="number" id="gira-voluntarios-req" placeholder="ej. 15" min="0"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Cupo máximo de asistentes</label>
+ <input type="number" id="gira-cupo" placeholder="ej. 50" min="1"/>
+ </div>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Colaboración</label>
+ <textarea id="gira-colaboracion" rows="2" placeholder="Empresas o agrupaciones que apoyan (separadas por coma)"></textarea>
+ </div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;">
+ <button class="btn btn-primary" id="btn-guardar-gira" style="flex:1">Guardar gira</button>
+ <button class="btn btn-outline btn-sm" id="btn-cancelar-gira" style="width:auto;display:none">Cancelar</button>
+ </div>
+ </div>
+
+ <!-- TABLA GIRAS -->
+ <div class="card" style="border-left:3px solid #ffc107;">
+ <div class="card-title">Giras registradas</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Nombre</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Fecha</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Lugar</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Vol. req.</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Cupo</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Turnos</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Estado</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107"></th>
+ </tr></thead>
+ <tbody id="tabla-giras-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/voluntarios.js"></script>
+</body>
+</html>

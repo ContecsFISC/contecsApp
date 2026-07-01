@@ -1,18 +1,27 @@
 {
-  "name": "contecs-app",
-  "description": "CONTECS App — Cloud Functions de inscripciones",
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
   "engines": {
     "node": "20"
   },
   "main": "index.js",
-  "scripts": {
-    "deploy:functions": "firebase deploy --only functions --config firebase_rules/firebase.json",
-    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes,storage --config firebase_rules/firebase.json",
-    "deploy:backend": "firebase deploy --only firestore:rules,firestore:indexes,storage,functions --config firebase_rules/firebase.json"
-  },
   "dependencies": {
-    "firebase-admin": "^13.0.0",
-    "firebase-functions": "^6.3.0"
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.2.5",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.4.1"
   },
   "private": true
 }

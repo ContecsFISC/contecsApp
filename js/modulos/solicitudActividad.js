@@ -199,8 +199,8 @@ async function generarDocxSolicitud(datos) {
   let utpLogo = null, fiscLogo = null;
   try {
     const [r1, r2] = await Promise.all([
-      fetch("../assets/img/utp-logo.png"),
-      fetch("../assets/img/fisc-logo.png"),
+      fetch(new URL("../../assets/img/utp-logo.png", import.meta.url)),
+      fetch(new URL("../../assets/img/fisc-logo.png", import.meta.url)),
     ]);
     utpLogo = await r1.arrayBuffer();
     fiscLogo = await r2.arrayBuffer();

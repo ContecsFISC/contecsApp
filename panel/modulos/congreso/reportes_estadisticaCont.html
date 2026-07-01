@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>CONTECS — Estadísticas del Congreso</title>
+ <link rel="stylesheet" href="../../../css/styles.css" />
+ <style>
+ body,html{height:100%}
+ .container{max-width:none;padding:20px 28px}
+ .card{width:100%;box-sizing:border-box}
+
+ .section-title{font-size:18px;font-weight:700;color:var(--verde-oscuro);margin:28px 0 14px;display:flex;align-items:center;gap:8px}
+ .section-title::after{content:"";flex:1;height:2px;background:var(--verde-fondo);margin-left:10px}
+
+ .summary-grid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+ .summary-card{flex:1 1 160px;background:#fff;padding:18px 16px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-bottom:3px solid var(--verde-claro)}
+ .summary-card .lbl{font-size:11px;color:var(--gris-medio);text-transform:uppercase;letter-spacing:.5px}
+ .summary-card .val{font-size:22px;font-weight:700;color:var(--verde-oscuro);margin-top:5px;line-height:1.2}
+ .summary-card .sub{font-size:11px;color:var(--gris-medio);margin-top:2px}
+
+ .charts{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px}
+ .chart-card{background:#fff;padding:16px 18px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+ .chart-card h3{margin:0 0 14px;font-size:14px;font-weight:600;color:var(--verde-oscuro)}
+
+ .tabla-card{background:#fff;padding:16px 18px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:18px;overflow-x:auto}
+ .tabla-card h3{margin:0 0 12px;font-size:14px;font-weight:600;color:var(--verde-oscuro)}
+ .tabla-card table{width:100%;border-collapse:collapse;font-size:13px}
+ .tabla-card thead tr th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--verde-fondo);color:var(--verde-oscuro);font-size:12px;white-space:nowrap}
+ .tabla-card tbody tr td{padding:7px 10px;border-bottom:1px solid var(--gris-borde);vertical-align:middle}
+ .tabla-card tbody tr:last-child td{border-bottom:none}
+ .tabla-card tbody tr:hover{background:var(--verde-fondo)}
+
+ .badge-tipo{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--verde-fondo);color:var(--verde-oscuro)}
+ .badge-taller{background:#fff3e0;color:#e65100}
+ .badge-gira{background:#e8eaf6;color:#283593}
+ .badge-ponencia{background:#e8f5e9;color:#2e7d32}
+
+ .pct-bar{display:flex;align-items:center;gap:6px}
+ .pct-bar-inner{height:6px;border-radius:3px;background:var(--verde-claro);transition:width .3s}
+ .pct-bar-bg{flex:1;height:6px;border-radius:3px;background:var(--gris-borde)}
+
+ .spinner-estadisticas{text-align:center;padding:40px;color:var(--gris-medio);font-size:14px}
+
+ @media(max-width:900px){
+ .charts{grid-template-columns:1fr}
+ .container{padding:14px}
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Estadísticas del Congreso</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container">
+
+ <div id="spinner-global" class="spinner-estadisticas">Cargando estadísticas...</div>
+ <div id="contenido-estadisticas" style="display:none">
+
+ <!-- ═══ CONFERENCIAS Y TALLERES ═══════════════════════════ -->
+ <div class="section-title"> Conferencias y Talleres</div>
+
+ <div class="summary-grid">
+ <div class="summary-card">
+ <div class="lbl">Total actividades</div>
+ <div class="val" id="stat-total-actividades">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Total asistencias</div>
+ <div class="val" id="stat-total-asistencias">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Actividad más visitada</div>
+ <div class="val" id="stat-mas-visitada" style="font-size:14px">—</div>
+ <div class="sub" id="stat-mas-visitada-num"></div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Promedio de asistentes</div>
+ <div class="val" id="stat-promedio-asis">—</div>
+ <div class="sub">por actividad</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Total horas del congreso</div>
+ <div class="val" id="stat-horas-congreso">—</div>
+ </div>
+ </div>
+
+ <div class="charts">
+ <div class="chart-card">
+ <h3>Top 10 actividades más visitadas</h3>
+ <canvas id="topActividadesChart" height="260"></canvas>
+ </div>
+ <div class="chart-card">
+ <h3>Distribución por tipo</h3>
+ <canvas id="tipoActividadChart" height="260"></canvas>
+ </div>
+ </div>
+
+ <div class="tabla-card">
+ <h3>Ranking de actividades</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>#</th>
+ <th>Actividad</th>
+ <th>Tipo</th>
+ <th>Día</th>
+ <th>Exponente</th>
+ <th style="text-align:center">Asistentes</th>
+ <th style="text-align:center">Cupos</th>
+ <th style="min-width:120px">% Ocupación</th>
+ <th style="text-align:center">Horas</th>
+ </tr>
+ </thead>
+ <tbody id="actividadesTableBody">
+ <tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando…</td></tr>
+ </tbody>
+ </table>
+ </div>
+
+ <!-- ═══ VOLUNTARIOS ═══════════════════════════════════════ -->
+ <div class="section-title"> Voluntarios</div>
+
+ <div class="summary-grid">
+ <div class="summary-card">
+ <div class="lbl">Total voluntarios</div>
+ <div class="val" id="stat-total-voluntarios">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Horas totales proporcionadas</div>
+ <div class="val" id="stat-horas-voluntarios">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Promedio horas / voluntario</div>
+ <div class="val" id="stat-prom-horas-vol">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Actividades con voluntarios</div>
+ <div class="val" id="stat-total-acts-vol">—</div>
+ </div>
+ <div class="summary-card">
+ <div class="lbl">Participaciones registradas</div>
+ <div class="val" id="stat-total-participaciones">—</div>
+ </div>
+ </div>
+
+ <div class="charts">
+ <div class="chart-card">
+ <h3>Top 10 voluntarios por horas</h3>
+ <canvas id="topVoluntariosChart" height="260"></canvas>
+ </div>
+ <div class="chart-card">
+ <h3>Horas por actividad</h3>
+ <canvas id="horasActividadChart" height="260"></canvas>
+ </div>
+ </div>
+
+ <div class="tabla-card">
+ <h3>Lista de voluntarios</h3>
+ <table>
+ <thead>
+ <tr>
+ <th>#</th>
+ <th>Nombre</th>
+ <th>Cédula</th>
+ <th style="text-align:center">Horas totales</th>
+ <th style="text-align:center">Participaciones</th>
+ <th style="min-width:140px">Distribución de horas</th>
+ </tr>
+ </thead>
+ <tbody id="voluntariosTableBody">
+ <tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">Cargando…</td></tr>
+ </tbody>
+ </table>
+ </div>
+
+ </div><!-- /contenido-estadisticas -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module">
+ import { guardRoute } from "../../../js/core/auth.js";
+ guardRoute();
+ const { default: init } = await import("../../../js/modulos/reportes_estadisticaCont.js");
+ init();
+</script>
+</body>
+</html>

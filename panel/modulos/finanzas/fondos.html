@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Fondo</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ .fondo-resumen {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 12px;
+ margin-bottom: 16px;
+ }
+ .fondo-box {
+ background: #fff;
+ border-radius: 14px;
+ padding: 18px;
+ box-shadow: var(--sombra-sm);
+ border-left: 3px solid var(--verde-claro);
+ }
+ .fondo-box .lbl { font-size: 12px; color: var(--gris-medio); margin-bottom: 6px; }
+ .fondo-box .val { font-size: 28px; font-weight: 800; color: var(--verde-oscuro); }
+ .fondo-item {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ }
+ .fondo-titulo { font-weight: 700; color: var(--gris-texto); }
+ .fondo-meta { font-size: 12px; color: var(--gris-medio); }
+ .fondo-monto.ingreso { color: var(--verde); font-weight: 800; }
+ .fondo-monto.salida { color: var(--rojo); font-weight: 800; }
+ .btn-detalle-fondo { margin-top: 12px; width: auto; }
+ @media (min-width: 680px) {
+ .fondo-resumen { grid-template-columns: 1fr 1fr; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Fondo</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+ <div class="container">
+ <div class="alerta alerta-error" id="alerta-fondo"></div>
+
+ <div class="card">
+ <div class="card-title">Balance actual</div>
+ <div class="fondo-resumen">
+ <div class="fondo-box">
+ <div class="lbl">Saldo del fondo</div>
+ <div class="val" id="fondo-balance">$0.00</div>
+ <a href="detalleFondo.html" class="btn btn-outline btn-sm btn-detalle-fondo">Detalle fondo</a>
+ </div>
+ <div class="fondo-box">
+ <div class="lbl">Estado</div>
+ <div class="val fondo-estado" id="fondo-ultimo">Cargando...</div>
+ </div>
+ </div>
+ </div>
+
+ <div class="card" id="bloque-edicion-fondo">
+ <div class="card-title">Registrar movimiento</div>
+ <form id="form-movimiento-fondo">
+ <div class="form-group">
+ <label for="tipo-movimiento">Tipo</label>
+ <select id="tipo-movimiento" aria-label="Tipo de movimiento">
+ <option value="ingreso">Ingreso</option>
+ <option value="salida">Salida</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label>Monto</label>
+ <input type="number" id="monto-movimiento" min="0" step="0.01" placeholder="0.00"/>
+ </div>
+ <div class="form-group">
+ <label>Descripción</label>
+ <textarea id="descripcion-movimiento" rows="3" placeholder="Motivo del movimiento"></textarea>
+ </div>
+ <button class="btn btn-primary" id="btn-guardar-fondo" type="submit">Registrar movimiento</button>
+ </form>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Historial</div>
+ <div id="historial-fondo"></div>
+ </div>
+ </div>
+ <script type="module" src="../../../js/modulos/fondo.js"></script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Compras 2</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ .panel-resumen {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ margin-bottom: 16px;
+ }
+ .resumen-box {
+ background: #fff;
+ border-radius: 14px;
+ padding: 16px;
+ box-shadow: var(--sombra-sm);
+ border-left: 3px solid var(--verde-claro);
+ }
+ .resumen-box .lbl { font-size: 12px; color: var(--gris-medio); margin-bottom: 4px; }
+ .resumen-box .val { font-size: 21px; font-weight: 800; color: var(--verde-oscuro); }
+ .venta-grid, .ajuste-grid {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 10px;
+ }
+ .venta-card, .ajuste-card {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ border-left: 3px solid var(--verde-claro);
+ }
+ .venta-icono, .ajuste-icono { font-size: 28px; line-height: 1; }
+ .venta-info, .ajuste-info { flex: 1; min-width: 0; }
+ .venta-nombre, .ajuste-nombre, .carrito-nombre { font-weight: 700; color: var(--gris-texto); }
+ .venta-meta, .ajuste-meta, .carrito-meta { font-size: 12px; color: var(--gris-medio); }
+ .carrito-tabla-wrap {
+ overflow-x: auto;
+ border: 1px solid var(--gris-borde);
+ border-radius: 14px;
+ background: #fff;
+ }
+ .carrito-tabla {
+ width: 100%;
+ min-width: 860px;
+ border-collapse: collapse;
+ font-size: 13px;
+ }
+ .carrito-tabla thead th {
+ background: var(--verde-fondo);
+ color: var(--verde-oscuro);
+ text-align: left;
+ padding: 12px 10px;
+ border-bottom: 1px solid var(--gris-borde);
+ white-space: nowrap;
+ font-size: 12px;
+ text-transform: uppercase;
+ letter-spacing: 0.03em;
+ }
+ .carrito-tabla tbody td {
+ padding: 10px;
+ border-bottom: 1px solid #edf1ee;
+ vertical-align: middle;
+ }
+ .carrito-tabla tbody tr:last-child td { border-bottom: none; }
+ .carrito-tabla .celda-producto {
+ min-width: 220px;
+ }
+ .carrito-tabla .producto-titulo {
+ font-weight: 700;
+ color: var(--gris-texto);
+ margin-bottom: 3px;
+ }
+ .carrito-tabla .producto-meta {
+ font-size: 12px;
+ color: var(--gris-medio);
+ }
+ .carrito-tabla input {
+ width: 100%;
+ min-width: 92px;
+ padding: 10px 11px;
+ border-radius: 10px;
+ border: 1.5px solid var(--gris-borde);
+ font-size: 14px;
+ background: #fff;
+ }
+ .carrito-tabla input:focus {
+ outline: none;
+ border-color: var(--verde);
+ box-shadow: 0 0 0 3px rgba(57,181,74,0.12);
+ }
+ .carrito-acciones {
+ display: flex;
+ gap: 8px;
+ flex-wrap: wrap;
+ }
+ .chip-btn {
+ border: 1px solid var(--gris-borde);
+ border-radius: 999px;
+ background: #fff;
+ padding: 7px 12px;
+ font-size: 13px;
+ cursor: pointer;
+ }
+ .chip-danger { border-color: rgba(192,57,43,0.25); color: var(--rojo); }
+ .seccion-cat { margin-bottom: 18px; }
+ .seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ .campo-error {
+ display: none;
+ color: var(--rojo);
+ font-size: 12px;
+ margin-top: 4px;
+ }
+ .campo-error.show { display: block; }
+ .empty-state {
+ text-align: center;
+ padding: 20px 12px;
+ color: var(--gris-medio);
+ }
+ .empty-state .emoji {
+ font-size: 32px;
+ margin-bottom: 8px;
+ }
+ .accion-cell {
+ width: 1%;
+ white-space: nowrap;
+ }
+ .subtotal-cell {
+ min-width: 120px;
+ font-weight: 700;
+ color: var(--verde-oscuro);
+ }
+ .tabla-footer-info {
+ font-size: 12px;
+ color: var(--gris-medio);
+ margin-top: 10px;
+ }
+ .card-title-row {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ flex-wrap: wrap;
+ }
+ .modal-overlay {
+ position: fixed;
+ inset: 0;
+ background: rgba(0,0,0,0.45);
+ display: flex;
+ align-items: flex-end;
+ justify-content: center;
+ z-index: 200;
+ opacity: 0;
+ pointer-events: none;
+ transition: opacity 0.25s var(--ease-in-out);
+ }
+ .modal-overlay.show { opacity: 1; pointer-events: all; }
+ .modal {
+ background: #fff;
+ border-radius: 20px 20px 0 0;
+ padding: 24px 20px 36px;
+ width: 100%;
+ max-width: 520px;
+ transform: translateY(100%);
+ transition: transform 0.38s cubic-bezier(0.34, 1.28, 0.64, 1);
+ max-height: 90vh;
+ overflow-y: auto;
+ }
+ .modal-overlay.show .modal { transform: translateY(0); }
+ .modal-titulo {
+ font-size: 16px;
+ font-weight: 700;
+ color: var(--verde-oscuro);
+ margin-bottom: 20px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
+ }
+ .btn-cerrar-modal {
+ background: var(--gris-suave);
+ border: none;
+ border-radius: 50%;
+ width: 32px;
+ height: 32px;
+ font-size: 16px;
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ transition: background 0.2s, transform 0.15s var(--ease-spring);
+ }
+ .btn-cerrar-modal:hover { background: var(--gris-borde); }
+ .btn-cerrar-modal:active { transform: scale(0.88); }
+ .modal-step {
+ margin-top: 14px;
+ }
+ .modal-step.is-hidden {
+ display: none;
+ }
+ .modal-ayuda {
+ font-size: 12px;
+ color: var(--gris-medio);
+ margin-top: 6px;
+ }
+ .modal-categoria-actual {
+ padding: 10px 12px;
+ border-radius: 12px;
+ background: var(--verde-fondo);
+ color: var(--verde-oscuro);
+ font-weight: 600;
+ margin-bottom: 8px;
+ }
+ .icono-galeria {
+ display: grid;
+ grid-template-columns: repeat(5, 1fr);
+ gap: 8px;
+ margin-top: 8px;
+ }
+ .icono-opcion {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 3px;
+ padding: 8px 4px;
+ border-radius: 10px;
+ border: 2px solid transparent;
+ cursor: pointer;
+ transition: all 0.18s var(--ease-spring);
+ background: var(--gris-suave);
+ }
+ .icono-opcion:hover { border-color: var(--verde-claro); transform: scale(1.08); }
+ .icono-opcion:active { transform: scale(0.92); }
+ .icono-opcion.seleccionado { border-color: var(--verde); background: var(--verde-fondo); transform: scale(1.05); }
+ .icono-opcion .emoji { font-size: 22px; }
+ .icono-opcion .label { font-size: 9px; color: var(--gris-medio); text-align: center; line-height: 1.2; }
+ .select-error {
+ display: none;
+ color: var(--rojo);
+ font-size: 12px;
+ margin-top: 4px;
+ }
+ .select-error.show { display: block; }
+ .carrito-seccion {
+ margin-top: 14px;
+ }
+ .factura-box {
+ border: 1px dashed var(--gris-borde);
+ border-radius: 14px;
+ padding: 14px;
+ background: rgba(255,255,255,0.7);
+ }
+ @media (min-width: 680px) {
+ .venta-grid, .ajuste-grid { grid-template-columns: 1fr 1fr; }
+ .panel-resumen { grid-template-columns: 1fr 1fr; }
+ }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Compras 2</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+ <div class="container">
+ <div class="alerta alerta-error" id="alerta-compra"></div>
+
+ <div class="card">
+ <div class="card-title">Resumen</div>
+ <div class="panel-resumen">
+ <div class="resumen-box">
+ <div class="lbl">Cantidad de producto</div>
+ <div class="val" id="resumen-compra-items">0 unidades</div>
+ </div>
+ <div class="resumen-box">
+ <div class="lbl">Total compra</div>
+ <div class="val" id="resumen-compra-total">$0.00</div>
+ </div>
+ </div>
+ <button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-compra">Vaciar carrito</button>
+ </div>
+
+ <div class="spinner-wrap" id="estado-carga-compra"><div class="spinner"></div></div>
+
+ <div id="pantalla-compra" class="is-hidden">
+ <div class="card">
+ <div class="card-title card-title-row">Buscar productos
+ <button type="button" class="btn btn-outline btn-sm" id="btn-agregar-producto">Producto Nuevo</button>
+ </div>
+ <div class="form-group">
+ <input type="text" id="buscador-compra" placeholder="Buscar por nombre..."/>
+ </div>
+ <div id="productos-compra-wrap"></div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Carrito de compra</div>
+ <div class="form-group">
+ <label>Proveedor</label>
+ <input type="text" id="proveedor-compra" placeholder="Ej: PriceSmart" required/>
+ <span class="campo-error" id="err-proveedor"></span>
+ </div>
+ <div id="carrito-compra-wrap"></div>
+ <div class="tabla-footer-info">Cada fila representa un producto. Puedes editar paquetes, unidades por paquete y subtotal directamente.</div>
+ <div class="form-group carrito-seccion">
+ <label for="metodo-pago-compra">Método de pago</label>
+ <select id="metodo-pago-compra" aria-label="Método de pago de la compra" required>
+ <option value="" selected disabled>Seleccione un método</option>
+ <option value="efectivo">Efectivo</option>
+ <option value="transferencia">Transferencia</option>
+ <option value="tarjeta">Tarjeta</option>
+ </select>
+ <span class="campo-error" id="err-metodo"></span>
+ </div>
+ <div class="form-group">
+ <label for="factura-compra">Factura</label>
+ <div class="factura-box">
+ <input type="file" id="factura-compra" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,application/pdf,image/*" aria-label="Factura de la compra" required/>
+ <div class="factura-ayuda">Sube una factura en PDF o imagen. Máximo 10 MB.</div>
+ <div class="factura-preview" id="factura-preview">
+ <div class="factura-preview-info">No hay factura seleccionada.</div>
+ </div>
+ </div>
+ <span class="campo-error" id="err-factura"></span>
+ </div>
+ <div class="form-group">
+ <label>Nota</label>
+ <textarea id="nota-compra" rows="3" placeholder="Observaciones de la compra..."></textarea>
+ </div>
+ <button class="btn btn-primary" id="btn-finalizar-compra">Registrar compra</button>
+ </div>
+ </div>
+ </div>
+
+ <div class="modal-overlay" id="modal-prod">
+ <div class="modal">
+ <div class="modal-titulo">
+ <span id="modal-prod-titulo">Nuevo producto</span>
+ <button class="btn-cerrar-modal" id="cerrar-modal-prod" type="button"></button>
+ </div>
+
+ <div class="form-group">
+ <label>Primero selecciona una categoría</label>
+ <select id="prod-cat-select" aria-label="Categoría del producto">
+ <option value="">— Selecciona una categoría —</option>
+ </select>
+ <div class="modal-ayuda">El producto se registrará dentro de la categoría elegida.</div>
+ <span class="select-error" id="err-cat">Selecciona una categoría para continuar.</span>
+ </div>
+
+ <div id="prod-form-wrap" class="modal-step is-hidden">
+ <div class="modal-categoria-actual" id="prod-cat-resumen"></div>
+
+ <div class="form-group">
+ <label>Nombre del producto</label>
+ <input type="text" id="prod-nombre-input" placeholder="Ej: Coca-Cola 600ml"/>
+ </div>
+ <div class="form-group">
+ <label>Precio de venta ($)</label>
+ <input type="number" id="prod-precio-input" placeholder="0.00" min="0" step="0.01"/>
+ </div>
+ <div class="form-group">
+ <label>Alerta mínima de stock</label>
+ <input type="number" id="prod-alerta-input" placeholder="Ej: 10" min="0" step="1"/>
+ <small class="modal-ayuda">El producto se pondrá en amarillo cuando queden esta cantidad o menos.</small>
+ </div>
+ <div class="form-group">
+ <label>Selecciona un icono</label>
+ <div class="icono-galeria" id="galeria-prod"></div>
+ </div>
+ <input type="hidden" id="prod-icono-sel"/>
+ <input type="hidden" id="prod-edit-id"/>
+ <input type="hidden" id="prod-cat-id"/>
+ <div style="display:flex;gap:10px;margin-top:12px;">
+ <button class="btn btn-primary" id="btn-guardar-prod" type="button">Guardar producto</button>
+ </div>
+ </div>
+ </div>
+ </div>
+ <script type="module" src="../../../js/modulos/compras2.js"></script>
+</body>
+</html>

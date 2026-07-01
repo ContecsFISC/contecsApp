@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Actividades</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script src="../../../js/libs/xlsx.full.min.js"></script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ requirePermiso("gestionar_actividades");
+ </script>
+ <style>
+ .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+ .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .btn-outline:hover { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .card-title { color: var(--verde-oscuro); }
+ .container { max-width: 960px; }
+
+ @media(max-width:600px) {
+ .container { padding: 12px; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1> Actividades CONTECS</h1>
+ <div style="display:flex;align-items:center;gap:10px;">
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta-global" class="alerta"></div>
+
+ <!-- ACCESO RÁPIDO CALENDARIO -->
+ <div style="margin-bottom:16px;display:flex;justify-content:flex-end;">
+ <a href="calendario.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-claro);">
+ Ver calendario de eventos
+ </a>
+ </div>
+
+ <!-- DOCUMENTOS UNIVERSITARIOS -->
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+ <a href="solicitudActividad.html" class="btn btn-outline" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-oscuro);text-decoration:none;font-size:14px;">
+ Crear Solicitud de Actividad
+ </a>
+ <a href="informeActividad.html" class="btn btn-outline" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-oscuro);text-decoration:none;font-size:14px;">
+ Generar Informe de Actividad
+ </a>
+ </div>
+
+ <!-- FORMULARIO ACTIVIDADES -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="card-title" id="form-actividad-titulo">Crear nueva actividad</div>
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Nombre de la actividad *</label>
+ <input type="text" id="act-nombre" placeholder="ej. Feria CONTECS — Lunes 1 junio 2026"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Descripción</label>
+ <textarea id="act-descripcion" rows="2" placeholder="Descripción breve"></textarea>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Fecha *</label>
+ <input type="date" id="act-fecha"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Tipo de actividad *</label>
+ <select id="act-area">
+ <option value="">— Selecciona —</option>
+ <option>Seminario</option>
+ <option>Exposición</option>
+ <option>Debate</option>
+ <option>Foro</option>
+ <option>Curso</option>
+ <option>Servicio Social</option>
+ <option>Cultura</option>
+ <option>Gira</option>
+ <option>Conferencia</option>
+ <option>Taller</option>
+ <option>Conversatorio</option>
+ <option>Mesa Redonda</option>
+ <option>Diplomado</option>
+ <option>Deporte</option>
+ <option>Otro</option>
+ <option>Promoción Contecs</option>
+ </select>
+ </div>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Lugar *</label>
+ <input type="text" id="act-lugar" placeholder="ej. Centro de Convenciones"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Voluntarios requeridos</label>
+ <input type="number" id="act-voluntarios-req" placeholder="ej. 10" min="0"/>
+ </div>
+ </div>
+ <div class="form-groupE" id="act-cupo-group" style="display:none;">
+ <label style="color:var(--verde-oscuro)">Cupo máximo de asistentes</label>
+ <input type="number" id="act-cupo" placeholder="ej. 30" min="1"/>
+ <small style="color:var(--gris-medio);font-size:12px;">Límite de personas que pueden asistir al taller.</small>
+ </div>
+ <div class="form-groupE">
+ <label style="color:var(--verde-oscuro)">Colaboración</label>
+ <textarea id="act-colaboracion" rows="2" placeholder="Empresas o agrupaciones que apoyan (separadas por coma)"></textarea>
+ </div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;">
+ <button class="btn btn-primary" id="btn-guardar-actividad" style="flex:1">Guardar actividad</button>
+ <button class="btn btn-outline btn-sm" id="btn-cancelar-actividad" style="width:auto;display:none">Cancelar</button>
+ </div>
+ </div>
+
+ <!-- TABLA ACTIVIDADES -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="card-title">Actividades registradas</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Nombre</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Fecha</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Tipo</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Lugar</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Vol. req.</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Cupo</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Turnos</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Estado</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)"></th>
+ </tr></thead>
+ <tbody id="tabla-actividades-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/voluntarios.js"></script>
+</body>
+</html>

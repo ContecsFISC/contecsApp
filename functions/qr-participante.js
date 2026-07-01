@@ -1,7 +1,7 @@
 // Misma lógica que perfil.html y modulos_participantes.html (QRCode.js en browser).
 const QRCode = require("qrcode");
 
-const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
+const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/public/perfil.html";
 const QR_CONTENT_ID = "qr_credencial";
 
 const QR_OPTS = {

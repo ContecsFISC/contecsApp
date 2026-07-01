@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Informe de Actividad</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ requirePermiso("gestionar_actividades");
+ </script>
+ <style>
+ .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+ .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .btn-outline:hover { background: var(--verde-fondo); }
+ .card-title { color: var(--verde-oscuro); }
+ .container { max-width: 860px; }
+ .seccion-label {
+ font-size: 12px;
+ font-weight: 700;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ color: var(--verde-oscuro);
+ border-bottom: 1px solid var(--verde-claro);
+ padding-bottom: 4px;
+ margin-bottom: 12px;
+ }
+ .checkbox-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+ gap: 8px;
+ }
+ .check-item {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 14px;
+ cursor: pointer;
+ }
+ .check-item input[type="checkbox"] {
+ width: 16px;
+ height: 16px;
+ accent-color: var(--verde);
+ flex-shrink: 0;
+ }
+ .carreras-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 0 24px;
+ }
+ .carreras-col-title {
+ font-size: 12px;
+ font-weight: 700;
+ color: var(--verde-oscuro);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ margin-bottom: 8px;
+ }
+ .img-preview-grid {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ margin-top: 10px;
+ }
+ .img-preview-grid img {
+ width: 100px;
+ height: 80px;
+ object-fit: cover;
+ border-radius: 8px;
+ border: 1.5px solid var(--gris-borde);
+ }
+ @media(max-width:600px) {
+ .container { padding: 12px; }
+ .carreras-grid { grid-template-columns: 1fr; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1> Informe de Actividad</h1>
+ <div style="display:flex;align-items:center;gap:10px;">
+ <a href="actividades.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta-global" class="alerta"></div>
+
+ <!-- NÚMERO DE INFORME -->
+ <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--verde-fondo);border-radius:10px;border-left:3px solid var(--verde-claro);">
+ <span style="font-size:13px;color:var(--gris-medio);">Informe Nº</span>
+ <span id="inf-numero" style="font-size:18px;font-weight:700;color:var(--verde-oscuro);">—</span>
+ </div>
+
+ <!-- DATOS BÁSICOS -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Datos de la actividad</div>
+ <div class="form-groupE">
+ <label>Nombre de la actividad *</label>
+ <input type="text" id="inf-nombre" placeholder="ej. Primera Feria de Emprendimiento CONTECS"/>
+ </div>
+ <div class="form-groupE">
+ <label>Responsable(s) *</label>
+ <input type="text" id="inf-responsable" placeholder="Nombre del o los responsables"/>
+ </div>
+ </div>
+
+ <!-- DEPARTAMENTOS -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Departamento(s)</div>
+ <div style="display:flex;flex-direction:column;gap:10px;">
+ <label class="check-item"><input type="checkbox" name="depto" value="Depto. de Sistemas de Información"/> Depto. de Sistemas de Información</label>
+ <label class="check-item"><input type="checkbox" name="depto" value="Depto. de Ingeniería de Software"/> Depto. de Ingeniería de Software</label>
+ <label class="check-item"><input type="checkbox" name="depto" value="Depto. de Programación de Computadoras"/> Depto. de Programación de Computadoras</label>
+ <label class="check-item"><input type="checkbox" name="depto" value="Depto. de Arquitectura y Redes de Computadoras"/> Depto. de Arquitectura y Redes de Computadoras</label>
+ <label class="check-item"><input type="checkbox" name="depto" value="Depto. Computación y Simulación de Sistemas"/> Depto. Computación y Simulación de Sistemas</label>
+ </div>
+ </div>
+
+ <!-- ASIGNATURA -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Asignatura (si aplica)</div>
+ <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label>Asignatura</label>
+ <input type="text" id="inf-asignatura" placeholder="Nombre de la asignatura"/>
+ </div>
+ <div class="form-groupE">
+ <label>Código</label>
+ <input type="text" id="inf-codigo-asig" placeholder="ej. IS-700"/>
+ </div>
+ </div>
+ </div>
+
+ <!-- CARRERAS -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Carreras participantes</div>
+ <div class="carreras-grid">
+ <div>
+ <div class="carreras-col-title">Licenciaturas</div>
+ <div style="display:flex;flex-direction:column;gap:8px;">
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Ing. de Sistemas y Computación"/> Lic. Ing. Sistemas y Computación</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Ing. de Sistemas de Información"/> Lic. Ing. Sistemas de Información</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Ing. de Software"/> Lic. Ing. de Software</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Desarrollo de Software"/> Lic. Desarrollo de Software</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Redes Informáticas"/> Lic. Redes Informáticas</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Ciberseguridad"/> Lic. Ciberseguridad</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Lic. En Informática Aplicada a la Educación"/> Lic. Informática Aplicada a la Educación</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Téc. En Informática para la Gestión Empresarial"/> Téc. Informática para la Gestión Empresarial</label>
+ </div>
+ </div>
+ <div>
+ <div class="carreras-col-title">Maestrías</div>
+ <div style="display:flex;flex-direction:column;gap:8px;">
+ <label class="check-item"><input type="checkbox" name="carrera" value="Post./Maestría en Informática Educativa"/> Post./Maestría Informática Educativa</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Post./Maestría en Ingeniería del Software"/> Post./Maestría Ingeniería del Software</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Post./Maestría en Auditoría de Sistemas"/> Post./Maestría Auditoría de Sistemas</label>
+ <label class="check-item"><input type="checkbox" name="carrera" value="Maestría en Seguridad Informática"/> Maestría Seguridad Informática</label>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- DATOS DEL EVENTO -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Datos del evento</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+ <div class="form-groupE">
+ <label>Fecha *</label>
+ <input type="date" id="inf-fecha"/>
+ </div>
+ <div class="form-groupE">
+ <label>Hora inicio</label>
+ <input type="time" id="inf-hora-inicio"/>
+ </div>
+ <div class="form-groupE">
+ <label>Hora fin</label>
+ <input type="time" id="inf-hora-fin"/>
+ </div>
+ <div class="form-groupE" style="grid-column:1/-1;">
+ <label>Lugar *</label>
+ <input type="text" id="inf-lugar" placeholder="ej. Lobby Principal, Edificio 3"/>
+ </div>
+ </div>
+ <div class="form-groupE">
+ <label>Grupos participantes</label>
+ <input type="text" id="inf-grupos" placeholder="ej. 1IS121, voluntarios CONTECS"/>
+ </div>
+ </div>
+
+ <!-- PARTICIPANTES -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Participantes</div>
+ <div class="form-groupE">
+ <label>Total de participantes *</label>
+ <input type="number" id="inf-total-participantes" min="0" placeholder="0" style="max-width:180px;"/>
+ </div>
+ <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px;">
+ <div class="form-groupE">
+ <label style="font-size:12px;">Estudiantes</label>
+ <input type="number" id="inf-p-estudiantes" min="0" placeholder="0"/>
+ </div>
+ <div class="form-groupE">
+ <label style="font-size:12px;">Profesores</label>
+ <input type="number" id="inf-p-profesores" min="0" placeholder="0"/>
+ </div>
+ <div class="form-groupE">
+ <label style="font-size:12px;">Administrativos</label>
+ <input type="number" id="inf-p-administrativos" min="0" placeholder="0"/>
+ </div>
+ <div class="form-groupE">
+ <label style="font-size:12px;">Empresas</label>
+ <input type="number" id="inf-p-empresas" min="0" placeholder="0"/>
+ </div>
+ <div class="form-groupE">
+ <label style="font-size:12px;">Egresados</label>
+ <input type="number" id="inf-p-egresados" min="0" placeholder="0"/>
+ </div>
+ </div>
+ </div>
+
+ <!-- OBJETIVO, DESCRIPCIÓN, LOGROS -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Contenido del informe</div>
+ <div class="form-groupE">
+ <label>Objetivo *</label>
+ <textarea id="inf-objetivo" rows="3" placeholder="Objetivo de la actividad realizada..."></textarea>
+ </div>
+ <div class="form-groupE">
+ <label>Descripción</label>
+ <textarea id="inf-descripcion" rows="5" placeholder="Descripción detallada de lo realizado..."></textarea>
+ </div>
+ <div class="form-groupE">
+ <label>Logros alcanzados *</label>
+ <textarea id="inf-logros" rows="4" placeholder="Describe los logros, resultados e impacto de la actividad..."></textarea>
+ </div>
+ </div>
+
+ <!-- IMÁGENES -->
+ <div class="card" style="border-left:3px solid var(--verde-claro);">
+ <div class="seccion-label">Imágenes de la actividad</div>
+ <div class="form-groupE">
+ <label>Selecciona imágenes (se incluirán en el informe)</label>
+ <input type="file" id="inf-imagenes" multiple accept="image/*" style="padding:10px;"/>
+ </div>
+ <div id="img-preview-container" class="img-preview-grid"></div>
+ </div>
+
+ <!-- BOTONES -->
+ <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+ <button class="btn btn-outline" id="btn-guardar-borrador-inf" style="flex:1;">Guardar borrador</button>
+ <button class="btn btn-primary" id="btn-generar-informe" style="flex:2;"> Generar informe .docx</button>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/informeActividad.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Calendario</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script type="module">
+ import { guardRoute } from "../../../js/core/auth.js";
+ guardRoute();
+ </script>
+ <style>
+ .topbar { background: linear-gradient(135deg, #1a56db 0%, #3b82f6 100%); box-shadow: 0 2px 12px rgba(26,86,219,0.3); }
+ .container { max-width: 1100px; }
+
+ .filtro-btn { padding:8px 18px; border:1.5px solid #c7d9fc; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; background:#fff; color:var(--gris-medio); transition:all 0.2s; }
+ .filtro-btn:hover { background:#f0f4ff; color:#1a56db; border-color:#a5b4fc; }
+ .filtro-todos { border-color:#1a56db !important; color:#1a56db !important; background:#eef2ff !important; }
+ .filtro-actividad { border-color:var(--verde-claro) !important; color:var(--verde-oscuro) !important; background:var(--verde-fondo) !important; }
+ .filtro-gira { border-color:#ffc107 !important; color:#856404 !important; background:#fff3cd !important; }
+ .filtro-venta { border-color:#f05252 !important; color:#c81e1e !important; background:#fde8e8 !important; }
+
+ .cal-nav-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+ .cal-titulo-mes { font-size:20px; font-weight:700; color:#1a56db; text-transform:capitalize; }
+ .cal-nav-btn { background:#fff; border:1.5px solid #c7d9fc; border-radius:8px; padding:6px 16px; cursor:pointer; color:#1a56db; font-size:18px; font-weight:700; transition:background 0.15s; }
+ .cal-nav-btn:hover { background:#eef2ff; }
+
+ .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+ .cal-day-name { text-align:center; font-size:12px; font-weight:700; color:var(--gris-medio); padding:8px 0; background:#f0f4ff; border-radius:6px; }
+ .cal-day { min-height:90px; background:#fff; border-radius:10px; padding:6px 8px; border:1px solid var(--gris-borde); }
+ .cal-day:not(.otro-mes):hover { border-color:#c7d9fc; }
+ .cal-day.hoy { border:2px solid #1a56db; background:#f8faff; }
+ .cal-day.otro-mes { background:#fafafa; opacity:0.35; pointer-events:none; }
+ .cal-day-num { font-size:13px; font-weight:700; color:var(--gris-texto); margin-bottom:3px; }
+ .cal-day.hoy .cal-day-num { color:#1a56db; }
+
+ .cal-evento { font-size:11px; border-radius:6px; padding:3px 6px; margin-top:2px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; border-left:3px solid; transition:opacity 0.15s; }
+ .cal-evento:hover { opacity:0.75; }
+ .evt-actividad { background:var(--verde-fondo); color:var(--verde-oscuro); border-left-color:var(--verde-claro); }
+ .evt-gira { background:#fff3cd; color:#856404; border-left-color:#ffc107; }
+ .evt-venta { background:#fde8e8; color:#c81e1e; border-left-color:#f05252; }
+ .cal-mas { font-size:11px; color:#1a56db; margin-top:2px; cursor:pointer; font-weight:600; }
+ .cal-mas:hover { text-decoration:underline; }
+
+ .ley-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; display:inline-block; }
+
+ .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; padding:16px; }
+ .modal-overlay.open { display:flex; }
+ .modal-box { background:#fff; border-radius:16px; padding:28px 24px; max-width:480px; width:100%; position:relative; max-height:90vh; overflow-y:auto; animation:modalBounceUp 0.3s ease both; }
+ .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--gris-medio); }
+
+ @media(max-width:700px) {
+ .cal-day { min-height:56px; padding:4px; }
+ .cal-day-num { font-size:11px; }
+ .cal-evento { font-size:10px; padding:2px 4px; }
+ .cal-titulo-mes { font-size:15px; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1> Calendario CONTECS</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta-global" class="alerta"></div>
+
+ <!-- FILTROS Y LEYENDA -->
+ <div class="card" style="padding:14px 18px;margin-bottom:16px;">
+ <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+ <div style="display:flex;gap:8px;flex-wrap:wrap;">
+ <button class="filtro-btn filtro-todos" data-filtro="todos"> Todos</button>
+ <button class="filtro-btn" data-filtro="actividad"> Actividades</button>
+ <button class="filtro-btn" data-filtro="gira"> Giras</button>
+ <button class="filtro-btn" data-filtro="venta"> Ventas</button>
+ </div>
+ <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--gris-medio);">
+ <span><span class="ley-dot" style="background:var(--verde-claro);vertical-align:middle;margin-right:5px;"></span>Actividad</span>
+ <span><span class="ley-dot" style="background:#ffc107;vertical-align:middle;margin-right:5px;"></span>Gira</span>
+ <span><span class="ley-dot" style="background:#f05252;vertical-align:middle;margin-right:5px;"></span>Venta</span>
+ </div>
+ </div>
+ </div>
+
+ <!-- CALENDARIO -->
+ <div class="card" style="border:2px solid #c7d9fc;">
+ <div class="cal-nav-bar">
+ <button class="cal-nav-btn" id="btn-prev">&#8592;</button>
+ <div class="cal-titulo-mes" id="cal-titulo">Cargando…</div>
+ <button class="cal-nav-btn" id="btn-next">&#8594;</button>
+ </div>
+ <div class="cal-grid" id="cal-grid">
+ <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--gris-medio);">Cargando eventos…</div>
+ </div>
+ </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-overlay" id="modal-detalle">
+ <div class="modal-box">
+ <button class="modal-close" id="modal-detalle-close"></button>
+ <div id="modal-detalle-contenido"></div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/calendario.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Ventas</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ .venta-toolbar, .compra-toolbar, .fondo-toolbar, .ajuste-toolbar {
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ margin-bottom: 16px;
+ }
+ .panel-resumen {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ margin-bottom: 16px;
+ }
+ .resumen-box {
+ background: #fff;
+ border-radius: 14px;
+ padding: 16px;
+ box-shadow: var(--sombra-sm);
+ border-left: 3px solid var(--verde-claro);
+ }
+ .resumen-box .lbl {
+ font-size: 12px;
+ color: var(--gris-medio);
+ margin-bottom: 4px;
+ }
+ .resumen-box .val {
+ font-size: 21px;
+ font-weight: 800;
+ color: var(--verde-oscuro);
+ }
+ .venta-grid, .ajuste-grid {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 10px;
+ }
+ .venta-card, .ajuste-card {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ border-left: 3px solid var(--verde-claro);
+ }
+ .venta-card.alerta { border-left-color: var(--amarillo); }
+ .venta-card.agotado { border-left-color: var(--rojo); opacity: 0.92; }
+ .venta-icono, .ajuste-icono { font-size: 28px; line-height: 1; }
+ .venta-info, .ajuste-info { flex: 1; min-width: 0; }
+ .venta-nombre, .ajuste-nombre, .carrito-nombre, .fondo-titulo { font-weight: 700; color: var(--gris-texto); }
+ .venta-meta, .ajuste-meta, .carrito-meta, .fondo-meta { font-size: 12px; color: var(--gris-medio); }
+ .carrito-item, .fondo-item {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ margin-bottom: 10px;
+ }
+ .carrito-controles { display: flex; gap: 8px; margin-top: 10px; }
+ .chip-btn {
+ border: 1px solid var(--gris-borde);
+ border-radius: 999px;
+ background: #fff;
+ padding: 7px 12px;
+ font-size: 13px;
+ cursor: pointer;
+ }
+ .chip-danger { border-color: rgba(192,57,43,0.25); color: var(--rojo); }
+ .fondo-item { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+ .fondo-monto.ingreso { color: var(--verde); font-weight: 800; }
+ .fondo-monto.salida { color: var(--rojo); font-weight: 800; }
+ .seccion-cat { margin-bottom: 18px; }
+ .seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ @media (min-width: 680px) {
+ .venta-grid, .ajuste-grid { grid-template-columns: 1fr 1fr; }
+ .panel-resumen { grid-template-columns: 1fr 1fr; }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Registrar Ventas</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+ <div class="container">
+ <div class="alerta alerta-error" id="alerta-venta"></div>
+
+ <div class="card">
+ <div class="card-title">Resumen</div>
+ <div class="panel-resumen">
+ <div class="resumen-box">
+ <div class="lbl">Items en carrito</div>
+ <div class="val" id="resumen-items">0 unidades</div>
+ </div>
+ <div class="resumen-box">
+ <div class="lbl">Total venta</div>
+ <div class="val" id="resumen-total">$0.00</div>
+ </div>
+ </div>
+ <div class="venta-toolbar">
+ <button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-carrito">Vaciar carrito</button>
+ </div>
+ </div>
+
+ <div class="spinner-wrap" id="estado-carga"><div class="spinner"></div></div>
+
+ <div id="pantalla-venta" class="is-hidden">
+ <div class="card">
+ <div class="card-title">Buscar productos</div>
+ <div class="form-group">
+ <input type="text" id="buscador-productos" placeholder="Buscar por nombre..."/>
+ </div>
+ <div id="productos-wrap"></div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Carrito</div>
+ <div id="carrito-wrap"></div>
+ <div class="form-group">
+ <label for="metodo-pago">Método de pago</label>
+ <select id="metodo-pago" aria-label="Método de pago de la venta">
+ <option value="efectivo">Efectivo</option>
+ <option value="tarjeta">Tarjeta</option>
+ <option value="transferencia">Transferencia</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label>Nota</label>
+ <textarea id="nota-venta" rows="3" placeholder="Observaciones opcionales..."></textarea>
+ </div>
+ <button class="btn btn-primary" id="btn-finalizar-venta">Registrar venta</button>
+ </div>
+ </div>
+ </div>
+ <script type="module" src="../../../js/modulos/ventas.js"></script>
+</body>
+</html>

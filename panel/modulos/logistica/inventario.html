@@ -1,0 +1,398 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Inventario</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ /* ── RESUMEN DE ALERTAS ── */
+ .alertas-bar {
+ display: grid;
+ grid-template-columns: 1fr 1fr 1fr;
+ gap: 10px;
+ margin-bottom: 20px;
+ }
+ .alerta-stat {
+ background: #fff;
+ border-radius: 12px;
+ padding: 14px 12px;
+ text-align: center;
+ box-shadow: var(--sombra-sm);
+ opacity: 0;
+ animation: cardCascade 0.42s var(--ease-spring) both;
+ }
+ .alerta-stat:nth-child(1) { animation-delay: 0.08s; }
+ .alerta-stat:nth-child(2) { animation-delay: 0.15s; }
+ .alerta-stat:nth-child(3) { animation-delay: 0.22s; }
+
+ .alerta-stat .num { font-size: 26px; font-weight: 800; line-height: 1; }
+ .alerta-stat .lbl { font-size: 11px; color: var(--gris-medio); margin-top: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+ .num-ok { color: var(--verde-claro); }
+ .num-alerta { color: var(--amarillo); }
+ .num-agotado { color: var(--rojo); }
+
+ /* ── BUSCADOR ── */
+ .buscador-wrap {
+ position: relative;
+ margin-bottom: 16px;
+ animation: pageSlideUp 0.4s var(--ease-out) both;
+ animation-delay: 0.28s;
+ }
+ .buscador-wrap input {
+ width: 100%;
+ padding: 12px 14px 12px 36px;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ font-size: 15px;
+ font-family: var(--fuente);
+ background: #fff;
+ color: var(--gris-texto);
+ transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+ }
+ .buscador-wrap input:focus {
+ outline: none;
+ border-color: var(--verde);
+ box-shadow: 0 0 0 4px rgba(0,114,46,0.12);
+ transform: translateY(-1px);
+ }
+ .buscador-wrap .icono-buscar {
+ position: absolute; left: 12px; top: 50%;
+ transform: translateY(-50%);
+ font-size: 16px; pointer-events: none;
+ }
+
+ /* ── SECCIÓN DE CATEGORÍA ── */
+ .seccion-cat { margin-bottom: 20px; }
+ .seccion-cat-titulo {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--verde-oscuro);
+ margin-bottom: 10px;
+ padding-bottom: 6px;
+ border-bottom: 2px solid var(--verde-fondo);
+ animation: slideInLeft 0.35s var(--ease-out) both;
+ }
+
+ /* ── CARDS DE INVENTARIO ── */
+ .inv-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 10px;
+ }
+ .inv-card {
+ background: #fff;
+ border-radius: 12px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px 12px;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 6px;
+ text-align: center;
+ border-top: 3px solid var(--verde-claro);
+ /* Cascada asignada por JS */
+ opacity: 0;
+ animation: cardCascade 0.38s var(--ease-spring) both;
+ transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+ }
+ .inv-card:hover { transform: translateY(-3px); box-shadow: var(--sombra-md); }
+ .inv-card:active { transform: scale(0.95) !important; transition-duration: 0.08s; }
+
+ .inv-card.alerta { border-top-color: var(--amarillo); }
+ .inv-card.agotado { border-top-color: var(--rojo); background: var(--rojo-fondo); }
+
+ .inv-emoji { font-size: 30px; line-height: 1; }
+ .inv-nombre { font-size: 12px; font-weight: 600; color: var(--gris-texto); line-height: 1.3; }
+ .inv-stock { font-size: 22px; font-weight: 800; }
+ .inv-stock.ok { color: var(--verde); }
+ .inv-stock.alerta { color: var(--amarillo); }
+ .inv-stock.agotado { color: var(--rojo); }
+
+ .inv-alerta-lbl { font-size: 10px; color: var(--gris-medio); }
+ .inv-badge-agotado {
+ font-size: 10px;
+ font-weight: 700;
+ color: var(--rojo);
+ background: #fff;
+ padding: 2px 8px;
+ border-radius: 10px;
+ border: 1px solid var(--rojo);
+ }
+
+ /* ── BANNER AGOTADOS ── */
+ .agotados-banner {
+ background: var(--rojo-fondo);
+ border: 1.5px solid var(--rojo);
+ border-radius: 12px;
+ padding: 14px 16px;
+ margin-bottom: 20px;
+ animation: fadeScaleIn 0.4s var(--ease-spring) both;
+ animation-delay: 0.32s;
+ }
+ .agotados-banner-titulo {
+ font-size: 13px;
+ font-weight: 700;
+ color: var(--rojo);
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ }
+ .agotado-item {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ padding: 6px 0;
+ border-top: 1px solid rgba(192,57,43,0.15);
+ font-size: 13px;
+ transition: background 0.15s;
+ }
+ .agotado-item:first-of-type { border-top: none; }
+
+ /* ── EMPTY STATE ── */
+ .empty-state {
+ text-align: center;
+ padding: 48px 20px;
+ color: var(--gris-medio);
+ animation: fadeScaleIn 0.4s var(--ease-spring) both;
+ }
+ .empty-state .emoji { font-size: 44px; margin-bottom: 10px; }
+
+ .timestamp {
+ text-align: center;
+ font-size: 11px;
+ color: var(--gris-medio);
+ margin-top: 16px;
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Inventario</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+
+ <div class="container">
+
+ <!-- Resumen de alertas -->
+ <div class="alertas-bar">
+ <div class="alerta-stat">
+ <div class="num num-ok" id="stat-ok">—</div>
+ <div class="lbl">En stock</div>
+ </div>
+ <div class="alerta-stat">
+ <div class="num num-alerta" id="stat-alerta">—</div>
+ <div class="lbl">️ Bajo</div>
+ </div>
+ <div class="alerta-stat">
+ <div class="num num-agotado" id="stat-agotado">—</div>
+ <div class="lbl"> Agotado</div>
+ </div>
+ </div>
+
+ <!-- Buscador -->
+ <div class="buscador-wrap">
+ <span class="icono-buscar"></span>
+ <input type="text" id="buscador" placeholder="Buscar producto..."/>
+ </div>
+
+ <!-- Spinner inicial -->
+ <div class="spinner-wrap" id="spinner-inv"><div class="spinner"></div></div>
+
+ <!-- Contenido principal -->
+ <div id="inv-contenido" style="display:none"></div>
+
+ <div class="timestamp" id="timestamp"></div>
+ </div>
+
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { escucharCategorias, getEmoji, estadoStock } from "../../../js/modulos/catalogo.js";
+ import { db } from "../../../js/core/firebase-config.js";
+ import {
+ collection, query, where, onSnapshot
+ } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+ guardRoute();
+ requirePermiso("ver_inventario");
+
+ let categorias = [];
+ let todosProductos = [];
+ let terminoBusqueda = "";
+
+ function unidadesPorCajaProducto(producto) {
+ const candidato = Number(producto.unidadesPorCaja ?? producto.unidadesPorPaquete ?? producto.cantidadPorPaquete ?? 12);
+ return Number.isFinite(candidato) && candidato > 0 ? Math.trunc(candidato) : 12;
+ }
+
+ function formatearEquivalenciaStock(stock, producto) {
+ const unidadesCaja = unidadesPorCajaProducto(producto);
+ if (stock <= 0 || !unidadesCaja) return "";
+ const cajas = Math.trunc(stock / unidadesCaja);
+ const unidades = stock % unidadesCaja;
+ const pluralStock = stock === 1 ? "unidad" : "unidades";
+ return `${stock} ${pluralStock} ${stock === 1 ? "=" : "="}${cajas} caja${cajas === 1 ? "" : "s"} y ${unidades} unidad${unidades === 1 ? "" : "es"} disponibles`;
+ }
+
+ const contenido = document.getElementById("inv-contenido");
+ const spinner = document.getElementById("spinner-inv");
+
+ // Escuchar TODOS los productos activos en tiempo real
+ onSnapshot(
+ query(collection(db, "productos"), where("activo", "==", true)),
+ (snap) => {
+ todosProductos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+ actualizarStats();
+ renderInventario();
+ }
+ );
+
+ escucharCategorias((cats) => {
+ categorias = cats;
+ spinner.style.display = "none";
+ contenido.style.display = "";
+ renderInventario();
+ });
+
+ function actualizarStats() {
+ let ok = 0, alerta = 0, agotado = 0;
+ todosProductos.forEach(p => {
+ const e = estadoStock(p.stock ?? 0, p.alertaMinima ?? 0);
+ if (e === "ok") ok++;
+ else if (e === "alerta") alerta++;
+ else if (e === "agotado") agotado++;
+ });
+ document.getElementById("stat-ok").textContent = ok;
+ document.getElementById("stat-alerta").textContent = alerta;
+ document.getElementById("stat-agotado").textContent = agotado;
+ document.getElementById("timestamp").textContent =
+ `Última actualización: ${new Date().toLocaleTimeString("es-PA")}`;
+ }
+
+ function renderInventario() {
+ const busq = terminoBusqueda.toLowerCase();
+ const agotados = todosProductos.filter(p => {
+ const e = estadoStock(p.stock ?? 0, p.alertaMinima ?? 0);
+ return e === "agotado" && (!busq || p.nombre.toLowerCase().includes(busq));
+ });
+
+ contenido.innerHTML = "";
+
+ // Banner de agotados arriba (solo si no hay búsqueda activa)
+ if (agotados.length > 0 && !busq) {
+ const banner = document.createElement("div");
+ banner.className = "agotados-banner";
+ banner.innerHTML = `
+ <div class="agotados-banner-titulo"> Productos agotados (${agotados.length})</div>
+ ${agotados.map(p => `
+ <div class="agotado-item">
+ <span style="font-size:20px;">${getEmoji(p.iconoId)}</span>
+ <span style="font-weight:600;flex:1;">${p.nombre}</span>
+ <span class="inv-badge-agotado">Sin stock</span>
+ </div>`).join("")}`;
+ contenido.appendChild(banner);
+ }
+
+ // Productos por categoría con delay escalonado
+ let totalVisible = 0;
+ let cardGlobal = 0;
+
+ categorias.forEach(cat => {
+ const prods = todosProductos.filter(p =>
+ p.categoriaId === cat.id &&
+ (!busq || p.nombre.toLowerCase().includes(busq))
+ );
+ if (prods.length === 0) return;
+ totalVisible += prods.length;
+
+ const seccion = document.createElement("div");
+ seccion.className = "seccion-cat";
+
+ const titulo = document.createElement("div");
+ titulo.className = "seccion-cat-titulo";
+ titulo.innerHTML = `
+ <span style="font-size:20px;">${getEmoji(cat.iconoId)}</span>
+ ${cat.nombre}
+ <span style="font-size:12px;font-weight:400;color:var(--gris-medio);margin-left:4px;">(${prods.length})</span>`;
+ seccion.appendChild(titulo);
+
+ const grid = document.createElement("div");
+ grid.className = "inv-grid";
+
+ // Ordenar: agotados → alerta → ok
+ const ordenados = [...prods].sort((a, b) => {
+ const orden = { agotado: 0, alerta: 1, ok: 2 };
+ return orden[estadoStock(a.stock ?? 0, a.alertaMinima ?? 0)] -
+ orden[estadoStock(b.stock ?? 0, b.alertaMinima ?? 0)];
+ });
+
+ ordenados.forEach(prod => {
+ const estado = estadoStock(prod.stock ?? 0, prod.alertaMinima ?? 0);
+ const card = document.createElement("div");
+ card.className = `inv-card${estado !== "ok" ? ` ${estado}` : ""}`;
+ // Delay escalonado global para cascada de toda la página
+ card.style.animationDelay = `${0.35 + cardGlobal * 0.045}s`;
+ cardGlobal++;
+
+ card.innerHTML = `
+ <div class="inv-emoji">${getEmoji(prod.iconoId)}</div>
+ <div class="inv-nombre">${prod.nombre}</div>
+ <div class="inv-stock ${estado}">
+ ${estado === "agotado" ? "0" : prod.stock ?? 0}
+ </div>
+ <div class="inv-alerta-lbl">
+ ${estado === "agotado"
+ ? '<span class="inv-badge-agotado">Sin stock</span>'
+ : estado === "alerta"
+ ? `️ Mínimo: ${prod.alertaMinima}`
+ : `Mínimo: ${prod.alertaMinima}`}
+ ${estado !== "agotado" && (prod.stock ?? 0) > 0
+ ? `<div style="margin-top:4px;font-size:10px;color:var(--gris-medio);line-height:1.3;">${formatearEquivalenciaStock(prod.stock ?? 0, prod)}</div>`
+ : ""}
+ </div>`;
+
+ grid.appendChild(card);
+ });
+
+ seccion.appendChild(grid);
+ contenido.appendChild(seccion);
+ });
+
+ // Si no hay resultados
+ if (totalVisible === 0) {
+ contenido.innerHTML += `
+ <div class="empty-state">
+ <div class="emoji">${busq ? "" : ""}</div>
+ <p>${busq
+ ? `No se encontraron productos con "${terminoBusqueda}".`
+ : "No hay productos en el inventario aún.<br>Crea categorías y productos en el Catálogo."}</p>
+ </div>`;
+ }
+ }
+
+ document.getElementById("buscador").addEventListener("input", (e) => {
+ terminoBusqueda = e.target.value;
+ renderInventario();
+ });
+ </script>
+</body>
+</html>

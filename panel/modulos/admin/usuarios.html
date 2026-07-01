@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Gestión de Usuarios</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ .usuario-card {
+ background: #fff;
+ border-radius: 12px;
+ box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+ padding: 16px;
+ margin-bottom: 10px;
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ border-left: 3px solid #d0dbd2;
+ transition: border-color 0.2s;
+ }
+ .usuario-card.con-rol { border-left-color: #39b54a; }
+ .usuario-card.sin-rol { border-left-color: #d4850a; }
+ .foto {
+ width: 44px; height: 44px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, #045223, #00722e);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 18px;
+ color: #fff;
+ font-weight: 700;
+ flex-shrink: 0;
+ overflow: hidden;
+ }
+ .foto img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+ .info { flex: 1; min-width: 0; }
+ .info .nombre { font-size: 14px; font-weight: 600; color: #1a2e1e; }
+ .info .email { font-size: 12px; color: #8a9e8d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .rol-select {
+ padding: 7px 10px;
+ border: 1.5px solid #d0dbd2;
+ border-radius: 8px;
+ font-size: 13px;
+ font-family: 'Segoe UI', system-ui, sans-serif;
+ color: #1a2e1e;
+ background: #fff;
+ cursor: pointer;
+ transition: border-color 0.15s;
+ flex-shrink: 0;
+ }
+ .rol-select:focus { outline: none; border-color: #00722e; }
+ .guardando { font-size: 12px; color: #39b54a; margin-top: 2px; display: none; }
+ .filtros {
+ display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+ }
+ .filtro-btn {
+ padding: 6px 14px;
+ border-radius: 20px;
+ border: 1.5px solid #d0dbd2;
+ background: #fff;
+ font-size: 12px;
+ font-weight: 600;
+ cursor: pointer;
+ color: #8a9e8d;
+ transition: all 0.15s;
+ }
+ .filtro-btn.activo {
+ background: #00722e;
+ border-color: #00722e;
+ color: #fff;
+ }
+ .contador {
+ font-size: 13px;
+ color: #8a9e8d;
+ margin-bottom: 12px;
+ }
+ .contador strong { color: #00722e; }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Gestión de Usuarios</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+
+ <div class="container">
+ <div class="card">
+ <div class="card-title"> Miembros registrados</div>
+ <p style="font-size:13px;color:#8a9e8d;margin-bottom:16px;">
+ Cada persona que inicia sesión por primera vez aparece aquí con rol <strong>Sin rol</strong>. Asígnales su comisión con el selector.
+ </p>
+
+ <div class="filtros">
+ <button class="filtro-btn activo" data-filtro="todos">Todos</button>
+ <button class="filtro-btn" data-filtro="sin_rol">️ Sin rol</button>
+ <button class="filtro-btn" data-filtro="con_rol"> Con rol</button>
+ </div>
+
+ <div class="contador" id="contador">Cargando...</div>
+
+ <div class="spinner-wrap" id="spinner">
+ <div class="spinner"></div>
+ </div>
+
+ <div id="lista-usuarios"></div>
+ </div>
+ </div>
+
+ <script type="module" src="../../../js/modulos/usuarios.js"></script>
+</body>
+</html>

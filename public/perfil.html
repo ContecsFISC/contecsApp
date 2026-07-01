@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS 2026 — Mi Credencial</title>
+ <script src="../js/libs/qrcode.min.js"></script>
+ <style>
+ :root {
+ --verde: #00722e;
+ --verde-oscuro: #045223;
+ --verde-claro: #39b54a;
+ --verde-fondo: #e8f5ec;
+ --gris-texto: #1a2e1e;
+ --gris-suave: #f4f7f5;
+ --gris-borde: #d0dbd2;
+ --gris-medio: #8a9e8d;
+ --rojo: #c0392b;
+ --rojo-fondo: #fdedec;
+ --amarillo: #d4850a;
+ --amarillo-fondo:#fef9e7;
+ --azul: #2471a3;
+ --azul-fondo: #eaf4fb;
+ --radio: 12px;
+ --radio-sm: 8px;
+ --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+ --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+ }
+
+ * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+ body {
+ font-family: var(--fuente);
+ background: var(--gris-suave);
+ color: var(--gris-texto);
+ min-height: 100vh;
+ }
+
+ /* ── ACCESO ── */
+ .acceso-wrap {
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ padding: 24px 16px;
+ background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde) 60%, var(--verde-claro) 100%);
+ }
+ .acceso-card {
+ background: #fff;
+ border-radius: 20px;
+ padding: 32px 24px;
+ width: 100%;
+ max-width: 400px;
+ box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+ animation: fadeScaleIn 0.5s var(--ease-spring) both;
+ }
+ .acceso-logo {
+ text-align: center;
+ margin-bottom: 24px;
+ }
+ .acceso-logo .logo-circulo {
+ width: 80px; height: 80px;
+ background: #ffffff;
+ border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
+ margin: 0 auto 12px;
+ overflow: hidden;
+ box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+ }
+ .acceso-logo h1 { font-size: 20px; font-weight: 800; color: var(--verde-oscuro); }
+ .acceso-logo p { font-size: 13px; color: var(--gris-medio); margin-top: 4px; }
+ .form-group { margin-bottom: 16px; }
+ .form-group label {
+ display: block;
+ font-size: 13px;
+ font-weight: 600;
+ color: var(--verde-oscuro);
+ margin-bottom: 6px;
+ }
+ .form-group input {
+ width: 100%;
+ padding: 13px 14px;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ font-size: 15px;
+ font-family: var(--fuente);
+ transition: border-color 0.2s, box-shadow 0.2s;
+ -webkit-appearance: none;
+ letter-spacing: 1px;
+ }
+ .form-group input:focus {
+ outline: none;
+ border-color: var(--verde);
+ box-shadow: 0 0 0 4px rgba(0,114,46,0.10);
+ }
+ .btn-acceso {
+ width: 100%;
+ padding: 14px;
+ background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%);
+ color: #fff;
+ border: none;
+ border-radius: var(--radio-sm);
+ font-size: 15px;
+ font-weight: 700;
+ cursor: pointer;
+ min-height: 50px;
+ display: flex; align-items: center; justify-content: center; gap: 8px;
+ box-shadow: 0 4px 16px rgba(0,114,46,0.28);
+ transition: opacity 0.18s, transform 0.15s;
+ font-family: var(--fuente);
+ }
+ .btn-acceso:hover { opacity: 0.9; transform: translateY(-1px); }
+ .btn-acceso:active { transform: scale(0.97); }
+ .btn-acceso:disabled { opacity: 0.5; cursor: not-allowed; }
+ .acceso-alerta {
+ padding: 11px 14px;
+ border-radius: var(--radio-sm);
+ font-size: 13px;
+ margin-bottom: 14px;
+ display: none;
+ background: var(--rojo-fondo);
+ color: var(--rojo);
+ border-left: 3px solid var(--rojo);
+ }
+ .acceso-alerta.show { display: block; animation: cardIn 0.3s var(--ease-spring) both; }
+
+ /* ── PERFIL ── */
+ .perfil-wrap { display: none; }
+ .perfil-wrap.visible { display: block; }
+
+ .hero-perfil {
+ background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde) 70%, var(--verde-claro) 100%);
+ padding: 28px 20px 70px;
+ text-align: center;
+ position: relative;
+ overflow: hidden;
+ }
+ .hero-perfil::before {
+ content: '';
+ position: absolute; inset: 0;
+ background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+ }
+ .hp-nombre {
+ color: #fff;
+ font-size: 22px;
+ font-weight: 800;
+ margin-bottom: 4px;
+ position: relative;
+ }
+ .hp-categoria {
+ color: rgba(255,255,255,0.75);
+ font-size: 13px;
+ position: relative;
+ }
+ .hp-estado {
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ padding: 6px 16px;
+ border-radius: 20px;
+ font-size: 13px;
+ font-weight: 700;
+ margin-top: 12px;
+ position: relative;
+ }
+ .hp-estado.pendiente { background: rgba(212,133,10,0.2); color: #ffe082; border: 1px solid rgba(255,224,130,0.4); }
+ .hp-estado.aprobado { background: rgba(57,181,74,0.25); color: #a5d6a7; border: 1px solid rgba(165,214,167,0.4); }
+ .hp-estado.rechazado { background: rgba(192,57,43,0.2); color: #ef9a9a; border: 1px solid rgba(239,154,154,0.4); }
+
+ .container {
+ max-width: 480px;
+ margin: 0 auto;
+ padding: 0 16px 60px;
+ position: relative;
+ top: -42px;
+ }
+
+ /* ── CREDENCIAL QR ── */
+ .credencial {
+ background: #fff;
+ border-radius: 20px;
+ box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+ overflow: hidden;
+ margin-bottom: 16px;
+ animation: cardIn 0.5s var(--ease-spring) 0.1s both;
+ }
+ .credencial-header {
+ background: linear-gradient(135deg, var(--verde-oscuro), var(--verde));
+ padding: 16px 20px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ }
+ .ch-titulo { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+ .ch-codigo { color: rgba(255,255,255,0.7); font-size: 11px; font-family: 'Courier New', monospace; }
+ .credencial-qr {
+ padding: 24px;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 16px;
+ }
+ .qr-contenedor {
+ width: 200px; height: 200px;
+ border-radius: var(--radio);
+ overflow: hidden;
+ border: 3px solid var(--verde-fondo);
+ display: flex; align-items: center; justify-content: center;
+ position: relative;
+ }
+ .qr-overlay-bloqueado {
+ position: absolute; inset: 0;
+ background: rgba(255,255,255,0.92);
+ display: flex; flex-direction: column;
+ align-items: center; justify-content: center;
+ gap: 8px;
+ border-radius: var(--radio);
+ }
+ .qr-overlay-bloqueado .qo-icono { font-size: 36px; }
+ .qr-overlay-bloqueado .qo-txt { font-size: 12px; font-weight: 600; color: var(--amarillo); text-align: center; padding: 0 12px; }
+ .credencial-codigo {
+ font-family: 'Courier New', monospace;
+ font-size: 18px;
+ font-weight: 700;
+ letter-spacing: 3px;
+ color: var(--verde-oscuro);
+ background: var(--verde-fondo);
+ padding: 10px 20px;
+ border-radius: var(--radio-sm);
+ }
+ .credencial-footer {
+ border-top: 1.5px dashed var(--gris-borde);
+ padding: 14px 20px;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ }
+ .cf-label { font-size: 11px; color: var(--gris-medio); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+ .cf-valor { font-size: 13px; font-weight: 700; color: var(--gris-texto); }
+
+ /* ── CARDS INFO ── */
+ .info-card {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ padding: 20px;
+ margin-bottom: 14px;
+ animation: cardIn 0.5s var(--ease-spring) both;
+ }
+ .ic-titulo {
+ font-size: 14px;
+ font-weight: 700;
+ color: var(--verde-oscuro);
+ margin-bottom: 14px;
+ display: flex; align-items: center; gap: 8px;
+ }
+ .ic-fila {
+ display: flex;
+ justify-content: space-between;
+ align-items: flex-start;
+ padding: 9px 0;
+ border-bottom: 1px solid var(--gris-borde);
+ gap: 12px;
+ font-size: 14px;
+ }
+ .ic-fila:last-child { border-bottom: none; }
+ .ic-label { color: var(--gris-medio); font-size: 13px; flex-shrink: 0; }
+ .ic-valor { font-weight: 600; color: var(--gris-texto); text-align: right; word-break: break-word; }
+
+ /* ── ESTADO PAGO ── */
+ .pago-estado-card {
+ border-radius: var(--radio);
+ padding: 18px;
+ margin-bottom: 14px;
+ animation: cardIn 0.5s var(--ease-spring) 0.2s both;
+ }
+ .pago-estado-card.pendiente_efectivo { background: var(--amarillo-fondo); border: 1.5px solid #f0c040; }
+ .pago-estado-card.comprobante_enviado { background: var(--azul-fondo); border: 1.5px solid #85c1e9; }
+ .pago-estado-card.aprobado { background: var(--verde-fondo); border: 1.5px solid var(--verde-claro); }
+ .pago-estado-card.rechazado { background: var(--rojo-fondo); border: 1.5px solid #e74c3c; }
+ .pe-icono { font-size: 28px; margin-bottom: 8px; }
+ .pe-titulo { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+ .pe-desc { font-size: 13px; line-height: 1.5; }
+ .pago-estado-card.pendiente_efectivo .pe-titulo,
+ .pago-estado-card.pendiente_efectivo .pe-desc { color: var(--amarillo); }
+ .pago-estado-card.comprobante_enviado .pe-titulo { color: var(--azul); }
+ .pago-estado-card.comprobante_enviado .pe-desc { color: #5d9ec5; }
+ .pago-estado-card.aprobado .pe-titulo { color: var(--verde-oscuro); }
+ .pago-estado-card.aprobado .pe-desc { color: var(--verde); }
+ .pago-estado-card.rechazado .pe-titulo,
+ .pago-estado-card.rechazado .pe-desc { color: var(--rojo); }
+
+ /* ── AYUDA ── */
+ .ayuda-card {
+ background: var(--verde-fondo);
+ border-radius: var(--radio);
+ padding: 16px;
+ font-size: 13px;
+ color: var(--verde-oscuro);
+ line-height: 1.6;
+ margin-bottom: 14px;
+ }
+
+ /* ── CARGANDO ── */
+ .loading-wrap {
+ min-height: 100vh;
+ display: flex; align-items: center; justify-content: center;
+ background: var(--gris-suave);
+ }
+ .loading-box {
+ text-align: center;
+ animation: fadeIn 0.3s both;
+ }
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .spinner-grande {
+ width: 48px; height: 48px;
+ border: 3px solid var(--verde-fondo);
+ border-top-color: var(--verde);
+ border-radius: 50%;
+ animation: spin 0.8s linear infinite;
+ margin: 0 auto 16px;
+ }
+ .loading-txt { font-size: 14px; color: var(--gris-medio); }
+
+ @keyframes fadeScaleIn {
+ from { opacity: 0; transform: scale(0.92); }
+ to { opacity: 1; transform: scale(1); }
+ }
+ @keyframes fadeIn {
+ from { opacity: 0; } to { opacity: 1; }
+ }
+ @keyframes cardIn {
+ from { opacity: 0; transform: translateY(16px) scale(0.97); }
+ to { opacity: 1; transform: translateY(0) scale(1); }
+ }
+ @keyframes spin2 { to { transform: rotate(360deg); } }
+ .spinner-sm {
+ width: 18px; height: 18px;
+ border: 2px solid rgba(255,255,255,0.4);
+ border-top-color: #fff;
+ border-radius: 50%;
+ animation: spin2 0.7s linear infinite;
+ }
+
+ .footer {
+ text-align: center;
+ padding: 20px 16px 40px;
+ font-size: 12px;
+ color: var(--gris-medio);
+ }
+ </style>
+</head>
+<body>
+
+<!-- CARGANDO -->
+<div class="loading-wrap" id="loading-wrap">
+ <div class="loading-box">
+ <div class="spinner-grande"></div>
+ <div class="loading-txt">Cargando tu credencial...</div>
+ </div>
+</div>
+
+<!-- PANTALLA DE ACCESO -->
+<div class="acceso-wrap" id="acceso-wrap" style="display:none;">
+ <div class="acceso-card">
+ <div class="acceso-logo">
+ <div class="logo-circulo">
+ <img src="../logocontecs.png" alt="CONTECS"
+ style="width:54px;height:54px;object-fit:contain;"
+ onerror="this.style.display='none';this.parentElement.innerHTML=''"/>
+ </div>
+ <h1>CONTECS 2026</h1>
+ <p>Ingresa tu código para ver tu credencial</p>
+ </div>
+
+ <div class="acceso-alerta" id="acceso-alerta"></div>
+
+ <div class="form-group">
+ <label>Código de participante</label>
+ <input type="text" id="inp-codigo" placeholder="Ej: CTCS-2026-00001"
+ style="text-transform:uppercase; font-family:'Courier New',monospace; font-weight:700;"/>
+ </div>
+ <div class="form-group">
+ <label>Código de acceso</label>
+ <input type="text" id="inp-token" placeholder="Código recibido en tu correo"
+ style="font-family:'Courier New',monospace;"/>
+ </div>
+
+ <button class="btn-acceso" id="btn-acceder">
+ <span id="btn-acceder-txt">Ver mi credencial</span>
+ <div class="spinner-sm" id="spinner-acceso" style="display:none;"></div>
+ </button>
+
+ <p style="font-size:12px;color:var(--gris-medio);text-align:center;margin-top:16px;line-height:1.6;">
+ ¿Perdiste tu código? Revisa el correo que recibiste al inscribirte.<br/>
+ Ambos códigos están en ese correo.
+ </p>
+ </div>
+</div>
+
+<!-- PERFIL DEL PARTICIPANTE -->
+<div class="perfil-wrap" id="perfil-wrap">
+
+ <div class="hero-perfil" id="hero-perfil">
+ <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
+ <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);">
+ <img src="../logocontecs.png" alt="CONTECS"
+ style="width:74px;height:74px;object-fit:contain;"
+ onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-size:28px;\'></span>'"/>
+ </div>
+ </div>
+ <div class="hp-nombre" id="hp-nombre">—</div>
+ <div class="hp-categoria" id="hp-categoria">—</div>
+ <div class="hp-estado" id="hp-estado">—</div>
+ </div>
+
+ <div class="container">
+
+ <!-- ESTADO DE PAGO -->
+ <div class="pago-estado-card" id="pago-estado-card">
+ <div class="pe-icono" id="pe-icono" style="display:none;"></div>
+ <div class="pe-titulo" id="pe-titulo">Procesando...</div>
+ <div class="pe-desc" id="pe-desc"></div>
+ </div>
+
+ <!-- CREDENCIAL QR -->
+ <div class="credencial" id="credencial-card">
+ <div class="credencial-header">
+ <div>
+ <div class="ch-titulo">CREDENCIAL DE ACCESO</div>
+ <div class="ch-codigo" id="ch-codigo">CTCS-2026-00000</div>
+ </div>
+ <div style="color:rgba(255,255,255,0.6);font-size:11px;">CONTECS 2026</div>
+ </div>
+ <div class="credencial-qr">
+ <div class="qr-contenedor" id="qr-contenedor">
+ <div id="qr-canvas"></div>
+ <div class="qr-overlay-bloqueado" id="qr-overlay" style="display:none;">
+ <div class="qo-icono">
+ <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d4850a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+ <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+ </svg>
+ </div>
+ <div class="qo-txt">QR disponible cuando tu pago sea validado</div>
+ </div>
+ </div>
+ <div class="credencial-codigo" id="cred-codigo">CTCS-2026-00000</div>
+ </div>
+ <div class="credencial-footer">
+ <div style="text-align:center;width:100%;">
+ <div style="font-size:18px;margin-bottom:4px;"></div>
+ <div style="font-size:14px;font-weight:800;color:var(--verde-oscuro);">¡Disfruta del Congreso!</div>
+ <div style="font-size:12px;color:var(--gris-medio);margin-top:6px;line-height:1.5;">
+ Permite que los Staff escaneen tu QR de acceso al Congreso
+ </div>
+ </div>
+ </div>
+ <div style="padding: 0 20px 16px;">
+ <p style="text-align:center;font-size:13px;color:var(--gris-medio);line-height:1.6;margin:0;">
+ <strong>Guarda tu Credencial y QR</strong><br/>tomándole captura de pantalla.
+ </p>
+ </div>
+ </div>
+
+ <!-- DATOS PERSONALES -->
+ <div class="info-card" style="animation-delay:0.15s;">
+ <div class="ic-titulo">Mis datos</div>
+ <div class="ic-fila"><span class="ic-label">Nombre completo</span><span class="ic-valor" id="d-nombre">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Cédula</span><span class="ic-valor" id="d-cedula">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Correo</span><span class="ic-valor" id="d-correo">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Teléfono</span><span class="ic-valor" id="d-telefono">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Categoría</span><span class="ic-valor" id="d-categoria">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Institución</span><span class="ic-valor" id="d-institucion">—</span></div>
+ <div class="ic-fila" id="row-colegio" style="display:none;"><span class="ic-label">Colegio</span><span class="ic-valor" id="d-colegio">—</span></div>
+ </div>
+
+ <!-- PAGO -->
+ <div class="info-card" style="animation-delay:0.2s;">
+ <div class="ic-titulo">Pago</div>
+ <div class="ic-fila"><span class="ic-label">Método</span><span class="ic-valor" id="d-metodo">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Estado</span><span class="ic-valor" id="d-estado-pago">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Monto</span><span class="ic-valor" id="d-monto">—</span></div>
+ <div class="ic-fila" id="row-aprobado" style="display:none;"><span class="ic-label">Aprobado</span><span class="ic-valor" id="d-aprobado">—</span></div>
+ </div>
+
+ <div class="ayuda-card">
+ <strong>¿Tienes algún problema?</strong> Comunícate con el equipo de CONTECS antes del evento para resolver cualquier inconveniente con tu inscripción.
+ <br/><br/>
+ <a href="mailto:contecsfisc@utp.ac.pa" style="color:var(--verde-oscuro);font-weight:700;">contecsfisc@utp.ac.pa</a><br/>
+ <span style="font-size:12px;color:var(--gris-medio);margin-top:6px;display:block;">
+ Contacta con el desarrollador encargado: <strong style="color:var(--gris-texto);">Vilchez Alpha — 6290-1553</strong>
+ </span>
+ </div>
+
+ <div class="footer">
+ CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
+ Universidad Tecnológica de Panamá
+ </div>
+
+ </div>
+</div>
+
+<script type="module">
+import { accederParticipante } from "../js/core/participantes-api.js";
+
+// URL base del perfil — debe coincidir con la que usan las Cloud Functions
+const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
+
+const el = id => document.getElementById(id);
+
+// ── LABELS ─────────────────────────────────────────────────────────────────
+const CATEGORIA_LABELS = {
+ estudiante_utp: "Estudiante UTP",
+ estudiante_externo: "Estudiante Externo",
+ academico_utp: "Académico UTP",
+ academico_externo: "Académico Externo",
+ academico: "Académico",
+ profesional: "Profesional",
+ autor: "Autor Científico",
+ otros: "Otros",
+ colegio: "Colegio",
+ colegio_estudiante: "Estudiante de Colegio",
+};
+
+const PAGO_ESTADO_INFO = {
+ pendiente_efectivo: {
+ icono: "", titulo: "Pago en efectivo pendiente",
+ desc: "Tu pago en efectivo será registrado el día del evento. Preséntate con el staff de inscripciones.",
+ clase: "pendiente_efectivo", badge: "Pendiente",
+ },
+ comprobante_enviado: {
+ icono: "", titulo: "Comprobante enviado",
+ desc: "Tu comprobante fue recibido. El staff lo está revisando. Te notificaremos cuando sea aprobado.",
+ clase: "comprobante_enviado", badge: "En revision",
+ },
+ aprobado: {
+ icono: "", titulo: "Pago aprobado",
+ desc: "Tu pago fue validado. Tu QR de acceso está activo. Nos vemos en el evento!",
+ clase: "aprobado", badge: "Aprobado",
+ },
+ rechazado: {
+ icono: "", titulo: "Comprobante rechazado",
+ desc: "Hubo un problema con tu comprobante. Comunicate con el staff para resolverlo.",
+ clase: "rechazado", badge: "Rechazado",
+ },
+};
+
+// ── AUTO-LOGIN POR URL ──────────────────────────────────────────────────────
+async function init() {
+ const params = new URLSearchParams(window.location.search);
+ const codigoUrl = params.get("c");
+ const tokenUrl = params.get("t");
+
+ el("loading-wrap").style.display = "none";
+
+ if (codigoUrl && tokenUrl) {
+ // Llegó desde el link del correo o el QR — intentar acceso directo
+ await acceder(codigoUrl.toUpperCase(), tokenUrl);
+ } else {
+ el("acceso-wrap").style.display = "flex";
+ }
+}
+
+// ── ACCESO ─────────────────────────────────────────────────────────────────
+function mostrarErrorAcceso(msg) {
+ el("acceso-alerta").textContent = msg;
+ el("acceso-alerta").classList.add("show");
+}
+
+el("btn-acceder").addEventListener("click", async () => {
+ const codigo = el("inp-codigo").value.trim().toUpperCase();
+ const token = el("inp-token").value.trim();
+ if (!codigo || !token) {
+ mostrarErrorAcceso("Ingresa tu código de participante y tu código de acceso.");
+ return;
+ }
+ el("btn-acceder").disabled = true;
+ el("btn-acceder-txt").style.display = "none";
+ el("spinner-acceso").style.display = "block";
+ await acceder(codigo, token);
+ el("btn-acceder").disabled = false;
+ el("btn-acceder-txt").style.display = "inline";
+ el("spinner-acceso").style.display = "none";
+});
+
+el("inp-codigo").addEventListener("keydown", e => { if (e.key === "Enter") el("inp-token").focus(); });
+el("inp-token").addEventListener("keydown", e => { if (e.key === "Enter") el("btn-acceder").click(); });
+
+async function acceder(codigo, token) {
+ try {
+ const data = await accederParticipante(codigo, token);
+ renderPerfil(data);
+ } catch (err) {
+ el("acceso-wrap").style.display = "flex";
+ mostrarErrorAcceso(err.message || "Error de conexión. Verifica tu internet e intenta de nuevo.");
+ }
+}
+
+// ── RENDER PERFIL ──────────────────────────────────────────────────────────
+function renderPerfil(p) {
+ el("acceso-wrap").style.display = "none";
+ el("perfil-wrap").classList.add("visible");
+
+ const estadoPago = p.pago?.estado || "pendiente_efectivo";
+ const pagoInfo = PAGO_ESTADO_INFO[estadoPago] || PAGO_ESTADO_INFO.pendiente_efectivo;
+ const pagoAprobado = estadoPago === "aprobado";
+
+ // Hero
+ el("hp-nombre").textContent = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
+ el("hp-categoria").textContent = CATEGORIA_LABELS[p.categoria] || p.categoria;
+ el("hp-estado").textContent = pagoInfo.badge;
+ el("hp-estado").className = `hp-estado ${pagoAprobado ? "aprobado" : estadoPago === "rechazado" ? "rechazado" : "pendiente"}`;
+
+ // Estado de pago
+ el("pago-estado-card").className = `pago-estado-card ${pagoInfo.clase}`;
+ el("pe-icono").textContent = pagoInfo.icono;
+ el("pe-titulo").textContent = pagoInfo.titulo;
+ el("pe-desc").textContent = pagoInfo.desc;
+
+ // Credencial
+ el("ch-codigo").textContent = p.codigo;
+ el("cred-codigo").textContent = p.codigo;
+
+ // ── FIX: QR codifica la URL completa en lugar del JSON crudo ──
+ // Así cualquier cámara que escanee abre directamente la página del participante
+ const qrCanvas = el("qr-canvas");
+ qrCanvas.innerHTML = "";
+ const qrData = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
+ new QRCode(qrCanvas, {
+ text: qrData,
+ width: 194, height: 194,
+ colorDark: "#045223", colorLight: "#ffffff",
+ correctLevel: QRCode.CorrectLevel.H,
+ });
+
+ // Bloquear QR si no está aprobado
+ if (!pagoAprobado) {
+ el("qr-overlay").style.display = "flex";
+ } else {
+ el("qr-overlay").style.display = "none";
+ }
+
+ // Datos personales
+ el("d-nombre").textContent = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
+ el("d-cedula").textContent = p.cedula;
+ // Correo: institucional para UTP, gmail para el resto
+ const esUTP = p.categoria === "estudiante_utp" || p.categoria === "academico_utp";
+ const correoInstitucional = p.camposExtra?.["correo-inst"] || p.camposExtra?.correoInst || "";
+ if (esUTP && correoInstitucional) {
+ el("d-correo").textContent = correoInstitucional;
+ // Agregar label de correo institucional
+ el("d-correo").closest(".ic-fila").querySelector(".ic-label").textContent = "Correo institucional";
+ } else {
+ el("d-correo").textContent = p.correo;
+ el("d-correo").closest(".ic-fila").querySelector(".ic-label").textContent = "Correo";
+ }
+ el("d-telefono").textContent = p.telefono;
+ el("d-categoria").textContent = CATEGORIA_LABELS[p.categoria] || p.categoria || "—";
+ el("d-institucion").textContent = p.institucion || p.colegio || "Universidad Tecnológica de Panamá";
+ if (p.esColegio && p.colegio) {
+ el("row-colegio").style.display = "flex";
+ el("d-colegio").textContent = p.colegio;
+ }
+
+ // Pago
+ el("d-metodo").textContent = p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo";
+ el("d-estado-pago").textContent = pagoInfo.badge;
+ el("d-monto").textContent = p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto || 0}.00`;
+ if (p.pago?.aprobadoEn) {
+ el("row-aprobado").style.display = "flex";
+ el("d-aprobado").textContent = new Date(p.pago.aprobadoEn?.toDate?.() || p.pago.aprobadoEn).toLocaleDateString("es-PA");
+ }
+
+}
+
+init();
+</script>
+</body>
+</html>

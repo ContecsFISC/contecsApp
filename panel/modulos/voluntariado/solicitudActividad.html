@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Solicitud de Actividad</title>
+  <link rel="stylesheet" href="../../../css/styles.css"/>
+  <script type="module">
+    import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+    guardRoute();
+    requirePermiso("gestionar_actividades");
+  </script>
+  <style>
+    .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+    .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+    .btn-outline:hover { background: var(--verde-fondo); }
+    .card-title { color: var(--verde-oscuro); }
+    .container { max-width: 860px; }
+    .seccion-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--verde-oscuro);
+      border-bottom: 1px solid var(--verde-claro);
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .check-item input[type="checkbox"],
+    .check-item input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--verde);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-item input[type="number"] {
+      width: 60px;
+      padding: 4px 8px;
+      border: 1.5px solid var(--gris-borde);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .gira-extra { display: none; }
+    .programa-tabla { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .programa-tabla th {
+      background: var(--verde-fondo);
+      color: var(--verde-oscuro);
+      font-size: 13px;
+      padding: 8px 10px;
+      text-align: left;
+      border: 1px solid var(--gris-borde);
+    }
+    .programa-tabla td {
+      padding: 4px;
+      border: 1px solid var(--gris-borde);
+    }
+    .programa-tabla td input {
+      width: 100%;
+      padding: 6px 8px;
+      border: none;
+      font-size: 13px;
+      background: transparent;
+    }
+    .btn-fila-del {
+      background: none;
+      border: none;
+      color: var(--rojo);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+    }
+    @media(max-width:600px) {
+      .container { padding: 12px; }
+      .checkbox-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📝 Solicitud de Actividad</h1>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <a href="actividades.html" class="topbar-link">← Actividades</a>
+  </div>
+</div>
+
+<div class="container anim-page-in">
+  <div id="alerta-global" class="alerta"></div>
+
+  <!-- NÚMERO DE SOLICITUD -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:12px 16px;background:var(--verde-fondo);border-radius:10px;border-left:3px solid var(--verde-claro);">
+    <span style="font-size:13px;color:var(--gris-medio);">Solicitud Nº</span>
+    <span id="sol-numero" style="font-size:18px;font-weight:700;color:var(--verde-oscuro);">—</span>
+  </div>
+
+  <!-- DATOS GENERALES -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Datos generales</div>
+    <div class="form-groupE">
+      <label>Nombre de la actividad *</label>
+      <input type="text" id="sol-nombre" placeholder="ej. Primera Feria de Emprendimiento CONTECS"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Fecha *</label>
+        <input type="date" id="sol-fecha"/>
+      </div>
+      <div class="form-groupE">
+        <label>Hora inicio *</label>
+        <input type="time" id="sol-hora-inicio"/>
+      </div>
+      <div class="form-groupE">
+        <label>Hora fin *</label>
+        <input type="time" id="sol-hora-fin"/>
+      </div>
+    </div>
+    <div class="form-groupE">
+      <label>Lugar *</label>
+      <input type="text" id="sol-lugar" placeholder="ej. Lobby Principal, Edificio 3"/>
+    </div>
+    <div class="form-groupE">
+      <label>Objetivo de la actividad *</label>
+      <textarea id="sol-objetivo" rows="3" placeholder="Describe el objetivo principal de la actividad..."></textarea>
+    </div>
+    <div class="form-groupE">
+      <label>Descripción de la actividad</label>
+      <textarea id="sol-descripcion" rows="4" placeholder="Describe detalladamente la actividad..."></textarea>
+    </div>
+  </div>
+
+  <!-- TIPO DE ACTIVIDAD -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Tipo de actividad *</div>
+    <div class="checkbox-grid" id="tipo-actividad-grid">
+      <label class="check-item"><input type="checkbox" name="tipo" value="Seminario"/> Seminario</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Conferencia"/> Conferencia</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Exposición"/> Exposición</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Taller"/> Taller</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Debate"/> Debate</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Conversatorio"/> Conversatorio</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Foro"/> Foro</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Mesa Redonda"/> Mesa Redonda</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Curso"/> Curso</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Diplomado"/> Diplomado</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Servicio Social"/> Servicio Social</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Deporte"/> Deporte</label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Cultura"/> Cultura</label>
+      <label class="check-item">
+        <input type="checkbox" name="tipo" value="Otro"/> Otro:&nbsp;
+        <input type="text" id="tipo-otro-texto" placeholder="especificar" style="width:120px;padding:4px 8px;border:1.5px solid var(--gris-borde);border-radius:6px;font-size:13px;"/>
+      </label>
+      <label class="check-item"><input type="checkbox" name="tipo" value="Gira" id="tipo-gira"/> Gira</label>
+    </div>
+
+    <!-- Campos extra para Gira -->
+    <div class="gira-extra" id="gira-extra-fields">
+      <div style="background:var(--verde-fondo);border-radius:8px;padding:14px;margin-top:12px;">
+        <div style="font-size:13px;font-weight:600;color:var(--verde-oscuro);margin-bottom:10px;">Detalles de la gira</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label>Hora de salida</label>
+            <input type="time" id="gira-salida"/>
+          </div>
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label>Hora de retorno</label>
+            <input type="time" id="gira-retorno"/>
+          </div>
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label>Punto de salida</label>
+            <input type="text" id="gira-punto-salida" placeholder="ej. Estacionamiento Edificio 3"/>
+          </div>
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label>Lugar de la gira</label>
+            <input type="text" id="gira-lugar" placeholder="ej. Ciudad del Saber"/>
+          </div>
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label># de estudiantes</label>
+            <input type="number" id="gira-estudiantes" min="0" placeholder="0"/>
+          </div>
+          <div class="form-groupE" style="margin-bottom:8px;">
+            <label># de profesores</label>
+            <input type="number" id="gira-profesores" min="0" placeholder="0"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÁREA DE LA ACTIVIDAD -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Área de la actividad *</div>
+    <div class="checkbox-grid">
+      <label class="check-item"><input type="radio" name="area" value="Académica"/> Académica</label>
+      <label class="check-item"><input type="radio" name="area" value="Estudiantil"/> Estudiantil</label>
+      <label class="check-item"><input type="radio" name="area" value="Investigación"/> Investigación</label>
+      <label class="check-item"><input type="radio" name="area" value="Complementaria"/> Complementaria</label>
+      <label class="check-item"><input type="radio" name="area" value="Extensión"/> Extensión</label>
+    </div>
+  </div>
+
+  <!-- EXPOSITORES -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Expositor(es)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Nombre expositor 1</label>
+        <input type="text" id="exp1-nombre" placeholder="Nombre completo"/>
+      </div>
+      <div class="form-groupE">
+        <label>Contacto expositor 1</label>
+        <input type="text" id="exp1-contacto" placeholder="Email o teléfono"/>
+      </div>
+      <div class="form-groupE">
+        <label>Nombre expositor 2</label>
+        <input type="text" id="exp2-nombre" placeholder="Nombre completo"/>
+      </div>
+      <div class="form-groupE">
+        <label>Contacto expositor 2</label>
+        <input type="text" id="exp2-contacto" placeholder="Email o teléfono"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTITUCIONES / EMPRESAS -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Institución / Empresas participantes</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Nombre institución 1</label>
+        <input type="text" id="inst1-nombre" placeholder="Nombre de la empresa o institución"/>
+      </div>
+      <div class="form-groupE">
+        <label>Contacto institución 1</label>
+        <input type="text" id="inst1-contacto" placeholder="Email o teléfono"/>
+      </div>
+      <div class="form-groupE">
+        <label>Nombre institución 2</label>
+        <input type="text" id="inst2-nombre" placeholder="Nombre de la empresa o institución"/>
+      </div>
+      <div class="form-groupE">
+        <label>Contacto institución 2</label>
+        <input type="text" id="inst2-contacto" placeholder="Email o teléfono"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFESOR RESPONSABLE -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Profesor responsable *</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Nombre completo *</label>
+        <input type="text" id="prof-nombre" placeholder="Nombre del profesor"/>
+      </div>
+      <div class="form-groupE">
+        <label>Correo electrónico *</label>
+        <input type="email" id="prof-correo" placeholder="correo@utp.ac.pa"/>
+      </div>
+      <div class="form-groupE">
+        <label>Teléfono</label>
+        <input type="tel" id="prof-telefono" placeholder="6000-0000"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPARTAMENTO Y CARRERA -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Departamento solicitante</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Departamento</label>
+        <select id="sol-departamento">
+          <option value="">— Selecciona —</option>
+          <option>Depto. de Sistemas de Información</option>
+          <option>Depto. de Ingeniería de Software</option>
+          <option>Depto. de Programación de Computadoras</option>
+          <option>Depto. de Arquitectura y Redes de Computadoras</option>
+          <option>Depto. Computación y Simulación de Sistemas</option>
+        </select>
+      </div>
+      <div class="form-groupE">
+        <label>Carrera</label>
+        <select id="sol-carrera">
+          <option value="">— Selecciona —</option>
+          <option>Lic. En Ing. de Sistemas y Computación</option>
+          <option>Lic. En Ing. de Sistemas de Información</option>
+          <option>Lic. En Ing. de Software</option>
+          <option>Lic. En Desarrollo de Software</option>
+          <option>Lic. En Redes Informáticas</option>
+          <option>Lic. En Ciberseguridad</option>
+          <option>Lic. En Informática Aplicada a la Educación</option>
+          <option>Téc. En Informática para la Gestión Empresarial</option>
+          <option>Post./Maestría en Informática Educativa</option>
+          <option>Post./Maestría en Ingeniería del Software</option>
+          <option>Post./Maestría en Auditoría de Sistemas</option>
+          <option>Maestría en Seguridad Informática</option>
+        </select>
+      </div>
+      <div class="form-groupE" style="grid-column:1/-1;">
+        <label>Grupos autorizados</label>
+        <input type="text" id="sol-grupos" placeholder="ej. 1IS121, 1IS131"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRIGIDO A -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Dirigido a</div>
+    <div class="checkbox-grid">
+      <label class="check-item"><input type="checkbox" name="dirigido" value="Docentes"/> Docentes</label>
+      <label class="check-item"><input type="checkbox" name="dirigido" value="Estudiantes"/> Estudiantes</label>
+      <label class="check-item"><input type="checkbox" name="dirigido" value="Investigadores"/> Investigadores</label>
+      <label class="check-item"><input type="checkbox" name="dirigido" value="Administrativos"/> Administrativos</label>
+      <label class="check-item">
+        <input type="checkbox" name="dirigido" value="Otros"/> Otros:&nbsp;
+        <input type="text" id="dirigido-otros-texto" placeholder="especificar" style="width:110px;padding:4px 8px;border:1.5px solid var(--gris-borde);border-radius:6px;font-size:13px;"/>
+      </label>
+    </div>
+  </div>
+
+  <!-- MOBILIARIO -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Mobiliario y recursos solicitados</div>
+    <div class="checkbox-grid">
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Cafetera"/> Cafetera</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Tetera"/> Tetera</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Pódium"/> Pódium</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Sillas Plásticas"/> Sillas Plásticas <input type="number" id="mob-sillas-plasticas" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Sillas Acolchadas"/> Sillas Acolchadas <input type="number" id="mob-sillas-acolchadas" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Mesa Pequeña"/> Mesa Pequeña <input type="number" id="mob-mesa-peq" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Mesa Mediana"/> Mesa Mediana <input type="number" id="mob-mesa-med" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Mesa Grande"/> Mesa Grande <input type="number" id="mob-mesa-gran" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Cerchas"/> Cerchas <input type="number" id="mob-cerchas" min="0" placeholder="0"/></label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Cocteleras"/> Cocteleras</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Equipo de Sonido"/> Equipo de Sonido</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Fotografía"/> Fotografía</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Publicación en Web"/> Publicación en Web</label>
+      <label class="check-item"><input type="checkbox" name="mobiliario" value="Mamparas"/> Mamparas <input type="number" id="mob-mamparas" min="0" placeholder="0"/></label>
+    </div>
+  </div>
+
+  <!-- PROGRAMA DE LA ACTIVIDAD -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="seccion-label" style="margin-bottom:0;">Propuesta de programa</div>
+      <button class="btn btn-outline btn-sm" id="btn-add-fila" style="width:auto;" type="button">+ Añadir fila</button>
+    </div>
+    <div class="tabla-wrap">
+      <table class="programa-tabla">
+        <thead>
+          <tr>
+            <th style="width:160px;">Horario</th>
+            <th>Tema</th>
+            <th style="width:160px;">Lugar</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody id="programa-tbody">
+          <tr>
+            <td><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
+            <td><input type="text" placeholder="Tema o actividad"/></td>
+            <td><input type="text" placeholder="Sala / lugar"/></td>
+            <td><button class="btn-fila-del" type="button" title="Eliminar fila">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRESUPUESTO -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Presupuesto</div>
+    <div class="form-groupE">
+      <label>Posible presupuesto para llevar a cabo la actividad</label>
+      <textarea id="sol-presupuesto" rows="3" placeholder="Describe los costos estimados..."></textarea>
+    </div>
+    <div class="form-groupE">
+      <label>Procedencia / Patrocinio</label>
+      <input type="text" id="sol-procedencia" placeholder="ej. Autofinanciado, Empresa XYZ"/>
+    </div>
+  </div>
+
+  <!-- BOTONES ACCIÓN -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+    <button class="btn btn-outline" id="btn-guardar-borrador" style="flex:1;">Guardar borrador</button>
+    <button class="btn btn-primary" id="btn-generar-solicitud" style="flex:2;">📄 Generar solicitud .docx</button>
+  </div>
+</div>
+
+<script type="module" src="../../../js/modulos/solicitudActividad.js"></script>
+</body>
+</html>

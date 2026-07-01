@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Iniciar Sesión</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #045223 0%, #00722e 60%, #39b54a 100%);
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(4,82,35,0.25);
+      padding: 44px 32px 40px;
+      width: 100%;
+      max-width: 390px;
+      margin: 16px;
+      text-align: center;
+    }
+    .logo-wrap {
+      margin-bottom: 20px;
+    }
+    .logo-circle {
+      width: 76px; height: 76px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      box-shadow: 0 6px 20px rgba(0,114,46,0.3);
+      overflow: hidden;
+    }
+    .logo-wrap h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #00722e;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .logo-wrap p {
+      font-size: 13px;
+      color: #8a9e8d;
+      margin-bottom: 0;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 28px 0 20px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #d0dbd2;
+    }
+    .divider span { font-size: 12px; color: #8a9e8d; white-space: nowrap; }
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 20px;
+      border: 1.5px solid #d0dbd2;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a2e1e;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 52px;
+    }
+    .btn-google:hover {
+      border-color: #00722e;
+      background: #f4f7f5;
+      box-shadow: 0 2px 12px rgba(0,114,46,0.12);
+    }
+    .btn-google:active { transform: scale(0.98); }
+    .btn-google:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-microsoft {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 20px;
+      border: 1.5px solid #d0dbd2;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a2e1e;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-height: 52px;
+      margin-top: 12px;
+    }
+    .btn-microsoft:hover {
+      border-color: #0078d4;
+      background: #f0f6ff;
+      box-shadow: 0 2px 12px rgba(0,120,212,0.12);
+    }
+    .btn-microsoft:active { transform: scale(0.98); }
+    .btn-microsoft:disabled { opacity: 0.55; cursor: not-allowed; }
+    .alerta {
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: left;
+      line-height: 1.4;
+    }
+    .alerta.show { display: block; }
+    .alerta-error  { background: #fdedec; color: #c0392b; border-left: 4px solid #c0392b; }
+    .alerta-aviso  { background: #fef9e7; color: #d4850a; border-left: 4px solid #d4850a; }
+    .nota {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 24px;
+      line-height: 1.6;
+    }
+    .nota strong { color: #00722e; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="logo-wrap">
+      <div class="logo-circle">
+        <img src="../logocontecs.png" alt="CONTECS" width="60" height="60" style="object-fit:contain;border-radius:50%;"/>
+      </div>
+      <h2>CONTECS</h2>
+      <p>Sistema de Gestión Organizacional</p>
+    </div>
+
+    <div class="alerta alerta-error" id="msg-error"></div>
+    <div class="alerta alerta-aviso" id="msg-aviso"></div>
+
+    <div class="divider"><span>Inicia sesión con tu cuenta</span></div>
+
+    <button class="btn-google" id="btn-google">
+      <svg width="20" height="20" viewBox="0 0 48 48" style="flex-shrink:0">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Continuar con Google
+    </button>
+
+    <button class="btn-microsoft" id="btn-microsoft">
+      <svg width="20" height="20" viewBox="0 0 21 21" style="flex-shrink:0">
+        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+      </svg>
+      Continuar con Microsoft (UTP)
+    </button>
+
+    <p class="nota">Solo miembros de <strong>CONTECS</strong> pueden ingresar.<br>Si eres nuevo, tu acceso será activado por un administrador.</p>
+  </div>
+
+  <script type="module">
+    import { loginConGoogle, loginConSSO, guardRoute } from "../js/core/auth.js";
+
+    guardRoute();
+
+    const btnGoogle    = document.getElementById("btn-google");
+    const btnMicrosoft = document.getElementById("btn-microsoft");
+    const msgError     = document.getElementById("msg-error");
+    const msgAviso     = document.getElementById("msg-aviso");
+
+    async function manejarLogin(loginFn, btnEl, labelOriginal) {
+      btnEl.disabled = true;
+      btnEl.childNodes[1].textContent = " Conectando...";
+      msgError.classList.remove("show");
+      msgAviso.classList.remove("show");
+
+      try {
+        await loginFn();
+        const rol = sessionStorage.getItem("rol");
+        if (rol === "sin_rol") {
+          msgAviso.textContent = "✅ Tu cuenta fue registrada. Aún no tienes un rol asignado — cuando el administrador te active, entrarás automáticamente.";
+          msgAviso.classList.add("show");
+          btnEl.disabled = false;
+          btnEl.childNodes[1].textContent = labelOriginal;
+          const uid = sessionStorage.getItem("uid");
+          if (uid) {
+            const { db } = await import("../js/core/firebase-config.js");
+            const { doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
+            onSnapshot(doc(db, "usuarios", uid), (snap) => {
+              if (!snap.exists()) return;
+              const nuevoRol = snap.data().rol || "sin_rol";
+              if (nuevoRol !== "sin_rol") {
+                sessionStorage.setItem("rol", nuevoRol);
+                window.location.href = "dashboard.html";
+              }
+            });
+          }
+          return;
+        }
+        window.location.href = "dashboard.html";
+      } catch (e) {
+        btnEl.disabled = false;
+        btnEl.childNodes[1].textContent = labelOriginal;
+        if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
+        if (e.code === "auth/popup-blocked") {
+          msgError.textContent = "⚠️ El navegador bloqueó la ventana emergente. Permite popups para este sitio e intenta de nuevo.";
+        } else if (e.code === "auth/unauthorized-domain") {
+          msgError.textContent = "⚠️ Firebase no tiene autorizado este dominio. Agrega este sitio en Firebase Console > Authentication > Settings > Authorized domains.";
+        } else {
+          msgError.textContent = "❌ Error al iniciar sesión. Intenta de nuevo.";
+        }
+        msgError.classList.add("show");
+      }
+    }
+
+    btnGoogle.addEventListener("click", () =>
+      manejarLogin(loginConGoogle, btnGoogle, " Continuar con Google")
+    );
+
+    btnMicrosoft.addEventListener("click", () => {
+      btnMicrosoft.disabled = true;
+      loginConSSO();
+    });
+  </script>
+</body>
+</html>

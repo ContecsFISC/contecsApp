@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Escaneo Voluntarios</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script src="../../../js/libs/html5-qrcode.min.js"></script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ requirePermiso("gestionar_voluntarios");
+ </script>
+ <style>
+ .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+ .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .btn-outline:hover { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .card-title { color: var(--verde-oscuro); }
+ .container { max-width: 560px; }
+
+ #reader { width: 100%; border-radius: var(--radio); overflow: hidden; }
+
+ .scanner-overlay { position: relative; }
+ .scanner-overlay.activo::after {
+ content: ''; position: absolute; top: 50%; left: 50%;
+ transform: translate(-50%,-50%);
+ width: 200px; height: 200px;
+ border: 3px solid var(--verde-claro); border-radius: 12px;
+ pointer-events: none;
+ box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+ }
+
+ .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
+ .info-nombre { font-size: 22px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 6px; }
+ .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
+ .info-fila strong { color: var(--gris-texto); }
+
+ .estado-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+ .estado-entrada { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .estado-salida { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .estado-completo { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .estado-err { background: var(--rojo-fondo); color: var(--rojo); }
+
+ .rating-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-top: 12px; }
+ .rating-btn {
+ padding: 10px 4px; border: 2px solid var(--gris-borde); background: #fff;
+ border-radius: var(--radio-sm); cursor: pointer; font-size: 11px; font-weight: 600;
+ color: var(--gris-medio); text-align: center; transition: all 0.15s; line-height: 1.4;
+ }
+ .rating-btn:hover { border-color: var(--verde-claro); background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .rating-btn.selected { border-color: var(--verde-claro); background: var(--verde-claro); color: #fff; }
+
+ #log-recientes td { font-size: 12px; }
+ .log-entrada { color: var(--verde-oscuro); font-weight: 600; }
+ .log-salida { color: var(--amarillo); font-weight: 600; }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Escaneo — Voluntarios</h1>
+ <a href="voluntarios.html" class="topbar-link">← Voluntarios</a>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+ <!-- CONFIGURACIÓN SESIÓN -->
+ <div class="card" style="border:2px solid var(--verde-claro);">
+ <div class="card-title">Configuración de sesión</div>
+ <div class="form-groupE">
+ <label>Actividad</label>
+ <select id="sel-actividad-qr"><option value="">— Selecciona una actividad —</option></select>
+ </div>
+ <div class="form-groupE" id="turno-section" style="display:none;">
+ <label>Turno</label>
+ <div id="turnos-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;"></div>
+ </div>
+ <div id="sesion-activa" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
+ </div>
+
+ <!-- CÁMARA -->
+ <div class="card" style="border-left:2px solid var(--verde-claro);">
+ <div class="card-title">Escanear QR del voluntario</div>
+ <div class="scanner-overlay">
+ <div id="reader"></div>
+ </div>
+ <div style="margin-top:12px;display:flex;gap:8px;">
+ <button class="btn btn-primary" id="btn-iniciar" style="flex:1"
+   onclick="solicitarCamara()">
+   Abrir cámara
+ </button>
+ <button class="btn btn-outline btn-sm" id="btn-detener" style="width:auto;display:none">Detener</button>
+ </div>
+ <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
+   Apunta la cámara trasera al QR del voluntario
+ </p>
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
+   Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
+ </div>
+ </div>
+ <script>
+ function solicitarCamara() {
+   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+     document.getElementById('camara-aviso').style.display = 'block';
+     return;
+   }
+   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+     .then(stream => {
+       stream.getTracks().forEach(t => t.stop());
+       document.getElementById('btn-iniciar').click();
+     })
+     .catch(() => {
+       document.getElementById('camara-aviso').style.display = 'block';
+     });
+ }
+ document.getElementById('btn-iniciar').removeAttribute('onclick');
+ </script>
+
+ <!-- RESULTADO DEL ESCANEO -->
+ <div id="resultado-box" style="display:none;">
+ <div class="info-box">
+ <div class="info-nombre" id="res-nombre"></div>
+ <div class="info-fila"><span></span><strong id="res-cedula"></strong></div>
+ <div class="info-fila"><span></span><strong id="res-correo"></strong></div>
+ <div class="info-fila"><span></span><strong id="res-universidad"></strong></div>
+ <div class="info-fila"><span></span><strong id="res-horas-total"></strong></div>
+
+ <div style="margin-top:14px;">
+ <span id="res-estado-badge" class="estado-badge"></span>
+ <div id="res-info-turno" style="font-size:13px;color:var(--gris-medio);margin-top:4px;"></div>
+ </div>
+
+ <!-- Sección de rating (solo visible en SALIDA) -->
+ <div id="rating-section" style="display:none;">
+ <div style="font-size:14px;font-weight:600;color:var(--verde-oscuro);margin-top:16px;margin-bottom:6px;">
+ Califica la participación del voluntario:
+ </div>
+ <div class="rating-grid" id="rating-grid">
+ <button class="rating-btn" data-val="1" onclick="seleccionarRating(1)"><br/>1<br/>Necesita mejora</button>
+ <button class="rating-btn" data-val="2" onclick="seleccionarRating(2)"><br/>2<br/>Regular</button>
+ <button class="rating-btn" data-val="3" onclick="seleccionarRating(3)"><br/>3<br/>Bueno</button>
+ <button class="rating-btn" data-val="4" onclick="seleccionarRating(4)"><br/>4<br/>Muy bueno</button>
+ <button class="rating-btn" data-val="5" onclick="seleccionarRating(5)"><br/>5<br/>Excelente</button>
+ </div>
+ </div>
+
+ <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+ <button class="btn btn-primary" id="btn-confirmar" style="flex:1"> Confirmar</button>
+ <button class="btn btn-outline btn-sm" id="btn-cancelar-scan" style="width:auto">Cancelar</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- LOG SESIÓN -->
+ <div class="card" style="margin-top:20px;border:2px solid var(--verde-claro);">
+ <div class="card-title">Últimos registros de esta sesión</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Voluntario</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Tipo</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Turno</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Hora</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horas</th>
+ </tr></thead>
+ <tbody id="log-recientes"><tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/lecturaQRVoluntarios.js"></script>
+</body>
+</html>

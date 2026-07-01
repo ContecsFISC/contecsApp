@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Autenticando...</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #045223 0%, #00722e 60%, #39b54a 100%);
+    }
+    .auth-box {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(4,82,35,0.25);
+      padding: 44px 32px 40px;
+      width: 100%;
+      max-width: 390px;
+      margin: 16px;
+      text-align: center;
+    }
+    .logo-circle {
+      width: 76px; height: 76px;
+      background: linear-gradient(135deg, #045223 0%, #00722e 100%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 32px;
+      box-shadow: 0 6px 20px rgba(0,114,46,0.3);
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #00722e;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 14px;
+      color: #8a9e8d;
+      line-height: 1.5;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #d0dbd2;
+      border-top-color: #00722e;
+      border-radius: 50%;
+      margin: 24px auto 0;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alerta {
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 20px;
+      text-align: left;
+      line-height: 1.4;
+      display: none;
+    }
+    .alerta.show { display: block; }
+    .alerta-error { background: #fdedec; color: #c0392b; border-left: 4px solid #c0392b; }
+    .btn-volver {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      border: 1.5px solid #d0dbd2;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a2e1e;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-volver:hover { border-color: #00722e; background: #f4f7f5; }
+    .is-hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="auth-box">
+    <div class="logo-circle">🏛️</div>
+    <h2 id="titulo">Autenticando...</h2>
+    <p id="mensaje">Validando tu sesión con el SSO de la UTP.</p>
+    <div class="spinner" id="spinner"></div>
+    <div class="alerta alerta-error" id="msg-error"></div>
+    <a href="../../panel/index.html" class="btn-volver is-hidden" id="btn-volver">Volver al inicio de sesión</a>
+  </div>
+
+  <script type="module">
+    import { auth } from "../../js/core/firebase-config.js";
+    import { cargarUsuario } from "../../js/core/auth.js";
+    import { SSO_USER_URL, VALIDAR_TOKEN_SSO_URL } from "../../js/core/sso-config.js";
+    import { signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+    const titulo = document.getElementById("titulo");
+    const mensaje = document.getElementById("mensaje");
+    const spinner = document.getElementById("spinner");
+    const msgError = document.getElementById("msg-error");
+    const btnVolver = document.getElementById("btn-volver");
+
+    function mostrarError(texto) {
+      titulo.textContent = "No se pudo iniciar sesión";
+      mensaje.textContent = "Hubo un problema al validar tu cuenta institucional.";
+      spinner.classList.add("is-hidden");
+      msgError.textContent = texto;
+      msgError.classList.add("show");
+      btnVolver.classList.remove("is-hidden");
+    }
+
+    async function obtenerDatosUsuarioSSO(tokenSSO) {
+      try {
+        const resp = await fetch(SSO_USER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tokenSSO),
+        });
+        if (!resp.ok) return null;
+        return resp.json();
+      } catch {
+        return null;
+      }
+    }
+
+    async function validarConCloudFunction(tokenSSO, datosUsuario) {
+      const resp = await fetch(VALIDAR_TOKEN_SSO_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenSSO, datosUsuario }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        throw new Error(data.error || "No se pudo validar el token SSO.");
+      }
+      if (!data.firebaseToken) {
+        throw new Error("Respuesta inválida del servidor de autenticación.");
+      }
+      return data.firebaseToken;
+    }
+
+    async function procesarCallbackSSO() {
+      const params = Object.fromEntries(new URLSearchParams(window.location.search));
+      if (!Object.keys(params).length) {
+        mostrarError("No se recibió el token del SSO. Intenta iniciar sesión de nuevo.");
+        return;
+      }
+
+      mensaje.textContent = "Consultando datos de tu cuenta...";
+      const datosUsuario = await obtenerDatosUsuarioSSO(params);
+
+      mensaje.textContent = "Creando tu sesión en CONTECS...";
+      const firebaseToken = await validarConCloudFunction(params, datosUsuario);
+
+      await signInWithCustomToken(auth, firebaseToken);
+      await cargarUsuario(auth.currentUser);
+
+      window.location.replace("../dashboard.html");
+    }
+
+    procesarCallbackSSO().catch((e) => {
+      console.error("[SSO]", e);
+      mostrarError(e.message || "Error al iniciar sesión. Intenta de nuevo.");
+    });
+  </script>
+</body>
+</html>

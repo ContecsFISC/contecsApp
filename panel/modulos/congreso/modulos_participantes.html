@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Participantes</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <script src="../../../js/libs/qrcode.min.js"></script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ requirePermiso("ver_participantes");
+ </script>
+ <style>
+ .container { max-width: 1100px; }
+
+ .topbar {
+ background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%);
+ box-shadow: 0 2px 12px var(--verde-sombra);
+ }
+ .btn-primary {
+ background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
+ box-shadow: 0 4px 12px var(--verde-sombra);
+ }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .btn-outline:hover { background: var(--verde-fondo); color: var(--verde-oscuro); }
+
+ /* ── STATS ── */
+ .stats-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+ gap: 12px;
+ margin-bottom: 20px;
+ }
+ .stat-card {
+ background: #fff;
+ border-radius: var(--radio);
+ padding: 16px;
+ text-align: center;
+ box-shadow: var(--sombra-sm);
+ border-top: 3px solid var(--verde-claro);
+ }
+ .stat-card.amarillo { border-top-color: var(--amarillo); }
+ .stat-card.azul { border-top-color: var(--azul-info); }
+ .stat-card.rojo { border-top-color: var(--rojo); }
+ .stat-num { font-size: 28px; font-weight: 800; color: var(--verde-oscuro); line-height: 1; }
+ .stat-card.amarillo .stat-num { color: var(--amarillo); }
+ .stat-card.azul .stat-num { color: var(--azul-info); }
+ .stat-card.rojo .stat-num { color: var(--rojo); }
+ .stat-label { font-size: 12px; color: var(--gris-medio); margin-top: 4px; font-weight: 600; }
+
+ /* ── FILTROS ── */
+ .filtros-bar {
+ background: #fff;
+ border-radius: var(--radio);
+ padding: 14px 16px;
+ box-shadow: var(--sombra-sm);
+ margin-bottom: 16px;
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+ align-items: center;
+ }
+ .filtros-bar input[type="text"] {
+ flex: 1;
+ min-width: 200px;
+ padding: 9px 12px;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ font-size: 14px;
+ font-family: var(--fuente);
+ outline: none;
+ transition: border-color 0.2s;
+ }
+ .filtros-bar input:focus { border-color: var(--verde); }
+ .filtros-bar select {
+ padding: 9px 12px;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ font-size: 13px;
+ font-family: var(--fuente);
+ color: var(--gris-texto);
+ background: #fff;
+ cursor: pointer;
+ outline: none;
+ -webkit-appearance: none;
+ }
+ .filtros-bar select:focus { border-color: var(--verde); }
+
+ /* ── TABLA ── */
+ .tabla-wrap {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: var(--sombra-sm);
+ overflow: hidden;
+ margin-bottom: 16px;
+ }
+ .tabla-header {
+ padding: 14px 16px;
+ border-bottom: 1.5px solid var(--gris-borde);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 10px;
+ flex-wrap: wrap;
+ }
+ .tabla-header-titulo { font-size: 15px; font-weight: 700; color: var(--verde-oscuro); }
+ .tabla-overflow { overflow-x: auto; }
+ table { width: 100%; border-collapse: collapse; }
+ th {
+ text-align: left;
+ padding: 10px 14px;
+ font-size: 11px;
+ font-weight: 700;
+ color: var(--gris-medio);
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ background: var(--gris-suave);
+ border-bottom: 1.5px solid var(--gris-borde);
+ white-space: nowrap;
+ }
+ td {
+ padding: 12px 14px;
+ font-size: 13px;
+ border-bottom: 1px solid var(--gris-borde);
+ vertical-align: middle;
+ }
+ tr:last-child td { border-bottom: none; }
+ tr:hover td { background: var(--gris-suave); }
+
+ .badge {
+ display: inline-flex;
+ align-items: center;
+ gap: 4px;
+ padding: 4px 10px;
+ border-radius: 20px;
+ font-size: 11px;
+ font-weight: 700;
+ white-space: nowrap;
+ }
+ .badge-pendiente { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .badge-comprobante { background: var(--azul-fondo); color: var(--azul-info); }
+ .badge-aprobado { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .badge-rechazado { background: var(--rojo-fondo); color: var(--rojo); }
+
+ .btn-accion {
+ padding: 6px 12px;
+ border-radius: var(--radio-sm);
+ border: none;
+ font-size: 12px;
+ font-weight: 600;
+ cursor: pointer;
+ transition: opacity 0.15s, transform 0.1s;
+ font-family: var(--fuente);
+ white-space: nowrap;
+ }
+ .btn-accion:active { transform: scale(0.95); }
+ .btn-ver-perfil { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .btn-ver-perfil:hover { background: var(--verde-claro); color: #fff; }
+ .btn-aprobar { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .btn-aprobar:hover { background: var(--verde); color: #fff; }
+ .btn-rechazar { background: var(--rojo-fondo); color: var(--rojo); }
+ .btn-rechazar:hover { background: var(--rojo); color: #fff; }
+
+ .acciones-cel { display: flex; gap: 6px; flex-wrap: wrap; }
+
+ .empty-state {
+ text-align: center;
+ padding: 48px 20px;
+ color: var(--gris-medio);
+ }
+ .empty-state .es-icono { font-size: 40px; margin-bottom: 12px; }
+ .empty-state .es-txt { font-size: 14px; }
+
+ /* ── BOTTOM SHEET ── */
+ .overlay {
+ position: fixed; inset: 0;
+ background: rgba(0,0,0,0.5);
+ z-index: 200;
+ display: none;
+ backdrop-filter: blur(3px);
+ }
+ .overlay.show { display: block; animation: fadeIn 0.2s both; }
+ @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+ .bottom-sheet {
+ position: fixed;
+ bottom: 0; left: 0; right: 0;
+ background: #fff;
+ border-radius: 20px 20px 0 0;
+ padding: 0;
+ max-height: 92vh;
+ overflow-y: auto;
+ z-index: 300;
+ transform: translateY(100%);
+ transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+ max-width: 640px;
+ margin: 0 auto;
+ }
+ .bottom-sheet.show { transform: translateY(0); }
+ .bs-handle {
+ width: 36px; height: 4px;
+ background: var(--gris-borde);
+ border-radius: 2px;
+ margin: 12px auto 0;
+ }
+ .bs-header {
+ padding: 16px 20px 14px;
+ border-bottom: 1.5px solid var(--gris-borde);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ }
+ .bs-titulo { font-size: 17px; font-weight: 800; color: var(--verde-oscuro); }
+ .bs-cerrar {
+ background: var(--gris-suave);
+ border: none;
+ width: 32px; height: 32px;
+ border-radius: 50%;
+ font-size: 18px;
+ cursor: pointer;
+ display: flex; align-items: center; justify-content: center;
+ color: var(--gris-medio);
+ }
+ .bs-body { padding: 20px; }
+
+ .perfil-avatar {
+ width: 64px; height: 64px;
+ background: linear-gradient(135deg, var(--verde-oscuro), var(--verde-claro));
+ border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 28px;
+ margin: 0 auto 12px;
+ }
+ .perfil-nombre { text-align: center; font-size: 18px; font-weight: 800; color: var(--verde-oscuro); }
+ .perfil-codigo { text-align: center; font-size: 12px; color: var(--gris-medio); font-family: 'Courier New', monospace; margin-top: 4px; }
+
+ .datos-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 10px;
+ margin: 16px 0;
+ }
+ .dato-item {
+ background: var(--gris-suave);
+ border-radius: var(--radio-sm);
+ padding: 10px 12px;
+ }
+ .di-label { font-size: 11px; color: var(--gris-medio); font-weight: 600; text-transform: uppercase; }
+ .di-valor { font-size: 14px; font-weight: 700; color: var(--gris-texto); margin-top: 3px; word-break: break-word; }
+
+ .seccion-pago {
+ background: var(--verde-fondo);
+ border: 1.5px solid var(--verde-claro);
+ border-radius: var(--radio);
+ padding: 16px;
+ margin-bottom: 16px;
+ }
+ .sp-titulo { font-size: 13px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ .sp-fila { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; }
+ .sp-label { color: var(--gris-medio); }
+ .sp-valor { font-weight: 600; color: var(--gris-texto); }
+
+ .comprobante-link {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ width: 100%;
+ background: #fff;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ padding: 10px 12px;
+ text-decoration: none;
+ color: var(--azul-info);
+ font-size: 13px;
+ font-weight: 600;
+ margin-top: 10px;
+ cursor: pointer;
+ transition: background 0.2s;
+ font-family: var(--fuente);
+ text-align: left;
+ box-sizing: border-box;
+ }
+ .comprobante-link:hover { background: var(--azul-fondo); }
+
+ .acciones-pago {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 10px;
+ margin-top: 16px;
+ }
+ .btn-grande {
+ padding: 13px;
+ border: none;
+ border-radius: var(--radio-sm);
+ font-size: 14px;
+ font-weight: 700;
+ cursor: pointer;
+ transition: opacity 0.15s, transform 0.1s;
+ font-family: var(--fuente);
+ display: flex; align-items: center; justify-content: center; gap: 6px;
+ }
+ .btn-grande:active { transform: scale(0.97); }
+ .btn-aprobar-grande { background: linear-gradient(135deg, var(--verde), var(--verde-oscuro)); color: #fff; box-shadow: 0 4px 12px rgba(0,114,46,0.25); }
+ .btn-rechazar-grande { background: var(--rojo-fondo); color: var(--rojo); border: 1.5px solid var(--rojo); }
+ .btn-aprobar-grande:disabled,
+ .btn-rechazar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
+
+ .notas-area {
+ width: 100%;
+ padding: 10px 12px;
+ border: 1.5px solid var(--gris-borde);
+ border-radius: var(--radio-sm);
+ font-size: 14px;
+ font-family: var(--fuente);
+ resize: vertical;
+ min-height: 70px;
+ outline: none;
+ transition: border-color 0.2s;
+ margin-top: 10px;
+ }
+ .notas-area:focus { border-color: var(--verde); }
+
+ .qr-mini-wrap {
+ display: flex;
+ justify-content: center;
+ margin: 12px 0;
+ }
+ .qr-mini-wrap > div { border-radius: 8px; overflow: hidden; }
+
+ @keyframes cardIn {
+ from { opacity: 0; transform: translateY(10px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Participantes</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container">
+
+ <!-- STATS -->
+ <div class="stats-grid" id="stats-grid">
+ <div class="stat-card">
+ <div class="stat-num" id="stat-total">—</div>
+ <div class="stat-label">Total registrados</div>
+ </div>
+ <div class="stat-card">
+ <div class="stat-num" id="stat-aprobados">—</div>
+ <div class="stat-label">Pagos aprobados</div>
+ </div>
+ <div class="stat-card amarillo">
+ <div class="stat-num" id="stat-pendientes">—</div>
+ <div class="stat-label">Pendientes</div>
+ </div>
+ <div class="stat-card azul">
+ <div class="stat-num" id="stat-comprobantes">—</div>
+ <div class="stat-label">Comprobantes</div>
+ </div>
+ </div>
+
+ <!-- FILTROS -->
+ <div class="filtros-bar">
+ <input type="text" id="inp-buscar" placeholder="Buscar por nombre, cedula o codigo..."/>
+ <select id="fil-estado">
+ <option value="">Todos los estados</option>
+ <option value="aprobado">Aprobado</option>
+ <option value="comprobante_enviado">Comprobante enviado</option>
+ <option value="pendiente_efectivo">Pendiente efectivo</option>
+ <option value="rechazado">Rechazado</option>
+ </select>
+ <select id="fil-categoria">
+ <option value="">Todas las categorías</option>
+ <option value="estudiante_utp">Estudiante UTP</option>
+ <option value="estudiante_externo">Estudiante Externo</option>
+ <option value="colegio">Colegio</option>
+ <option value="academico">Académico</option>
+ <option value="profesional">Profesional</option>
+ <option value="autor">Autor Científico</option>
+ </select>
+ <select id="fil-metodo">
+ <option value="">Todos los métodos</option>
+ <option value="transferencia">Transferencia</option>
+ <option value="efectivo">Efectivo</option>
+ </select>
+ </div>
+
+ <!-- TABLA -->
+ <div class="tabla-wrap">
+ <div class="tabla-header">
+ <div class="tabla-header-titulo" id="tabla-titulo">Cargando...</div>
+ <div style="display:flex;gap:8px;">
+ <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;">Exportar CSV</button>
+ </div>
+ </div>
+ <div class="tabla-overflow">
+ <table>
+ <thead>
+ <tr>
+ <th>Código</th>
+ <th>Nombre</th>
+ <th>Cédula</th>
+ <th>Categoría</th>
+ <th>Pago</th>
+ <th>Método</th>
+ <th>Fecha</th>
+ <th>Acciones</th>
+ </tr>
+ </thead>
+ <tbody id="tabla-body">
+ <tr><td colspan="8"><div class="empty-state"><div class="es-icono"></div><div class="es-txt">Cargando participantes...</div></div></td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
+
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="cerrarSheet()"></div>
+
+<!-- BOTTOM SHEET PERFIL -->
+<div class="bottom-sheet" id="bottom-sheet">
+ <div class="bs-handle"></div>
+ <div class="bs-header">
+ <span class="bs-titulo" id="bs-titulo">Perfil del participante</span>
+ <button class="bs-cerrar" onclick="cerrarSheet()">&times;</button>
+ </div>
+ <div class="bs-body" id="bs-body">
+ <!-- Contenido dinámico -->
+ </div>
+</div>
+
+<script type="module">
+import { tienePermiso } from "../../../js/core/permisos.js";
+import { enviarCorreoQrParticipante } from "../../../js/core/participantes-api.js";
+import {
+ collection, getDocs, doc, updateDoc, getDoc,
+ query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+import { db as fireDb, storage } from "../../../js/core/firebase-config.js";
+import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+
+const fireFunc = getFunctions(undefined, "us-central1");
+
+const el = id => document.getElementById(id);
+const rol = sessionStorage.getItem("rol") || "";
+const uid = sessionStorage.getItem("uid") || "";
+
+let todosParticipantes = [];
+let participanteFiltrado = [];
+let participanteSeleccionado = null;
+
+const CATEGORIA_LABELS = {
+ estudiante_utp: "Est. UTP",
+ estudiante_externo: "Est. Externo",
+ colegio: "Colegio",
+ academico: "Académico",
+ profesional: "Profesional",
+ autor: "Autor",
+};
+
+const ESTADO_BADGE = {
+ aprobado: `<span class="badge badge-aprobado">Aprobado</span>`,
+ comprobante_enviado: `<span class="badge badge-comprobante">En revision</span>`,
+ pendiente_efectivo: `<span class="badge badge-pendiente"> Pendiente</span>`,
+ rechazado: `<span class="badge badge-rechazado">Rechazado</span>`,
+};
+
+// ── CARGAR ─────────────────────────────────────────────────────────────────
+async function cargar() {
+ const snap = await getDocs(query(collection(fireDb, "participantes"), orderBy("fechaRegistro", "desc")));
+ todosParticipantes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+ actualizarStats();
+ aplicarFiltros();
+}
+
+function actualizarStats() {
+ const total = todosParticipantes.length;
+ const aprobados = todosParticipantes.filter(p => p.pago?.estado === "aprobado").length;
+ const pendientes = todosParticipantes.filter(p => ["pendiente_efectivo"].includes(p.pago?.estado)).length;
+ const comprobantes = todosParticipantes.filter(p => p.pago?.estado === "comprobante_enviado").length;
+ el("stat-total").textContent = total;
+ el("stat-aprobados").textContent = aprobados;
+ el("stat-pendientes").textContent = pendientes;
+ el("stat-comprobantes").textContent = comprobantes;
+}
+
+// ── FILTROS ────────────────────────────────────────────────────────────────
+function aplicarFiltros() {
+ const busq = el("inp-buscar").value.toLowerCase().trim();
+ const est = el("fil-estado").value;
+ const cat = el("fil-categoria").value;
+ const met = el("fil-metodo").value;
+
+ participanteFiltrado = todosParticipantes.filter(p => {
+ const matchBusq = !busq ||
+ (p.nombreCompleto || "").toLowerCase().includes(busq) ||
+ (p.cedula || "").includes(busq) ||
+ (p.codigo || "").toLowerCase().includes(busq) ||
+ (p.correo || "").toLowerCase().includes(busq);
+ const matchEst = !est || p.pago?.estado === est;
+ const matchCat = !cat || p.categoria === cat;
+ const matchMet = !met || p.pago?.metodo === met;
+ return matchBusq && matchEst && matchCat && matchMet;
+ });
+
+ renderTabla();
+}
+
+["inp-buscar", "fil-estado", "fil-categoria", "fil-metodo"].forEach(id => {
+ el(id).addEventListener("input", aplicarFiltros);
+ el(id).addEventListener("change", aplicarFiltros);
+});
+
+// ── TABLA ──────────────────────────────────────────────────────────────────
+function renderTabla() {
+ const n = participanteFiltrado.length;
+ el("tabla-titulo").textContent = `${n} participante${n !== 1 ? "s" : ""}`;
+
+ if (!n) {
+ el("tabla-body").innerHTML = `
+ <tr><td colspan="8">
+ <div class="empty-state">
+ <div class="es-icono"></div>
+ <div class="es-txt">No se encontraron participantes con ese filtro.</div>
+ </div>
+ </td></tr>`;
+ return;
+ }
+
+ const canAprobar = tienePermiso(rol, "aprobar_pagos");
+
+ el("tabla-body").innerHTML = participanteFiltrado.map((p, i) => {
+ const fecha = p.fechaRegistro?.toDate?.()
+ ? p.fechaRegistro.toDate().toLocaleDateString("es-PA")
+ : "—";
+ const estadoBadge = ESTADO_BADGE[p.pago?.estado] || `<span class="badge badge-pendiente">—</span>`;
+ const metodoIcon = p.pago?.metodo === "transferencia" ? "T" : "E";
+
+ const btnAprobar = canAprobar && p.pago?.estado !== "aprobado"
+ ? `<button class="btn-accion btn-aprobar" onclick="window._abrirPerfil('${p.id}')">Revisar</button>`
+ : "";
+
+ return `
+ <tr style="animation: cardIn 0.3s ${i * 0.03}s both;">
+ <td><code style="font-size:12px;color:var(--verde-oscuro);">${p.codigo || "—"}</code></td>
+ <td>
+ <strong>${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</strong>
+ ${p.esColegio ? '<br/><span style="font-size:11px;color:var(--gris-medio);">Colegio</span>' : ""}
+ </td>
+ <td style="font-family:'Courier New',monospace;font-size:12px;">${p.cedula || "—"}</td>
+ <td><span style="font-size:12px;">${CATEGORIA_LABELS[p.categoria] || p.categoria || "—"}</span></td>
+ <td>${estadoBadge}</td>
+ <td>${metodoIcon} <span style="font-size:12px;">${p.pago?.metodo === "transferencia" ? "Trans." : "Efectivo"}</span></td>
+ <td style="font-size:12px;color:var(--gris-medio);">${fecha}</td>
+ <td>
+ <div class="acciones-cel">
+ <button class="btn-accion btn-ver-perfil" onclick="window._abrirPerfil('${p.id}')">Ver</button>
+ ${btnAprobar}
+ </div>
+ </td>
+ </tr>`;
+ }).join("");
+}
+
+// ── BOTTOM SHEET ──────────────────────────────────────────────────────────
+window._abrirPerfil = function(id) {
+ participanteSeleccionado = todosParticipantes.find(p => p.id === id);
+ if (!participanteSeleccionado) return;
+ renderSheet(participanteSeleccionado);
+ el("overlay").classList.add("show");
+ setTimeout(() => el("bottom-sheet").classList.add("show"), 10);
+};
+
+window.cerrarSheet = function() {
+ el("bottom-sheet").classList.remove("show");
+ el("overlay").classList.remove("show");
+ participanteSeleccionado = null;
+};
+
+window._verComprobante = async function(rutaEnc) {
+ try {
+ const ruta = decodeURIComponent(rutaEnc);
+ const url = await getDownloadURL(ref(storage, ruta));
+ window.open(url, "_blank", "noopener,noreferrer");
+ } catch (e) {
+ alert("No se pudo cargar el comprobante. Verifica que tienes permisos de staff.");
+ console.error(e);
+ }
+};
+
+function renderSheet(p) {
+ const canAprobar = tienePermiso(rol, "aprobar_pagos");
+ const puedeReenviar = tienePermiso(rol, "ver_participantes");
+ const estadoPago = p.pago?.estado || "pendiente_efectivo";
+ const yaAprobado = estadoPago === "aprobado";
+ const fecha = p.fechaRegistro?.toDate?.()
+ ? p.fechaRegistro.toDate().toLocaleDateString("es-PA", { dateStyle: "long" })
+ : "—";
+
+ el("bs-titulo").textContent = p.nombreCompleto || `${p.nombre} ${p.apellido}`;
+
+ el("bs-body").innerHTML = `
+ <div class="perfil-avatar">P</div>
+ <div class="perfil-nombre">${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</div>
+ <div class="perfil-codigo">${p.codigo || "—"}</div>
+
+ <div class="datos-grid" style="margin-top:16px;">
+ <div class="dato-item"><div class="di-label">Cédula</div><div class="di-valor">${p.cedula}</div></div>
+ <div class="dato-item"><div class="di-label">Teléfono</div><div class="di-valor">${p.telefono}</div></div>
+ <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Gmail</div><div class="di-valor" style="font-size:13px;">${p.correo}</div></div>
+ ${(p.camposExtra?.['correo-inst'] || p.camposExtra?.correoInst) ? `
+ <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Institucional</div><div class="di-valor" style="font-size:13px;">${p.camposExtra['correo-inst'] || p.camposExtra.correoInst}</div></div>` : ""}
+ <div class="dato-item"><div class="di-label">Categoría</div><div class="di-valor">${p.categoriaNombre || p.categoria}</div></div>
+ <div class="dato-item"><div class="di-label">Facultad</div><div class="di-valor" style="font-size:12px;">${p.camposExtra?.facultad || "—"}</div></div>
+ ${p.esColegio && p.tutor ? `
+ <div class="dato-item" style="grid-column:1/-1;">
+ <div class="di-label">Tutor responsable</div>
+ <div class="di-valor">${p.tutor.nombre} · ${p.tutor.correo}</div>
+ </div>` : ""}
+ <div class="dato-item"><div class="di-label">Fecha registro</div><div class="di-valor" style="font-size:12px;">${fecha}</div></div>
+ <div class="dato-item"><div class="di-label">Estado general</div><div class="di-valor">${p.estadoRegistro || "activo"}</div></div>
+ </div>
+
+ <!-- QR MINI -->
+ ${yaAprobado ? `
+ <div class="qr-mini-wrap">
+ <div id="qr-sheet-canvas"></div>
+ </div>` : ""}
+
+ <!-- PAGO -->
+ <div class="seccion-pago">
+ <div class="sp-titulo">Estado del pago</div>
+ <div class="sp-fila"><span class="sp-label">Método</span><span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span></div>
+ <div class="sp-fila"><span class="sp-label">Estado</span><span class="sp-valor">${ESTADO_BADGE[estadoPago] || estadoPago}</span></div>
+ <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
+ ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
+ ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
+
+ <!-- COMPROBANTE -->
+ ${p.pago?.metodo === "transferencia"
+ ? p.pago?.comprobanteRuta
+ ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+ Ver comprobante de pago
+ </button>`
+ : `<div style="margin-top:10px;font-size:12px;color:var(--amarillo);font-weight:600;"> Sin comprobante adjunto</div>`
+ : canAprobar && !yaAprobado
+ ? `<div style="margin-top:12px;">
+ <div style="font-size:12px;font-weight:700;color:var(--gris-texto);margin-bottom:6px;">
+ Foto del pago en efectivo
+ </div>
+ <div style="font-size:11px;color:var(--gris-medio);margin-bottom:8px;">
+ Sube una foto del participante pagando a Angie Montenegro (Finanzas).
+ </div>
+ <label id="label-foto-efectivo" style="display:flex;align-items:center;gap:8px;
+ padding:10px 12px;border:1.5px dashed var(--gris-borde);border-radius:var(--radio-sm);
+ cursor:pointer;font-size:13px;color:var(--verde-oscuro);font-weight:600;
+ background:var(--verde-fondo);transition:border-color 0.2s;">
+ <span></span><span id="label-foto-texto">Seleccionar foto</span>
+ <input type="file" id="input-foto-efectivo" accept="image/jpeg,image/png,image/webp"
+ style="display:none;" onchange="window._onFotoEfectivoChange(this)"/>
+ </label>
+ <div id="preview-foto-efectivo" style="display:none;margin-top:8px;border-radius:var(--radio-sm);overflow:hidden;">
+ <img id="img-preview-efectivo" style="width:100%;max-height:160px;object-fit:cover;border-radius:var(--radio-sm);" src="" alt="preview"/>
+ </div>
+ </div>`
+ : p.pago?.comprobanteRuta
+ ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+ Ver foto del pago en efectivo
+ </button>`
+ : `<div style="margin-top:10px;font-size:12px;color:var(--gris-medio);font-weight:600;"> Pago en efectivo — pendiente de registro</div>`
+ }
+ </div>
+
+ ${canAprobar && !yaAprobado ? `
+ <!-- ACCIONES -->
+ <div style="margin-bottom:8px;">
+ <div class="sp-fila" style="margin-bottom:10px;">
+ <span class="sp-label">Método registrado por el participante</span>
+ <span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span>
+ </div>
+ <textarea class="notas-area" id="notas-pago" placeholder="Notas internas (opcional)...">${p.pago?.notas || ""}</textarea>
+ </div>
+ <div class="acciones-pago">
+ <button class="btn-grande btn-aprobar-grande" id="btn-aprobar-sh" onclick="window._aprobar()">
+ Aprobar pago
+ </button>
+ <button class="btn-grande btn-rechazar-grande" id="btn-rechazar-sh" onclick="window._rechazar()">
+ Rechazar
+ </button>
+ </div>` : ""}
+
+ ${yaAprobado ? `
+ <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:14px;margin-top:8px;text-align:center;">
+ <div style="font-size:14px;font-weight:700;color:var(--verde-oscuro);"> Pago validado</div>
+ <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">QR activo para el evento</div>
+ </div>
+ ${puedeReenviar ? `
+ <button id="btn-reenviar-qr" onclick="window._reenviarCorreoQr()"
+ style="width:100%;margin-top:10px;padding:11px;border:1.5px solid var(--verde-claro);
+ border-radius:var(--radio-sm);background:#fff;color:var(--verde-oscuro);
+ font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fuente);
+ transition:background 0.2s;">
+ Reenviar correo de credencial
+ </button>` : ""}` : ""}
+ `;
+
+ // Generar QR si está aprobado
+ if (yaAprobado) {
+ const qrDiv = document.getElementById("qr-sheet-canvas");
+ if (qrDiv) {
+ // QR codifica la URL completa para que cualquier cámara abra la credencial
+ const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
+ const qrUrl = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
+ new QRCode(qrDiv, {
+ text: qrUrl,
+ width: 140, height: 140,
+ colorDark: "#045223", colorLight: "#ffffff",
+ correctLevel: QRCode.CorrectLevel.H,
+ });
+ }
+ }
+}
+
+
+// ── FOTO EFECTIVO (staff sube foto del pago) ─────────────────────────────
+window._onFotoEfectivoChange = function(input) {
+ const file = input.files[0];
+ if (!file) return;
+ const label = document.getElementById("label-foto-texto");
+ const preview = document.getElementById("preview-foto-efectivo");
+ const img = document.getElementById("img-preview-efectivo");
+ if (label) label.textContent = file.name.length > 28 ? file.name.slice(0, 25) + "..." : file.name;
+ if (preview && img) {
+ const reader = new FileReader();
+ reader.onload = e => { img.src = e.target.result; preview.style.display = "block"; };
+ reader.readAsDataURL(file);
+ }
+};
+
+// ── APROBAR ───────────────────────────────────────────────────────────────
+window._aprobar = async function() {
+ if (!participanteSeleccionado) return;
+ const notas = document.getElementById("notas-pago")?.value.trim() || "";
+ const docId = participanteSeleccionado.id;
+ const esEfectivo = participanteSeleccionado.pago?.metodo === "efectivo";
+
+ // Si es efectivo, verificar si hay foto seleccionada
+ let fotoBase64 = null;
+ let fotoType = null;
+ let fotoNombre = null;
+ if (esEfectivo) {
+ const inputFoto = document.getElementById("input-foto-efectivo");
+ const file = inputFoto?.files[0];
+ if (file) {
+ fotoBase64 = await new Promise((res, rej) => {
+ const reader = new FileReader();
+ reader.onload = e => res(e.target.result.split(",")[1]);
+ reader.onerror = rej;
+ reader.readAsDataURL(file);
+ });
+ fotoType = file.type;
+ fotoNombre = file.name;
+ }
+ }
+
+ document.getElementById("btn-aprobar-sh").disabled = true;
+ document.getElementById("btn-rechazar-sh").disabled = true;
+
+ // Advertir si es efectivo y no hay foto
+ if (esEfectivo && !fotoBase64) {
+ const continuar = confirm(
+ "️ No has subido una foto del pago en efectivo.\n\n¿Deseas aprobar el pago sin foto de respaldo?"
+ );
+ if (!continuar) {
+ document.getElementById("btn-aprobar-sh").disabled = false;
+ document.getElementById("btn-rechazar-sh").disabled = false;
+ return;
+ }
+ }
+
+ try {
+ // Subir foto de efectivo si la hay
+ if (esEfectivo && fotoBase64) {
+ const subirFoto = httpsCallable(fireFunc, "subirFotoEfectivo");
+ await subirFoto({ docId, base64: fotoBase64, contentType: fotoType, nombre: fotoNombre });
+ }
+
+ await updateDoc(doc(fireDb, "participantes", docId), {
+ "pago.estado": "aprobado",
+ "pago.aprobadoPor": uid,
+ "pago.aprobadoEn": serverTimestamp(),
+ "pago.notas": notas || null,
+ "actualizadoEn": serverTimestamp(),
+ });
+ const idx = todosParticipantes.findIndex(p => p.id === docId);
+ if (idx >= 0) {
+ todosParticipantes[idx].pago = {
+ ...todosParticipantes[idx].pago,
+ estado: "aprobado", aprobadoPor: uid, notas,
+ };
+ }
+ let mensaje = "Pago aprobado.";
+ try {
+ const resCorreo = await enviarCorreoQrParticipante(docId);
+ mensaje = resCorreo?.mensaje ?? " Pago aprobado — correo de credencial enviado.";
+ } catch (correoErr) {
+ mensaje = " Pago aprobado correctamente.\n\nNota: el correo fue encolado — si no llega en unos minutos, usa el botón de reenviar en el perfil del participante.";
+ }
+ cerrarSheet();
+ actualizarStats();
+ aplicarFiltros();
+ alert(mensaje);
+ cargar();
+ } catch (err) {
+ alert("Error al aprobar: " + err.message);
+ document.getElementById("btn-aprobar-sh").disabled = false;
+ document.getElementById("btn-rechazar-sh").disabled = false;
+ }
+};
+
+// ── REENVIAR CORREO QR ────────────────────────────────────────────────────
+window._reenviarCorreoQr = async function() {
+ if (!participanteSeleccionado) return;
+ const btn = document.getElementById("btn-reenviar-qr");
+ if (btn) btn.disabled = true;
+ try {
+ const resCorreo = await enviarCorreoQrParticipante(participanteSeleccionado.id, true);
+ const mensaje = resCorreo?.mensaje ?? "Correo reenviado correctamente.";
+ alert(mensaje);
+ cerrarSheet();
+ cargar();
+ } catch (err) {
+ alert("Error al reenviar correo: " + err.message);
+ if (btn) btn.disabled = false;
+ }
+};
+
+// ── RECHAZAR ──────────────────────────────────────────────────────────────
+window._rechazar = async function() {
+ if (!participanteSeleccionado) return;
+ const notas = document.getElementById("notas-pago")?.value.trim() || "";
+ if (!confirm("¿Confirmas que deseas rechazar el comprobante de este participante?")) return;
+ document.getElementById("btn-aprobar-sh").disabled = true;
+ document.getElementById("btn-rechazar-sh").disabled = true;
+ try {
+ await updateDoc(doc(fireDb, "participantes", participanteSeleccionado.id), {
+ "pago.estado": "rechazado",
+ "pago.aprobadoPor": uid,
+ "pago.aprobadoEn": serverTimestamp(),
+ "pago.notas": notas || null,
+ "actualizadoEn": serverTimestamp(),
+ });
+ const idx = todosParticipantes.findIndex(p => p.id === participanteSeleccionado.id);
+ if (idx >= 0) todosParticipantes[idx].pago = { ...todosParticipantes[idx].pago, estado: "rechazado", notas };
+ cerrarSheet();
+ actualizarStats();
+ aplicarFiltros();
+ } catch (err) {
+ alert("Error al rechazar: " + err.message);
+ document.getElementById("btn-aprobar-sh").disabled = false;
+ document.getElementById("btn-rechazar-sh").disabled = false;
+ }
+};
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────
+el("btn-exportar").addEventListener("click", () => {
+ const cols = ["Código","Nombre","Cédula","Correo","Teléfono","Categoría","Método","Estado pago","Institución","Fecha"];
+ const rows = participanteFiltrado.map(p => [
+ p.codigo, p.nombreCompleto || `${p.nombre} ${p.apellido}`,
+ p.cedula, p.correo, p.telefono,
+ CATEGORIA_LABELS[p.categoria] || p.categoria,
+ p.pago?.metodo, p.pago?.estado,
+ p.institucion || p.colegio || "",
+ p.fechaRegistro?.toDate?.()?.toLocaleDateString("es-PA") || ""
+ ].map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(","));
+
+ const csv = [cols.join(","), ...rows].join("\n");
+ const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+ const a = document.createElement("a");
+ a.href = URL.createObjectURL(blob);
+ a.download = `CONTECS_participantes_${new Date().toISOString().split("T")[0]}.csv`;
+ a.click();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+cargar();
+</script>
+</body>
+</html>

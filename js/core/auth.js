@@ -22,6 +22,17 @@ function esPaginaPublica() {
 }
 
 
+// Calcula cuántos "../" se necesitan para llegar a panel/ (donde viven
+// index.html y dashboard.html) desde la página actual, sin importar
+// el subpath de hosting (ej. /contecsApp/) ni la profundidad del módulo.
+function prefijoHaciaPanel() {
+  const partes = window.location.pathname.split("/").filter(Boolean);
+  const idx = partes.lastIndexOf("panel");
+  if (idx === -1) return ""; // no estamos bajo panel/ (ej. páginas públicas)
+  const niveles = partes.length - idx - 2; // -1 por "panel" mismo, -1 por el archivo actual
+  return niveles > 0 ? "../".repeat(niveles) : "";
+}
+
 function esErrorDePermisosFirestore(error) {
   return error?.code === "permission-denied" || error?.code === "firestore/permission-denied";
 }
@@ -62,7 +73,7 @@ export function escucharCambiosDeRol(uid) {
     if (rolActual !== rolNuevo) {
       sessionStorage.setItem("rol",    rolNuevo);
       sessionStorage.setItem("nombre", data.nombre || sessionStorage.getItem("nombre"));
-      window.location.href = "dashboard.html";
+      window.location.href = prefijoHaciaPanel() + "dashboard.html";
     }
   });
 }
@@ -72,7 +83,7 @@ export function guardRoute() {
     try {
       const esPublica = esPaginaPublica();
       if (!user && !esPublica) {
-        window.location.href = "index.html";
+        window.location.href = prefijoHaciaPanel() + "index.html";
       } else if (user && esPublica) {
         await cargarUsuario(user);
         window.location.href = "dashboard.html";
@@ -152,7 +163,7 @@ export function loginConSSO() {
 export async function cerrarSesion() {
   sessionStorage.clear();
   await signOut(auth);
-  window.location.href = "index.html";
+  window.location.href = prefijoHaciaPanel() + "index.html";
 }
 
 export function getUsuarioActual() {
@@ -172,8 +183,6 @@ export function usuarioTienePermiso(permiso) {
 export function requirePermiso(...permisos) {
   const tiene = permisos.some(p => usuarioTienePermiso(p));
   if (!tiene) {
-    const depth = window.location.pathname.split("/").length - 2;
-    const prefix = depth > 0 ? "../".repeat(depth) : "";
-    window.location.href = prefix + "dashboard.html";
+    window.location.href = prefijoHaciaPanel() + "dashboard.html";
   }
 }

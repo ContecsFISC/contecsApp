@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>II CONTECS 2026 — Inscripción</title>
+ <style>
+ :root {
+ --verde: #00722e; --verde-oscuro: #045223; --verde-claro: #39b54a;
+ --verde-fondo: #e8f5ec; --gris-texto: #1a2e1e; --gris-suave: #f4f7f5;
+ --gris-borde: #d0dbd2; --gris-medio: #8a9e8d; --rojo: #c0392b;
+ --rojo-fondo: #fdedec; --amarillo: #d4850a; --amarillo-fondo: #fef9e7;
+ --azul-info: #2471a3; --radio: 12px; --radio-sm: 8px;
+ --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+ --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+ --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+ body { font-family: var(--fuente); background: var(--gris-suave); color: var(--gris-texto); min-height: 100vh; font-size: 15px; line-height: 1.5; }
+
+ /* HERO */
+ .hero { background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde) 60%, var(--verde-claro) 100%); padding: 36px 20px 52px; text-align: center; position: relative; overflow: hidden; }
+ .hero::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
+ .hero-logo { width: 80px; height: 80px; background: #ffffff; border: 2px solid rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; animation: fadeScaleIn 0.5s var(--ease-spring) both; }
+ .hero h1 { color: #fff; font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-bottom: 6px; animation: slideUp 0.45s var(--ease-out) 0.1s both; }
+ .hero p { color: rgba(255,255,255,0.8); font-size: 14px; animation: slideUp 0.45s var(--ease-out) 0.2s both; }
+ .hero-badge { display: inline-block; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 5px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 12px; letter-spacing: 0.5px; animation: slideUp 0.45s var(--ease-out) 0.3s both; }
+
+ /* STEPS */
+ .steps-wrap { background: #fff; border-radius: 0 0 var(--radio) var(--radio); padding: 16px 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 24px; position: sticky; top: 0; z-index: 50; }
+ .steps { display: flex; align-items: center; justify-content: center; }
+ .step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; position: relative; }
+ .step:not(:last-child)::after { content: ''; position: absolute; top: 16px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 2px; background: var(--gris-borde); transition: background 0.4s; }
+ .step.completado:not(:last-child)::after { background: var(--verde-claro); }
+ .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--gris-borde); color: var(--gris-medio); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: background 0.3s, color 0.3s, transform 0.3s var(--ease-spring); position: relative; z-index: 1; }
+ .step.activo .step-num { background: var(--verde); color: #fff; transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,114,46,0.35); }
+ .step.completado .step-num { background: var(--verde-claro); color: #fff; }
+ .step-label { font-size: 10px; font-weight: 600; color: var(--gris-medio); text-transform: uppercase; letter-spacing: 0.4px; transition: color 0.3s; }
+ .step.activo .step-label { color: var(--verde-oscuro); }
+ .step.completado .step-label { color: var(--verde); }
+
+ /* CONTAINER */
+ .container { max-width: 640px; margin: 0 auto; padding: 0 16px 60px; }
+
+ /* CARDS */
+ .card { background: #fff; border-radius: var(--radio); box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 24px 20px; margin-bottom: 16px; border-left: 3px solid var(--verde-claro); animation: cardIn 0.4s var(--ease-spring) both; }
+ .card-title { font-size: 15px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1.5px solid var(--verde-fondo); }
+
+ /* FORM */
+ .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+ .form-group { margin-bottom: 16px; }
+ .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--verde-oscuro); margin-bottom: 6px; }
+ .form-group label .req { color: var(--rojo); margin-left: 2px; }
+ .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); font-size: 15px; font-family: var(--fuente); background: #fff; color: var(--gris-texto); transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+ .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.10); }
+ .form-group input::placeholder { color: var(--gris-medio); }
+ .form-group select { cursor: pointer; }
+ .form-group textarea { resize: vertical; min-height: 80px; }
+
+ /* CATEGORIA CARDS */
+ .categoria-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+ .cat-card { border: 2px solid var(--gris-borde); border-radius: var(--radio); padding: 16px 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-spring); text-align: center; }
+ .cat-card:hover { border-color: var(--verde-claro); background: var(--verde-fondo); transform: translateY(-2px); }
+ .cat-card.seleccionada { border-color: var(--verde); background: var(--verde-fondo); box-shadow: 0 0 0 3px rgba(0,114,46,0.10); }
+ .cat-card .cat-label { font-size: 13px; font-weight: 700; color: var(--gris-texto); }
+ .cat-card .cat-precio { font-size: 11px; color: var(--gris-medio); font-weight: 600; margin-top: 4px; }
+ .cat-card.seleccionada .cat-label { color: var(--verde-oscuro); }
+ .cat-card.seleccionada .cat-precio { color: var(--verde); }
+
+ /* COLEGIO TOGGLE */
+ .colegio-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+ .colegio-opt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 18px 12px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde); background: #fff; cursor: pointer; transition: all 0.22s var(--ease-spring); user-select: none; text-align: center; }
+ .colegio-opt:active { transform: scale(0.96); }
+ .colegio-opt .opt-label { font-size: 13px; font-weight: 700; color: var(--gris-medio); transition: color 0.2s; }
+ .colegio-opt.seleccionado { border-color: var(--verde); background: var(--verde-fondo); box-shadow: 0 0 0 3px rgba(0,114,46,0.12); }
+ .colegio-opt.seleccionado .opt-label { color: var(--verde); }
+ @keyframes optBounce { 0% { transform: scale(0.92); } 60% { transform: scale(1.07); } 100% { transform: scale(1); } }
+
+ /* PRECIO COLEGIO DINÁMICO */
+ .colegio-precio-box { background: var(--verde-fondo); border: 1.5px solid var(--verde-claro); border-radius: var(--radio-sm); padding: 12px 16px; margin: 12px 0; display: none; }
+ .colegio-precio-box.visible { display: block; }
+ .cpb-fila { display: flex; justify-content: space-between; font-size: 13px; color: var(--verde-oscuro); padding: 3px 0; }
+ .cpb-fila.total { font-weight: 800; font-size: 15px; border-top: 1.5px solid var(--verde-claro); margin-top: 6px; padding-top: 8px; }
+
+ /* ESTUDIANTES COLEGIO */
+ .tutor-campos { display: none; }
+ .tutor-campos.visible { display: block; animation: cardIn 0.35s var(--ease-spring) both; }
+ .estudiantes-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+ .estudiantes-titulo { font-size: 14px; font-weight: 700; color: var(--verde-oscuro); }
+ .btn-add-estudiante { background: var(--verde-fondo); border: 1.5px solid var(--verde-claro); color: var(--verde-oscuro); border-radius: var(--radio-sm); padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--fuente); transition: background 0.2s; }
+ .btn-add-estudiante:hover { background: var(--verde-claro); color: #fff; }
+ .estudiante-item { background: var(--gris-suave); border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); padding: 14px; margin-bottom: 10px; animation: cardIn 0.3s var(--ease-spring) both; position: relative; }
+ .estudiante-num { font-size: 11px; font-weight: 700; color: var(--verde); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+ .btn-remove-estudiante { position: absolute; top: 10px; right: 10px; background: var(--rojo-fondo); border: none; color: var(--rojo); border-radius: var(--radio-sm); width: 28px; height: 28px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: var(--fuente); }
+ .estudiantes-nota { font-size: 12px; color: var(--gris-medio); background: var(--amarillo-fondo); border: 1px solid #f0c040; border-radius: var(--radio-sm); padding: 10px 12px; margin-top: 10px; line-height: 1.5; }
+
+ /* PAGO */
+ .pago-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+ .pago-opcion { border: 2px solid var(--gris-borde); border-radius: var(--radio); padding: 18px 14px; cursor: pointer; text-align: center; transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-spring); }
+ .pago-opcion:hover { border-color: var(--verde-claro); background: var(--verde-fondo); transform: translateY(-2px); }
+ .pago-opcion.seleccionada { border-color: var(--verde); background: var(--verde-fondo); box-shadow: 0 0 0 3px rgba(0,114,46,0.10); }
+ .po-label { font-size: 14px; font-weight: 700; color: var(--gris-texto); }
+ .po-desc { font-size: 12px; color: var(--gris-medio); margin-top: 4px; }
+ .pago-opcion.seleccionada .po-label { color: var(--verde-oscuro); }
+ .pago-info { display: none; animation: cardIn 0.35s var(--ease-spring) both; }
+ .pago-info.visible { display: block; }
+ .info-transferencia { background: var(--verde-fondo); border: 1.5px solid var(--verde-claro); border-radius: var(--radio); padding: 16px; margin-bottom: 16px; }
+ .it-titulo { font-size: 13px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ .it-fila { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; color: var(--gris-texto); }
+ .it-fila strong { color: var(--verde-oscuro); min-width: 90px; }
+ .info-efectivo { background: var(--amarillo-fondo); border: 1.5px solid #f0c040; border-radius: var(--radio); padding: 16px; margin-bottom: 16px; }
+ .ie-titulo { font-size: 13px; font-weight: 700; color: var(--amarillo); margin-bottom: 8px; }
+ .ie-contacto { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: var(--radio-sm); padding: 12px 14px; }
+ .ie-avatar { width: 40px; height: 40px; background: var(--amarillo); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0; }
+ .ie-nombre { font-size: 14px; font-weight: 700; color: var(--gris-texto); }
+ .ie-tel { font-size: 13px; color: var(--gris-medio); margin-top: 2px; }
+
+ /* UPLOAD */
+ .upload-zone { border: 2px dashed var(--gris-borde); border-radius: var(--radio); padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+ .upload-zone:hover, .upload-zone.dragover { border-color: var(--verde-claro); background: var(--verde-fondo); }
+ .upload-zone p { color: var(--gris-medio); font-size: 13px; margin-top: 8px; }
+ .upload-preview { display: none; align-items: center; gap: 12px; background: var(--verde-fondo); border: 1.5px solid var(--verde-claro); border-radius: var(--radio-sm); padding: 12px 14px; margin-top: 10px; }
+ .upload-preview.visible { display: flex; }
+ .up-nombre { font-size: 13px; font-weight: 600; color: var(--verde-oscuro); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .up-quitar { background: none; border: none; color: var(--rojo); font-size: 18px; cursor: pointer; padding: 0 4px; }
+
+ /* RESUMEN */
+ .resumen-card { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%); border-radius: var(--radio); padding: 22px 20px; color: #fff; margin-bottom: 16px; }
+ .resumen-titulo { font-size: 13px; opacity: 0.75; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+ .resumen-fila { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 14px; }
+ .resumen-fila:last-child { border-bottom: none; }
+ .rf-label { opacity: 0.75; flex-shrink: 0; margin-right: 12px; }
+ .rf-valor { font-weight: 700; text-align: right; }
+ .resumen-total { margin-top: 14px; padding-top: 14px; border-top: 2px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center; }
+ .rt-label { font-size: 14px; opacity: 0.8; }
+ .rt-precio { font-size: 26px; font-weight: 800; }
+
+ /* BOTONES */
+ .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; border-radius: var(--radio-sm); border: none; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; min-height: 50px; transition: opacity 0.18s, transform 0.15s var(--ease-spring), box-shadow 0.2s; font-family: var(--fuente); }
+ .btn:active { transform: scale(0.96) !important; }
+ .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%); color: #fff; box-shadow: 0 4px 16px rgba(0,114,46,0.28); }
+ .btn-primary:hover { box-shadow: 0 8px 24px rgba(0,114,46,0.36); transform: translateY(-1px); }
+ .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+ .btn-outline { background: transparent; border: 1.5px solid var(--verde); color: var(--verde); }
+ .btn-outline:hover { background: var(--verde-fondo); transform: translateY(-1px); }
+ .btn-nav { display: flex; gap: 10px; margin-top: 8px; }
+ .btn-nav .btn { flex: 1; }
+
+ /* ALERTAS */
+ .alerta { padding: 12px 16px; border-radius: var(--radio-sm); font-size: 14px; margin-bottom: 14px; display: none; line-height: 1.5; }
+ .alerta.show { display: block; animation: cardIn 0.3s var(--ease-spring) both; }
+ .alerta-error { background: var(--rojo-fondo); color: var(--rojo); border-left: 4px solid var(--rojo); }
+ .alerta-success { background: var(--verde-fondo); color: var(--verde-oscuro); border-left: 4px solid var(--verde); }
+ .alerta-aviso { background: var(--amarillo-fondo); color: var(--amarillo); border-left: 4px solid var(--amarillo); }
+
+ /* ÉXITO */
+ .exito-wrap { display: none; text-align: center; padding: 40px 20px 60px; animation: fadeScaleIn 0.5s var(--ease-spring) both; }
+ .exito-wrap.visible { display: block; }
+ .exito-icono { width: 90px; height: 90px; background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 8px 28px rgba(0,114,46,0.30); }
+ .exito-check { width: 40px; height: 40px; stroke: #fff; stroke-width: 3; fill: none; }
+ .exito-titulo { font-size: 24px; font-weight: 800; color: var(--verde-oscuro); margin-bottom: 8px; }
+ .exito-sub { font-size: 14px; color: var(--gris-medio); margin-bottom: 24px; line-height: 1.6; }
+ .exito-codigo { background: var(--verde-oscuro); color: #fff; font-size: 22px; font-weight: 800; letter-spacing: 3px; padding: 16px 24px; border-radius: var(--radio); display: inline-block; margin-bottom: 12px; font-family: 'Courier New', monospace; }
+ .exito-nota { font-size: 12px; color: var(--gris-medio); background: var(--verde-fondo); border-radius: var(--radio-sm); padding: 12px 16px; margin-top: 16px; text-align: left; line-height: 1.6; }
+
+ /* SPINNER */
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+ /* ANIMATIONS */
+ @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+ @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+ @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+ .step-panel { display: none; }
+ .step-panel.activo { display: block; animation: cardIn 0.4s var(--ease-spring) both; }
+ .footer { text-align: center; padding: 20px; font-size: 12px; color: var(--gris-medio); }
+
+ @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } .categoria-grid { grid-template-columns: 1fr 1fr; } }
+ @media (max-width: 360px) { .categoria-grid { grid-template-columns: 1fr; } }
+ </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+ <div class="hero-logo">
+ <img src="https://contecsfisc.github.io/contecsApp/logocontecs.png" alt="CONTECS 2026" width="54" height="54" style="display:block;"/>
+ </div>
+ <h1>II CONTECS 2026</h1>
+ <p>II Congreso de Tecnologías en Ciencias Computacionales</p>
+ <span class="hero-badge">Universidad Tecnológica de Panamá · FISC</span>
+</div>
+
+<!-- STEPS -->
+<div class="steps-wrap">
+ <div class="steps">
+ <div class="step activo" id="step-ind-1"><div class="step-num">1</div><span class="step-label">Categoría</span></div>
+ <div class="step" id="step-ind-2"><div class="step-num">2</div><span class="step-label">Datos</span></div>
+ <div class="step" id="step-ind-3"><div class="step-num">3</div><span class="step-label">Pago</span></div>
+ <div class="step" id="step-ind-4"><div class="step-num">4</div><span class="step-label">Confirmar</span></div>
+ </div>
+</div>
+
+<div class="container">
+ <div id="alerta-global" class="alerta"></div>
+
+ <!-- ═══ PASO 1 — CATEGORÍA ═══ -->
+ <div class="step-panel activo" id="panel-1">
+ <div class="card">
+ <div class="card-title">Selecciona tu categoría</div>
+ <p style="font-size:13px;color:var(--gris-medio);margin-bottom:18px;">Elige la que mejor describe tu perfil.</p>
+ <div class="categoria-grid" id="cat-grid"></div>
+ </div>
+ <div class="btn-nav">
+ <button class="btn btn-primary" id="btn-paso1">Continuar</button>
+ </div>
+ </div>
+
+ <!-- ═══ PASO 2 — DATOS (un solo formulario unificado por categoría) ═══ -->
+ <div class="step-panel" id="panel-2">
+ <!-- El contenido completo se genera dinámicamente según la categoría -->
+ <div id="formulario-dinamico"></div>
+
+ <div class="btn-nav">
+ <button class="btn btn-outline" id="btn-atras-2">Atras</button>
+ <button class="btn btn-primary" id="btn-paso2">Continuar</button>
+ </div>
+ </div>
+
+ <!-- ═══ PASO 3 — PAGO ═══ -->
+ <div class="step-panel" id="panel-3">
+ <div class="card">
+ <div class="card-title">Método de pago</div>
+ <div class="pago-opciones">
+ <div class="pago-opcion" id="opt-pago-transferencia">
+ <div class="po-label">Transferencia</div>
+ <div class="po-desc">Pago en línea / Yappy</div>
+ </div>
+ <div class="pago-opcion" id="opt-pago-efectivo">
+ <div class="po-label">Efectivo</div>
+ <div class="po-desc">El día del evento</div>
+ </div>
+ </div>
+
+ <!-- Transferencia -->
+ <div class="pago-info" id="info-transferencia">
+ <div class="info-transferencia">
+ <div class="it-titulo">Datos para transferencia / Yappy</div>
+ <div class="it-fila"><strong>Beneficiario:</strong> CONTECS — FISC UTP</div>
+ <div class="it-fila"><strong>Yappy:</strong> Angelica Montenegro — 6926-2577</div>
+ <div class="it-fila"><strong>Banco:</strong> Banco General de Panamá</div>
+ <div class="it-fila"><strong>Monto:</strong><span id="monto-transferencia">—</span></div>
+ <div class="it-fila" style="margin-top:8px;font-size:12px;color:var(--gris-medio);">Usa tu cédula como referencia de pago.</div>
+ </div>
+ <div class="form-group">
+ <label>Comprobante de pago <span class="req">*</span></label>
+ <div class="upload-zone" id="upload-zone-comp">
+ <p>Adjunta tu foto o captura del comprobante<br/><strong>Haz clic</strong> o arrastra aquí</p>
+ <input type="file" id="inp-comprobante" accept="image/*,.pdf" style="display:none"/>
+ </div>
+ <div class="upload-preview" id="upload-preview">
+ <span class="up-nombre" id="up-nombre-archivo">archivo</span>
+ <button class="up-quitar" id="btn-quitar-archivo">×</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Efectivo -->
+ <div class="pago-info" id="info-efectivo">
+ <div class="info-efectivo">
+ <div class="ie-titulo">Contacto para pago en efectivo</div>
+ <div class="ie-contacto">
+ <div class="ie-avatar">AM</div>
+ <div class="ie-datos">
+ <div class="ie-nombre">Angelica Montenegro</div>
+ <div class="ie-tel">6926-2577</div>
+ </div>
+ </div>
+ <p style="font-size:12px;color:var(--amarillo);margin-top:10px;">Coordina tu pago con ella antes del evento. El staff confirmará el pago en el sistema.</p>
+ </div>
+ </div>
+ </div>
+
+ <div class="btn-nav">
+ <button class="btn btn-outline" id="btn-atras-3">Atras</button>
+ <button class="btn btn-primary" id="btn-paso3">Continuar</button>
+ </div>
+ </div>
+
+ <!-- ═══ PASO 4 — CONFIRMAR ═══ -->
+ <div class="step-panel" id="panel-4">
+ <div class="resumen-card" id="resumen-card"></div>
+ <div class="card">
+ <div class="card-title">Confirmar inscripción</div>
+ <p style="font-size:13px;color:var(--gris-medio);margin-bottom:14px;line-height:1.6;">
+ Al confirmar, recibirás tu código de participante. El correo con tu QR llegará cuando el staff valide tu pago.
+ </p>
+ <div style="background:var(--verde-fondo);border-radius:var(--radio-sm);padding:12px 14px;margin-bottom:16px;">
+ <p style="font-size:12px;color:var(--verde-oscuro);line-height:1.6;">Si no ves el correo, revisa la carpeta de <strong>spam</strong>.</p>
+ </div>
+ </div>
+ <div class="btn-nav">
+ <button class="btn btn-outline" id="btn-atras-4">Atras</button>
+ <button class="btn btn-primary" id="btn-confirmar">
+ <span id="btn-confirmar-txt">Confirmar inscripción</span>
+ <div class="spinner" id="spinner-confirmar" style="display:none;"></div>
+ </button>
+ </div>
+ </div>
+
+ <!-- ÉXITO -->
+ <div class="exito-wrap" id="exito-wrap">
+ <div class="exito-icono">
+ <svg class="exito-check" viewBox="0 0 40 40"><path d="M8 20l9 9L32 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+ </div>
+ <div class="exito-titulo">Inscripción exitosa</div>
+ <p class="exito-sub">Tu registro fue completado. Recibirás el correo con tu QR cuando el staff valide tu pago.</p>
+ <div class="exito-codigo" id="exito-codigo">CTCS-2026-00000</div>
+ <p style="font-size:12px;color:var(--gris-medio);">Este es tu código de participante</p>
+ <div class="exito-nota">
+ Revisa tu correo en <strong><span id="exito-correo"></span></strong>.<br/><br/>
+ Si elegiste transferencia, tu inscripción se activará una vez el staff valide tu comprobante.<br/><br/>
+ Si elegiste efectivo, el staff registrará tu pago el día del evento.
+ </div>
+ </div>
+
+ <div class="footer">
+ II Congreso de Tecnologías en Ciencias Computacionales — CONTECS 2026<br/>
+ Universidad Tecnológica de Panamá · congresofisc@utp.ac.pa
+ </div>
+</div>
+
+<script>
+// ─── CONSTANTES ───────────────────────────────────────────────────────────────
+const PRECIO_COLEGIO = 6; // $6 por persona (tutor + cada estudiante)
+
+const CATEGORIAS = [
+ { id: "estudiante_utp", label: "Estudiante UTP", precio: 10 },
+ { id: "estudiante_externo", label: "Estudiante Externo", precio: 20 },
+ { id: "academico_utp", label: "Academico UTP", precio: 20 },
+ { id: "academico_externo", label: "Academico Externo", precio: 30 },
+ { id: "profesional", label: "Profesional", precio: 30 },
+ { id: "autor", label: "Autor de Resumen", precio: 35 },
+ { id: "otros", label: "Otros", precio: 20 },
+ { id: "colegio", label: "Colegio", precio: PRECIO_COLEGIO }, // base tutor
+];
+
+const BACHILLERES = [
+ "Bachiller en Ciencias",
+ "Bachiller en Ciencias y Tecnologia Informatica",
+ "Bachiller en Letras",
+ "Bachiller en Comercio",
+ "Bachiller en Contabilidad",
+ "Bachiller Agropecuario",
+ "Bachiller en Turismo",
+ "Otro",
+];
+
+const CAMPUS = [
+ "Campus Central Dr. Victor Levi Sasso (Panama)",
+ "Centro Regional de Azuero", "Centro Regional de Bocas del Toro",
+ "Centro Regional de Chiriqui", "Centro Regional de Cocle",
+ "Centro Regional de Colon", "Centro Regional de Panama Oeste",
+ "Centro Regional de Veraguas",
+];
+const FACULTADES = [
+ "Facultad de Ingenieria de Sistemas Computacionales",
+ "Facultad de Ciencias y Tecnologia", "Facultad de Ingenieria Civil",
+ "Facultad de Ingenieria Electrica", "Facultad de Ingenieria Industrial",
+ "Facultad de Ingenieria Mecanica",
+];
+const SEMESTRES = [
+ "1er año",
+ "2do año",
+ "3er año",
+ "4to año",
+ "5to año",
+];
+
+// ─── HELPERS HTML ─────────────────────────────────────────────────────────────
+const fg = (label, req, inner) => `<div class="form-group"><label>${label}${req ? ' <span class="req">*</span>' : ''}</label>${inner}</div>`;
+const inp = (id, type, ph, extra='') => `<input type="${type}" id="${id}" placeholder="${ph}" ${extra}/>`;
+const sel = (id, opts, ph='Selecciona') => `<select id="${id}"><option value="">${ph}</option>${opts.map(o=>`<option>${o}</option>`).join('')}</select>`;
+const row = (...fields) => `<div class="form-row">${fields.join('')}</div>`;
+
+// Campos comunes de identidad para todas las categorías normales
+const CAMPOS_IDENTIDAD = () => `
+ ${row(
+ fg('Nombre', true, inp('inp-nombre', 'text', 'Ej: María', 'autocomplete="given-name"')),
+ fg('Apellido', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+ )}
+ ${fg('Cédula o Pasaporte', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+ ${fg('Correo electrónico', true, inp('inp-correo', 'email', 'nombre@correo.com', 'autocomplete="email"'))}
+ ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
+`;
+
+// Formularios completos por categoría (identidad + campos específicos juntos)
+const FORMULARIOS = {
+ estudiante_utp: () => `
+ <div class="card">
+ <div class="card-title">Estudiante UTP — Datos de inscripción</div>
+ ${row(
+ fg('Nombre', true, inp('inp-nombre', 'text', 'Ej: María', 'autocomplete="given-name"')),
+ fg('Apellido', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+ )}
+ ${fg('Cédula o Pasaporte', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+ ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
+ ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
+ ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
+ ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
+ ${fg('Facultad', true, sel('ex-facultad', FACULTADES, 'Selecciona tu facultad'))}
+ ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Ingenieria de Sistemas'))}
+ ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
+ </div>`,
+
+ estudiante_externo: () => `
+ <div class="card">
+ <div class="card-title">Estudiante Externo — Datos de inscripción</div>
+ ${CAMPOS_IDENTIDAD()}
+ ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad de Panama'))}
+ ${fg('Correo institucional', true, inp('ex-correo-inst', 'email', 'nombre@universidad.ac.pa'))}
+ ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Informatica'))}
+ ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
+ </div>`,
+
+ academico_utp: () => `
+ <div class="card">
+ <div class="card-title">Académico UTP — Datos de inscripción</div>
+ ${row(
+ fg('Nombre', true, inp('inp-nombre', 'text', 'Ej: María', 'autocomplete="given-name"')),
+ fg('Apellido', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+ )}
+ ${fg('Cédula o Pasaporte', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+ ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
+ ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
+ ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
+ ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
+ ${fg('Facultad o unidad', true, sel('ex-facultad', [...FACULTADES, 'Administracion Central'], 'Selecciona'))}
+ ${fg('Rol que desempeñas', true, sel('ex-rol', ['Profesor', 'Administrativo', 'Investigador']))}
+ ${fg('Departamento o área', false, inp('ex-departamento', 'text', 'Ej: Departamento de Informatica'))}
+ </div>`,
+
+ academico_externo: () => `
+ <div class="card">
+ <div class="card-title">Académico Externo — Datos de inscripción</div>
+ ${CAMPOS_IDENTIDAD()}
+ ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad de Panama'))}
+ ${fg('Correo institucional', true, inp('ex-correo-inst', 'email', 'nombre@institucion.ac.pa'))}
+ ${fg('Rol que desempeñas', true, sel('ex-rol', ['Profesor', 'Administrativo', 'Investigador']))}
+ ${fg('Departamento o área', false, inp('ex-departamento', 'text', 'Ej: Departamento de Sistemas'))}
+ </div>`,
+
+ profesional: () => `
+ <div class="card">
+ <div class="card-title">Profesional — Datos de inscripción</div>
+ ${CAMPOS_IDENTIDAD()}
+ ${fg('Empresa u organización', true, inp('ex-empresa', 'text', 'Ej: Mi Empresa S.A.'))}
+ ${fg('Cargo o posición', false, inp('ex-cargo', 'text', 'Ej: Desarrollador de Software'))}
+ ${fg('Área de trabajo', false, sel('ex-area', ['Desarrollo de software','Redes y telecomunicaciones','Ciberseguridad','Gestion de TI','Inteligencia Artificial / Data','Otra'], 'Selecciona (opcional)'))}
+ </div>`,
+
+ autor: () => `
+ <div class="card">
+ <div class="card-title">Autor de Resumen — Datos de inscripción</div>
+ ${CAMPOS_IDENTIDAD()}
+ ${fg('Correo del autor principal', true, inp('ex-correo-inst', 'email', 'Debe coincidir con el correo enviado a CMT'))}
+ ${fg('Título del paper o trabajo', true, inp('ex-titulo-paper', 'text', 'Titulo completo del trabajo'))}
+ ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad Tecnologica de Panama'))}
+ ${fg('Modalidad de presentación', true, sel('ex-modalidad', ['Presentacion oral', 'Poster']))}
+ ${fg('Coautores', false, `<textarea id="ex-coautores" placeholder="Nombres de coautores separados por coma"></textarea>`)}
+ <p style="font-size:12px;color:var(--gris-medio);">Envía tu trabajo en: <a href="https://cmt3.research.microsoft.com/CONTECS2026" target="_blank" style="color:var(--azul-info);">cmt3.research.microsoft.com/CONTECS2026</a></p>
+ </div>`,
+
+ otros: () => `
+ <div class="card">
+ <div class="card-title">Otros — Datos de inscripción</div>
+ ${CAMPOS_IDENTIDAD()}
+ ${fg('¿Cómo nos conociste?', true, sel('ex-como', ['Redes sociales','Un amigo o colega','Correo electronico','Cartel o afiche','Otro']))}
+ ${fg('¿A qué te dedicas?', true, inp('ex-ocupacion', 'text', 'Ej: Emprendedor, Entusiasta de tecnologia...'))}
+ </div>`,
+
+ colegio: () => `
+ <div class="card">
+ <div class="card-title">Datos del tutor responsable</div>
+ ${row(
+ fg('Nombre del tutor', true, inp('inp-nombre', 'text', 'Ej: Carlos', 'autocomplete="given-name"')),
+ fg('Apellido del tutor', true, inp('inp-apellido', 'text', 'Ej: López', 'autocomplete="family-name"'))
+ )}
+ ${fg('Cédula del tutor', true, inp('inp-cedula', 'text', 'Ej: 8-888-8888', 'autocomplete="off"'))}
+ ${fg('Correo del tutor', true, inp('inp-correo', 'email', 'tutor@colegio.edu.pa', 'autocomplete="email"'))}
+ ${fg('Teléfono del tutor', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
+ ${fg('Nombre del colegio', true, inp('inp-colegio', 'text', 'Ej: Instituto Nacional'))}
+
+ <div style="margin-top:16px;">
+ <div class="estudiantes-header">
+ <div class="estudiantes-titulo">Estudiantes del grupo</div>
+ <button class="btn-add-estudiante" id="btn-add-estudiante" type="button">+ Agregar estudiante</button>
+ </div>
+ <div id="lista-estudiantes"></div>
+ <div class="colegio-precio-box" id="colegio-precio-box">
+ <div class="cpb-fila"><span>Tutor</span><span>$${PRECIO_COLEGIO}.00</span></div>
+ <div id="cpb-estudiantes-fila" class="cpb-fila" style="display:none;"><span id="cpb-est-label">Estudiantes</span><span id="cpb-est-monto">$0.00</span></div>
+ <div class="cpb-fila total"><span>Total a pagar</span><span id="cpb-total">$${PRECIO_COLEGIO}.00</span></div>
+ </div>
+ <div class="estudiantes-nota">
+ El tutor paga por todo el grupo con un solo comprobante ($${PRECIO_COLEGIO} por persona). Cada estudiante recibirá su credencial y QR en su correo personal.
+ </div>
+ </div>
+ </div>`,
+};
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+let pasoActual = 1;
+let categoriaSeleccionada = null;
+let metodoPago = null;
+let archivoComprobante = null;
+let contadorEstudiantes = 0;
+
+const el = id => document.getElementById(id);
+
+function mostrarAlerta(tipo, msg) {
+ const div = el('alerta-global');
+ div.className = `alerta alerta-${tipo} show`;
+ div.textContent = msg;
+ div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+ if (tipo !== 'error') setTimeout(() => div.classList.remove('show'), 5000);
+}
+function limpiarAlerta() { el('alerta-global').classList.remove('show'); }
+
+// ─── RENDER CATEGORÍAS ────────────────────────────────────────────────────────
+function renderCategorias() {
+ el('cat-grid').innerHTML = CATEGORIAS.map(cat => {
+ const precioLabel = cat.id === 'colegio'
+ ? `$${PRECIO_COLEGIO}/persona`
+ : `$${cat.precio}.00`;
+ return `<div class="cat-card" data-id="${cat.id}">
+ <div class="cat-label">${cat.label}</div>
+ <div class="cat-precio">${precioLabel}</div>
+ </div>`;
+ }).join('');
+ document.querySelectorAll('.cat-card').forEach(card => {
+ card.addEventListener('click', () => seleccionarCategoria(card.dataset.id));
+ });
+}
+
+function seleccionarCategoria(id) {
+ categoriaSeleccionada = CATEGORIAS.find(c => c.id === id);
+ document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('seleccionada'));
+ document.querySelector(`.cat-card[data-id="${id}"]`).classList.add('seleccionada');
+ limpiarAlerta();
+}
+
+renderCategorias();
+
+// ─── RENDER FORMULARIO PASO 2 ─────────────────────────────────────────────────
+function renderFormulario() {
+ const id = categoriaSeleccionada.id;
+ el('formulario-dinamico').innerHTML = FORMULARIOS[id] ? FORMULARIOS[id]() : FORMULARIOS.otros();
+
+ // Si es colegio, conectar lógica de estudiantes
+ if (id === 'colegio') {
+ el('btn-add-estudiante').addEventListener('click', agregarEstudiante);
+ // Mostrar caja de precio con al menos el tutor
+ actualizarPrecioColegio();
+ el('colegio-precio-box').classList.add('visible');
+ // Agregar un estudiante inicial
+ agregarEstudiante();
+ }
+
+ // Conectar validación inline del campo GMAIL para categorías UTP
+ conectarValidacionGmail();
+}
+
+// ─── PRECIO DINÁMICO COLEGIO ──────────────────────────────────────────────────
+function actualizarPrecioColegio() {
+ const box = el('colegio-precio-box');
+ if (!box) return;
+ const numEstudiantes = document.querySelectorAll('.estudiante-item').length;
+ const montoEst = numEstudiantes * PRECIO_COLEGIO;
+ const total = PRECIO_COLEGIO + montoEst; // tutor + estudiantes
+
+ const filaEst = el('cpb-estudiantes-fila');
+ if (filaEst) {
+ filaEst.style.display = numEstudiantes > 0 ? 'flex' : 'none';
+ const label = el('cpb-est-label');
+ const monto = el('cpb-est-monto');
+ if (label) label.textContent = `${numEstudiantes} estudiante${numEstudiantes !== 1 ? 's' : ''}`;
+ if (monto) monto.textContent = `$${montoEst}.00`;
+ }
+ const totalEl = el('cpb-total');
+ if (totalEl) totalEl.textContent = `$${total}.00`;
+
+ // Sincronizar el monto que se muestra en paso 3 (transferencia)
+ const montoTrans = el('monto-transferencia');
+ if (montoTrans && metodoPago) montoTrans.textContent = `$${total}.00`;
+}
+
+// ─── ESTUDIANTES ──────────────────────────────────────────────────────────────
+function agregarEstudiante() {
+ contadorEstudiantes++;
+ const idx = contadorEstudiantes;
+ const lista = el('lista-estudiantes');
+ if (!lista) return;
+ const div = document.createElement('div');
+ div.className = 'estudiante-item';
+ div.id = `est-${idx}`;
+ div.innerHTML = `
+ <div class="estudiante-num">Estudiante ${idx}</div>
+ <button class="btn-remove-estudiante" type="button">×</button>
+ <div class="form-row">
+ <div class="form-group"><label>Nombre <span class="req">*</span></label><input type="text" id="est-${idx}-nombre" placeholder="Nombre"/></div>
+ <div class="form-group"><label>Apellido <span class="req">*</span></label><input type="text" id="est-${idx}-apellido" placeholder="Apellido"/></div>
+ </div>
+ <div class="form-row">
+ <div class="form-group"><label>Correo personal <span class="req">*</span></label><input type="email" id="est-${idx}-correo" placeholder="correo@ejemplo.com"/></div>
+ <div class="form-group"><label>Cédula (opcional)</label><input type="text" id="est-${idx}-cedula" placeholder="8-888-8888"/></div>
+ </div>
+ <div class="form-row">
+ <div class="form-group"><label>Grado <span class="req">*</span></label>
+ <select id="est-${idx}-grado"><option value="">Selecciona</option>
+ <option>7mo grado</option><option>8vo grado</option><option>9no grado</option>
+ <option>10mo grado</option><option>11mo grado</option><option>12mo grado</option>
+ </select></div>
+ <div class="form-group"><label>Bachiller <span class="req">*</span></label>
+ <select id="est-${idx}-bachiller"><option value="">Selecciona</option>
+ ${BACHILLERES.map(b => `<option>${b}</option>`).join('')}
+ </select></div>
+ </div>`;
+ lista.prepend(div);
+ actualizarNumerosEstudiantes();
+ actualizarPrecioColegio();
+ div.querySelector('.btn-remove-estudiante').addEventListener('click', () => {
+ div.remove();
+ actualizarNumerosEstudiantes();
+ actualizarPrecioColegio();
+ });
+ div.querySelector(`#est-${idx}-nombre`)?.focus();
+}
+
+function actualizarNumerosEstudiantes() {
+ const items = Array.from(document.querySelectorAll('.estudiante-item'));
+ const total = items.length;
+ items.forEach((item, i) => {
+ const numEl = item.querySelector('.estudiante-num');
+ if (numEl) numEl.textContent = `Estudiante ${total - i}`;
+ });
+}
+
+function recogerEstudiantes() {
+ return Array.from(document.querySelectorAll('.estudiante-item')).map(item => {
+ const idx = item.id.replace('est-', '');
+ return {
+ nombre: (el(`est-${idx}-nombre`)?.value || '').trim(),
+ apellido: (el(`est-${idx}-apellido`)?.value || '').trim(),
+ correo: (el(`est-${idx}-correo`)?.value || '').trim().toLowerCase(),
+ cedula: (el(`est-${idx}-cedula`)?.value || '').trim(),
+ grado: (el(`est-${idx}-grado`)?.value || '').trim(),
+ bachiller: (el(`est-${idx}-bachiller`)?.value || '').trim(),
+ };
+ }).filter(e => e.nombre && e.correo);
+}
+
+// ─── RECOGER CAMPOS EXTRA ─────────────────────────────────────────────────────
+function recogerCamposExtra() {
+ const ids = ['ex-correo-inst','ex-centro','ex-facultad','ex-carrera','ex-anio',
+ 'ex-universidad','ex-rol','ex-departamento','ex-empresa','ex-cargo',
+ 'ex-area','ex-titulo-paper','ex-modalidad','ex-coautores',
+ 'ex-como','ex-ocupacion'];
+ const datos = {};
+ ids.forEach(id => { const e = el(id); if (e) datos[id.replace('ex-', '')] = e.value.trim(); });
+ return datos;
+}
+
+// ─── VALIDACIÓN PASO 2 ────────────────────────────────────────────────────────
+function validarPaso2() {
+ const id = categoriaSeleccionada.id;
+
+ // Campos de identidad comunes (nombre, apellido, cedula, correo, telefono)
+ const nombre = (el('inp-nombre')?.value || '').trim();
+ const apellido = (el('inp-apellido')?.value || '').trim();
+ const cedula = (el('inp-cedula')?.value || '').trim();
+ const correo = (el('inp-correo')?.value || '').trim();
+ const tel = (el('inp-telefono')?.value || '').trim();
+
+ if (!nombre) { mostrarAlerta('error', 'El nombre es obligatorio.'); el('inp-nombre')?.focus(); return false; }
+ if (!apellido) { mostrarAlerta('error', 'El apellido es obligatorio.'); el('inp-apellido')?.focus(); return false; }
+ if (!cedula) { mostrarAlerta('error', 'La cédula o pasaporte es obligatorio.'); el('inp-cedula')?.focus(); return false; }
+ if (!correo || !correo.includes('@')){ mostrarAlerta('error', 'Ingresa un correo válido.'); el('inp-correo')?.focus(); return false; }
+ if (!tel) { mostrarAlerta('error', 'El teléfono es obligatorio.'); el('inp-telefono')?.focus(); return false; }
+
+ // Campos extra por categoría
+ const reqs = {
+ estudiante_utp: ['ex-correo-inst','ex-centro','ex-facultad','ex-carrera','ex-anio'],
+ estudiante_externo:['ex-universidad','ex-correo-inst','ex-carrera','ex-anio'],
+ academico_utp: ['ex-correo-inst','ex-centro','ex-facultad','ex-rol'],
+ academico_externo: ['ex-universidad','ex-correo-inst','ex-rol'],
+ profesional: ['ex-empresa'],
+ autor: ['ex-correo-inst','ex-titulo-paper','ex-universidad','ex-modalidad'],
+ otros: ['ex-como','ex-ocupacion'],
+ colegio: ['inp-colegio'],
+ };
+ for (const fId of (reqs[id] || [])) {
+ const e = el(fId);
+ if (!e || !e.value.trim()) {
+ mostrarAlerta('error', 'Completa todos los campos obligatorios.');
+ e?.focus();
+ return false;
+ }
+ }
+
+ // Validación específica de colegio
+ if (id === 'colegio') {
+ const ests = recogerEstudiantes();
+ if (ests.length === 0) { mostrarAlerta('error', 'Agrega al menos un estudiante al grupo.'); return false; }
+ for (const est of ests) {
+ if (!est.nombre || !est.apellido) { mostrarAlerta('error', 'Todos los estudiantes deben tener nombre y apellido.'); return false; }
+ if (!est.correo) { mostrarAlerta('error', 'Todos los estudiantes deben tener correo.'); return false; }
+ if (!est.grado) { mostrarAlerta('error', 'Selecciona el grado de cada estudiante.'); return false; }
+ if (!est.bachiller) { mostrarAlerta('error', 'Selecciona el bachiller de cada estudiante.'); return false; }
+ }
+ }
+ return true;
+}
+
+// ─── CALCULAR MONTO TOTAL ─────────────────────────────────────────────────────
+function calcularMonto() {
+ if (!categoriaSeleccionada) return 0;
+ if (categoriaSeleccionada.id === 'colegio') {
+ const numEst = recogerEstudiantes().length;
+ return PRECIO_COLEGIO * (1 + numEst); // tutor + estudiantes
+ }
+ return categoriaSeleccionada.precio || 0;
+}
+
+// ─── PAGO ─────────────────────────────────────────────────────────────────────
+function actualizarMontoPago() {
+ const monto = calcularMonto();
+ const montoEl = el('monto-transferencia');
+ if (montoEl) montoEl.textContent = monto === 0 ? 'Gratuito' : `$${monto}.00`;
+}
+
+function seleccionarPago(metodo) {
+ metodoPago = metodo;
+ el('opt-pago-transferencia').classList.toggle('seleccionada', metodo === 'transferencia');
+ el('opt-pago-efectivo').classList.toggle('seleccionada', metodo === 'efectivo');
+ el('info-transferencia').classList.toggle('visible', metodo === 'transferencia');
+ el('info-efectivo').classList.toggle('visible', metodo === 'efectivo');
+ actualizarMontoPago();
+}
+
+el('opt-pago-transferencia').addEventListener('click', () => seleccionarPago('transferencia'));
+el('opt-pago-efectivo').addEventListener('click', () => seleccionarPago('efectivo'));
+
+// Upload comprobante
+const uploadZone = el('upload-zone-comp');
+uploadZone.addEventListener('click', () => el('inp-comprobante').click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+ e.preventDefault(); uploadZone.classList.remove('dragover');
+ if (e.dataTransfer.files[0]) asignarArchivo(e.dataTransfer.files[0]);
+});
+el('inp-comprobante').addEventListener('change', e => { if (e.target.files[0]) asignarArchivo(e.target.files[0]); });
+el('btn-quitar-archivo').addEventListener('click', () => {
+ archivoComprobante = null;
+ el('upload-preview').classList.remove('visible');
+ el('inp-comprobante').value = '';
+});
+function asignarArchivo(f) {
+ if (f.size > 10 * 1024 * 1024) { mostrarAlerta('error', 'El archivo no debe superar 10 MB.'); return; }
+ archivoComprobante = f;
+ el('up-nombre-archivo').textContent = f.name;
+ el('upload-preview').classList.add('visible');
+}
+
+// ─── VALIDACIÓN PASO 3 ────────────────────────────────────────────────────────
+function validarPaso3() {
+ if (!metodoPago) { mostrarAlerta('error', 'Selecciona un método de pago.'); return false; }
+ if (metodoPago === 'transferencia' && !archivoComprobante){ mostrarAlerta('error', 'Adjunta el comprobante de tu transferencia.'); return false; }
+ return true;
+}
+
+// ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
+function irAPaso(nuevo) {
+ limpiarAlerta();
+ el(`panel-${pasoActual}`).classList.remove('activo');
+ el(`step-ind-${pasoActual}`).classList.remove('activo');
+ if (nuevo > pasoActual) el(`step-ind-${pasoActual}`).classList.add('completado');
+ if (nuevo < pasoActual) {
+ for (let i = nuevo; i <= pasoActual; i++) el(`step-ind-${i}`).classList.remove('completado');
+ }
+ pasoActual = nuevo;
+ el(`panel-${pasoActual}`).classList.add('activo');
+ el(`step-ind-${pasoActual}`).classList.add('activo');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── VALIDACIÓN INLINE GMAIL (@utp.ac.pa) ────────────────────────────────────
+// Solo aplica al campo inp-correo en categorías estudiante_utp / academico_utp.
+// Se conecta cada vez que se renderiza el formulario (en renderFormulario).
+function conectarValidacionGmail() {
+ const inpCorreo = el('inp-correo');
+ if (!inpCorreo) return;
+ const cats = ['estudiante_utp', 'academico_utp'];
+ if (!categoriaSeleccionada || !cats.includes(categoriaSeleccionada.id)) return;
+
+ // Crear o reutilizar aviso
+ let aviso = document.getElementById('aviso-gmail-utp');
+ if (!aviso) {
+ aviso = document.createElement('p');
+ aviso.id = 'aviso-gmail-utp';
+ aviso.style.cssText = 'font-size:12px;color:var(--amarillo);margin-top:4px;display:none;line-height:1.4;';
+ aviso.textContent = ' Este campo debe ser tu GMAIL, no tu correo @utp.ac.pa. Usa el campo de abajo para el correo institucional.';
+ inpCorreo.parentNode.appendChild(aviso);
+ }
+
+ inpCorreo.addEventListener('input', function() {
+ const val = this.value.trim().toLowerCase();
+ aviso.style.display = val.endsWith('@utp.ac.pa') ? 'block' : 'none';
+ });
+ inpCorreo.addEventListener('blur', function() {
+ const val = this.value.trim().toLowerCase();
+ aviso.style.display = val.endsWith('@utp.ac.pa') ? 'block' : 'none';
+ });
+}
+
+el('btn-paso1').addEventListener('click', () => {
+ if (!categoriaSeleccionada) { mostrarAlerta('error', 'Selecciona tu categoría de participante.'); return; }
+ renderFormulario();
+ irAPaso(2);
+});
+el('btn-paso2').addEventListener('click', () => { if (validarPaso2()) { actualizarMontoPago(); renderResumen(); irAPaso(3); } });
+el('btn-paso3').addEventListener('click', () => { if (validarPaso3()) { renderResumen(); irAPaso(4); } });
+el('btn-atras-2').addEventListener('click', () => irAPaso(1));
+el('btn-atras-3').addEventListener('click', () => irAPaso(2));
+el('btn-atras-4').addEventListener('click', () => irAPaso(3));
+
+// ─── RESUMEN ─────────────────────────────────────────────────────────────────
+function renderResumen() {
+ const nombre = `${(el('inp-nombre')?.value || '').trim()} ${(el('inp-apellido')?.value || '').trim()}`.trim();
+ const monto = calcularMonto();
+ const isColegio = categoriaSeleccionada.id === 'colegio';
+ const ests = isColegio ? recogerEstudiantes() : [];
+ const precioStr = `$${monto}.00`;
+
+ el('resumen-card').innerHTML = `
+ <div class="resumen-titulo">Resumen de inscripcion</div>
+ <div class="resumen-fila"><span class="rf-label">Nombre</span><span class="rf-valor">${nombre}</span></div>
+ <div class="resumen-fila"><span class="rf-label">Cédula</span><span class="rf-valor">${(el('inp-cedula')?.value || '').trim() || '—'}</span></div>
+ <div class="resumen-fila"><span class="rf-label">Correo</span><span class="rf-valor" style="font-size:13px;">${(el('inp-correo')?.value || '').trim()}</span></div>
+ <div class="resumen-fila"><span class="rf-label">Categoría</span><span class="rf-valor">${categoriaSeleccionada.label}</span></div>
+ ${isColegio ? `<div class="resumen-fila"><span class="rf-label">Grupo</span><span class="rf-valor">Tutor + ${ests.length} estudiante${ests.length !== 1 ? 's' : ''}</span></div>` : ''}
+ <div class="resumen-fila"><span class="rf-label">Pago</span><span class="rf-valor">${metodoPago === 'transferencia' ? 'Transferencia' : 'Efectivo'}</span></div>
+ <div class="resumen-total"><span class="rt-label">Total</span><span class="rt-precio">${precioStr}</span></div>`;
+}
+
+// ─── CONFIRMAR ───────────────────────────────────────────────────────────────
+let enviando = false;
+
+el('btn-confirmar').addEventListener('click', async () => {
+ if (enviando) return;
+ enviando = true;
+ el('btn-confirmar').disabled = true;
+ el('btn-confirmar-txt').style.display = 'none';
+ el('spinner-confirmar').style.display = 'block';
+ limpiarAlerta();
+
+ try {
+ // Importar solo la función que necesitamos — la Cloud Function hace todo el trabajo
+ const { registrarParticipante, archivoABase64 } =
+ await import('../js/core/participantes-api.js');
+
+ const correo = (el('inp-correo')?.value || '').trim().toLowerCase();
+ const cedula = (el('inp-cedula')?.value || '').trim();
+ const isColegio = categoriaSeleccionada.id === 'colegio';
+
+ // Convertir comprobante a base64 para enviarlo a la Cloud Function
+ let comprobanteBase64 = null;
+ let comprobanteContentType = null;
+ let comprobanteNombre = null;
+ if (metodoPago === 'transferencia' && archivoComprobante) {
+ comprobanteBase64 = await archivoABase64(archivoComprobante);
+ comprobanteContentType = archivoComprobante.type;
+ comprobanteNombre = archivoComprobante.name;
+ }
+
+ const tutorData = isColegio ? {
+ nombre: (el('inp-nombre')?.value || '').trim(),
+ apellido: (el('inp-apellido')?.value || '').trim(),
+ correo: correo,
+ telefono: (el('inp-telefono')?.value || '').trim(),
+ colegio: (el('inp-colegio')?.value || '').trim(),
+ } : null;
+
+ const monto = calcularMonto();
+
+ // La Cloud Function recibe: datos personales + camposExtra + comprobante en base64
+ // Ella misma sube el comprobante a Storage y maneja todo en Firestore
+ const resultado = await registrarParticipante({
+ nombre: (el('inp-nombre')?.value || '').trim(),
+ apellido: (el('inp-apellido')?.value || '').trim(),
+ cedula,
+ correo,
+ telefono: (el('inp-telefono')?.value || '').trim(),
+ categoria: isColegio ? 'colegio' : categoriaSeleccionada.id,
+ categoriaNombre: isColegio ? 'Colegio' : categoriaSeleccionada.label,
+ monto,
+ metodoPago,
+ esColegio: isColegio,
+ tutor: tutorData,
+ estudiantes: isColegio ? recogerEstudiantes() : [],
+ camposExtra: recogerCamposExtra(),
+ comprobanteBase64,
+ comprobanteContentType,
+ comprobanteNombre,
+ });
+
+ // Pantalla de éxito
+ document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('activo'));
+ document.querySelector('.steps-wrap').style.display = 'none';
+ el('exito-wrap').classList.add('visible');
+ el('exito-codigo').textContent = resultado.codigo;
+ el('exito-correo').textContent = resultado.correo;
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+
+ } catch (err) {
+ mostrarAlerta('error', err.message || 'Ocurrio un error al registrar. Intenta de nuevo.');
+ el('btn-confirmar').disabled = false;
+ el('btn-confirmar-txt').style.display = 'inline';
+ el('spinner-confirmar').style.display = 'none';
+ enviando = false;
+ }
+});
+</script>
+</body>
+</html>

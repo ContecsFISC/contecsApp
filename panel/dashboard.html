@@ -1,0 +1,527 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Panel Principal</title>
+  <link rel="stylesheet" href="../css/styles.css"/>
+  <style>
+    /* ══════════ ZONA A — HEADER ══════════ */
+    .header-a {
+      background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
+      color: var(--blanco);
+      border-radius: var(--radio-lg);
+      padding: 22px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 28px rgba(4,82,35,0.30);
+      position: relative;
+      overflow: hidden;
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation-delay: 0.05s;
+    }
+    .header-a::after {
+      content: '';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 72px;
+      height: 72px;
+      background: url('../logocontecs.png') center/contain no-repeat;
+      opacity: 0.16;
+    }
+    .header-a .saludo { font-size: 13px; opacity: 0.8; }
+    .header-a .nombre { font-size: 21px; font-weight: 700; margin: 3px 0 10px; }
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rol-pill {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .nivel-pill {
+      display: inline-block;
+      background: rgba(57,181,74,0.3);
+      border: 1px solid rgba(57,181,74,0.4);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    .cuenta-regresiva {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .cuenta-regresiva .cr-label { font-size: 12px; opacity: 0.85; }
+    .cuenta-regresiva .cr-valor { font-size: 16px; font-weight: 700; }
+
+    /* ══════════ ZONA B — WIDGETS ══════════ */
+    .widgets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .widget-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-left: 3px solid var(--verde-claro);
+      animation: cardCascade 0.45s var(--ease-spring) both;
+    }
+    .widget-card:nth-child(1) { animation-delay: 0.10s; }
+    .widget-card:nth-child(2) { animation-delay: 0.16s; }
+    .widget-card:nth-child(3) { animation-delay: 0.22s; }
+    .widget-card:nth-child(4) { animation-delay: 0.28s; }
+    .widget-label  { font-size: 12px; color: var(--gris-medio); margin-bottom: 4px; }
+    .widget-valor  { font-size: 19px; font-weight: 700; color: var(--verde); }
+    .widget-alerta { font-size: 19px; font-weight: 700; color: var(--rojo); }
+    .widget-ok     { font-size: 15px; font-weight: 700; color: var(--verde-claro); }
+
+    /* ══════════ ZONA C — PRÓXIMOS EVENTOS ══════════ */
+    .eventos-lista { display: flex; flex-direction: column; gap: 8px; }
+    .evento-item {
+      background: #fff;
+      border-radius: var(--radio-sm);
+      padding: 12px 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid var(--verde-claro);
+      animation: cardCascade 0.4s var(--ease-spring) both;
+    }
+    .evento-item .evt-icono { font-size: 20px; }
+    .evento-item .evt-info  { flex: 1; min-width: 0; }
+    .evento-item .evt-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
+    .evento-item .evt-fecha  { font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+    .pill-en-vivo {
+      background: var(--rojo-fondo);
+      color: var(--rojo);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      animation: pulseSoft 1.6s ease-in-out infinite;
+    }
+    .sin-eventos {
+      text-align: center;
+      color: var(--gris-medio);
+      font-size: 13px;
+      padding: 18px 0;
+    }
+
+    /* ══════════ ZONA D — MÓDULOS POR CATEGORÍA ══════════ */
+    .categoria-bloque { margin-bottom: 6px; }
+    .categoria-titulo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gris-medio);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin: 20px 0 10px;
+    }
+    .grid-modulos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .modulo-btn {
+      background: #fff;
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      padding: 22px 14px 18px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 3px solid var(--verde-claro);
+      opacity: 0;
+      animation: cardCascade 0.42s var(--ease-spring) both;
+      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+    }
+    .modulo-btn:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 28px rgba(0,114,46,0.18);
+    }
+    .modulo-btn:active {
+      transform: scale(0.94) !important;
+      transition-duration: 0.08s;
+    }
+    .modulo-btn .icono { font-size: 30px; line-height: 1; }
+    .modulo-btn .label { font-size: 13px; font-weight: 600; color: var(--gris-texto); line-height: 1.3; }
+    .modulo-btn.mod-admin { border-bottom-color: var(--verde-oscuro); }
+
+    /* ══════════ SIN ROL ══════════ */
+    .sin-rol-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-top: 4px solid var(--amarillo);
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation-delay: 0.1s;
+    }
+    .sin-rol-card .icono { font-size: 48px; margin-bottom: 12px; }
+    .sin-rol-card h3 { font-size: 17px; color: var(--gris-texto); margin-bottom: 8px; }
+    .sin-rol-card p  { font-size: 14px; color: var(--gris-medio); line-height: 1.5; }
+
+    @media (max-width: 400px) {
+      .widgets-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>CONTECS</h1>
+    <button class="btn-logout" id="btn-logout">Salir</button>
+  </div>
+
+  <div class="container">
+    <!-- ZONA A — Header -->
+    <div class="header-a">
+      <div class="saludo">Bienvenido,</div>
+      <div class="nombre" id="nombre-usuario">...</div>
+      <div class="pills">
+        <span class="rol-pill"  id="rol-label">...</span>
+        <span class="nivel-pill" id="nivel-label"></span>
+      </div>
+      <div class="cuenta-regresiva" id="cuenta-regresiva-wrap">
+        <span class="cr-label">🎉 CONTECS 2026 en</span>
+        <span class="cr-valor" id="cr-valor">Cargando...</span>
+      </div>
+    </div>
+
+    <div id="contenido-principal"></div>
+  </div>
+
+  <script type="module">
+    import { guardRoute, getUsuarioActual, cerrarSesion } from "../js/core/auth.js";
+    import { tienePermiso, infoRol } from "../js/core/permisos.js";
+    import { formatearMoneda } from "../js/core/operaciones.js";
+    import { db } from "../js/core/firebase-config.js";
+    import {
+      doc, getDoc, onSnapshot, collection, query, where, getDocs
+    } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+    function manejarErrorSnapshot(error, contexto) {
+      if (error?.code === "permission-denied" || error?.code === "firestore/permission-denied") {
+        console.warn(`[Dashboard] Firestore denegó el listener en ${contexto}. Revisa las reglas de seguridad.`, error);
+        return;
+      }
+      console.error(`[Dashboard] Error en listener ${contexto}:`, error);
+    }
+
+    guardRoute();
+
+    const usuario = getUsuarioActual();
+    const rol     = usuario.rol || "sin_rol";
+    const info    = infoRol(rol);
+
+    document.getElementById("nombre-usuario").textContent = usuario.nombre || "Usuario";
+    document.getElementById("rol-label").textContent      = info.label || "Sin rol";
+    document.getElementById("nivel-label").textContent    = info.nivel ? `Nivel ${info.nivel}` : "";
+
+    // ── Cuenta regresiva al evento (19 de octubre de 2026) — siempre visible en Zona A ──
+    const calcularCuentaRegresiva = () => {
+      const ahora = new Date();
+      const evento = new Date(2026, 9, 19, 0, 0, 0);
+      const diferencia = evento - ahora;
+      const el = document.getElementById("cr-valor");
+
+      if (diferencia > 0) {
+        const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+        el.textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+      } else if (diferencia >= -86400000) {
+        el.textContent = "¡Evento en curso!";
+      } else {
+        el.textContent = "Evento pasado";
+      }
+    };
+    calcularCuentaRegresiva();
+    setInterval(calcularCuentaRegresiva, 1000);
+
+    const contenido = document.getElementById("contenido-principal");
+
+    if (rol === "sin_rol") {
+      contenido.innerHTML = `
+        <div class="sin-rol-card">
+          <div class="icono">⏳</div>
+          <h3>Acceso pendiente de activación</h3>
+          <p>Tu cuenta fue registrada correctamente.<br>Un administrador de CONTECS te asignará un rol — <strong>entrarás automáticamente</strong> en cuanto sea activado.</p>
+          <div style="margin-top:16px;">
+            <div class="spinner" style="margin:0 auto;"></div>
+            <p style="font-size:12px;color:var(--gris-medio);margin-top:10px;">Esperando activación...</p>
+          </div>
+        </div>`;
+
+      const refreshRol = async () => {
+        try {
+          const snap = await getDoc(doc(db, "usuarios", usuario.uid));
+          if (!snap.exists()) return;
+          const nuevoRol = snap.data().rol || "sin_rol";
+          if (nuevoRol !== "sin_rol") {
+            sessionStorage.setItem("rol", nuevoRol);
+            window.location.reload();
+          }
+        } catch (error) {
+          manejarErrorSnapshot(error, "usuarios/{uid} refresh");
+        }
+      };
+      setInterval(refreshRol, 30000);
+      refreshRol();
+
+    } else {
+
+      // ══════════ ZONA B — Widgets de resumen según rol ══════════
+      const widgetsDef = [
+        {
+          permiso: "ver_fondos",
+          label: "🪙 Balance de fondos",
+          id: "widget-fondos",
+          init: (valEl) => {
+            onSnapshot(doc(db, "fondos", "principal"), (snap) => {
+              const data = snap.exists() ? snap.data() : { balance: 0 };
+              valEl.textContent = formatearMoneda(Number(data.balance || 0));
+              valEl.className = "widget-valor";
+            }, (error) => {
+              valEl.textContent = "No disponible";
+              manejarErrorSnapshot(error, "fondos/principal");
+            });
+          }
+        },
+        {
+          permiso: "ver_inventario",
+          label: "⚠️ Stock bajo",
+          id: "widget-stock",
+          init: (valEl) => {
+            onSnapshot(
+              query(collection(db, "productos"), where("activo", "==", true)),
+              (snap) => {
+                let bajos = 0;
+                snap.forEach(d => { const p = d.data(); if ((p.stock ?? 0) <= (p.alertaMinima ?? 0)) bajos++; });
+                valEl.textContent = bajos === 0 ? "Todo OK" : `${bajos} producto${bajos > 1 ? "s" : ""}`;
+                valEl.className = bajos === 0 ? "widget-ok" : "widget-alerta";
+              },
+              (error) => {
+                valEl.textContent = "No disponible";
+                manejarErrorSnapshot(error, "productos activos");
+              }
+            );
+          }
+        },
+        {
+          permiso: "ver_participantes",
+          label: "🎟️ Inscripciones pendientes",
+          id: "widget-inscripciones",
+          init: async (valEl) => {
+            try {
+              const snap = await getDocs(collection(db, "participantes"));
+              let pendientes = 0;
+              snap.forEach(d => {
+                const estado = d.data().pago?.estado;
+                if (estado === "pendiente_efectivo" || estado === "comprobante_enviado") pendientes++;
+              });
+              valEl.textContent = pendientes === 0 ? "Al día" : `${pendientes} por revisar`;
+              valEl.className = pendientes === 0 ? "widget-ok" : "widget-alerta";
+            } catch (error) {
+              valEl.textContent = "No disponible";
+              manejarErrorSnapshot(error, "participantes pendientes");
+            }
+          }
+        },
+        {
+          permiso: "gestionar_voluntarios",
+          label: "🤝 Voluntarios registrados",
+          id: "widget-voluntarios",
+          init: async (valEl) => {
+            try {
+              const snap = await getDocs(collection(db, "voluntarios"));
+              valEl.textContent = String(snap.size);
+              valEl.className = "widget-valor";
+            } catch (error) {
+              valEl.textContent = "No disponible";
+              manejarErrorSnapshot(error, "voluntarios");
+            }
+          }
+        },
+      ].filter(w => tienePermiso(rol, w.permiso));
+
+      if (widgetsDef.length > 0) {
+        const widgetsEl = document.createElement("div");
+        widgetsEl.className = "widgets-grid";
+        widgetsEl.style.marginBottom = "16px";
+        widgetsEl.innerHTML = widgetsDef.map(w => `
+          <div class="widget-card">
+            <div class="widget-label">${w.label}</div>
+            <div class="widget-valor" id="${w.id}">Cargando...</div>
+          </div>`).join("");
+        contenido.appendChild(widgetsEl);
+        widgetsDef.forEach(w => w.init(document.getElementById(w.id)));
+      }
+
+      // ══════════ ZONA C — Próximos eventos (7 días) ══════════
+      if (tienePermiso(rol, "ver_calendario")) {
+        const tituloEventos = document.createElement("div");
+        tituloEventos.className = "seccion-titulo";
+        tituloEventos.textContent = "Próximos eventos";
+        contenido.appendChild(tituloEventos);
+
+        const eventosWrap = document.createElement("div");
+        eventosWrap.className = "eventos-lista";
+        eventosWrap.innerHTML = `<div class="sin-eventos">Cargando eventos...</div>`;
+        contenido.appendChild(eventosWrap);
+
+        (async () => {
+          try {
+            const leer = async (nombreColeccion, tipo, icono) => {
+              const snap = await getDocs(collection(db, nombreColeccion));
+              return snap.docs.map(d => ({ id: d.id, ...d.data(), tipo, icono }));
+            };
+            const [actividades, giras, ventas] = await Promise.all([
+              leer("actividades_voluntarios", "actividad", "🎯"),
+              leer("giras_voluntarios", "gira", "🚌"),
+              leer("actividades_ventas", "venta", "💰"),
+            ]);
+
+            const ahora = new Date();
+            const limite = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+            const proximos = [...actividades, ...giras, ...ventas]
+              .filter(e => e.activo !== false)
+              .map(e => ({ ...e, _fecha: e.fecha?.toDate ? e.fecha.toDate() : new Date(e.fecha || 0) }))
+              .filter(e => e._fecha >= new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()) && e._fecha <= limite)
+              .sort((a, b) => a._fecha - b._fecha)
+              .slice(0, 8);
+
+            if (proximos.length === 0) {
+              eventosWrap.innerHTML = `<div class="sin-eventos">No hay eventos programados en los próximos 7 días.</div>`;
+              return;
+            }
+
+            eventosWrap.innerHTML = proximos.map(e => {
+              const esHoy = e._fecha.toDateString() === ahora.toDateString();
+              let enVivo = false;
+              if (esHoy && Array.isArray(e.turnos)) {
+                enVivo = e.turnos.some(t => {
+                  if (!t.horaInicio || !t.horaFin) return false;
+                  const hoyStr = ahora.toTimeString().slice(0, 5);
+                  return hoyStr >= t.horaInicio && hoyStr <= t.horaFin;
+                });
+              }
+              const fechaTexto = e._fecha.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
+              return `
+                <div class="evento-item">
+                  <span class="evt-icono">${e.icono}</span>
+                  <div class="evt-info">
+                    <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
+                    <div class="evt-fecha">${esHoy ? "Hoy" : fechaTexto}${e.lugar ? " · " + e.lugar : ""}</div>
+                  </div>
+                  ${enVivo ? `<span class="pill-en-vivo">● EN VIVO</span>` : ""}
+                </div>`;
+            }).join("");
+          } catch (error) {
+            eventosWrap.innerHTML = `<div class="sin-eventos">No se pudieron cargar los eventos.</div>`;
+            manejarErrorSnapshot(error, "próximos eventos (zona C)");
+          }
+        })();
+      }
+
+      // ══════════ ZONA D — Módulos agrupados por categoría ══════════
+      const CATEGORIAS = [
+        {
+          id: "congreso", label: "Congreso", icono: "🎓",
+          modulos: [
+            { label: "Participantes",         icono: "🎟️", href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
+            { label: "Inscripciones",         icono: "🎫", href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
+            { label: "Estadísticas Congreso", icono: "📊", href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_reportes" },
+          ],
+        },
+        {
+          id: "finanzas", label: "Finanzas", icono: "💰",
+          modulos: [
+            { label: "Fondos",     icono: "🪙", href: "modulos/finanzas/fondos.html",    permiso: "ver_fondos", admin: true },
+            { label: "Ventas",     icono: "🧾", href: "modulos/finanzas/ventas2.html",   permiso: "registrar_ventas" },
+            { label: "Compras",    icono: "🛒", href: "modulos/finanzas/compras2.html",  permiso: "registrar_compras", admin: true },
+            { label: "Reportes",   icono: "📈", href: "modulos/finanzas/reportes.html",  permiso: "ver_reportes" },
+            { label: "Bitácora",   icono: "📋", href: "modulos/finanzas/bitacora.html",  permiso: "ver_bitacora" },
+          ],
+        },
+        {
+          id: "logistica", label: "Logística", icono: "📦",
+          modulos: [
+            { label: "Inventario", icono: "📦", href: "modulos/logistica/inventario.html", permiso: "ver_inventario" },
+            { label: "Catálogo",   icono: "🗂️", href: "modulos/logistica/catalogo.html",   permiso: "editar_catalogo", admin: true },
+          ],
+        },
+        {
+          id: "voluntariado", label: "Voluntariado", icono: "🤝",
+          modulos: [
+            { label: "Voluntarios",  icono: "🤝", href: "modulos/voluntariado/voluntarios.html",  permiso: "gestionar_voluntarios", admin: true },
+            { label: "Actividades",  icono: "🎯", href: "modulos/voluntariado/actividades.html",  permiso: "gestionar_actividades", admin: true },
+            { label: "Giras",        icono: "🚌", href: "modulos/voluntariado/giras.html",        permiso: "gestionar_giras", admin: true },
+            { label: "Calendario",   icono: "📅", href: "modulos/voluntariado/calendario.html",   permiso: "ver_calendario", admin: true },
+          ],
+        },
+        {
+          id: "admin", label: "Administración", icono: "⚙️",
+          modulos: [
+            { label: "Usuarios",  icono: "👥", href: "modulos/admin/usuarios.html",  permiso: "gestionar_usuarios", admin: true },
+            { label: "Exportar",  icono: "📤", href: "modulos/admin/exportar.html",  permiso: "exportar_datos", admin: true },
+          ],
+        },
+      ];
+
+      let animIdx = 0;
+      CATEGORIAS.forEach(cat => {
+        const modulosVisibles = cat.modulos.filter(m => tienePermiso(rol, m.permiso));
+        if (modulosVisibles.length === 0) return; // categoría oculta si el rol no tiene nada dentro
+
+        const bloque = document.createElement("div");
+        bloque.className = "categoria-bloque";
+
+        const titulo = document.createElement("div");
+        titulo.className = "categoria-titulo";
+        titulo.textContent = `${cat.icono} ${cat.label}`;
+        bloque.appendChild(titulo);
+
+        const grid = document.createElement("div");
+        grid.className = "grid-modulos";
+        modulosVisibles.forEach(mod => {
+          const a = document.createElement("a");
+          a.href = mod.href;
+          a.className = "modulo-btn" + (mod.admin ? " mod-admin" : "");
+          a.innerHTML = `<span class="icono">${mod.icono}</span><span class="label">${mod.label}</span>`;
+          a.style.animationDelay = `${0.18 + animIdx * 0.05}s`;
+          animIdx++;
+          grid.appendChild(a);
+        });
+        bloque.appendChild(grid);
+        contenido.appendChild(bloque);
+      });
+    }
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+  </script>
+</body>
+</html>

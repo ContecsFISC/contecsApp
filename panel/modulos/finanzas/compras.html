@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+ <title>CONTECS — Compras</title>
+ <link rel="stylesheet" href="../../../css/styles.css"/>
+ <style>
+ .panel-resumen {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ margin-bottom: 16px;
+ }
+ .resumen-box {
+ background: #fff;
+ border-radius: 14px;
+ padding: 16px;
+ box-shadow: var(--sombra-sm);
+ border-left: 3px solid var(--verde-claro);
+ }
+ .resumen-box .lbl { font-size: 12px; color: var(--gris-medio); margin-bottom: 4px; }
+ .resumen-box .val { font-size: 21px; font-weight: 800; color: var(--verde-oscuro); }
+ .venta-grid, .ajuste-grid {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 10px;
+ }
+ .venta-card, .ajuste-card {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ border-left: 3px solid var(--verde-claro);
+ }
+ .venta-icono, .ajuste-icono { font-size: 28px; line-height: 1; }
+ .venta-info, .ajuste-info { flex: 1; min-width: 0; }
+ .venta-nombre, .ajuste-nombre, .carrito-nombre { font-weight: 700; color: var(--gris-texto); }
+ .venta-meta, .ajuste-meta, .carrito-meta { font-size: 12px; color: var(--gris-medio); }
+ .carrito-item {
+ background: #fff;
+ border-radius: 14px;
+ box-shadow: var(--sombra-sm);
+ padding: 14px;
+ margin-bottom: 10px;
+ }
+ .carrito-campos {
+ display: grid;
+ grid-template-columns: 1fr;
+ gap: 10px;
+ margin-top: 12px;
+ }
+ .factura-box {
+ border: 1px dashed var(--gris-borde);
+ border-radius: 14px;
+ padding: 14px;
+ background: rgba(255,255,255,0.7);
+ }
+ .factura-preview {
+ margin-top: 12px;
+ border-radius: 12px;
+ overflow: hidden;
+ background: #fff;
+ border: 1px solid var(--gris-borde);
+ }
+ .factura-preview img {
+ display: block;
+ width: 100%;
+ max-height: 260px;
+ object-fit: contain;
+ background: #f8f9fb;
+ }
+ .factura-preview-info {
+ padding: 12px 14px;
+ font-size: 13px;
+ color: var(--gris-texto);
+ }
+ .factura-ayuda {
+ margin-top: 8px;
+ font-size: 12px;
+ color: var(--gris-medio);
+ }
+ .carrito-controles { display: flex; gap: 8px; margin-top: 10px; }
+ .chip-btn {
+ border: 1px solid var(--gris-borde);
+ border-radius: 999px;
+ background: #fff;
+ padding: 7px 12px;
+ font-size: 13px;
+ cursor: pointer;
+ }
+ .chip-danger { border-color: rgba(192,57,43,0.25); color: var(--rojo); }
+ .seccion-cat { margin-bottom: 18px; }
+ .seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
+ .campo-error {
+ display: none;
+ color: var(--rojo);
+ font-size: 12px;
+ margin-top: 4px;
+ }
+ .campo-error.show { display: block; }
+ @media (min-width: 680px) {
+ .venta-grid, .ajuste-grid { grid-template-columns: 1fr 1fr; }
+ .panel-resumen { grid-template-columns: 1fr 1fr; }
+ }
+ </style>
+</head>
+<body>
+ <div class="topbar">
+ <h1>Compras</h1>
+ <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+ <div class="container">
+ <div class="alerta alerta-error" id="alerta-compra"></div>
+
+ <div class="card">
+ <div class="card-title">Resumen</div>
+ <div class="panel-resumen">
+ <div class="resumen-box">
+ <div class="lbl">Cantidad de producto</div>
+ <div class="val" id="resumen-compra-items">0 unidades</div>
+ </div>
+ <div class="resumen-box">
+ <div class="lbl">Total compra</div>
+ <div class="val" id="resumen-compra-total">$0.00</div>
+ </div>
+ </div>
+ <button type="button" class="btn btn-outline btn-sm" id="btn-limpiar-compra">Vaciar carrito</button>
+ </div>
+
+ <div class="spinner-wrap" id="estado-carga-compra"><div class="spinner"></div></div>
+
+ <div id="pantalla-compra" class="is-hidden">
+ <div class="card">
+ <div class="card-title">Buscar productos</div>
+ <div class="form-group">
+ <input type="text" id="buscador-compra" placeholder="Buscar por nombre..."/>
+ </div>
+ <div id="productos-compra-wrap"></div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Carrito de compra</div>
+ <div class="form-group">
+ <label>Proveedor</label>
+ <input type="text" id="proveedor-compra" placeholder="Ej: PriceSmart" required/>
+ <span class="campo-error" id="err-proveedor"></span>
+ </div>
+ <div id="carrito-compra-wrap"></div>
+ <div class="form-group">
+ <label for="metodo-pago-compra">Método de pago</label>
+ <select id="metodo-pago-compra" aria-label="Método de pago de la compra" required>
+ <option value="" selected disabled>Seleccione un método</option>
+ <option value="efectivo">Efectivo</option>
+ <option value="transferencia">Transferencia</option>
+ </select>
+ <span class="campo-error" id="err-metodo"></span>
+ </div>
+ <div class="form-group">
+ <label for="factura-compra">Factura</label>
+ <div class="factura-box">
+ <input type="file" id="factura-compra" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,application/pdf,image/*" aria-label="Factura de la compra" required/>
+ <div class="factura-ayuda">Sube una factura en PDF o imagen. Máximo 10 MB.</div>
+ <div class="factura-preview" id="factura-preview">
+ <div class="factura-preview-info">No hay factura seleccionada.</div>
+ </div>
+ </div>
+ <span class="campo-error" id="err-factura"></span>
+ </div>
+ <div class="form-group">
+ <label>Nota</label>
+ <textarea id="nota-compra" rows="3" placeholder="Observaciones de la compra..."></textarea>
+ </div>
+ <button class="btn btn-primary" id="btn-finalizar-compra">Registrar compra</button>
+ </div>
+ </div>
+ </div>
+ <script type="module" src="../../../js/modulos/compras.js"></script>
+</body>
+</html>
