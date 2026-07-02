@@ -9,6 +9,12 @@ import {
 guardRoute();
 requirePermiso("registrar_ventas");
 
+// Clave de sessionStorage para no perder la venta en progreso si el vendedor
+// recarga la página por accidente antes de presionar "Enviar venta".
+// sessionStorage (no localStorage) porque se borra solo al cerrar la pestaña,
+// evitando que un carrito quede pegado para el siguiente vendedor que use el mismo dispositivo.
+const CLAVE_ESTADO = "ventaRapida_enProgreso";
+
 const estado = {
 	actividades: [],
 	actividadVentaId: null,
@@ -20,12 +26,17 @@ const estado = {
 	cargando: true,
 };
 
+// Evita que el guardado automático borre el sessionStorage con el render
+// vacío inicial, antes de que se intente restaurar lo que había guardado.
+let listoParaPersistir = false;
+
 const $ = (id) => document.getElementById(id);
 const catalogoWrap = $("catalogo-wrap");
 const pedidoWrap = $("pedido-wrap");
 const alerta = $("alerta-venta");
 const metodoPago = $("metodo-pago");
 const btnEnviar = $("btn-enviar-venta");
+const btnVaciarPedido = $("btn-vaciar-pedido");
 
 const r2 = (v) => Math.round(Number(v) * 100) / 100;
 
@@ -219,6 +230,52 @@ function totalPedido() {
 	return total;
 }
 
+// ─── PERSISTENCIA DE LA VENTA EN PROGRESO ──────────────────────────────────
+function guardarEstado() {
+	if (!listoParaPersistir) return;
+	try {
+		if (!estado.actividadVentaId && estado.pedido.size === 0) {
+			sessionStorage.removeItem(CLAVE_ESTADO);
+			return;
+		}
+		sessionStorage.setItem(CLAVE_ESTADO, JSON.stringify({
+			actividadVentaId: estado.actividadVentaId,
+			pedido: [...estado.pedido.entries()],
+			metodoPago: metodoPago.value,
+		}));
+	} catch (e) {
+		console.warn("No se pudo guardar la venta en progreso:", e.message);
+	}
+}
+
+function restaurarEstadoGuardado() {
+	let guardado = null;
+	try {
+		guardado = JSON.parse(sessionStorage.getItem(CLAVE_ESTADO) || "null");
+	} catch {
+		guardado = null;
+	}
+	if (!guardado) return;
+
+	const actividad = estado.actividades.find((a) => a.id === guardado.actividadVentaId);
+	if (!actividad) {
+		// La actividad guardada ya no existe o fue desactivada: no hay nada seguro que restaurar.
+		sessionStorage.removeItem(CLAVE_ESTADO);
+		return;
+	}
+
+	estado.actividadVentaId = actividad.id;
+	estado.actividadVentaNombre = actividad.nombre;
+	$("sel-actividad").value = actividad.id;
+	estado.pedido = new Map(Array.isArray(guardado.pedido) ? guardado.pedido : []);
+	if (guardado.metodoPago) metodoPago.value = guardado.metodoPago;
+	recalcularDisponibles();
+
+	if (estado.pedido.size > 0) {
+		mostrarAlerta("aviso", "Se restauró la venta que tenías en progreso antes de recargar la página.");
+	}
+}
+
 // ─── RENDER ─────────────────────────────────────────────────────────────────
 function renderCatalogo() {
 	const hayActividad = Boolean(estado.actividadVentaId);
@@ -363,6 +420,7 @@ function renderPedido() {
 function renderTodo() {
 	renderCatalogo();
 	renderPedido();
+	guardarEstado();
 }
 
 function renderEstadoCarga() {
@@ -439,6 +497,14 @@ $("sel-actividad").addEventListener("change", (e) => {
 });
 
 btnEnviar.addEventListener("click", enviarVenta);
+metodoPago.addEventListener("change", guardarEstado);
+
+btnVaciarPedido.addEventListener("click", () => {
+	if (estado.pedido.size === 0) return;
+	estado.pedido.clear();
+	ocultarAlerta();
+	renderTodo();
+});
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 onSnapshot(
@@ -452,6 +518,10 @@ onSnapshot(
 	}
 );
 
-cargarActividades();
+cargarActividades().then(() => {
+	restaurarEstadoGuardado();
+	listoParaPersistir = true;
+	renderTodo();
+});
 renderEstadoCarga();
 renderTodo();

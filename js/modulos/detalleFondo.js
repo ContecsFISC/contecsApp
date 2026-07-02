@@ -1,6 +1,7 @@
 ﻿import { guardRoute, requirePermiso } from "../core/auth.js";
 import { db } from "../core/firebase-config.js";
 import { formatearMoneda, resumenItemPrincipal } from "../core/operaciones.js";
+import { generarReporteFinancieroExcel } from "./reporteFinancieroExcel.js";
 import {
   doc, getDoc, collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -27,6 +28,7 @@ const filtroUsuario = $("filtro-usuario");
 const filtroDesde = $("filtro-desde");
 const filtroHasta = $("filtro-hasta");
 const btnLimpiar = $("btn-limpiar-filtros");
+const btnExportarExcel = $("btn-exportar-excel");
 
 function mostrarError(msg) {
   errorEl.textContent = msg;
@@ -180,10 +182,41 @@ function limpiarFiltros() {
   aplicarFiltros();
 }
 
+function descripcionFiltros() {
+  const partes = [];
+  if (filtroTexto.value.trim()) partes.push(`texto="${filtroTexto.value.trim()}"`);
+  if (filtroTipo.value !== "todos") partes.push(`tipo=${filtroTipo.value}`);
+  if (filtroOrigen.value !== "todos") partes.push(`origen=${filtroOrigen.value}`);
+  if (filtroUsuario.value !== "todos") partes.push(`usuario=${filtroUsuario.value}`);
+  if (filtroDesde.value) partes.push(`desde=${filtroDesde.value}`);
+  if (filtroHasta.value) partes.push(`hasta=${filtroHasta.value}`);
+  return partes.length ? partes.join(", ") : "";
+}
+
+async function exportarExcel() {
+  btnExportarExcel.disabled = true;
+  const textoOriginal = btnExportarExcel.textContent;
+  btnExportarExcel.textContent = "Generando reporte...";
+  try {
+    ocultarError();
+    await generarReporteFinancieroExcel({
+      movimientosFiltrados: estado.filtrados,
+      balance: estado.balance,
+      filtroInfo: descripcionFiltros(),
+    });
+  } catch (error) {
+    mostrarError(error.message || "No se pudo generar el reporte financiero.");
+  } finally {
+    btnExportarExcel.disabled = false;
+    btnExportarExcel.textContent = textoOriginal;
+  }
+}
+
 function initFiltros() {
   [filtroTexto, filtroTipo, filtroOrigen, filtroUsuario, filtroDesde, filtroHasta]
     .forEach((el) => el.addEventListener("input", aplicarFiltros));
   btnLimpiar.addEventListener("click", limpiarFiltros);
+  btnExportarExcel.addEventListener("click", exportarExcel);
 }
 
 onSnapshot(doc(db, "fondos", "principal"), (snap) => {
