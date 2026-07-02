@@ -869,7 +869,7 @@ el('btn-confirmar').addEventListener('click', async () => {
  try {
  // Importar solo la función que necesitamos — la Cloud Function hace todo el trabajo
  const { registrarParticipante, archivoABase64 } =
- await import('../js/core/participantes-api.js');
+ await import('./js/core/participantes-api.js');
 
  const correo = (el('inp-correo')?.value || '').trim().toLowerCase();
  const cedula = (el('inp-cedula')?.value || '').trim();
