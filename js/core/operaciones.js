@@ -16,33 +16,40 @@ function aNumero(valor, fallback = 0) {
   return Number.isFinite(numero) ? numero : fallback;
 }
 
+// Los montos en dólares se redondean a centavos en cuanto se leen/calculan, para
+// que la Utilidad mostrada siempre coincida exactamente con P/U y Costo (también
+// redondeados a 2 decimales) tal como se ven en pantalla.
+function r2(valor) {
+  return Math.round(aNumero(valor, 0) * 100) / 100;
+}
+
 function nombreProducto(item, producto) {
   return item.nombre || producto?.nombre || "Producto";
 }
 
 function precioItem(item, producto, campoAlterno = "precioVenta") {
   const directo = aNumero(item.precioUnitario, NaN);
-  if (Number.isFinite(directo)) return directo;
+  if (Number.isFinite(directo)) return r2(directo);
 
   const alterno = aNumero(item[campoAlterno], NaN);
-  if (Number.isFinite(alterno)) return alterno;
+  if (Number.isFinite(alterno)) return r2(alterno);
 
-  return aNumero(producto?.[campoAlterno], 0);
+  return r2(aNumero(producto?.[campoAlterno], 0));
 }
 
 function costoUnitarioProducto(producto) {
-  return aNumero(producto?.precioCompra ?? producto?.ultimoCosto ?? producto?.costoUnitario ?? producto?.precioVenta ?? 0, 0);
+  return r2(aNumero(producto?.precioCompra ?? producto?.ultimoCosto ?? producto?.costoUnitario ?? producto?.precioVenta ?? 0, 0));
 }
 
 function costoItem(item, producto) {
   const directo = aNumero(item.costoUnitario, NaN);
-  if (Number.isFinite(directo) && directo >= 0) return directo;
+  if (Number.isFinite(directo) && directo >= 0) return r2(directo);
 
   return costoUnitarioProducto(producto);
 }
 
 function utilidadUnitaria(ventaUnitario, costoUnitario) {
-  return aNumero(ventaUnitario, 0) - aNumero(costoUnitario, 0);
+  return r2(aNumero(ventaUnitario, 0) - aNumero(costoUnitario, 0));
 }
 
 function subtotalItem(item, producto, campoAlterno = "precioCompra") {
@@ -170,14 +177,30 @@ export async function subirFacturaAStorage({ compraId, factura, usuarioId }) {
   }
 }
 
-async function leerProductosTx(tx, items) {
+async function leerProductosTx(tx, items, cache = new Map()) {
   const lecturas = [];
   for (const item of items) {
-    const productoRef = doc(db, "productos", item.productoId);
-    const productoSnap = await tx.get(productoRef);
-    lecturas.push({ ref: productoRef, snap: productoSnap, item });
+    let entrada = cache.get(item.productoId);
+    if (!entrada) {
+      const productoRef = doc(db, "productos", item.productoId);
+      const productoSnap = await tx.get(productoRef);
+      entrada = { ref: productoRef, snap: productoSnap };
+      cache.set(item.productoId, entrada);
+    }
+    lecturas.push({ ref: entrada.ref, snap: entrada.snap, item });
   }
   return lecturas;
+}
+
+// Varias líneas de items pueden compartir el mismo productoId (p.ej. un producto
+// vendido individualmente y también dentro de un combo, cada uno con su propio precio).
+// Esta función permite decrementar el stock de forma acumulativa entre esas líneas
+// dentro de una misma transacción, en vez de que cada línea lea/escriba el stock de
+// forma independiente y la última sobrescriba el descuento de las anteriores.
+function tomarStockActual(stockPorProducto, productoId, producto) {
+  return stockPorProducto.has(productoId)
+    ? stockPorProducto.get(productoId)
+    : aNumero(producto.stock, 0);
 }
 
 export function formatearMoneda(valor) {
@@ -208,6 +231,8 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
 
     const lineas = [];
     let total = 0;
+    let utilidadTotal = 0;
+    const stockPorProducto = new Map();
 
     for (let i = 0; i < lecturas.length; i += 1) {
       const { ref: productoRef, snap: productoSnap, item } = lecturas[i];
@@ -222,7 +247,7 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       }
 
       const cantidad = cantidadItem(item);
-      const stockActual = aNumero(producto.stock, 0);
+      const stockActual = tomarStockActual(stockPorProducto, item.productoId, producto);
       if (stockActual < cantidad) {
         throw new Error(`Stock insuficiente para ${nombreProducto(item, producto)}.`);
       }
@@ -230,9 +255,10 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       const unitario = precioItem(item, producto, "precioVenta");
       const costoUnitario = costoItem(item, producto);
       const utilidadUnit = utilidadUnitaria(unitario, costoUnitario);
-      const subtotal = unitario * cantidad;
-      const utilidadTotal = utilidadUnit * cantidad;
+      const subtotal = r2(unitario * cantidad);
+      const utilidadLinea = r2(utilidadUnit * cantidad);
       const nuevoStock = stockActual - cantidad;
+      stockPorProducto.set(item.productoId, nuevoStock);
 
       tx.update(productoRef, {
         stock: nuevoStock,
@@ -262,13 +288,16 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
         precioUnitario: unitario,
         costoUnitario,
         utilidadUnitaria: utilidadUnit,
-        utilidadTotal,
+        utilidadTotal: utilidadLinea,
         subtotal,
         tipo: "venta",
       });
 
       total += subtotal;
+      utilidadTotal += utilidadLinea;
     }
+    total = r2(total);
+    utilidadTotal = r2(utilidadTotal);
 
     const balanceActual = fondoSnap.exists() ? aNumero(fondoSnap.data().balance, 0) : 0;
     const nuevoBalance = balanceActual + total;
@@ -295,6 +324,7 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       usuarioNombre,
       items: lineas,
       total,
+      utilidadTotal,
       metodoPago,
       nota,
       actividadVentaId: actividadVentaId || null,
@@ -302,7 +332,7 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       creadoEn: serverTimestamp(),
     });
 
-    return { id: ventaRef.id, total, balance: nuevoBalance, items: lineas };
+    return { id: ventaRef.id, total, utilidadTotal, balance: nuevoBalance, items: lineas };
   });
 }
 
@@ -336,10 +366,10 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
       const cantidad = cantidadItem(item);
       const stockActual = aNumero(producto.stock, 0);
       const precioPaquete = aNumero(item.precioPaquete, NaN);
-      const subtotal = Number.isFinite(precioPaquete) && precioPaquete > 0
+      const subtotal = r2(Number.isFinite(precioPaquete) && precioPaquete > 0
         ? precioPaquete * Math.trunc(aNumero(item.cantidadPaquete, 0))
-        : subtotalItem(item, producto, "precioCompra");
-      const unitario = subtotal / cantidad;
+        : subtotalItem(item, producto, "precioCompra"));
+      const unitario = r2(subtotal / cantidad);
       const nuevoStock = stockActual + cantidad;
 
       tx.update(productoRef, {
@@ -373,6 +403,7 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
 
       total += subtotal;
     }
+    total = r2(total);
 
     const balanceActual = fondoSnap.exists() ? aNumero(fondoSnap.data().balance, 0) : 0;
     const nuevoBalance = balanceActual - total;
@@ -632,14 +663,16 @@ export async function registrarVentaConMerma({
 
   return runTransaction(db, async (tx) => {
     const fondoSnap = tieneMovimientoVenta ? await tx.get(fondoRef()) : null;
-    const lectVenta = items.length > 0 ? await leerProductosTx(tx, items) : [];
-    const lectMerma = mermaItems.length > 0 ? await leerProductosTx(tx, mermaItems) : [];
+    const cacheProductos = new Map();
+    const lectVenta = items.length > 0 ? await leerProductosTx(tx, items, cacheProductos) : [];
+    const lectMerma = mermaItems.length > 0 ? await leerProductosTx(tx, mermaItems, cacheProductos) : [];
 
     const lineas = [];
     const lineasMerma = [];
     let total = 0;
     let utilidadTotal = 0;
     let perdidaTotal = 0;
+    const stockPorProducto = new Map();
 
     for (let i = 0; i < lectVenta.length; i += 1) {
       const { ref: prodRef, snap: prodSnap, item } = lectVenta[i];
@@ -647,15 +680,16 @@ export async function registrarVentaConMerma({
 
       const prod = prodSnap.data();
       const cantidad = cantidadItem(item);
-      const stockActual = aNumero(prod.stock, 0);
+      const stockActual = tomarStockActual(stockPorProducto, item.productoId, prod);
       if (stockActual < cantidad) throw new Error(`Stock insuficiente para ${nombreProducto(item, prod)}.`);
 
       const unitario = precioItem(item, prod, "precioVenta");
       const costo = costoItem(item, prod);
       const utilidadUnit = utilidadUnitaria(unitario, costo);
-      const subtotal = unitario * cantidad;
-      const utilidadLinea = utilidadUnit * cantidad;
+      const subtotal = r2(unitario * cantidad);
+      const utilidadLinea = r2(utilidadUnit * cantidad);
       const nuevoStock = stockActual - cantidad;
+      stockPorProducto.set(item.productoId, nuevoStock);
 
       tx.update(prodRef, { stock: nuevoStock, actualizadoEn: serverTimestamp() });
       tx.set(movVentaRefs[i], {
@@ -699,16 +733,17 @@ export async function registrarVentaConMerma({
 
       const prod = prodSnap.data();
       const cantidad = cantidadItem(item);
-      const stockActual = aNumero(prod.stock, 0);
+      const stockActual = tomarStockActual(stockPorProducto, item.productoId, prod);
       if (stockActual < cantidad) throw new Error(`Stock insuficiente para merma de ${nombreProducto(item, prod)}.`);
 
       const tipoMerma = String(item.tipo || (item.fueVendido ? "vendida" : "sin_vender"));
       const costo = costoItem(item, prod);
       const precioCobro = tipoMerma === "vendida" ? precioItem(item, prod, "precioVenta") : 0;
       const utilidadUnit = tipoMerma === "vendida" ? utilidadUnitaria(precioCobro, costo) : -costo;
-      const utilidadLinea = utilidadUnit * cantidad;
-      const subtotal = precioCobro * cantidad;
+      const utilidadLinea = r2(utilidadUnit * cantidad);
+      const subtotal = r2(precioCobro * cantidad);
       const nuevoStock = stockActual - cantidad;
+      stockPorProducto.set(item.productoId, nuevoStock);
       const descripcion = String(item.descripcion || item.motivo || "").trim();
 
       tx.update(prodRef, { stock: nuevoStock, actualizadoEn: serverTimestamp() });
@@ -750,9 +785,12 @@ export async function registrarVentaConMerma({
       total += subtotal;
       utilidadTotal += utilidadLinea;
       if (tipoMerma === "sin_vender") {
-        perdidaTotal += costo * cantidad;
+        perdidaTotal += r2(costo * cantidad);
       }
     }
+    total = r2(total);
+    utilidadTotal = r2(utilidadTotal);
+    perdidaTotal = r2(perdidaTotal);
 
     let nuevoBalance = fondoSnap ? aNumero(fondoSnap.data()?.balance, 0) : 0;
     if (tieneMovimientoVenta) {

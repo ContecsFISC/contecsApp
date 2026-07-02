@@ -63,23 +63,23 @@ function fmtFecha(ts) {
 // en una sola línea, para no decrementar el stock dos veces sobre el mismo documento
 // dentro de la misma transacción de Firestore.
 function combinarItemsPorProducto(items) {
+	// Agrupa por producto + precio unitario: un mismo producto vendido a precios
+	// distintos (p.ej. suelto vs. dentro de un combo) debe quedar en líneas
+	// separadas para no diluir el precio real en un promedio ponderado.
 	const mapa = new Map();
 	items.forEach((item) => {
 		const cantidad = Math.trunc(Number(item.cantidad)) || 0;
 		if (cantidad <= 0) return;
-		const precio = Number(item.precioUnitario) || 0;
-		const existente = mapa.get(item.productoId);
+		const precio = r2(Number(item.precioUnitario) || 0);
+		const clave = `${item.productoId}::${precio}`;
+		const existente = mapa.get(clave);
 		if (existente) {
-			existente.ingreso += precio * cantidad;
 			existente.cantidad += cantidad;
 		} else {
-			mapa.set(item.productoId, { ...item, cantidad, ingreso: precio * cantidad });
+			mapa.set(clave, { ...item, cantidad, precioUnitario: precio });
 		}
 	});
-	return [...mapa.values()].map((it) => {
-		const { ingreso, ...resto } = it;
-		return { ...resto, precioUnitario: r2(ingreso / it.cantidad) };
-	});
+	return [...mapa.values()];
 }
 
 // ─── CARGA DE DATOS ─────────────────────────────────────────────────────────
