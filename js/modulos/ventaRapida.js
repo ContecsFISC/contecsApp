@@ -7,7 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("registrar_ventas");
+requirePermiso("acceso_venta_rapida");
 
 // Clave de sessionStorage para no perder la venta en progreso si el vendedor
 // recarga la página por accidente antes de presionar "Enviar venta".

@@ -469,7 +469,9 @@
           id: "finanzas", label: "Finanzas", icono: "💰",
           modulos: [
             { label: "Fondos",     icono: "🪙", href: "modulos/finanzas/fondos.html",    permiso: "ver_fondos", admin: true },
-            { label: "Ventas",     icono: "🧾", href: "modulos/finanzas/ventas2.html",   permiso: "registrar_ventas" },
+            { label: "Ventas",     icono: "🧾",
+              href: tienePermiso(rol, "registrar_ventas") ? "modulos/finanzas/ventas2.html" : "modulos/finanzas/ventaRapida.html",
+              permiso: "acceso_venta_rapida" },
             { label: "Compras",    icono: "🛒", href: "modulos/finanzas/compras2.html",  permiso: "registrar_compras", admin: true },
             { label: "Reportes",   icono: "📈", href: "modulos/finanzas/reportes.html",  permiso: "ver_reportes" },
             { label: "Bitácora",   icono: "📋", href: "modulos/finanzas/bitacora.html",  permiso: "ver_bitacora" },

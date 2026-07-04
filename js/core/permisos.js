@@ -36,6 +36,10 @@ export const PERMISOS = {
   registrar_ventas:  ["junta_principal","junta","logistica", "ventas","ceo"],
   registrar_compras: ["junta_principal", "junta", "finanzas", "ventas","ceo"],
 
+  // Acceso al botón "Ventas" del dashboard para TODOS los roles.
+  // Quien tenga "registrar_ventas" entra a ventas2.html; el resto va a ventaRapida.html.
+  acceso_venta_rapida: Object.keys(ROLES),
+
   ver_fondos:        ["junta_principal", "finanzas","ceo"],
   editar_fondos:     ["junta_principal", "finanzas","ceo"],
   
