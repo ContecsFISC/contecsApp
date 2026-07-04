@@ -78,6 +78,9 @@ export function escucharCambiosDeRol(uid) {
   });
 }
 
+let resolverSesionLista;
+const sesionLista = new Promise((resolve) => { resolverSesionLista = resolve; });
+
 export function guardRoute() {
   onAuthStateChanged(auth, async (user) => {
     try {
@@ -88,12 +91,30 @@ export function guardRoute() {
         await cargarUsuario(user);
         window.location.href = "dashboard.html";
       } else if (user && !esPublica) {
+        // Si sessionStorage no tiene los datos de este usuario (pestaña nueva o
+        // sesión restaurada sin haber pasado por el login en esta pestaña),
+        // repoblarlos antes de seguir — de lo contrario getUsuarioActual()
+        // devuelve campos vacíos aunque Firebase Auth sí reconozca al usuario.
+        if (sessionStorage.getItem("uid") !== user.uid) {
+          await cargarUsuario(user);
+        }
         escucharCambiosDeRol(user.uid);
       }
     } catch (error) {
       manejarErrorAuth(error, "guardRoute/onAuthStateChanged");
+    } finally {
+      resolverSesionLista();
     }
   });
+}
+
+// Promesa que se resuelve cuando guardRoute() ya determinó el estado de
+// autenticación y (si aplica) terminó de poblar sessionStorage. Útil para
+// código que necesita leer getUsuarioActual() de forma confiable al cargar
+// una página, en vez de leerlo de forma optimista antes de que Firebase Auth
+// resuelva el estado de sesión.
+export function esperarSesionLista() {
+  return sesionLista;
 }
 
 export async function cargarUsuario(user) {

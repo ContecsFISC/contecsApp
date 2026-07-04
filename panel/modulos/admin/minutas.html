@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Minutas de Reunión</title>
+  <link rel="stylesheet" href="../../../css/styles.css"/>
+  <script type="module">
+    import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+    guardRoute();
+    requirePermiso("gestionar_secretaria");
+  </script>
+  <style>
+    .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+    .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+    .btn-primary:hover { opacity: 0.88; }
+    .container { max-width: 860px; }
+
+    .reunion-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-left: 3px solid var(--verde-claro);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      display: block;
+      color: inherit;
+    }
+    .reunion-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,114,46,0.14); }
+    .reunion-titulo { font-size: 15px; font-weight: 700; color: var(--gris-texto); margin-bottom: 4px; }
+    .reunion-meta { font-size: 12px; color: var(--gris-medio); display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+    .badge-minuta {
+      font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+      display: inline-block;
+    }
+    .badge-vacia { background: #fff3cd; color: #856404; }
+    .badge-lista { background: var(--verde-fondo); color: var(--verde-oscuro); }
+    .sin-reuniones { text-align: center; color: var(--gris-medio); font-size: 13px; padding: 40px 0; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📝 Minutas de Reunión</h1>
+  <a href="secretaria.html" class="topbar-link">← Secretaría</a>
+</div>
+
+<div class="container anim-page-in">
+  <div id="alerta-global" class="alerta"></div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+    <a href="agendarReunion.html" class="btn btn-primary" style="width:auto;display:inline-flex;align-items:center;gap:8px;text-decoration:none;padding:10px 20px;">
+      📅 Agendar reunión
+    </a>
+  </div>
+
+  <div id="lista-reuniones">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<script type="module" src="../../../js/modulos/minutas.js"></script>
+</body>
+</html>

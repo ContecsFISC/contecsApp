@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONTECS — Agendar Reunión</title>
+  <link rel="stylesheet" href="../../../css/styles.css"/>
+  <script type="module">
+    import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+    guardRoute();
+    requirePermiso("gestionar_secretaria");
+  </script>
+  <style>
+    .topbar { background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); box-shadow: 0 2px 12px var(--verde-sombra); }
+    .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+    .btn-outline:hover { background: var(--verde-fondo); }
+    .card-title { color: var(--verde-oscuro); }
+    .container { max-width: 780px; }
+    .seccion-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--verde-oscuro);
+      border-bottom: 1px solid var(--verde-claro);
+      padding-bottom: 4px;
+      margin-bottom: 12px;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 8px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .check-item input[type="checkbox"],
+    .check-item input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--verde);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .invitados-modo { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .invitados-bloque { display: none; background: var(--verde-fondo); border-radius: 8px; padding: 14px; margin-top: 8px; max-height: 260px; overflow-y: auto; }
+    .invitados-bloque.activo { display: block; }
+    .usuario-item img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+    .usuario-item .avatar-fallback {
+      width: 22px; height: 22px; border-radius: 50%; background: var(--verde-claro); color: var(--blanco);
+      display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+    .virtual-extra { display: none; }
+    @media(max-width:600px) {
+      .container { padding: 12px; }
+      .checkbox-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1 id="pagina-titulo">📅 Agendar Reunión</h1>
+  <a href="secretaria.html" class="topbar-link">← Secretaría</a>
+</div>
+
+<div class="container anim-page-in">
+  <div id="alerta-global" class="alerta"></div>
+
+  <!-- DATOS GENERALES -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Datos de la reunión</div>
+    <div class="form-groupE">
+      <label>Título de la reunión *</label>
+      <input type="text" id="reu-titulo" placeholder="ej. Reunión de Junta - Patrocinios"/>
+    </div>
+    <div class="form-groupE">
+      <label>Agenda (¿de qué tratará a grandes rasgos?)</label>
+      <textarea id="reu-agenda" rows="3" placeholder="Resumen breve de los temas a tratar..."></textarea>
+    </div>
+  </div>
+
+  <!-- INVITADOS -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Invitados</div>
+    <div class="invitados-modo">
+      <label class="check-item"><input type="radio" name="modoInvitados" value="todos" checked/> A todos</label>
+      <label class="check-item"><input type="radio" name="modoInvitados" value="rol"/> Por rol</label>
+      <label class="check-item"><input type="radio" name="modoInvitados" value="individual"/> Individual</label>
+    </div>
+
+    <div class="invitados-bloque" id="bloque-rol">
+      <div class="checkbox-grid" id="grid-roles"></div>
+    </div>
+
+    <div class="invitados-bloque" id="bloque-individual">
+      <div class="checkbox-grid" id="grid-usuarios">
+        <div class="spinner" style="margin:10px auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FECHA Y LUGAR -->
+  <div class="card" style="border-left:3px solid var(--verde-claro);">
+    <div class="seccion-label">Fecha, hora y lugar</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-groupE">
+        <label>Fecha inicio *</label>
+        <input type="date" id="reu-fecha-inicio"/>
+      </div>
+      <div class="form-groupE">
+        <label>Hora inicio *</label>
+        <input type="time" id="reu-hora-inicio"/>
+      </div>
+      <div class="form-groupE">
+        <label>Fecha fin *</label>
+        <input type="date" id="reu-fecha-fin"/>
+      </div>
+      <div class="form-groupE">
+        <label>Hora fin *</label>
+        <input type="time" id="reu-hora-fin"/>
+      </div>
+    </div>
+    <div class="form-groupE">
+      <label>Lugar</label>
+      <input type="text" id="reu-lugar" placeholder="ej. Sala de Juntas, Edificio 3"/>
+    </div>
+    <label class="check-item" style="margin-bottom:8px;">
+      <input type="checkbox" id="reu-es-virtual"/> Esta reunión es virtual
+    </label>
+    <div class="virtual-extra" id="virtual-extra-fields">
+      <div class="form-groupE">
+        <label>Link de la reunión virtual *</label>
+        <input type="url" id="reu-link-virtual" placeholder="https://meet.google.com/..."/>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+    <a id="link-cancelar" href="minutas.html" class="btn btn-outline" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;">Cancelar</a>
+    <button class="btn btn-primary" id="btn-agendar" style="flex:2;">📅 Agendar reunión</button>
+  </div>
+</div>
+
+<script type="module" src="../../../js/modulos/agendarReunion.js"></script>
+</body>
+</html>

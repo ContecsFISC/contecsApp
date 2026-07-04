@@ -183,6 +183,12 @@ service cloud.firestore {
       allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
     }
 
+    // ── Reuniones (Secretaría) ────────────────────────────────────────────────
+    match /reuniones/{id} {
+      allow read: if isStaff();
+      allow create, update, delete: if hasRol(['ceo', 'secretario']);
+    }
+
     // ── Denegar todo lo no definido explícitamente ───────────────────────────
     match /{document=**} {
       allow read, write: if false;

@@ -54,6 +54,7 @@ export const PERMISOS = {
   ver_participantes:       ["ceo", "junta_principal", "junta"],
   aprobar_pagos:           ["ceo", "junta_principal", "junta", "finanzas", "secretario"],
   ver_calendario:         ["ceo", "junta_principal", "junta", "coordinador","finanzas","logistica","ventas","secretario","actividades", "patrocinios","investigacion","voluntariado","giras", "comunicaciones","miembro"],
+  gestionar_secretaria:    ["ceo", "secretario"],
 };
 
 // Función para verificar si un rol tiene un permiso

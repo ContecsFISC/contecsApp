@@ -2,10 +2,13 @@ import { db } from "../core/firebase-config.js";
 import {
   collection, getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getUsuarioActual, esperarSesionLista } from "../core/auth.js";
+import { usuarioPuedeVerReunion, usuarioPuedeGestionarMinuta } from "./reuniones-utils.js";
 
 const el = id => document.getElementById(id);
+let usuarioActual = null;
 
-let actividades = [], giras = [], ventas = [], asignaciones = [];
+let actividades = [], giras = [], ventas = [], reuniones = [], asignaciones = [];
 let mesActual   = new Date();
 let filtroActivo = "todos";
 
@@ -30,10 +33,11 @@ async function leerColeccion(nombre) {
 }
 
 async function cargarEventos() {
-  const [docsAct, docsGira, docsVenta, docsAsig] = await Promise.all([
+  const [docsAct, docsGira, docsVenta, docsReu, docsAsig] = await Promise.all([
     leerColeccion("actividades_voluntarios"),
     leerColeccion("giras_voluntarios"),
     leerColeccion("actividades_ventas"),
+    leerColeccion("reuniones"),
     leerColeccion("asignaciones_voluntarios"),
   ]);
 
@@ -46,13 +50,16 @@ async function cargarEventos() {
   actividades  = docsAct.map(d  => ({ id: d.id, ...d.data(), tipo: "actividad" })).sort(porFecha);
   giras        = docsGira.map(d => ({ id: d.id, ...d.data(), tipo: "gira"      })).sort(porFecha);
   ventas       = docsVenta.map(d => ({ id: d.id, ...d.data(), tipo: "venta"    })).sort(porFecha);
+  reuniones    = docsReu.map(d => ({ id: d.id, ...d.data(), tipo: "reunion", fecha: d.data().fechaInicio }))
+    .filter(r => usuarioPuedeVerReunion(r, usuarioActual))
+    .sort(porFecha);
   asignaciones = docsAsig.map(d => ({ id: d.id, ...d.data() }));
 
   renderCalendario();
 }
 
 function getEventosFiltrados() {
-  const todos = [...actividades, ...giras, ...ventas];
+  const todos = [...actividades, ...giras, ...ventas, ...reuniones];
   return filtroActivo === "todos" ? todos : todos.filter(e => e.tipo === filtroActivo);
 }
 
@@ -91,9 +98,11 @@ function renderCalendario() {
     const visibles = evts.slice(0, MAX);
     const extras   = evts.length - MAX;
 
+    const ICONOS = { actividad: "🎯", gira: "🚌", venta: "💰", reunion: "🗓️" };
     const evtsHtml = visibles.map(e => {
-      const ico = e.tipo === "actividad" ? "🎯" : e.tipo === "gira" ? "🚌" : "💰";
-      return `<span class="cal-evento evt-${e.tipo}" data-id="${e.id}" data-tipo="${e.tipo}">${ico} ${e.nombre}</span>`;
+      const ico = ICONOS[e.tipo] || "📌";
+      const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
+      return `<span class="cal-evento evt-${e.tipo}" data-id="${e.id}" data-tipo="${e.tipo}">${ico} ${nombre}</span>`;
     }).join("");
 
     const masHtml = extras > 0
@@ -109,8 +118,46 @@ function renderCalendario() {
   el("cal-grid").innerHTML = html;
 }
 
+function fmtHora(ts) {
+  if (!ts) return "—";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString("es-PA", { hour: "2-digit", minute: "2-digit" });
+}
+
+// ─── Detalle de una reunión ───────────────────────────────────────────────────
+function verDetalleReunion(e) {
+  const cfg = { label: "Reunión", ico: "🗓️", color: "#1a56db", bg: "#eef2ff", border: "#a5b4fc" };
+  const lugarHtml = e.esVirtual
+    ? `Virtual — <a href="${e.linkVirtual}" target="_blank" rel="noopener">${e.linkVirtual}</a>`
+    : (e.lugar || "—");
+  const minutaLink = usuarioPuedeGestionarMinuta(usuarioActual)
+    ? `<div style="margin-top:14px;"><a href="../admin/minutaReunion.html?id=${e.id}" style="font-size:13px;font-weight:700;color:${cfg.color};">📋 Minuta de la reunión →</a></div>`
+    : "";
+
+  el("modal-detalle-contenido").innerHTML = `
+    <div style="display:inline-flex;align-items:center;gap:8px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:14px;">
+      ${cfg.ico} ${cfg.label}
+    </div>
+    <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${e.titulo}</div>
+    ${e.agenda ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${e.agenda}</p>` : ""}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:13px;">
+      <div><strong style="color:${cfg.color};">Fecha</strong><br/>${fmtFecha(e.fechaInicio)}</div>
+      <div><strong style="color:${cfg.color};">Hora</strong><br/>${fmtHora(e.fechaInicio)} – ${fmtHora(e.fechaFin)}</div>
+      <div style="grid-column:1/-1;"><strong style="color:${cfg.color};">Lugar</strong><br/>${lugarHtml}</div>
+    </div>
+    ${minutaLink}
+  `;
+  el("modal-detalle").classList.add("open");
+}
+
 // ─── Detalle de un evento ─────────────────────────────────────────────────────
 function verDetalle(id, tipo) {
+  if (tipo === "reunion") {
+    const e = reuniones.find(x => x.id === id);
+    if (e) verDetalleReunion(e);
+    return;
+  }
+
   const fuente = tipo === "actividad" ? actividades : tipo === "gira" ? giras : ventas;
   const e = fuente.find(x => x.id === id);
   if (!e) return;
@@ -175,11 +222,13 @@ function verDia(dia, año, mes) {
         actividad: { ico:"🎯", color:"var(--verde-oscuro)", bg:"var(--verde-fondo)" },
         gira:      { ico:"🚌", color:"#856404",             bg:"#fff3cd" },
         venta:     { ico:"💰", color:"#c81e1e",             bg:"#fde8e8" },
+        reunion:   { ico:"🗓️", color:"#1a56db",             bg:"#eef2ff" },
       }[e.tipo];
+      const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
       return `<div style="background:${cfg.bg};color:${cfg.color};border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;"
         data-id="${e.id}" data-tipo="${e.tipo}">
-        <div style="font-weight:700;font-size:14px;">${cfg.ico} ${e.nombre}</div>
-        ${e.lugar ? `<div style="font-size:12px;margin-top:4px;">📍 ${e.lugar}</div>` : ""}
+        <div style="font-weight:700;font-size:14px;">${cfg.ico} ${nombre}</div>
+        ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">📍 ${e.lugar}</div>` : ""}
         ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">👥 ${e.voluntariosReq} voluntarios requeridos</div>` : ""}
       </div>`;
     }).join("")}
@@ -228,4 +277,11 @@ el("modal-detalle-close").addEventListener("click", () => el("modal-detalle").cl
 el("modal-detalle").addEventListener("click", e => { if (e.target === el("modal-detalle")) el("modal-detalle").classList.remove("open"); });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-cargarEventos();
+// Espera a que auth.js confirme la sesión y termine de poblar sessionStorage
+// antes de leer el usuario actual — evita que el filtro de visibilidad de
+// reuniones descarte todo por leer un usuario vacío en una pestaña recién abierta.
+(async () => {
+  await esperarSesionLista();
+  usuarioActual = getUsuarioActual();
+  cargarEventos();
+})();
