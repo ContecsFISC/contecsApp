@@ -230,8 +230,8 @@
 
  <!-- TABS -->
  <div class="tabs">
- <button class="tab-btn activo" data-tab="categorias">️ Categorías</button>
- <button class="tab-btn" data-tab="productos"> Productos</button>
+ <button class="tab-btn activo" data-tab="categorias">🗂️ Categorías</button>
+ <button class="tab-btn" data-tab="productos">📦 Productos</button>
  </div>
 
  <!-- ══ TAB: CATEGORÍAS ══ -->
@@ -246,7 +246,7 @@
  <div class="spinner-wrap" id="cat-spinner"><div class="spinner"></div></div>
  <div class="cat-grid" id="cat-grid"></div>
  <div class="empty-state" id="cat-empty" style="display:none">
- <div class="emoji">️</div>
+ <div class="emoji">🗂️</div>
  <p>No hay categorías aún.<br>Crea la primera con el botón de arriba.</p>
  </div>
  </div>
@@ -265,7 +265,7 @@
 
  <div id="productos-contenido">
  <div class="empty-state">
- <div class="emoji">️</div>
+ <div class="emoji">📦</div>
  <p>Selecciona una categoría para ver sus productos.</p>
  </div>
  </div>
@@ -278,7 +278,7 @@
  <div class="modal">
  <div class="modal-titulo">
  <span id="modal-cat-titulo">Nueva categoría</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-cat"></button>
+ <button class="btn-cerrar-modal" id="cerrar-modal-cat" title="Cerrar">✕</button>
  </div>
  <div class="form-group">
  <label>Nombre de la categoría</label>
@@ -304,7 +304,7 @@
  <div class="modal">
  <div class="modal-titulo">
  <span id="modal-prod-titulo">Nuevo producto</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-prod"></button>
+ <button class="btn-cerrar-modal" id="cerrar-modal-prod" title="Cerrar">✕</button>
  </div>
  <div class="form-group">
  <label>Nombre del producto</label>
@@ -338,8 +338,8 @@
  <div class="modal-overlay" id="modal-confirm">
  <div class="modal" style="padding-bottom:28px;">
  <div class="modal-titulo">
- <span>️ Confirmar acción</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-confirm"></button>
+ <span>⚠️ Confirmar acción</span>
+ <button class="btn-cerrar-modal" id="cerrar-modal-confirm" title="Cerrar">✕</button>
  </div>
  <p id="confirm-mensaje" style="font-size:14px;color:var(--gris-texto);margin-bottom:20px;"></p>
  <div style="display:flex;gap:10px;">
@@ -449,8 +449,8 @@
  <div class="cat-count" id="count-${cat.id}">Cargando...</div>
  </div>
  <div class="cat-acciones">
- <button class="btn-icon" data-edit="${cat.id}" title="Editar">️</button>
- <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar">️</button>
+ <button class="btn-icon" data-edit="${cat.id}" title="Editar">✏️</button>
+ <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar">🗑️</button>
  </div>`;
 
  import("../../../js/modulos/catalogo.js").then(({ escucharProductosPorCategoria }) => {
@@ -560,7 +560,7 @@
  const contenido = document.getElementById("productos-contenido");
 
  if (!catId) {
- contenido.innerHTML = `<div class="empty-state"><div class="emoji">️</div><p>Selecciona una categoría.</p></div>`;
+ contenido.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>Selecciona una categoría.</p></div>`;
  return;
  }
 
@@ -573,7 +573,7 @@
  <div id="agotados-section"></div>
  <div class="prod-lista" id="prod-lista"></div>
  <div class="empty-state" id="prod-empty" style="display:none">
- <div class="emoji"></div>
+ <div class="emoji">📦</div>
  <p>No hay productos en esta categoría.<br>Agrega el primero con el botón de arriba.</p>
  </div>`;
 
@@ -604,7 +604,7 @@
  let cardIdx = 0;
 
  if (agotados.length > 0) {
- agotadosSec.innerHTML = `<div class="agotados-titulo"> Sin stock (${agotados.length})</div>`;
+ agotadosSec.innerHTML = `<div class="agotados-titulo">⛔ Sin stock (${agotados.length})</div>`;
  agotados.forEach(p => {
  const c = renderProductoCard(p);
  c.style.animationDelay = `${cardIdx++ * 0.05}s`;
@@ -622,7 +622,7 @@
  const sep = document.createElement("div");
  sep.className = "agotados-titulo";
  sep.style.color = "var(--gris-medio)";
- sep.textContent = ` Desactivados (${inactivos.length})`;
+ sep.textContent = `🚫 Desactivados (${inactivos.length})`;
  lista.appendChild(sep);
  inactivos.forEach(p => {
  const c = renderProductoCard(p, true);
@@ -636,7 +636,7 @@
  function renderProductoCard(prod, inactivo = false) {
  const estado = estadoStock(prod.stock ?? 0, prod.alertaMinima ?? 0);
  const badgeClass = { ok: "stock-ok", alerta: "stock-alerta", agotado: "stock-agotado" }[estado];
- const badgeText = { ok: ` ${prod.stock}`, alerta: `️ ${prod.stock}`, agotado: " Agotado" }[estado];
+ const badgeText = { ok: `✅ ${prod.stock}`, alerta: `⚠️ ${prod.stock}`, agotado: "⛔ Agotado" }[estado];
 
  const card = document.createElement("div");
  card.className = `prod-card${inactivo ? " prod-inactivo" : ""}`;
@@ -648,8 +648,8 @@
  </div>
  <span class="stock-badge ${badgeClass}">${badgeText}</span>
  <div class="cat-acciones">
- <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar">️</button>
- <button class="btn-icon ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "" : ""}</button>
+ <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar">✏️</button>
+ <button class="btn-icon ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "🔄" : "🚫"}</button>
  </div>`;
 
  card.querySelector(`[data-edit-prod]`).addEventListener("click", () => abrirModalEditarProd(prod));

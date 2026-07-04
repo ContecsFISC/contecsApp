@@ -223,6 +223,7 @@
   <script type="module">
     import { guardRoute, getUsuarioActual, cerrarSesion } from "../js/core/auth.js";
     import { tienePermiso, infoRol } from "../js/core/permisos.js";
+    import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
     import {
@@ -406,16 +407,31 @@
               const snap = await getDocs(collection(db, nombreColeccion));
               return snap.docs.map(d => ({ id: d.id, ...d.data(), tipo, icono }));
             };
-            const [actividades, giras, ventas] = await Promise.all([
+            const leerReuniones = async () => {
+              const snap = await getDocs(collection(db, "reuniones"));
+              return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .filter(r => usuarioPuedeVerReunion(r, usuario)) // solo las reuniones a las que el usuario está invitado
+                .map(r => ({
+                  ...r,
+                  tipo: "reunion",
+                  icono: "🗓️",
+                  nombre: r.titulo,
+                  fecha: r.fechaInicio,
+                  _fechaFin: r.fechaFin?.toDate ? r.fechaFin.toDate() : new Date(r.fechaFin || 0),
+                }));
+            };
+            const [actividades, giras, ventas, reuniones] = await Promise.all([
               leer("actividades_voluntarios", "actividad", "🎯"),
               leer("giras_voluntarios", "gira", "🚌"),
               leer("actividades_ventas", "venta", "💰"),
+              leerReuniones(),
             ]);
 
             const ahora = new Date();
             const limite = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-            const proximos = [...actividades, ...giras, ...ventas]
+            const proximos = [...actividades, ...giras, ...ventas, ...reuniones]
               .filter(e => e.activo !== false)
               .map(e => ({ ...e, _fecha: e.fecha?.toDate ? e.fecha.toDate() : new Date(e.fecha || 0) }))
               .filter(e => e._fecha >= new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()) && e._fecha <= limite)
@@ -430,7 +446,9 @@
             eventosWrap.innerHTML = proximos.map(e => {
               const esHoy = e._fecha.toDateString() === ahora.toDateString();
               let enVivo = false;
-              if (esHoy && Array.isArray(e.turnos)) {
+              if (e.tipo === "reunion") {
+                enVivo = ahora >= e._fecha && ahora <= e._fechaFin;
+              } else if (esHoy && Array.isArray(e.turnos)) {
                 enVivo = e.turnos.some(t => {
                   if (!t.horaInicio || !t.horaFin) return false;
                   const hoyStr = ahora.toTimeString().slice(0, 5);
@@ -438,12 +456,13 @@
                 });
               }
               const fechaTexto = e._fecha.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
+              const lugarTexto = e.lugar || (e.tipo === "reunion" && e.esVirtual ? "Virtual" : "");
               return `
                 <div class="evento-item">
                   <span class="evt-icono">${e.icono}</span>
                   <div class="evt-info">
                     <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
-                    <div class="evt-fecha">${esHoy ? "Hoy" : fechaTexto}${e.lugar ? " · " + e.lugar : ""}</div>
+                    <div class="evt-fecha">${esHoy ? "Hoy" : fechaTexto}${lugarTexto ? " · " + lugarTexto : ""}</div>
                   </div>
                   ${enVivo ? `<span class="pill-en-vivo">● EN VIVO</span>` : ""}
                 </div>`;
