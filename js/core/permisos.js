@@ -31,10 +31,10 @@ export const ROLES = {
 export const PERMISOS = {
 
   ver_bitacora:      ["junta_principal","finanzas","ceo"],
-  ver_inventario:    ["junta_principal", "junta", "ventas","ceo"],
+  ver_inventario:    ["junta_principal", "junta", "ventas","ceo","logistica"],
 
   registrar_ventas:  ["junta_principal","junta","logistica", "ventas","ceo"],
-  registrar_compras: ["junta_principal", "junta", "finanzas", "ventas","ceo"],
+  registrar_compras: ["junta_principal", "junta", "finanzas", "ventas","ceo","logistica"],
 
   // Acceso al botón "Ventas" del dashboard para TODOS los roles.
   // Quien tenga "registrar_ventas" entra a ventas2.html; el resto va a ventaRapida.html.
@@ -45,7 +45,7 @@ export const PERMISOS = {
   
   ver_reportes:      ["junta_principal","finanzas","ceo"],
 
-  editar_catalogo:   ["junta_principal", "ventas","ceo"],
+  editar_catalogo:   ["junta_principal", "ventas","ceo","logistica"],
   ver_precios:       ["junta_principal","finanzas","ventas","ceo"],
   aprobar_gastos:    ["junta_principal","ceo"],
   exportar_datos:    ["junta_principal","ceo"],
@@ -53,7 +53,7 @@ export const PERMISOS = {
   gestionar_inscripciones: ["ceo"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],
-  gestionar_ventas:        ["junta_principal","junta","ventas","logistica","ceo"],
+  gestionar_ventas:        ["junta_principal","junta","ventas","ceo"],
   gestionar_giras:         ["junta_principal","giras","ceo"],
   ver_participantes:       ["ceo", "junta_principal", "junta"],
   aprobar_pagos:           ["ceo", "junta_principal", "junta", "finanzas", "secretario"],

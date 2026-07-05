@@ -670,6 +670,7 @@ async function finalizarCompra() {
     nota.value = "";
     proveedor.value = "";
   } catch (error) {
+    console.error("[compras2] Error al registrar compra:", error.code, error.message, error);
     mostrarAlertaYScrollTop("error", error.message || "No se pudo registrar la compra.");
   } finally {
     btn.disabled = false;

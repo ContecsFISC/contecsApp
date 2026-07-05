@@ -1,6 +1,6 @@
 import { auth, db, storage } from "./firebase-config.js";
 import {
-  collection, doc, runTransaction, serverTimestamp, setDoc
+  collection, doc, increment, runTransaction, serverTimestamp, setDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import {
   getDownloadURL,
@@ -226,7 +226,6 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
   const movimientoRefs = items.map(() => crearMovimientoInventarioRef());
 
   return runTransaction(db, async (tx) => {
-    const fondoSnap = await tx.get(fondoRef());
     const lecturas = await leerProductosTx(tx, items);
 
     const lineas = [];
@@ -299,11 +298,11 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
     total = r2(total);
     utilidadTotal = r2(utilidadTotal);
 
-    const balanceActual = fondoSnap.exists() ? aNumero(fondoSnap.data().balance, 0) : 0;
-    const nuevoBalance = balanceActual + total;
-
+    // increment() suma atómicamente sin necesitar leer antes el balance,
+    // para que roles sin acceso de lectura a /fondos (todo el staff de ventas)
+    // puedan completar esta transacción sin exponerles el balance actual.
     tx.set(fondoRef(), {
-      balance: nuevoBalance,
+      balance: increment(total),
       actualizadoEn: serverTimestamp(),
     }, { merge: true });
 
@@ -332,7 +331,7 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       creadoEn: serverTimestamp(),
     });
 
-    return { id: ventaRef.id, total, utilidadTotal, balance: nuevoBalance, items: lineas };
+    return { id: ventaRef.id, total, utilidadTotal, items: lineas };
   });
 }
 
@@ -349,7 +348,6 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
 
   // Primero: guardar compra en Firestore (atomicamente)
   const transactionResult = await runTransaction(db, async (tx) => {
-    const fondoSnap = await tx.get(fondoRef());
     const lecturas = await leerProductosTx(tx, items);
 
     const lineas = [];
@@ -405,11 +403,11 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
     }
     total = r2(total);
 
-    const balanceActual = fondoSnap.exists() ? aNumero(fondoSnap.data().balance, 0) : 0;
-    const nuevoBalance = balanceActual - total;
-
+    // increment() suma/resta atómicamente sin necesitar leer antes el balance,
+    // para que roles sin acceso de lectura a /fondos (ej. logística) puedan
+    // completar esta transacción sin exponerles el balance actual.
     tx.set(fondoRef(), {
-      balance: nuevoBalance,
+      balance: increment(-total),
       actualizadoEn: serverTimestamp(),
     }, { merge: true });
 
@@ -439,7 +437,7 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
       creadoEn: serverTimestamp(),
     });
 
-    return { id: compraRef.id, total, balance: nuevoBalance, items: lineas };
+    return { id: compraRef.id, total, items: lineas };
   });
 
   // Segundo: intenta subir factura de manera no-bloqueante
@@ -463,13 +461,19 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
 
     facturaSubida = true;
   } catch (error) {
-    // Fallo: registra el error pero NO detiene el proceso
+    // Fallo: registra el error pero NO detiene el proceso. La compra ya quedó
+    // guardada por la transacción anterior; si este intento de marcarla como
+    // "error" también falla, no debe ocultar el resultado ya exitoso.
     facturaError = error.message || "Error desconocido al subir factura.";
-    await setDoc(doc(db, "compras", transactionResult.id), {
-      facturaEstado: "error",
-      facturaError,
-      actualizadoEn: serverTimestamp(),
-    }, { merge: true });
+    try {
+      await setDoc(doc(db, "compras", transactionResult.id), {
+        facturaEstado: "error",
+        facturaError,
+        actualizadoEn: serverTimestamp(),
+      }, { merge: true });
+    } catch (errorSecundario) {
+      console.warn("No se pudo marcar la factura como pendiente/error:", errorSecundario);
+    }
   }
 
   return {
@@ -662,7 +666,6 @@ export async function registrarVentaConMerma({
   const mermaRef = mermaItems.length > 0 ? doc(collection(db, "mermas")) : null;
 
   return runTransaction(db, async (tx) => {
-    const fondoSnap = tieneMovimientoVenta ? await tx.get(fondoRef()) : null;
     const cacheProductos = new Map();
     const lectVenta = items.length > 0 ? await leerProductosTx(tx, items, cacheProductos) : [];
     const lectMerma = mermaItems.length > 0 ? await leerProductosTx(tx, mermaItems, cacheProductos) : [];
@@ -792,10 +795,10 @@ export async function registrarVentaConMerma({
     utilidadTotal = r2(utilidadTotal);
     perdidaTotal = r2(perdidaTotal);
 
-    let nuevoBalance = fondoSnap ? aNumero(fondoSnap.data()?.balance, 0) : 0;
     if (tieneMovimientoVenta) {
-      nuevoBalance += total;
-      tx.set(fondoRef(), { balance: nuevoBalance, actualizadoEn: serverTimestamp() }, { merge: true });
+      // increment() evita tener que leer antes el balance, para que roles sin
+      // acceso de lectura a /fondos puedan completar esta transacción.
+      tx.set(fondoRef(), { balance: increment(total), actualizadoEn: serverTimestamp() }, { merge: true });
       tx.set(fondoMovimientoRef, {
         tipo: "ingreso",
         origen: "venta",
@@ -843,7 +846,6 @@ export async function registrarVentaConMerma({
     return {
       id: ventaRef ? ventaRef.id : (mermaRef ? mermaRef.id : null),
       total,
-      balance: nuevoBalance,
       utilidadTotal,
       perdidaTotal,
       items: lineas,

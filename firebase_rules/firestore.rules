@@ -70,7 +70,11 @@ service cloud.firestore {
     // ── Inventario y catálogo ────────────────────────────────────────────────
     match /productos/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow create, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      // Venta Rápida (todos los roles con permiso) solo puede tocar el stock;
+      // cambios a otros campos (precio, nombre, etc.) siguen restringidos a gestión.
+      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
+        || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock', 'actualizadoEn']));
     }
 
     match /categorias/{id} {
@@ -81,14 +85,21 @@ service cloud.firestore {
     // ── Operaciones financieras ──────────────────────────────────────────────
     match /ventas/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      // Venta Rápida: cualquier rol (excepto sin_rol) puede registrar una venta.
+      allow create: if isStaff();
       allow update, delete: if hasRol(['ceo', 'junta_principal']);
     }
 
     match /compras/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
       allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      // Tras registrar la compra, el flujo sube la factura a Storage y luego
+      // actualiza solo su estado (factura/facturaEstado/facturaError); quien
+      // pudo crear la compra debe poder cerrar ese mismo paso.
+      allow update: if hasRol(['ceo', 'junta_principal'])
+        || (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['factura', 'facturaEstado', 'facturaError', 'actualizadoEn']));
+      allow delete: if hasRol(['ceo', 'junta_principal']);
     }
 
     match /mermas/{id} {
@@ -98,19 +109,28 @@ service cloud.firestore {
     }
 
     match /fondos/{id} {
+      // Ver y editar el fondo libremente: solo gestión financiera.
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
-      allow write: if hasRol(['ceo', 'junta_principal', 'finanzas']);
+      allow create, delete: if hasRol(['ceo', 'junta_principal', 'finanzas']);
+      // Venta Rápida / Compras / Ventas: cualquier staff puede sumar/restar el
+      // balance como efecto secundario de una venta o compra (vía increment(),
+      // que no requiere leer el documento antes), sin poder ver ni editar
+      // libremente el fondo.
+      allow update: if hasRol(['ceo', 'junta_principal', 'finanzas'])
+        || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'actualizadoEn']));
     }
 
     match /fondos_entrada/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      // Venta Rápida: cualquier rol (excepto sin_rol) genera un movimiento de ingreso.
+      allow create: if isStaff();
       allow update, delete: if hasRol(['ceo', 'junta_principal']);
     }
 
     match /movimientos_inventario/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      // Venta Rápida: cualquier rol (excepto sin_rol) genera el movimiento de salida.
+      allow create: if isStaff();
       allow update, delete: if hasRol(['ceo', 'junta_principal']);
     }
 
