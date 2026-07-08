@@ -49,6 +49,11 @@ export const PERMISOS = {
   ver_precios:       ["junta_principal","finanzas","ventas","ceo"],
   aprobar_gastos:    ["junta_principal","ceo"],
   exportar_datos:    ["junta_principal","ceo"],
+  // Corregir una venta o compra ya registrada (reescribe items/total y ajusta
+  // stock y fondos por la diferencia). Exclusivo de CEO por ser una operación
+  // sensible que reescribe historial financiero — a propósito no se incluye
+  // a junta_principal ni a ningún otro rol de nivel 6.
+  corregir_operaciones: ["ceo"],
   gestionar_usuarios:   ["junta_principal","ceo"],
   gestionar_inscripciones: ["ceo"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],

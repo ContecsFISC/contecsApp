@@ -1,6 +1,7 @@
 import { auth, db, storage } from "./firebase-config.js";
 import {
-  collection, doc, increment, runTransaction, serverTimestamp, setDoc
+  collection, doc, increment, runTransaction, serverTimestamp, setDoc,
+  getDocs, query, where
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import {
   getDownloadURL,
@@ -391,10 +392,23 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
         creadoEn: serverTimestamp(),
       });
 
+      // Se guardan también paquetes/unidades-por-paquete/precio-por-paquete
+      // (no solo el total ya calculado) para que una corrección posterior
+      // pueda editar la compra con las mismas unidades con que se capturó,
+      // en vez de forzar a recalcular a partir del precio por unidad.
+      const cantidadPaqueteGuardada = Math.trunc(aNumero(item.cantidadPaquete, 0)) || 1;
+      const unidadesPorPaqueteGuardada = Math.trunc(aNumero(item.unidadesPorPaquete, 0)) || cantidad;
+      const precioPaqueteGuardado = Number.isFinite(precioPaquete) && precioPaquete > 0
+        ? r2(precioPaquete)
+        : r2(subtotal / cantidadPaqueteGuardada);
+
       lineas.push({
         productoId: item.productoId,
         nombre: nombreProducto(item, producto),
         cantidad,
+        cantidadPaquete: cantidadPaqueteGuardada,
+        unidadesPorPaquete: unidadesPorPaqueteGuardada,
+        precioPaquete: precioPaqueteGuardado,
         precioUnitario: unitario,
         subtotal,
       });
@@ -481,6 +495,466 @@ export async function registrarCompra({ usuarioId, usuarioNombre = "", proveedor
     facturaSubida,
     facturaError,
   };
+}
+
+// ── CORRECCIÓN DE VENTAS Y COMPRAS ────────────────────────────────────────────
+// Permite a CEO corregir una venta/compra ya registrada por error de captura,
+// sin tocar la base de datos a mano. En vez de reescribir los movimientos ya
+// existentes (stock/fondos), se calcula la diferencia neta entre lo anterior y
+// lo corregido y se aplica como un ajuste adicional dentro de una única
+// transacción atómica. Los movimientos originales quedan intactos y se agrega
+// un movimiento de "corrección" nuevo, para conservar un rastro de auditoría
+// completo. El documento de venta/compra sí se actualiza con los valores
+// corregidos (es lo que el usuario ve), guardando además el estado anterior en
+// `historialCorrecciones`.
+
+function agruparCantidadPorProducto(items) {
+  const mapa = new Map();
+  (items || []).forEach((item) => {
+    const productoId = item?.productoId;
+    if (!productoId) return;
+    const cantidad = Math.trunc(aNumero(item.cantidad, 0));
+    mapa.set(productoId, (mapa.get(productoId) || 0) + cantidad);
+  });
+  return mapa;
+}
+
+function validarItemsCorreccion(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Agrega al menos un producto.");
+  }
+  items.forEach((item) => {
+    if (!item.productoId) throw new Error("Falta el producto en una de las líneas.");
+    const cantidad = Math.trunc(aNumero(item.cantidad, 0));
+    if (cantidad <= 0) throw new Error(`Cantidad inválida para ${item.nombre || item.productoId}.`);
+    const precio = aNumero(item.precioUnitario, NaN);
+    if (!Number.isFinite(precio) || precio < 0) throw new Error(`Precio inválido para ${item.nombre || item.productoId}.`);
+  });
+}
+
+// Los items de compra se capturan igual que en compras2.js: por paquete
+// (cantidadPaquete × unidadesPorPaquete) y precio por paquete, no por unidad
+// suelta — así una corrección puede editarse con las mismas unidades con que
+// se registró originalmente.
+function normalizarItemsCorreccionCompra(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Agrega al menos un producto.");
+  }
+  return items.map((item) => {
+    if (!item.productoId) throw new Error("Falta el producto en una de las líneas.");
+    const cantidadPaquete = Math.trunc(aNumero(item.cantidadPaquete, 0));
+    const unidadesPorPaquete = Math.trunc(aNumero(item.unidadesPorPaquete, 0));
+    const precioPaquete = aNumero(item.precioPaquete, NaN);
+    if (cantidadPaquete <= 0) throw new Error(`Cantidad de paquetes inválida para ${item.nombre || item.productoId}.`);
+    if (unidadesPorPaquete <= 0) throw new Error(`Unidades por paquete inválidas para ${item.nombre || item.productoId}.`);
+    if (!Number.isFinite(precioPaquete) || precioPaquete <= 0) throw new Error(`Precio por paquete inválido para ${item.nombre || item.productoId}.`);
+
+    const cantidad = cantidadPaquete * unidadesPorPaquete;
+    const subtotal = r2(precioPaquete * cantidadPaquete);
+    return {
+      productoId: item.productoId,
+      nombre: item.nombre,
+      cantidadPaquete,
+      unidadesPorPaquete,
+      precioPaquete: r2(precioPaquete),
+      cantidad,
+      subtotal,
+      precioUnitario: r2(subtotal / cantidad),
+    };
+  });
+}
+
+async function leerProductosPorIds(tx, productoIds, cache) {
+  const lecturas = await leerProductosTx(tx, [...productoIds].map((productoId) => ({ productoId })), cache);
+  const mapa = new Map();
+  lecturas.forEach(({ ref, snap, item }) => mapa.set(item.productoId, { ref, snap }));
+  return mapa;
+}
+
+export async function corregirVenta({ ventaId, usuarioId, usuarioNombre = "", items, metodoPago, nota = "", motivoCorreccion }) {
+  if (!usuarioId) throw new Error("No se pudo identificar al usuario.");
+  if (!ventaId) throw new Error("No se especificó la venta a corregir.");
+  if (!String(motivoCorreccion || "").trim()) throw new Error("Debes indicar el motivo de la corrección.");
+  if (!String(metodoPago || "").trim()) throw new Error("Selecciona un método de pago.");
+  validarItemsCorreccion(items);
+
+  const ventaRef = doc(db, "ventas", ventaId);
+  const fondoMovimientoRef = crearMovimientoFondoRef();
+
+  return runTransaction(db, async (tx) => {
+    const ventaSnap = await tx.get(ventaRef);
+    if (!ventaSnap.exists()) throw new Error("La venta ya no existe.");
+    const ventaActual = ventaSnap.data();
+    const oldItems = Array.isArray(ventaActual.items) ? ventaActual.items : [];
+
+    const cantidadesAntes = agruparCantidadPorProducto(oldItems);
+    const cantidadesDespues = agruparCantidadPorProducto(items);
+    const productoIds = new Set([...cantidadesAntes.keys(), ...cantidadesDespues.keys()]);
+
+    const productos = await leerProductosPorIds(tx, productoIds, new Map());
+
+    // Calcular el stock resultante por producto: se revierte la venta anterior
+    // (se devuelve lo vendido) y se aplica la venta corregida (se descuenta lo nuevo).
+    const stockResultante = new Map();
+    productos.forEach(({ snap }, productoId) => {
+      if (!snap.exists()) throw new Error(`El producto ${productoId} ya no existe.`);
+      const producto = snap.data();
+      const stockActual = aNumero(producto.stock, 0);
+      const antes = cantidadesAntes.get(productoId) || 0;
+      const despues = cantidadesDespues.get(productoId) || 0;
+      const nuevoStock = stockActual + antes - despues;
+      if (nuevoStock < 0) {
+        throw new Error(`Stock insuficiente para ${producto.nombre || productoId} tras la corrección.`);
+      }
+      stockResultante.set(productoId, { antes: stockActual, despues: nuevoStock, producto });
+    });
+
+    // Reconstruir las líneas de la venta corregida. Si el item trae su propio
+    // costoUnitario (editado a mano en el modal de corrección) se respeta tal
+    // cual; si no, se toma el costo actual del producto.
+    const lineasNuevas = [];
+    let total = 0;
+    let utilidadTotal = 0;
+    items.forEach((item) => {
+      const producto = stockResultante.get(item.productoId)?.producto || null;
+      const cantidad = Math.trunc(aNumero(item.cantidad, 0));
+      const unitario = precioItem(item, producto, "precioVenta");
+      const costoUnitario = costoItem(item, producto);
+      const utilidadUnit = utilidadUnitaria(unitario, costoUnitario);
+      const subtotal = r2(unitario * cantidad);
+      const utilidadLinea = r2(utilidadUnit * cantidad);
+      lineasNuevas.push({
+        productoId: item.productoId,
+        nombre: nombreProducto(item, producto),
+        cantidad,
+        precioUnitario: unitario,
+        costoUnitario,
+        utilidadUnitaria: utilidadUnit,
+        utilidadTotal: utilidadLinea,
+        subtotal,
+        tipo: "venta",
+      });
+      total += subtotal;
+      utilidadTotal += utilidadLinea;
+    });
+    total = r2(total);
+    utilidadTotal = r2(utilidadTotal);
+
+    // Aplicar cambios de stock + un movimiento de inventario por producto afectado.
+    stockResultante.forEach(({ antes, despues, producto }, productoId) => {
+      if (despues === antes) return;
+      tx.update(productos.get(productoId).ref, { stock: despues, actualizadoEn: serverTimestamp() });
+      tx.set(crearMovimientoInventarioRef(), {
+        tipo: despues > antes ? "entrada" : "salida",
+        origen: "correccion_venta",
+        productoId,
+        nombre: producto.nombre || "Producto",
+        cantidad: Math.abs(despues - antes),
+        antes,
+        despues,
+        motivo: `Corrección de venta: ${motivoCorreccion.trim()}`,
+        referenciaId: ventaId,
+        usuarioId,
+        creadoEn: serverTimestamp(),
+      });
+    });
+
+    // Ajustar el fondo por la diferencia entre el total anterior y el corregido.
+    const totalAnterior = r2(aNumero(ventaActual.total, 0));
+    const deltaFondo = r2(total - totalAnterior);
+    if (Math.abs(deltaFondo) >= 0.005) {
+      tx.set(fondoRef(), { balance: increment(deltaFondo), actualizadoEn: serverTimestamp() }, { merge: true });
+      tx.set(fondoMovimientoRef, {
+        tipo: deltaFondo > 0 ? "ingreso" : "salida",
+        origen: "correccion_venta",
+        monto: Math.abs(deltaFondo),
+        descripcion: `Corrección de venta: ${motivoCorreccion.trim()}`,
+        titulo: "Corrección de venta",
+        referenciaId: ventaId,
+        usuarioId,
+        usuarioNombre,
+        creadoEn: serverTimestamp(),
+      });
+    }
+
+    const historial = Array.isArray(ventaActual.historialCorrecciones) ? [...ventaActual.historialCorrecciones] : [];
+    historial.push({
+      fecha: new Date(),
+      usuarioId,
+      usuarioNombre,
+      motivo: motivoCorreccion.trim(),
+      itemsAnteriores: oldItems,
+      totalAnterior,
+      metodoPagoAnterior: ventaActual.metodoPago || null,
+      notaAnterior: ventaActual.nota || null,
+    });
+
+    tx.update(ventaRef, {
+      items: lineasNuevas,
+      total,
+      utilidadTotal,
+      metodoPago,
+      nota,
+      historialCorrecciones: historial,
+      ultimaCorreccion: {
+        fecha: serverTimestamp(),
+        usuarioId,
+        usuarioNombre,
+        motivo: motivoCorreccion.trim(),
+      },
+      actualizadoEn: serverTimestamp(),
+    });
+
+    return { id: ventaId, total, utilidadTotal };
+  });
+}
+
+// Cuando corregir una compra cambia el costo de un producto, las ventas ya
+// registradas de ese producto entre la fecha de esa compra y ahora quedaron
+// con la utilidad calculada sobre el costo equivocado (el costo se "fotografía"
+// al momento de vender, no se recalcula solo). Este paso, best-effort y
+// posterior a la transacción principal, busca esas ventas y corrige la
+// utilidad de las líneas que coinciden exactamente con el costo anterior — no
+// mueve stock ni fondos, solo corrige la métrica de utilidad ya guardada.
+//
+// Supuesto: como el costo de un producto es un solo valor "vigente" (no hay
+// lotes/costeo por compra), esto asume que no hubo OTRA compra del mismo
+// producto entre la compra corregida y ahora; si la hubo, esas ventas ya
+// tendrían un costo distinto guardado y no calzarán con `costoAnterior`, así
+// que quedarán sin tocar (más seguro que corregir de más).
+async function recalcularUtilidadVentasPorCambioCosto(cambiosCosto, desde) {
+  if (!Array.isArray(cambiosCosto) || cambiosCosto.length === 0 || !desde) return;
+
+  const cambiosPorProducto = new Map(cambiosCosto.map((c) => [c.productoId, c]));
+
+  let snap;
+  try {
+    snap = await getDocs(query(collection(db, "ventas"), where("creadoEn", ">=", desde)));
+  } catch (error) {
+    console.warn("No se pudieron buscar ventas afectadas por el cambio de costo:", error);
+    return;
+  }
+
+  function recalcularLinea(linea, esMerma) {
+    const cambio = cambiosPorProducto.get(linea.productoId);
+    if (!cambio) return linea;
+    if (Math.abs(aNumero(linea.costoUnitario, 0) - cambio.costoAnterior) >= 0.005) return linea;
+
+    const costoUnitario = cambio.costoNuevo;
+    const cantidad = aNumero(linea.cantidad, 0);
+    const esMermaSinVender = esMerma && linea.tipo !== "vendida";
+    const utilidadUnit = esMermaSinVender
+      ? -costoUnitario
+      : utilidadUnitaria(aNumero(linea.precioUnitario, 0), costoUnitario);
+
+    return { ...linea, costoUnitario, utilidadUnitaria: utilidadUnit, utilidadTotal: r2(utilidadUnit * cantidad), _cambiado: true };
+  }
+
+  for (const ventaDoc of snap.docs) {
+    // Prefiltro barato con los datos ya traídos por la query, para no abrir
+    // una transacción (lectura+posible escritura) por cada venta del rango de
+    // fechas — solo por las que de verdad podrían tener el producto afectado.
+    const ventaData = ventaDoc.data();
+    const posibleCambio = (ventaData.items || []).some((it) => cambiosPorProducto.has(it.productoId))
+      || (ventaData.mermas || []).some((m) => cambiosPorProducto.has(m.productoId));
+    if (!posibleCambio) continue;
+
+    const ventaRef = ventaDoc.ref;
+    try {
+      await runTransaction(db, async (tx) => {
+        const freshSnap = await tx.get(ventaRef);
+        if (!freshSnap.exists()) return;
+        const venta = freshSnap.data();
+
+        const items = (venta.items || []).map((it) => recalcularLinea(it, false));
+        const mermas = (venta.mermas || []).map((m) => recalcularLinea(m, true));
+
+        const huboCambio = items.some((it) => it._cambiado) || mermas.some((m) => m._cambiado);
+        if (!huboCambio) return;
+
+        let utilidadTotal = 0;
+        let perdidaTotal = 0;
+        items.forEach((it) => { utilidadTotal += aNumero(it.utilidadTotal, 0); delete it._cambiado; });
+        mermas.forEach((m) => {
+          utilidadTotal += aNumero(m.utilidadTotal, 0);
+          if (m.tipo !== "vendida") perdidaTotal += r2(aNumero(m.costoUnitario, 0) * aNumero(m.cantidad, 0));
+          delete m._cambiado;
+        });
+
+        tx.update(ventaRef, {
+          items,
+          ...(venta.mermas ? { mermas } : {}),
+          utilidadTotal: r2(utilidadTotal),
+          ...(venta.mermas ? { perdidaTotal: r2(perdidaTotal) } : {}),
+          actualizadoEn: serverTimestamp(),
+        });
+      });
+    } catch (error) {
+      console.warn(`No se pudo recalcular la utilidad de la venta ${ventaDoc.id}:`, error);
+    }
+  }
+}
+
+export async function corregirCompra({ compraId, usuarioId, usuarioNombre = "", proveedor, items, metodoPago, nota = "", motivoCorreccion }) {
+  if (!usuarioId) throw new Error("No se pudo identificar al usuario.");
+  if (!compraId) throw new Error("No se especificó la compra a corregir.");
+  if (!String(motivoCorreccion || "").trim()) throw new Error("Debes indicar el motivo de la corrección.");
+  if (!String(proveedor || "").trim()) throw new Error("El proveedor es obligatorio.");
+  if (!String(metodoPago || "").trim()) throw new Error("Selecciona un método de pago.");
+  const itemsNormalizados = normalizarItemsCorreccionCompra(items);
+
+  const compraRef = doc(db, "compras", compraId);
+  const fondoMovimientoRef = crearMovimientoFondoRef();
+
+  const resultado = await runTransaction(db, async (tx) => {
+    const compraSnap = await tx.get(compraRef);
+    if (!compraSnap.exists()) throw new Error("La compra ya no existe.");
+    const compraActual = compraSnap.data();
+    const oldItems = Array.isArray(compraActual.items) ? compraActual.items : [];
+
+    const cantidadesAntes = agruparCantidadPorProducto(oldItems);
+    const cantidadesDespues = agruparCantidadPorProducto(itemsNormalizados);
+    const productoIds = new Set([...cantidadesAntes.keys(), ...cantidadesDespues.keys()]);
+
+    const productos = await leerProductosPorIds(tx, productoIds, new Map());
+
+    // Se revierte la compra anterior (se resta lo comprado) y se aplica la
+    // compra corregida (se suma lo nuevo). Puede fallar si parte de ese stock
+    // ya se vendió y la corrección reduce la cantidad comprada.
+    const stockResultante = new Map();
+    productos.forEach(({ snap }, productoId) => {
+      if (!snap.exists()) throw new Error(`El producto ${productoId} ya no existe.`);
+      const producto = snap.data();
+      const stockActual = aNumero(producto.stock, 0);
+      const antes = cantidadesAntes.get(productoId) || 0;
+      const despues = cantidadesDespues.get(productoId) || 0;
+      const nuevoStock = stockActual - antes + despues;
+      if (nuevoStock < 0) {
+        throw new Error(`La corrección dejaría stock negativo en ${producto.nombre || productoId} (es probable que ya se haya vendido parte de esta compra).`);
+      }
+      stockResultante.set(productoId, { antes: stockActual, despues: nuevoStock, producto });
+    });
+
+    // Reconstruir líneas de la compra corregida y juntar, por producto, todos
+    // los campos a actualizar (stock + costo) en un solo update por documento.
+    const productoUpdates = new Map();
+    stockResultante.forEach(({ antes, despues }, productoId) => {
+      if (despues !== antes) productoUpdates.set(productoId, { stock: despues });
+    });
+
+    const lineasNuevas = [];
+    const cambiosCosto = [];
+    let total = 0;
+    itemsNormalizados.forEach((item) => {
+      const producto = stockResultante.get(item.productoId)?.producto || null;
+      lineasNuevas.push({
+        productoId: item.productoId,
+        nombre: nombreProducto(item, producto),
+        cantidad: item.cantidad,
+        cantidadPaquete: item.cantidadPaquete,
+        unidadesPorPaquete: item.unidadesPorPaquete,
+        precioPaquete: item.precioPaquete,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.subtotal,
+      });
+      total += item.subtotal;
+
+      const costoAnterior = r2(aNumero(producto?.precioCompra ?? producto?.ultimoCosto, 0));
+      if (Math.abs(costoAnterior - item.precioUnitario) >= 0.005) {
+        cambiosCosto.push({ productoId: item.productoId, costoAnterior, costoNuevo: item.precioUnitario });
+      }
+
+      const existente = productoUpdates.get(item.productoId) || {};
+      existente.precioCompra = item.precioUnitario;
+      existente.ultimoCosto = item.precioUnitario;
+      productoUpdates.set(item.productoId, existente);
+    });
+    total = r2(total);
+
+    productoUpdates.forEach((data, productoId) => {
+      tx.update(productos.get(productoId).ref, { ...data, actualizadoEn: serverTimestamp() });
+    });
+
+    stockResultante.forEach(({ antes, despues, producto }, productoId) => {
+      if (despues === antes) return;
+      tx.set(crearMovimientoInventarioRef(), {
+        tipo: despues > antes ? "entrada" : "salida",
+        origen: "correccion_compra",
+        productoId,
+        nombre: producto.nombre || "Producto",
+        cantidad: Math.abs(despues - antes),
+        antes,
+        despues,
+        motivo: `Corrección de compra: ${motivoCorreccion.trim()}`,
+        referenciaId: compraId,
+        usuarioId,
+        creadoEn: serverTimestamp(),
+      });
+    });
+
+    // Ajustar el fondo: si el nuevo total es mayor, se descuenta más; si es
+    // menor, se devuelve la diferencia.
+    const totalAnterior = r2(aNumero(compraActual.total, 0));
+    const deltaFondo = r2(total - totalAnterior);
+    if (Math.abs(deltaFondo) >= 0.005) {
+      tx.set(fondoRef(), { balance: increment(-deltaFondo), actualizadoEn: serverTimestamp() }, { merge: true });
+      tx.set(fondoMovimientoRef, {
+        tipo: deltaFondo > 0 ? "salida" : "ingreso",
+        origen: "correccion_compra",
+        monto: Math.abs(deltaFondo),
+        descripcion: `Corrección de compra: ${motivoCorreccion.trim()}`,
+        titulo: "Corrección de compra",
+        referenciaId: compraId,
+        usuarioId,
+        usuarioNombre,
+        creadoEn: serverTimestamp(),
+      });
+    }
+
+    const historial = Array.isArray(compraActual.historialCorrecciones) ? [...compraActual.historialCorrecciones] : [];
+    historial.push({
+      fecha: new Date(),
+      usuarioId,
+      usuarioNombre,
+      motivo: motivoCorreccion.trim(),
+      itemsAnteriores: oldItems,
+      totalAnterior,
+      proveedorAnterior: compraActual.proveedor || null,
+      metodoPagoAnterior: compraActual.metodoPago || null,
+      notaAnterior: compraActual.nota || null,
+    });
+
+    tx.update(compraRef, {
+      items: lineasNuevas,
+      total,
+      proveedor: proveedor.trim(),
+      metodoPago,
+      nota,
+      historialCorrecciones: historial,
+      ultimaCorreccion: {
+        fecha: serverTimestamp(),
+        usuarioId,
+        usuarioNombre,
+        motivo: motivoCorreccion.trim(),
+      },
+      actualizadoEn: serverTimestamp(),
+    });
+
+    return { id: compraId, total, cambiosCosto, compraCreadoEn: compraActual.creadoEn };
+  });
+
+  // Best-effort y fuera de la transacción principal: si cambió el costo de
+  // algún producto, corrige la utilidad de las ventas ya registradas de ese
+  // producto que quedaron calculadas con el costo equivocado. Si esto falla,
+  // no se revierte la corrección de la compra (stock/fondo), que ya quedó
+  // bien — solo quedaría pendiente ajustar la utilidad mostrada en ventas.
+  try {
+    await recalcularUtilidadVentasPorCambioCosto(resultado.cambiosCosto, resultado.compraCreadoEn);
+  } catch (error) {
+    console.warn("No se pudo recalcular la utilidad de ventas posteriores:", error);
+  }
+
+  return resultado;
 }
 
 export async function ajustarStock({ usuarioId, productoId, cantidad, tipo, motivo = "" }) {

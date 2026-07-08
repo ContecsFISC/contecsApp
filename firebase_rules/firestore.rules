@@ -87,7 +87,9 @@ service cloud.firestore {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
       // Venta Rápida: cualquier rol (excepto sin_rol) puede registrar una venta.
       allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      // Corregir/anular una venta ya registrada es exclusivo de CEO (ver
+      // corregir_operaciones en permisos.js): reescribe historial financiero.
+      allow update, delete: if hasRol(['ceo']);
     }
 
     match /compras/{id} {
@@ -95,11 +97,12 @@ service cloud.firestore {
       allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
       // Tras registrar la compra, el flujo sube la factura a Storage y luego
       // actualiza solo su estado (factura/facturaEstado/facturaError); quien
-      // pudo crear la compra debe poder cerrar ese mismo paso.
-      allow update: if hasRol(['ceo', 'junta_principal'])
+      // pudo crear la compra debe poder cerrar ese mismo paso. Corregir el
+      // resto de la compra (items/proveedor/etc.) es exclusivo de CEO.
+      allow update: if hasRol(['ceo'])
         || (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['factura', 'facturaEstado', 'facturaError', 'actualizadoEn']));
-      allow delete: if hasRol(['ceo', 'junta_principal']);
+      allow delete: if hasRol(['ceo']);
     }
 
     match /mermas/{id} {
