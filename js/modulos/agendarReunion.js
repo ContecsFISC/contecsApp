@@ -11,6 +11,7 @@ const reunionId = new URLSearchParams(window.location.search).get("id");
 const esEdicion = !!reunionId;
 
 let reunionExistente = null;
+let usuariosCache = [];
 
 function mostrarAlerta(tipo, mensaje) {
   const a = el("alerta-global");
@@ -38,15 +39,18 @@ function renderRoles(rolesMarcados = []) {
 }
 
 // ── Carga de usuarios para invitación individual (marca los ya invitados) ─────
+// Se cachean también para la vista previa de "Por rol": permite mostrarle al
+// secretario, apenas marca un rol, quiénes son exactamente las personas que
+// está invitando (no solo el nombre del rol).
 async function cargarUsuarios(uidsMarcados = []) {
   try {
     const snap = await getDocs(collection(db, "usuarios"));
-    const usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (usuarios.length === 0) {
+    usuariosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (usuariosCache.length === 0) {
       el("grid-usuarios").innerHTML = `<span style="color:var(--gris-medio);font-size:13px;">No hay usuarios registrados.</span>`;
       return;
     }
-    el("grid-usuarios").innerHTML = usuarios.map(u => `
+    el("grid-usuarios").innerHTML = usuariosCache.map(u => `
       <label class="check-item usuario-item">
         <input type="checkbox" name="uidInvitado" value="${u.id}" ${uidsMarcados.includes(u.id) ? "checked" : ""}/>
         ${u.foto ? `<img src="${u.foto}" alt=""/>` : `<span class="avatar-fallback">${(u.nombre || "?").charAt(0).toUpperCase()}</span>`}
@@ -56,8 +60,49 @@ async function cargarUsuarios(uidsMarcados = []) {
   } catch (e) {
     console.error(e);
     el("grid-usuarios").innerHTML = `<span style="color:var(--rojo);font-size:13px;">Error al cargar usuarios.</span>`;
+  } finally {
+    renderPersonasPorRol();
   }
 }
+
+// ── Vista previa de personas invitadas al marcar roles ────────────────────────
+function renderPersonasPorRol() {
+  const preview = el("rol-personas-preview");
+  if (!preview) return;
+
+  const rolesSeleccionados = [...document.querySelectorAll('input[name="rolInvitado"]:checked')].map(c => c.value);
+  if (rolesSeleccionados.length === 0) {
+    preview.innerHTML = "";
+    return;
+  }
+
+  const personas = usuariosCache.filter(u => rolesSeleccionados.includes(u.rol));
+
+  if (personas.length === 0) {
+    preview.innerHTML = `
+      <div class="rol-personas-titulo">Personas invitadas (0)</div>
+      <span style="color:var(--gris-medio);font-size:13px;">Nadie tiene asignado alguno de estos roles todavía.</span>`;
+    return;
+  }
+
+  preview.innerHTML = `
+    <div class="rol-personas-titulo">Personas invitadas (${personas.length})</div>
+    <div class="checkbox-grid">
+      ${personas.map(u => `
+        <div class="check-item usuario-item usuario-preview">
+          ${u.foto ? `<img src="${u.foto}" alt=""/>` : `<span class="avatar-fallback">${(u.nombre || "?").charAt(0).toUpperCase()}</span>`}
+          <span class="nombre-preview">${u.nombre || u.email || "Sin nombre"}</span>
+          <span class="rol-badge" style="background:${ROLES[u.rol]?.color || "#717D7E"};">${ROLES[u.rol]?.label || u.rol}</span>
+        </div>
+      `).join("")}
+    </div>`;
+}
+
+// Los checkboxes de rol se regeneran dinámicamente (renderRoles), así que se
+// escucha en el contenedor padre (delegación) en vez de en cada input.
+el("grid-roles").addEventListener("change", (e) => {
+  if (e.target && e.target.name === "rolInvitado") renderPersonasPorRol();
+});
 
 // ── Toggle de bloques según modo de invitados ─────────────────────────────────
 document.querySelectorAll('input[name="modoInvitados"]').forEach(radio => {
