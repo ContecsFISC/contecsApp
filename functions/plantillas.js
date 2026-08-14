@@ -24,6 +24,7 @@ function parseMeta(html) {
 function htmlATexto(html) {
   return html
       .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, "")
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n\n")

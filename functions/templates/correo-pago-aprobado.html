@@ -15,6 +15,12 @@
 </head>
 <body style="margin:0;padding:0;background-color:#f0f4f1;">
 
+  <!-- Preheader: texto de vista previa en la bandeja de entrada (oculto en el cuerpo) -->
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#f0f4f1;opacity:0;">
+    Tu pago fue confirmado — tu credencial con código {{codigo}} ya está activa para el II CONTECS 2026.
+  </div>
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;&#8199;&zwnj;&nbsp;</div>
+
   <!-- Wrapper -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
          style="background-color:#f0f4f1;">
@@ -128,25 +134,40 @@
             </td>
           </tr>
 
-          <!-- ── BOTÓN CTA ── -->
+          <!-- ── BOTÓN CTA (verde marca CONTECS, con fallback VML para Outlook de escritorio) ── -->
           <tr>
             <td align="center" style="background:#ffffff;padding:24px 28px 28px;">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+                           href="{{link_perfil}}" style="height:50px;v-text-anchor:middle;width:280px;" arcsize="20%"
+                           fillcolor="#00722e" strokecolor="#00722e">
+                <w:anchorlock/>
+                <center style="color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:700;">
+                  Abrir mi credencial &rarr;
+                </center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
               <table role="presentation" cellpadding="0" cellspacing="0" border="0"
                      style="border-radius:10px;overflow:hidden;">
                 <tr>
-                  <td align="center" bgcolor="#045223"
-                      style="background-color:#045223;border-radius:10px;padding:0;">
+                  <td align="center" bgcolor="#00722e"
+                      style="background-color:#00722e;border-radius:10px;padding:0;">
                     <a href="{{link_perfil}}"
-                       style="display:inline-block;padding:14px 36px;font-size:15px;font-weight:700;
+                       style="display:inline-block;padding:15px 40px;font-size:15px;font-weight:700;
                               color:#ffffff !important;text-decoration:none;
-                              background-color:#045223 !important;background:#045223;
+                              background-color:#00722e !important;background:#00722e;
                               border-radius:10px;font-family:'Segoe UI',Arial,sans-serif;
-                              mso-padding-alt:14px 36px;">
+                              mso-padding-alt:15px 40px;">
                       &#x1F4F1; Abrir mi credencial &rarr;
                     </a>
                   </td>
                 </tr>
               </table>
+              <!--<![endif]-->
+              <p style="margin:14px 0 0;font-size:11px;color:#8a9e8d;">
+                Tu código QR de acceso se generará al abrir tu credencial.
+              </p>
             </td>
           </tr>
 

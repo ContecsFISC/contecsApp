@@ -197,8 +197,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
- import { guardRoute } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
+ requirePermiso("ver_estadisticas_congreso");
  const { default: init } = await import("../../../js/modulos/reportes_estadisticaCont.js");
  init();
 </script>

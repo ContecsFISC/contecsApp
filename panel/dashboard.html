@@ -8,27 +8,16 @@
   <style>
     /* ══════════ ZONA A — HEADER ══════════ */
     .header-a {
-      background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
+      background: var(--verde-oscuro);
       color: var(--blanco);
       border-radius: var(--radio-lg);
-      padding: 22px 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 8px 28px rgba(4,82,35,0.30);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--sombra-lg);
       position: relative;
       overflow: hidden;
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
       animation-delay: 0.05s;
-    }
-    .header-a::after {
-      content: '';
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 72px;
-      height: 72px;
-      background: url('../logocontecsheader.png') center/contain no-repeat;
-      opacity: 0.16;
     }
     .header-a .saludo { font-size: 13px; opacity: 0.8; }
     .header-a .nombre { font-size: 21px; font-weight: 700; margin: 3px 0 10px; }
@@ -49,14 +38,27 @@
       font-size: 12px;
       font-weight: 600;
     }
-    .nivel-pill {
-      display: inline-block;
-      background: rgba(57,181,74,0.3);
-      border: 1px solid rgba(57,181,74,0.4);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
+    /* Badge tipo medalla/certificado — cuerpo blanco (dorado para CEO),
+       check en verde institucional (blanco para CEO). Construido con
+       círculos superpuestos (pétalos) para el borde festoneado + dos
+       cintas colgando abajo, como una medalla de certificación real. */
+    .badge-verificado {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 25px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28));
     }
+    .badge-verificado svg { width: 100%; height: 100%; display: block; }
+    .badge-verificado .bv-body { fill: #ffffff; }
+    .badge-verificado .bv-check { stroke: var(--verde); }
+
+    /* Variante dorada — exclusiva para el rol CEO */
+    .badge-verificado--ceo { filter: drop-shadow(0 2px 6px rgba(184,134,47,0.55)); }
+    .badge-verificado--ceo .bv-body { fill: #d4af37; }
+    .badge-verificado--ceo .bv-check { stroke: #ffffff; }
     .cuenta-regresiva {
       margin-top: 14px;
       padding-top: 14px;
@@ -78,10 +80,9 @@
     }
     .widget-card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: var(--radio);
       padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      border-left: 3px solid var(--verde-claro);
+      box-shadow: var(--sombra-sm);
       animation: cardCascade 0.45s var(--ease-spring) both;
     }
     .widget-card:nth-child(1) { animation-delay: 0.10s; }
@@ -93,23 +94,51 @@
     .widget-alerta { font-size: 19px; font-weight: 700; color: var(--rojo); }
     .widget-ok     { font-size: 15px; font-weight: 700; color: var(--verde-claro); }
 
-    /* ══════════ ZONA C — PRÓXIMOS EVENTOS ══════════ */
-    .eventos-lista { display: flex; flex-direction: column; gap: 8px; }
-    .evento-item {
+    /* ══════════ ZONA C — AGENDA (protagonista del home) ══════════ */
+    .agenda-hoy-titulo, .agenda-proximos-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gris-medio);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin: 24px 0 10px 2px;
+    }
+    .agenda-hoy-titulo { margin-top: 0; }
+
+    /* Eventos de HOY — destacados, más grandes */
+    .evento-hoy {
       background: #fff;
-      border-radius: var(--radio-sm);
-      padding: 12px 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border-radius: var(--radio);
+      padding: 18px 20px;
+      box-shadow: var(--sombra-sm);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      animation: cardCascade 0.4s var(--ease-spring) both;
+      border-left: 3px solid var(--verde);
+    }
+    .evento-hoy .evt-punto { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .evento-hoy .evt-info  { flex: 1; min-width: 0; }
+    .evento-hoy .evt-nombre { font-size: 16px; font-weight: 600; color: var(--gris-texto); }
+    .evento-hoy .evt-fecha  { font-size: 13px; color: var(--gris-texto-sec); margin-top: 3px; }
+
+    /* Próximos días — timeline compacto, más discreto */
+    .eventos-lista { display: flex; flex-direction: column; gap: 0; }
+    .evento-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      border-left: 3px solid var(--verde-claro);
-      animation: cardCascade 0.4s var(--ease-spring) both;
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--gris-borde);
+      animation: cardCascade 0.35s var(--ease-out) both;
     }
-    .evento-item .evt-icono { font-size: 20px; }
+    .eventos-lista .evento-item:last-child { border-bottom: none; }
+    .evento-item .evt-punto { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .evento-item .evt-info  { flex: 1; min-width: 0; }
-    .evento-item .evt-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
+    .evento-item .evt-nombre { font-size: 14px; font-weight: 500; color: var(--gris-texto); }
     .evento-item .evt-fecha  { font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+
     .pill-en-vivo {
       background: var(--rojo-fondo);
       color: var(--rojo);
@@ -127,53 +156,53 @@
       padding: 18px 0;
     }
 
-    /* ══════════ ZONA D — MÓDULOS POR CATEGORÍA ══════════ */
-    .categoria-bloque { margin-bottom: 6px; }
+    /* ══════════ ZONA D — MÓDULOS POR CATEGORÍA (lista limpia, sin emojis) ══════════ */
+    .categoria-bloque { margin-bottom: 20px; }
     .categoria-titulo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
       font-size: 12px;
       font-weight: 700;
       color: var(--gris-medio);
       text-transform: uppercase;
       letter-spacing: 0.7px;
-      margin: 20px 0 10px;
+      margin: 0 0 8px 4px;
     }
     .grid-modulos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: var(--radio);
+      box-shadow: var(--sombra-sm);
+      overflow: hidden;
     }
     .modulo-btn {
-      background: #fff;
+      background: transparent;
       border: none;
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      padding: 22px 14px 18px;
-      text-align: center;
+      border-bottom: 1px solid var(--gris-borde);
+      padding: 14px 16px;
+      text-align: left;
       cursor: pointer;
       text-decoration: none;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 8px;
-      border-bottom: 3px solid var(--verde-claro);
+      justify-content: space-between;
       opacity: 0;
-      animation: cardCascade 0.42s var(--ease-spring) both;
-      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+      animation: cardCascade 0.35s var(--ease-out) both;
+      transition: background 0.15s;
     }
-    .modulo-btn:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 10px 28px rgba(0,114,46,0.18);
+    .grid-modulos .modulo-btn:last-child { border-bottom: none; }
+    .modulo-btn:hover { background: var(--verde-apagado-bg); }
+    .modulo-btn:active { background: var(--gris-suave); }
+    .modulo-btn .label { font-size: 15px; font-weight: 500; color: var(--gris-texto); }
+    .modulo-btn .chevron { color: var(--gris-medio); font-size: 18px; font-weight: 300; }
+    .modulo-btn.mod-admin .label::after {
+      content: "";
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--verde);
+      margin-left: 8px;
+      vertical-align: middle;
     }
-    .modulo-btn:active {
-      transform: scale(0.94) !important;
-      transition-duration: 0.08s;
-    }
-    .modulo-btn .icono { font-size: 30px; line-height: 1; }
-    .modulo-btn .label { font-size: 13px; font-weight: 600; color: var(--gris-texto); line-height: 1.3; }
-    .modulo-btn.mod-admin { border-bottom-color: var(--verde-oscuro); }
 
     /* ══════════ SIN ROL ══════════ */
     .sin-rol-card {
@@ -193,15 +222,271 @@
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
     }
+    /* ══════════ ☰ Botón menú (abre bottom sheet de módulos) ══════════ */
+    .btn-menu {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .btn-menu:hover { background: rgba(0,0,0,0.05); }
+    .btn-menu span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--gris-texto);
+      transition: transform 0.25s var(--ease-out), opacity 0.2s;
+    }
+    .btn-menu[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .btn-menu[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .btn-menu[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ══════════ Bottom sheet estilo iOS ══════════ */
+    .sheet-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s var(--ease-out);
+      z-index: 200;
+    }
+    .sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+    .bottom-sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      max-height: 78vh;
+      background: var(--blanco);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+      z-index: 201;
+      transform: translateY(100%);
+      transition: transform 0.38s var(--ease-spring);
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.is-open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 38px; height: 4px;
+      background: var(--gris-borde);
+      border-radius: 4px;
+      margin: 10px auto 4px;
+      flex-shrink: 0;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px 14px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gris-texto);
+      border-bottom: 1px solid var(--gris-borde);
+      flex-shrink: 0;
+    }
+    .sheet-close {
+      border: none;
+      background: var(--gris-suave);
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      font-size: 13px;
+      color: var(--gris-medio);
+      cursor: pointer;
+    }
+    .sheet-body {
+      overflow-y: auto;
+      padding: 16px 20px 32px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.sheet-open { overflow: hidden; }
+
+    /* ══════════════════════════════════════════════════════
+       TOPBAR — ahora verde, con el logo y (en escritorio) las
+       opciones de categoría integradas como dropdowns al pasar
+       el mouse. Ya no existe una segunda barra blanca debajo.
+       ══════════════════════════════════════════════════════ */
+    .topbar {
+      background: var(--verde-oscuro) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-bottom: none !important;
+      color: var(--blanco) !important;
+      position: relative; /* ancla para los dropdowns de .tab-dropdown */
+      z-index: 200;
+    }
+    .topbar::after,
+    .topbar::before { content: none !important; } /* sin liquid glass aquí */
+    .topbar.is-scrolled {
+      background: var(--verde-oscuro) !important;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18) !important;
+    }
+    .topbar h1 { color: var(--blanco) !important; }
+
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo {
+      height: 26px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .btn-menu span { background: var(--blanco); }
+    .btn-menu:hover { background: rgba(255,255,255,0.12); }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--blanco);
+    }
+    .btn-logout:hover  { background: rgba(255,255,255,0.24); }
+
+    /* Tabs — ocultas en mobile, viven en el ☰ (bottom sheet) */
+    .topbar-nav { display: none; }
+
+    @media (min-width: 1024px) {
+      /* El ☰ y el bottom sheet son cosa de mobile */
+      .btn-menu, .bottom-sheet, .sheet-backdrop { display: none !important; }
+
+      body { background: var(--gris-suave); }
+
+      .topbar {
+        padding: 0 40px;
+        display: flex;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 4px;
+      }
+      .topbar-brand { padding: 14px 0; }
+      .topbar-logo { height: 32px; }
+      .topbar-right { padding: 14px 0; margin-left: auto; }
+
+      /* ── Tabs de categoría, integradas en la propia barra verde ── */
+      .topbar-nav {
+        display: flex;
+        align-items: stretch;
+        gap: 2px;
+        margin-left: 12px;
+      }
+      .tab-wrap { position: relative; display: flex; align-items: stretch; }
+      .tab-btn {
+        border: none;
+        background: transparent;
+        padding: 0 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.92);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+      }
+      .tab-wrap:hover .tab-btn,
+      .tab-wrap:focus-within .tab-btn {
+        color: var(--blanco);
+        background: rgba(255,255,255,0.1);
+      }
+
+      /* ── Dropdown por categoría: se despliega pegado al topbar,
+         mismo tono verde, letras blancas, sin separación visual ── */
+      .tab-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        background: var(--verde-oscuro);
+        border: 1px solid rgba(255,255,255,0.22);
+        border-top: none;
+        border-radius: 0 0 var(--radio) var(--radio);
+        box-shadow: var(--sombra-lg);
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transform: translateY(-6px);
+        padding: 0 8px;
+        transition:
+          max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+          opacity 0.28s ease-out,
+          transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+          padding 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .tab-wrap:hover .tab-dropdown,
+      .tab-wrap:focus-within .tab-dropdown {
+        max-height: 420px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+        padding: 8px;
+      }
+      .tab-dropdown .modulo-btn {
+        display: block;
+        padding: 11px 14px;
+        border: none;
+        border-radius: var(--radio-sm);
+        text-decoration: none;
+        color: var(--blanco);
+        white-space: nowrap;
+        opacity: 1;
+        animation: none;
+        transition: background 0.15s var(--ease-out);
+      }
+      .tab-dropdown .modulo-btn:hover { background: rgba(255,255,255,0.14); }
+      .tab-dropdown .modulo-btn .label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #ffffff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+      }
+
+      /* Contenido principal: ancho fluido, aprovecha la pantalla */
+      .container {
+        max-width: clamp(1040px, 85vw, 1400px);
+        margin: 0 auto;
+        padding: 40px 48px 64px;
+      }
+
+      .header-a { padding: 36px 40px; }
+      .header-a .nombre { font-size: 28px; }
+
+      .widgets-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      .card { padding: 28px; }
+    }
+
   </style>
 </head>
+
 <body>
   <div class="topbar">
-    <h1>CONTECS</h1>
-    <button class="btn-logout" id="btn-logout">Salir</button>
+    <div class="topbar-brand">
+      <h1>CONTECS</h1>
+      <img class="topbar-logo" src="../logocontecsheader.png" alt="CONTECS" />
+    </div>
+
+    <!-- Tabs de categorías — desktop, se despliegan al pasar el mouse -->
+    <nav class="topbar-nav" id="topbar-nav"></nav>
+
+    <div class="topbar-right">
+      <button class="btn-menu" id="btn-menu" aria-label="Abrir módulos" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <button class="btn-logout" id="btn-logout">Salir</button>
+    </div>
   </div>
 
-  <div class="container">
+  <div class="container" id="main-container">
     <!-- ZONA A — Header -->
     <div class="header-a">
       <div class="saludo">Bienvenido,</div>
@@ -209,10 +494,29 @@
       <div class="subtitulo-espacio">Tu espacio CONTECS</div>
       <div class="pills">
         <span class="rol-pill"  id="rol-label">...</span>
-        <span class="nivel-pill" id="nivel-label"></span>
+        <span class="badge-verificado" id="badge-verificado" title="Cuenta verificada">
+          <svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg">
+            <g class="bv-body">
+              <circle cx="16" cy="14" r="8.5"/>
+              <circle cx="26" cy="14" r="4.3"/>
+              <circle cx="24.1" cy="19.9" r="4.3"/>
+              <circle cx="19.1" cy="23.5" r="4.3"/>
+              <circle cx="12.9" cy="23.5" r="4.3"/>
+              <circle cx="7.9" cy="19.9" r="4.3"/>
+              <circle cx="6" cy="14" r="4.3"/>
+              <circle cx="7.9" cy="8.1" r="4.3"/>
+              <circle cx="12.9" cy="4.5" r="4.3"/>
+              <circle cx="19.1" cy="4.5" r="4.3"/>
+              <circle cx="24.1" cy="8.1" r="4.3"/>
+              <path d="M11.3 21.4 L7.1 33.6 L16 29.3 L13.7 23.5 Z"/>
+              <path d="M20.7 21.4 L24.9 33.6 L16 29.3 L18.3 23.5 Z"/>
+            </g>
+            <path class="bv-check" d="M11.8 14.2 L14.8 17.2 L20.3 10.6" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </div>
       <div class="cuenta-regresiva" id="cuenta-regresiva-wrap">
-        <span class="cr-label">🎉 CONTECS 2026 en</span>
+        <span class="cr-label">CONTECS 2026 en</span>
         <span class="cr-valor" id="cr-valor">Cargando...</span>
       </div>
     </div>
@@ -220,8 +524,19 @@
     <div id="contenido-principal"></div>
   </div>
 
+  <!-- Bottom sheet — módulos por categoría, filtrados por rol (mobile) -->
+  <div class="sheet-backdrop" id="sheet-backdrop"></div>
+  <div class="bottom-sheet" id="bottom-sheet" role="dialog" aria-modal="true" aria-label="Módulos disponibles">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span>Módulos</span>
+      <button class="sheet-close" id="sheet-close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+
   <script type="module">
-    import { guardRoute, getUsuarioActual, cerrarSesion } from "../js/core/auth.js";
+    import { guardRoute, esperarSesionLista, getUsuarioActual, cerrarSesion } from "../js/core/auth.js";
     import { tienePermiso, infoRol } from "../js/core/permisos.js";
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
@@ -239,6 +554,7 @@
     }
 
     guardRoute();
+    await esperarSesionLista();
 
     const usuario = getUsuarioActual();
     const rol     = usuario.rol || "sin_rol";
@@ -246,7 +562,11 @@
 
     document.getElementById("nombre-usuario").textContent = usuario.nombre || "Usuario";
     document.getElementById("rol-label").textContent      = info.label || "Sin rol";
-    document.getElementById("nivel-label").textContent    = info.nivel ? `Nivel ${info.nivel}` : "";
+
+    // Badge dorado exclusivo para el rol CEO 🏆
+    if (String(rol).toLowerCase() === "ceo") {
+      document.getElementById("badge-verificado").classList.add("badge-verificado--ceo");
+    }
 
     // ── Cuenta regresiva al evento (19 de octubre de 2026) — siempre visible en Zona A ──
     const calcularCuentaRegresiva = () => {
@@ -275,7 +595,6 @@
     if (rol === "sin_rol") {
       contenido.innerHTML = `
         <div class="sin-rol-card">
-          <div class="icono">⏳</div>
           <h3>Acceso pendiente de activación</h3>
           <p>Tu cuenta fue registrada correctamente.<br>Un administrador de CONTECS te asignará un rol — <strong>entrarás automáticamente</strong> en cuanto sea activado.</p>
           <div style="margin-top:16px;">
@@ -306,7 +625,7 @@
       const widgetsDef = [
         {
           permiso: "ver_fondos",
-          label: "🪙 Balance de fondos",
+          label: "Balance de fondos",
           id: "widget-fondos",
           init: (valEl) => {
             onSnapshot(doc(db, "fondos", "principal"), (snap) => {
@@ -321,7 +640,7 @@
         },
         {
           permiso: "ver_inventario",
-          label: "⚠️ Stock bajo",
+          label: "Stock bajo",
           id: "widget-stock",
           init: (valEl) => {
             onSnapshot(
@@ -341,7 +660,7 @@
         },
         {
           permiso: "ver_participantes",
-          label: "🎟️ Inscripciones pendientes",
+          label: "Inscripciones pendientes",
           id: "widget-inscripciones",
           init: async (valEl) => {
             try {
@@ -361,7 +680,7 @@
         },
         {
           permiso: "gestionar_voluntarios",
-          label: "🤝 Voluntarios registrados",
+          label: "Voluntarios registrados",
           id: "widget-voluntarios",
           init: async (valEl) => {
             try {
@@ -389,23 +708,40 @@
         widgetsDef.forEach(w => w.init(document.getElementById(w.id)));
       }
 
-      // ══════════ ZONA C — Próximos eventos (7 días) ══════════
+      // ══════════ ZONA C — Agenda: Hoy destacado + próximos días ══════════
+      // Colores por tipo de evento (reemplazan los emojis anteriores)
+      const COLOR_TIPO = {
+        actividad: "var(--verde)",
+        gira:      "var(--azul-info)",
+        venta:     "var(--amarillo)",
+        reunion:   "var(--verde-apagado)",
+      };
+
       if (tienePermiso(rol, "ver_calendario")) {
-        const tituloEventos = document.createElement("div");
-        tituloEventos.className = "seccion-titulo";
-        tituloEventos.textContent = "Próximos eventos";
-        contenido.appendChild(tituloEventos);
+        const tituloAgenda = document.createElement("div");
+        tituloAgenda.className = "agenda-hoy-titulo";
+        tituloAgenda.textContent = "Hoy";
+        contenido.appendChild(tituloAgenda);
+
+        const hoyWrap = document.createElement("div");
+        hoyWrap.id = "agenda-hoy";
+        hoyWrap.innerHTML = `<div class="sin-eventos">Cargando agenda...</div>`;
+        contenido.appendChild(hoyWrap);
+
+        const tituloProximos = document.createElement("div");
+        tituloProximos.className = "agenda-proximos-titulo";
+        tituloProximos.textContent = "Próximos días";
+        contenido.appendChild(tituloProximos);
 
         const eventosWrap = document.createElement("div");
         eventosWrap.className = "eventos-lista";
-        eventosWrap.innerHTML = `<div class="sin-eventos">Cargando eventos...</div>`;
         contenido.appendChild(eventosWrap);
 
         (async () => {
           try {
-            const leer = async (nombreColeccion, tipo, icono) => {
+            const leer = async (nombreColeccion, tipo) => {
               const snap = await getDocs(collection(db, nombreColeccion));
-              return snap.docs.map(d => ({ id: d.id, ...d.data(), tipo, icono }));
+              return snap.docs.map(d => ({ id: d.id, ...d.data(), tipo }));
             };
             const leerReuniones = async () => {
               const snap = await getDocs(collection(db, "reuniones"));
@@ -415,16 +751,15 @@
                 .map(r => ({
                   ...r,
                   tipo: "reunion",
-                  icono: "🗓️",
                   nombre: r.titulo,
                   fecha: r.fechaInicio,
                   _fechaFin: r.fechaFin?.toDate ? r.fechaFin.toDate() : new Date(r.fechaFin || 0),
                 }));
             };
             const [actividades, giras, ventas, reuniones] = await Promise.all([
-              leer("actividades_voluntarios", "actividad", "🎯"),
-              leer("giras_voluntarios", "gira", "🚌"),
-              leer("actividades_ventas", "venta", "💰"),
+              leer("actividades_voluntarios", "actividad"),
+              leer("giras_voluntarios", "gira"),
+              leer("actividades_ventas", "venta"),
               leerReuniones(),
             ]);
 
@@ -438,38 +773,58 @@
               .sort((a, b) => a._fecha - b._fecha)
               .slice(0, 8);
 
-            if (proximos.length === 0) {
-              eventosWrap.innerHTML = `<div class="sin-eventos">No hay eventos programados en los próximos 7 días.</div>`;
-              return;
+            const esEnVivo = (e, esHoy) => {
+              if (e.tipo === "reunion") return ahora >= e._fecha && ahora <= e._fechaFin;
+              if (esHoy && Array.isArray(e.turnos)) {
+                const hoyStr = ahora.toTimeString().slice(0, 5);
+                return e.turnos.some(t => t.horaInicio && t.horaFin && hoyStr >= t.horaInicio && hoyStr <= t.horaFin);
+              }
+              return false;
+            };
+
+            const eventosHoy = proximos.filter(e => e._fecha.toDateString() === ahora.toDateString());
+            const eventosFuturos = proximos.filter(e => e._fecha.toDateString() !== ahora.toDateString());
+
+            // ── Sección "Hoy" — destacada, más grande ──
+            if (eventosHoy.length === 0) {
+              hoyWrap.innerHTML = `<div class="sin-eventos">No tenés eventos programados para hoy.</div>`;
+            } else {
+              hoyWrap.innerHTML = eventosHoy.map(e => {
+                const enVivo = esEnVivo(e, true);
+                const lugarTexto = e.lugar || (e.tipo === "reunion" && e.esVirtual ? "Virtual" : "");
+                return `
+                  <div class="evento-hoy">
+                    <span class="evt-punto" style="background:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}"></span>
+                    <div class="evt-info">
+                      <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
+                      <div class="evt-fecha">${lugarTexto || "Hoy"}</div>
+                    </div>
+                    ${enVivo ? `<span class="pill-en-vivo">● EN VIVO</span>` : ""}
+                  </div>`;
+              }).join("");
             }
 
-            eventosWrap.innerHTML = proximos.map(e => {
-              const esHoy = e._fecha.toDateString() === ahora.toDateString();
-              let enVivo = false;
-              if (e.tipo === "reunion") {
-                enVivo = ahora >= e._fecha && ahora <= e._fechaFin;
-              } else if (esHoy && Array.isArray(e.turnos)) {
-                enVivo = e.turnos.some(t => {
-                  if (!t.horaInicio || !t.horaFin) return false;
-                  const hoyStr = ahora.toTimeString().slice(0, 5);
-                  return hoyStr >= t.horaInicio && hoyStr <= t.horaFin;
-                });
-              }
-              const fechaTexto = e._fecha.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
-              const lugarTexto = e.lugar || (e.tipo === "reunion" && e.esVirtual ? "Virtual" : "");
-              return `
-                <div class="evento-item">
-                  <span class="evt-icono">${e.icono}</span>
-                  <div class="evt-info">
-                    <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
-                    <div class="evt-fecha">${esHoy ? "Hoy" : fechaTexto}${lugarTexto ? " · " + lugarTexto : ""}</div>
-                  </div>
-                  ${enVivo ? `<span class="pill-en-vivo">● EN VIVO</span>` : ""}
-                </div>`;
-            }).join("");
+            // ── Timeline de próximos días — más compacto ──
+            if (eventosFuturos.length === 0) {
+              eventosWrap.innerHTML = `<div class="sin-eventos">Nada más programado en los próximos 7 días.</div>`;
+            } else {
+              eventosWrap.innerHTML = eventosFuturos.map(e => {
+                const fechaTexto = e._fecha.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
+                const lugarTexto = e.lugar || (e.tipo === "reunion" && e.esVirtual ? "Virtual" : "");
+                return `
+                  <div class="evento-item">
+                    <span class="evt-punto" style="background:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}"></span>
+                    <div class="evt-info">
+                      <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
+                      <div class="evt-fecha">${fechaTexto}${lugarTexto ? " · " + lugarTexto : ""}</div>
+                    </div>
+                  </div>`;
+              }).join("");
+            }
           } catch (error) {
-            eventosWrap.innerHTML = `<div class="sin-eventos">No se pudieron cargar los eventos.</div>`;
-            manejarErrorSnapshot(error, "próximos eventos (zona C)");
+            hoyWrap.innerHTML = `<div class="sin-eventos">No se pudo cargar la agenda.</div>`;
+            eventosWrap.innerHTML = "";
+            manejarErrorSnapshot(error, "agenda (zona C)");
           }
         })();
       }
@@ -477,81 +832,193 @@
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
       const CATEGORIAS = [
         {
-          id: "congreso", label: "Congreso", icono: "🎓",
+          id: "congreso", label: "Congreso",
           modulos: [
-            { label: "Participantes",         icono: "🎟️", href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
-            { label: "Gestión de Evento",         icono: "🎫", href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
-            { label: "Estadísticas Congreso", icono: "📊", href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_reportes" },
+            { label: "Participantes",       href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
+            { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
+            { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
           ],
         },
         {
-          id: "finanzas", label: "Finanzas", icono: "💰",
+          id: "finanzas", label: "Finanzas",
           modulos: [
-            { label: "Fondos",     icono: "🪙", href: "modulos/finanzas/fondos.html",    permiso: "ver_fondos", admin: true },
-            { label: "Ventas",     icono: "🧾",
+            { label: "Fondos",     href: "modulos/finanzas/fondos.html",    permiso: "ver_fondos", admin: true },
+            { label: "Ventas",
               href: tienePermiso(rol, "registrar_ventas") ? "modulos/finanzas/ventas2.html" : "modulos/finanzas/ventaRapida.html",
               permiso: "acceso_venta_rapida" },
-            { label: "Compras",    icono: "🛒", href: "modulos/finanzas/compras2.html",  permiso: "registrar_compras", admin: true },
-            { label: "Reportes",   icono: "📈", href: "modulos/finanzas/reportes.html",  permiso: "ver_reportes" },
-            { label: "Bitácora",   icono: "📋", href: "modulos/finanzas/bitacora.html",  permiso: "ver_bitacora" },
+            { label: "Compras",    href: "modulos/finanzas/compras2.html",  permiso: "registrar_compras", admin: true },
+            { label: "Reportes",   href: "modulos/finanzas/reportes.html",  permiso: "ver_reportes" },
+            { label: "Bitácora",   href: "modulos/finanzas/bitacora.html",  permiso: "ver_bitacora" },
           ],
         },
         {
-          id: "logistica", label: "Logística", icono: "📦",
+          id: "logistica", label: "Logística",
           modulos: [
-            { label: "Inventario", icono: "📦", href: "modulos/logistica/inventario.html", permiso: "ver_inventario" },
-            { label: "Catálogo",   icono: "🗂️", href: "modulos/logistica/catalogo.html",   permiso: "editar_catalogo", admin: true },
+            { label: "Inventario", href: "modulos/logistica/inventario.html", permiso: "ver_inventario" },
+            { label: "Catálogo",   href: "modulos/logistica/catalogo.html",   permiso: "editar_catalogo", admin: true },
           ],
         },
         {
-          id: "voluntariado", label: "Voluntariado", icono: "🤝",
+          id: "voluntariado", label: "Voluntariado",
           modulos: [
-            { label: "Voluntarios",  icono: "🤝", href: "modulos/voluntariado/voluntarios.html",  permiso: "gestionar_voluntarios", admin: true },
-            { label: "Actividades",  icono: "🎯", href: "modulos/voluntariado/actividades.html",  permiso: "gestionar_actividades", admin: true },
-            { label: "Giras",        icono: "🚌", href: "modulos/voluntariado/giras.html",        permiso: "gestionar_giras", admin: true },
-            { label: "Calendario",   icono: "📅", href: "modulos/voluntariado/calendario.html",   permiso: "ver_calendario", admin: true },
+            { label: "Voluntarios",  href: "modulos/voluntariado/voluntarios.html",  permiso: "gestionar_voluntarios", admin: true },
+            { label: "Actividades",  href: "modulos/voluntariado/actividades.html",  permiso: "gestionar_actividades", admin: true },
+            { label: "Giras",        href: "modulos/voluntariado/giras.html",        permiso: "gestionar_giras", admin: true },
+            { label: "Calendario",   href: "modulos/voluntariado/calendario.html",   permiso: "ver_calendario", admin: true },
           ],
         },
         {
-          id: "admin", label: "Administración", icono: "⚙️",
+          id: "admin", label: "Administración",
           modulos: [
-            { label: "Usuarios",  icono: "👥", href: "modulos/admin/usuarios.html",  permiso: "gestionar_usuarios", admin: true },
-            { label: "Exportar",  icono: "📤", href: "modulos/admin/exportar.html",  permiso: "exportar_datos", admin: true },
-            { label: "Secretaria",  icono: "💼", href: "modulos/admin/secretaria.html",  permiso: "gestionar_secretaria", admin: true },
+            { label: "Usuarios",    href: "modulos/admin/usuarios.html",    permiso: "gestionar_usuarios", admin: true },
+            { label: "Exportar",    href: "modulos/admin/exportar.html",    permiso: "exportar_datos", admin: true },
+            { label: "Secretaria",  href: "modulos/admin/secretaria.html",  permiso: "gestionar_secretaria", admin: true },
           ],
         },
       ];
 
-      let animIdx = 0;
-      CATEGORIAS.forEach(cat => {
-        const modulosVisibles = cat.modulos.filter(m => tienePermiso(rol, m.permiso));
-        if (modulosVisibles.length === 0) return; // categoría oculta si el rol no tiene nada dentro
+      // Solo categorías con al menos un módulo visible para este rol
+      const categoriasVisibles = CATEGORIAS
+        .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => tienePermiso(rol, m.permiso)) }))
+        .filter(cat => cat.modulos.length > 0);
 
+      // ══════════ Mobile — bottom sheet (☰): lista de texto limpia, sin
+      // emojis, solo una flechita indicando que se navega a otra pantalla ══════════
+      const sheetBody = document.getElementById("sheet-body");
+      categoriasVisibles.forEach((cat, idx) => {
         const bloque = document.createElement("div");
         bloque.className = "categoria-bloque";
-
-        const titulo = document.createElement("div");
-        titulo.className = "categoria-titulo";
-        titulo.textContent = `${cat.icono} ${cat.label}`;
-        bloque.appendChild(titulo);
-
+        bloque.innerHTML = `<div class="categoria-titulo">${cat.label}</div>`;
         const grid = document.createElement("div");
         grid.className = "grid-modulos";
-        modulosVisibles.forEach(mod => {
+        cat.modulos.forEach((mod, i) => {
           const a = document.createElement("a");
           a.href = mod.href;
           a.className = "modulo-btn" + (mod.admin ? " mod-admin" : "");
-          a.innerHTML = `<span class="icono">${mod.icono}</span><span class="label">${mod.label}</span>`;
-          a.style.animationDelay = `${0.18 + animIdx * 0.05}s`;
-          animIdx++;
+          a.innerHTML = `<span class="label">${mod.label}</span><span class="chevron">›</span>`;
+          a.style.animationDelay = `${0.05 + (idx * 4 + i) * 0.03}s`;
           grid.appendChild(a);
         });
         bloque.appendChild(grid);
-        contenido.appendChild(bloque);
+        sheetBody.appendChild(bloque);
+      });
+      if (categoriasVisibles.length === 0) {
+        document.getElementById("btn-menu").style.display = "none";
+      }
+
+      // ══════════ Desktop — topbar-nav (tabs con dropdown al hover) ══════════
+      // El despliegue lo controla el CSS (:hover / :focus-within sobre
+      // .tab-wrap), así que no depende de listeners de click que puedan
+      // fallar: basta con pasar el mouse por la pestaña.
+      const topbarNav = document.getElementById("topbar-nav");
+
+      categoriasVisibles.forEach(cat => {
+        const wrap = document.createElement("div");
+        wrap.className = "tab-wrap";
+
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = "tab-btn";
+        tab.textContent = cat.label;
+        tab.setAttribute("aria-haspopup", "true");
+        tab.setAttribute("aria-expanded", "false");
+        wrap.appendChild(tab);
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "tab-dropdown";
+        dropdown.innerHTML = cat.modulos
+          .map(m => `<a href="${m.href}" class="modulo-btn"><span class="label">${m.label}</span></a>`)
+          .join("");
+        wrap.appendChild(dropdown);
+
+        // Mantiene aria-expanded sincronizado para accesibilidad,
+        // sin que el despliegue visual dependa de esto.
+        wrap.addEventListener("mouseenter", () => tab.setAttribute("aria-expanded", "true"));
+        wrap.addEventListener("mouseleave", () => tab.setAttribute("aria-expanded", "false"));
+
+        topbarNav.appendChild(wrap);
       });
     }
 
     document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+
+    // ══════════ ☰ Bottom sheet — abrir/cerrar ══════════
+    const btnMenu       = document.getElementById("btn-menu");
+    const sheetEl        = document.getElementById("bottom-sheet");
+    const sheetBackdrop  = document.getElementById("sheet-backdrop");
+    const sheetCloseBtn  = document.getElementById("sheet-close");
+
+    function abrirSheet() {
+      sheetEl.classList.add("is-open");
+      sheetBackdrop.classList.add("is-open");
+      document.body.classList.add("sheet-open");
+      btnMenu.setAttribute("aria-expanded", "true");
+    }
+    function cerrarSheet() {
+      sheetEl.classList.remove("is-open");
+      sheetBackdrop.classList.remove("is-open");
+      document.body.classList.remove("sheet-open");
+      btnMenu.setAttribute("aria-expanded", "false");
+    }
+    btnMenu?.addEventListener("click", () => {
+      sheetEl.classList.contains("is-open") ? cerrarSheet() : abrirSheet();
+    });
+    sheetCloseBtn?.addEventListener("click", cerrarSheet);
+    sheetBackdrop?.addEventListener("click", cerrarSheet);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") cerrarSheet();
+    });
+
+    // ══════════ Sensación premium al hacer scroll ══════════
+    // 1) Topbar: sombra/blur se intensifican solo cuando hay contenido debajo
+    // 2) Header (Zona A): parallax sutil, se mueve más lento que el resto
+    const topbarEl = document.querySelector(".topbar");
+    const headerAEl = document.querySelector(".header-a");
+    // La animación de entrada (fadeScaleIn) usa fill-mode "both", que retiene
+    // el transform para siempre. La liberamos al terminar para que el
+    // parallax por scroll (más abajo) pueda tomar el control de esa propiedad.
+    if (headerAEl) {
+      headerAEl.addEventListener("animationend", () => {
+        headerAEl.style.animation = "none";
+      }, { once: true });
+    }
+    let tickingScroll = false;
+
+    function onScrollFrame() {
+      const y = window.scrollY;
+      if (topbarEl) topbarEl.classList.toggle("is-scrolled", y > 8);
+      if (headerAEl) headerAEl.style.transform = `translateY(${y * -0.15}px)`;
+      tickingScroll = false;
+    }
+    window.addEventListener("scroll", () => {
+      if (!tickingScroll) {
+        requestAnimationFrame(onScrollFrame);
+        tickingScroll = true;
+      }
+    }, { passive: true });
+
+    // 3) Scroll-reveal: los bloques de eventos y módulos aparecen al
+    // entrar en pantalla, en vez de estar todos animados desde la carga.
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    function observarReveal(selector) {
+      document.querySelectorAll(selector).forEach(el => {
+        if (!el.classList.contains("reveal-on-scroll")) {
+          el.classList.add("reveal-on-scroll");
+          revealObserver.observe(el);
+        }
+      });
+    }
+
+    // Nota: el scroll-reveal de categorías se retiró — los módulos ahora
+    // viven en el bottom sheet (☰), que tiene su propia animación de entrada.
   </script>
 </body>
 </html>

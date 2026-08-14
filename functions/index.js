@@ -23,7 +23,7 @@ const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
 
 const ROLES_ENVIAR_CORREO_QR = new Set([
   "ceo", "junta_principal", "junta", "coordinador",
-  "actividades", "finanzas", "secretario", "comunicaciones",
+  "actividades", "finanzas", "secretario", "comunicaciones", "staff_contecs",
 ]);
 
 const SSO_USER_URL = "https://sso.utp.ac.pa/ms/user";
@@ -686,7 +686,7 @@ exports.subirFotoEfectivo = onCall(
         }
         const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
         const rolUsuario = snapUsuario.data()?.rol;
-        const ROLES_APROBAR = new Set(["ceo", "junta_principal", "junta", "finanzas"]);
+        const ROLES_APROBAR = new Set(["ceo", "junta_principal", "junta", "finanzas", "secretario", "staff_contecs"]);
         if (!ROLES_APROBAR.has(rolUsuario)) {
           throw new HttpsError("permission-denied", "No tienes permiso para registrar pagos en efectivo.");
         }
