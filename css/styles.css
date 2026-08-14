@@ -164,15 +164,68 @@ body {
 .topbar {
   background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
   color: var(--blanco);
-  padding: 14px 20px;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 12px rgba(4, 82, 35, 0.3);
+  /* Sin box-shadow: un shadow de color (rgba verde) con z-index alto se pinta
+     ENCIMA del elemento siguiente, no detrás — eso causaba la franja verde
+     cruzando la línea divisoria. Ahora todo (marca + nav + logout) vive en
+     esta única barra verde, sin segunda barra ni bordes adicionales debajo. */
+  box-shadow: none;
   animation: slideInLeft 0.35s var(--ease-out) both;
+}
+
+/* ── Liquid glass debajo del topbar ──
+   El topbar en sí queda 100% sólido (sin tocar su background). Lo que
+   sigue son DOS capas apiladas, ancladas a su borde inferior, que se
+   extienden hacia el contenido: una capa ancha y suave que "prepara" la
+   zona, y una capa más angosta y con blur fuerte pegada justo al filo.
+   Juntas dan esa sensación de vidrio líquido que se va comiendo el
+   contenido mientras el scroll lo empuja hacia arriba, en vez de un
+   corte o una línea delgada. Solo vive en páginas de módulo: dashboard.html
+   las desactiva con !important en su propio <style>. */
+.topbar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 90px;
+  pointer-events: none;
+  backdrop-filter: blur(7px) saturate(150%);
+  -webkit-backdrop-filter: blur(7px) saturate(150%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 100%);
+}
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 34px;
+  pointer-events: none;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%);
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.topbar-logo {
+  height: 30px;
+  width: auto;
+  display: block;
+  opacity: 1; /* logo a opacidad completa, sin atenuar */
 }
 .topbar h1 {
   font-size: 18px;
@@ -186,6 +239,8 @@ body {
 .is-hidden { display: none; }
 .fondo-estado { font-size: 18px; }
 .btn-logout {
+  flex-shrink: 0;
+  margin-left: auto;
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.25);
   color: var(--blanco);

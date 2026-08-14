@@ -30,7 +30,7 @@ service cloud.firestore {
     function canGestionarParticipantes() {
       return hasRol([
         'ceo', 'junta_principal', 'junta', 'coordinador',
-        'actividades', 'finanzas', 'secretario', 'comunicaciones'
+        'actividades', 'finanzas', 'secretario', 'comunicaciones', 'staff_contecs'
       ]);
     }
 
@@ -87,9 +87,7 @@ service cloud.firestore {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
       // Venta Rápida: cualquier rol (excepto sin_rol) puede registrar una venta.
       allow create: if isStaff();
-      // Corregir/anular una venta ya registrada es exclusivo de CEO (ver
-      // corregir_operaciones en permisos.js): reescribe historial financiero.
-      allow update, delete: if hasRol(['ceo']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal']);
     }
 
     match /compras/{id} {
@@ -97,12 +95,11 @@ service cloud.firestore {
       allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
       // Tras registrar la compra, el flujo sube la factura a Storage y luego
       // actualiza solo su estado (factura/facturaEstado/facturaError); quien
-      // pudo crear la compra debe poder cerrar ese mismo paso. Corregir el
-      // resto de la compra (items/proveedor/etc.) es exclusivo de CEO.
-      allow update: if hasRol(['ceo'])
+      // pudo crear la compra debe poder cerrar ese mismo paso.
+      allow update: if hasRol(['ceo', 'junta_principal'])
         || (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['factura', 'facturaEstado', 'facturaError', 'actualizadoEn']));
-      allow delete: if hasRol(['ceo']);
+      allow delete: if hasRol(['ceo', 'junta_principal']);
     }
 
     match /mermas/{id} {
@@ -140,25 +137,25 @@ service cloud.firestore {
     // ── Eventos e inscripciones internas ─────────────────────────────────────
     match /eventos/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     match /inscripciones/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     // Checkpoints detallados del programa (colección separada)
     match /checkpoints/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
     match /inscripciones_checkpoint/{id} {
       allow read: if isStaff();
       allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     // ── Voluntarios ──────────────────────────────────────────────────────────
