@@ -1,5 +1,6 @@
 const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {defineSecret} = require("firebase-functions/params");
 const {initializeApp} = require("firebase-admin/app");
 const {getAuth} = require("firebase-admin/auth");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
@@ -15,8 +16,27 @@ const db = getFirestore();
 const bucket = getStorage().bucket();
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
-const BREVO_API_KEY = "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";
+// La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
+// filtrarse a GitHub). Se guarda en Secret Manager de Google Cloud con:
+//   firebase functions:secrets:set BREVO_API_KEY
+// y se referencia aquí solo por nombre; el valor real nunca toca git.
+const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa"};
+
+// Respaldo temporal mientras Brevo reactiva el envío transaccional de la cuenta
+// (ver ticket #5512689). Mismo patrón de Secret Manager, nunca en texto plano.
+//   firebase functions:secrets:set RESEND_API_KEY
+const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
+// Mientras no se verifique un dominio propio en Resend, el remitente tiene que
+// ser el dominio de pruebas de ellos — sí llega a bandejas reales, solo se ve
+// menos "profesional". Cuando se verifique contecsfisc.utp.ac.pa (o el dominio
+// que sea) en Resend, cambiar este remitente por el institucional.
+const CORREO_REMITENTE_RESEND = "CONTECS 2026 <onboarding@resend.dev>";
+
+// ─── SWITCH DE PROVEEDOR ───────────────────────────────────────────────────────
+// Único lugar que hay que tocar para volver a Brevo cuando reactiven la cuenta:
+// cambiar "resend" por "brevo" y redeploy (firebase deploy --only functions).
+const PROVEEDOR_CORREO_ACTIVO = "resend"; // "brevo" | "resend"
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -169,7 +189,7 @@ function brevoRequestOnce(payload) {
       headers: {
         "Content-Type": "application/json",
         "Content-Length": Buffer.byteLength(body),
-        "api-key": BREVO_API_KEY,
+        "api-key": BREVO_API_KEY.value(),
       },
     }, (res) => {
       let data = "";
@@ -210,6 +230,79 @@ async function brevoRequest(payload) {
   }
 }
 
+// ─── RESEND: ENVÍO DE CORREO (respaldo temporal) ──────────────────────────────
+function resendRequestOnce(payload) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload);
+    const req = https.request({
+      hostname: "api.resend.com",
+      path: "/emails",
+      method: "POST",
+      timeout: 25000,
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+        "Authorization": `Bearer ${RESEND_API_KEY.value()}`,
+      },
+    }, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data || "{}"));
+          } catch (e) {
+            resolve({});
+          }
+          return;
+        }
+        reject(new Error(`Resend ${res.statusCode}: ${data}`));
+      });
+    });
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Resend timeout: sin respuesta en 25s"));
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+async function resendRequest(payload) {
+  try {
+    return await resendRequestOnce(payload);
+  } catch (e) {
+    if (/Resend 5\d\d/.test(e.message)) {
+      await new Promise((r) => setTimeout(r, 2000));
+      return resendRequestOnce(payload);
+    }
+    throw e;
+  }
+}
+
+// ─── DESPACHADOR: elige el proveedor activo (ver PROVEEDOR_CORREO_ACTIVO) ─────
+// Recibe siempre la misma forma (sender, to, subject, htmlContent, textContent)
+// y la traduce al formato que pida el proveedor activo. `to` es un participante
+// {email, name} — ya viene siendo la dirección de Gmail validada en registro.html,
+// nunca la institucional @utp.ac.pa (eso no cambia con el proveedor).
+async function enviarCorreoTransaccional({sender, to, subject, htmlContent, textContent}) {
+  if (PROVEEDOR_CORREO_ACTIVO === "resend") {
+    const resp = await resendRequest({
+      from: CORREO_REMITENTE_RESEND,
+      to: [to[0].email],
+      subject,
+      html: htmlContent,
+      text: textContent,
+    });
+    return {messageId: resp.id || null};
+  }
+  const resp = await brevoRequest({sender, to, subject, htmlContent, textContent});
+  return {messageId: resp?.messageId || null};
+}
+
 async function verificarStaffCorreo(request) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión para enviar correos.");
@@ -247,7 +340,7 @@ async function enviarCorreoPagoAprobado({docId, participante}) {
     return {enviado: false, omitido: true};
   }
 
-  const brevoResp = await brevoRequest({
+  const brevoResp = await enviarCorreoTransaccional({
     sender: CORREO_REMITENTE,
     to: [{email: correo, name: nombre}],
     subject: plantilla.subject,
@@ -552,7 +645,7 @@ exports.accederParticipante = onCall(
 
 // ─── CALLABLE: enviar correo QR (panel staff) ─────────────────────────────────
 exports.enviarCorreoQrParticipante = onCall(
-    {region: "us-central1", maxInstances: 10},
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY, RESEND_API_KEY]},
     async (request) => {
       try {
         await verificarStaffCorreo(request);
@@ -599,7 +692,7 @@ exports.enviarCorreoQrParticipante = onCall(
 
 // ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
 exports.notificarPagoAprobado = onDocumentUpdated(
-    {document: "participantes/{docId}", region: "us-central1"},
+    {document: "participantes/{docId}", region: "us-central1", secrets: [BREVO_API_KEY, RESEND_API_KEY]},
     async (event) => {
       const before = event.data.before.data();
       const after = event.data.after.data();
