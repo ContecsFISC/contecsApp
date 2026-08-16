@@ -135,23 +135,10 @@ function unidadesEnPedidoProducto(productoId) {
 	return total;
 }
 
-function pedidoStockOk() {
-	const ids = new Set();
-	estado.pedido.forEach((it) => {
-		if (it.tipo === "producto") ids.add(it.productoId);
-		else it.items.forEach((x) => ids.add(x.productoId));
-	});
-	for (const id of ids) {
-		if (unidadesEnPedidoProducto(id) > stockDisponibleCatalogo(id)) return false;
-	}
-	return true;
-}
-
 // ─── PEDIDO ─────────────────────────────────────────────────────────────────
 function agregarUnidadProducto(producto) {
 	if (unidadesEnPedidoProducto(producto.id) + 1 > stockDisponibleCatalogo(producto.id)) {
-		mostrarAlerta("aviso", `Sin stock suficiente de ${producto.nombre}.`);
-		return;
+		mostrarAlerta("aviso", `Atención: ${producto.nombre} supera el stock registrado. Se agrega igual — la venta se registrará.`);
 	}
 	const key = `p_${producto.id}`;
 	const actual = estado.pedido.get(key);
@@ -171,8 +158,7 @@ function agregarUnidadCombo(combo) {
 	const items = combo.items || [];
 	const faltante = items.find((it) => unidadesEnPedidoProducto(it.productoId) + 1 > stockDisponibleCatalogo(it.productoId));
 	if (faltante) {
-		mostrarAlerta("aviso", `Sin stock suficiente de ${faltante.nombre} para el combo ${combo.nombre}.`);
-		return;
+		mostrarAlerta("aviso", `Atención: ${faltante.nombre} (en el combo ${combo.nombre}) supera el stock registrado. Se agrega igual.`);
 	}
 	const key = `c_${combo.id}`;
 	const actual = estado.pedido.get(key);
@@ -193,12 +179,11 @@ function cambiarCantidadPedido(key, delta) {
 	const it = estado.pedido.get(key);
 	if (!it) return;
 	if (delta > 0) {
-		const bloqueado = it.tipo === "producto"
+		const excedido = it.tipo === "producto"
 			? unidadesEnPedidoProducto(it.productoId) + 1 > stockDisponibleCatalogo(it.productoId)
 			: it.items.find((x) => unidadesEnPedidoProducto(x.productoId) + 1 > stockDisponibleCatalogo(x.productoId));
-		if (bloqueado) {
-			mostrarAlerta("aviso", `Sin stock suficiente de ${it.tipo === "producto" ? it.nombre : bloqueado.nombre}.`);
-			return;
+		if (excedido) {
+			mostrarAlerta("aviso", `Atención: ${it.tipo === "producto" ? it.nombre : excedido.nombre} supera el stock registrado. Se agrega igual.`);
 		}
 	}
 	const nuevo = it.cantidad + delta;
@@ -414,7 +399,7 @@ function renderPedido() {
 	});
 
 	$("pedido-total").textContent = formatearMoneda(totalPedido());
-	btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId || !pedidoStockOk();
+	btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId;
 }
 
 function renderTodo() {
@@ -433,7 +418,8 @@ async function enviarVenta() {
 	if (btnEnviar.disabled) return;
 	if (estado.pedido.size === 0) { mostrarAlerta("aviso", "Agrega al menos un producto o combo."); return; }
 	if (!estado.actividadVentaId) { mostrarAlerta("aviso", "Selecciona una actividad de ventas."); return; }
-	if (!pedidoStockOk()) { mostrarAlerta("error", "Hay productos sin stock suficiente en el pedido."); return; }
+	// Ya no bloqueamos por stock: si el inventario está desactualizado, la
+	// venta se registra igual y el stock puede quedar negativo.
 
 	btnEnviar.disabled = true;
 	const textoOriginal = btnEnviar.textContent;
@@ -481,7 +467,7 @@ async function enviarVenta() {
 	} catch (error) {
 		mostrarAlerta("error", error.message || "No se pudo registrar la venta.");
 	} finally {
-		btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId || !pedidoStockOk();
+		btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId;
 		btnEnviar.textContent = textoOriginal;
 	}
 }

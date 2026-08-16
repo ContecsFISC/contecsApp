@@ -246,10 +246,12 @@ export async function registrarVenta({ usuarioId, usuarioNombre = "", items, met
       }
 
       const cantidad = cantidadItem(item);
+      // No bloqueamos la venta si el stock registrado no alcanza: puede haber
+      // producto físico que simplemente no se ha registrado en inventario
+      // (compra no cargada, ajuste pendiente, etc). El stock puede quedar
+      // negativo — eso es una señal para el equipo de logística de que hay
+      // que cuadrar inventario, pero NUNCA debe impedir cobrar la venta.
       const stockActual = tomarStockActual(stockPorProducto, item.productoId, producto);
-      if (stockActual < cantidad) {
-        throw new Error(`Stock insuficiente para ${nombreProducto(item, producto)}.`);
-      }
 
       const unitario = precioItem(item, producto, "precioVenta");
       const costoUnitario = costoItem(item, producto);
@@ -542,10 +544,8 @@ export async function registrarMerma({ usuarioId, usuarioNombre = "", items, mot
 
     snaps.forEach((snap, i) => {
       if (!snap.exists()) throw new Error(`Producto ${items[i].nombre} no existe.`);
-      const stockActual = Number(snap.data().stock || 0);
-      if (stockActual < items[i].cantidad) {
-        throw new Error(`Stock insuficiente para ${items[i].nombre} (disponible: ${stockActual}).`);
-      }
+      // No bloqueamos por stock insuficiente (ver nota en registrarVenta):
+      // el stock puede quedar negativo, es solo una señal para logística.
     });
 
     const mermaRef = doc(collection(db, "mermas"));
@@ -683,8 +683,10 @@ export async function registrarVentaConMerma({
 
       const prod = prodSnap.data();
       const cantidad = cantidadItem(item);
+      // Ver nota en registrarVenta(): no bloqueamos por stock insuficiente,
+      // el stock puede quedar negativo pero la venta y el ingreso al fondo
+      // siempre se registran.
       const stockActual = tomarStockActual(stockPorProducto, item.productoId, prod);
-      if (stockActual < cantidad) throw new Error(`Stock insuficiente para ${nombreProducto(item, prod)}.`);
 
       const unitario = precioItem(item, prod, "precioVenta");
       const costo = costoItem(item, prod);
@@ -736,8 +738,10 @@ export async function registrarVentaConMerma({
 
       const prod = prodSnap.data();
       const cantidad = cantidadItem(item);
+      // Igual que arriba: la merma se registra aunque el stock ya estuviera
+      // en 0 o negativo. El inventario negativo queda como señal para
+      // logística, no como bloqueo para el usuario.
       const stockActual = tomarStockActual(stockPorProducto, item.productoId, prod);
-      if (stockActual < cantidad) throw new Error(`Stock insuficiente para merma de ${nombreProducto(item, prod)}.`);
 
       const tipoMerma = String(item.tipo || (item.fueVendido ? "vendida" : "sin_vender"));
       const costo = costoItem(item, prod);

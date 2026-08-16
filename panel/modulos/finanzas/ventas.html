@@ -78,6 +78,47 @@
  .fondo-monto.salida { color: var(--rojo); font-weight: 800; }
  .seccion-cat { margin-bottom: 18px; }
  .seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
+ .carrito-merma-box {
+ border: 1px dashed rgba(192,57,43,0.3);
+ border-radius: 12px;
+ padding: 10px 12px;
+ background: rgba(192,57,43,0.06);
+ }
+ .merma-toggle {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ font-size: 13px;
+ font-weight: 700;
+ color: var(--rojo);
+ }
+ .merma-input-wrap {
+ margin-top: 8px;
+ }
+ .merma-input-wrap.is-hidden {
+ display: none;
+ }
+ .campo-error {
+ display: none;
+ color: var(--rojo);
+ font-size: 12px;
+ margin-top: 4px;
+ }
+ .campo-error.show {
+ display: block;
+ }
+ .carrito-warn {
+ color: var(--rojo);
+ font-size: 12px;
+ margin-top: 8px;
+ }
+ .venta-toolbar-extra {
+ display: flex;
+ justify-content: flex-end;
+ flex-wrap: wrap;
+ gap: 8px;
+ margin-bottom: 16px;
+ }
  @media (min-width: 680px) {
  .venta-grid, .ajuste-grid { grid-template-columns: 1fr 1fr; }
  .panel-resumen { grid-template-columns: 1fr 1fr; }
@@ -103,6 +144,14 @@
  <div class="topbar">
  <h1>Registrar Ventas</h1>
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ </div>
+ <div class="venta-toolbar-extra" style="margin: 0 16px 0;">
+ <a href="../logistica/actividadVentas.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:var(--verde-oscuro);border-color:var(--verde-claro);">
+ Crear actividad de venta
+ </a>
+ <a href="ventaRapida.html" class="btn btn-primary" style="width:auto;display:inline-flex;align-items:center;gap:8px;">
+ ⚡ Venta rápida
+ </a>
  </div>
  <div class="container">
  <div class="alerta alerta-error" id="alerta-venta"></div>
