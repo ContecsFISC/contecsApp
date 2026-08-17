@@ -610,7 +610,9 @@ window._verComprobante = async function(rutaEnc) {
 
 function renderSheet(p) {
  const canAprobar = tienePermiso(rol, "aprobar_pagos");
- const puedeReenviar = tienePermiso(rol, "ver_participantes");
+ const reenviosUsados = Math.max(0, Number(p.pago?.correo_aprobacion_reenvios) || 0);
+ const reenviosRestantes = Math.max(0, 4 - reenviosUsados);
+ const puedeReenviar = tienePermiso(rol, "ver_participantes") && reenviosRestantes > 0;
  const estadoPago = p.pago?.estado || "pendiente_efectivo";
  const yaAprobado = estadoPago === "aprobado";
  const fecha = p.fechaRegistro?.toDate?.()
@@ -720,8 +722,11 @@ function renderSheet(p) {
  border-radius:var(--radio-sm);background:#fff;color:var(--verde-oscuro);
  font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fuente);
  transition:background 0.2s;">
- Reenviar correo de credencial
- </button>` : ""}` : ""}
+ Reenviar correo de credencial (${reenviosRestantes} disponibles)
+ </button>` : `
+ <div style="margin-top:10px;text-align:center;font-size:12px;font-weight:700;color:var(--gris-medio);">
+ ${tienePermiso(rol, "ver_participantes") ? "Límite de 4 reenvíos alcanzado" : ""}
+ </div>`}` : ""}
  `;
 
  // Generar QR si está aprobado
@@ -844,7 +849,10 @@ window._reenviarCorreoQr = async function() {
  const btn = document.getElementById("btn-reenviar-qr");
  if (btn) btn.disabled = true;
  try {
- const resCorreo = await enviarCorreoQrParticipante(participanteSeleccionado.id, true);
+ const resCorreo = await enviarCorreoQrParticipante(
+ participanteSeleccionado.id,
+ { forzarReenvio: true },
+ );
  const mensaje = resCorreo?.mensaje ?? "Correo reenviado correctamente.";
  alert(mensaje);
  cerrarSheet();

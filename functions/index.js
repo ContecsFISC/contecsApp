@@ -22,21 +22,7 @@ const bucket = getStorage().bucket();
 // y se referencia aquí solo por nombre; el valor real nunca toca git.
 const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa"};
-
-// Respaldo temporal mientras Brevo reactiva el envío transaccional de la cuenta
-// (ver ticket #5512689). Mismo patrón de Secret Manager, nunca en texto plano.
-//   firebase functions:secrets:set RESEND_API_KEY
-const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
-// Mientras no se verifique un dominio propio en Resend, el remitente tiene que
-// ser el dominio de pruebas de ellos — sí llega a bandejas reales, solo se ve
-// menos "profesional". Cuando se verifique contecsfisc.utp.ac.pa (o el dominio
-// que sea) en Resend, cambiar este remitente por el institucional.
-const CORREO_REMITENTE_RESEND = "CONTECS 2026 <onboarding@resend.dev>";
-
-// ─── SWITCH DE PROVEEDOR ───────────────────────────────────────────────────────
-// Único lugar que hay que tocar para volver a Brevo cuando reactiven la cuenta:
-// cambiar "resend" por "brevo" y redeploy (firebase deploy --only functions).
-const PROVEEDOR_CORREO_ACTIVO = "resend"; // "brevo" | "resend"
+const MAX_REENVIOS_CORREO_QR = 4;
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -230,75 +216,9 @@ async function brevoRequest(payload) {
   }
 }
 
-// ─── RESEND: ENVÍO DE CORREO (respaldo temporal) ──────────────────────────────
-function resendRequestOnce(payload) {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify(payload);
-    const req = https.request({
-      hostname: "api.resend.com",
-      path: "/emails",
-      method: "POST",
-      timeout: 25000,
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(body),
-        "Authorization": `Bearer ${RESEND_API_KEY.value()}`,
-      },
-    }, (res) => {
-      let data = "";
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-      res.on("end", () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            resolve(JSON.parse(data || "{}"));
-          } catch (e) {
-            resolve({});
-          }
-          return;
-        }
-        reject(new Error(`Resend ${res.statusCode}: ${data}`));
-      });
-    });
-    req.on("timeout", () => {
-      req.destroy();
-      reject(new Error("Resend timeout: sin respuesta en 25s"));
-    });
-    req.on("error", reject);
-    req.write(body);
-    req.end();
-  });
-}
-
-async function resendRequest(payload) {
-  try {
-    return await resendRequestOnce(payload);
-  } catch (e) {
-    if (/Resend 5\d\d/.test(e.message)) {
-      await new Promise((r) => setTimeout(r, 2000));
-      return resendRequestOnce(payload);
-    }
-    throw e;
-  }
-}
-
-// ─── DESPACHADOR: elige el proveedor activo (ver PROVEEDOR_CORREO_ACTIVO) ─────
-// Recibe siempre la misma forma (sender, to, subject, htmlContent, textContent)
-// y la traduce al formato que pida el proveedor activo. `to` es un participante
-// {email, name} — ya viene siendo la dirección de Gmail validada en registro.html,
-// nunca la institucional @utp.ac.pa (eso no cambia con el proveedor).
+// Punto único de envío transaccional. `to` es un participante {email, name};
+// Brevo recibe el remitente institucional y el contenido ya renderizado.
 async function enviarCorreoTransaccional({sender, to, subject, htmlContent, textContent}) {
-  if (PROVEEDOR_CORREO_ACTIVO === "resend") {
-    const resp = await resendRequest({
-      from: CORREO_REMITENTE_RESEND,
-      to: [to[0].email],
-      subject,
-      html: htmlContent,
-      text: textContent,
-    });
-    return {messageId: resp.id || null};
-  }
   const resp = await brevoRequest({sender, to, subject, htmlContent, textContent});
   return {messageId: resp?.messageId || null};
 }
@@ -360,18 +280,29 @@ async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
     if (participante.pago?.estado !== "aprobado") {
       return {omitir: true, razon: "no_aprobado"};
     }
+    const reenviosUsados = Math.max(0, Number(participante.pago?.correo_aprobacion_reenvios) || 0);
+    const esReenvio = forzarReenvio && !!participante.pago?.correo_aprobacion_enviado;
+    if (esReenvio && reenviosUsados >= MAX_REENVIOS_CORREO_QR) {
+      return {omitir: true, razon: "limite_reenvios", reenviosUsados};
+    }
     if (participante.pago?.correo_aprobacion_enviado && !forzarReenvio) {
-      return {omitir: true, razon: "ya_enviado"};
+      return {omitir: true, razon: "ya_enviado", reenviosUsados};
     }
     if (participante.pago?.correo_aprobacion_enviando) {
-      return {omitir: true, razon: "en_proceso"};
+      return {omitir: true, razon: "en_proceso", reenviosUsados};
     }
     tx.update(docRef, {"pago.correo_aprobacion_enviando": true});
-    return {omitir: false, participante};
+    return {omitir: false, participante, esReenvio, reenviosUsados};
   });
 
   if (bloqueo.omitir) {
-    return {enviado: false, omitido: true, razon: bloqueo.razon};
+    return {
+      enviado: false,
+      omitido: true,
+      razon: bloqueo.razon,
+      reenviosUsados: bloqueo.reenviosUsados ?? 0,
+      reenviosRestantes: Math.max(0, MAX_REENVIOS_CORREO_QR - (bloqueo.reenviosUsados ?? 0)),
+    };
   }
 
   let enviado = false;
@@ -394,18 +325,41 @@ async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
     errorMsg = e.message;
   }
 
-  await docRef.update({
-    "pago.correo_aprobacion_enviado": enviado,
-    "pago.correo_aprobacion_pendiente": !enviado && !omitidoPlantilla,
+  const estadoCorreo = {
     "pago.correo_aprobacion_error": errorMsg,
     "pago.correo_aprobacion_enviando": false,
-    "pago.correo_aprobacion_enviadoEn": enviado ? FieldValue.serverTimestamp() : null,
-    "pago.correo_aprobacion_brevo_id": brevoMessageId,
-  }).catch((e) => console.error("No se pudo marcar estado correo:", e.message));
+  };
+
+  if (bloqueo.esReenvio) {
+    estadoCorreo["pago.correo_aprobacion_reenvio_error"] = errorMsg;
+    if (enviado) {
+      estadoCorreo["pago.correo_aprobacion_reenvios"] = FieldValue.increment(1);
+      estadoCorreo["pago.correo_aprobacion_ultimo_reenvioEn"] = FieldValue.serverTimestamp();
+      estadoCorreo["pago.correo_aprobacion_ultimo_reenvio_brevo_id"] = brevoMessageId;
+    }
+  } else {
+    estadoCorreo["pago.correo_aprobacion_enviado"] = enviado;
+    estadoCorreo["pago.correo_aprobacion_pendiente"] = !enviado && !omitidoPlantilla;
+    estadoCorreo["pago.correo_aprobacion_enviadoEn"] = enviado ? FieldValue.serverTimestamp() : null;
+    estadoCorreo["pago.correo_aprobacion_brevo_id"] = brevoMessageId;
+    if (enviado && bloqueo.participante.pago?.correo_aprobacion_reenvios == null) {
+      estadoCorreo["pago.correo_aprobacion_reenvios"] = 0;
+    }
+  }
+
+  await docRef.update(estadoCorreo)
+      .catch((e) => console.error("No se pudo marcar estado correo:", e.message));
 
   if (errorMsg) throw new Error(errorMsg);
   if (omitidoPlantilla) return {enviado: false, omitido: true, razon: "plantilla_desactivada"};
-  return {enviado: true, brevoMessageId};
+  const reenviosUsados = bloqueo.reenviosUsados + (bloqueo.esReenvio ? 1 : 0);
+  return {
+    enviado: true,
+    brevoMessageId,
+    esReenvio: bloqueo.esReenvio,
+    reenviosUsados,
+    reenviosRestantes: Math.max(0, MAX_REENVIOS_CORREO_QR - reenviosUsados),
+  };
 }
 
 // ─── HTTP: validar token SSO UTP y emitir Firebase Custom Token ────────────────
@@ -645,7 +599,7 @@ exports.accederParticipante = onCall(
 
 // ─── CALLABLE: enviar correo QR (panel staff) ─────────────────────────────────
 exports.enviarCorreoQrParticipante = onCall(
-    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY, RESEND_API_KEY]},
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
     async (request) => {
       try {
         await verificarStaffCorreo(request);
@@ -669,7 +623,11 @@ exports.enviarCorreoQrParticipante = onCall(
               "El correo ya fue enviado anteriormente." :
               resultado.razon === "en_proceso" ?
                 "El correo está siendo enviado (procesado por el sistema)." :
+                resultado.razon === "limite_reenvios" ?
+                  `Se alcanzó el máximo de ${MAX_REENVIOS_CORREO_QR} reenvíos para este participante.` :
                 "No se pudo enviar en este momento.",
+            reenviosUsados: resultado.reenviosUsados,
+            reenviosRestantes: resultado.reenviosRestantes,
             // El panel debe tratar esto como éxito si esOk === true
             ok: esOk,
           };
@@ -679,7 +637,11 @@ exports.enviarCorreoQrParticipante = onCall(
         return {
           enviado: true,
           brevoMessageId: resultado.brevoMessageId,
-          mensaje: "Correo con QR enviado correctamente.",
+          mensaje: resultado.esReenvio ?
+            `Correo reenviado correctamente. Quedan ${resultado.reenviosRestantes} de ${MAX_REENVIOS_CORREO_QR} reenvíos.` :
+            "Correo con QR enviado correctamente.",
+          reenviosUsados: resultado.reenviosUsados,
+          reenviosRestantes: resultado.reenviosRestantes,
           ok: true,
         };
       } catch (e) {
@@ -692,7 +654,7 @@ exports.enviarCorreoQrParticipante = onCall(
 
 // ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
 exports.notificarPagoAprobado = onDocumentUpdated(
-    {document: "participantes/{docId}", region: "us-central1", secrets: [BREVO_API_KEY, RESEND_API_KEY]},
+    {document: "participantes/{docId}", region: "us-central1", secrets: [BREVO_API_KEY]},
     async (event) => {
       const before = event.data.before.data();
       const after = event.data.after.data();
