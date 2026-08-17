@@ -1,7 +1,7 @@
 import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
 import { getEmoji } from "./catalogo.js";
 import { db, auth } from "../core/firebase-config.js";
-import { formatearMoneda, registrarVenta, esperarAuthListo } from "../core/operaciones.js";
+import { formatearMoneda, registrarVenta, registrarVentaConMerma, esperarAuthListo } from "../core/operaciones.js";
 import {
 	collection, query, where, onSnapshot, getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -22,6 +22,7 @@ const estado = {
 	productosCatalogo: [],
 	productosDisponibles: [],
 	combosDisponibles: [],
+	productosNoAsignados: [],
 	pedido: new Map(),
 	cargando: true,
 };
@@ -83,6 +84,13 @@ function combinarItemsPorProducto(items) {
 }
 
 // ─── CARGA DE DATOS ─────────────────────────────────────────────────────────
+function esHoy(fecha) {
+	if (!fecha) return false;
+	const d = fecha?.toDate ? fecha.toDate() : new Date(fecha);
+	const hoy = new Date();
+	return d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth() && d.getDate() === hoy.getDate();
+}
+
 async function cargarActividades() {
 	const sel = $("sel-actividad");
 	try {
@@ -95,9 +103,12 @@ async function cargarActividades() {
 				const fb = b.fecha?.toDate ? b.fecha.toDate() : new Date(b.fecha || 0);
 				return fb - fa;
 			});
+		// Esta pantalla lista TODAS las actividades no desactivadas, no solo
+		// las de hoy — marcamos claramente cuál es la de hoy para evitar
+		// seleccionar por error una actividad vieja y ver sus productos/combos.
 		sel.innerHTML = `<option value="">— Selecciona una actividad —</option>` +
 			estado.actividades.map((a) =>
-				`<option value="${a.id}">${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
+				`<option value="${a.id}">${esHoy(a.fecha) ? "⭐ HOY — " : ""}${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
 			).join("");
 	} catch (e) {
 		console.warn("No se pudieron cargar actividades:", e.message);
@@ -111,11 +122,16 @@ function recalcularDisponibles() {
 	if (!a) {
 		estado.productosDisponibles = [];
 		estado.combosDisponibles = [];
+		estado.productosNoAsignados = [];
 		return;
 	}
 	const idsAsignados = new Set((a.productos || []).map((p) => p.productoId));
 	estado.productosDisponibles = estado.productosCatalogo.filter((p) => idsAsignados.has(p.id));
 	estado.combosDisponibles = a.combos || [];
+	// Productos activos que existen en el catálogo pero no se preasignaron a
+	// esta actividad — van en el desplegable "Todos los productos", por si
+	// falta algo por agregar el día del evento.
+	estado.productosNoAsignados = estado.productosCatalogo.filter((p) => !idsAsignados.has(p.id));
 }
 
 // ─── STOCK ──────────────────────────────────────────────────────────────────
@@ -135,6 +151,11 @@ function unidadesEnPedidoProducto(productoId) {
 	return total;
 }
 
+// Ya NO se usa para bloquear — el stock puede estar desactualizado (producto
+// físico sin cargar a inventario todavía), así que nunca debe impedir cobrar
+// una venta real. El dinero siempre se registra; el stock puede quedar en
+// negativo como señal para logística.
+
 // ─── PEDIDO ─────────────────────────────────────────────────────────────────
 function agregarUnidadProducto(producto) {
 	if (unidadesEnPedidoProducto(producto.id) + 1 > stockDisponibleCatalogo(producto.id)) {
@@ -149,6 +170,14 @@ function agregarUnidadProducto(producto) {
 		nombre: producto.nombre,
 		precioUnitario: Number(producto.precioVenta || 0),
 		cantidad: 1,
+		mermaVendida: false,
+		mermaVendidaFueVendido: false,
+		mermaVendidaCantidad: 0,
+		mermaVendidaDescripcion: "",
+		mermaVendidaPrecioUnitario: 0,
+		mermaSinVender: false,
+		mermaSinVenderCantidad: 0,
+		mermaSinVenderDescripcion: "",
 	});
 	ocultarAlerta();
 	renderTodo();
@@ -211,8 +240,126 @@ function totalPedido() {
 	let total = 0;
 	estado.pedido.forEach((it) => {
 		total += it.cantidad * (it.tipo === "producto" ? it.precioUnitario : it.precioTotal);
+		if (it.tipo === "producto" && tipoMermaPrincipalItem(it) === "vendida") {
+			total += mermaVendidaCantidadItem(it) * mermaVendidaPrecioItem(it);
+		}
 	});
 	return total;
+}
+
+// ─── HELPERS DE MERMA (mismo esquema que ventas.js, para reportes consistentes) ─
+function mermaVendidaActivadaItem(it) { return Boolean(it.mermaVendida); }
+function mermaFueVendidoItem(it) { return Boolean(it.mermaVendidaFueVendido); }
+function mermaVendidaCantidadItem(it) {
+	const n = Math.trunc(Number(it.mermaVendidaCantidad));
+	return Number.isFinite(n) && n > 0 ? n : 0;
+}
+function mermaVendidaDescripcionItem(it) { return String(it.mermaVendidaDescripcion || ""); }
+function mermaVendidaPrecioItem(it) {
+	const n = Number(it.mermaVendidaPrecioUnitario);
+	return Number.isFinite(n) ? n : 0;
+}
+function mermaSinVenderActivadaItem(it) { return Boolean(it.mermaSinVender); }
+function mermaSinVenderCantidadItem(it) {
+	const n = Math.trunc(Number(it.mermaSinVenderCantidad));
+	return Number.isFinite(n) && n > 0 ? n : 0;
+}
+function mermaSinVenderDescripcionItem(it) { return String(it.mermaSinVenderDescripcion || ""); }
+function tipoMermaPrincipalItem(it) {
+	if (!mermaVendidaActivadaItem(it) || mermaVendidaCantidadItem(it) <= 0) return null;
+	return mermaFueVendidoItem(it) ? "vendida" : "sin_vender";
+}
+function itemMermaValida(it) {
+	if (it.tipo !== "producto") return true;
+	if (mermaVendidaActivadaItem(it)) {
+		if (mermaVendidaCantidadItem(it) <= 0) return false;
+		if (!mermaVendidaDescripcionItem(it).trim()) return false;
+		if (mermaFueVendidoItem(it) && mermaVendidaPrecioItem(it) <= 0) return false;
+	}
+	if (mermaSinVenderActivadaItem(it)) {
+		if (mermaSinVenderCantidadItem(it) <= 0) return false;
+		if (!mermaSinVenderDescripcionItem(it).trim()) return false;
+	}
+	return true;
+}
+function pedidoMermaOk() {
+	return [...estado.pedido.values()].every(itemMermaValida);
+}
+
+function actualizarPrecioPedido(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || it.tipo !== "producto") return;
+	const numero = Number(valor);
+	if (Number.isFinite(numero) && numero >= 0) {
+		it.precioUnitario = numero;
+		renderTodo();
+	}
+}
+
+function actualizarMermaActiva(key, activada) {
+	const it = estado.pedido.get(key);
+	if (!it) return;
+	it.mermaVendida = activada;
+	if (!activada) {
+		it.mermaVendidaFueVendido = false;
+		it.mermaVendidaCantidad = 0;
+		it.mermaVendidaDescripcion = "";
+		it.mermaVendidaPrecioUnitario = 0;
+	}
+	renderTodo();
+}
+function actualizarMermaCantidad(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaVendidaActivadaItem(it)) return;
+	const numero = valor === "" ? 0 : Math.trunc(Number(valor));
+	if (!Number.isFinite(numero) || numero < 0) return;
+	it.mermaVendidaCantidad = numero;
+	renderTodo();
+}
+function actualizarMermaDescripcion(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaVendidaActivadaItem(it)) return;
+	it.mermaVendidaDescripcion = String(valor || "");
+	renderTodo();
+}
+function actualizarMermaFueVendido(key, activada) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaVendidaActivadaItem(it)) return;
+	it.mermaVendidaFueVendido = Boolean(activada);
+	if (!it.mermaVendidaFueVendido) it.mermaVendidaPrecioUnitario = 0;
+	renderTodo();
+}
+function actualizarMermaPrecio(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaFueVendidoItem(it)) return;
+	const numero = valor === "" ? 0 : Number(valor);
+	if (!Number.isFinite(numero) || numero < 0) return;
+	it.mermaVendidaPrecioUnitario = numero;
+	renderTodo();
+}
+function actualizarMermaSinVenderActiva(key, activada) {
+	const it = estado.pedido.get(key);
+	if (!it) return;
+	it.mermaSinVender = activada;
+	if (!activada) {
+		it.mermaSinVenderCantidad = 0;
+		it.mermaSinVenderDescripcion = "";
+	}
+	renderTodo();
+}
+function actualizarMermaSinVenderCantidad(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaSinVenderActivadaItem(it)) return;
+	const numero = valor === "" ? 0 : Math.trunc(Number(valor));
+	if (!Number.isFinite(numero) || numero < 0) return;
+	it.mermaSinVenderCantidad = numero;
+	renderTodo();
+}
+function actualizarMermaSinVenderDescripcion(key, valor) {
+	const it = estado.pedido.get(key);
+	if (!it || !mermaSinVenderActivadaItem(it)) return;
+	it.mermaSinVenderDescripcion = String(valor || "");
+	renderTodo();
 }
 
 // ─── PERSISTENCIA DE LA VENTA EN PROGRESO ──────────────────────────────────
@@ -262,9 +409,11 @@ function restaurarEstadoGuardado() {
 }
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────
+let mostrarTodosLosProductos = false;
+
 function renderCatalogo() {
 	const hayActividad = Boolean(estado.actividadVentaId);
-	const hayCatalogo = estado.productosDisponibles.length > 0 || estado.combosDisponibles.length > 0;
+	const hayCatalogo = estado.productosDisponibles.length > 0 || estado.combosDisponibles.length > 0 || estado.productosNoAsignados.length > 0;
 
 	$("sin-actividad").classList.toggle("is-hidden", hayActividad);
 	$("sin-catalogo").classList.toggle("is-hidden", !hayActividad || hayCatalogo);
@@ -313,7 +462,41 @@ function renderCatalogo() {
 		}</div>`);
 	}
 
+	// Sección plegable con el resto del catálogo activo que no se preasignó a
+	// esta actividad — por si falta algo por agregar el día del evento, sin
+	// tener que ir a "Crear actividad de venta" a editarla primero.
+	if (estado.productosNoAsignados.length > 0) {
+		bloques.push(`
+			<div class="seccion-titulo" style="cursor:pointer;justify-content:space-between;" id="toggle-todos-productos">
+				<span>📦 Todos los productos (${estado.productosNoAsignados.length})</span>
+				<span>${mostrarTodosLosProductos ? "▲ Ocultar" : "▼ Ver todos"}</span>
+			</div>
+			${mostrarTodosLosProductos ? `<div class="catalogo-grid">${
+				estado.productosNoAsignados.map((p) => {
+					const enPedido = estado.pedido.get(`p_${p.id}`);
+					const cantidad = enPedido ? enPedido.cantidad : 0;
+					const agotado = Number(p.stock || 0) <= 0;
+					return `
+						<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-extra-id="${p.id}">
+							${cantidad > 0 ? `<span class="badge-cant" data-producto-extra-restar="${p.id}">${cantidad}</span>` : ""}
+							<div class="icono">${getEmoji(p.iconoId)}</div>
+							<div class="nombre">${p.nombre}</div>
+							<div class="precio">${formatearMoneda(p.precioVenta || 0)}</div>
+						</div>`;
+				}).join("")
+			}</div>` : ""}
+		`);
+	}
+
 	catalogoWrap.innerHTML = bloques.join("");
+
+	const toggleBtn = document.getElementById("toggle-todos-productos");
+	if (toggleBtn) {
+		toggleBtn.addEventListener("click", () => {
+			mostrarTodosLosProductos = !mostrarTodosLosProductos;
+			renderCatalogo();
+		});
+	}
 
 	catalogoWrap.querySelectorAll("[data-combo-id]").forEach((card) => {
 		card.addEventListener("click", (e) => {
@@ -341,6 +524,21 @@ function renderCatalogo() {
 			cambiarCantidadPedido(`p_${badge.getAttribute("data-producto-restar")}`, -1);
 		});
 	});
+	// Mismo comportamiento que los productos preasignados, pero leyendo de
+	// productosNoAsignados en vez de productosDisponibles.
+	catalogoWrap.querySelectorAll("[data-producto-extra-id]").forEach((card) => {
+		card.addEventListener("click", (e) => {
+			if (e.target.closest("[data-producto-extra-restar]")) return;
+			const producto = estado.productosNoAsignados.find((p) => p.id === card.getAttribute("data-producto-extra-id"));
+			if (producto) agregarUnidadProducto(producto);
+		});
+	});
+	catalogoWrap.querySelectorAll("[data-producto-extra-restar]").forEach((badge) => {
+		badge.addEventListener("click", (e) => {
+			e.stopPropagation();
+			cambiarCantidadPedido(`p_${badge.getAttribute("data-producto-extra-restar")}`, -1);
+		});
+	});
 }
 
 function renderPedido() {
@@ -358,26 +556,35 @@ function renderPedido() {
 			let aviso = "";
 			if (it.tipo === "producto") {
 				const restante = stockDisponibleCatalogo(it.productoId) - unidadesEnPedidoProducto(it.productoId);
-				if (restante < 0) aviso = `<div class="pedido-warn">Excede stock por ${Math.abs(restante)} unidad${Math.abs(restante) === 1 ? "" : "es"}.</div>`;
+				if (restante < 0) aviso = `<div class="pedido-warn">Atención: supera el stock registrado por ${Math.abs(restante)} unidad${Math.abs(restante) === 1 ? "" : "es"}. Se registrará igual.</div>`;
 			} else {
 				const faltantes = it.items
 					.filter((x) => unidadesEnPedidoProducto(x.productoId) > stockDisponibleCatalogo(x.productoId))
 					.map((x) => x.nombre);
-				if (faltantes.length > 0) aviso = `<div class="pedido-warn">Excede stock de: ${faltantes.join(", ")}.</div>`;
+				if (faltantes.length > 0) aviso = `<div class="pedido-warn">Atención: supera stock de ${faltantes.join(", ")}. Se registrará igual.</div>`;
 			}
+
+			const mermaHtml = it.tipo === "producto" ? renderMermaFila(key, it) : "";
+
 			return `
-				<div class="pedido-fila">
+				<div class="pedido-fila" style="flex-wrap:wrap;">
 					<div class="info">
 						<div class="nombre">${it.tipo === "combo" ? "🍔 " : ""}${it.nombre}</div>
-						<div class="meta">${formatearMoneda(precio)} c/u · Subtotal ${formatearMoneda(subtotal)}</div>
+						<div class="meta">Subtotal ${formatearMoneda(subtotal)}</div>
 						${aviso}
 					</div>
+					${it.tipo === "producto" ? `
+					<div class="form-group" style="margin:0;width:90px;">
+						<label style="font-size:10px;">Precio c/u</label>
+						<input type="text" inputmode="decimal" value="${it.precioUnitario}" data-pedido-precio="${key}">
+					</div>` : `<div class="meta" style="width:90px;text-align:right;">${formatearMoneda(precio)} c/u</div>`}
 					<div class="stepper">
 						<button type="button" data-pedido-menos="${key}">−</button>
 						<input type="text" inputmode="numeric" pattern="[0-9]*" value="${it.cantidad}" data-pedido-cantidad="${key}">
 						<button type="button" data-pedido-mas="${key}">+</button>
 					</div>
 					<button type="button" class="quitar" data-pedido-quitar="${key}">✕</button>
+					${mermaHtml}
 				</div>`;
 		}).join("");
 	}
@@ -397,9 +604,102 @@ function renderPedido() {
 		input.addEventListener("blur", handler);
 		input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); input.blur(); } });
 	});
+	pedidoWrap.querySelectorAll("[data-pedido-precio]").forEach((input) => {
+		const handler = () => actualizarPrecioPedido(input.getAttribute("data-pedido-precio"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+		input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); input.blur(); } });
+	});
+	wireMermaHandlers();
 
 	$("pedido-total").textContent = formatearMoneda(totalPedido());
-	btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId;
+	btnEnviar.disabled = estado.pedido.size === 0 || !estado.actividadVentaId || !pedidoMermaOk();
+}
+
+function renderMermaFila(key, it) {
+	const mermaVendidaCant = mermaVendidaCantidadItem(it);
+	const mermaSinVenderCant = mermaSinVenderCantidadItem(it);
+	const errCant = mermaVendidaActivadaItem(it) && mermaVendidaCant <= 0 ? `<span class="campo-error show">Ingresa la cantidad de merma.</span>` : "";
+	const errDesc = mermaVendidaActivadaItem(it) && !mermaVendidaDescripcionItem(it).trim() ? `<span class="campo-error show">Ingresa una descripción.</span>` : "";
+	const errPrecio = mermaVendidaActivadaItem(it) && mermaFueVendidoItem(it) && mermaVendidaPrecioItem(it) <= 0 ? `<span class="campo-error show">Ingresa un precio mayor que 0.</span>` : "";
+	const errSvCant = mermaSinVenderActivadaItem(it) && mermaSinVenderCant <= 0 ? `<span class="campo-error show">Ingresa la cantidad.</span>` : "";
+	const errSvDesc = mermaSinVenderActivadaItem(it) && !mermaSinVenderDescripcionItem(it).trim() ? `<span class="campo-error show">Ingresa una descripción.</span>` : "";
+
+	return `
+		<div class="carrito-merma-box" style="width:100%;margin-top:6px;">
+			<label class="merma-toggle">
+				<input type="checkbox" data-merma-toggle-id="${key}" ${mermaVendidaActivadaItem(it) ? "checked" : ""}>
+				¿Hubo merma de este producto?
+			</label>
+			<div class="merma-input-wrap ${mermaVendidaActivadaItem(it) ? "" : "is-hidden"}">
+				<label>Cantidad de merma</label>
+				<input type="text" inputmode="numeric" pattern="[0-9]*" value="${it.mermaVendidaCantidad || 0}" data-merma-cantidad-id="${key}">
+				${errCant}
+				<label>Descripción</label>
+				<textarea rows="2" data-merma-desc-id="${key}" placeholder="Describe qué ocurrió...">${mermaVendidaDescripcionItem(it)}</textarea>
+				${errDesc}
+				<label class="merma-toggle" style="margin-top:6px;">
+					<input type="checkbox" data-merma-fue-vendido-id="${key}" ${mermaFueVendidoItem(it) ? "checked" : ""}>
+					Se vendió a precio reducido (si no, pérdida total)
+				</label>
+				<div class="merma-input-wrap ${mermaFueVendidoItem(it) ? "" : "is-hidden"}">
+					<label>Precio unitario de la merma</label>
+					<input type="text" inputmode="decimal" value="${it.mermaVendidaPrecioUnitario || 0}" data-merma-precio-id="${key}">
+					${errPrecio}
+				</div>
+			</div>
+		</div>
+		<div class="carrito-merma-box" style="width:100%;margin-top:6px;">
+			<label class="merma-toggle">
+				<input type="checkbox" data-merma-sv-toggle-id="${key}" ${mermaSinVenderActivadaItem(it) ? "checked" : ""}>
+				¿Pérdida total (no se vendió nada)?
+			</label>
+			<div class="merma-input-wrap ${mermaSinVenderActivadaItem(it) ? "" : "is-hidden"}">
+				<label>Cantidad perdida</label>
+				<input type="text" inputmode="numeric" pattern="[0-9]*" value="${it.mermaSinVenderCantidad || 0}" data-merma-sv-cantidad-id="${key}">
+				${errSvCant}
+				<label>Descripción</label>
+				<textarea rows="2" data-merma-sv-desc-id="${key}" placeholder="Describe qué ocurrió...">${mermaSinVenderDescripcionItem(it)}</textarea>
+				${errSvDesc}
+			</div>
+		</div>`;
+}
+
+function wireMermaHandlers() {
+	pedidoWrap.querySelectorAll("[data-merma-toggle-id]").forEach((input) => {
+		input.addEventListener("change", () => actualizarMermaActiva(input.getAttribute("data-merma-toggle-id"), input.checked));
+	});
+	pedidoWrap.querySelectorAll("[data-merma-cantidad-id]").forEach((input) => {
+		const handler = () => actualizarMermaCantidad(input.getAttribute("data-merma-cantidad-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+	});
+	pedidoWrap.querySelectorAll("[data-merma-desc-id]").forEach((input) => {
+		const handler = () => actualizarMermaDescripcion(input.getAttribute("data-merma-desc-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+	});
+	pedidoWrap.querySelectorAll("[data-merma-fue-vendido-id]").forEach((input) => {
+		input.addEventListener("change", () => actualizarMermaFueVendido(input.getAttribute("data-merma-fue-vendido-id"), input.checked));
+	});
+	pedidoWrap.querySelectorAll("[data-merma-precio-id]").forEach((input) => {
+		const handler = () => actualizarMermaPrecio(input.getAttribute("data-merma-precio-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+	});
+	pedidoWrap.querySelectorAll("[data-merma-sv-toggle-id]").forEach((input) => {
+		input.addEventListener("change", () => actualizarMermaSinVenderActiva(input.getAttribute("data-merma-sv-toggle-id"), input.checked));
+	});
+	pedidoWrap.querySelectorAll("[data-merma-sv-cantidad-id]").forEach((input) => {
+		const handler = () => actualizarMermaSinVenderCantidad(input.getAttribute("data-merma-sv-cantidad-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+	});
+	pedidoWrap.querySelectorAll("[data-merma-sv-desc-id]").forEach((input) => {
+		const handler = () => actualizarMermaSinVenderDescripcion(input.getAttribute("data-merma-sv-desc-id"), input.value);
+		input.addEventListener("change", handler);
+		input.addEventListener("blur", handler);
+	});
 }
 
 function renderTodo() {
@@ -420,6 +720,7 @@ async function enviarVenta() {
 	if (!estado.actividadVentaId) { mostrarAlerta("aviso", "Selecciona una actividad de ventas."); return; }
 	// Ya no bloqueamos por stock: si el inventario está desactualizado, la
 	// venta se registra igual y el stock puede quedar negativo.
+	if (!pedidoMermaOk()) { mostrarAlerta("error", "Revisa los campos de merma marcados en rojo."); return; }
 
 	btnEnviar.disabled = true;
 	const textoOriginal = btnEnviar.textContent;
@@ -434,9 +735,11 @@ async function enviarVenta() {
 			return;
 		}
 		const datosUsuario = getUsuarioActual();
+		const usuarioId = usuarioActual.uid;
+		const usuarioNombre = datosUsuario.nombre || usuarioActual.displayName || usuarioActual.email;
 
 		const itemsProductos = [...estado.pedido.values()]
-			.filter((it) => it.tipo === "producto")
+			.filter((it) => it.tipo === "producto" && it.cantidad > 0)
 			.map((it) => ({ productoId: it.productoId, nombre: it.nombre, cantidad: it.cantidad, precioUnitario: it.precioUnitario }));
 
 		const itemsCombos = [...estado.pedido.values()]
@@ -451,19 +754,62 @@ async function enviarVenta() {
 
 		const itemsVenta = combinarItemsPorProducto([...itemsProductos, ...itemsCombos]);
 
-		const resultado = await registrarVenta({
-			usuarioId: usuarioActual.uid,
-			usuarioNombre: datosUsuario.nombre || usuarioActual.displayName || usuarioActual.email,
-			items: itemsVenta,
-			metodoPago: metodoPago.value,
-			nota: "",
-			actividadVentaId: estado.actividadVentaId,
-			actividadVentaNombre: estado.actividadVentaNombre,
+		const mermaItems = [];
+		estado.pedido.forEach((it) => {
+			if (it.tipo !== "producto") return;
+			const tipoPrincipal = tipoMermaPrincipalItem(it);
+			if (tipoPrincipal && mermaVendidaCantidadItem(it) > 0) {
+				mermaItems.push({
+					productoId: it.productoId,
+					nombre: it.nombre,
+					cantidad: mermaVendidaCantidadItem(it),
+					descripcion: mermaVendidaDescripcionItem(it),
+					tipo: tipoPrincipal,
+					fueVendido: tipoPrincipal === "vendida",
+					precioUnitario: tipoPrincipal === "vendida" ? mermaVendidaPrecioItem(it) : 0,
+				});
+			}
+			if (mermaSinVenderActivadaItem(it) && mermaSinVenderCantidadItem(it) > 0) {
+				mermaItems.push({
+					productoId: it.productoId,
+					nombre: it.nombre,
+					cantidad: mermaSinVenderCantidadItem(it),
+					descripcion: mermaSinVenderDescripcionItem(it),
+					tipo: "sin_vender",
+					fueVendido: false,
+					precioUnitario: 0,
+				});
+			}
 		});
+
+		let resultado;
+		if (mermaItems.length > 0) {
+			resultado = await registrarVentaConMerma({
+				usuarioId,
+				usuarioNombre,
+				items: itemsVenta,
+				metodoPago: metodoPago.value,
+				nota: "",
+				mermaItems,
+				motivoMerma: "Merma registrada desde ventas",
+				actividadVentaId: estado.actividadVentaId,
+				actividadVentaNombre: estado.actividadVentaNombre,
+			});
+		} else {
+			resultado = await registrarVenta({
+				usuarioId,
+				usuarioNombre,
+				items: itemsVenta,
+				metodoPago: metodoPago.value,
+				nota: "",
+				actividadVentaId: estado.actividadVentaId,
+				actividadVentaNombre: estado.actividadVentaNombre,
+			});
+		}
 
 		estado.pedido.clear();
 		renderTodo();
-		mostrarAlerta("success", `Venta registrada. Total ${formatearMoneda(resultado.total)}.`);
+		mostrarAlerta("success", `Registrado correctamente. Total ${formatearMoneda(resultado.total)}.`);
 	} catch (error) {
 		mostrarAlerta("error", error.message || "No se pudo registrar la venta.");
 	} finally {

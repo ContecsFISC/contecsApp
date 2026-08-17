@@ -76,16 +76,32 @@ async function cargarUsuariosEnSelector() {
   try {
     const snap = await getDocs(query(collection(db, "usuarios"), orderBy("nombre")));
     sel.innerHTML = `<option value="">— Selecciona un organizador —</option>`;
-    let count = 0;
+    // Puede haber más de un documento en "usuarios" para la misma persona
+    // (por ejemplo si alguna vez inició sesión con Google y otra vez con
+    // SSO — cada inicio de sesión distinto crea un UID distinto). Nos
+    // quedamos con un solo registro por nombre, prefiriendo el que tenga
+    // un rol real asignado en vez de "sin_rol".
+    const porNombre = new Map();
     snap.docs.forEach(d => {
       const data = d.data();
       if (!data.nombre) return;
-      const opt = document.createElement("option");
-      opt.value = data.nombre;
-      opt.textContent = `${data.nombre}${data.rol ? ` (${data.rol.replace(/_/g, " ")})` : ""}`;
-      sel.appendChild(opt);
-      count++;
+      const existente = porNombre.get(data.nombre);
+      const esteTieneRol = data.rol && data.rol !== "sin_rol";
+      const existenteTieneRol = existente && existente.rol && existente.rol !== "sin_rol";
+      if (!existente || (!existenteTieneRol && esteTieneRol)) {
+        porNombre.set(data.nombre, data);
+      }
     });
+    let count = 0;
+    [...porNombre.values()]
+      .sort((a, b) => a.nombre.localeCompare(b.nombre))
+      .forEach(data => {
+        const opt = document.createElement("option");
+        opt.value = data.nombre;
+        opt.textContent = `${data.nombre}${data.rol ? ` (${data.rol.replace(/_/g, " ")})` : ""}`;
+        sel.appendChild(opt);
+        count++;
+      });
     if (count === 0) throw new Error("Sin datos");
   } catch (e) {
     // Sin permiso o sin datos: activar input de texto como respaldo
@@ -161,16 +177,20 @@ el("btn-add-producto-venta").addEventListener("click", () => {
 });
 
 // ─── COMBOS DE LA VENTA ─────────────────────────────────────────────────────────
+let productosComboCache = new Map(); // productoId -> { nombre, precioVenta }
+
 async function cargarProductosEnSelectorCombo() {
   const sel = el("combo-producto-sel");
   try {
     const snap = await getDocs(query(collection(db, "productos"), where("activo", "==", true)));
     sel.innerHTML = `<option value="">— Selecciona un producto —</option>`;
+    productosComboCache = new Map();
     snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
       .filter(p => p.nombre)
       .sort((a, b) => a.nombre.localeCompare(b.nombre))
       .forEach(p => {
+        productosComboCache.set(p.id, { nombre: p.nombre, precioVenta: Number(p.precioVenta) || 0 });
         const opt = document.createElement("option");
         opt.value = p.id;
         opt.textContent = p.nombre;
@@ -185,7 +205,7 @@ async function cargarProductosEnSelectorCombo() {
 function renderComboItemsTemp() {
   el("combo-items-lista").innerHTML = comboItemsTemp.map((it, i) => `
     <span class="turno-tag">
-      ${it.nombre} · ${formatearMonedaLocal(it.precio)}
+      ${it.nombre}
       <button onclick="quitarComboItemTemp(${i})">×</button>
     </span>`).join("");
 }
@@ -194,17 +214,13 @@ window.quitarComboItemTemp = function(i) { comboItemsTemp.splice(i, 1); renderCo
 
 el("btn-add-item-combo").addEventListener("click", () => {
   const sel = el("combo-producto-sel");
-  const precioInput = el("combo-producto-precio");
   const productoId = sel.value;
   const nombre = sel.options[sel.selectedIndex]?.textContent || "";
-  const precio = parseFloat(precioInput.value);
   if (!productoId) { mostrarAlerta("error", "Selecciona un producto para el combo."); return; }
-  if (!Number.isFinite(precio) || precio < 0) { mostrarAlerta("error", "Ingresa un precio válido para el producto del combo."); return; }
   if (comboItemsTemp.some(it => it.productoId === productoId)) { mostrarAlerta("error", "Este producto ya está en el combo."); return; }
-  comboItemsTemp.push({ productoId, nombre, precio });
+  comboItemsTemp.push({ productoId, nombre });
   renderComboItemsTemp();
   sel.value = "";
-  precioInput.value = "";
 });
 
 function renderCombos() {
@@ -218,7 +234,7 @@ function renderCombos() {
         </span>
       </div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">
-        ${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}
+        ${c.items.map(it => it.nombre).join(" + ")}
       </div>
     </div>`).join("");
 }
@@ -227,15 +243,39 @@ window.quitarCombo = function(i) { combosForm.splice(i, 1); renderCombos(); };
 
 el("btn-guardar-combo").addEventListener("click", () => {
   const nombre = el("combo-nombre").value.trim();
+  const precioTotal = parseFloat(el("combo-precio-total").value);
   if (!nombre) { mostrarAlerta("error", "Ingresa el nombre del combo."); return; }
+  if (!Number.isFinite(precioTotal) || precioTotal <= 0) { mostrarAlerta("error", "Ingresa el precio total del combo."); return; }
   if (comboItemsTemp.length < 2) { mostrarAlerta("error", "Un combo debe tener al menos 2 productos."); return; }
   if (combosForm.some(c => c.nombre.toLowerCase() === nombre.toLowerCase())) {
     mostrarAlerta("error", "Ya existe un combo con ese nombre."); return;
   }
-  const precioTotal = comboItemsTemp.reduce((s, it) => s + it.precio, 0);
-  combosForm.push({ id: `c_${Date.now()}`, nombre, items: [...comboItemsTemp], precioTotal });
+
+  // El precio del combo lo pones una sola vez arriba. Internamente seguimos
+  // guardando un precio por producto (lo usan los reportes de ganancia por
+  // producto), pero ya no lo escribes tú: lo repartimos en proporción al
+  // precio normal de cada producto para que la suma cuadre exacto con el
+  // precio total del combo.
+  const preciosNormales = comboItemsTemp.map(it => productosComboCache.get(it.productoId)?.precioVenta || 0);
+  const sumaNormales = preciosNormales.reduce((s, p) => s + p, 0);
+  const itemsConPrecio = comboItemsTemp.map((it, i) => {
+    const proporcion = sumaNormales > 0 ? preciosNormales[i] / sumaNormales : 1 / comboItemsTemp.length;
+    return { productoId: it.productoId, nombre: it.nombre, precio: Math.round(precioTotal * proporcion * 100) / 100 };
+  });
+  // Ajuste de centavos: por redondeo la suma puede quedar $0.01 arriba o
+  // abajo del precioTotal — se lo asignamos al último producto para que
+  // cuadre exacto.
+  const sumaAsignada = itemsConPrecio.reduce((s, it) => s + it.precio, 0);
+  const diferencia = Math.round((precioTotal - sumaAsignada) * 100) / 100;
+  if (diferencia !== 0) {
+    const ultimo = itemsConPrecio[itemsConPrecio.length - 1];
+    ultimo.precio = Math.round((ultimo.precio + diferencia) * 100) / 100;
+  }
+
+  combosForm.push({ id: `c_${Date.now()}`, nombre, items: itemsConPrecio, precioTotal });
   renderCombos();
   el("combo-nombre").value = "";
+  el("combo-precio-total").value = "";
   comboItemsTemp = [];
   renderComboItemsTemp();
 });
@@ -295,6 +335,7 @@ function limpiarForm() {
   combosForm = []; renderCombos();
   comboItemsTemp = []; renderComboItemsTemp();
   el("combo-nombre").value = "";
+  el("combo-precio-total").value = "";
   editandoId = null;
   el("form-venta-titulo").textContent = "Registrar nueva venta";
   el("btn-cancelar-venta").style.display = "none";

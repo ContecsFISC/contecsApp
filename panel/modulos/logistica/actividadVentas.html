@@ -148,17 +148,20 @@
  <div class="form-groupE">
  <label style="color:#c81e1e;">Combos de la venta</label>
  <div style="background:#fde8e8;border:1px dashed #f98080;border-radius:var(--radio-sm);padding:10px;margin-bottom:8px;">
- <input type="text" id="combo-nombre" placeholder="ej. Combo Vaquera" style="margin-bottom:8px;"/>
- <div style="display:grid;grid-template-columns:1fr 100px auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
+ <div style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:4px;">
+ <input type="text" id="combo-nombre" placeholder="ej. Combo Vaquera"/>
+ <input type="number" id="combo-precio-total" placeholder="Precio combo" min="0" step="0.01"/>
+ </div>
+ <small style="display:block;color:var(--gris-medio);font-size:12px;margin-bottom:8px;">Ese es el precio final que paga el cliente por todo el combo — solo se pone una vez, aquí.</small>
+ <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
  <select id="combo-producto-sel">
  <option value="">— Cargando productos… —</option>
  </select>
- <input type="number" id="combo-producto-precio" placeholder="Precio" min="0" step="0.01"/>
  <button class="btn btn-outline btn-sm" id="btn-add-item-combo" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Producto</button>
  </div>
  <div id="combo-items-lista" style="min-height:24px;margin-bottom:8px;"></div>
  <button class="btn btn-primary btn-sm" id="btn-guardar-combo" style="width:auto;">Guardar combo</button>
- <small style="display:block;color:var(--gris-medio);font-size:12px;margin-top:6px;">Agrega 2 o más productos con su precio dentro del combo (puede ser distinto al precio normal).</small>
+ <small style="display:block;color:var(--gris-medio);font-size:12px;margin-top:6px;">Aquí solo eliges qué productos van dentro del combo (mínimo 2). El precio ya lo pusiste arriba.</small>
  </div>
  <div id="venta-combos-lista" style="min-height:28px;"></div>
  </div>
