@@ -1,6 +1,6 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T09:31:03.984976+00:00**
+- Generado: **2026-08-17T09:50:02.192754+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
 - Huella del proyecto: `f632590c3e699398…`
 - Archivos analizados: **143**
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
