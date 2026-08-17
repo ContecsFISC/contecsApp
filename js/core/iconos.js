@@ -46,6 +46,33 @@ export function iconoImg(nombre, opts = {}) {
 }
 
 /**
+ * Elige el SVG ilustrado correcto para un combo de venta.
+ * Los combos antiguos se reconocen por su nombre y por el de sus productos.
+ */
+export function nombreIconoCombo(combo = {}) {
+  if (["combo_hamburguesa_soda", "combo_pizza_soda"].includes(combo.icono)) {
+    return combo.icono;
+  }
+
+  const texto = [
+    combo.nombre,
+    ...(Array.isArray(combo.items) ? combo.items.map(item => item?.nombre) : []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (texto.includes("pizza")) return "combo_pizza_soda";
+  return "combo_hamburguesa_soda";
+}
+
+export function iconoComboImg(combo, opts = {}) {
+  return iconoImg(nombreIconoCombo(combo), opts);
+}
+
+/**
  * Renderiza una calificación en estrellas (1 a `max`) usando estrella.svg,
  * marcando como "llena" las primeras `cantidad` y "vacia" el resto.
  * Reemplaza las antiguas calificaciones construidas con caracteres Unicode.

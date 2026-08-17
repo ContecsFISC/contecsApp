@@ -1,6 +1,6 @@
 import { guardRoute, requirePermiso, getUsuarioActual, usuarioTienePermiso } from "../core/auth.js";
 import { getIconoHTML } from "./catalogo.js";
-import { iconoImg } from "../core/iconos.js";
+import { iconoImg, iconoComboImg } from "../core/iconos.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarVenta, registrarVentaConMerma, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -204,6 +204,7 @@ function agregarUnidadCombo(combo) {
 		tipo: "combo",
 		comboId: combo.id,
 		nombre: combo.nombre,
+		icono: combo.icono,
 		items,
 		precioTotal: Number(combo.precioTotal) || 0,
 		cantidad: 1,
@@ -456,7 +457,7 @@ function renderCatalogo() {
 	const bloques = [];
 
 	if (estado.combosDisponibles.length > 0) {
-		bloques.push(`<div class="seccion-titulo">${iconoImg("combo")} Combos</div><div class="catalogo-grid">${
+		bloques.push(`<div class="seccion-titulo">${iconoComboImg(estado.combosDisponibles[0])} Combos</div><div class="catalogo-grid">${
 			estado.combosDisponibles.map((c) => {
 				const enPedido = estado.pedido.get(`c_${c.id}`);
 				const cantidad = enPedido ? enPedido.cantidad : 0;
@@ -464,7 +465,7 @@ function renderCatalogo() {
 					<div class="item-card combo ${cantidad > 0 ? "tiene-cant" : ""}" data-combo-id="${c.id}">
 						<span class="badge-combo">Combo</span>
 						${cantidad > 0 ? `<span class="badge-cant" data-combo-restar="${c.id}">${cantidad}</span>` : ""}
-						<div class="icono">${iconoImg("combo", { clase: "icono-lg" })}</div>
+						<div class="icono">${iconoComboImg(c, { clase: "icono-lg" })}</div>
 						<div class="nombre">${c.nombre}</div>
 						<div class="precio">${formatearMoneda(c.precioTotal)}</div>
 					</div>`;
@@ -596,7 +597,7 @@ function renderPedido() {
 			return `
 				<div class="pedido-fila" style="flex-wrap:wrap;">
 					<div class="info">
-						<div class="nombre">${it.tipo === "combo" ? iconoImg("combo") + " " : ""}${it.nombre}</div>
+						<div class="nombre">${it.tipo === "combo" ? iconoComboImg(it) + " " : ""}${it.nombre}</div>
 						<div class="meta">Subtotal ${formatearMoneda(subtotal)}</div>
 						${aviso}
 					</div>

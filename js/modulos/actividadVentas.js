@@ -4,7 +4,7 @@ import {
   query, orderBy, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
-import { iconoImg } from "../core/iconos.js";
+import { iconoImg, iconoComboImg, nombreIconoCombo } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 const XLSX = window.XLSX;
@@ -234,7 +234,7 @@ function renderCombos() {
   el("venta-combos-lista").innerHTML = combosForm.map((c, i) => `
     <div style="background:#fff;border:1px solid #f98080;border-radius:var(--radio-sm);padding:8px 10px;margin-bottom:6px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-      <strong style="color:#c81e1e;">${iconoImg("combo")} ${c.nombre}</strong>
+      <strong style="color:#c81e1e;">${iconoComboImg(c)} ${c.nombre}</strong>
         <span style="display:flex;align-items:center;gap:8px;">
           <strong style="color:#c81e1e;">${formatearMonedaLocal(c.precioTotal)}</strong>
           <button onclick="quitarCombo(${i})" style="background:none;border:none;cursor:pointer;color:#c81e1e;font-size:15px;">×</button>
@@ -279,7 +279,9 @@ el("btn-guardar-combo").addEventListener("click", () => {
     ultimo.precio = Math.round((ultimo.precio + diferencia) * 100) / 100;
   }
 
-  combosForm.push({ id: `c_${Date.now()}`, nombre, items: itemsConPrecio, precioTotal });
+  const comboNuevo = { id: `c_${Date.now()}`, nombre, items: itemsConPrecio, precioTotal };
+  comboNuevo.icono = nombreIconoCombo(comboNuevo);
+  combosForm.push(comboNuevo);
   renderCombos();
   el("combo-nombre").value = "";
   el("combo-precio-total").value = "";
@@ -448,7 +450,7 @@ function renderTablaVentas() {
         ${(v.productos || []).map(p => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${iconoImg("carrito")} ${p.nombre}</span>`).join("") || "—"}
       </td>
       <td>
-        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">${iconoImg("combo")} ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
+        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">${iconoComboImg(c)} ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
       </td>
       <td>
         <span style="font-size:12px;background:${v.activo ? "#fde8e8" : "#f8f9fa"};color:${v.activo ? "#c81e1e" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
