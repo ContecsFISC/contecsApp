@@ -190,7 +190,7 @@ body {
 
 /* ---- TOPBAR ---- */
 .topbar {
-  background: linear-gradient(135deg, var(--verde-oscuro) 0%, var(--verde) 100%);
+  background: var(--verde-oscuro);
   color: var(--blanco);
   padding: 10px 20px;
   display: flex;
@@ -206,54 +206,8 @@ body {
   animation: topbarReveal 0.38s var(--ease-out) both;
 }
 
-/* Borde óptico inferior: comienza dentro de la barra para borrar el corte.
-   La combinación de dos desenfoques concentra la refracción en pocos píxeles
-   y la máscara la desvanece antes de alcanzar el contenido principal. */
-.topbar::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: calc(100% + 28px);
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 22% 56%, rgba(255,255,255,0.11), transparent 44%),
-    linear-gradient(to bottom,
-      transparent 0 48%,
-      rgba(0,114,46,0.28) 67%,
-      rgba(4,82,35,0.07) 86%,
-      transparent 100%);
-  -webkit-backdrop-filter: blur(10px) saturate(175%) contrast(1.04);
-  backdrop-filter: blur(10px) saturate(175%) contrast(1.04);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0 62%, rgba(0,0,0,0.7) 74%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0 62%, rgba(0,0,0,0.7) 74%, transparent 100%);
-  transform: translateZ(0);
-}
-.topbar::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: calc(100% + 40px);
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    transparent 0 48%,
-    rgba(4,82,35,0.16) 62%,
-    rgba(4,82,35,0.055) 78%,
-    rgba(4,82,35,0) 100%
-  );
-  -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(1.06);
-  backdrop-filter: blur(20px) saturate(190%) contrast(1.06);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0 58%, rgba(0,0,0,0.7) 72%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0 58%, rgba(0,0,0,0.7) 72%, transparent 100%);
-  transform: translateZ(0);
-  will-change: backdrop-filter;
-}
+.topbar::before,
+.topbar::after { content: none; }
 .topbar > * { position: relative; z-index: 1; min-width: 0; }
 .topbar-brand {
   display: flex;
@@ -625,7 +579,6 @@ tr:hover td { background: var(--verde-fondo); }
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
-  .topbar::before, .topbar::after { will-change: auto; }
 }
 
 @media (hover: none) and (pointer: coarse) {
