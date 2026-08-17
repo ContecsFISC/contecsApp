@@ -135,7 +135,7 @@
   <div class="login-box">
     <div class="logo-wrap">
       <div class="logo-circle">
-        <img src="../logocontecs.png" alt="CONTECS" width="60" height="60" style="object-fit:contain;border-radius:50%;"/>
+        <img src="./logocontecs.png" alt="CONTECS" width="60" height="60" style="object-fit:contain;border-radius:50%;"/>
       </div>
       <h2>CONTECS</h2>
       <p>Sistema de Gestión Organizacional</p>
@@ -170,7 +170,7 @@
   </div>
 
   <script type="module">
-    import { loginConGoogle, loginConSSO, guardRoute } from "../js/core/auth.js";
+    import { loginConGoogle, loginConSSO, guardRoute } from "./js/core/auth.js";
 
     guardRoute();
 
@@ -195,20 +195,20 @@
           btnEl.childNodes[1].textContent = labelOriginal;
           const uid = sessionStorage.getItem("uid");
           if (uid) {
-            const { db } = await import("../js/core/firebase-config.js");
+            const { db } = await import("./js/core/firebase-config.js");
             const { doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js");
             onSnapshot(doc(db, "usuarios", uid), (snap) => {
               if (!snap.exists()) return;
               const nuevoRol = snap.data().rol || "sin_rol";
               if (nuevoRol !== "sin_rol") {
                 sessionStorage.setItem("rol", nuevoRol);
-                window.location.href = "dashboard.html";
+                window.location.href = "panel/dashboard.html";
               }
             });
           }
           return;
         }
-        window.location.href = "dashboard.html";
+        window.location.href = "panel/dashboard.html";
       } catch (e) {
         btnEl.disabled = false;
         btnEl.childNodes[1].textContent = labelOriginal;

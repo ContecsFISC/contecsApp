@@ -33,6 +33,17 @@ function prefijoHaciaPanel() {
   return niveles > 0 ? "../".repeat(niveles) : "";
 }
 
+// La app tiene dos páginas de acceso: /index.html y /panel/index.html.
+// Desde la raíz hay que entrar a panel/; desde cualquier página bajo panel/
+// se conserva la navegación relativa existente.
+function rutaHaciaDashboard() {
+  const path = window.location.pathname;
+  if (path.includes("/panel/")) {
+    return prefijoHaciaPanel() + "dashboard.html";
+  }
+  return "panel/dashboard.html";
+}
+
 function esErrorDePermisosFirestore(error) {
   return error?.code === "permission-denied" || error?.code === "firestore/permission-denied";
 }
@@ -89,7 +100,7 @@ export function guardRoute() {
         window.location.href = prefijoHaciaPanel() + "index.html";
       } else if (user && esPublica) {
         await cargarUsuario(user);
-        window.location.href = "dashboard.html";
+        window.location.href = rutaHaciaDashboard();
       } else if (user && !esPublica) {
         // Si sessionStorage no tiene los datos de este usuario (pestaña nueva o
         // sesión restaurada sin haber pasado por el login en esta pestaña),
