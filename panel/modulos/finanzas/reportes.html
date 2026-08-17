@@ -20,6 +20,32 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ .reportes-intro { max-width:520px; margin:0 auto 22px; color:var(--gris-medio); font-size:14px; line-height:1.65; }
+ .reportes-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; text-align:left; }
+ .reporte-link {
+   min-width:0;
+   display:flex;
+   align-items:center;
+   justify-content:space-between;
+   gap:12px;
+   padding:16px;
+   border:1px solid var(--gris-borde);
+   border-radius:14px;
+   color:var(--verde-oscuro);
+   background:linear-gradient(145deg,#fff,#f3faf5);
+   text-decoration:none;
+   font-size:14px;
+   font-weight:700;
+   box-shadow:0 6px 18px rgba(14,55,29,0.06);
+   transition:transform .22s var(--ease-out),border-color .22s ease,box-shadow .22s ease;
+ }
+ .reporte-link::after { content:'→'; font-size:20px; font-weight:500; transition:transform .22s var(--ease-out); }
+ .reporte-link:hover { transform:translateY(-2px); border-color:var(--verde-claro); box-shadow:0 10px 24px rgba(0,114,46,.12); }
+ .reporte-link:hover::after { transform:translateX(3px); }
+ @media(max-width:520px) {
+   .reportes-grid { grid-template-columns:minmax(0,1fr); }
+   .reporte-link { min-height:62px; }
+ }
  </style>
 </head>
 <body>
@@ -28,16 +54,13 @@
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
  </div>
  <div class="container">
- <div class="card" style="text-align:center;padding:40px 20px;">
- <div style="font-size:48px;margin-bottom:12px;"></div>
- <div class="card-title" style="justify-content:center;">Módulo en construcción</div>
- <p style="color:var(--gris-medio);font-size:14px;">
- Este módulo estará disponible en la Fase 7.<br>
- Aquí verás reportes de ventas, estadísticas por período y el producto estrella de cada evento.
- </p>
-
- <h1><a href="reportes_financieros.html" style="color:#007bff;text-decoration:none;">Ver reporte financiero</a></h1>
- <h1><a href="../congreso/reportes_estadisticaCont.html" style="color:#007bff;text-decoration:none;">Ver Estadísticas de Evento Contecs</a></h1>
+ <div class="card" style="text-align:center;padding:28px 20px;">
+ <div class="card-title" style="justify-content:center;">Centro de reportes</div>
+ <p class="reportes-intro">Consulta el estado financiero de las actividades y las estadísticas generales del congreso desde un solo lugar.</p>
+ <nav class="reportes-grid" aria-label="Tipos de reporte">
+   <a href="reportes_financieros.html" class="reporte-link">Reporte financiero</a>
+   <a href="../congreso/reportes_estadisticaCont.html" class="reporte-link">Estadísticas del evento</a>
+ </nav>
  </div>
 
  

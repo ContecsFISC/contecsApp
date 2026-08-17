@@ -51,6 +51,13 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 body {
   font-family: var(--fuente);
   background: var(--gris-suave);
@@ -58,6 +65,10 @@ body {
   min-height: 100vh;
   font-size: 15px;
   line-height: 1.5;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ════════════════════════════════════
@@ -100,6 +111,18 @@ body {
   }
 }
 
+/* Aparición corta y vertical: el encabezado se siente anclado, no deslizado. */
+@keyframes topbarReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 /* Entrada en cascada para cards */
 @keyframes cardCascade {
   from {
@@ -118,6 +141,11 @@ body {
   60%  { transform: translateY(-8px); }
   80%  { transform: translateY(4px); }
   100% { transform: translateY(0); }
+}
+
+@keyframes mobileSheetReveal {
+  from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.985); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 /* Pulso suave para alertas */
@@ -172,36 +200,61 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  /* Sin box-shadow: un shadow de color (rgba verde) con z-index alto se pinta
-     ENCIMA del elemento siguiente, no detrás — eso causaba la franja verde
-     cruzando la línea divisoria. Ahora todo (marca + nav + logout) vive en
-     esta única barra verde, sin segunda barra ni bordes adicionales debajo. */
+  isolation: isolate;
+  min-width: 0;
   box-shadow: none;
-  animation: slideInLeft 0.35s var(--ease-out) both;
+  animation: topbarReveal 0.38s var(--ease-out) both;
 }
 
-/* Transición inferior del topbar.
-   Evita backdrop-filter: en móviles producía halos laterales y seguía
-   dejando visible el corte recto de la barra. Una sola sombra degradada
-   conserva profundidad sin deformar el contenido al desplazarse. */
+/* Borde óptico inferior: comienza dentro de la barra para borrar el corte.
+   La combinación de dos desenfoques concentra la refracción en pocos píxeles
+   y la máscara la desvanece antes de alcanzar el contenido principal. */
 .topbar::before {
-  content: none;
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(100% + 28px);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 22% 56%, rgba(255,255,255,0.11), transparent 44%),
+    linear-gradient(to bottom,
+      transparent 0 48%,
+      rgba(0,114,46,0.28) 67%,
+      rgba(4,82,35,0.07) 86%,
+      transparent 100%);
+  -webkit-backdrop-filter: blur(10px) saturate(175%) contrast(1.04);
+  backdrop-filter: blur(10px) saturate(175%) contrast(1.04);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 62%, rgba(0,0,0,0.7) 74%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0 62%, rgba(0,0,0,0.7) 74%, transparent 100%);
+  transform: translateZ(0);
 }
 .topbar::after {
   content: "";
   position: absolute;
+  z-index: 0;
   left: 0;
   right: 0;
-  top: 100%;
-  height: 18px;
+  top: 0;
+  height: calc(100% + 40px);
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(4, 82, 35, 0.18) 0%,
-    rgba(4, 82, 35, 0.07) 42%,
-    rgba(4, 82, 35, 0) 100%
+    transparent 0 48%,
+    rgba(4,82,35,0.16) 62%,
+    rgba(4,82,35,0.055) 78%,
+    rgba(4,82,35,0) 100%
   );
+  -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(1.06);
+  backdrop-filter: blur(20px) saturate(190%) contrast(1.06);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 58%, rgba(0,0,0,0.7) 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0 58%, rgba(0,0,0,0.7) 72%, transparent 100%);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
 }
+.topbar > * { position: relative; z-index: 1; min-width: 0; }
 .topbar-brand {
   display: flex;
   align-items: center;
@@ -218,10 +271,46 @@ body {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .topbar-link {
   color: var(--blanco);
   font-size: 13px;
+}
+
+/* Navegación de regreso única para todos los módulos. */
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  flex: 0 0 38px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  color: var(--blanco);
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.17), 0 5px 14px rgba(0,35,14,0.14);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(150%);
+  transition: transform 0.22s var(--ease-out), background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+.btn-volver svg { display: block; width: 20px; height: 20px; }
+.btn-volver:hover {
+  background: rgba(255,255,255,0.26);
+  border-color: rgba(255,255,255,0.44);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 7px 18px rgba(0,35,14,0.2);
+  transform: translateX(-2px);
+}
+.btn-volver:active { transform: translateX(-1px) scale(0.92); }
+.btn-volver:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.52);
+  outline-offset: 2px;
 }
 .is-hidden { display: none; }
 .fondo-estado { font-size: 18px; }
@@ -388,7 +477,12 @@ body {
 }
 
 /* ---- TABLA ---- */
-.tabla-wrap { overflow-x: auto; }
+.tabla-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th {
   background: var(--verde-fondo);
@@ -432,11 +526,112 @@ tr:hover td { background: var(--verde-fondo); }
   animation: pageSlideUp 0.45s var(--ease-out) both;
 }
 
-/* ---- RESPONSIVE ---- */
+/* ---- RESPONSIVE PREMIUM COMPARTIDO ---- */
+@media (max-width: 600px) {
+  body {
+    background:
+      radial-gradient(circle at 88% -5%, rgba(57,181,74,0.14), transparent 32%),
+      linear-gradient(180deg, #eef7f1 0, var(--gris-suave) 240px);
+  }
+
+  .topbar {
+    min-height: 58px;
+    padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+    gap: 12px;
+  }
+  .topbar h1 {
+    font-size: clamp(14px, 4.2vw, 17px);
+    line-height: 1.2;
+    letter-spacing: 0.25px;
+  }
+  .topbar-brand { min-width: 0; }
+  .topbar-logo { height: 28px; }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 22px 12px calc(40px + env(safe-area-inset-bottom));
+  }
+
+  .card {
+    max-width: 100%;
+    min-width: 0;
+    padding: 17px 15px;
+    margin-bottom: 14px;
+    border-left-width: 0;
+    border-top: 3px solid var(--verde-claro);
+    border-radius: 16px;
+    box-shadow: 0 8px 26px rgba(14,55,29,0.075), 0 1px 2px rgba(14,55,29,0.06);
+    animation-duration: 0.46s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card-title {
+    line-height: 1.3;
+    margin-bottom: 13px;
+    padding-bottom: 10px;
+  }
+
+  .mobile-stack {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .mobile-stack > * { min-width: 0; }
+  .mobile-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .mobile-actions > .btn,
+  .mobile-actions > button,
+  .mobile-actions > a { width: 100% !important; }
+
+  input, select, textarea, button { max-width: 100%; }
+  input, select, textarea { font-size: 16px; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .form-groupE input,
+  .form-groupE select,
+  .form-groupE textarea { font-size: 16px; }
+
+  .tabla-wrap {
+    margin-inline: -3px;
+    padding: 0 3px 5px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,114,46,0.32) transparent;
+  }
+
+  .modal-overlay { padding: 14px 10px env(safe-area-inset-bottom); }
+  .modal, .modal-box, .modal-content {
+    max-width: 100%;
+    max-height: calc(100dvh - 28px - env(safe-area-inset-bottom));
+    animation-name: mobileSheetReveal !important;
+    animation-duration: 0.34s !important;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+}
+
 @media (max-width: 400px) {
-  .topbar h1 { font-size: 16px; }
-  .container { padding: 14px 12px 32px; }
-  .card { padding: 16px; }
+  .container { padding-inline: 10px; }
+  .card { padding: 15px 13px; }
+  .btn-volver { width: 36px; height: 36px; min-width: 36px; flex-basis: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .topbar::before, .topbar::after { will-change: auto; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .card:hover { transform: none; }
+  .btn-primary:hover, .btn-outline:hover { transform: none; }
+  .btn-volver:hover { transform: none; }
 }
 
 /* ════════════════════════════════════

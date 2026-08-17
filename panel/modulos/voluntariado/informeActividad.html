@@ -74,6 +74,9 @@
  @media(max-width:600px) {
  .container { padding: 12px; }
  .carreras-grid { grid-template-columns: 1fr; }
+ .checkbox-grid { grid-template-columns:minmax(0,1fr); }
+ .img-preview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .img-preview-grid img { width:100%; height:auto; aspect-ratio:4/3; }
  }
  
  .btn-volver {
@@ -138,7 +141,7 @@
  <!-- ASIGNATURA -->
  <div class="card" style="border-left:3px solid var(--verde-claro);">
  <div class="seccion-label">Asignatura (si aplica)</div>
- <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
+<div class="mobile-stack" style="display:grid;grid-template-columns:2fr 1fr;gap:12px;">
  <div class="form-groupE">
  <label>Asignatura</label>
  <input type="text" id="inf-asignatura" placeholder="Nombre de la asignatura"/>
@@ -182,7 +185,7 @@
  <!-- DATOS DEL EVENTO -->
  <div class="card" style="border-left:3px solid var(--verde-claro);">
  <div class="seccion-label">Datos del evento</div>
- <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+<div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
  <div class="form-groupE">
  <label>Fecha *</label>
  <input type="date" id="inf-fecha"/>
@@ -213,7 +216,7 @@
  <label>Total de participantes *</label>
  <input type="number" id="inf-total-participantes" min="0" placeholder="0" style="max-width:180px;"/>
  </div>
- <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px;">
+<div class="mobile-stack" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px;">
  <div class="form-groupE">
  <label style="font-size:12px;">Estudiantes</label>
  <input type="number" id="inf-p-estudiantes" min="0" placeholder="0"/>

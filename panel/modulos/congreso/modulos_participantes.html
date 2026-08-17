@@ -344,6 +344,21 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ @media(max-width:600px) {
+   .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+   .stat-card { min-width:0; padding:13px 8px; border-radius:14px; }
+   .stat-num { font-size:23px; }
+   .stat-label { font-size:10px; line-height:1.25; }
+   .filtros-bar { padding:13px; gap:8px; align-items:stretch; }
+   .filtros-bar input[type="text"], .filtros-bar select { flex:1 1 100%; width:100%; min-width:0; font-size:16px; }
+   .tabla-header { align-items:stretch; }
+   .tabla-header .btn { width:100% !important; }
+   .tabla-overflow { overscroll-behavior-inline:contain; -webkit-overflow-scrolling:touch; }
+   .bottom-sheet { max-height:94dvh; border-radius:24px 24px 0 0; transition-timing-function:cubic-bezier(0.22,1,0.36,1); }
+   .bs-body { padding:17px 14px calc(22px + env(safe-area-inset-bottom)); }
+   .datos-grid { grid-template-columns:minmax(0,1fr); }
+   .acciones-pago { grid-template-columns:minmax(0,1fr); }
+ }
  </style>
 </head>
 <body>

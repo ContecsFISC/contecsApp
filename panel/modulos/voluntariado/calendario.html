@@ -56,6 +56,25 @@
  .cal-evento { font-size:10px; padding:2px 4px; }
  .cal-titulo-mes { font-size:15px; }
  }
+ @media(max-width:520px) {
+ .cal-nav-bar { gap:8px; }
+ .cal-nav-btn { min-width:40px; min-height:40px; padding:5px 11px; border-radius:12px; }
+ .cal-titulo-mes { flex:1; text-align:center; }
+ .cal-grid { gap:3px; }
+ .cal-day-name { font-size:10px; padding:7px 1px; }
+ .cal-day { min-width:0; min-height:54px; padding:4px 3px; border-radius:8px; }
+ .cal-evento { height:8px; padding:0; border-left:0; border-radius:999px; font-size:0; }
+ .cal-mas { font-size:8px; line-height:1; }
+ .card > div[style*="flex-wrap:wrap"] > div:first-child {
+   flex-wrap:nowrap !important;
+   width:100%;
+   overflow-x:auto;
+   padding-bottom:4px;
+   scrollbar-width:none;
+ }
+ .card > div[style*="flex-wrap:wrap"] > div:first-child::-webkit-scrollbar { display:none; }
+ .filtro-btn { flex:0 0 auto; min-height:38px; padding:7px 14px; }
+ }
  
  .btn-volver {
  display: inline-flex;

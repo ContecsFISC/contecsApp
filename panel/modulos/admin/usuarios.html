@@ -89,6 +89,24 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ @media(max-width:600px) {
+   .usuario-card {
+     display:grid;
+     grid-template-columns:44px minmax(0,1fr);
+     gap:10px 12px;
+     padding:14px;
+     border-left:0;
+     border-top:3px solid var(--gris-borde);
+     border-radius:15px;
+   }
+   .usuario-card.con-rol { border-top-color:var(--verde-claro); }
+   .usuario-card.sin-rol { border-top-color:var(--amarillo); }
+   .rol-select { grid-column:1 / -1; width:100%; min-height:42px; font-size:16px; }
+   .guardando { grid-column:1 / -1; }
+   .filtros { flex-wrap:nowrap; overflow-x:auto; padding-bottom:5px; scrollbar-width:none; }
+   .filtros::-webkit-scrollbar { display:none; }
+   .filtro-btn { flex:0 0 auto; min-height:36px; }
+ }
  </style>
 </head>
 <body>

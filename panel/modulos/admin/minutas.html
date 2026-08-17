@@ -38,13 +38,18 @@
     .badge-vacia { background: #fff3cd; color: #856404; }
     .badge-lista { background: var(--verde-fondo); color: var(--verde-oscuro); }
     .sin-reuniones { text-align: center; color: var(--gris-medio); font-size: 13px; padding: 40px 0; }
+    @media(max-width:600px) {
+      .reunion-card { border-left:0; border-top:3px solid var(--verde-claro); border-radius:15px; padding:15px; }
+      .reunion-meta { gap:7px 12px; }
+      .container > div[style*="justify-content:flex-end"] .btn { width:100% !important; }
+    }
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <h1>Minutas de Reunión</h1>
-  <a href="secretaria.html" class="topbar-link">← Secretaría</a>
+  <a href="secretaria.html" class="btn-volver" title="Volver a Secretaría" aria-label="Volver a Secretaría"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
 <div class="container anim-page-in">
