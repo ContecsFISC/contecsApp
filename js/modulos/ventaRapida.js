@@ -1,4 +1,4 @@
-import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
+import { guardRoute, requirePermiso, getUsuarioActual, usuarioTienePermiso } from "../core/auth.js";
 import { getIconoHTML } from "./catalogo.js";
 import { iconoImg } from "../core/iconos.js";
 import { db, auth } from "../core/firebase-config.js";
@@ -39,6 +39,13 @@ const alerta = $("alerta-venta");
 const metodoPago = $("metodo-pago");
 const btnEnviar = $("btn-enviar-venta");
 const btnVaciarPedido = $("btn-vaciar-pedido");
+const btnCrearActividad = $("btn-crear-actividad");
+
+// Registrar actividades sigue siendo una operación administrativa. Quienes
+// solo venden pueden usar las actividades existentes, pero no crear nuevas.
+if (!usuarioTienePermiso("gestionar_ventas")) {
+	btnCrearActividad?.remove();
+}
 
 const r2 = (v) => Math.round(Number(v) * 100) / 100;
 
@@ -407,6 +414,25 @@ function restaurarEstadoGuardado() {
 	if (estado.pedido.size > 0) {
 		mostrarAlerta("aviso", "Se restauró la venta que tenías en progreso antes de recargar la página.");
 	}
+}
+
+function seleccionarActividadDeRetorno() {
+	const actividadId = new URLSearchParams(window.location.search).get("actividad");
+	if (!actividadId) return false;
+
+	const actividad = estado.actividades.find((item) => item.id === actividadId);
+	if (!actividad) return false;
+
+	estado.actividadVentaId = actividad.id;
+	estado.actividadVentaNombre = actividad.nombre;
+	$("sel-actividad").value = actividad.id;
+	estado.pedido.clear();
+	recalcularDisponibles();
+
+	// La actividad ya quedó seleccionada; limpiamos el parámetro para que una
+	// recarga normal no vuelva a reemplazar una venta en progreso.
+	window.history.replaceState({}, "", window.location.pathname);
+	return true;
 }
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────
@@ -852,7 +878,7 @@ onSnapshot(
 );
 
 cargarActividades().then(() => {
-	restaurarEstadoGuardado();
+	if (!seleccionarActividadDeRetorno()) restaurarEstadoGuardado();
 	listoParaPersistir = true;
 	renderTodo();
 });

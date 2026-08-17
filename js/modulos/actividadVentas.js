@@ -8,6 +8,12 @@ import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 const XLSX = window.XLSX;
+const vieneDeVentas = new URLSearchParams(window.location.search).get("origen") === "ventas";
+
+if (vieneDeVentas) {
+  const btnVolver = document.querySelector(".btn-volver");
+  if (btnVolver) btnVolver.href = "../finanzas/ventaRapida.html";
+}
 
 let ventas           = [];
 let turnosForm       = [];
@@ -307,21 +313,29 @@ el("btn-guardar-venta").addEventListener("click", async () => {
   el("btn-guardar-venta").disabled = true;
   el("btn-guardar-venta").textContent = "Guardando...";
   try {
+    let actividadGuardadaId = editandoId;
     if (editandoId) {
       await updateDoc(doc(db, "actividades_ventas", editandoId), data);
-      mostrarAlerta("success", "Venta actualizada.");
+      mostrarAlerta("success", "Actividad actualizada.");
     } else {
       data.creadoEn  = serverTimestamp();
       data.creadoPor = auth.currentUser?.uid || "";
-      await addDoc(collection(db, "actividades_ventas"), data);
-      mostrarAlerta("success", "Venta registrada correctamente.");
+      const actividadRef = await addDoc(collection(db, "actividades_ventas"), data);
+      actividadGuardadaId = actividadRef.id;
+      mostrarAlerta("success", "Actividad creada correctamente.");
     }
+
+    if (vieneDeVentas && actividadGuardadaId) {
+      window.location.href = `../finanzas/ventaRapida.html?actividad=${encodeURIComponent(actividadGuardadaId)}`;
+      return;
+    }
+
     limpiarForm();
     await cargarVentas();
     activarTab("tab-lista");
   } catch (e) { mostrarAlerta("error", "Error al guardar: " + e.message); }
   el("btn-guardar-venta").disabled = false;
-  el("btn-guardar-venta").textContent = "Guardar venta";
+  el("btn-guardar-venta").textContent = "Guardar actividad";
 });
 
 function limpiarForm() {
@@ -338,7 +352,7 @@ function limpiarForm() {
   el("combo-nombre").value = "";
   el("combo-precio-total").value = "";
   editandoId = null;
-  el("form-venta-titulo").textContent = "Registrar nueva venta";
+  el("form-venta-titulo").textContent = "Crear actividad de venta";
   el("btn-cancelar-venta").style.display = "none";
 }
 
@@ -366,7 +380,7 @@ window.editarVenta = function(id) {
   renderProductosForm();
   combosForm = [...(v.combos || [])];
   renderCombos();
-  el("form-venta-titulo").textContent = "Editar venta";
+  el("form-venta-titulo").textContent = "Editar actividad de venta";
   el("btn-cancelar-venta").style.display = "inline-flex";
   activarTab("tab-ventas");
   el("venta-nombre").scrollIntoView({ behavior: "smooth" });

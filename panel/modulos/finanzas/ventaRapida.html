@@ -133,6 +133,22 @@
 		}
 		.btn-volver:hover { background: rgba(255,255,255,0.28); }
 		.btn-volver:active { transform: scale(0.92); }
+		.selector-actividad-fila {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: 10px;
+			align-items: stretch;
+		}
+		.selector-actividad-fila .btn {
+			width: auto;
+			min-height: 46px;
+			white-space: nowrap;
+			text-decoration: none;
+		}
+		@media (max-width: 600px) {
+			.selector-actividad-fila { grid-template-columns: 1fr; }
+			.selector-actividad-fila .btn { width: 100%; }
+		}
 	</style>
 </head>
 <body>
@@ -147,9 +163,18 @@
 		<div class="card">
 			<div class="form-group" style="margin-bottom:0;">
 				<label for="sel-actividad">Actividad de venta</label>
-				<select id="sel-actividad" aria-label="Actividad de ventas">
-					<option value="">— Cargando actividades… —</option>
-				</select>
+				<div class="selector-actividad-fila">
+					<select id="sel-actividad" aria-label="Actividad de ventas">
+						<option value="">— Cargando actividades… —</option>
+					</select>
+					<a class="btn btn-primary" id="btn-crear-actividad"
+						href="../logistica/actividadVentas.html?origen=ventas">
+						Crear actividad de venta
+					</a>
+				</div>
+				<small style="display:block;color:var(--gris-medio);font-size:12px;margin-top:7px;">
+					Primero crea la actividad y asígnale productos o combos; después podrás registrar aquí las ventas de los clientes.
+				</small>
 			</div>
 		</div>
 
@@ -167,7 +192,7 @@
 				<div class="empty-state" style="padding:16px 4px;">
 					<div class="emoji"><img src="../../../img/iconos/advertencia.svg" class="icono-svg icono-hero" alt=""/></div>
 					<p>Esta actividad no tiene productos ni combos asignados.</p>
-					<p style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Asígnalos desde <a href="../logistica/actividadVentas.html">Crear actividad de venta</a>.</p>
+					<p style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Asígnalos desde <a href="../logistica/actividadVentas.html?origen=ventas">Crear actividad de venta</a>.</p>
 				</div>
 			</div>
 
