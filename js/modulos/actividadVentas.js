@@ -4,7 +4,7 @@ import {
   query, orderBy, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
-import { iconoImg, iconoComboImg, nombreIconoCombo } from "../core/iconos.js";
+import { iconoImg, iconoComboImg, nombreIconoCombo } from "../core/iconos.js?v=20260817-combos";
 
 const el = id => document.getElementById(id);
 const XLSX = window.XLSX;
@@ -241,7 +241,7 @@ function renderCombos() {
         </span>
       </div>
       <div style="font-size:12px;color:var(--gris-medio);margin-top:4px;">
-        ${c.items.map(it => it.nombre).join(" + ")}
+        ${(c.items || []).map(it => it.nombre).join(" + ") || "Sin productos asignados"}
       </div>
     </div>`).join("");
 }
@@ -414,7 +414,11 @@ async function cargarVentas() {
   try {
     const snap = await getDocs(query(collection(db, "actividades_ventas"), orderBy("creadoEn", "desc")));
     ventas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch { ventas = []; }
+  } catch (error) {
+    ventas = [];
+    mostrarAlerta("error", `No se pudieron cargar las actividades: ${error.message}`);
+    console.error("Error al cargar actividades de venta:", error);
+  }
   renderTablaVentas();
   actualizarStats();
 }
@@ -450,7 +454,7 @@ function renderTablaVentas() {
         ${(v.productos || []).map(p => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${iconoImg("carrito")} ${p.nombre}</span>`).join("") || "—"}
       </td>
       <td>
-        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">${iconoComboImg(c)} ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
+        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${(c.items || []).map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">${iconoComboImg(c)} ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
       </td>
       <td>
         <span style="font-size:12px;background:${v.activo ? "#fde8e8" : "#f8f9fa"};color:${v.activo ? "#c81e1e" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
@@ -482,7 +486,7 @@ el("btn-exportar-ventas").addEventListener("click", () => {
     "Responsables":        v.responsables || "",
     "Turnos":              (v.turnos || []).map(t => `${t.nombre} ${t.horaInicio}-${t.horaFin}`).join("; "),
     "Productos":           (v.productos || []).map(p => p.nombre).join("; "),
-    "Combos":              (v.combos || []).map(c => `${c.nombre} [${c.items.map(it => `${it.nombre} ${formatearMonedaLocal(it.precio)}`).join(" + ")}] = ${formatearMonedaLocal(c.precioTotal)}`).join("; "),
+    "Combos":              (v.combos || []).map(c => `${c.nombre} [${(c.items || []).map(it => `${it.nombre} ${formatearMonedaLocal(it.precio)}`).join(" + ")}] = ${formatearMonedaLocal(c.precioTotal)}`).join("; "),
     "Estado":              v.activo ? "Activa" : "Inactiva",
   }));
   const ws = XLSX.utils.json_to_sheet(filas);
