@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T12:10:16.582414+00:00**
+- Generado: **2026-08-17T12:20:02.470125+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `63b61709331ed55c…`
+- Huella del proyecto: `4d5dd29fc05dd9fb…`
 - Archivos analizados: **143**
 - Relaciones internas tipadas: **395**
 - Símbolos detectados: **2866**
-- Llamadas detectadas: **6452**
+- Llamadas detectadas: **6474**
 - IDs DOM definidos: **716**
 - Paquetes externos usados: **20**
 - Colecciones de Firestore detectadas: **23**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,928 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,434 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**73,774 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**6,932 tokens** · leer primero
+- `GraphCompleto.json` — ~**39,439 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**73,778 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **90.6%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -42,7 +42,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/operaciones.js` — riesgo 58.6 (conexiones: 25, 860 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 55.9 (conexiones: 24, 785 lineas)
+- `panel/modulos/logistica/catalogo.html` — riesgo 56.8 (conexiones: 24, 883 lineas)
 - `js/modulos/voluntarios.js` — riesgo 41.9 (conexiones: 11, 1841 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 41.8 (conexiones: 17, 783 lineas)
 - `js/modulos/compras2.js` — riesgo 40.2 (conexiones: 16, 820 lineas)
@@ -73,9 +73,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 

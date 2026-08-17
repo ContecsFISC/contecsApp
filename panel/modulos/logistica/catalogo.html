@@ -6,6 +6,25 @@
  <title>CONTECS — Catálogo</title>
  <link rel="stylesheet" href="../../../css/styles.css"/>
  <style>
+ html, body {
+ width: 100%;
+ max-width: 100%;
+ overflow-x: hidden;
+ overflow-x: clip;
+ }
+ .topbar {
+ width: 100%;
+ max-width: 100vw;
+ min-width: 0;
+ left: 0;
+ right: 0;
+ }
+ .topbar h1 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .container,
+ #tab-categorias,
+ #tab-productos,
+ #productos-contenido { width:100%; min-width:0; }
+
  /* ── TABS ── */
  .tabs {
  display: flex;
@@ -37,7 +56,7 @@
  /* ── CATEGORÍAS ── */
  .cat-grid {
  display: grid;
- grid-template-columns: 1fr 1fr;
+ grid-template-columns: repeat(2, minmax(0, 1fr));
  gap: 12px;
  margin-bottom: 16px;
  }
@@ -55,6 +74,9 @@
  opacity: 0;
  animation: cardCascade 0.4s var(--ease-spring) both;
  transition: box-shadow 0.2s, transform 0.2s var(--ease-spring);
+ width: 100%;
+ min-width: 0;
+ overflow: hidden;
  }
  .cat-card:hover { box-shadow: var(--sombra-md); transform: translateY(-3px); }
  .cat-card:active { transform: scale(0.96) !important; transition-duration: 0.08s; }
@@ -63,9 +85,9 @@
  .cat-emoji { font-size: 28px; line-height: 1; }
  .cat-emoji .icono-svg { width: 28px; height: 28px; }
  .cat-info { flex: 1; min-width: 0; }
- .cat-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
+ .cat-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); overflow-wrap:anywhere; }
  .cat-count { font-size: 12px; color: var(--gris-medio); }
- .cat-acciones { display: flex; gap: 6px; }
+ .cat-acciones { display: flex; gap: 6px; flex-shrink:0; }
  .btn-icon {
  background: none;
  border: 1px solid var(--gris-borde);
@@ -93,6 +115,8 @@
  opacity: 0;
  animation: cardCascade 0.38s var(--ease-spring) both;
  transition: box-shadow 0.2s, transform 0.18s var(--ease-spring);
+ width: 100%;
+ min-width: 0;
  }
  .prod-card:hover { box-shadow: var(--sombra-md); transform: translateX(3px); }
  .prod-card:active { transform: scale(0.98); }
@@ -100,8 +124,8 @@
  .prod-emoji { font-size: 28px; line-height: 1; flex-shrink: 0; }
  .prod-emoji .icono-svg { width: 28px; height: 28px; }
  .prod-info { flex: 1; min-width: 0; }
- .prod-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
- .prod-precio { font-size: 12px; color: var(--gris-medio); }
+ .prod-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); overflow-wrap:anywhere; }
+ .prod-precio { font-size: 12px; color: var(--gris-medio); overflow-wrap:anywhere; }
  .stock-badge {
  padding: 4px 10px;
  border-radius: 20px;
@@ -113,6 +137,21 @@
  .stock-alerta { background: var(--amarillo-fondo); color: var(--amarillo); }
  .stock-agotado{ background: var(--rojo-fondo); color: var(--rojo); }
  .prod-inactivo { opacity: 0.45; }
+ .prod-acciones { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+ .btn-product-toggle {
+ min-height:32px;
+ padding:6px 10px;
+ border:1px solid var(--verde);
+ border-radius:8px;
+ background:var(--verde-fondo);
+ color:var(--verde-oscuro);
+ font-family:var(--fuente);
+ font-size:11px;
+ font-weight:700;
+ white-space:nowrap;
+ cursor:pointer;
+ }
+ .btn-product-toggle.danger { border-color:rgba(192,57,43,0.35); background:var(--rojo-fondo); color:var(--rojo); }
 
  /* Sección agotados */
  .agotados-titulo {
@@ -148,6 +187,8 @@
  transition: transform 0.38s cubic-bezier(0.34, 1.28, 0.64, 1);
  max-height: 90vh;
  overflow-y: auto;
+ min-width: 0;
+ overscroll-behavior: contain;
  }
  .modal-overlay.show .modal { transform: translateY(0); }
  .modal-titulo {
@@ -175,7 +216,7 @@
  /* ── GALERÍA DE ICONOS ── */
  .icono-galeria {
  display: grid;
- grid-template-columns: repeat(5, 1fr);
+ grid-template-columns: repeat(5, minmax(0, 1fr));
  gap: 8px;
  margin-top: 8px;
  }
@@ -196,7 +237,7 @@
  .icono-opcion.seleccionado { border-color: var(--verde); background: var(--verde-fondo); transform: scale(1.05); }
  .icono-opcion .emoji { font-size: 22px; }
  .icono-opcion .emoji .icono-svg { width: 22px; height: 22px; }
- .icono-opcion .label { font-size: 9px; color: var(--gris-medio); text-align: center; line-height: 1.2; }
+ .icono-opcion .label { width:100%; font-size:9px; color:var(--gris-medio); text-align:center; line-height:1.2; overflow-wrap:anywhere; }
 
  .empty-state {
  text-align: center;
@@ -207,6 +248,63 @@
  .empty-state .emoji { font-size: 40px; margin-bottom: 8px; }
  .empty-state .emoji .icono-svg { width: 40px; height: 40px; color: var(--gris-medio); }
  .empty-state p { font-size: 14px; }
+
+ @media (max-width: 600px) {
+ .topbar { padding-inline:14px; }
+ .container { padding:16px 12px 40px; overflow:visible; }
+ .tabs { width:100%; gap:4px; margin-bottom:16px; }
+ .tab-btn { flex:1; min-width:0; padding:10px 8px; font-size:13px; }
+ .cat-grid { grid-template-columns:minmax(0,1fr); gap:10px; }
+ .cat-card { padding:14px 12px; gap:10px; }
+ .cat-card:hover,
+ .prod-card:hover { transform:none; }
+ .cat-emoji,
+ .prod-emoji {
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ width:42px;
+ height:42px;
+ border-radius:12px;
+ background:var(--verde-fondo);
+ flex-shrink:0;
+ }
+ .cat-emoji .icono-svg,
+ .prod-emoji .icono-svg { width:25px; height:25px; }
+ .prod-card {
+ display:grid;
+ grid-template-columns:42px minmax(0,1fr) auto;
+ grid-template-areas:
+   "icon info stock"
+   "actions actions actions";
+ align-items:center;
+ gap:10px;
+ padding:13px 12px 11px;
+ overflow:hidden;
+ }
+ .prod-emoji { grid-area:icon; }
+ .prod-info { grid-area:info; }
+ .stock-badge { grid-area:stock; max-width:82px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .prod-acciones {
+ grid-area:actions;
+ justify-content:flex-end;
+ width:100%;
+ padding-top:10px;
+ border-top:1px solid var(--gris-borde);
+ }
+ .prod-acciones .btn-icon { margin-right:auto; }
+ .btn-product-toggle { min-width:92px; }
+ .icono-galeria { grid-template-columns:repeat(auto-fit,minmax(52px,1fr)); }
+ .modal { padding:22px 16px calc(22px + env(safe-area-inset-bottom)); }
+ }
+
+ @media (max-width: 350px) {
+ .cat-card { align-items:flex-start; flex-wrap:wrap; }
+ .cat-info { flex-basis:calc(100% - 52px); }
+ .cat-acciones { width:100%; justify-content:flex-end; padding-top:8px; border-top:1px solid var(--gris-borde); }
+ .prod-card { grid-template-columns:38px minmax(0,1fr); grid-template-areas:"icon info" "stock stock" "actions actions"; }
+ .stock-badge { justify-self:start; max-width:none; }
+ }
  
  .btn-volver {
  display: inline-flex;
@@ -651,9 +749,9 @@
  <div class="prod-precio">$${(prod.precioVenta ?? 0).toLocaleString("es-PA", {minimumFractionDigits:2})} · Alerta: ${prod.alertaMinima ?? 0} uds</div>
  </div>
  <span class="stock-badge ${badgeClass}">${badgeText}</span>
- <div class="cat-acciones">
+ <div class="prod-acciones">
  <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
- <button class="btn-icon ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "Reactivar" : "Desactivar"}</button>
+ <button class="btn-product-toggle ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "Reactivar" : "Desactivar"}</button>
  </div>`;
 
  card.querySelector(`[data-edit-prod]`).addEventListener("click", () => abrirModalEditarProd(prod));
