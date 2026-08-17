@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T11:15:29.689379+00:00**
+- Generado: **2026-08-17T11:23:07.585823+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `e478d6a7c9523923…`
+- Huella del proyecto: `3fe6e6843fe1dfcb…`
 - Archivos analizados: **143**
 - Relaciones internas tipadas: **395**
-- Símbolos detectados: **2741**
-- Llamadas detectadas: **6243**
-- IDs DOM definidos: **691**
+- Símbolos detectados: **2768**
+- Llamadas detectadas: **6287**
+- IDs DOM definidos: **692**
 - Paquetes externos usados: **20**
 - Colecciones de Firestore detectadas: **23**
 - Cloud Functions detectadas: **6**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,898 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,332 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**72,436 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**6,933 tokens** · leer primero
+- `GraphCompleto.json` — ~**39,338 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**72,704 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **90.5%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -73,9 +73,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -280,7 +280,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `inscripciones_checkpoint` — regla explícita · 3 operaciones detectadas
 - `mermas` — regla explícita · 4 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 9 operaciones detectadas
+- `participantes` — regla explícita · 8 operaciones detectadas
 - `productos` — regla explícita · 18 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
 - `solicitudes_actividad` — regla explícita · 4 operaciones detectadas

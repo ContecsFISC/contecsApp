@@ -203,7 +203,9 @@
  gap: 16px;
  }
  .qr-contenedor {
- width: 200px; height: 200px;
+ width: 224px; height: 224px;
+ padding: 12px;
+ background: #fff;
  border-radius: var(--radio);
  overflow: hidden;
  border: 3px solid var(--verde-fondo);
@@ -506,7 +508,7 @@
 import { accederParticipante } from "../js/core/participantes-api.js";
 
 // URL base del perfil — debe coincidir con la que usan las Cloud Functions
-const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
+const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/public/perfil.html";
 
 const el = id => document.getElementById(id);
 
@@ -630,9 +632,9 @@ function renderPerfil(p) {
  const qrData = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
  new QRCode(qrCanvas, {
  text: qrData,
- width: 194, height: 194,
- colorDark: "#045223", colorLight: "#ffffff",
- correctLevel: QRCode.CorrectLevel.H,
+ width: 196, height: 196,
+ colorDark: "#062b16", colorLight: "#ffffff",
+ correctLevel: QRCode.CorrectLevel.M,
  });
 
  // Bloquear QR si no está aprobado

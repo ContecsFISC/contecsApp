@@ -9,6 +9,9 @@ const el = id => document.getElementById(id);
 
 let scanner          = null;
 let escaneando       = false;
+let procesandoQR     = false;
+let inicioEscaneo    = 0;
+let avisoBusquedaMostrado = false;
 let eventoActivo     = null;
 let checkpointsSesion = [];   // cargados desde colección 'checkpoints'
 let checkpointSel    = null;  // objeto completo del checkpoint seleccionado
@@ -106,117 +109,220 @@ window.seleccionarCP = function(card) {
 };
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
-el("btn-iniciar").addEventListener("click", async () => {
-  if (!eventoActivo)  { alerta("error", "Selecciona un evento."); return; }
-  if (!checkpointSel) { alerta("error", "Selecciona un checkpoint."); return; }
+function estadoScanner(texto, tipo = "") {
+  const estado = el("scanner-estado");
+  estado.textContent = texto;
+  estado.className = `scanner-estado${tipo ? ` ${tipo}` : ""}`;
+}
 
-  if (!scanner) scanner = new Html5Qrcode("reader");
-
+function estadoInternoScanner() {
   try {
-    await scanner.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      onScanExito,
-      () => {}
-    );
-    escaneando = true;
-    el("btn-iniciar").style.display  = "none";
-    el("btn-detener").style.display  = "inline-flex";
-    el("reader").closest(".scanner-overlay").classList.add("activo");
-  } catch (e) {
-    alerta("error", "No se pudo acceder a la cámara: " + e.message);
-  }
-});
-
-el("btn-detener").addEventListener("click", async () => {
-  if (scanner && escaneando) { await scanner.stop(); escaneando = false; }
-  el("btn-iniciar").style.display  = "inline-flex";
-  el("btn-detener").style.display  = "none";
-  el("reader").closest(".scanner-overlay").classList.remove("activo");
-});
-
-// ─── Escaneo exitoso ─────────────────────────────────────────────────────────
-async function onScanExito(rawQR) {
-  if (!escaneando) return;
-  await scanner.pause(true);
-
-  let participante = null;
-  let esNuevoFormato = false;
-
-  // ── Formato CONTECS 2026: URL perfil.html?c=CODIGO&t=TOKEN ────────────────
-  try {
-    const url = new URL(rawQR);
-    const codigo = url.searchParams.get("c");
-    const token  = url.searchParams.get("t");
-    if (codigo && token) {
-      const snap = await getDocs(query(collection(db, "participantes"), where("codigo", "==", codigo)));
-      if (snap.empty) {
-        alerta("error", "QR no reconocido. Participante no encontrado.");
-        await scanner.resume();
-        return;
-      }
-      const d = snap.docs[0];
-      participante = { id: d.id, ...d.data() };
-      if (participante.token !== token) {
-        alerta("error", "QR inválido (token no coincide).");
-        await scanner.resume();
-        return;
-      }
-      esNuevoFormato = true;
-    }
+    return scanner?.getState?.() ?? 1;
   } catch (_) {
-    // No es URL válida — continuar con otros formatos
-  }
-
-  // ── Formato JSON {codigo, token} (fallback) ───────────────────────────────
-  if (!participante) {
-    try {
-      const qrData = JSON.parse(rawQR);
-      if (qrData.codigo && qrData.token) {
-        const snap = await getDocs(query(collection(db, "participantes"), where("codigo", "==", qrData.codigo)));
-        if (snap.empty) {
-          alerta("error", "QR no reconocido. Participante no encontrado.");
-          await scanner.resume();
-          return;
-        }
-        const d = snap.docs[0];
-        participante = { id: d.id, ...d.data() };
-        if (participante.token !== qrData.token) {
-          alerta("error", "QR inválido (token no coincide).");
-          await scanner.resume();
-          return;
-        }
-        esNuevoFormato = true;
-      }
-    } catch (_) {
-      // No es JSON — intentar con el formato legacy (ID de inscripción)
-    }
-  }
-
-  if (!participante) {
-    // Formato legacy: el QR contiene el ID del doc en 'inscripciones'
-    const snap = await getDoc(doc(db, "inscripciones", rawQR));
-    if (!snap.exists()) {
-      alerta("error", "QR no reconocido. Participante no encontrado.");
-      await scanner.resume();
-      return;
-    }
-    participante = { id: rawQR, ...snap.data() };
-    if (participante.eventoId !== eventoActivo.id) {
-      alerta("error", `Este QR pertenece a otro evento.`);
-      await scanner.resume();
-      return;
-    }
-  }
-
-  participanteSel = { ...participante, esNuevoFormato };
-
-  if (modoTaller) {
-    await mostrarInfoTaller(participante);
-  } else {
-    mostrarInfoAsistencia(participante);
+    return 1;
   }
 }
+
+function crearScanner() {
+  if (typeof Html5Qrcode === "undefined") {
+    throw new Error("La librería de lectura QR no cargó. Recarga la página.");
+  }
+  if (!scanner) {
+    const config = typeof Html5QrcodeSupportedFormats !== "undefined"
+      ? { formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }
+      : undefined;
+    scanner = new Html5Qrcode("reader", config);
+  }
+  return scanner;
+}
+
+async function elegirCamaraTrasera() {
+  try {
+    const camaras = await Html5Qrcode.getCameras();
+    if (!camaras?.length) throw new Error("No se detectaron cámaras disponibles.");
+    const trasera = camaras.find(c => /back|rear|environment|trasera/i.test(c.label));
+    return (trasera || camaras[camaras.length - 1]).id;
+  } catch (e) {
+    if (/No se detectaron/.test(e.message)) throw e;
+    return { facingMode: "environment" };
+  }
+}
+
+async function iniciarScanner() {
+  if (!eventoActivo)  { alerta("error", "Selecciona un evento."); return; }
+  if (!checkpointSel) { alerta("error", "Selecciona un checkpoint."); return; }
+  if (!navigator.mediaDevices?.getUserMedia) {
+    el("camara-aviso").style.display = "block";
+    estadoScanner("Este navegador no permite utilizar la cámara.", "error");
+    return;
+  }
+
+  const btn = el("btn-iniciar");
+  btn.disabled = true;
+  btn.textContent = "Abriendo...";
+  estadoScanner("Solicitando acceso a la cámara...", "activo");
+
+  try {
+    const lector = crearScanner();
+    const camara = await elegirCamaraTrasera();
+    escaneando = true;
+    inicioEscaneo = Date.now();
+    avisoBusquedaMostrado = false;
+
+    await lector.start(
+      camara,
+      {
+        fps: 12,
+        qrbox: (ancho, alto) => {
+          const ladoMenor = Math.min(ancho, alto);
+          const disponible = Math.max(80, ladoMenor - 24);
+          const lado = Math.min(280, Math.max(120, Math.floor(ladoMenor * 0.72)), disponible);
+          return { width: lado, height: lado };
+        },
+        aspectRatio: 4 / 3,
+        disableFlip: false,
+      },
+      rawQR => void procesarQrDetectado(rawQR),
+      onScanFallo,
+    );
+
+    btn.style.display = "none";
+    btn.textContent = "Abrir cámara";
+    btn.disabled = false;
+    el("btn-detener").style.display = "inline-flex";
+    el("reader").closest(".scanner-overlay").classList.add("activo");
+    el("camara-aviso").style.display = "none";
+    estadoScanner("Buscando un código QR...", "activo");
+  } catch (e) {
+    escaneando = false;
+    btn.disabled = false;
+    btn.textContent = "Abrir cámara";
+    el("camara-aviso").style.display = "block";
+    estadoScanner("No se pudo iniciar la cámara.", "error");
+    alerta("error", "No se pudo acceder a la cámara: " + (e.message || e));
+  }
+}
+
+function onScanFallo() {
+  if (!escaneando || avisoBusquedaMostrado || Date.now() - inicioEscaneo < 6000) return;
+  avisoBusquedaMostrado = true;
+  estadoScanner("Aún buscando: centra el QR, evita reflejos y aléjalo un poco.", "activo");
+}
+
+async function detenerScanner() {
+  const estado = estadoInternoScanner();
+  if (scanner && (estado === 2 || estado === 3)) {
+    try {
+      await scanner.stop();
+    } catch (e) {
+      console.warn("No se pudo detener el scanner:", e);
+    }
+  }
+  escaneando = false;
+  procesandoQR = false;
+  el("btn-iniciar").style.display = "inline-flex";
+  el("btn-iniciar").disabled = false;
+  el("btn-iniciar").textContent = "Abrir cámara";
+  el("btn-detener").style.display = "none";
+  el("reader").closest(".scanner-overlay").classList.remove("activo");
+  estadoScanner("Cámara detenida");
+}
+
+function pausarScanner() {
+  if (scanner && estadoInternoScanner() === 2) scanner.pause(true);
+}
+
+function reanudarScanner(actualizarEstado = true) {
+  if (scanner && estadoInternoScanner() === 3) {
+    scanner.resume();
+    if (actualizarEstado) estadoScanner("Buscando un código QR...", "activo");
+  }
+}
+
+function extraerCredencialQr(rawQR) {
+  const texto = String(rawQR || "").trim();
+  if (!texto) throw new Error("El QR está vacío.");
+
+  try {
+    const url = new URL(texto);
+    const codigo = url.searchParams.get("c")?.trim().toUpperCase();
+    const token = url.searchParams.get("t")?.trim();
+    if (codigo && token) return { tipo: "participante", codigo, token };
+  } catch (_) {
+    // Continuar con formatos sin URL.
+  }
+
+  try {
+    const datos = JSON.parse(texto);
+    const codigo = String(datos.codigo || "").trim().toUpperCase();
+    const token = String(datos.token || "").trim();
+    if (codigo && token) return { tipo: "participante", codigo, token };
+  } catch (_) {
+    // Continuar con el ID legacy.
+  }
+
+  if (/^[A-Za-z0-9_-]{1,200}$/.test(texto)) {
+    return { tipo: "legacy", id: texto };
+  }
+  throw new Error("El contenido no corresponde a una credencial CONTECS válida.");
+}
+
+async function buscarParticipanteQr(credencial) {
+  if (credencial.tipo === "participante") {
+    const snap = await getDocs(query(
+      collection(db, "participantes"),
+      where("codigo", "==", credencial.codigo),
+    ));
+    if (snap.empty) throw new Error("QR no reconocido. Participante no encontrado.");
+    const d = snap.docs[0];
+    const participante = { id: d.id, ...d.data() };
+    if (String(participante.token || "") !== credencial.token) {
+      throw new Error("QR inválido: el token no coincide.");
+    }
+    return { participante, esNuevoFormato: true };
+  }
+
+  const snap = await getDoc(doc(db, "inscripciones", credencial.id));
+  if (!snap.exists()) throw new Error("QR no reconocido. Participante no encontrado.");
+  const participante = { id: credencial.id, ...snap.data() };
+  if (participante.eventoId !== eventoActivo.id) {
+    throw new Error("Este QR pertenece a otro evento.");
+  }
+  return { participante, esNuevoFormato: false };
+}
+
+async function procesarQrDetectado(rawQR) {
+  if (procesandoQR || !escaneando) return;
+  procesandoQR = true;
+  pausarScanner();
+  estadoScanner("QR detectado. Validando credencial...", "activo");
+
+  try {
+    const credencial = extraerCredencialQr(rawQR);
+    const { participante, esNuevoFormato } = await buscarParticipanteQr(credencial);
+    participanteSel = { ...participante, esNuevoFormato };
+
+    if (modoTaller) await mostrarInfoTaller(participante);
+    else mostrarInfoAsistencia(participante);
+
+    estadoScanner("Credencial reconocida.", "activo");
+  } catch (e) {
+    console.error("Error procesando QR:", e);
+    alerta("error", e.message || "No se pudo procesar el código QR.");
+    estadoScanner(e.message || "No se pudo procesar el código QR.", "error");
+    reanudarScanner(false);
+    setTimeout(() => {
+      if (escaneando && !procesandoQR && estadoInternoScanner() === 2) {
+        estadoScanner("Buscando un código QR...", "activo");
+      }
+    }, 5000);
+  } finally {
+    procesandoQR = false;
+  }
+}
+
+el("btn-iniciar").addEventListener("click", iniciarScanner);
+el("btn-detener").addEventListener("click", detenerScanner);
 
 // ─── Modo Asistencia (checkpoints normales) ───────────────────────────────────
 function mostrarInfoAsistencia(p) {
@@ -406,13 +512,13 @@ async function confirmarInscripcionTaller() {
 
 el("btn-cancelar-scan").addEventListener("click", cerrarResultado);
 
-async function cerrarResultado() {
+function cerrarResultado() {
   participanteSel = null;
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;
   el("btn-confirmar-asistencia").textContent = modoTaller ? "Inscribir en taller" : "Confirmar asistencia";
-  if (scanner && escaneando) await scanner.resume();
+  if (escaneando) reanudarScanner();
 }
 
 // ─── Log ─────────────────────────────────────────────────────────────────────
@@ -431,4 +537,16 @@ function renderLog() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-cargarEventos();
+cargarEventos().catch(e => {
+  console.error("Error cargando eventos para lectura QR:", e);
+  alerta("error", "No se pudieron cargar los eventos: " + (e.message || e));
+});
+
+// Liberar la cámara si el panel se cierra o el navegador descarta la página.
+window.addEventListener("pagehide", () => {
+  const estado = estadoInternoScanner();
+  if (scanner && (estado === 2 || estado === 3)) {
+    scanner.stop().catch(e => console.warn("No se pudo liberar la cámara:", e));
+  }
+  escaneando = false;
+});

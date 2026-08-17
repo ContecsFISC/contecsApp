@@ -323,7 +323,7 @@
  justify-content: center;
  margin: 12px 0;
  }
- .qr-mini-wrap > div { border-radius: 8px; overflow: hidden; }
+ .qr-mini-wrap > div { padding:10px; background:#fff; border-radius:8px; overflow:hidden; }
 
  @keyframes cardIn {
  from { opacity: 0; transform: translateY(10px); }
@@ -734,13 +734,13 @@ function renderSheet(p) {
  const qrDiv = document.getElementById("qr-sheet-canvas");
  if (qrDiv) {
  // QR codifica la URL completa para que cualquier cámara abra la credencial
- const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/perfil.html";
+ const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/public/perfil.html";
  const qrUrl = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
  new QRCode(qrDiv, {
  text: qrUrl,
- width: 140, height: 140,
- colorDark: "#045223", colorLight: "#ffffff",
- correctLevel: QRCode.CorrectLevel.H,
+ width: 168, height: 168,
+ colorDark: "#062b16", colorLight: "#ffffff",
+ correctLevel: QRCode.CorrectLevel.M,
  });
  }
  }
