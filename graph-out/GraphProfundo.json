@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-08-17T11:51:08.705115+00:00",
-  "project_fingerprint": "08edc9e4c1e752e4b594d101e2ea6faa97daf0f1b88dc375ebe4d98bb26e495b",
+  "generated_at": "2026-08-17T12:10:16.582414+00:00",
+  "project_fingerprint": "63b61709331ed55c66dd163ce118037079887a6cc5fbb5577c70bbe641f6ca82",
   "project": "contecsApp",
   "root": ".",
   "view": "deep",
@@ -19,9 +19,9 @@
     "total_firestore_collections": 23,
     "total_cloud_functions": 6,
     "total_possible_implicit_links": 5,
-    "total_symbols": 2775,
-    "total_function_calls": 6304,
-    "total_dom_ids": 693,
+    "total_symbols": 2866,
+    "total_function_calls": 6452,
+    "total_dom_ids": 716,
     "total_diagnostics": 2,
     "errors": 0,
     "warnings": 1
@@ -201,10 +201,10 @@
     },
     {
       "label": "panel/dashboard.html",
-      "risk_score": 88.3,
+      "risk_score": 94.2,
       "degree": 39,
       "in_cycle": false,
-      "loc": 1026
+      "loc": 1616
     },
     {
       "label": "css/styles.css",
@@ -492,7 +492,8 @@
     "checkpoints": [
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
-      "js/modulos/reportes_estadisticaCont.js"
+      "js/modulos/reportes_estadisticaCont.js",
+      "panel/dashboard.html"
     ],
     "compras": [
       "js/core/operaciones.js",
@@ -502,7 +503,8 @@
     ],
     "eventos": [
       "js/modulos/inscripciones.js",
-      "js/modulos/lecturaQR.js"
+      "js/modulos/lecturaQR.js",
+      "panel/dashboard.html"
     ],
     "fondos": [
       "js/core/operaciones.js",
@@ -882,6 +884,13 @@
         "kind": "read",
         "collection": "checkpoints",
         "line": 29
+      },
+      {
+        "file": "panel/dashboard.html",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "checkpoints",
+        "line": 1107
       }
     ],
     "compras": [
@@ -970,6 +979,13 @@
         "kind": "read",
         "collection": "eventos",
         "line": 34
+      },
+      {
+        "file": "panel/dashboard.html",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "eventos",
+        "line": 1099
       }
     ],
     "fondos": [
@@ -978,7 +994,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos",
-        "line": 624
+        "line": 1213
       }
     ],
     "fondos_entrada": [
@@ -1183,7 +1199,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 660
+        "line": 1118
+      },
+      {
+        "file": "panel/dashboard.html",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "participantes",
+        "line": 1249
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
@@ -1315,10 +1338,17 @@
       },
       {
         "file": "panel/dashboard.html",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "productos",
+        "line": 1121
+      },
+      {
+        "file": "panel/dashboard.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 639
+        "line": 1228
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
@@ -1383,14 +1413,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "reuniones",
-        "line": 736
+        "line": 1325
       },
       {
         "file": "panel/dashboard.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "reuniones",
-        "line": 740
+        "line": 1329
       }
     ],
     "solicitudes_actividad": [
@@ -1499,7 +1529,7 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "usuarios",
-        "line": 601
+        "line": 1166
       },
       {
         "file": "panel/index.html",
@@ -1608,7 +1638,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 680
+        "line": 1269
       }
     ]
   },
@@ -2120,12 +2150,12 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/inscripciones.js"
+      "usado_en": "js/modulos/voluntarios.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/voluntarios.js"
+      "usado_en": "js/modulos/inscripciones.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -4399,12 +4429,14 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 41256,
-      "loc": 1026,
+      "size_bytes": 72411,
+      "loc": 1616,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [
+        "checkpoints",
+        "eventos",
         "fondos",
         "participantes",
         "productos",
@@ -4417,7 +4449,7 @@
       "degree": 39,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 88.3
+      "risk_score": 94.2
     },
     {
       "id": "panel/index.html",
@@ -6049,7 +6081,7 @@
       "target": "js/core/auth.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 532,
+      "line": 810,
       "detail": {
         "symbols": [
           "guardRoute",
@@ -6065,7 +6097,7 @@
       "target": "js/core/permisos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 533,
+      "line": 811,
       "detail": {
         "symbols": [
           "tienePermiso",
@@ -6079,7 +6111,7 @@
       "target": "js/modulos/reuniones-utils.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 534,
+      "line": 812,
       "detail": {
         "symbols": [
           "usuarioPuedeVerReunion"
@@ -6092,7 +6124,7 @@
       "target": "js/core/operaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 535,
+      "line": 813,
       "detail": {
         "symbols": [
           "formatearMoneda"
@@ -6105,7 +6137,7 @@
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 536,
+      "line": 814,
       "detail": {
         "symbols": [
           "db"
@@ -6125,14 +6157,14 @@
       "target": "logocontecsheader.png",
       "type": "loads_asset",
       "provenance": "extracted",
-      "line": 476
+      "line": 692
     },
     {
       "source": "panel/dashboard.html",
       "target": "img/iconos/cerrar.svg",
       "type": "loads_asset",
       "provenance": "extracted",
-      "line": 534
+      "line": 812
     },
     {
       "source": "panel/index.html",
@@ -7565,7 +7597,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -7575,7 +7607,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -7595,7 +7627,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -7615,7 +7647,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -7695,6 +7727,16 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -7706,16 +7748,6 @@
       "line": 1,
       "detail": {
         "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -7755,16 +7787,6 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 5,
-      "detail": {
         "symbol": "esperarAuthListo"
       }
     },
@@ -7776,6 +7798,26 @@
       "line": 5,
       "detail": {
         "symbol": "registrarCompra"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -7800,12 +7842,22 @@
     },
     {
       "source": "js/modulos/compras2.js",
-      "target": "js/core/auth.js",
+      "target": "js/modulos/catalogo.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1,
+      "line": 2,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -7820,42 +7872,12 @@
     },
     {
       "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 3,
       "detail": {
         "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 5,
-      "detail": {
-        "symbol": "formatearMoneda"
       }
     },
     {
@@ -7879,6 +7901,16 @@
       }
     },
     {
+      "source": "js/modulos/compras2.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbol": "formatearMoneda"
+      }
+    },
+    {
       "source": "js/modulos/detalleFondo.js",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -7896,16 +7928,6 @@
       "line": 1,
       "detail": {
         "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "formatearMoneda"
       }
     },
     {
@@ -7920,32 +7942,22 @@
     },
     {
       "source": "js/modulos/detalleFondo.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "js/modulos/detalleFondo.js",
       "target": "js/modulos/reporteFinancieroExcel.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 4,
       "detail": {
         "symbol": "generarReporteFinancieroExcel"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "requirePermiso"
       }
     },
     {
@@ -7970,12 +7982,32 @@
     },
     {
       "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -7995,7 +8027,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "resumenItemPrincipal"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -8125,31 +8157,11 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
         "symbol": "getUsuarioActual"
       }
     },
     {
-      "source": "js/modulos/ventaRapida.js",
+      "source": "js/modulos/usuarios.js",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8159,7 +8171,7 @@
       }
     },
     {
-      "source": "js/modulos/ventaRapida.js",
+      "source": "js/modulos/usuarios.js",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8190,6 +8202,26 @@
     },
     {
       "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
       "target": "js/modulos/catalogo.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8205,7 +8237,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -8215,7 +8247,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -8225,7 +8257,7 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "registrarVenta"
+        "symbol": "registrarVentaConMerma"
       }
     },
     {
@@ -8245,7 +8277,7 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -8255,7 +8287,7 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "registrarVentaConMerma"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8285,7 +8317,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -8295,7 +8327,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -8303,17 +8335,7 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 532,
-      "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/dashboard.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 532,
+      "line": 810,
       "detail": {
         "symbol": "getUsuarioActual"
       }
@@ -8323,9 +8345,19 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 532,
+      "line": 810,
       "detail": {
         "symbol": "esperarSesionLista"
+      }
+    },
+    {
+      "source": "panel/dashboard.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 810,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8333,7 +8365,7 @@
       "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 533,
+      "line": 811,
       "detail": {
         "symbol": "tienePermiso"
       }
@@ -8343,7 +8375,7 @@
       "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 533,
+      "line": 811,
       "detail": {
         "symbol": "infoRol"
       }
@@ -8353,7 +8385,7 @@
       "target": "js/modulos/reuniones-utils.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 534,
+      "line": 812,
       "detail": {
         "symbol": "usuarioPuedeVerReunion"
       }
@@ -8363,7 +8395,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 535,
+      "line": 813,
       "detail": {
         "symbol": "formatearMoneda"
       }
@@ -8375,7 +8407,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -8385,7 +8417,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8685,7 +8717,77 @@
       "provenance": "extracted",
       "line": 358,
       "detail": {
-        "symbol": "reactivarProducto"
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "editarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "desactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "editarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 358,
+      "detail": {
+        "symbol": "crearProducto"
       }
     },
     {
@@ -8715,77 +8817,7 @@
       "provenance": "extracted",
       "line": 358,
       "detail": {
-        "symbol": "editarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "desactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "crearProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 358,
-      "detail": {
-        "symbol": "crearCategoria"
+        "symbol": "reactivarProducto"
       }
     },
     {
@@ -8815,16 +8847,6 @@
       "provenance": "extracted",
       "line": 231,
       "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 231,
-      "detail": {
         "symbol": "getIconoHTML"
       }
     },
@@ -8836,6 +8858,16 @@
       "line": 231,
       "detail": {
         "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 231,
+      "detail": {
+        "symbol": "estadoStock"
       }
     },
     {
@@ -9032,26 +9064,18 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "75a4a3ab25e8e3ca4ebd4049a8eaf28762029622",
+    "head": "358f87da52bf6ab2039231f02469812f5b2db141",
     "changed_files": [
       {
-        "file": "css/styles.css",
+        "file": ".firebase/hosting..cache",
         "status": " M"
       },
       {
-        "file": "docs/cambios recientes.md",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/inscripciones.html",
+        "file": "panel/dashboard.html",
         "status": " M"
       }
     ],
-    "changed_count": 4
+    "changed_count": 2
   },
   "ai_usage": {
     "read_last": true,
@@ -14114,243 +14138,532 @@
     },
     "panel/dashboard.html": {
       "architectural_calls": {
+        "aFecha": [
+          868,
+          2
+        ],
         "abrirSheet": [
-          944,
+          1534,
+          2
+        ],
+        "actualizarHeroMovil": [
+          902,
           2
         ],
         "calcularCuentaRegresiva": [
-          583,
+          1147,
           1
         ],
+        "cargarDashboardMovil": [
+          1095,
+          2
+        ],
         "cerrarSheet": [
-          950,
+          1540,
           3
         ],
         "esEnVivo": [
-          786,
+          1375,
           1
         ],
+        "escaparHtml": [
+          1024,
+          6
+        ],
         "esperarSesionLista": [
-          550,
+          828,
+          1
+        ],
+        "fechaEventoFin": [
+          878,
+          4
+        ],
+        "fechaEventoInicio": [
+          869,
+          11
+        ],
+        "fechaLocalClave": [
+          1110,
           1
         ],
         "formatearMoneda": [
-          626,
+          1215,
           1
         ],
+        "formatoRangoEvento": [
+          919,
+          2
+        ],
         "getUsuarioActual": [
-          552,
+          830,
           1
         ],
         "guardRoute": [
-          549,
+          827,
           1
         ],
         "infoRol": [
-          554,
+          832,
           1
         ],
+        "iniciarDashboardMovil": [
+          1200,
+          2
+        ],
         "leer": [
-          753,
+          1342,
           3
         ],
         "leerReuniones": [
-          756,
+          1345,
           1
         ],
         "manejarErrorSnapshot": [
-          541,
-          7
+          819,
+          10
+        ],
+        "minutosHora": [
+          977,
+          4
         ],
         "observarReveal": [
-          1004,
+          1594,
           1
         ],
         "onScrollFrame": [
-          980,
+          1570,
+          1
+        ],
+        "refrescarTiempo": [
+          967,
           1
         ],
         "refreshRol": [
-          613,
+          1178,
           1
         ],
+        "renderAgendaMovil": [
+          1006,
+          2
+        ],
+        "renderAhoraMovil": [
+          972,
+          2
+        ],
+        "renderAlertasMovil": [
+          1048,
+          2
+        ],
+        "renderMetricasMovil": [
+          1031,
+          2
+        ],
+        "renderOtrosEventosMovil": [
+          1074,
+          2
+        ],
+        "seleccionarEventoPrincipal": [
+          888,
+          2
+        ],
         "tienePermiso": [
-          689,
-          3
+          1117,
+          5
         ],
         "usuarioPuedeVerReunion": [
-          743,
+          1332,
           1
         ]
       },
       "html": {
         "ids": {
           "badge-verificado": [
-            498
+            776
           ],
           "bottom-sheet": [
-            530
+            808
           ],
           "btn-logout": [
-            486
+            702
           ],
           "btn-menu": [
-            483
+            699
           ],
           "contenido-principal": [
-            525
+            803
           ],
           "cr-valor": [
-            521
+            799
           ],
           "cuenta-regresiva-wrap": [
-            519
+            797
           ],
           "main-container": [
-            490
+            706
+          ],
+          "mobile-agenda-count": [
+            749
+          ],
+          "mobile-alerts": [
+            758
+          ],
+          "mobile-dashboard": [
+            707
+          ],
+          "mobile-event-countdown": [
+            722
+          ],
+          "mobile-event-countdown-label": [
+            718
+          ],
+          "mobile-event-dates": [
+            721
+          ],
+          "mobile-event-hero": [
+            708
+          ],
+          "mobile-event-state": [
+            717
+          ],
+          "mobile-event-title": [
+            720
+          ],
+          "mobile-metrics": [
+            739
+          ],
+          "mobile-now-meta": [
+            737
+          ],
+          "mobile-now-panel": [
+            734
+          ],
+          "mobile-now-status": [
+            735
+          ],
+          "mobile-now-title": [
+            736
+          ],
+          "mobile-other-events": [
+            765
+          ],
+          "mobile-other-section": [
+            761
+          ],
+          "mobile-progress-bar": [
+            725
+          ],
+          "mobile-progress-label": [
+            724
+          ],
+          "mobile-progress-value": [
+            724
+          ],
+          "mobile-role-label": [
+            714
+          ],
+          "mobile-timeline": [
+            751
+          ],
+          "mobile-today-label": [
+            732
+          ],
+          "mobile-user-name": [
+            712
           ],
           "nombre-usuario": [
-            494
+            772
           ],
           "rol-label": [
-            497
+            775
           ],
           "sheet-backdrop": [
-            529
+            807
           ],
           "sheet-body": [
-            536
+            814
           ],
           "sheet-close": [
-            534
+            812
           ],
           "topbar-nav": [
-            480
+            696
           ]
         }
       },
       "dom": {
         "ids": {
           "badge-verificado": [
-            561
+            839
           ],
           "bottom-sheet": [
-            940
+            1530
           ],
           "btn-logout": [
-            936
+            1526
           ],
           "btn-menu": [
-            899,
-            939
+            1489,
+            1529
           ],
           "contenido-principal": [
-            586
+            1150
           ],
           "cr-valor": [
-            569
+            1133
+          ],
+          "mobile-agenda-count": [
+            1008
+          ],
+          "mobile-alerts": [
+            1066,
+            1194
+          ],
+          "mobile-event-countdown": [
+            911,
+            927
+          ],
+          "mobile-event-countdown-label": [
+            910,
+            926
+          ],
+          "mobile-event-dates": [
+            909,
+            919,
+            1190
+          ],
+          "mobile-event-hero": [
+            903,
+            1187
+          ],
+          "mobile-event-state": [
+            907,
+            925,
+            1188
+          ],
+          "mobile-event-title": [
+            908,
+            918,
+            1189
+          ],
+          "mobile-metrics": [
+            1043
+          ],
+          "mobile-now-meta": [
+            985
+          ],
+          "mobile-now-panel": [
+            982
+          ],
+          "mobile-now-status": [
+            983,
+            1191
+          ],
+          "mobile-now-title": [
+            984,
+            1192
+          ],
+          "mobile-other-events": [
+            1086
+          ],
+          "mobile-other-section": [
+            1080,
+            1195
+          ],
+          "mobile-progress-bar": [
+            914,
+            928
+          ],
+          "mobile-progress-label": [
+            912,
+            930
+          ],
+          "mobile-progress-value": [
+            913,
+            929
+          ],
+          "mobile-role-label": [
+            843
+          ],
+          "mobile-timeline": [
+            1007,
+            1193
+          ],
+          "mobile-today-label": [
+            1097
+          ],
+          "mobile-user-name": [
+            842
           ],
           "nombre-usuario": [
-            556
+            834
           ],
           "rol-label": [
-            557
+            835
           ],
           "sheet-backdrop": [
-            941
+            1531
           ],
           "sheet-body": [
-            880
+            1470
           ],
           "sheet-close": [
-            942
+            1532
           ],
           "topbar-nav": [
-            906
+            1496
           ]
         },
         "selectors": {
           ".header-a": [
-            969
+            1559
           ],
           ".topbar": [
-            968
+            1558
           ]
         },
         "generated_ids": {
           "agenda-hoy": [
-            720
+            1309
           ],
           "badge-verificado": [
-            490
+            768
           ],
           "bottom-sheet": [
-            522
+            800
           ],
           "btn-logout": [
-            478
+            694
           ],
           "btn-menu": [
-            475
+            691
           ],
           "contenido-principal": [
-            517
+            795
           ],
           "cr-valor": [
-            513
+            791
           ],
           "cuenta-regresiva-wrap": [
-            511
+            789
           ],
           "main-container": [
-            482
+            698
+          ],
+          "mobile-agenda-count": [
+            741
+          ],
+          "mobile-alerts": [
+            750
+          ],
+          "mobile-dashboard": [
+            699
+          ],
+          "mobile-event-countdown": [
+            714
+          ],
+          "mobile-event-countdown-label": [
+            710
+          ],
+          "mobile-event-dates": [
+            713
+          ],
+          "mobile-event-hero": [
+            700
+          ],
+          "mobile-event-state": [
+            709
+          ],
+          "mobile-event-title": [
+            712
+          ],
+          "mobile-metrics": [
+            731
+          ],
+          "mobile-now-meta": [
+            729
+          ],
+          "mobile-now-panel": [
+            726
+          ],
+          "mobile-now-status": [
+            727
+          ],
+          "mobile-now-title": [
+            728
+          ],
+          "mobile-other-events": [
+            757
+          ],
+          "mobile-other-section": [
+            753
+          ],
+          "mobile-progress-bar": [
+            717
+          ],
+          "mobile-progress-label": [
+            716
+          ],
+          "mobile-progress-value": [
+            716
+          ],
+          "mobile-role-label": [
+            706
+          ],
+          "mobile-timeline": [
+            743
+          ],
+          "mobile-today-label": [
+            724
+          ],
+          "mobile-user-name": [
+            704
           ],
           "nombre-usuario": [
-            486
+            764
           ],
           "rol-label": [
-            489
+            767
           ],
           "sheet-backdrop": [
-            521
+            799
           ],
           "sheet-body": [
-            528
+            806
           ],
           "sheet-close": [
-            526
+            804
           ],
           "topbar-nav": [
-            472
+            688
           ]
         }
       },
       "storage_keys": {
         "rol": [
-          605
+          1170
         ]
       },
       "events_listened": {
         "animationend": [
-          974
+          1564
         ],
         "click": [
-          936,
-          956,
-          959,
-          960
+          1526,
+          1546,
+          1549,
+          1550
         ],
         "keydown": [
-          961
+          1551
         ],
         "mouseenter": [
-          929
+          1519
         ],
         "mouseleave": [
-          930
+          1520
         ],
         "scroll": [
-          986
+          1576
         ]
       }
     },
@@ -20288,6 +20601,14 @@
           true
         ]
       ],
+      "aFecha": [
+        [
+          "panel/dashboard.html",
+          853,
+          "function",
+          false
+        ]
+      ],
       "aNumero": [
         [
           "js/core/operaciones.js",
@@ -20353,7 +20674,7 @@
       "abrirSheet": [
         [
           "panel/dashboard.html",
-          944,
+          1534,
           "function",
           false
         ]
@@ -20438,6 +20759,14 @@
         [
           "js/modulos/inscripciones.js",
           414,
+          "function",
+          false
+        ]
+      ],
+      "actualizarHeroMovil": [
+        [
+          "panel/dashboard.html",
+          902,
           "function",
           false
         ]
@@ -20785,7 +21114,7 @@
       "calcularCuentaRegresiva": [
         [
           "panel/dashboard.html",
-          565,
+          1129,
           "function",
           false
         ]
@@ -20962,6 +21291,14 @@
         [
           "functions/plantillas.js",
           37,
+          "function",
+          false
+        ]
+      ],
+      "cargarDashboardMovil": [
+        [
+          "panel/dashboard.html",
+          1095,
           "function",
           false
         ]
@@ -21215,7 +21552,7 @@
       "cerrarSheet": [
         [
           "panel/dashboard.html",
-          950,
+          1540,
           "function",
           false
         ]
@@ -21615,7 +21952,7 @@
       "esEnVivo": [
         [
           "panel/dashboard.html",
-          769,
+          1358,
           "function",
           false
         ]
@@ -21664,6 +22001,12 @@
         [
           "js/modulos/minutaReunion.js",
           41,
+          "function",
+          false
+        ],
+        [
+          "panel/dashboard.html",
+          846,
           "function",
           false
         ]
@@ -21820,10 +22163,34 @@
           false
         ]
       ],
+      "fechaEventoFin": [
+        [
+          "panel/dashboard.html",
+          869,
+          "function",
+          false
+        ]
+      ],
+      "fechaEventoInicio": [
+        [
+          "panel/dashboard.html",
+          868,
+          "function",
+          false
+        ]
+      ],
       "fechaInputStr": [
         [
           "js/modulos/agendarReunion.js",
           22,
+          "function",
+          false
+        ]
+      ],
+      "fechaLocalClave": [
+        [
+          "panel/dashboard.html",
+          861,
           "function",
           false
         ]
@@ -22082,6 +22449,14 @@
         [
           "js/modulos/actividadVentas.js",
           26,
+          "function",
+          false
+        ]
+      ],
+      "formatoRangoEvento": [
+        [
+          "panel/dashboard.html",
+          876,
           "function",
           false
         ]
@@ -22474,6 +22849,14 @@
           false
         ]
       ],
+      "iniciarDashboardMovil": [
+        [
+          "panel/dashboard.html",
+          1183,
+          "function",
+          false
+        ]
+      ],
       "iniciarScanner": [
         [
           "js/modulos/lecturaQR.js",
@@ -22573,7 +22956,7 @@
         ],
         [
           "panel/dashboard.html",
-          735,
+          1324,
           "function",
           false
         ]
@@ -22621,7 +23004,7 @@
       "leerReuniones": [
         [
           "panel/dashboard.html",
-          739,
+          1328,
           "function",
           false
         ]
@@ -22763,7 +23146,7 @@
       "manejarErrorSnapshot": [
         [
           "panel/dashboard.html",
-          541,
+          819,
           "function",
           false
         ]
@@ -22794,6 +23177,14 @@
         [
           "js/modulos/voluntarios.js",
           65,
+          "function",
+          false
+        ]
+      ],
+      "minutosHora": [
+        [
+          "panel/dashboard.html",
+          870,
           "function",
           false
         ]
@@ -23075,7 +23466,7 @@
       "observarReveal": [
         [
           "panel/dashboard.html",
-          1004,
+          1594,
           "function",
           false
         ]
@@ -23155,7 +23546,7 @@
       "onScrollFrame": [
         [
           "panel/dashboard.html",
-          980,
+          1570,
           "function",
           false
         ]
@@ -23508,10 +23899,18 @@
           false
         ]
       ],
+      "refrescarTiempo": [
+        [
+          "panel/dashboard.html",
+          921,
+          "function",
+          false
+        ]
+      ],
       "refreshRol": [
         [
           "panel/dashboard.html",
-          599,
+          1164,
           "function",
           false
         ]
@@ -23576,6 +23975,30 @@
         [
           "js/modulos/minutas.js",
           24,
+          "function",
+          false
+        ]
+      ],
+      "renderAgendaMovil": [
+        [
+          "panel/dashboard.html",
+          1006,
+          "function",
+          false
+        ]
+      ],
+      "renderAhoraMovil": [
+        [
+          "panel/dashboard.html",
+          972,
+          "function",
+          false
+        ]
+      ],
+      "renderAlertasMovil": [
+        [
+          "panel/dashboard.html",
+          1048,
           "function",
           false
         ]
@@ -23792,6 +24215,22 @@
         [
           "js/modulos/ventaRapida.js",
           599,
+          "function",
+          false
+        ]
+      ],
+      "renderMetricasMovil": [
+        [
+          "panel/dashboard.html",
+          1031,
+          "function",
+          false
+        ]
+      ],
+      "renderOtrosEventosMovil": [
+        [
+          "panel/dashboard.html",
+          1074,
           "function",
           false
         ]
@@ -24244,6 +24683,14 @@
         [
           "registro.html",
           547,
+          "function",
+          false
+        ]
+      ],
+      "seleccionarEventoPrincipal": [
+        [
+          "panel/dashboard.html",
+          888,
           "function",
           false
         ]
@@ -24825,7 +25272,7 @@
       "837d2260c8e26f64ca1ff1501927f273381a3964345d76ab40dfdbbc643b4b27": "js/modulos/voluntarios.js",
       "binary:122721": "logocontecs.png",
       "binary:103600": "logocontecsheader.png",
-      "ee5112646f6f2ca5717a1076befa97a898d57c03d8f758bef0e82b1c24ef334a": "panel/dashboard.html",
+      "410b3cda016ec6bb2d3fe0a51b20410c5cd7e968aa908251c50964770d712fb1": "panel/dashboard.html",
       "77aa699507c347f5c9b54f1c8254802e58cf1e196b66e4fd8196ebfdfeaf2644": "panel/index.html",
       "c332fc3c546d5f53380774a6d41730c5cbc1d1f1914063db1f18fc58eef5307d": "panel/modulos/admin/agendarReunion.html",
       "1aabb00d3c641fc73599512e091450e491641e6a6bcbc123449f607a74d5febf": "panel/modulos/admin/exportar.html",
@@ -24861,10 +25308,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 2775,
-    "architectural_symbols_retained": 597,
-    "calls_detected": 6304,
-    "architectural_calls_retained": 3453,
+    "symbols_detected": 2866,
+    "architectural_symbols_retained": 614,
+    "calls_detected": 6452,
+    "architectural_calls_retained": 3507,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -24896,5 +25343,5 @@
       "change"
     ]
   },
-  "estimated_tokens": 72781
+  "estimated_tokens": 73774
 }

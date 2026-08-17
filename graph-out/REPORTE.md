@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T11:51:08.705115+00:00**
+- Generado: **2026-08-17T12:10:16.582414+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `08edc9e4c1e752e4…`
+- Huella del proyecto: `63b61709331ed55c…`
 - Archivos analizados: **143**
 - Relaciones internas tipadas: **395**
-- Símbolos detectados: **2775**
-- Llamadas detectadas: **6304**
-- IDs DOM definidos: **693**
+- Símbolos detectados: **2866**
+- Llamadas detectadas: **6452**
+- IDs DOM definidos: **716**
 - Paquetes externos usados: **20**
 - Colecciones de Firestore detectadas: **23**
 - Cloud Functions detectadas: **6**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,934 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,338 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**72,781 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **90.5%** frente al profundo
+- `GraphCompacto.json` — ~**6,928 tokens** · leer primero
+- `GraphCompleto.json` — ~**39,434 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**73,774 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **90.6%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -36,7 +36,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 236.2 (conexiones: 117, 221 lineas)
-- `panel/dashboard.html` — riesgo 88.3 (conexiones: 39, 1026 lineas)
+- `panel/dashboard.html` — riesgo 94.2 (conexiones: 39, 1616 lineas)
 - `css/styles.css` — riesgo 62.7 (conexiones: 29, 473 lineas)
 - `js/core/firebase-config.js` — riesgo 62.4 (conexiones: 31, 35 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
@@ -74,8 +74,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -157,6 +157,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/reportes_estadisticaCont.js`
+- `panel/dashboard.html`
 
 ### `compras`
 - `js/core/operaciones.js`
@@ -167,6 +168,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ### `eventos`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
+- `panel/dashboard.html`
 
 ### `fondos`
 - `js/core/operaciones.js`
@@ -267,11 +269,11 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `asignaciones_voluntarios` — regla explícita · 4 operaciones detectadas
 - `asistencias_voluntarios` — regla explícita · 5 operaciones detectadas
 - `categorias` — regla explícita · 4 operaciones detectadas
-- `checkpoints` — regla explícita · 8 operaciones detectadas
+- `checkpoints` — regla explícita · 9 operaciones detectadas
 - `compras` — regla explícita · 5 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
 - `contadores` — regla explícita · 0 operaciones detectadas
-- `eventos` — regla explícita · 7 operaciones detectadas
+- `eventos` — regla explícita · 8 operaciones detectadas
 - `fondos` — regla explícita · 1 operaciones detectadas
 - `fondos_entrada` — regla explícita · 6 operaciones detectadas
 - `giras_voluntarios` — regla explícita · 4 operaciones detectadas
@@ -280,8 +282,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `inscripciones_checkpoint` — regla explícita · 3 operaciones detectadas
 - `mermas` — regla explícita · 4 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 8 operaciones detectadas
-- `productos` — regla explícita · 18 operaciones detectadas
+- `participantes` — regla explícita · 9 operaciones detectadas
+- `productos` — regla explícita · 19 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
 - `solicitudes_actividad` — regla explícita · 4 operaciones detectadas
 - `usuarios` — regla explícita · 12 operaciones detectadas

@@ -312,6 +312,222 @@
 
     body.sheet-open { overflow: hidden; }
 
+    /* ══════════ DASHBOARD MÓVIL — Centro de situación ══════════ */
+    .mobile-dashboard { display: none; }
+
+    @media (max-width: 1023px) {
+      body {
+        background:
+          radial-gradient(circle at 88% 4%, rgba(57,181,74,0.10), transparent 24rem),
+          linear-gradient(180deg, #eef7f0 0, var(--gris-suave) 24rem);
+      }
+
+      body .topbar {
+        position: sticky !important;
+        top: 0;
+        padding: 11px 14px;
+        gap: 10px;
+        background: linear-gradient(110deg, #03471e 0%, var(--verde-oscuro) 55%, #076b30 100%) !important;
+      }
+      .topbar-brand h1 { font-size: 16px; letter-spacing: 1.4px; }
+      body .topbar-logo { height: 24px; }
+      .topbar-right { gap: 7px; }
+      .btn-logout { min-height: 34px; padding: 6px 12px; font-size: 12px; }
+
+      #main-container {
+        max-width: 560px;
+        padding: 14px 12px 44px;
+        animation: none;
+      }
+      .desktop-dashboard-header,
+      .desktop-dashboard-content { display: none; }
+      body.dashboard-sin-rol .desktop-dashboard-header,
+      body.dashboard-sin-rol .desktop-dashboard-content { display: block; }
+      body.dashboard-sin-rol .mobile-dashboard { display: none; }
+
+      .mobile-dashboard {
+        display: block;
+        animation: pageSlideUp 0.45s var(--ease-out) both;
+      }
+      .mobile-event-hero {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        min-height: 270px;
+        padding: 20px;
+        border-radius: 24px;
+        color: #fff;
+        background:
+          radial-gradient(circle at 92% 5%, rgba(126,255,154,0.26), transparent 36%),
+          radial-gradient(circle at 5% 100%, rgba(0,0,0,0.22), transparent 42%),
+          linear-gradient(145deg, #023d19 0%, #056328 54%, #07823a 100%);
+        box-shadow: 0 18px 42px rgba(4,82,35,0.24);
+      }
+      .mobile-event-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: 0.18;
+        background-image: radial-gradient(rgba(255,255,255,0.75) 0.6px, transparent 0.6px);
+        background-size: 5px 5px;
+        pointer-events: none;
+      }
+      .mobile-hero-user,
+      .mobile-hero-status-row,
+      .mobile-hero-progress-copy {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .mobile-hero-user {
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.16);
+      }
+      .mobile-user-greeting { font-size: 12px; color: rgba(255,255,255,0.72); }
+      .mobile-user-name { max-width: 220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size: 15px; font-weight: 700; }
+      .mobile-role-pill {
+        max-width: 130px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 5px 10px;
+        border: 1px solid rgba(255,255,255,0.22);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.10);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+      }
+      .mobile-event-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #d8ffe1;
+      }
+      .mobile-event-state::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #8dffa6;
+        box-shadow: 0 0 0 5px rgba(141,255,166,0.13);
+      }
+      .mobile-event-countdown-label { font-size: 10px; color: rgba(255,255,255,0.66); text-transform:uppercase; letter-spacing:0.6px; }
+      .mobile-event-title {
+        max-width: 430px;
+        margin: 10px 0 5px;
+        font-size: clamp(24px, 8vw, 35px);
+        line-height: 1.04;
+        letter-spacing: -0.9px;
+        text-wrap: balance;
+      }
+      .mobile-event-dates { font-size: 12px; color: rgba(255,255,255,0.76); }
+      .mobile-event-countdown { margin-top: 18px; font-size: 21px; font-weight: 750; letter-spacing:-0.4px; }
+      .mobile-hero-progress { margin-top: 18px; }
+      .mobile-hero-progress-copy { margin-bottom: 7px; font-size: 10px; color: rgba(255,255,255,0.68); }
+      .mobile-progress-track { height: 5px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,0.16); }
+      .mobile-progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#8dffa6,#fff); transition:width 0.7s var(--ease-out); }
+
+      .mobile-section { margin-top: 22px; }
+      .mobile-section-heading {
+        display:flex;
+        align-items:end;
+        justify-content:space-between;
+        gap:12px;
+        margin:0 4px 9px;
+      }
+      .mobile-section-kicker { font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--verde); }
+      .mobile-section-title { margin-top:2px; font-size:18px; line-height:1.2; color:var(--gris-texto); }
+      .mobile-section-note { font-size:10px; color:var(--gris-medio); }
+
+      .mobile-now-panel {
+        position:relative;
+        overflow:hidden;
+        padding:18px;
+        border:1px solid rgba(0,114,46,0.12);
+        border-radius:20px;
+        background:rgba(255,255,255,0.94);
+        box-shadow:0 12px 30px rgba(18,52,28,0.08);
+      }
+      .mobile-now-panel.is-live { border-color:rgba(0,114,46,0.35); }
+      .mobile-now-panel.is-live::before {
+        content:"";
+        position:absolute;
+        top:0; bottom:0; left:0;
+        width:4px;
+        background:linear-gradient(180deg,#8dffa6,var(--verde));
+      }
+      .mobile-now-status { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:var(--verde); }
+      .mobile-now-status::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+      .mobile-now-panel.is-live .mobile-now-status::before { animation:pulseSoft 1.4s ease-in-out infinite; box-shadow:0 0 0 5px rgba(0,114,46,0.10); }
+      .mobile-now-title { margin-top:10px; font-size:20px; line-height:1.16; color:var(--gris-texto); }
+      .mobile-now-meta { margin-top:7px; font-size:12px; color:var(--gris-medio); }
+
+      .mobile-metrics {
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        margin-top:12px;
+        overflow:hidden;
+        border:1px solid rgba(0,114,46,0.10);
+        border-radius:18px;
+        background:rgba(255,255,255,0.82);
+      }
+      .mobile-metric { min-width:0; padding:14px 8px; text-align:center; }
+      .mobile-metric + .mobile-metric { border-left:1px solid var(--gris-borde); }
+      .mobile-metric-value { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:19px; font-weight:750; color:var(--verde-oscuro); }
+      .mobile-metric-label { margin-top:2px; font-size:9px; line-height:1.2; color:var(--gris-medio); text-transform:uppercase; letter-spacing:0.35px; }
+
+      .mobile-timeline,
+      .mobile-alerts,
+      .mobile-other-events {
+        overflow:hidden;
+        border:1px solid rgba(16,60,29,0.08);
+        border-radius:20px;
+        background:rgba(255,255,255,0.88);
+        box-shadow:0 10px 26px rgba(18,52,28,0.055);
+      }
+      .mobile-timeline-item { position:relative; display:grid; grid-template-columns:48px 18px minmax(0,1fr); gap:8px; padding:14px 15px; }
+      .mobile-timeline-item + .mobile-timeline-item { border-top:1px solid rgba(208,219,210,0.7); }
+      .mobile-timeline-time { padding-top:1px; font-size:11px; font-weight:700; color:var(--gris-medio); }
+      .mobile-timeline-marker { position:relative; display:flex; justify-content:center; }
+      .mobile-timeline-marker::before { content:""; width:8px; height:8px; margin-top:4px; border-radius:50%; border:2px solid var(--gris-borde); background:#fff; z-index:1; }
+      .mobile-timeline-item.is-current .mobile-timeline-marker::before { border-color:var(--verde); background:var(--verde); box-shadow:0 0 0 5px rgba(0,114,46,0.10); }
+      .mobile-timeline-item.is-complete { opacity:0.54; }
+      .mobile-timeline-name { font-size:13px; font-weight:700; color:var(--gris-texto); }
+      .mobile-timeline-meta { margin-top:2px; font-size:11px; color:var(--gris-medio); }
+
+      .mobile-alert-item,
+      .mobile-other-event { display:flex; align-items:center; gap:11px; padding:13px 15px; }
+      .mobile-alert-item + .mobile-alert-item,
+      .mobile-other-event + .mobile-other-event { border-top:1px solid rgba(208,219,210,0.7); }
+      .mobile-alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--amarillo); box-shadow:0 0 0 5px rgba(212,133,10,0.10); }
+      .mobile-alert-item.is-ok .mobile-alert-dot { background:var(--verde-claro); box-shadow:0 0 0 5px rgba(57,181,74,0.10); }
+      .mobile-alert-copy { min-width:0; font-size:12px; color:var(--gris-texto); }
+      .mobile-other-date { width:42px; flex-shrink:0; text-align:center; color:var(--verde-oscuro); }
+      .mobile-other-day { display:block; font-size:18px; font-weight:800; line-height:1; }
+      .mobile-other-month { display:block; margin-top:3px; font-size:9px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:var(--gris-medio); }
+      .mobile-other-copy { min-width:0; }
+      .mobile-other-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:700; }
+      .mobile-other-meta { margin-top:2px; font-size:11px; color:var(--gris-medio); }
+      .mobile-empty { padding:20px 16px; text-align:center; font-size:12px; color:var(--gris-medio); }
+      .mobile-dashboard-skeleton { animation:pulseSoft 1.25s ease-in-out infinite; }
+    }
+
+    @media (max-width: 370px) {
+      .mobile-event-hero { padding:18px 16px; border-radius:21px; }
+      .mobile-event-title { font-size:25px; }
+      .mobile-metric { padding-inline:5px; }
+      .mobile-metric-value { font-size:17px; }
+    }
+
     /* ══════════════════════════════════════════════════════
        TOPBAR — ahora verde, con el logo y (en escritorio) las
        opciones de categoría integradas como dropdowns al pasar
@@ -488,8 +704,70 @@
   </div>
 
   <div class="container" id="main-container">
+    <main class="mobile-dashboard" id="mobile-dashboard" aria-label="Resumen operativo de CONTECS">
+      <section class="mobile-event-hero mobile-dashboard-skeleton" id="mobile-event-hero">
+        <div class="mobile-hero-user">
+          <div>
+            <div class="mobile-user-greeting">Bienvenido</div>
+            <div class="mobile-user-name" id="mobile-user-name">Cargando...</div>
+          </div>
+          <span class="mobile-role-pill" id="mobile-role-label">...</span>
+        </div>
+        <div class="mobile-hero-status-row">
+          <span class="mobile-event-state" id="mobile-event-state">Buscando evento</span>
+          <span class="mobile-event-countdown-label" id="mobile-event-countdown-label"></span>
+        </div>
+        <h2 class="mobile-event-title" id="mobile-event-title">Preparando tu resumen</h2>
+        <div class="mobile-event-dates" id="mobile-event-dates">Conectando con la agenda...</div>
+        <div class="mobile-event-countdown" id="mobile-event-countdown"></div>
+        <div class="mobile-hero-progress">
+          <div class="mobile-hero-progress-copy"><span id="mobile-progress-label">Estado del evento</span><span id="mobile-progress-value">—</span></div>
+          <div class="mobile-progress-track"><div class="mobile-progress-bar" id="mobile-progress-bar"></div></div>
+        </div>
+      </section>
+
+      <section class="mobile-section">
+        <div class="mobile-section-heading">
+          <div><div class="mobile-section-kicker">En este momento</div><h2 class="mobile-section-title">Hoy en CONTECS</h2></div>
+          <span class="mobile-section-note" id="mobile-today-label"></span>
+        </div>
+        <div class="mobile-now-panel" id="mobile-now-panel">
+          <div class="mobile-now-status" id="mobile-now-status">Cargando agenda</div>
+          <h3 class="mobile-now-title" id="mobile-now-title">Revisando actividades...</h3>
+          <div class="mobile-now-meta" id="mobile-now-meta"></div>
+        </div>
+        <div class="mobile-metrics" id="mobile-metrics">
+          <div class="mobile-metric"><div class="mobile-metric-value">—</div><div class="mobile-metric-label">Registrados</div></div>
+          <div class="mobile-metric"><div class="mobile-metric-value">—</div><div class="mobile-metric-label">Aprobados</div></div>
+          <div class="mobile-metric"><div class="mobile-metric-value">—</div><div class="mobile-metric-label">Actividades hoy</div></div>
+        </div>
+      </section>
+
+      <section class="mobile-section">
+        <div class="mobile-section-heading">
+          <div><div class="mobile-section-kicker">Programa</div><h2 class="mobile-section-title">Agenda del día</h2></div>
+          <span class="mobile-section-note" id="mobile-agenda-count"></span>
+        </div>
+        <div class="mobile-timeline" id="mobile-timeline"><div class="mobile-empty">Cargando agenda...</div></div>
+      </section>
+
+      <section class="mobile-section">
+        <div class="mobile-section-heading">
+          <div><div class="mobile-section-kicker">Operación</div><h2 class="mobile-section-title">Requiere atención</h2></div>
+        </div>
+        <div class="mobile-alerts" id="mobile-alerts"><div class="mobile-empty">Revisando el estado general...</div></div>
+      </section>
+
+      <section class="mobile-section" id="mobile-other-section">
+        <div class="mobile-section-heading">
+          <div><div class="mobile-section-kicker">Calendario</div><h2 class="mobile-section-title">Próximos eventos</h2></div>
+        </div>
+        <div class="mobile-other-events" id="mobile-other-events"></div>
+      </section>
+    </main>
+
     <!-- ZONA A — Header -->
-    <div class="header-a">
+    <div class="header-a desktop-dashboard-header">
       <div class="saludo">Bienvenido,</div>
       <div class="nombre" id="nombre-usuario">...</div>
       <div class="subtitulo-espacio">Tu espacio CONTECS</div>
@@ -522,7 +800,7 @@
       </div>
     </div>
 
-    <div id="contenido-principal"></div>
+    <div id="contenido-principal" class="desktop-dashboard-content"></div>
   </div>
 
   <!-- Bottom sheet — módulos por categoría, filtrados por rol (mobile) -->
@@ -569,6 +847,292 @@
       document.getElementById("badge-verificado").classList.add("badge-verificado--ceo");
     }
 
+    document.getElementById("mobile-user-name").textContent = usuario.nombre || "Usuario";
+    document.getElementById("mobile-role-label").textContent = info.label || "Sin rol";
+
+    // ── Dashboard móvil: evento real, agenda y estado operativo ─────────────
+    const escaparHtml = valor => String(valor ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+    const aFecha = valor => {
+      if (!valor) return null;
+      if (valor.toDate) return valor.toDate();
+      if (valor instanceof Date) return valor;
+      const fecha = new Date(valor);
+      return Number.isNaN(fecha.getTime()) ? null : fecha;
+    };
+
+    const fechaLocalClave = fecha => {
+      const y = fecha.getFullYear();
+      const m = String(fecha.getMonth() + 1).padStart(2, "0");
+      const d = String(fecha.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
+
+    const fechaEventoInicio = evento => aFecha(evento?.fechaInicio);
+    const fechaEventoFin = evento => aFecha(evento?.fechaFin) || fechaEventoInicio(evento);
+    const minutosHora = hora => {
+      if (!/^\d{2}:\d{2}$/.test(hora || "")) return null;
+      const [h, m] = hora.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    const formatoRangoEvento = evento => {
+      const inicio = fechaEventoInicio(evento);
+      const fin = fechaEventoFin(evento);
+      if (!inicio) return "Fechas por confirmar";
+      const diaInicio = inicio.toLocaleDateString("es-PA", { day: "numeric", month: "long" });
+      if (!fin || inicio.toDateString() === fin.toDateString()) {
+        return inicio.toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      }
+      const diaFin = fin.toLocaleDateString("es-PA", { day: "numeric", month: "long", year: "numeric" });
+      return `${diaInicio} — ${diaFin}`;
+    };
+
+    function seleccionarEventoPrincipal(eventos, ahora) {
+      const activos = eventos.filter(e => e.activo !== false && fechaEventoInicio(e));
+      const enCurso = activos
+        .filter(e => fechaEventoInicio(e) <= ahora && fechaEventoFin(e) >= ahora)
+        .sort((a, b) => fechaEventoInicio(b) - fechaEventoInicio(a));
+      if (enCurso.length) return enCurso[0];
+      const futuros = activos
+        .filter(e => fechaEventoInicio(e) > ahora)
+        .sort((a, b) => fechaEventoInicio(a) - fechaEventoInicio(b));
+      if (futuros.length) return futuros[0];
+      return activos.sort((a, b) => fechaEventoFin(b) - fechaEventoFin(a))[0] || null;
+    }
+
+    let mobileClockId = null;
+    function actualizarHeroMovil(evento) {
+      const hero = document.getElementById("mobile-event-hero");
+      hero.classList.remove("mobile-dashboard-skeleton");
+
+      if (!evento) {
+        document.getElementById("mobile-event-state").textContent = "Sin evento activo";
+        document.getElementById("mobile-event-title").textContent = "Tu próximo evento aparecerá aquí";
+        document.getElementById("mobile-event-dates").textContent = "Crea o activa un evento desde Gestión de Eventos.";
+        document.getElementById("mobile-event-countdown-label").textContent = "";
+        document.getElementById("mobile-event-countdown").textContent = "";
+        document.getElementById("mobile-progress-label").textContent = "Estado del evento";
+        document.getElementById("mobile-progress-value").textContent = "Sin configurar";
+        document.getElementById("mobile-progress-bar").style.width = "0%";
+        return;
+      }
+
+      document.getElementById("mobile-event-title").textContent = evento.nombre || "Evento CONTECS";
+      document.getElementById("mobile-event-dates").textContent = formatoRangoEvento(evento);
+
+      const refrescarTiempo = () => {
+        const ahora = new Date();
+        const inicio = fechaEventoInicio(evento);
+        const fin = fechaEventoFin(evento);
+        const estadoEl = document.getElementById("mobile-event-state");
+        const labelEl = document.getElementById("mobile-event-countdown-label");
+        const valorEl = document.getElementById("mobile-event-countdown");
+        const progresoEl = document.getElementById("mobile-progress-bar");
+        const progresoValorEl = document.getElementById("mobile-progress-value");
+        const progresoLabelEl = document.getElementById("mobile-progress-label");
+
+        let progreso = 0;
+        if (ahora < inicio) {
+          const diferencia = inicio - ahora;
+          const dias = Math.floor(diferencia / 86400000);
+          const horas = Math.floor((diferencia % 86400000) / 3600000);
+          const minutos = Math.floor((diferencia % 3600000) / 60000);
+          estadoEl.textContent = "Próximo evento";
+          labelEl.textContent = "Comienza en";
+          valorEl.textContent = dias > 0 ? `${dias} días · ${horas} h` : `${horas} h · ${minutos} min`;
+          progresoLabelEl.textContent = "Estado";
+          progresoValorEl.textContent = "Programado";
+        } else if (ahora <= fin) {
+          const duracion = Math.max(1, fin - inicio);
+          progreso = Math.min(100, Math.max(0, ((ahora - inicio) / duracion) * 100));
+          const inicioDia = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+          const hoyDia = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+          const finDia = new Date(fin.getFullYear(), fin.getMonth(), fin.getDate());
+          const diaActual = Math.floor((hoyDia - inicioDia) / 86400000) + 1;
+          const totalDias = Math.floor((finDia - inicioDia) / 86400000) + 1;
+          estadoEl.textContent = "Evento en curso";
+          labelEl.textContent = "Jornada activa";
+          valorEl.textContent = `Día ${diaActual} de ${totalDias}`;
+          progresoLabelEl.textContent = "Progreso temporal";
+          progresoValorEl.textContent = `${Math.round(progreso)} %`;
+        } else {
+          progreso = 100;
+          estadoEl.textContent = "Evento finalizado";
+          labelEl.textContent = "Estado";
+          valorEl.textContent = "Jornada completada";
+          progresoLabelEl.textContent = "Progreso";
+          progresoValorEl.textContent = "100 %";
+        }
+        progresoEl.style.width = `${progreso}%`;
+      };
+
+      refrescarTiempo();
+      if (mobileClockId) clearInterval(mobileClockId);
+      mobileClockId = setInterval(refrescarTiempo, 60000);
+    }
+
+    function renderAhoraMovil(checkpointsHoy) {
+      const ahora = new Date();
+      const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+      const conMinutos = checkpointsHoy.map(cp => ({
+        ...cp,
+        _inicioMin: minutosHora(cp.horaInicio),
+        _finMin: minutosHora(cp.horaFin),
+      }));
+      const actual = conMinutos.find(cp => cp._inicioMin != null && cp._finMin != null && ahoraMin >= cp._inicioMin && ahoraMin <= cp._finMin);
+      const siguiente = conMinutos.find(cp => cp._inicioMin != null && cp._inicioMin > ahoraMin);
+      const panel = document.getElementById("mobile-now-panel");
+      const status = document.getElementById("mobile-now-status");
+      const titulo = document.getElementById("mobile-now-title");
+      const meta = document.getElementById("mobile-now-meta");
+      panel.classList.toggle("is-live", Boolean(actual));
+
+      const seleccionado = actual || siguiente;
+      if (actual) status.textContent = "En curso ahora";
+      else if (siguiente) status.textContent = "A continuación";
+      else status.textContent = checkpointsHoy.length ? "Jornada completada" : "Sin actividades hoy";
+
+      if (!seleccionado) {
+        titulo.textContent = checkpointsHoy.length ? "Las actividades programadas ya finalizaron" : "No hay checkpoints programados para hoy";
+        meta.textContent = checkpointsHoy.length ? "Revisa los próximos eventos más abajo." : "La agenda se actualizará cuando agregues checkpoints.";
+        return;
+      }
+      titulo.textContent = seleccionado.titulo || seleccionado.nombre || "Actividad sin nombre";
+      meta.textContent = [
+        seleccionado.horaInicio && seleccionado.horaFin ? `${seleccionado.horaInicio} — ${seleccionado.horaFin}` : seleccionado.horaInicio,
+        seleccionado.salon,
+        seleccionado.tipo ? seleccionado.tipo.charAt(0).toUpperCase() + seleccionado.tipo.slice(1) : "",
+      ].filter(Boolean).join(" · ");
+    }
+
+    function renderAgendaMovil(checkpointsHoy) {
+      const timeline = document.getElementById("mobile-timeline");
+      document.getElementById("mobile-agenda-count").textContent = `${checkpointsHoy.length} actividad${checkpointsHoy.length === 1 ? "" : "es"}`;
+      if (!checkpointsHoy.length) {
+        timeline.innerHTML = `<div class="mobile-empty">No hay actividades programadas para esta fecha.</div>`;
+        return;
+      }
+      const ahora = new Date();
+      const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+      timeline.innerHTML = checkpointsHoy.map(cp => {
+        const inicio = minutosHora(cp.horaInicio);
+        const fin = minutosHora(cp.horaFin);
+        const clase = inicio != null && fin != null && ahoraMin >= inicio && ahoraMin <= fin
+          ? " is-current"
+          : fin != null && ahoraMin > fin ? " is-complete" : "";
+        const hora = cp.horaInicio || "—";
+        const meta = [cp.salon, cp.horaFin ? `hasta ${cp.horaFin}` : ""].filter(Boolean).join(" · ");
+        return `<div class="mobile-timeline-item${clase}">
+          <div class="mobile-timeline-time">${escaparHtml(hora)}</div>
+          <div class="mobile-timeline-marker"></div>
+          <div><div class="mobile-timeline-name">${escaparHtml(cp.titulo || cp.nombre || "Actividad")}</div>${meta ? `<div class="mobile-timeline-meta">${escaparHtml(meta)}</div>` : ""}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderMetricasMovil(participantes, checkpoints, checkpointsHoy) {
+      const metricas = participantes
+        ? [
+            { valor: participantes.length, label: "Registrados" },
+            { valor: participantes.filter(p => p.pago?.estado === "aprobado").length, label: "Aprobados" },
+            { valor: checkpointsHoy.length, label: "Actividades hoy" },
+          ]
+        : [
+            { valor: checkpoints.length, label: "Actividades" },
+            { valor: checkpointsHoy.length, label: "Programadas hoy" },
+            { valor: checkpoints.filter(cp => ["taller", "gira"].includes(cp.tipo)).length, label: "Con cupos" },
+          ];
+      document.getElementById("mobile-metrics").innerHTML = metricas.map(m => `
+        <div class="mobile-metric"><div class="mobile-metric-value">${escaparHtml(m.valor)}</div><div class="mobile-metric-label">${escaparHtml(m.label)}</div></div>
+      `).join("");
+    }
+
+    function renderAlertasMovil(participantes, productos, checkpoints, evento) {
+      const alertas = [];
+      if (participantes) {
+        const pendientes = participantes.filter(p => ["pendiente_efectivo", "comprobante_enviado"].includes(p.pago?.estado)).length;
+        if (pendientes) alertas.push(`${pendientes} pago${pendientes === 1 ? "" : "s"} pendiente${pendientes === 1 ? "" : "s"} de revisión`);
+      }
+      if (productos) {
+        const bajos = productos.filter(p => p.activo !== false && (p.stock ?? 0) <= (p.alertaMinima ?? 0)).length;
+        if (bajos) alertas.push(`${bajos} producto${bajos === 1 ? "" : "s"} con inventario bajo`);
+      }
+      const cuposCriticos = checkpoints.filter(cp => {
+        if (!["taller", "gira"].includes(cp.tipo) || !cp.cupos) return false;
+        const disponibles = cp.cuposDisponibles ?? cp.cupos;
+        return disponibles <= Math.max(5, Math.ceil(cp.cupos * 0.15));
+      });
+      cuposCriticos.slice(0, 2).forEach(cp => alertas.push(`${cp.nombre}: quedan ${cp.cuposDisponibles ?? cp.cupos} cupos`));
+      if (evento && !checkpoints.length) alertas.push(`${evento.nombre || "El evento"} todavía no tiene checkpoints configurados`);
+
+      const wrap = document.getElementById("mobile-alerts");
+      if (!alertas.length) {
+        wrap.innerHTML = `<div class="mobile-alert-item is-ok"><span class="mobile-alert-dot"></span><div class="mobile-alert-copy">Todo está bajo control. No hay alertas operativas.</div></div>`;
+        return;
+      }
+      wrap.innerHTML = alertas.map(texto => `<div class="mobile-alert-item"><span class="mobile-alert-dot"></span><div class="mobile-alert-copy">${escaparHtml(texto)}</div></div>`).join("");
+    }
+
+    function renderOtrosEventosMovil(eventos, principal) {
+      const ahora = new Date();
+      const otros = eventos
+        .filter(e => e.id !== principal?.id && e.activo !== false && fechaEventoInicio(e) >= ahora)
+        .sort((a, b) => fechaEventoInicio(a) - fechaEventoInicio(b))
+        .slice(0, 3);
+      const section = document.getElementById("mobile-other-section");
+      if (!otros.length) {
+        section.style.display = "none";
+        return;
+      }
+      section.style.display = "block";
+      document.getElementById("mobile-other-events").innerHTML = otros.map(evento => {
+        const fecha = fechaEventoInicio(evento);
+        return `<div class="mobile-other-event">
+          <div class="mobile-other-date"><span class="mobile-other-day">${fecha.getDate()}</span><span class="mobile-other-month">${escaparHtml(fecha.toLocaleDateString("es-PA", { month: "short" }))}</span></div>
+          <div class="mobile-other-copy"><div class="mobile-other-name">${escaparHtml(evento.nombre || "Evento CONTECS")}</div><div class="mobile-other-meta">${escaparHtml(formatoRangoEvento(evento))}</div></div>
+        </div>`;
+      }).join("");
+    }
+
+    async function cargarDashboardMovil() {
+      const hoy = new Date();
+      document.getElementById("mobile-today-label").textContent = hoy.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
+
+      const eventosSnap = await getDocs(collection(db, "eventos"));
+      const eventos = eventosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const principal = seleccionarEventoPrincipal(eventos, hoy);
+      actualizarHeroMovil(principal);
+      renderOtrosEventosMovil(eventos, principal);
+
+      let checkpoints = [];
+      if (principal) {
+        const checkpointsSnap = await getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", principal.id)));
+        checkpoints = checkpointsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+      const hoyClave = fechaLocalClave(hoy);
+      const checkpointsHoy = checkpoints
+        .filter(cp => cp.dia === hoyClave)
+        .sort((a, b) => (a.horaInicio || "99:99").localeCompare(b.horaInicio || "99:99"));
+      renderAhoraMovil(checkpointsHoy);
+      renderAgendaMovil(checkpointsHoy);
+
+      const participantesPromise = tienePermiso(rol, "ver_participantes")
+        ? getDocs(collection(db, "participantes")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "participantes dashboard móvil"); return null; })
+        : Promise.resolve(null);
+      const productosPromise = tienePermiso(rol, "ver_inventario")
+        ? getDocs(collection(db, "productos")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "productos dashboard móvil"); return null; })
+        : Promise.resolve(null);
+      const [participantes, productos] = await Promise.all([participantesPromise, productosPromise]);
+      renderMetricasMovil(participantes, checkpoints, checkpointsHoy);
+      renderAlertasMovil(participantes, productos, checkpoints, principal);
+    }
+
     // ── Cuenta regresiva al evento (19 de octubre de 2026) — siempre visible en Zona A ──
     const calcularCuentaRegresiva = () => {
       const ahora = new Date();
@@ -594,6 +1158,7 @@
     const contenido = document.getElementById("contenido-principal");
 
     if (rol === "sin_rol") {
+      document.body.classList.add("dashboard-sin-rol");
       contenido.innerHTML = `
         <div class="sin-rol-card">
           <h3>Acceso pendiente de activación</h3>
@@ -622,8 +1187,32 @@
 
     } else {
 
-      // ══════════ ZONA B — Widgets de resumen según rol ══════════
-      const widgetsDef = [
+      let dashboardMovilCargado = false;
+      const iniciarDashboardMovil = () => {
+        if (dashboardMovilCargado) return;
+        dashboardMovilCargado = true;
+        cargarDashboardMovil().catch(error => {
+          document.getElementById("mobile-event-hero").classList.remove("mobile-dashboard-skeleton");
+          document.getElementById("mobile-event-state").textContent = "Información no disponible";
+          document.getElementById("mobile-event-title").textContent = "No se pudo cargar el resumen";
+          document.getElementById("mobile-event-dates").textContent = "Verifica la conexión e inténtalo nuevamente.";
+          document.getElementById("mobile-now-status").textContent = "Sin conexión";
+          document.getElementById("mobile-now-title").textContent = "La agenda no está disponible";
+          document.getElementById("mobile-timeline").innerHTML = `<div class="mobile-empty">No se pudo cargar la agenda.</div>`;
+          document.getElementById("mobile-alerts").innerHTML = `<div class="mobile-empty">No se pudo revisar el estado operativo.</div>`;
+          document.getElementById("mobile-other-section").style.display = "none";
+          manejarErrorSnapshot(error, "dashboard móvil");
+        });
+      };
+      const mediaDashboardMovil = window.matchMedia("(max-width: 1023px)");
+      if (mediaDashboardMovil.matches) iniciarDashboardMovil();
+      mediaDashboardMovil.addEventListener?.("change", e => { if (e.matches) iniciarDashboardMovil(); });
+
+      // El dashboard clásico se conserva intacto para laptop. En teléfono se
+      // evita cargar sus consultas duplicadas porque ya existe el resumen móvil.
+      if (!mediaDashboardMovil.matches) {
+        // ══════════ ZONA B — Widgets de resumen según rol ══════════
+        const widgetsDef = [
         {
           permiso: "ver_fondos",
           label: "Balance de fondos",
@@ -694,9 +1283,9 @@
             }
           }
         },
-      ].filter(w => tienePermiso(rol, w.permiso));
+        ].filter(w => tienePermiso(rol, w.permiso));
 
-      if (widgetsDef.length > 0) {
+        if (widgetsDef.length > 0) {
         const widgetsEl = document.createElement("div");
         widgetsEl.className = "widgets-grid";
         widgetsEl.style.marginBottom = "16px";
@@ -707,18 +1296,18 @@
           </div>`).join("");
         contenido.appendChild(widgetsEl);
         widgetsDef.forEach(w => w.init(document.getElementById(w.id)));
-      }
+        }
 
       // ══════════ ZONA C — Agenda: Hoy destacado + próximos días ══════════
       // Colores por tipo de evento (reemplazan los emojis anteriores)
-      const COLOR_TIPO = {
+        const COLOR_TIPO = {
         actividad: "var(--verde)",
         gira:      "var(--azul-info)",
         venta:     "var(--amarillo)",
         reunion:   "var(--verde-apagado)",
-      };
+        };
 
-      if (tienePermiso(rol, "ver_calendario")) {
+        if (tienePermiso(rol, "ver_calendario")) {
         const tituloAgenda = document.createElement("div");
         tituloAgenda.className = "agenda-hoy-titulo";
         tituloAgenda.textContent = "Hoy";
@@ -828,6 +1417,7 @@
             manejarErrorSnapshot(error, "agenda (zona C)");
           }
         })();
+        }
       }
 
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
