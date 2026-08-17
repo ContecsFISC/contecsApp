@@ -5,32 +5,32 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-08-17T14:52:25.775676+00:00",
-  "project_fingerprint": "5039648e18d6c9debaeb22f3804fa6f03e8fc3a0d2c4167e497a51ded42aeb2f",
+  "generated_at": "2026-08-17T22:28:49.141900+00:00",
+  "project_fingerprint": "42f4d98525a705a194d50fa871f87bf573a9f8d5771e917303a361b3bc01cbe2",
   "project": "contecsApp",
   "root": ".",
   "view": "complete",
   "stats": {
-    "total_files": 143,
-    "total_edges": 395,
+    "total_files": 147,
+    "total_edges": 453,
     "total_orphans": 61,
     "total_cycles": 0,
-    "total_external_packages": 20,
-    "total_firestore_collections": 23,
-    "total_cloud_functions": 6,
+    "total_external_packages": 21,
+    "total_firestore_collections": 26,
+    "total_cloud_functions": 8,
     "total_possible_implicit_links": 5,
-    "total_symbols": 2868,
-    "total_function_calls": 6532,
-    "total_dom_ids": 716,
-    "total_diagnostics": 2,
+    "total_symbols": 3089,
+    "total_function_calls": 7046,
+    "total_dom_ids": 718,
+    "total_diagnostics": 1,
     "errors": 0,
-    "warnings": 1
+    "warnings": 0
   },
   "god_nodes": [
     {
       "label": "js/core/auth.js",
-      "degree": 117,
-      "in": 113,
+      "degree": 121,
+      "in": 117,
       "out": 4,
       "exports": [
         "cargarUsuario",
@@ -46,16 +46,29 @@
       ]
     },
     {
+      "label": "js/core/seguridad.js",
+      "degree": 49,
+      "in": 49,
+      "out": 0,
+      "exports": [
+        "escaparAtributo",
+        "escaparHtml",
+        "neutralizarFormulaHoja",
+        "urlHttpSegura",
+        "urlImagenSegura"
+      ]
+    },
+    {
       "label": "panel/dashboard.html",
-      "degree": 39,
-      "in": 24,
+      "degree": 40,
+      "in": 25,
       "out": 15,
       "exports": []
     },
     {
       "label": "js/core/firebase-config.js",
-      "degree": 31,
-      "in": 31,
+      "degree": 32,
+      "in": 32,
       "out": 0,
       "exports": [
         "analytics",
@@ -111,6 +124,13 @@
       ]
     },
     {
+      "label": "panel/modulos/logistica/catalogo.html",
+      "degree": 26,
+      "in": 0,
+      "out": 26,
+      "exports": []
+    },
+    {
       "label": "js/core/operaciones.js",
       "degree": 25,
       "in": 24,
@@ -129,31 +149,24 @@
       ]
     },
     {
-      "label": "panel/modulos/logistica/catalogo.html",
-      "degree": 24,
-      "in": 0,
-      "out": 24,
+      "label": "js/modulos/ventaRapida.js",
+      "degree": 19,
+      "in": 1,
+      "out": 18,
       "exports": []
     },
     {
-      "label": "js/modulos/ventaRapida.js",
+      "label": "js/modulos/compras2.js",
       "degree": 17,
       "in": 1,
       "out": 16,
       "exports": []
     },
     {
-      "label": "js/modulos/compras2.js",
+      "label": "js/modulos/compras.js",
       "degree": 16,
       "in": 1,
       "out": 15,
-      "exports": []
-    },
-    {
-      "label": "js/modulos/compras.js",
-      "degree": 15,
-      "in": 1,
-      "out": 14,
       "exports": []
     },
     {
@@ -170,55 +183,62 @@
       ]
     },
     {
-      "label": "panel/modulos/admin/minutas.html",
-      "degree": 14,
-      "in": 7,
-      "out": 7,
-      "exports": []
-    },
-    {
       "label": "js/modulos/fondo.js",
-      "degree": 13,
+      "degree": 14,
       "in": 1,
-      "out": 12,
+      "out": 13,
       "exports": []
     },
     {
-      "label": "panel/modulos/voluntariado/voluntarios.html",
-      "degree": 13,
-      "in": 1,
-      "out": 12,
+      "label": "js/modulos/voluntarios.js",
+      "degree": 14,
+      "in": 3,
+      "out": 11,
       "exports": []
     }
   ],
   "top_risk_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 236.2,
-      "degree": 117,
+      "risk_score": 244.3,
+      "degree": 121,
       "in_cycle": false,
-      "loc": 221
+      "loc": 235
+    },
+    {
+      "label": "js/core/seguridad.js",
+      "risk_score": 98.4,
+      "degree": 49,
+      "in_cycle": false,
+      "loc": 40
     },
     {
       "label": "panel/dashboard.html",
-      "risk_score": 94.2,
-      "degree": 39,
+      "risk_score": 96.2,
+      "degree": 40,
       "in_cycle": false,
       "loc": 1618
     },
     {
       "label": "css/styles.css",
-      "risk_score": 64.2,
+      "risk_score": 64.3,
       "degree": 29,
       "in_cycle": false,
-      "loc": 622
+      "loc": 635
     },
     {
       "label": "js/core/firebase-config.js",
-      "risk_score": 62.4,
-      "degree": 31,
+      "risk_score": 64.3,
+      "degree": 32,
       "in_cycle": false,
       "loc": 35
+    },
+    {
+      "label": "panel/modulos/logistica/catalogo.html",
+      "risk_score": 60.9,
+      "degree": 26,
+      "in_cycle": false,
+      "loc": 885
     },
     {
       "label": "js/modulos/catalogo.js",
@@ -228,13 +248,6 @@
       "loc": 150
     },
     {
-      "label": "js/core/operaciones.js",
-      "risk_score": 58.6,
-      "degree": 25,
-      "in_cycle": false,
-      "loc": 860
-    },
-    {
       "label": "js/core/iconos.js",
       "risk_score": 56.9,
       "degree": 28,
@@ -242,60 +255,53 @@
       "loc": 88
     },
     {
-      "label": "panel/modulos/logistica/catalogo.html",
-      "risk_score": 56.8,
-      "degree": 24,
+      "label": "js/core/operaciones.js",
+      "risk_score": 52.4,
+      "degree": 25,
       "in_cycle": false,
-      "loc": 883
+      "loc": 243
     },
     {
       "label": "js/modulos/voluntarios.js",
-      "risk_score": 41.9,
-      "degree": 11,
+      "risk_score": 48.1,
+      "degree": 14,
       "in_cycle": false,
-      "loc": 1841
+      "loc": 1860
     },
     {
       "label": "js/modulos/ventaRapida.js",
-      "risk_score": 41.8,
-      "degree": 17,
+      "risk_score": 45.9,
+      "degree": 19,
       "in_cycle": false,
-      "loc": 783
+      "loc": 785
     },
     {
       "label": "js/modulos/compras2.js",
-      "risk_score": 40.2,
-      "degree": 16,
+      "risk_score": 42.2,
+      "degree": 17,
       "in_cycle": false,
-      "loc": 820
+      "loc": 822
     },
     {
       "label": "js/modulos/compras.js",
-      "risk_score": 35.5,
-      "degree": 15,
+      "risk_score": 37.5,
+      "degree": 16,
       "in_cycle": false,
-      "loc": 548
+      "loc": 550
     },
     {
       "label": "panel/modulos/congreso/modulos_participantes.html",
-      "risk_score": 31.3,
+      "risk_score": 37.4,
+      "degree": 14,
+      "in_cycle": false,
+      "loc": 943
+    },
+    {
+      "label": "panel/modulos/finanzas/bitacora.html",
+      "risk_score": 31.8,
       "degree": 11,
       "in_cycle": false,
-      "loc": 933
-    },
-    {
-      "label": "panel/modulos/voluntariado/voluntarios.html",
-      "risk_score": 30.6,
-      "degree": 13,
-      "in_cycle": false,
-      "loc": 456
-    },
-    {
-      "label": "panel/modulos/congreso/inscripciones.html",
-      "risk_score": 29.2,
-      "degree": 12,
-      "in_cycle": false,
-      "loc": 516
+      "loc": 984
     }
   ],
   "orphans": [
@@ -367,13 +373,17 @@
       "functions/index.js"
     ],
     "firebase-admin/app": [
-      "functions/index.js"
+      "functions/index.js",
+      "functions/test/operaciones-qr.integration.js"
     ],
     "firebase-admin/auth": [
       "functions/index.js"
     ],
     "firebase-admin/firestore": [
-      "functions/index.js"
+      "functions/index.js",
+      "functions/operaciones-financieras.js",
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js"
     ],
     "firebase-admin/storage": [
       "functions/index.js"
@@ -385,7 +395,9 @@
       "functions/index.js"
     ],
     "firebase-functions/v2/https": [
-      "functions/index.js"
+      "functions/index.js",
+      "functions/operaciones-financieras.js",
+      "functions/operaciones-qr.js"
     ],
     "fs": [
       "functions/plantillas.js"
@@ -393,7 +405,7 @@
     "https": [
       "functions/index.js"
     ],
-    "https://cdn.jsdelivr.net/npm/chart.js": [
+    "https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js": [
       "panel/modulos/congreso/reportes_estadisticaCont.html",
       "panel/modulos/finanzas/reportes_financieros.html"
     ],
@@ -452,7 +464,10 @@
       "panel/modulos/logistica/inventario.html"
     ],
     "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js": [
+      "js/core/operaciones.js",
       "js/core/participantes-api.js",
+      "js/modulos/lecturaQR.js",
+      "js/modulos/lecturaQRVoluntarios.js",
       "panel/modulos/congreso/modulos_participantes.html"
     ],
     "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js": [
@@ -460,18 +475,23 @@
       "js/core/operaciones.js",
       "panel/modulos/congreso/modulos_participantes.html"
     ],
+    "node:assert/strict": [
+      "functions/test/operaciones-qr.integration.js"
+    ],
     "path": [
       "functions/plantillas.js"
     ]
   },
   "firestore_collections": {
     "actividades_ventas": [
+      "functions/operaciones-financieras.js",
       "js/modulos/actividadVentas.js",
       "js/modulos/ventaRapida.js",
       "js/modulos/voluntarios.js",
       "panel/modulos/finanzas/bitacora.html"
     ],
     "actividades_voluntarios": [
+      "functions/operaciones-qr.js",
       "js/modulos/informeActividad.js",
       "js/modulos/lecturaQRVoluntarios.js",
       "js/modulos/reportes_estadisticaCont.js",
@@ -480,7 +500,14 @@
     "asignaciones_voluntarios": [
       "js/modulos/voluntarios.js"
     ],
+    "asistencias_congreso": [
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js",
+      "js/modulos/inscripciones.js",
+      "js/modulos/reportes_estadisticaCont.js"
+    ],
     "asistencias_voluntarios": [
+      "functions/operaciones-qr.js",
       "js/modulos/lecturaQRVoluntarios.js",
       "js/modulos/reportes_estadisticaCont.js",
       "js/modulos/voluntarios.js"
@@ -490,30 +517,34 @@
       "js/modulos/reporteFinancieroExcel.js"
     ],
     "checkpoints": [
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html"
     ],
     "compras": [
+      "functions/operaciones-financieras.js",
       "js/core/operaciones.js",
       "js/modulos/reporteFinancieroExcel.js",
       "js/modulos/reportes_financieros.js",
       "panel/modulos/finanzas/bitacora.html"
     ],
     "eventos": [
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
       "panel/dashboard.html"
     ],
     "fondos": [
-      "js/core/operaciones.js",
       "js/modulos/detalleFondo.js",
       "js/modulos/fondo.js",
       "panel/dashboard.html"
     ],
     "fondos_entrada": [
-      "js/core/operaciones.js",
+      "functions/operaciones-financieras.js",
       "js/modulos/detalleFondo.js",
       "js/modulos/fondo.js",
       "panel/modulos/finanzas/bitacora.html"
@@ -521,36 +552,49 @@
     "giras_voluntarios": [
       "js/modulos/voluntarios.js"
     ],
+    "identificadores_participantes": [
+      "functions/index.js"
+    ],
     "informes_actividad": [
       "js/modulos/informeActividad.js"
     ],
     "inscripciones": [
+      "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
-      "js/modulos/lecturaQR.js"
-    ],
-    "inscripciones_checkpoint": [
       "js/modulos/lecturaQR.js",
       "js/modulos/reportes_estadisticaCont.js"
     ],
+    "inscripciones_checkpoint": [
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js",
+      "js/modulos/inscripciones.js",
+      "js/modulos/lecturaQR.js",
+      "js/modulos/reportes_estadisticaCont.js"
+    ],
+    "limites_registro": [
+      "functions/index.js"
+    ],
     "mermas": [
-      "js/core/operaciones.js",
+      "functions/operaciones-financieras.js",
       "js/modulos/reporteFinancieroExcel.js",
       "js/modulos/reportes_financieros.js",
       "panel/modulos/finanzas/bitacora.html"
     ],
     "movimientos_inventario": [
-      "js/core/operaciones.js",
+      "functions/operaciones-financieras.js",
       "panel/modulos/finanzas/bitacora.html"
     ],
     "participantes": [
       "functions/index.js",
+      "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
+      "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html",
       "panel/modulos/congreso/modulos_participantes.html"
     ],
     "productos": [
-      "js/core/operaciones.js",
+      "functions/operaciones-financieras.js",
       "js/modulos/actividadVentas.js",
       "js/modulos/catalogo.js",
       "js/modulos/compras.js",
@@ -575,6 +619,9 @@
     ],
     "usuarios": [
       "functions/index.js",
+      "functions/operaciones-financieras.js",
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js",
       "index.html",
       "js/core/auth.js",
       "js/modulos/actividadVentas.js",
@@ -588,12 +635,13 @@
       "panel/index.html"
     ],
     "ventas": [
-      "js/core/operaciones.js",
+      "functions/operaciones-financieras.js",
       "js/modulos/reporteFinancieroExcel.js",
       "js/modulos/reportes_financieros.js",
       "panel/modulos/finanzas/bitacora.html"
     ],
     "voluntarios": [
+      "functions/operaciones-qr.js",
       "js/modulos/lecturaQRVoluntarios.js",
       "js/modulos/reportes_estadisticaCont.js",
       "js/modulos/voluntarios.js",
@@ -607,63 +655,63 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 415
+        "line": 422
       },
       {
         "file": "js/modulos/actividadVentas.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "actividades_ventas",
-        "line": 325
+        "line": 331
       },
       {
         "file": "js/modulos/actividadVentas.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_ventas",
-        "line": 320
+        "line": 326
       },
       {
         "file": "js/modulos/actividadVentas.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_ventas",
-        "line": 393
+        "line": 399
       },
       {
         "file": "js/modulos/actividadVentas.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "actividades_ventas",
-        "line": 401
+        "line": 408
       },
       {
         "file": "js/modulos/ventaRapida.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 116
+        "line": 118
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 1172
+        "line": 1191
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "actividades_ventas",
-        "line": 1157
+        "line": 1176
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 412
+        "line": 414
       }
     ],
     "actividades_voluntarios": [
@@ -672,63 +720,63 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 330
+        "line": 340
       },
       {
         "file": "js/modulos/lecturaQRVoluntarios.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 79
+        "line": 90
       },
       {
         "file": "js/modulos/lecturaQRVoluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 57
+        "line": 68
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 146
+        "line": 169
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 175
+        "line": 190
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "actividades_voluntarios",
-        "line": 277
+        "line": 292
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 271
+        "line": 286
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 326
+        "line": 341
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "actividades_voluntarios",
-        "line": 334
+        "line": 350
       }
     ],
     "asignaciones_voluntarios": [
@@ -737,28 +785,58 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "asignaciones_voluntarios",
-        "line": 1185
+        "line": 1204
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 1346
+        "line": 1365
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 1817
+        "line": 1836
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "asignaciones_voluntarios",
-        "line": 1362
+        "line": 1381
+      }
+    ],
+    "asistencias_congreso": [
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "asistencias_congreso",
+        "line": 346
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "asistencias_congreso",
+        "line": 417
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "asistencias_congreso",
+        "line": 873
+      },
+      {
+        "file": "js/modulos/reportes_estadisticaCont.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "asistencias_congreso",
+        "line": 33
       }
     ],
     "asistencias_voluntarios": [
@@ -767,35 +845,14 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "asistencias_voluntarios",
-        "line": 196
-      },
-      {
-        "file": "js/modulos/lecturaQRVoluntarios.js",
-        "operation": "getDoc",
-        "kind": "read",
-        "collection": "asistencias_voluntarios",
-        "line": 289
-      },
-      {
-        "file": "js/modulos/lecturaQRVoluntarios.js",
-        "operation": "setDoc",
-        "kind": "write",
-        "collection": "asistencias_voluntarios",
-        "line": 271
-      },
-      {
-        "file": "js/modulos/lecturaQRVoluntarios.js",
-        "operation": "updateDoc",
-        "kind": "update",
-        "collection": "asistencias_voluntarios",
-        "line": 294
+        "line": 211
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "asistencias_voluntarios",
-        "line": 147
+        "line": 170
       }
     ],
     "categorias": [
@@ -834,56 +891,56 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 381
+        "line": 345
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "checkpoints",
+        "line": 438
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "checkpoints",
-        "line": 712
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "updateDoc",
-        "kind": "update",
-        "collection": "checkpoints",
-        "line": 706
+        "line": 796
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "checkpoints",
-        "line": 786
+        "line": 881
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 53
+        "line": 67
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 374
+        "line": 417
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 58
+        "line": 72
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 29
+        "line": 31
       },
       {
         "file": "panel/dashboard.html",
@@ -899,14 +956,7 @@
         "operation": "setDoc",
         "kind": "write",
         "collection": "compras",
-        "line": 457
-      },
-      {
-        "file": "js/core/operaciones.js",
-        "operation": "setDoc",
-        "kind": "write",
-        "collection": "compras",
-        "line": 471
+        "line": 182
       },
       {
         "file": "js/modulos/reporteFinancieroExcel.js",
@@ -920,14 +970,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "compras",
-        "line": 17
+        "line": 10
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "compras",
-        "line": 707
+        "line": 710
       }
     ],
     "eventos": [
@@ -936,49 +986,49 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 284
+        "line": 297
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 354
+        "line": 388
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 174
+        "line": 187
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "eventos",
-        "line": 251
+        "line": 264
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "setDoc",
         "kind": "write",
         "collection": "eventos",
-        "line": 242
+        "line": 255
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "eventos",
-        "line": 326
+        "line": 353
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 34
+        "line": 46
       },
       {
         "file": "panel/dashboard.html",
@@ -1003,42 +1053,42 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos_entrada",
-        "line": 222
+        "line": 224
       },
       {
         "file": "js/modulos/detalleFondo.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos_entrada",
-        "line": 228
+        "line": 230
       },
       {
         "file": "js/modulos/fondo.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos_entrada",
-        "line": 148
+        "line": 150
       },
       {
         "file": "js/modulos/fondo.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos_entrada",
-        "line": 155
+        "line": 157
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "fondos_entrada",
-        "line": 732
+        "line": 735
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos_entrada",
-        "line": 788
+        "line": 791
       }
     ],
     "giras_voluntarios": [
@@ -1047,28 +1097,28 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "giras_voluntarios",
-        "line": 1040
+        "line": 1058
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "giras_voluntarios",
-        "line": 1107
+        "line": 1125
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1102
+        "line": 1120
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1149
+        "line": 1167
       }
     ],
     "informes_actividad": [
@@ -1077,14 +1127,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "informes_actividad",
-        "line": 18
+        "line": 20
       },
       {
         "file": "js/modulos/informeActividad.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "informes_actividad",
-        "line": 101
+        "line": 110
       }
     ],
     "inscripciones": [
@@ -1093,47 +1143,75 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 372
+        "line": 411
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 285
+        "line": 315
+      },
+      {
+        "file": "js/modulos/reportes_estadisticaCont.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "inscripciones",
+        "line": 35
       }
     ],
     "inscripciones_checkpoint": [
+      {
+        "file": "functions/operaciones-qr.js",
+        "operation": "runTransaction",
+        "kind": "transaction",
+        "collection": "inscripciones_checkpoint",
+        "line": 180
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "inscripciones_checkpoint",
+        "line": 426
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "inscripciones_checkpoint",
+        "line": 874
+      },
+      {
+        "file": "js/modulos/lecturaQR.js",
+        "operation": "getDoc",
+        "kind": "read",
+        "collection": "inscripciones_checkpoint",
+        "line": 432
+      },
+      {
+        "file": "js/modulos/lecturaQR.js",
+        "operation": "getDoc",
+        "kind": "read",
+        "collection": "inscripciones_checkpoint",
+        "line": 433
+      },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 386
-      },
-      {
-        "file": "js/modulos/lecturaQR.js",
-        "operation": "runTransaction",
-        "kind": "transaction",
-        "collection": "inscripciones_checkpoint",
-        "line": 463
+        "line": 434
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 30
+        "line": 32
       }
     ],
     "mermas": [
-      {
-        "file": "js/core/operaciones.js",
-        "operation": "runTransaction",
-        "kind": "transaction",
-        "collection": "mermas",
-        "line": 540
-      },
       {
         "file": "js/modulos/reporteFinancieroExcel.js",
         "operation": "getDocs",
@@ -1146,14 +1224,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "mermas",
-        "line": 18
+        "line": 11
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "mermas",
-        "line": 912
+        "line": 915
       }
     ],
     "movimientos_inventario": [
@@ -1162,7 +1240,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "movimientos_inventario",
-        "line": 853
+        "line": 856
       }
     ],
     "participantes": [
@@ -1171,28 +1249,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 960
+        "line": 1055
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1009
+        "line": 1104
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "setDoc",
         "kind": "write",
         "collection": "participantes",
-        "line": 978
+        "line": 1073
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 272
+        "line": 302
+      },
+      {
+        "file": "js/modulos/reportes_estadisticaCont.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "participantes",
+        "line": 34
       },
       {
         "file": "panel/dashboard.html",
@@ -1213,21 +1298,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 505
+        "line": 507
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "participantes",
-        "line": 828
+        "line": 838
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "participantes",
-        "line": 889
+        "line": 899
       }
     ],
     "productos": [
@@ -1236,14 +1321,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "productos",
-        "line": 147
+        "line": 153
       },
       {
         "file": "js/modulos/actividadVentas.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "productos",
-        "line": 192
+        "line": 198
       },
       {
         "file": "js/modulos/catalogo.js",
@@ -1306,14 +1391,14 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 502
+        "line": 504
       },
       {
         "file": "js/modulos/compras2.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 750
+        "line": 752
       },
       {
         "file": "js/modulos/reporteFinancieroExcel.js",
@@ -1327,14 +1412,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "productos",
-        "line": 19
+        "line": 12
       },
       {
         "file": "js/modulos/ventaRapida.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 764
+        "line": 766
       },
       {
         "file": "panel/dashboard.html",
@@ -1355,14 +1440,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "productos",
-        "line": 733
+        "line": 736
       },
       {
         "file": "panel/modulos/logistica/inventario.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 275
+        "line": 277
       }
     ],
     "reuniones": [
@@ -1371,42 +1456,42 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "reuniones",
-        "line": 103
+        "line": 114
       },
       {
         "file": "js/modulos/agendarReunion.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "reuniones",
-        "line": 174
+        "line": 189
       },
       {
         "file": "js/modulos/agendarReunion.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "reuniones",
-        "line": 170
+        "line": 185
       },
       {
         "file": "js/modulos/minutaReunion.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "reuniones",
-        "line": 147
+        "line": 152
       },
       {
         "file": "js/modulos/minutaReunion.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "reuniones",
-        "line": 166
+        "line": 171
       },
       {
         "file": "js/modulos/minutas.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "reuniones",
-        "line": 51
+        "line": 53
       },
       {
         "file": "panel/dashboard.html",
@@ -1429,7 +1514,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "solicitudes_actividad",
-        "line": 329
+        "line": 339
       },
       {
         "file": "js/modulos/solicitudActividad.js",
@@ -1443,14 +1528,14 @@
         "operation": "addDoc",
         "kind": "create",
         "collection": "solicitudes_actividad",
-        "line": 148
+        "line": 152
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "solicitudes_actividad",
-        "line": 348
+        "line": 364
       }
     ],
     "usuarios": [
@@ -1466,63 +1551,63 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "usuarios",
-        "line": 84
+        "line": 90
       },
       {
         "file": "js/modulos/agendarReunion.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "usuarios",
-        "line": 43
+        "line": 51
       },
       {
         "file": "js/modulos/detalleFondo.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "usuarios",
-        "line": 65
+        "line": 67
       },
       {
         "file": "js/modulos/fondo.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "usuarios",
-        "line": 46
+        "line": 48
       },
       {
         "file": "js/modulos/informeActividad.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "usuarios",
-        "line": 443
+        "line": 453
       },
       {
         "file": "js/modulos/minutaReunion.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "usuarios",
-        "line": 87
+        "line": 91
       },
       {
         "file": "js/modulos/minutaReunion.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "usuarios",
-        "line": 88
+        "line": 92
       },
       {
         "file": "js/modulos/usuarios.js",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "usuarios",
-        "line": 78
+        "line": 81
       },
       {
         "file": "js/modulos/usuarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "usuarios",
-        "line": 65
+        "line": 68
       },
       {
         "file": "panel/dashboard.html",
@@ -1552,21 +1637,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "ventas",
-        "line": 16
+        "line": 9
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "ventas",
-        "line": 734
+        "line": 737
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "ventas",
-        "line": 595
+        "line": 597
       }
     ],
     "voluntarios": [
@@ -1575,63 +1660,56 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 176
+        "line": 191
       },
       {
         "file": "js/modulos/lecturaQRVoluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 28
+        "line": 39
       },
       {
         "file": "js/modulos/lecturaQRVoluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 164
-      },
-      {
-        "file": "js/modulos/lecturaQRVoluntarios.js",
-        "operation": "updateDoc",
-        "kind": "update",
-        "collection": "voluntarios",
-        "line": 302
+        "line": 179
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 145
+        "line": 168
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 537
+        "line": 553
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 576
+        "line": 592
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "voluntarios",
-        "line": 540
+        "line": 556
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "voluntarios",
-        "line": 643
+        "line": 661
       },
       {
         "file": "panel/dashboard.html",
@@ -1647,6 +1725,7 @@
       "actividades_ventas",
       "actividades_voluntarios",
       "asignaciones_voluntarios",
+      "asistencias_congreso",
       "asistencias_voluntarios",
       "categorias",
       "checkpoints",
@@ -1657,9 +1736,11 @@
       "fondos",
       "fondos_entrada",
       "giras_voluntarios",
+      "identificadores_participantes",
       "informes_actividad",
       "inscripciones",
       "inscripciones_checkpoint",
+      "limites_registro",
       "mermas",
       "movimientos_inventario",
       "participantes",
@@ -1675,441 +1756,490 @@
         "collection": "usuarios",
         "operations": "read",
         "condition": "signedIn() && ( request.auth.uid == uid || hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'finanzas']) )",
-        "line": 39,
+        "line": 46,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "create",
-        "condition": "signedIn() && request.auth.uid == uid && request.resource.data.rol == 'sin_rol'",
-        "line": 43,
+        "condition": "signedIn() && request.auth.uid == uid && request.resource.data.keys().hasAll(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.keys().hasOnly(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.ro",
+        "line": 50,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "update",
-        "condition": "signedIn() && ( (request.auth.uid == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol'])) || hasRol(['ceo', 'junta_principal']) )",
-        "line": 46,
+        "condition": "signedIn() && ( (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys() .hasOnly(['nombre', 'foto', 'actualizadoEn']) && request.resource.data.rol == resource.data.rol && request.resource.data.email == resource.",
+        "line": 63,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "read",
-        "condition": "true",
-        "line": 58,
+        "condition": "canGestionarParticipantes()",
+        "line": 82,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "create",
-        "condition": "true",
-        "line": 60,
+        "condition": "false",
+        "line": 83,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "update",
-        "condition": "canGestionarParticipantes()",
-        "line": 61,
+        "condition": "canGestionarParticipantes() && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
+        "line": 84,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "delete",
         "condition": "hasRol([\"ceo\",\"junta_principal\"])",
-        "line": 62,
+        "line": 88,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "contadores",
         "operations": "read, write",
         "condition": "false",
-        "line": 67,
+        "line": 93,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "identificadores_participantes",
+        "operations": "read, write",
+        "condition": "false",
+        "line": 98,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "limites_registro",
+        "operations": "read, write",
+        "condition": "false",
+        "line": 102,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 72,
+        "line": 107,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
-        "operations": "create, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 73,
+        "operations": "create",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.keys().hasOnly([ 'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId', 'stock', 'activo', 'creadoEn' ]) && request.resource.data.nombre",
+        "line": 108,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "update",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock', 'actualizadoEn']))",
-        "line": 76,
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activo' ])",
+        "line": 122,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "productos",
+        "operations": "delete",
+        "condition": "false",
+        "line": 126,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 81,
+        "line": 130,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 82,
+        "line": 131,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 87,
+        "line": 136,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "create",
-        "condition": "isStaff()",
-        "line": 89,
+        "condition": "false",
+        "line": 139,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal'])",
-        "line": 90,
+        "condition": "false",
+        "line": 140,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 94,
+        "line": 144,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "create",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 95,
+        "condition": "false",
+        "line": 145,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "update",
-        "condition": "hasRol(['ceo', 'junta_principal']) || (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['factura', 'facturaEstado', 'facturaError', 'actualiz",
-        "line": 99,
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'factura', 'facturaEstado', 'facturaError', 'actualizadoEn' ]) && request.resource.data.fac",
+        "line": 149,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "delete",
-        "condition": "hasRol(['ceo', 'junta_principal'])",
-        "line": 102,
+        "condition": "false",
+        "line": 156,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 106,
+        "line": 160,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "create",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 107,
+        "condition": "false",
+        "line": 161,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal'])",
-        "line": 108,
+        "condition": "false",
+        "line": 162,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 113,
+        "line": 167,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "create, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'finanzas'])",
-        "line": 114,
+        "condition": "false",
+        "line": 168,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "update",
-        "condition": "hasRol(['ceo', 'junta_principal', 'finanzas']) || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'actualizadoEn']))",
-        "line": 119,
+        "condition": "false",
+        "line": 171,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 124,
+        "line": 175,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "create",
-        "condition": "isStaff()",
-        "line": 126,
+        "condition": "false",
+        "line": 176,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal'])",
-        "line": 127,
+        "condition": "false",
+        "line": 177,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 131,
+        "line": 181,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "create",
-        "condition": "isStaff()",
-        "line": 133,
+        "condition": "false",
+        "line": 182,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal'])",
-        "line": 134,
+        "condition": "false",
+        "line": 183,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 139,
+        "line": 188,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 140,
+        "line": 189,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 144,
+        "line": 193,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
-        "operations": "write",
+        "operations": "create, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 145,
+        "line": 194,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "inscripciones",
+        "operations": "update",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
+        "line": 195,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 150,
+        "line": 203,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 151,
+        "line": 204,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 156,
+        "line": 209,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
-        "operations": "create",
+        "operations": "create, update, delete",
+        "condition": "false",
+        "line": 210,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "asistencias_congreso",
+        "operations": "read",
         "condition": "isStaff()",
-        "line": 157,
+        "line": 215,
         "file": "firebase_rules/firestore.rules"
       },
       {
-        "collection": "inscripciones_checkpoint",
-        "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 158,
+        "collection": "asistencias_congreso",
+        "operations": "create, update, delete",
+        "condition": "false",
+        "line": 216,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 163,
+        "line": 221,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 164,
+        "line": 222,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 168,
+        "line": 226,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])",
-        "line": 169,
+        "line": 227,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 173,
+        "line": 231,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 174,
+        "line": 232,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 178,
+        "line": 236,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
-        "operations": "write",
+        "operations": "create",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && request.resource.data.totalHoras == 0",
+        "line": 237,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "voluntarios",
+        "operations": "update",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras'])",
+        "line": 239,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "voluntarios",
+        "operations": "delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 179,
+        "line": 241,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 183,
+        "line": 245,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "write",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 184,
+        "condition": "false",
+        "line": 246,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 189,
+        "line": 251,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 190,
+        "line": 252,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 195,
+        "line": 257,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "create",
         "condition": "isStaff()",
-        "line": 196,
+        "line": 258,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "update, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
-        "line": 197,
+        "line": 259,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 201,
+        "line": 263,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "create",
         "condition": "isStaff()",
-        "line": 202,
+        "line": 264,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "update, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
-        "line": 203,
+        "line": 265,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 208,
+        "line": 270,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "create, update, delete",
         "condition": "hasRol(['ceo', 'secretario'])",
-        "line": 209,
+        "line": 271,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "comprobantes",
         "operations": "read",
         "condition": "canGestionarParticipantes()",
-        "line": 24,
+        "line": 29,
         "file": "firebase_rules/storage.rules"
       },
       {
         "collection": "comprobantes",
         "operations": "write",
         "condition": "false",
-        "line": 25,
+        "line": 30,
         "file": "firebase_rules/storage.rules"
       }
     ]
@@ -2119,6 +2249,8 @@
       "file": "functions/index.js",
       "functions": [
         "accederParticipante",
+        "ejecutarOperacionFinanciera",
+        "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
         "notificarPagoAprobado",
         "registrarParticipante",
@@ -2130,6 +2262,13 @@
   "remote_function_calls": {
     "accederParticipante": [
       "js/core/participantes-api.js"
+    ],
+    "ejecutarOperacionFinanciera": [
+      "js/core/operaciones.js"
+    ],
+    "ejecutarOperacionQr": [
+      "js/modulos/lecturaQR.js",
+      "js/modulos/lecturaQRVoluntarios.js"
     ],
     "enviarCorreoQrParticipante": [
       "js/core/participantes-api.js"
@@ -2145,12 +2284,12 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/inscripciones.js"
+      "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/actividadVentas.js"
+      "usado_en": "js/modulos/inscripciones.js"
     },
     {
       "variable": "window.XLSX",
@@ -2170,20 +2309,12 @@
   ],
   "diagnostics": [
     {
-      "severity": "warning",
-      "category": "missing_navigation",
-      "file": "public/ms/auth.html",
-      "message": "Destino de navegación no encontrado: ../dashboard.html",
-      "provenance": "extracted",
-      "line": 161
-    },
-    {
       "severity": "info",
       "category": "optional_dom_id",
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 186,
+      "line": 201,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -2255,8 +2386,8 @@
       "folder": "css",
       "ext": ".css",
       "kind": "source",
-      "size_bytes": 16699,
-      "loc": 622,
+      "size_bytes": 17118,
+      "loc": 635,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2266,7 +2397,7 @@
       "degree": 29,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 64.2
+      "risk_score": 64.3
     },
     {
       "id": "docs/cambios recientes.md",
@@ -2293,7 +2424,7 @@
       "folder": "docs",
       "ext": ".md",
       "kind": "source",
-      "size_bytes": 28720,
+      "size_bytes": 28744,
       "loc": 615,
       "exports": [
         "ICONOS_CATEGORIA",
@@ -2316,8 +2447,8 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 986,
-      "loc": 52,
+      "size_bytes": 1909,
+      "loc": 89,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2327,7 +2458,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 0.5
+      "risk_score": 0.9
     },
     {
       "id": "firebase_rules/firebase_backup.json",
@@ -2354,8 +2485,8 @@
       "folder": "firebase_rules",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 502,
-      "loc": 22,
+      "size_bytes": 755,
+      "loc": 30,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2365,7 +2496,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 0.2
+      "risk_score": 0.3
     },
     {
       "id": "firebase_rules/firestore.rules",
@@ -2373,8 +2504,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 10146,
-      "loc": 218,
+      "size_bytes": 12233,
+      "loc": 280,
       "exports": [],
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────",
       "minified_or_vendor": false,
@@ -2384,7 +2515,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.2
+      "risk_score": 2.8
     },
     {
       "id": "firebase_rules/storage.rules",
@@ -2392,8 +2523,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 1219,
-      "loc": 41,
+      "size_bytes": 1885,
+      "loc": 52,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2403,7 +2534,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 0.4
+      "risk_score": 0.5
     },
     {
       "id": "functions/.eslintrc.js",
@@ -2433,10 +2564,12 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 31922,
-      "loc": 796,
+      "size_bytes": 41549,
+      "loc": 1049,
       "exports": [
         "accederParticipante",
+        "ejecutarOperacionFinanciera",
+        "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
         "notificarPagoAprobado",
         "registrarParticipante",
@@ -2446,15 +2579,77 @@
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [
+        "identificadores_participantes",
+        "limites_registro",
         "participantes",
         "usuarios"
       ],
       "in_degree": 0,
-      "out_degree": 2,
+      "out_degree": 4,
+      "degree": 4,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 18.5
+    },
+    {
+      "id": "functions/operaciones-financieras.js",
+      "label": "functions/operaciones-financieras.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 21627,
+      "loc": 659,
+      "exports": [
+        "ejecutarOperacionFinanciera"
+      ],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "actividades_ventas",
+        "compras",
+        "fondos_entrada",
+        "mermas",
+        "movimientos_inventario",
+        "productos",
+        "usuarios",
+        "ventas"
+      ],
+      "in_degree": 1,
+      "out_degree": 0,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 8.6
+    },
+    {
+      "id": "functions/operaciones-qr.js",
+      "label": "functions/operaciones-qr.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 13155,
+      "loc": 372,
+      "exports": [
+        "ejecutarOperacionQr"
+      ],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "actividades_voluntarios",
+        "asistencias_congreso",
+        "asistencias_voluntarios",
+        "checkpoints",
+        "eventos",
+        "inscripciones_checkpoint",
+        "usuarios",
+        "voluntarios"
+      ],
+      "in_degree": 2,
+      "out_degree": 0,
       "degree": 2,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 12.0
+      "risk_score": 7.7
     },
     {
       "id": "functions/package.json",
@@ -2462,7 +2657,7 @@
       "folder": "functions",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 638,
+      "size_bytes": 700,
       "loc": 27,
       "exports": [],
       "purpose": "",
@@ -2481,8 +2676,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 1384,
-      "loc": 51,
+      "size_bytes": 1721,
+      "loc": 64,
       "exports": [
         "aplicarPlantilla",
         "cargarCorreoPagoAprobado"
@@ -2495,7 +2690,7 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.5
+      "risk_score": 2.6
     },
     {
       "id": "functions/qr-participante.js",
@@ -2537,6 +2732,33 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 2.0
+    },
+    {
+      "id": "functions/test/operaciones-qr.integration.js",
+      "label": "functions/test/operaciones-qr.integration.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 5905,
+      "loc": 172,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "asistencias_congreso",
+        "checkpoints",
+        "eventos",
+        "inscripciones",
+        "inscripciones_checkpoint",
+        "participantes",
+        "usuarios"
+      ],
+      "in_degree": 0,
+      "out_degree": 1,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 3.7
     },
     {
       "id": "icons/bebida-lata.svg",
@@ -3498,7 +3720,7 @@
       "folder": "(raiz)",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8323,
+      "size_bytes": 8455,
       "loc": 238,
       "exports": [],
       "purpose": "",
@@ -3519,8 +3741,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 7684,
-      "loc": 221,
+      "size_bytes": 8199,
+      "loc": 235,
       "exports": [
         "cargarUsuario",
         "cerrarSesion",
@@ -3538,12 +3760,12 @@
       "firestore_collections": [
         "usuarios"
       ],
-      "in_degree": 113,
+      "in_degree": 117,
       "out_degree": 4,
-      "degree": 117,
+      "degree": 121,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 236.2
+      "risk_score": 244.3
     },
     {
       "id": "js/core/firebase-config.js",
@@ -3563,12 +3785,12 @@
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 31,
+      "in_degree": 32,
       "out_degree": 0,
-      "degree": 31,
+      "degree": 32,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 62.4
+      "risk_score": 64.3
     },
     {
       "id": "js/core/iconos.js",
@@ -3602,8 +3824,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 29836,
-      "loc": 860,
+      "size_bytes": 6238,
+      "loc": 243,
       "exports": [
         "ajustarStock",
         "esperarAuthListo",
@@ -3619,20 +3841,14 @@
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [
-        "compras",
-        "fondos",
-        "fondos_entrada",
-        "mermas",
-        "movimientos_inventario",
-        "productos",
-        "ventas"
+        "compras"
       ],
       "in_degree": 24,
       "out_degree": 1,
       "degree": 25,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 58.6
+      "risk_score": 52.4
     },
     {
       "id": "js/core/participantes-api.js",
@@ -3682,6 +3898,31 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 28.8
+    },
+    {
+      "id": "js/core/seguridad.js",
+      "label": "js/core/seguridad.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 1145,
+      "loc": 40,
+      "exports": [
+        "escaparAtributo",
+        "escaparHtml",
+        "neutralizarFormulaHoja",
+        "urlHttpSegura",
+        "urlImagenSegura"
+      ],
+      "purpose": "Utilidades pequeñas y sin dependencias para tratar datos externos antes de insertarlos en HTML, atributos o archivos que abrirá una hoja de cálculo.",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 49,
+      "out_degree": 0,
+      "degree": 49,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 98.4
     },
     {
       "id": "js/core/sso-config.js",
@@ -3830,8 +4071,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 881727,
-      "loc": 23,
+      "size_bytes": 951904,
+      "loc": 25,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": true,
@@ -3849,8 +4090,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 24521,
-      "loc": 509,
+      "size_bytes": 25031,
+      "loc": 522,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3860,11 +4101,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 6,
-      "degree": 7,
+      "out_degree": 9,
+      "degree": 10,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 19.1
+      "risk_score": 25.2
     },
     {
       "id": "js/modulos/agendarReunion.js",
@@ -3872,8 +4113,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 8560,
-      "loc": 199,
+      "size_bytes": 9160,
+      "loc": 214,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3882,11 +4123,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 6,
-      "degree": 7,
+      "out_degree": 10,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 16.0
+      "risk_score": 24.1
     },
     {
       "id": "js/modulos/calendario.js",
@@ -3894,18 +4135,18 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 15122,
-      "loc": 287,
+      "size_bytes": 15434,
+      "loc": 294,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 1,
-      "out_degree": 9,
-      "degree": 10,
+      "out_degree": 12,
+      "degree": 13,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 22.9
+      "risk_score": 28.9
     },
     {
       "id": "js/modulos/catalogo.js",
@@ -3952,29 +4193,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 18079,
-      "loc": 548,
-      "exports": [],
-      "purpose": "",
-      "minified_or_vendor": false,
-      "firestore_collections": [
-        "productos"
-      ],
-      "in_degree": 1,
-      "out_degree": 14,
-      "degree": 15,
-      "in_cycle": false,
-      "diagnostic_count": 0,
-      "risk_score": 35.5
-    },
-    {
-      "id": "js/modulos/compras2.js",
-      "label": "js/modulos/compras2.js",
-      "folder": "js",
-      "ext": ".js",
-      "kind": "source",
-      "size_bytes": 26970,
-      "loc": 820,
+      "size_bytes": 18174,
+      "loc": 550,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3986,7 +4206,28 @@
       "degree": 16,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 40.2
+      "risk_score": 37.5
+    },
+    {
+      "id": "js/modulos/compras2.js",
+      "label": "js/modulos/compras2.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 27061,
+      "loc": 822,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "productos"
+      ],
+      "in_degree": 1,
+      "out_degree": 16,
+      "degree": 17,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 42.2
     },
     {
       "id": "js/modulos/detalleFondo.js",
@@ -3994,8 +4235,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 8165,
-      "loc": 244,
+      "size_bytes": 8264,
+      "loc": 246,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4005,11 +4246,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 9,
-      "degree": 10,
+      "out_degree": 10,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 22.4
+      "risk_score": 24.5
     },
     {
       "id": "js/modulos/fondo.js",
@@ -4017,8 +4258,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5580,
-      "loc": 168,
+      "size_bytes": 5666,
+      "loc": 170,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4028,11 +4269,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 12,
-      "degree": 13,
+      "out_degree": 13,
+      "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 27.7
+      "risk_score": 29.7
     },
     {
       "id": "js/modulos/informeActividad.js",
@@ -4040,8 +4281,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 24610,
-      "loc": 538,
+      "size_bytes": 25170,
+      "loc": 548,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4052,11 +4293,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 4,
-      "degree": 5,
+      "out_degree": 5,
+      "degree": 6,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.4
+      "risk_score": 17.5
     },
     {
       "id": "js/modulos/inscripciones.js",
@@ -4064,23 +4305,25 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 65585,
-      "loc": 1531,
+      "size_bytes": 74273,
+      "loc": 1717,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [
+        "asistencias_congreso",
         "checkpoints",
         "eventos",
         "inscripciones",
+        "inscripciones_checkpoint",
         "participantes"
       ],
       "in_degree": 1,
-      "out_degree": 3,
-      "degree": 4,
+      "out_degree": 6,
+      "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 23.3
+      "risk_score": 31.2
     },
     {
       "id": "js/modulos/lecturaQR.js",
@@ -4088,8 +4331,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 21434,
-      "loc": 553,
+      "size_bytes": 23481,
+      "loc": 598,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4101,11 +4344,11 @@
         "participantes"
       ],
       "in_degree": 1,
-      "out_degree": 3,
-      "degree": 4,
+      "out_degree": 5,
+      "degree": 6,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 13.5
+      "risk_score": 18.0
     },
     {
       "id": "js/modulos/lecturaQRVoluntarios.js",
@@ -4113,7 +4356,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 14864,
+      "size_bytes": 14592,
       "loc": 359,
       "exports": [],
       "purpose": "",
@@ -4124,11 +4367,11 @@
         "voluntarios"
       ],
       "in_degree": 1,
-      "out_degree": 3,
-      "degree": 4,
+      "out_degree": 6,
+      "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 11.6
+      "risk_score": 17.6
     },
     {
       "id": "js/modulos/minutaReunion.js",
@@ -4136,8 +4379,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 14481,
-      "loc": 350,
+      "size_bytes": 14826,
+      "loc": 355,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4146,11 +4389,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 8,
-      "degree": 9,
+      "out_degree": 12,
+      "degree": 13,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 21.5
+      "risk_score": 29.6
     },
     {
       "id": "js/modulos/minutas.js",
@@ -4158,8 +4401,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2563,
-      "loc": 62,
+      "size_bytes": 2676,
+      "loc": 64,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4167,11 +4410,11 @@
         "reuniones"
       ],
       "in_degree": 1,
-      "out_degree": 5,
-      "degree": 6,
+      "out_degree": 7,
+      "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 12.6
+      "risk_score": 16.6
     },
     {
       "id": "js/modulos/reporteFinancieroExcel.js",
@@ -4206,8 +4449,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 12697,
-      "loc": 315,
+      "size_bytes": 13697,
+      "loc": 338,
       "exports": [
         "init"
       ],
@@ -4215,17 +4458,20 @@
       "minified_or_vendor": false,
       "firestore_collections": [
         "actividades_voluntarios",
+        "asistencias_congreso",
         "asistencias_voluntarios",
         "checkpoints",
+        "inscripciones",
         "inscripciones_checkpoint",
+        "participantes",
         "voluntarios"
       ],
       "in_degree": 1,
-      "out_degree": 1,
-      "degree": 2,
+      "out_degree": 2,
+      "degree": 3,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 7.2
+      "risk_score": 9.4
     },
     {
       "id": "js/modulos/reportes_financieros.js",
@@ -4233,12 +4479,12 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 6252,
-      "loc": 142,
+      "size_bytes": 5753,
+      "loc": 130,
       "exports": [
         "initReportes"
       ],
-      "purpose": "Keep a small fallback set in case Firestore isn't available",
+      "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [
         "compras",
@@ -4247,11 +4493,11 @@
         "ventas"
       ],
       "in_degree": 2,
-      "out_degree": 1,
-      "degree": 3,
+      "out_degree": 3,
+      "degree": 5,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 7.4
+      "risk_score": 11.3
     },
     {
       "id": "js/modulos/reuniones-utils.js",
@@ -4283,8 +4529,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 32702,
-      "loc": 712,
+      "size_bytes": 33170,
+      "loc": 717,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4296,7 +4542,7 @@
       "degree": 4,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.1
+      "risk_score": 15.2
     },
     {
       "id": "js/modulos/usuarios.js",
@@ -4304,8 +4550,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 3708,
-      "loc": 92,
+      "size_bytes": 3966,
+      "loc": 95,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4313,11 +4559,11 @@
         "usuarios"
       ],
       "in_degree": 1,
-      "out_degree": 6,
-      "degree": 7,
+      "out_degree": 10,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 14.9
+      "risk_score": 22.9
     },
     {
       "id": "js/modulos/ventaRapida.js",
@@ -4325,8 +4571,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 31617,
-      "loc": 783,
+      "size_bytes": 31930,
+      "loc": 785,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4335,11 +4581,11 @@
         "productos"
       ],
       "in_degree": 1,
-      "out_degree": 16,
-      "degree": 17,
+      "out_degree": 18,
+      "degree": 19,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 41.8
+      "risk_score": 45.9
     },
     {
       "id": "js/modulos/voluntarios.js",
@@ -4347,8 +4593,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 82463,
-      "loc": 1841,
+      "size_bytes": 83497,
+      "loc": 1860,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4362,11 +4608,11 @@
         "voluntarios"
       ],
       "in_degree": 3,
-      "out_degree": 8,
-      "degree": 11,
+      "out_degree": 11,
+      "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 1,
-      "risk_score": 41.9
+      "risk_score": 48.1
     },
     {
       "id": "logocontecs.png",
@@ -4410,8 +4656,8 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 638,
-      "loc": 27,
+      "size_bytes": 298,
+      "loc": 11,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4421,7 +4667,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 0.3
+      "risk_score": 0.1
     },
     {
       "id": "panel/dashboard.html",
@@ -4429,7 +4675,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 72539,
+      "size_bytes": 72604,
       "loc": 1618,
       "exports": [],
       "purpose": "",
@@ -4444,12 +4690,12 @@
         "usuarios",
         "voluntarios"
       ],
-      "in_degree": 24,
+      "in_degree": 25,
       "out_degree": 15,
-      "degree": 39,
+      "degree": 40,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 94.2
+      "risk_score": 96.2
     },
     {
       "id": "panel/index.html",
@@ -4457,7 +4703,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8314,
+      "size_bytes": 8446,
       "loc": 238,
       "exports": [],
       "purpose": "",
@@ -4478,7 +4724,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6206,
+      "size_bytes": 6212,
       "loc": 154,
       "exports": [],
       "purpose": "",
@@ -4497,18 +4743,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 1621,
-      "loc": 46,
+      "size_bytes": 1678,
+      "loc": 47,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 0,
-      "out_degree": 4,
-      "degree": 4,
+      "out_degree": 5,
+      "degree": 5,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 8.5
+      "risk_score": 10.5
     },
     {
       "id": "panel/modulos/admin/minutaReunion.html",
@@ -4516,7 +4762,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5302,
+      "size_bytes": 5308,
       "loc": 105,
       "exports": [],
       "purpose": "",
@@ -4535,7 +4781,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3048,
+      "size_bytes": 3054,
       "loc": 72,
       "exports": [],
       "purpose": "",
@@ -4554,7 +4800,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3070,
+      "size_bytes": 3076,
       "loc": 94,
       "exports": [],
       "purpose": "",
@@ -4573,7 +4819,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 4423,
+      "size_bytes": 4419,
       "loc": 144,
       "exports": [],
       "purpose": "",
@@ -4592,8 +4838,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 27314,
-      "loc": 516,
+      "size_bytes": 27756,
+      "loc": 519,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4611,8 +4857,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8376,
-      "loc": 161,
+      "size_bytes": 8708,
+      "loc": 163,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4630,8 +4876,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 35129,
-      "loc": 933,
+      "size_bytes": 35829,
+      "loc": 943,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4639,11 +4885,11 @@
         "participantes"
       ],
       "in_degree": 0,
-      "out_degree": 11,
-      "degree": 11,
+      "out_degree": 14,
+      "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 31.3
+      "risk_score": 37.4
     },
     {
       "id": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -4651,7 +4897,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8397,
+      "size_bytes": 8431,
       "loc": 220,
       "exports": [],
       "purpose": "",
@@ -4670,8 +4916,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 32805,
-      "loc": 981,
+      "size_bytes": 33112,
+      "loc": 984,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4685,11 +4931,11 @@
         "ventas"
       ],
       "in_degree": 0,
-      "out_degree": 8,
-      "degree": 8,
+      "out_degree": 11,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 25.8
+      "risk_score": 31.8
     },
     {
       "id": "panel/modulos/finanzas/compras.html",
@@ -4716,7 +4962,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11930,
+      "size_bytes": 11957,
       "loc": 404,
       "exports": [],
       "purpose": "",
@@ -4773,18 +5019,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 2924,
-      "loc": 74,
+      "size_bytes": 2979,
+      "loc": 75,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 0,
-      "out_degree": 6,
-      "degree": 6,
+      "out_degree": 7,
+      "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 12.7
+      "risk_score": 14.8
     },
     {
       "id": "panel/modulos/finanzas/reportes_financieros.html",
@@ -4792,18 +5038,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 4621,
-      "loc": 97,
+      "size_bytes": 5196,
+      "loc": 107,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 1,
-      "out_degree": 6,
-      "degree": 7,
+      "out_degree": 7,
+      "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.0
+      "risk_score": 17.1
     },
     {
       "id": "panel/modulos/finanzas/ventaRapida.html",
@@ -4830,7 +5076,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11102,
+      "size_bytes": 11108,
       "loc": 215,
       "exports": [],
       "purpose": "",
@@ -4849,18 +5095,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 32507,
-      "loc": 883,
+      "size_bytes": 32686,
+      "loc": 885,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 0,
-      "out_degree": 24,
-      "degree": 24,
+      "out_degree": 26,
+      "degree": 26,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 56.8
+      "risk_score": 60.9
     },
     {
       "id": "panel/modulos/logistica/inventario.html",
@@ -4868,8 +5114,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12921,
-      "loc": 414,
+      "size_bytes": 13045,
+      "loc": 416,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4877,11 +5123,11 @@
         "productos"
       ],
       "in_degree": 0,
-      "out_degree": 10,
-      "degree": 10,
+      "out_degree": 11,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 24.1
+      "risk_score": 26.2
     },
     {
       "id": "panel/modulos/voluntariado/actividades.html",
@@ -4889,7 +5135,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 7003,
+      "size_bytes": 7009,
       "loc": 160,
       "exports": [],
       "purpose": "",
@@ -4908,18 +5154,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 7674,
-      "loc": 148,
+      "size_bytes": 7772,
+      "loc": 149,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 4,
-      "out_degree": 5,
-      "degree": 9,
+      "out_degree": 6,
+      "degree": 10,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 19.5
+      "risk_score": 21.5
     },
     {
       "id": "panel/modulos/voluntariado/giras.html",
@@ -4927,7 +5173,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5705,
+      "size_bytes": 5711,
       "loc": 139,
       "exports": [],
       "purpose": "",
@@ -4946,7 +5192,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11546,
+      "size_bytes": 11555,
       "loc": 280,
       "exports": [],
       "purpose": "",
@@ -4965,7 +5211,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9092,
+      "size_bytes": 9098,
       "loc": 193,
       "exports": [],
       "purpose": "",
@@ -4984,7 +5230,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 19590,
+      "size_bytes": 19596,
       "loc": 406,
       "exports": [],
       "purpose": "",
@@ -5003,7 +5249,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 24082,
+      "size_bytes": 24179,
       "loc": 456,
       "exports": [],
       "purpose": "",
@@ -5022,18 +5268,18 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5546,
+      "size_bytes": 5555,
       "loc": 171,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 0,
-      "out_degree": 5,
-      "degree": 5,
+      "out_degree": 6,
+      "degree": 6,
       "in_cycle": false,
-      "diagnostic_count": 1,
-      "risk_score": 13.2
+      "diagnostic_count": 0,
+      "risk_score": 13.7
     },
     {
       "id": "public/perfil.html",
@@ -5092,6 +5338,39 @@
       "type": "imports",
       "provenance": "extracted",
       "line": 11,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
+      "target": "functions/operaciones-financieras.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
+      "target": "functions/operaciones-qr.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 20,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/operaciones-qr.integration.js",
+      "target": "functions/operaciones-qr.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 9,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5192,6 +5471,7 @@
       "line": 1,
       "detail": {
         "symbols": [
+          "app",
           "auth",
           "db",
           "storage"
@@ -5255,6 +5535,21 @@
       }
     },
     {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "neutralizarFormulaHoja"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/agendarReunion.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5289,6 +5584,22 @@
       "detail": {
         "symbols": [
           "ROLES"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "urlHttpSegura",
+          "urlImagenSegura"
         ],
         "dynamic": false
       }
@@ -5343,6 +5654,21 @@
       "detail": {
         "symbols": [
           "iconoImg"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/calendario.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "urlHttpSegura"
         ],
         "dynamic": false
       }
@@ -5417,10 +5743,23 @@
     },
     {
       "source": "js/modulos/compras.js",
-      "target": "js/core/firebase-config.js",
+      "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 4,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/core/firebase-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
       "detail": {
         "symbols": [
           "db",
@@ -5434,7 +5773,7 @@
       "target": "js/core/operaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbols": [
           "formatearMoneda",
@@ -5490,10 +5829,23 @@
     },
     {
       "source": "js/modulos/compras2.js",
-      "target": "js/core/firebase-config.js",
+      "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 4,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/core/firebase-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
       "detail": {
         "symbols": [
           "db",
@@ -5507,7 +5859,7 @@
       "target": "js/core/operaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbols": [
           "formatearMoneda",
@@ -5572,6 +5924,19 @@
       }
     },
     {
+      "source": "js/modulos/detalleFondo.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/fondo.js",
       "target": "js/core/auth.js",
       "type": "imports",
@@ -5630,6 +5995,19 @@
       }
     },
     {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/informeActividad.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5670,6 +6048,19 @@
       }
     },
     {
+      "source": "js/modulos/informeActividad.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/inscripciones.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5697,6 +6088,21 @@
       }
     },
     {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "neutralizarFormulaHoja"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/lecturaQR.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5704,8 +6110,8 @@
       "line": 1,
       "detail": {
         "symbols": [
-          "db",
-          "auth"
+          "app",
+          "db"
         ],
         "dynamic": false
       }
@@ -5715,10 +6121,24 @@
       "target": "js/core/iconos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 6,
+      "line": 9,
       "detail": {
         "symbols": [
           "iconoImg"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
         ],
         "dynamic": false
       }
@@ -5739,13 +6159,40 @@
     },
     {
       "source": "js/modulos/lecturaQRVoluntarios.js",
-      "target": "js/core/iconos.js",
+      "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 6,
       "detail": {
         "symbols": [
+          "app"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQRVoluntarios.js",
+      "target": "js/core/iconos.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbols": [
           "iconoImg"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQRVoluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
         ],
         "dynamic": false
       }
@@ -5791,6 +6238,21 @@
       }
     },
     {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "urlHttpSegura"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/minutas.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5830,6 +6292,20 @@
       }
     },
     {
+      "source": "js/modulos/minutas.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/reporteFinancieroExcel.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5856,6 +6332,19 @@
       }
     },
     {
+      "source": "js/modulos/reportes_estadisticaCont.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/reportes_financieros.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -5864,6 +6353,19 @@
       "detail": {
         "symbols": [
           "db"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/reportes_financieros.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
         ],
         "dynamic": false
       }
@@ -5938,10 +6440,25 @@
     },
     {
       "source": "js/modulos/usuarios.js",
-      "target": "js/core/firebase-config.js",
+      "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 3,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "urlImagenSegura"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/firebase-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 4,
       "detail": {
         "symbols": [
           "db"
@@ -5994,10 +6511,24 @@
     },
     {
       "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/firebase-config.js",
+      "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 4,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/firebase-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 5,
       "detail": {
         "symbols": [
           "db",
@@ -6011,7 +6542,7 @@
       "target": "js/core/operaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbols": [
           "formatearMoneda",
@@ -6072,6 +6603,21 @@
         "symbols": [
           "iconoImg",
           "estrellasImg"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "neutralizarFormulaHoja"
         ],
         "dynamic": false
       }
@@ -6263,7 +6809,8 @@
       "line": 41,
       "detail": {
         "symbols": [
-          "guardRoute"
+          "guardRoute",
+          "requirePermiso"
         ],
         "dynamic": false
       }
@@ -6490,21 +7037,21 @@
       "target": "panel/modulos/congreso/lecturaQR.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 175
+      "line": 176
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 176
+      "line": 177
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/modulos/inscripciones.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 513
+      "line": 516
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
@@ -6539,14 +7086,14 @@
       "target": "panel/modulos/congreso/inscripciones.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 75
+      "line": 76
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/modulos/lecturaQR.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 158
+      "line": 160
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
@@ -6590,10 +7137,25 @@
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 468,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "neutralizarFormulaHoja"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 473,
+      "line": 474,
       "detail": {
         "symbols": [
           "db",
@@ -6698,6 +7260,21 @@
       "detail": {
         "symbols": [
           "db"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 328,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml",
+          "urlHttpSegura"
         ],
         "dynamic": false
       }
@@ -6822,7 +7399,8 @@
       "line": 69,
       "detail": {
         "symbols": [
-          "guardRoute"
+          "guardRoute",
+          "requirePermiso"
         ],
         "dynamic": false
       }
@@ -6860,10 +7438,11 @@
       "target": "js/core/auth.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 90,
+      "line": 91,
       "detail": {
         "symbols": [
-          "guardRoute"
+          "guardRoute",
+          "requirePermiso"
         ],
         "dynamic": false
       }
@@ -6873,7 +7452,7 @@
       "target": "js/modulos/reportes_financieros.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 92,
+      "line": 94,
       "detail": {
         "symbols": [
           "initReportes"
@@ -7035,10 +7614,24 @@
     },
     {
       "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
       "target": "js/modulos/catalogo.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 558,
+      "line": 560,
       "detail": {
         "symbols": [],
         "dynamic": true
@@ -7144,6 +7737,19 @@
     },
     {
       "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 246,
+      "detail": {
+        "symbols": [
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
       "target": "css/styles.css",
       "type": "loads_stylesheet",
       "provenance": "extracted",
@@ -7227,7 +7833,8 @@
       "line": 9,
       "detail": {
         "symbols": [
-          "guardRoute"
+          "guardRoute",
+          "requirePermiso"
         ],
         "dynamic": false
       }
@@ -7244,14 +7851,14 @@
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 99
+      "line": 100
     },
     {
       "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/modulos/calendario.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 145
+      "line": 146
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
@@ -7546,6 +8153,13 @@
       "line": 91
     },
     {
+      "source": "public/ms/auth.html",
+      "target": "panel/dashboard.html",
+      "type": "navigates_to",
+      "provenance": "extracted",
+      "line": 161
+    },
+    {
       "source": "public/perfil.html",
       "target": "js/core/participantes-api.js",
       "type": "imports",
@@ -7597,7 +8211,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -7607,7 +8221,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -7627,7 +8241,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "nombreIconoCombo"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -7647,7 +8261,27 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "nombreIconoCombo"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -7658,6 +8292,36 @@
       "line": 5,
       "detail": {
         "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlHttpSegura"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -7711,6 +8375,26 @@
       }
     },
     {
+      "source": "js/modulos/calendario.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/calendario.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "urlHttpSegura"
+      }
+    },
+    {
       "source": "js/modulos/catalogo.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
@@ -7737,7 +8421,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -7747,17 +8431,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -7768,6 +8442,16 @@
       "line": 2,
       "detail": {
         "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -7785,7 +8469,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "registrarCompra"
       }
@@ -7795,7 +8479,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "esperarAuthListo"
       }
@@ -7805,7 +8489,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
       }
@@ -7827,7 +8511,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -7837,17 +8521,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -7858,6 +8532,16 @@
       "line": 2,
       "detail": {
         "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -7885,7 +8569,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "registrarCompra"
       }
@@ -7895,7 +8579,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "esperarAuthListo"
       }
@@ -7905,19 +8589,9 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -7932,12 +8606,12 @@
     },
     {
       "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/operaciones.js",
+      "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 3,
+      "line": 1,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -7948,6 +8622,16 @@
       "line": 3,
       "detail": {
         "symbol": "resumenItemPrincipal"
+      }
+    },
+    {
+      "source": "js/modulos/detalleFondo.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -7987,7 +8671,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -7997,7 +8681,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8017,7 +8701,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -8027,7 +8711,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "resumenItemPrincipal"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -8061,13 +8745,43 @@
       }
     },
     {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
+      }
+    },
+    {
       "source": "js/modulos/lecturaQR.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 6,
+      "line": 9,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -8075,9 +8789,19 @@
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 6,
+      "line": 11,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQRVoluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -8111,6 +8835,36 @@
       }
     },
     {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlHttpSegura"
+      }
+    },
+    {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparHtml"
+      }
+    },
+    {
       "source": "js/modulos/minutas.js",
       "target": "js/modulos/reuniones-utils.js",
       "type": "calls_imported_symbol",
@@ -8128,6 +8882,26 @@
       "line": 6,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/minutas.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/reportes_financieros.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "escaparHtml"
       }
     },
     {
@@ -8167,7 +8941,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8177,7 +8951,37 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "urlImagenSegura"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "escaparHtml"
       }
     },
     {
@@ -8207,7 +9011,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8217,7 +9021,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8237,7 +9041,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -8247,17 +9051,17 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
       "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/operaciones.js",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 4,
       "detail": {
-        "symbol": "registrarVenta"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -8265,7 +9069,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "registrarVentaConMerma"
       }
@@ -8275,7 +9079,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "esperarAuthListo"
       }
@@ -8285,9 +9089,19 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -8317,7 +9131,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -8327,7 +9141,37 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
+      }
+    },
+    {
+      "source": "panel/dashboard.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 810,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8348,16 +9192,6 @@
       "line": 810,
       "detail": {
         "symbol": "esperarSesionLista"
-      }
-    },
-    {
-      "source": "panel/dashboard.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 810,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -8407,7 +9241,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -8417,7 +9251,17 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/admin/agendarReunion.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8431,11 +9275,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/agendarReunion.html",
+      "source": "panel/modulos/admin/exportar.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 41,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -8457,7 +9301,7 @@
       "provenance": "extracted",
       "line": 9,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8467,16 +9311,6 @@
       "provenance": "extracted",
       "line": 9,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/admin/minutas.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 9,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -8491,7 +9325,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/secretaria.html",
+      "source": "panel/modulos/admin/minutas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8511,11 +9345,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/inscripciones.html",
+      "source": "panel/modulos/admin/secretaria.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 9,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8531,11 +9365,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/lecturaQR.html",
+      "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 13,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8551,11 +9385,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8568,6 +9402,16 @@
       "line": 10,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8591,13 +9435,23 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
-      "target": "js/core/auth.js",
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 212,
+      "line": 468,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 468,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -8611,11 +9465,11 @@
       }
     },
     {
-      "source": "panel/modulos/finanzas/bitacora.html",
+      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 325,
+      "line": 212,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8628,6 +9482,16 @@
       "line": 325,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 325,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8638,6 +9502,36 @@
       "line": 326,
       "detail": {
         "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 328,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 328,
+      "detail": {
+        "symbol": "urlHttpSegura"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 69,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8655,7 +9549,17 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 90,
+      "line": 91,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 91,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8665,7 +9569,7 @@
       "target": "js/modulos/reportes_financieros.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 92,
+      "line": 94,
       "detail": {
         "symbol": "initReportes"
       }
@@ -8677,7 +9581,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8687,16 +9591,6 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 455,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -8712,42 +9606,12 @@
     },
     {
       "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
+      "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 456,
+      "line": 455,
       "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "escucharProductosPorCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "desactivarProducto"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8767,27 +9631,7 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "crearProducto"
+        "symbol": "editarCategoria"
       }
     },
     {
@@ -8807,7 +9651,27 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "estadoStock"
+        "symbol": "crearProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "desactivarProducto"
       }
     },
     {
@@ -8821,13 +9685,53 @@
       }
     },
     {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/core/auth.js",
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 243,
+      "line": 456,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "escucharProductosPorCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -8842,12 +9746,12 @@
     },
     {
       "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
+      "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 244,
+      "line": 243,
       "detail": {
-        "symbol": "estadoStock"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8871,6 +9775,26 @@
       }
     },
     {
+      "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 244,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/actividades.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
       "source": "panel/modulos/voluntariado/actividades.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -8881,11 +9805,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/actividades.html",
+      "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 9,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -8907,7 +9831,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8917,16 +9841,6 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/informeActividad.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 9,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -8941,11 +9855,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "source": "panel/modulos/voluntariado/informeActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 9,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8961,11 +9875,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/solicitudActividad.html",
+      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8981,11 +9895,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "source": "panel/modulos/voluntariado/solicitudActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 9,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -8998,6 +9912,16 @@
       "line": 13,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9025,7 +9949,7 @@
       "target": "panel/modulos/admin/minutas.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 106,
+      "line": 117,
       "detail": {
         "runtime_page": "panel/modulos/admin/agendarReunion.html"
       }
@@ -9035,7 +9959,7 @@
       "target": "panel/modulos/admin/minutas.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 188,
+      "line": 203,
       "detail": {
         "runtime_page": "panel/modulos/admin/agendarReunion.html"
       }
@@ -9045,7 +9969,7 @@
       "target": "panel/modulos/admin/minutas.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 81,
+      "line": 85,
       "detail": {
         "runtime_page": "panel/modulos/admin/minutaReunion.html"
       }
@@ -9055,7 +9979,7 @@
       "target": "panel/modulos/admin/minutas.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 93,
+      "line": 97,
       "detail": {
         "runtime_page": "panel/modulos/admin/minutaReunion.html"
       }
@@ -9064,14 +9988,26 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "8423cd994a0cde67228828cc9e5901543b485946",
+    "head": "3ac3590c61eff13ee076bce6adf687b203c81c21",
     "changed_files": [
       {
         "file": ".firebase/hosting..cache",
         "status": " M"
       },
       {
+        "file": ".github/workflows/deploy.yml",
+        "status": " M"
+      },
+      {
+        "file": ".gitignore",
+        "status": " M"
+      },
+      {
         "file": "css/styles.css",
+        "status": " M"
+      },
+      {
+        "file": "docs/Sprint 2 - bitacora_actualizaciones.md",
         "status": " M"
       },
       {
@@ -9083,7 +10019,139 @@
         "status": " M"
       },
       {
+        "file": "firebase_rules/firestore.indexes.json",
+        "status": " M"
+      },
+      {
+        "file": "firebase_rules/firestore.rules",
+        "status": " M"
+      },
+      {
+        "file": "firebase_rules/storage.rules",
+        "status": " M"
+      },
+      {
+        "file": "functions/index.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/package-lock.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/package.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/plantillas.js",
+        "status": " M"
+      },
+      {
+        "file": "index.html",
+        "status": " M"
+      },
+      {
+        "file": "js/core/auth.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/operaciones.js",
+        "status": " M"
+      },
+      {
+        "file": "js/libs/xlsx.full.min.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/actividadVentas.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/agendarReunion.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/calendario.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/compras.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/compras2.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/detalleFondo.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/fondo.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/informeActividad.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/inscripciones.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/lecturaQR.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/lecturaQRVoluntarios.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/minutaReunion.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/minutas.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/reportes_estadisticaCont.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/reportes_financieros.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/solicitudActividad.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/usuarios.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/ventaRapida.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/voluntarios.js",
+        "status": " M"
+      },
+      {
+        "file": "package-lock.json",
+        "status": " M"
+      },
+      {
+        "file": "package.json",
+        "status": " M"
+      },
+      {
         "file": "panel/dashboard.html",
+        "status": " M"
+      },
+      {
+        "file": "panel/index.html",
         "status": " M"
       },
       {
@@ -9131,19 +10199,7 @@
         "status": " M"
       },
       {
-        "file": "panel/modulos/finanzas/compras.html",
-        "status": " M"
-      },
-      {
         "file": "panel/modulos/finanzas/compras2.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/finanzas/detalleFondo.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/finanzas/fondos.html",
         "status": " M"
       },
       {
@@ -9152,10 +10208,6 @@
       },
       {
         "file": "panel/modulos/finanzas/reportes_financieros.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/finanzas/ventaRapida.html",
         "status": " M"
       },
       {
@@ -9197,14 +10249,34 @@
       {
         "file": "panel/modulos/voluntariado/voluntarios.html",
         "status": " M"
+      },
+      {
+        "file": "public/ms/auth.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/operaciones-financieras.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/operaciones-qr.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/operaciones-qr.integration.js",
+        "status": "??"
+      },
+      {
+        "file": "js/core/seguridad.js",
+        "status": "??"
       }
     ],
-    "changed_count": 33
+    "changed_count": 70
   },
   "ai_usage": {
     "purpose": "Mapa arquitectónico normal. Abrir después de GraphCompacto.json cuando se necesiten relaciones exactas.",
     "next_view": "GraphProfundo.json",
     "source_of_truth": "El código real; este archivo es un índice estático."
   },
-  "estimated_tokens": 39930
+  "estimated_tokens": 44479
 }

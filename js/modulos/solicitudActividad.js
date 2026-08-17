@@ -12,11 +12,13 @@ async function cargarNumeroSolicitud() {
   try {
     const snap = await getDocs(collection(db, "solicitudes_actividad"));
     const siguiente = String(snap.size + 1).padStart(3, "0");
-    el("sol-numero").textContent = `2026-${siguiente}`;
-    return `2026-${siguiente}`;
+    const anio = new Date().getFullYear();
+    el("sol-numero").textContent = `${anio}-${siguiente}`;
+    return `${anio}-${siguiente}`;
   } catch {
-    el("sol-numero").textContent = "2026-001";
-    return "2026-001";
+    const numero = `${new Date().getFullYear()}-001`;
+    el("sol-numero").textContent = numero;
+    return numero;
   }
 }
 
@@ -124,12 +126,14 @@ function validar(datos) {
   if (!datos.nombreActividad) return "El nombre de la actividad es requerido.";
   if (!datos.fecha) return "La fecha es requerida.";
   if (!datos.horaInicio) return "La hora de inicio es requerida.";
+  if (datos.horaFin && datos.horaFin <= datos.horaInicio) return "La hora de fin debe ser posterior a la hora de inicio.";
   if (!datos.lugar) return "El lugar es requerido.";
   if (!datos.objetivo) return "El objetivo es requerido.";
   if (datos.tiposActividad.length === 0) return "Selecciona al menos un tipo de actividad.";
   if (!datos.areaActividad) return "Selecciona el área de la actividad.";
   if (!datos.profesorResponsable) return "El nombre del profesor responsable es requerido.";
   if (!datos.correoProfesor) return "El correo del profesor responsable es requerido.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correoProfesor)) return "Ingresa un correo válido para el profesor responsable.";
   return null;
 }
 
@@ -702,7 +706,8 @@ async function generarDocxSolicitud(datos) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Solicitud_Actividad_${datos.solicitudNumero}_${datos.nombreActividad.replace(/\s+/g, "_")}.docx`;
+  const nombreSeguro = datos.nombreActividad.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ-]/g, "").slice(0, 80);
+  a.download = `Solicitud_Actividad_${datos.solicitudNumero}_${nombreSeguro || "actividad"}.docx`;
   a.click();
   URL.revokeObjectURL(url);
 }

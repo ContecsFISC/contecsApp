@@ -11,7 +11,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
- requirePermiso("gestionar_inscripciones");
+ await requirePermiso("gestionar_inscripciones");
  </script>
  <style>
  .container { max-width: 560px; }
@@ -42,6 +42,7 @@
  .cp-card .cp-cupos-tag { display:block; font-size:11px; margin-top:4px; }
  .cp-card.taller { border-left: 3px solid #e65100; }
  .cp-card.gira { border-left: 3px solid #283593; }
+ .cp-card.congreso { border-left: 3px solid var(--verde-claro); }
 
  .estado-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
  .estado-ok { background: var(--verde-fondo); color: var(--verde-oscuro); }
@@ -82,12 +83,13 @@
  <!-- SELECTOR EVENTO Y CHECKPOINT -->
  <div class="card" style="border: 2px solid var(--verde-claro);">
  <div class="card-title">Configuración de sesión</div>
+ <p style="font-size:12px;color:var(--gris-medio);margin:0 0 12px;line-height:1.5;">Selecciona exactamente dónde estás trabajando. Para registrar la entrada general, usa un checkpoint de tipo <strong>Congreso / control de acceso</strong>.</p>
  <div class="form-groupE">
  <label>Evento</label>
  <select id="sel-evento-qr"><option value="">— Selecciona un evento —</option></select>
  </div>
  <div class="form-groupE" id="cp-section" style="display:none;">
- <label>Checkpoint que estás registrando ahora</label>
+ <label>Checkpoint / punto de control</label>
  <div class="cp-grid" id="cp-grid"></div>
  </div>
  <div id="cp-seleccionado" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
@@ -95,7 +97,7 @@
 
  <!-- CÁMARA -->
  <div class="card" style="border-left: 2px solid var(--verde-claro);">
- <div class="card-title">Escanear QR</div>
+ <div class="card-title">Escanear credencial del participante</div>
  <div class="scanner-overlay">
  <div id="reader"></div>
  </div>

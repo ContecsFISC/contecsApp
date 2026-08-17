@@ -12,7 +12,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
- requirePermiso("gestionar_voluntarios");
+ await requirePermiso("gestionar_voluntarios");
  </script>
  <style>
  .btn-primary { background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); box-shadow: 0 4px 12px var(--verde-sombra); }
@@ -122,7 +122,7 @@
  </div>
  <div class="card" style="border-left:3px solid #f98080;">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
- <div class="card-title" style="color:#c81e1e;margin:0;">️ Eventos con voluntarios pendientes</div>
+ <div class="card-title" style="color:#c81e1e;margin:0;">Eventos con voluntarios pendientes</div>
  <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--gris-medio);">
  <span style="background:var(--verde-fondo);color:var(--verde-oscuro);border:1px solid var(--verde-claro);padding:2px 8px;border-radius:12px;">Actividad</span>
  <span style="background:#fff3cd;color:#856404;border:1px solid #fcd34d;padding:2px 8px;border-radius:12px;">Gira</span>
@@ -275,7 +275,7 @@
  <div id="mapeo-section" style="display:none;margin-top:20px;">
  <div class="card-title">Mapeo de columnas</div>
  <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
- Verifica que cada campo corresponda a la columna correcta. Los campos con ️ no se detectaron automáticamente.
+ Verifica que cada campo corresponda a la columna correcta. Los campos marcados no se detectaron automáticamente.
  </p>
  <table class="mapeo-table">
  <thead><tr><th style="text-align:left;font-weight:600">Campo</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
@@ -301,8 +301,8 @@
  <input type="text" id="buscar-voluntario" placeholder=" Buscar nombre o cédula..." style="flex:1;min-width:180px;padding:10px 14px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:14px;"/>
  <select id="filtro-horario-vol" style="padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:13px;background:#fff;">
  <option value="">Todos los horarios</option>
- <option value="Diurno">️ Diurno (7:50 am – 12:00 pm)</option>
- <option value="Vespertino">️ Vespertino (12:50 pm – 5:00 pm)</option>
+ <option value="Diurno">Diurno (7:50 am – 12:00 pm)</option>
+ <option value="Vespertino">Vespertino (12:50 pm – 5:00 pm)</option>
  <option value="Nocturno"> Nocturno (5:50 pm – 10:00 pm)</option>
  </select>
  <button class="btn btn-outline btn-sm" id="btn-exportar-excel" style="width:auto"> Exportar Excel</button>
@@ -367,7 +367,7 @@
 <!-- MODAL QR -->
 <div class="modal-overlay" id="modal-qr">
  <div class="modal-box">
- <button class="modal-close" id="modal-qr-close">&times;</button>
+ <button class="modal-close" id="modal-qr-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title" id="qr-modal-nombre"></div>
  <div id="qr-canvas-wrap"></div>
  <p id="qr-modal-info" style="text-align:center;font-size:13px;color:var(--gris-medio);margin-bottom:16px;"></p>
@@ -381,7 +381,7 @@
 <!-- MODAL PREVIEW IMPORTAR -->
 <div class="modal-overlay" id="modal-preview">
  <div class="modal-box" style="max-width:720px;width:100%;">
- <button class="modal-close" id="modal-preview-close">&times;</button>
+ <button class="modal-close" id="modal-preview-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title">Vista previa (primeras 5 filas)</div>
  <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
  <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
@@ -393,7 +393,7 @@
 <!-- MODAL ASIGNAR GRUPO -->
 <div class="modal-overlay" id="modal-grupo">
  <div class="modal-box" style="max-width:620px;width:100%;">
- <button class="modal-close" id="modal-grupo-close">&times;</button>
+ <button class="modal-close" id="modal-grupo-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title" style="color:#1a56db;"> Asignar grupo de voluntarios</div>
 
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">

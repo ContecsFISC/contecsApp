@@ -4,10 +4,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { ROLES } from "../core/permisos.js";
+import {
+  escaparAtributo,
+  escaparHtml,
+  urlHttpSegura,
+  urlImagenSegura,
+} from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
 const usuario = getUsuarioActual();
-const reunionId = new URLSearchParams(window.location.search).get("id");
+const reunionIdCrudo = new URLSearchParams(window.location.search).get("id") || "";
+const reunionId = /^[A-Za-z0-9_-]{1,200}$/.test(reunionIdCrudo) ? reunionIdCrudo : "";
 const esEdicion = !!reunionId;
 
 let reunionExistente = null;
@@ -32,7 +40,7 @@ function horaInputStr(ts) {
 function renderRoles(rolesMarcados = []) {
   el("grid-roles").innerHTML = Object.entries(ROLES).map(([clave, info]) => `
     <label class="check-item">
-      <input type="checkbox" name="rolInvitado" value="${clave}" ${rolesMarcados.includes(clave) ? "checked" : ""}/> ${info.label}
+      <input type="checkbox" name="rolInvitado" value="${escaparAtributo(clave)}" ${rolesMarcados.includes(clave) ? "checked" : ""}/> ${h(info.label)}
     </label>
   `).join("");
 }
@@ -46,13 +54,16 @@ async function cargarUsuarios(uidsMarcados = []) {
       el("grid-usuarios").innerHTML = `<span style="color:var(--gris-medio);font-size:13px;">No hay usuarios registrados.</span>`;
       return;
     }
-    el("grid-usuarios").innerHTML = usuarios.map(u => `
+    el("grid-usuarios").innerHTML = usuarios.map(u => {
+      const foto = urlImagenSegura(u.foto);
+      return `
       <label class="check-item usuario-item">
-        <input type="checkbox" name="uidInvitado" value="${u.id}" ${uidsMarcados.includes(u.id) ? "checked" : ""}/>
-        ${u.foto ? `<img src="${u.foto}" alt=""/>` : `<span class="avatar-fallback">${(u.nombre || "?").charAt(0).toUpperCase()}</span>`}
-        ${u.nombre || u.email || "Sin nombre"}
+        <input type="checkbox" name="uidInvitado" value="${escaparAtributo(u.id)}" ${uidsMarcados.includes(u.id) ? "checked" : ""}/>
+        ${foto ? `<img src="${escaparAtributo(foto)}" alt="" referrerpolicy="no-referrer"/>` : `<span class="avatar-fallback">${h((u.nombre || "?").charAt(0).toUpperCase())}</span>`}
+        ${h(u.nombre || u.email || "Sin nombre")}
       </label>
-    `).join("");
+    `;
+    }).join("");
   } catch (e) {
     console.error(e);
     el("grid-usuarios").innerHTML = `<span style="color:var(--rojo);font-size:13px;">Error al cargar usuarios.</span>`;
@@ -142,6 +153,9 @@ el("btn-agendar").addEventListener("click", async () => {
   if (!fechaInicioStr || !horaInicioStr) { mostrarAlerta("error", "La fecha y hora de inicio son requeridas."); return; }
   if (!fechaFinStr || !horaFinStr) { mostrarAlerta("error", "La fecha y hora de fin son requeridas."); return; }
   if (esVirtual && !linkVirtual) { mostrarAlerta("error", "Ingresa el link de la reunión virtual."); return; }
+  if (esVirtual && !urlHttpSegura(linkVirtual, {permitirHttpLocal: true})) {
+    mostrarAlerta("error", "El enlace virtual debe ser una URL HTTPS válida."); return;
+  }
 
   const dtInicio = new Date(`${fechaInicioStr}T${horaInicioStr}`);
   const dtFin = new Date(`${fechaFinStr}T${horaFinStr}`);
@@ -154,7 +168,8 @@ el("btn-agendar").addEventListener("click", async () => {
     fechaFin: Timestamp.fromDate(dtFin),
     lugar,
     esVirtual,
-    linkVirtual: esVirtual ? linkVirtual : "",
+    linkVirtual: esVirtual ?
+      urlHttpSegura(linkVirtual, {permitirHttpLocal: true}) : "",
     modoInvitados,
     invitadosRoles,
     invitadosUids,

@@ -1,12 +1,13 @@
 import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
 import { ROLES } from "../core/permisos.js";
+import { escaparAtributo, escaparHtml, urlImagenSegura } from "../core/seguridad.js";
 import { db } from "../core/firebase-config.js";
 import {
   collection, onSnapshot, doc, updateDoc, orderBy, query
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("gestionar_usuarios");
+await requirePermiso("gestionar_usuarios");
 
 let filtroActivo = "todos";
 let todosUsuarios = [];
@@ -34,8 +35,10 @@ function renderUsuarios() {
   }
 
   filtrados.forEach(usuario => {
-    const tieneFoto = usuario.foto && usuario.foto !== "";
-    const inicial   = (usuario.nombre || "?")[0].toUpperCase();
+    const fotoSegura = urlImagenSegura(usuario.foto);
+    const tieneFoto = !!fotoSegura;
+    const inicialTexto = (String(usuario.nombre || "?")[0] || "?").toUpperCase();
+    const inicial = escaparHtml(inicialTexto);
     const sinRol    = !usuario.rol || usuario.rol === "sin_rol";
     const esMismo   = usuario.id === usuarioActual?.uid;
 
@@ -43,11 +46,11 @@ function renderUsuarios() {
     card.className = `usuario-card ${sinRol ? "sin-rol" : "con-rol"}`;
     card.innerHTML = `
       <div class="foto">
-        ${tieneFoto ? `<img src="${usuario.foto}" alt="${inicial}"/>` : inicial}
+        ${tieneFoto ? `<img src="${escaparAtributo(fotoSegura)}" alt="${inicial}" referrerpolicy="no-referrer"/>` : inicial}
       </div>
       <div class="info">
-        <div class="nombre">${usuario.nombre || "Sin nombre"} ${esMismo ? '<span style="font-size:11px;color:#39b54a;">(tú)</span>' : ""}</div>
-        <div class="email">${usuario.email || ""}</div>
+        <div class="nombre">${escaparHtml(usuario.nombre || "Sin nombre")} ${esMismo ? '<span style="font-size:11px;color:#39b54a;">(tú)</span>' : ""}</div>
+        <div class="email">${escaparHtml(usuario.email || "")}</div>
       <div class="guardando" id="guardando-${usuario.id}">Guardado</div>
       </div>
       <select class="rol-select" id="select-${usuario.id}" ${esMismo ? "disabled" : ""}>

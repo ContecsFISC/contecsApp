@@ -1,87 +1,86 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T14:52:25.775676+00:00**
+- Generado: **2026-08-17T22:28:49.141900+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `5039648e18d6c9de…`
-- Archivos analizados: **143**
-- Relaciones internas tipadas: **395**
-- Símbolos detectados: **2868**
-- Llamadas detectadas: **6532**
-- IDs DOM definidos: **716**
-- Paquetes externos usados: **20**
-- Colecciones de Firestore detectadas: **23**
-- Cloud Functions detectadas: **6**
+- Huella del proyecto: `42f4d98525a705a1…`
+- Archivos analizados: **147**
+- Relaciones internas tipadas: **453**
+- Símbolos detectados: **3089**
+- Llamadas detectadas: **7046**
+- IDs DOM definidos: **718**
+- Paquetes externos usados: **21**
+- Colecciones de Firestore detectadas: **26**
+- Cloud Functions detectadas: **8**
 - Archivos huerfanos: **61**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
-- Diagnósticos: **0 errores · 1 advertencias**
+- Diagnósticos: **0 errores · 0 advertencias**
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**7,423 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,930 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**74,300 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **90.0%** frente al profundo
+- `GraphCompacto.json` — ~**8,814 tokens** · leer primero
+- `GraphCompleto.json` — ~**44,479 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**80,604 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🟡 `public/ms/auth.html:161` — Destino de navegación no encontrado: ../dashboard.html
-- 🔵 `js/modulos/voluntarios.js:186` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:201` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 236.2 (conexiones: 117, 221 lineas)
-- `panel/dashboard.html` — riesgo 94.2 (conexiones: 39, 1618 lineas)
-- `css/styles.css` — riesgo 64.2 (conexiones: 29, 622 lineas)
-- `js/core/firebase-config.js` — riesgo 62.4 (conexiones: 31, 35 lineas)
+- `js/core/auth.js` — riesgo 244.3 (conexiones: 121, 235 lineas)
+- `js/core/seguridad.js` — riesgo 98.4 (conexiones: 49, 40 lineas)
+- `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
+- `css/styles.css` — riesgo 64.3 (conexiones: 29, 635 lineas)
+- `js/core/firebase-config.js` — riesgo 64.3 (conexiones: 32, 35 lineas)
+- `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
-- `js/core/operaciones.js` — riesgo 58.6 (conexiones: 25, 860 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 56.8 (conexiones: 24, 883 lineas)
-- `js/modulos/voluntarios.js` — riesgo 41.9 (conexiones: 11, 1841 lineas)
-- `js/modulos/ventaRapida.js` — riesgo 41.8 (conexiones: 17, 783 lineas)
-- `js/modulos/compras2.js` — riesgo 40.2 (conexiones: 16, 820 lineas)
-- `js/modulos/compras.js` — riesgo 35.5 (conexiones: 15, 548 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 31.3 (conexiones: 11, 933 lineas)
-- `panel/modulos/voluntariado/voluntarios.html` — riesgo 30.6 (conexiones: 13, 456 lineas)
-- `panel/modulos/congreso/inscripciones.html` — riesgo 29.2 (conexiones: 12, 516 lineas)
+- `js/core/operaciones.js` — riesgo 52.4 (conexiones: 25, 243 lineas)
+- `js/modulos/voluntarios.js` — riesgo 48.1 (conexiones: 14, 1860 lineas)
+- `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
+- `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
+- `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 37.4 (conexiones: 14, 943 lineas)
+- `panel/modulos/finanzas/bitacora.html` — riesgo 31.8 (conexiones: 11, 984 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 117 | exporta: cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle, loginConSSO
-- `panel/dashboard.html` — grado 39 | exporta: (sin exports detectados)
-- `js/core/firebase-config.js` — grado 31 | exporta: analytics, app, auth, db, storage
+- `js/core/auth.js` — grado 121 | exporta: cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle, loginConSSO
+- `js/core/seguridad.js` — grado 49 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
+- `panel/dashboard.html` — grado 40 | exporta: (sin exports detectados)
+- `js/core/firebase-config.js` — grado 32 | exporta: analytics, app, auth, db, storage
 - `css/styles.css` — grado 29 | exporta: (sin exports detectados)
 - `js/modulos/catalogo.js` — grado 29 | exporta: ICONOS, ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, crearCategoria, crearProducto, desactivarProducto, editarCategoria
 - `js/core/iconos.js` — grado 28 | exporta: ICONOS_DISPONIBLES, estrellasImg, iconoComboImg, iconoImg, nombreIconoCombo, rutaIcono
+- `panel/modulos/logistica/catalogo.html` — grado 26 | exporta: (sin exports detectados)
 - `js/core/operaciones.js` — grado 25 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
-- `panel/modulos/logistica/catalogo.html` — grado 24 | exporta: (sin exports detectados)
-- `js/modulos/ventaRapida.js` — grado 17 | exporta: (sin exports detectados)
-- `js/modulos/compras2.js` — grado 16 | exporta: (sin exports detectados)
-- `js/modulos/compras.js` — grado 15 | exporta: (sin exports detectados)
+- `js/modulos/ventaRapida.js` — grado 19 | exporta: (sin exports detectados)
+- `js/modulos/compras2.js` — grado 17 | exporta: (sin exports detectados)
+- `js/modulos/compras.js` — grado 16 | exporta: (sin exports detectados)
 - `js/core/permisos.js` — grado 14 | exporta: PERMISOS, ROLES, infoRol, permisosDeRol, tienePermiso
-- `panel/modulos/admin/minutas.html` — grado 14 | exporta: (sin exports detectados)
-- `js/modulos/fondo.js` — grado 13 | exporta: (sin exports detectados)
-- `panel/modulos/voluntariado/voluntarios.html` — grado 13 | exporta: (sin exports detectados)
+- `js/modulos/fondo.js` — grado 14 | exporta: (sin exports detectados)
+- `js/modulos/voluntarios.js` — grado 14 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
 ## Cloud Functions detectadas
 
-- `functions/index.js`: accederParticipante, enviarCorreoQrParticipante, notificarPagoAprobado, registrarParticipante, subirFotoEfectivo, validarTokenSSO
+- `functions/index.js`: accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, enviarCorreoQrParticipante, notificarPagoAprobado, registrarParticipante, subirFotoEfectivo, validarTokenSSO
 
 ## Archivos huerfanos
 
@@ -130,12 +129,14 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Colecciones de Firestore y quien las usa
 
 ### `actividades_ventas`
+- `functions/operaciones-financieras.js`
 - `js/modulos/actividadVentas.js`
 - `js/modulos/ventaRapida.js`
 - `js/modulos/voluntarios.js`
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `actividades_voluntarios`
+- `functions/operaciones-qr.js`
 - `js/modulos/informeActividad.js`
 - `js/modulos/lecturaQRVoluntarios.js`
 - `js/modulos/reportes_estadisticaCont.js`
@@ -144,7 +145,14 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ### `asignaciones_voluntarios`
 - `js/modulos/voluntarios.js`
 
+### `asistencias_congreso`
+- `functions/operaciones-qr.js`
+- `functions/test/operaciones-qr.integration.js`
+- `js/modulos/inscripciones.js`
+- `js/modulos/reportes_estadisticaCont.js`
+
 ### `asistencias_voluntarios`
+- `functions/operaciones-qr.js`
 - `js/modulos/lecturaQRVoluntarios.js`
 - `js/modulos/reportes_estadisticaCont.js`
 - `js/modulos/voluntarios.js`
@@ -154,30 +162,34 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/reporteFinancieroExcel.js`
 
 ### `checkpoints`
+- `functions/operaciones-qr.js`
+- `functions/test/operaciones-qr.integration.js`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/reportes_estadisticaCont.js`
 - `panel/dashboard.html`
 
 ### `compras`
+- `functions/operaciones-financieras.js`
 - `js/core/operaciones.js`
 - `js/modulos/reporteFinancieroExcel.js`
 - `js/modulos/reportes_financieros.js`
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `eventos`
+- `functions/operaciones-qr.js`
+- `functions/test/operaciones-qr.integration.js`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `panel/dashboard.html`
 
 ### `fondos`
-- `js/core/operaciones.js`
 - `js/modulos/detalleFondo.js`
 - `js/modulos/fondo.js`
 - `panel/dashboard.html`
 
 ### `fondos_entrada`
-- `js/core/operaciones.js`
+- `functions/operaciones-financieras.js`
 - `js/modulos/detalleFondo.js`
 - `js/modulos/fondo.js`
 - `panel/modulos/finanzas/bitacora.html`
@@ -185,36 +197,49 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ### `giras_voluntarios`
 - `js/modulos/voluntarios.js`
 
+### `identificadores_participantes`
+- `functions/index.js`
+
 ### `informes_actividad`
 - `js/modulos/informeActividad.js`
 
 ### `inscripciones`
+- `functions/test/operaciones-qr.integration.js`
 - `js/modulos/inscripciones.js`
-- `js/modulos/lecturaQR.js`
-
-### `inscripciones_checkpoint`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/reportes_estadisticaCont.js`
 
+### `inscripciones_checkpoint`
+- `functions/operaciones-qr.js`
+- `functions/test/operaciones-qr.integration.js`
+- `js/modulos/inscripciones.js`
+- `js/modulos/lecturaQR.js`
+- `js/modulos/reportes_estadisticaCont.js`
+
+### `limites_registro`
+- `functions/index.js`
+
 ### `mermas`
-- `js/core/operaciones.js`
+- `functions/operaciones-financieras.js`
 - `js/modulos/reporteFinancieroExcel.js`
 - `js/modulos/reportes_financieros.js`
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `movimientos_inventario`
-- `js/core/operaciones.js`
+- `functions/operaciones-financieras.js`
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `participantes`
 - `functions/index.js`
+- `functions/test/operaciones-qr.integration.js`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
+- `js/modulos/reportes_estadisticaCont.js`
 - `panel/dashboard.html`
 - `panel/modulos/congreso/modulos_participantes.html`
 
 ### `productos`
-- `js/core/operaciones.js`
+- `functions/operaciones-financieras.js`
 - `js/modulos/actividadVentas.js`
 - `js/modulos/catalogo.js`
 - `js/modulos/compras.js`
@@ -239,24 +264,25 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `usuarios`
 - `functions/index.js`
+- `functions/operaciones-financieras.js`
+- `functions/operaciones-qr.js`
+- `functions/test/operaciones-qr.integration.js`
 - `index.html`
 - `js/core/auth.js`
 - `js/modulos/actividadVentas.js`
 - `js/modulos/agendarReunion.js`
 - `js/modulos/detalleFondo.js`
 - `js/modulos/fondo.js`
-- `js/modulos/informeActividad.js`
-- `js/modulos/minutaReunion.js`
-- `js/modulos/usuarios.js`
-- ...y 2 archivos mas
+- ...y 5 archivos mas
 
 ### `ventas`
-- `js/core/operaciones.js`
+- `functions/operaciones-financieras.js`
 - `js/modulos/reporteFinancieroExcel.js`
 - `js/modulos/reportes_financieros.js`
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `voluntarios`
+- `functions/operaciones-qr.js`
 - `js/modulos/lecturaQRVoluntarios.js`
 - `js/modulos/reportes_estadisticaCont.js`
 - `js/modulos/voluntarios.js`
@@ -267,34 +293,37 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `actividades_ventas` — regla explícita · 9 operaciones detectadas
 - `actividades_voluntarios` — regla explícita · 9 operaciones detectadas
 - `asignaciones_voluntarios` — regla explícita · 4 operaciones detectadas
-- `asistencias_voluntarios` — regla explícita · 5 operaciones detectadas
+- `asistencias_congreso` — regla explícita · 4 operaciones detectadas
+- `asistencias_voluntarios` — regla explícita · 2 operaciones detectadas
 - `categorias` — regla explícita · 4 operaciones detectadas
 - `checkpoints` — regla explícita · 9 operaciones detectadas
-- `compras` — regla explícita · 5 operaciones detectadas
+- `compras` — regla explícita · 4 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
 - `contadores` — regla explícita · 0 operaciones detectadas
 - `eventos` — regla explícita · 8 operaciones detectadas
 - `fondos` — regla explícita · 1 operaciones detectadas
 - `fondos_entrada` — regla explícita · 6 operaciones detectadas
 - `giras_voluntarios` — regla explícita · 4 operaciones detectadas
+- `identificadores_participantes` — regla explícita · 0 operaciones detectadas
 - `informes_actividad` — regla explícita · 2 operaciones detectadas
-- `inscripciones` — regla explícita · 2 operaciones detectadas
-- `inscripciones_checkpoint` — regla explícita · 3 operaciones detectadas
-- `mermas` — regla explícita · 4 operaciones detectadas
+- `inscripciones` — regla explícita · 3 operaciones detectadas
+- `inscripciones_checkpoint` — regla explícita · 7 operaciones detectadas
+- `limites_registro` — regla explícita · 0 operaciones detectadas
+- `mermas` — regla explícita · 3 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 9 operaciones detectadas
+- `participantes` — regla explícita · 10 operaciones detectadas
 - `productos` — regla explícita · 19 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
 - `solicitudes_actividad` — regla explícita · 4 operaciones detectadas
 - `usuarios` — regla explícita · 12 operaciones detectadas
 - `ventas` — regla explícita · 4 operaciones detectadas
-- `voluntarios` — regla explícita · 10 operaciones detectadas
+- `voluntarios` — regla explícita · 9 operaciones detectadas
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 143
-- `imports`: 117
-- `navigates_to`: 54
+- `calls_imported_symbol`: 174
+- `imports`: 143
+- `navigates_to`: 55
 - `loads_script`: 35
 - `loads_stylesheet`: 29
 - `loads_asset`: 17
@@ -302,22 +331,23 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Paquetes/SDKs externos
 
 - `crypto` — usado en 1 archivo(s)
-- `firebase-admin/app` — usado en 1 archivo(s)
+- `firebase-admin/app` — usado en 2 archivo(s)
 - `firebase-admin/auth` — usado en 1 archivo(s)
-- `firebase-admin/firestore` — usado en 1 archivo(s)
+- `firebase-admin/firestore` — usado en 4 archivo(s)
 - `firebase-admin/storage` — usado en 1 archivo(s)
 - `firebase-functions/params` — usado en 1 archivo(s)
 - `firebase-functions/v2/firestore` — usado en 1 archivo(s)
-- `firebase-functions/v2/https` — usado en 1 archivo(s)
+- `firebase-functions/v2/https` — usado en 3 archivo(s)
 - `fs` — usado en 1 archivo(s)
 - `https` — usado en 1 archivo(s)
-- `https://cdn.jsdelivr.net/npm/chart.js` — usado en 2 archivo(s)
+- `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
 - `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 2 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 30 archivo(s)
-- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 2 archivo(s)
+- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
+- `node:assert/strict` — usado en 1 archivo(s)
 - `path` — usado en 1 archivo(s)

@@ -86,7 +86,9 @@ LOCAL_STORAGE_PATTERN = re.compile(r"\b(?:localStorage|sessionStorage)\.(?:getIt
 CUSTOM_EVENT_PATTERN = re.compile(r"(?:new\s+CustomEvent|dispatchEvent\s*\(\s*new\s+(?:Custom)?Event)\s*\(\s*['\"]([^'\"]+)['\"]")
 EVENT_LISTENER_PATTERN = re.compile(r"addEventListener\(\s*['\"]([^'\"]+)['\"]")
 NAVIGATION_PATTERN = re.compile(r"(?:window\.)?location(?:\.href)?\s*=\s*[`'\"]([^`'\"]+)|location\.(?:assign|replace)\(\s*[`'\"]([^`'\"]+)")
-HTTPS_CALLABLE_PATTERN = re.compile(r"httpsCallable\(\s*[^,]+,\s*['\"]([^'\"]+)['\"]")
+HTTPS_CALLABLE_PATTERN = re.compile(
+    r"httpsCallable\(\s*(?:getFunctions\([^)]*\)|[^,]+)\s*,\s*['\"]([^'\"]+)['\"]"
+)
 
 FIRESTORE_COLLECTION_PATTERNS = [
     re.compile(r"\bcollection\(\s*[^,()]+\s*,\s*['\"]([\w-]+)['\"]"),

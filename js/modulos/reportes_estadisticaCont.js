@@ -2,8 +2,10 @@ import { db } from "../core/firebase-config.js";
 import {
   collection, getDocs, query, orderBy,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { escaparHtml } from "../core/seguridad.js";
 
 const Chart = window.Chart;
+const h = escaparHtml;
 
 const VERDE = ["#00722e","#00a044","#00c854","#39d97a","#6ee49a",
                "#a1edbb","#c8f5d8","#5fd49a","#a8e6c0","#e0fce9"];
@@ -25,23 +27,44 @@ export default async function init() {
 // ═══════════════════════════════════════════════════════════
 
 async function cargarEstadisticasActividades() {
-  const [cpSnap, icSnap] = await Promise.all([
+  const [cpSnap, icSnap, asistSnap, participantesSnap, inscripcionesSnap] = await Promise.all([
     getDocs(query(collection(db, "checkpoints"), orderBy("dia"))),
     getDocs(collection(db, "inscripciones_checkpoint")),
+    getDocs(collection(db, "asistencias_congreso")),
+    getDocs(collection(db, "participantes")),
+    getDocs(collection(db, "inscripciones")),
   ]);
 
   const checkpoints = cpSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // Contar asistencias por checkpointId
-  const asistPor = {};
+  // Unión compatible con los tres formatos: central actual, cupos históricos y
+  // mapas de asistencia embebidos de participantes previos.
+  const asistentesPorCheckpoint = new Map(
+    checkpoints.map(cp => [cp.id, new Set()]),
+  );
+  const agregar = (checkpointId, participanteId) => {
+    if (!checkpointId || !participanteId || !asistentesPorCheckpoint.has(checkpointId)) return;
+    asistentesPorCheckpoint.get(checkpointId).add(String(participanteId));
+  };
+
+  asistSnap.docs.forEach(d => {
+    const a = d.data();
+    agregar(a.checkpointId, a.participanteId);
+  });
   icSnap.docs.forEach(d => {
-    const { checkpointId } = d.data();
-    if (checkpointId) asistPor[checkpointId] = (asistPor[checkpointId] || 0) + 1;
+    const a = d.data();
+    agregar(a.checkpointId, a.participanteId);
+  });
+  [participantesSnap, inscripcionesSnap].forEach(snap => {
+    snap.docs.forEach(d => {
+      Object.keys(d.data().asistencias || {}).forEach(checkpointId =>
+        agregar(checkpointId, d.id));
+    });
   });
 
   const enriched = checkpoints.map(cp => ({
     ...cp,
-    asistentes: asistPor[cp.id] || 0,
+    asistentes: asistentesPorCheckpoint.get(cp.id)?.size || 0,
   })).sort((a, b) => b.asistentes - a.asistentes);
 
   const totalActividades = enriched.length;
@@ -115,12 +138,12 @@ async function cargarEstadisticasActividades() {
     return `<tr>
       <td style="color:var(--gris-medio);font-size:12px">${i + 1}</td>
       <td>
-        <strong>${c.titulo || c.nombre || "—"}</strong>
-        ${c.eventoNombre ? `<br><small style="color:var(--gris-medio)">${c.eventoNombre}</small>` : ""}
+        <strong>${h(c.titulo || c.nombre || "—")}</strong>
+        ${c.eventoNombre ? `<br><small style="color:var(--gris-medio)">${h(c.eventoNombre)}</small>` : ""}
       </td>
-      <td><span class="badge-tipo ${tipoBadge}">${capitalize(c.tipo || "—")}</span></td>
+      <td><span class="badge-tipo ${tipoBadge}">${h(capitalize(c.tipo || "—"))}</span></td>
       <td style="white-space:nowrap;font-size:12px">${fmtDiaCorto(c.dia)}</td>
-      <td style="font-size:12px">${c.exponente || "—"}</td>
+      <td style="font-size:12px">${h(c.exponente || "—")}</td>
       <td style="text-align:center;font-weight:700;color:var(--verde-oscuro)">${c.asistentes}</td>
       <td style="text-align:center;color:var(--gris-medio)">${cupos || "—"}</td>
       <td>
@@ -238,8 +261,8 @@ async function cargarEstadisticasVoluntarios() {
     const barW   = maxHoras ? Math.round(horas / maxHoras * 100) : 0;
     return `<tr>
       <td style="color:var(--gris-medio);font-size:12px">${i + 1}</td>
-      <td><strong>${nombreVol(v)}</strong></td>
-      <td style="font-size:12px;color:var(--gris-medio)">${v.cedula || "—"}</td>
+      <td><strong>${h(nombreVol(v))}</strong></td>
+      <td style="font-size:12px;color:var(--gris-medio)">${h(v.cedula || "—")}</td>
       <td style="text-align:center;font-weight:700;color:var(--verde-oscuro)">${horas}h</td>
       <td style="text-align:center;color:var(--gris-medio)">${partic}</td>
       <td>
@@ -284,7 +307,7 @@ function truncate(s, max) {
 }
 
 const DIACRITICOS_RE = new RegExp("[̀-ͯ]", "g");
-const normalizarParaComparar = s => s.toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
+const normalizarParaComparar = s => String(s || "").toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
 
 function nombreVol(v) {
   const nombre   = (v.nombre || "").trim();

@@ -6,8 +6,9 @@
  <title>CONTECS — Calendario</title>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260817.3"/>
  <script type="module">
- import { guardRoute } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
+ await requirePermiso("ver_calendario");
  </script>
  <style>
  .container { max-width: 1100px; }
@@ -137,7 +138,7 @@
 <!-- MODAL DETALLE -->
 <div class="modal-overlay" id="modal-detalle">
  <div class="modal-box">
- <button class="modal-close" id="modal-detalle-close"></button>
+ <button class="modal-close" id="modal-detalle-close" type="button" aria-label="Cerrar">&times;</button>
  <div id="modal-detalle-contenido"></div>
  </div>
 </div>

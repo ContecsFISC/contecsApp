@@ -216,7 +216,7 @@
  </div>
  <div class="alerta-stat">
  <div class="num num-alerta" id="stat-alerta">—</div>
- <div class="lbl">️ Bajo</div>
+ <div class="lbl">Bajo</div>
  </div>
  <div class="alerta-stat">
  <div class="num num-agotado" id="stat-agotado">—</div>
@@ -243,16 +243,18 @@
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  import { escucharCategorias, getIconoHTML, estadoStock } from "../../../js/modulos/catalogo.js";
  import { db } from "../../../js/core/firebase-config.js";
+ import { escaparHtml } from "../../../js/core/seguridad.js";
  import {
  collection, query, where, onSnapshot
  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
  guardRoute();
- requirePermiso("ver_inventario");
+ await requirePermiso("ver_inventario");
 
  let categorias = [];
  let todosProductos = [];
  let terminoBusqueda = "";
+ const h = escaparHtml;
 
  function unidadesPorCajaProducto(producto) {
  const candidato = Number(producto.unidadesPorCaja ?? producto.unidadesPorPaquete ?? producto.cantidadPorPaquete ?? 12);
@@ -307,7 +309,7 @@
  const busq = terminoBusqueda.toLowerCase();
  const agotados = todosProductos.filter(p => {
  const e = estadoStock(p.stock ?? 0, p.alertaMinima ?? 0);
- return e === "agotado" && (!busq || p.nombre.toLowerCase().includes(busq));
+ return e === "agotado" && (!busq || String(p.nombre || "").toLowerCase().includes(busq));
  });
 
  contenido.innerHTML = "";
@@ -321,7 +323,7 @@
  ${agotados.map(p => `
  <div class="agotado-item">
  <span>${getIconoHTML(p.iconoId, { clase: "icono-md" })}</span>
- <span style="font-weight:600;flex:1;">${p.nombre}</span>
+ <span style="font-weight:600;flex:1;">${h(p.nombre)}</span>
  <span class="inv-badge-agotado">Sin stock</span>
  </div>`).join("")}`;
  contenido.appendChild(banner);
@@ -334,7 +336,7 @@
  categorias.forEach(cat => {
  const prods = todosProductos.filter(p =>
  p.categoriaId === cat.id &&
- (!busq || p.nombre.toLowerCase().includes(busq))
+ (!busq || String(p.nombre || "").toLowerCase().includes(busq))
  );
  if (prods.length === 0) return;
  totalVisible += prods.length;
@@ -346,7 +348,7 @@
  titulo.className = "seccion-cat-titulo";
  titulo.innerHTML = `
  <span>${getIconoHTML(cat.iconoId, { clase: "icono-md" })}</span>
- ${cat.nombre}
+ ${h(cat.nombre)}
  <span style="font-size:12px;font-weight:400;color:var(--gris-medio);margin-left:4px;">(${prods.length})</span>`;
  seccion.appendChild(titulo);
 
@@ -370,7 +372,7 @@
 
  card.innerHTML = `
  <div class="inv-emoji">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
- <div class="inv-nombre">${prod.nombre}</div>
+ <div class="inv-nombre">${h(prod.nombre)}</div>
  <div class="inv-stock ${estado}">
  ${estado === "agotado" ? "0" : prod.stock ?? 0}
  </div>
@@ -378,7 +380,7 @@
  ${estado === "agotado"
  ? '<span class="inv-badge-agotado">Sin stock</span>'
  : estado === "alerta"
- ? `️ Mínimo: ${prod.alertaMinima}`
+ ? `Mínimo: ${prod.alertaMinima}`
  : `Mínimo: ${prod.alertaMinima}`}
  ${estado !== "agotado" && (prod.stock ?? 0) > 0
  ? `<div style="margin-top:4px;font-size:10px;color:var(--gris-medio);line-height:1.3;">${formatearEquivalenciaStock(prod.stock ?? 0, prod)}</div>`
@@ -398,7 +400,7 @@
  <div class="empty-state">
  <div class="emoji">${busq ? "" : ""}</div>
  <p>${busq
- ? `No se encontraron productos con "${terminoBusqueda}".`
+ ? `No se encontraron productos con "${h(terminoBusqueda)}".`
  : "No hay productos en el inventario aún.<br>Crea categorías y productos en el Catálogo."}</p>
  </div>`;
  }

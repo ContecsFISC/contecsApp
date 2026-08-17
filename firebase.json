@@ -1,6 +1,10 @@
 {
   "firestore": {
-    "rules": "firebase_rules/firestore.rules"
+    "rules": "firebase_rules/firestore.rules",
+    "indexes": "firebase_rules/firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "firebase_rules/storage.rules"
   },
   "hosting": {
     "public": ".",
@@ -11,9 +15,42 @@
       "functions/**",
       "mateo_docs/**",
       "firebase_rules/**",
-      "docs/**"
+      "docs/**",
+      "graph-out/**",
+      ".github/**",
+      ".vscode/**",
+      "AlphaToolGraph.py",
+      "AGENTS.md",
+      "README*",
+      "package*.json",
+      "*-debug.log"
     ],
     "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(self), microphone=(), geolocation=()"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
+      },
       {
         "source": "**/*.@(html|css|js)",
         "headers": [

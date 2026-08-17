@@ -1386,8 +1386,8 @@
                   <div class="evento-hoy">
                     <span class="evt-punto" style="background:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}"></span>
                     <div class="evt-info">
-                      <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
-                      <div class="evt-fecha">${lugarTexto || "Hoy"}</div>
+                      <div class="evt-nombre">${escaparHtml(e.nombre || "Sin nombre")}</div>
+                      <div class="evt-fecha">${escaparHtml(lugarTexto || "Hoy")}</div>
                     </div>
                     ${enVivo ? `<span class="pill-en-vivo">● EN VIVO</span>` : ""}
                   </div>`;
@@ -1405,8 +1405,8 @@
                   <div class="evento-item">
                     <span class="evt-punto" style="background:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}"></span>
                     <div class="evt-info">
-                      <div class="evt-nombre">${e.nombre || "Sin nombre"}</div>
-                      <div class="evt-fecha">${fechaTexto}${lugarTexto ? " · " + lugarTexto : ""}</div>
+                      <div class="evt-nombre">${escaparHtml(e.nombre || "Sin nombre")}</div>
+                      <div class="evt-fecha">${escaparHtml(fechaTexto)}${lugarTexto ? " · " + escaparHtml(lugarTexto) : ""}</div>
                     </div>
                   </div>`;
               }).join("");

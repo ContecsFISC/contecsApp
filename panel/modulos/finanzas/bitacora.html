@@ -275,7 +275,7 @@
  <button class="tab-btn" data-tab="compras"> Compras</button>
  <button class="tab-btn" data-tab="fondos"> Fondos</button>
  <button class="tab-btn" data-tab="inventario"> Inventario</button>
- <button class="tab-btn" data-tab="mermas">️ Mermas</button>
+ <button class="tab-btn" data-tab="mermas">Mermas</button>
  </div>
 
  <div id="tab-ventas">
@@ -325,12 +325,14 @@
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  import { formatearMoneda } from "../../../js/core/operaciones.js";
  import { db } from "../../../js/core/firebase-config.js";
+ import { escaparAtributo, escaparHtml, urlHttpSegura } from "../../../js/core/seguridad.js";
  import {
  collection, query, orderBy, limit, onSnapshot, getDocs, where
  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
  guardRoute();
- requirePermiso("ver_bitacora");
+ await requirePermiso("ver_bitacora");
+ const h = escaparHtml;
 
  // ── Helper fecha ──────────────────────────────────────────────────────────
  function formatearFecha(ts) {
@@ -464,10 +466,10 @@
  const itemsHTML = (v.items || []).map(it => `
  <tr>
  <td>
- <div>${it.nombre || "—"}</div>
+ <div>${h(it.nombre || "—")}</div>
  <div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${tipoLineaTexto(it.tipo)}</div>
  </td>
- <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${numeroSeguro(it.cantidad)}</td>
  <td class="num">${formatearMoneda(it.precioUnitario ?? 0)}</td>
  <td class="num">${formatearMoneda(it.costoUnitario ?? 0)}</td>
  <td class="num" style="color:${numeroSeguro(it.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(it.utilidadTotal)}</td>
@@ -478,7 +480,7 @@
  const perdidaSinVender = numeroSeguro(v.perdidaTotal);
 
  const notaHTML = v.nota
- ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${v.nota}</p>`
+ ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${h(v.nota)}</p>`
  : "";
 
  const mermasVendidasHTML = (Array.isArray(v.mermas) && v.mermas.some(m => m.tipo === "vendida"))
@@ -499,9 +501,9 @@
  ${v.mermas.filter(m => m.tipo === "vendida").map(m => `
  <tr>
  <td>
- <div>${m.nombre || "—"}</div>
+ <div>${h(m.nombre || "—")}</div>
  </td>
- <td class="num">${m.cantidad ?? 0}</td>
+ <td class="num">${numeroSeguro(m.cantidad)}</td>
  <td class="num">${formatearMoneda(m.precioUnitario ?? m.precio ?? 0)}</td>
  <td class="num">${formatearMoneda(m.costoUnitario ?? m.costo ?? 0)}</td>
  <td class="num" style="color:${numeroSeguro(m.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(m.utilidadTotal)}</td>
@@ -516,7 +518,7 @@
 
  const mermasSinVenderHTML = (Array.isArray(v.mermas) && v.mermas.some(m => m.tipo === "sin_vender"))
  ? `<div style="margin-top:12px;padding:10px 12px;background:var(--rojo-fondo);border-radius:8px;border:1px solid rgba(255,0,0,.15);">
- <div style="font-size:12px;font-weight:700;color:var(--rojo);margin-bottom:6px;">️ Merma sin vender</div>
+ <div style="font-size:12px;font-weight:700;color:var(--rojo);margin-bottom:6px;">Merma sin vender</div>
 
  <table class="items-tabla" style="margin-top:6px;">
  <thead>
@@ -533,9 +535,9 @@
  ${v.mermas.filter(m => m.tipo === "sin_vender").map(m => `
  <tr>
  <td>
- <div>${m.nombre || "—"}</div>
+ <div>${h(m.nombre || "—")}</div>
  </td>
- <td class="num">${m.cantidad ?? 0}</td>
+ <td class="num">${numeroSeguro(m.cantidad)}</td>
  <td class="num">${formatearMoneda(m.precioUnitario ?? m.precio ?? 0)}</td>
  <td class="num">${formatearMoneda(m.costoUnitario ?? m.costo ?? 0)}</td>
  <td class="num" style="color:${numeroSeguro(m.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(m.utilidadTotal)}</td>
@@ -550,7 +552,7 @@
  <div class="bita-header">
  <div class="bita-meta">
  <div class="bita-fecha">${formatearFecha(v.creadoEn)}</div>
- <div class="bita-usuario"> ${v.usuarioNombre || "—"}${v.actividadVentaNombre ? ` &middot; ${v.actividadVentaNombre}` : ""}</div>
+ <div class="bita-usuario"> ${h(v.usuarioNombre || "—")}${v.actividadVentaNombre ? ` &middot; ${h(v.actividadVentaNombre)}` : ""}</div>
  </div>
  <span class="bita-total">${formatearMoneda(v.total ?? 0)}</span>
  <span class="bita-metodo">${metodoTexto}</span>
@@ -602,7 +604,7 @@
  console.error("Bitácora ventas:", err);
  contenedorVentas.innerHTML = `
  <div class="alerta alerta-error show">
- ️ Error al cargar ventas. ${err.message}
+ Error al cargar ventas. ${h(err.message)}
  </div>`;
  }
  );
@@ -649,29 +651,30 @@
  const itemsHTML = (c.items || []).map(it => `
  <tr>
  <td>
- <div>${it.nombre || "—"}</div>
+ <div>${h(it.nombre || "—")}</div>
  ${Number(it.cantidadPaquete) > 0 || Number(it.unidadesPorPaquete) > 0 ? `<div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${Number(it.cantidadPaquete) || 0} paquetes x ${Number(it.unidadesPorPaquete) || 0} por paquete</div>` : ""}
  </td>
- <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${numeroSeguro(it.cantidad)}</td>
  <td class="num">${formatearMoneda(it.precioUnitario ?? 0)}</td>
  <td class="num">${formatearMoneda(it.subtotal ?? 0)}</td>
  </tr>`).join("");
 
- const facturaHTML = c.factura?.url
- ? `<a href="${c.factura.url}" target="_blank" rel="noopener" class="factura-link">
- Ver factura: ${c.factura.name || "factura"}
+ const facturaUrl = urlHttpSegura(c.factura?.url);
+ const facturaHTML = facturaUrl
+ ? `<a href="${escaparAtributo(facturaUrl)}" target="_blank" rel="noopener noreferrer" class="factura-link">
+ Ver factura: ${h(c.factura.name || "factura")}
  </a>`
  : "";
 
  const notaHTML = c.nota
- ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${c.nota}</p>`
+ ? `<p style="margin-top:8px;font-size:12px;color:var(--gris-medio);"> ${h(c.nota)}</p>`
  : "";
 
  card.innerHTML = `
  <div class="bita-header">
  <div class="bita-meta">
  <div class="bita-fecha">${formatearFecha(c.creadoEn)}</div>
- <div class="bita-usuario"> ${c.proveedor || "Sin proveedor"} &mdash; ${c.usuarioNombre || "—"}</div>
+ <div class="bita-usuario"> ${h(c.proveedor || "Sin proveedor")} &mdash; ${h(c.usuarioNombre || "—")}</div>
  </div>
  <span class="bita-total">${formatearMoneda(c.total ?? 0)}</span>
  <span class="bita-metodo">${metodoTexto}</span>
@@ -714,7 +717,7 @@
  console.error("Bitácora compras:", err);
  contenedorCompras.innerHTML = `
  <div class="alerta alerta-error show">
- ️ Error al cargar compras. ${err.message}
+ Error al cargar compras. ${h(err.message)}
  </div>`;
  }
  );
@@ -823,11 +826,11 @@
  ${esIngreso ? "▲" : "▼"}
  </div>
  <div class="mov-info">
- <div class="mov-titulo">${f.titulo || "—"}</div>
+ <div class="mov-titulo">${h(f.titulo || "—")}</div>
  <div class="mov-detalle">
- ${origenTexto} · ${f.usuarioNombre || "—"} · ${formatearFecha(f.creadoEn)}
+ ${h(origenTexto)} · ${h(f.usuarioNombre || "—")} · ${formatearFecha(f.creadoEn)}
  </div>
- ${f.descripcion ? `<div class="mov-detalle" style="margin-top:2px;"> ${f.descripcion}</div>` : ""}
+ ${f.descripcion ? `<div class="mov-detalle" style="margin-top:2px;"> ${h(f.descripcion)}</div>` : ""}
  </div>
  <div class="mov-monto ${esIngreso ? "ingreso" : "egreso"}">
  ${esIngreso ? "+" : "−"}${formatearMoneda(f.monto ?? 0)}
@@ -840,7 +843,7 @@
  console.error("Bitácora fondos:", err);
  contenedorFondos.innerHTML = `
  <div class="alerta alerta-error show">
- ️ Error al cargar fondos. ${err.message}
+ Error al cargar fondos. ${h(err.message)}
  </div>`;
  }
  );
@@ -881,15 +884,15 @@
  </div>
  <div class="mov-info">
  <div class="mov-titulo">
- ${m.nombre || "—"}
+ ${h(m.nombre || "—")}
  <span class="stock-badge ${esEntrada ? "entrada" : "salida"}">
- ${esEntrada ? "+" : "−"}${m.cantidad ?? 0}
+ ${esEntrada ? "+" : "−"}${numeroSeguro(m.cantidad)}
  </span>
  </div>
  <div class="mov-detalle">
- ${m.antes ?? "?"} → ${m.despues ?? "?"} unidades · ${origenTexto} · ${formatearFecha(m.creadoEn)}
+ ${numeroSeguro(m.antes)} → ${numeroSeguro(m.despues)} unidades · ${h(origenTexto)} · ${formatearFecha(m.creadoEn)}
  </div>
- ${m.motivo ? `<div class="mov-detalle" style="margin-top:2px;"> ${m.motivo}</div>` : ""}
+ ${m.motivo ? `<div class="mov-detalle" style="margin-top:2px;"> ${h(m.motivo)}</div>` : ""}
  </div>`;
 
  contenedorInventario.appendChild(item);
@@ -899,7 +902,7 @@
  console.error("Bitácora inventario:", err);
  contenedorInventario.innerHTML = `
  <div class="alerta alerta-error show">
- ️ Error al cargar inventario. ${err.message}
+ Error al cargar inventario. ${h(err.message)}
  </div>`;
  }
  );
@@ -915,7 +918,7 @@
  if (snap.empty) {
  contenedorMermas.innerHTML = `
  <div class="empty-state" style="text-align:center;padding:32px;color:var(--gris-medio);">
- <div style="font-size:40px;margin-bottom:8px;">️</div>
+ <div style="font-size:40px;margin-bottom:8px;"></div>
  <p>No hay mermas registradas.</p>
  </div>`;
  return;
@@ -931,10 +934,10 @@
  const itemsHTML = (m.items || []).map(it => `
  <tr>
  <td>
- <div>${it.nombre || "—"}</div>
+ <div>${h(it.nombre || "—")}</div>
  <div style="font-size:11px;color:var(--gris-medio);margin-top:2px;">${tipoLineaTexto(it.tipo)}</div>
  </td>
- <td class="num">${it.cantidad ?? 0}</td>
+ <td class="num">${numeroSeguro(it.cantidad)}</td>
  <td class="num">${formatearMoneda(it.costoUnitario ?? 0)}</td>
  <td class="num" style="color:${numeroSeguro(it.utilidadTotal) >= 0 ? "var(--verde)" : "var(--rojo)"};font-weight:700;">${utilidadFormateada(it.utilidadTotal)}</td>
  </tr>`).join("");
@@ -946,10 +949,10 @@
  <div class="bita-header">
  <div class="bita-meta">
  <div class="bita-fecha">${formatearFecha(m.creadoEn)}</div>
- <div class="bita-usuario"> ${m.usuarioNombre || "—"}</div>
+ <div class="bita-usuario"> ${h(m.usuarioNombre || "—")}</div>
  </div>
  <span class="bita-metodo" style="background:var(--rojo-fondo);color:var(--rojo);">
- ️ Merma
+ Merma
  </span>
  <span class="bita-chevron">▼</span>
  </div>
@@ -962,7 +965,7 @@
  <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Costo</th><th class="num">Impacto</th></tr></thead>
  <tbody>${itemsHTML}</tbody>
  </table>
- ${m.motivo ? `<p style="margin-top:10px;font-size:13px;color:var(--rojo);"> Motivo: ${m.motivo}</p>` : ""}
+ ${m.motivo ? `<p style="margin-top:10px;font-size:13px;color:var(--rojo);"> Motivo: ${h(m.motivo)}</p>` : ""}
  </div>`;
 
  card.querySelector(".bita-header").addEventListener("click", () => toggleCard(card));
@@ -972,7 +975,7 @@
  (err) => {
  console.error("Bitácora mermas:", err);
  contenedorMermas.innerHTML = `
- <div class="alerta alerta-error show">️ Error al cargar mermas. ${err.message}</div>`;
+ <div class="alerta alerta-error show">Error al cargar mermas. ${h(err.message)}</div>`;
  }
  );
  </script>

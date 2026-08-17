@@ -1,11 +1,22 @@
 ﻿import { db, auth } from "../core/firebase-config.js";
 import {
-  collection, doc, getDoc, getDocs, setDoc, updateDoc,
-  query, where, orderBy, increment, serverTimestamp
+  collection, doc, getDoc, getDocs,
+  query, where, orderBy
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { app } from "../core/firebase-config.js";
+import {
+  getFunctions,
+  httpsCallable,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
+const ejecutarOperacionQr = httpsCallable(
+  getFunctions(app, "us-central1"),
+  "ejecutarOperacionQr",
+);
 
 let scanner          = null;
 let escaneando       = false;
@@ -95,17 +106,21 @@ function renderTurnos() {
   grid.innerHTML = turnos.map(t => `
     <div
       class="cp-card"
-      data-id="${t.id}"
-      data-nombre="${t.nombre} (${t.horaInicio}–${t.horaFin})"
-      onclick="seleccionarTurno(this,'${t.id}','${t.nombre}','${t.horaInicio}','${t.horaFin}')"
+      data-turno-id="${escaparAtributo(t.id)}"
       style="background:var(--verde-fondo);border-radius:var(--radio-sm,8px);padding:10px 14px;font-size:13px;font-weight:600;color:var(--verde-oscuro);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s,background 0.2s;"
     >
-      ${iconoImg("reloj")} ${t.nombre}<br/><small style="font-weight:400">${t.horaInicio} – ${t.horaFin}</small>
+      ${iconoImg("reloj")} ${h(t.nombre || "Turno")}<br/><small style="font-weight:400">${h(t.horaInicio || "—")} – ${h(t.horaFin || "—")}</small>
     </div>`).join("");
+  grid.querySelectorAll("[data-turno-id]").forEach(card => {
+    card.addEventListener("click", () => {
+      const turno = turnos.find(t => String(t.id) === card.dataset.turnoId);
+      if (turno) window.seleccionarTurno(card, turno.id, turno.nombre, turno.horaInicio, turno.horaFin);
+    });
+  });
 }
 
 window.seleccionarTurno = function(card, id, nombre, horaInicio, horaFin) {
-  document.querySelectorAll("[data-id]").forEach(c => {
+  document.querySelectorAll("[data-turno-id]").forEach(c => {
     c.style.borderColor = "transparent";
     c.style.background  = "var(--verde-fondo)";
   });
@@ -264,44 +279,29 @@ el("btn-confirmar").addEventListener("click", async () => {
   el("btn-confirmar").disabled    = true;
   el("btn-confirmar").textContent = "Guardando...";
 
-  const asistenciaId = `${voluntarioActual._docId}_${actividadActiva.id}_${turnoActivo.id}`;
-
   try {
     if (modoActual === "entrada") {
-      await setDoc(doc(db, "asistencias_voluntarios", asistenciaId), {
-        voluntarioId:  voluntarioActual._docId,
-        actividadId:   actividadActiva.id,
-        turnoId:       turnoActivo.id,
-        horaEntrada:   serverTimestamp(),
-        horaSalida:    null,
-        horasGanadas:  null,
-        calificacion:  null,
-        registradoPor: auth.currentUser?.uid || "",
-        creadoEn:      serverTimestamp(),
-        actualizadoEn: serverTimestamp(),
+      await ejecutarOperacionQr({
+        tipo: "asistencia_voluntario",
+        accion: "entrada",
+        voluntarioId: voluntarioActual._docId,
+        actividadId: actividadActiva.id,
+        turnoId: turnoActivo.id,
       });
 
       agregarLog("entrada", voluntarioActual.nombre, turnoActivo.nombre, null);
       alerta("success", `Entrada registrada: ${voluntarioActual.nombre}`);
 
     } else if (modoActual === "salida") {
-      // Calcular horas reales desde la hora de entrada guardada
-      const snapActual  = await getDoc(doc(db, "asistencias_voluntarios", asistenciaId));
-      const entradaTs   = snapActual.data()?.horaEntrada?.toDate ? snapActual.data().horaEntrada.toDate() : new Date();
-      const salidaTs    = new Date();
-      const horasGanadas = Math.round(((salidaTs - entradaTs) / 3600000) * 100) / 100;
-
-      await updateDoc(doc(db, "asistencias_voluntarios", asistenciaId), {
-        horaSalida:    serverTimestamp(),
-        horasGanadas,
-        calificacion:  ratingSeleccionado,
-        actualizadoEn: serverTimestamp(),
+      const respuesta = await ejecutarOperacionQr({
+        tipo: "asistencia_voluntario",
+        accion: "salida",
+        voluntarioId: voluntarioActual._docId,
+        actividadId: actividadActiva.id,
+        turnoId: turnoActivo.id,
+        calificacion: ratingSeleccionado,
       });
-
-      // Sumar horas al voluntario de forma atómica
-      await updateDoc(doc(db, "voluntarios", voluntarioActual._docId), {
-        totalHoras: increment(horasGanadas),
-      });
+      const horasGanadas = respuesta.data.horasGanadas;
 
       agregarLog("salida", voluntarioActual.nombre, turnoActivo.nombre, horasGanadas);
       alerta("success", `Salida registrada: ${voluntarioActual.nombre} · +${horasGanadas.toFixed(2)}h`);
@@ -345,11 +345,11 @@ function renderLog() {
   }
   tb.innerHTML = logSesion.slice(0, 20).map(entry => `
     <tr>
-      <td>${entry.nombre}</td>
+      <td>${h(entry.nombre)}</td>
       <td class="log-${entry.tipo}">${entry.tipo === "entrada" ? "Entrada" : "Salida"}</td>
-      <td>${entry.turno}</td>
-      <td>${entry.hora}</td>
-      <td><strong>${entry.horas}</strong></td>
+      <td>${h(entry.turno)}</td>
+      <td>${h(entry.hora)}</td>
+      <td><strong>${h(entry.horas)}</strong></td>
     </tr>`).join("");
 }
 

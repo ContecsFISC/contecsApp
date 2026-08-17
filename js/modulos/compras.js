@@ -1,6 +1,7 @@
 ﻿import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
 import { escucharCategorias, getIconoHTML } from "./catalogo.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparHtml } from "../core/seguridad.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarCompra, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -8,7 +9,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("registrar_compras");
+await requirePermiso("registrar_compras");
+const h = escaparHtml;
 const estado = {
   categorias: [],
   productos: [],
@@ -126,14 +128,14 @@ function renderPreviewFactura() {
     facturaPreview.innerHTML = `
       <img src="${estado.facturaUrl}" alt="Vista previa de la factura">
       <div class="factura-preview-info">
-        <strong>${estado.factura.name}</strong><br>
-        ${tamanoLegible(estado.factura.size)} · ${estado.factura.type}
+        <strong>${h(estado.factura.name)}</strong><br>
+        ${tamanoLegible(estado.factura.size)} · ${h(estado.factura.type)}
       </div>`;
   } else {
     facturaPreview.innerHTML = `
       <div class="factura-preview-info">
         <strong>PDF seleccionado</strong><br>
-        ${estado.factura.name}<br>
+        ${h(estado.factura.name)}<br>
         ${tamanoLegible(estado.factura.size)}
       </div>`;
   }
@@ -271,7 +273,7 @@ function renderCarrito() {
   carritoWrap.innerHTML = items.map((item) => `
     <div class="carrito-item">
       <div class="carrito-info">
-        <div class="carrito-nombre">${item.nombre}</div>
+        <div class="carrito-nombre">${h(item.nombre)}</div>
         <div class="carrito-meta">${subtotalValido(item.subtotal) && cantidadProductoTotal(item) > 0 ? `${cantidadPaqueteValida(item.cantidadPaquete) ? item.cantidadPaquete : 0} paquetes x ${unidadesPorPaqueteValida(item.unidadesPorPaquete) ? item.unidadesPorPaquete : 0} unidades = ${cantidadProductoTotal(item)} unidades` : "Subtotal pendiente"}</div>
       </div>
       <div class="carrito-controles">
@@ -363,7 +365,7 @@ function renderProductos() {
 
     const titulo = document.createElement("div");
     titulo.className = "seccion-cat-titulo";
-    titulo.innerHTML = `<span>${getIconoHTML(categoria.iconoId, { clase: "icono-md" })}</span>${categoria.nombre}`;
+    titulo.innerHTML = `<span>${getIconoHTML(categoria.iconoId, { clase: "icono-md" })}</span>${h(categoria.nombre)}`;
     seccion.appendChild(titulo);
 
     const grid = document.createElement("div");
@@ -375,7 +377,7 @@ function renderProductos() {
       card.innerHTML = `
         <div class="venta-icono">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
         <div class="venta-info">
-          <div class="venta-nombre">${prod.nombre}</div>
+          <div class="venta-nombre">${h(prod.nombre)}</div>
           <div class="venta-meta">Stock: ${prod.stock ?? 0}</div>
         </div>
         <button class="btn btn-sm btn-outline" style="width:auto;">Agregar</button>`;
@@ -436,7 +438,7 @@ async function finalizarCompra() {
 
   btn.disabled = true;
   const textoOriginal = btn.textContent;
-  btn.textContent = "⏳ Procesando...";
+  btn.textContent = "Procesando...";
   ocultarAlerta();
 
   try {

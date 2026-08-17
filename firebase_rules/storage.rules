@@ -8,14 +8,19 @@ service firebase.storage {
 
     function isStaff() {
       return signedIn()
-        && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol != 'sin_rol';
+        && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol in [
+          'ceo', 'junta_principal', 'junta', 'coordinador',
+          'finanzas', 'logistica', 'ventas', 'secretario', 'actividades',
+          'patrocinios', 'investigacion', 'voluntariado', 'giras',
+          'comunicaciones', 'staff_contecs', 'miembro'
+        ];
     }
 
     function canGestionarParticipantes() {
       return signedIn()
         && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol in [
           'ceo', 'junta_principal', 'junta', 'coordinador',
-          'actividades', 'finanzas', 'secretario', 'comunicaciones'
+          'actividades', 'finanzas', 'secretario', 'comunicaciones', 'staff_contecs'
         ];
     }
 
@@ -25,10 +30,16 @@ service firebase.storage {
       allow write: if false;
     }
 
-    // Facturas de compras — staff autenticado
+    // Facturas de compras — mismos roles que pueden consultar compras.
     match /compras/{compraId}/facturas/{filename} {
-      allow read: if isStaff();
-      allow write: if signedIn() && isStaff()
+      allow read: if signedIn()
+        && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol in [
+          'ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'
+        ];
+      allow write: if signedIn()
+        && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol in [
+          'ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'
+        ]
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('application/pdf|image/.*');
     }

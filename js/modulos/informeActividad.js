@@ -4,8 +4,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { ROLES } from "../core/permisos.js";
+import { escaparHtml } from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
 const usuario = getUsuarioActual();
 let imagenesSeleccionadas = [];
 let _solicitudesInforme  = [];
@@ -17,11 +19,13 @@ async function cargarNumeroInforme() {
   try {
     const snap = await getDocs(collection(db, "informes_actividad"));
     const siguiente = String(snap.size + 1).padStart(3, "0");
-    el("inf-numero").textContent = `2026-${siguiente}`;
-    return `2026-${siguiente}`;
+    const anio = new Date().getFullYear();
+    el("inf-numero").textContent = `${anio}-${siguiente}`;
+    return `${anio}-${siguiente}`;
   } catch {
-    el("inf-numero").textContent = "2026-001";
-    return "2026-001";
+    const numero = `${new Date().getFullYear()}-001`;
+    el("inf-numero").textContent = numero;
+    return numero;
   }
 }
 
@@ -35,7 +39,12 @@ function mostrarAlerta(msg, tipo = "error") {
 
 // ── Previsualización de imágenes ──────────────────────────────────────────────
 el("inf-imagenes").addEventListener("change", function () {
-  imagenesSeleccionadas = [...this.files];
+  imagenesSeleccionadas = [...this.files]
+    .filter(file => file.type.startsWith("image/") && file.size <= 8 * 1024 * 1024)
+    .slice(0, 6);
+  if (imagenesSeleccionadas.length !== this.files.length) {
+    mostrarAlerta("Solo se aceptan hasta 6 imágenes de máximo 8 MB cada una.", "warning");
+  }
   const container = el("img-preview-container");
   container.innerHTML = "";
   imagenesSeleccionadas.forEach(file => {
@@ -317,7 +326,8 @@ async function generarDocxInforme(datos, imagenes) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Informe_Actividad_${datos.informeNumero}_${datos.nombreActividad.replace(/\s+/g, "_")}.docx`;
+  const nombreSeguro = datos.nombreActividad.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ-]/g, "").slice(0, 80);
+  a.download = `Informe_Actividad_${datos.informeNumero}_${nombreSeguro || "actividad"}.docx`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -406,7 +416,7 @@ async function cargarFuentesAutocompleteInforme() {
       const item = document.createElement("div");
       item.className = "inf-sug-item";
       item.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0fdf4;font-size:14px;";
-      item.innerHTML = `<span style="flex:1;color:#1f2937;">${m.nombre}</span>${badge}`;
+      item.innerHTML = `<span style="flex:1;color:#1f2937;">${h(m.nombre)}</span>${badge}`;
       item.addEventListener("mouseenter", () => { item.style.background = "#f0fdf4"; });
       item.addEventListener("mouseleave", () => { item.style.background = ""; });
       item.addEventListener("mousedown", e => {
@@ -502,10 +512,10 @@ async function cargarUsuariosComite() {
       item.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0fdf4;";
       item.innerHTML = `
         <div style="flex:1;">
-          <div style="font-size:14px;color:#1f2937;font-weight:500;">${u.nombre}</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:1px;">${u.email || ""}</div>
+          <div style="font-size:14px;color:#1f2937;font-weight:500;">${h(u.nombre)}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:1px;">${h(u.email || "")}</div>
         </div>
-        <span style="font-size:11px;background:${rolColor}22;color:${rolColor};padding:2px 9px;border-radius:10px;white-space:nowrap;font-weight:600;border:1px solid ${rolColor}44;">${rolLabel}</span>`;
+        <span style="font-size:11px;background:${rolColor}22;color:${rolColor};padding:2px 9px;border-radius:10px;white-space:nowrap;font-weight:600;border:1px solid ${rolColor}44;">${h(rolLabel)}</span>`;
       item.addEventListener("mouseenter", () => { item.style.background = "#f0fdf4"; });
       item.addEventListener("mouseleave", () => { item.style.background = ""; });
       item.addEventListener("mousedown", e => {

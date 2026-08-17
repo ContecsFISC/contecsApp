@@ -2,21 +2,33 @@ import { db, auth } from "../core/firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import {
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp,
+  query, where, orderBy, serverTimestamp, runTransaction, limit,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../core/seguridad.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
+const h   = escaparHtml;
 const QRCode = window.QRCode;
 const Papa   = window.Papa;
 const XLSX   = window.XLSX;
+
+const hojaSegura = filas => filas.map(fila => fila.map(valor =>
+  typeof valor === "string" ? neutralizarFormulaHoja(valor) : valor
+));
+const slugArchivo = valor => String(valor || "evento")
+  .replace(/\s+/g, "_")
+  .replace(/[^a-zA-Z0-9_áéíóúÁÉÍÓÚñÑ-]/g, "")
+  .slice(0, 80) || "evento";
 
 // ─── Estado global ──────────────────────────────────────────────────────────
 let eventoActivo        = null;
 let inscripciones       = [];
 let participantesGlobal = [];
 let checkpointsEvento   = [];   // de la colección 'checkpoints'
+let asistenciasEvento    = [];   // registro central confirmado por el backend QR
+let inscripcionesCheckpointEvento = []; // compatibilidad con cupos históricos
 let columnasArchivo     = [];
 let filasArchivo        = [];
 let editandoEventoId    = null;
@@ -43,6 +55,7 @@ const ESTADO_PAGO_BADGE = {
 };
 
 const TIPO_LABELS = {
+  congreso:    "Congreso / acceso",
   conferencia: "Conferencia",
   taller:      "Taller",
   gira:        "Gira",
@@ -51,7 +64,7 @@ const TIPO_LABELS = {
   otro:        "Otro",
 };
 
-const TIPO_CON_CUPOS = ["taller", "gira"];
+const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 const DURACION_MINIMA_CHECKPOINT = 5;
 
 // ─── Alerta ─────────────────────────────────────────────────────────────────
@@ -201,12 +214,12 @@ function renderTablaEventos(eventos) {
       ? `${ev.diasEvento.length} día${ev.diasEvento.length > 1 ? "s" : ""}`
       : `${fmtFecha(ev.fechaInicio)} – ${fmtFecha(ev.fechaFin)}`;
     return `<tr>
-      <td><strong>${ev.nombre}</strong></td>
+      <td><strong>${h(ev.nombre)}</strong></td>
       <td style="font-size:12px;">${diasLabel}</td>
       <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${ev.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${ev.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${escaparAtributo(ev.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`;
   }).join("");
@@ -315,26 +328,45 @@ window._editarEvento = async id => {
   if (!eventoActivo || eventoActivo.id !== id) {
     el("sel-evento").value = id;
     eventoActivo = { id, ...ev };
-    el("evento-info").innerHTML = `<strong>${ev.nombre}</strong>`;
-    await Promise.all([cargarInscripciones(), cargarCheckpointsEvento(id)]);
+    el("evento-info").innerHTML = `<strong>${h(ev.nombre)}</strong>`;
+    await Promise.all([
+      cargarInscripciones(),
+      cargarCheckpointsEvento(id),
+      cargarAsistenciasEvento(id),
+      cargarInscripcionesCheckpointEvento(id),
+    ]);
     actualizarControlCheckpoints();
   }
 };
 
 window._eliminarEvento = async id => {
-  if (!confirm("¿Eliminar este evento? Los checkpoints y participantes no se eliminarán.")) return;
-  await deleteDoc(doc(db, "eventos", id));
-  if (eventoActivo?.id === id) {
-    eventoActivo = null;
-    el("sel-evento").value = "";
-    el("evento-info").textContent = "";
-    inscripciones = [];
-    checkpointsEvento = [];
-    actualizarBadgeCheckpoints();
-    actualizarControlCheckpoints();
+  try {
+    const [cpSnap, asistenciaSnap] = await Promise.all([
+      getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", id), limit(1))),
+      getDocs(query(collection(db, "asistencias_congreso"), where("eventoId", "==", id), limit(1))),
+    ]);
+    if (!cpSnap.empty || !asistenciaSnap.empty) {
+      mostrarAlerta("aviso", "Este evento ya tiene checkpoints o asistencias y no se puede eliminar sin romper su historial.");
+      return;
+    }
+    if (!confirm("¿Eliminar este evento vacío?")) return;
+    await deleteDoc(doc(db, "eventos", id));
+    if (eventoActivo?.id === id) {
+      eventoActivo = null;
+      el("sel-evento").value = "";
+      el("evento-info").textContent = "";
+      inscripciones = [];
+      checkpointsEvento = [];
+      asistenciasEvento = [];
+      inscripcionesCheckpointEvento = [];
+      actualizarBadgeCheckpoints();
+      actualizarControlCheckpoints();
+    }
+    if (editandoEventoId === id) limpiarFormEvento();
+    await cargarEventos();
+  } catch (e) {
+    mostrarAlerta("error", "No se pudo eliminar el evento: " + e.message);
   }
-  if (editandoEventoId === id) limpiarFormEvento();
-  await cargarEventos();
 };
 
 el("btn-cancelar-evento").addEventListener("click", limpiarFormEvento);
@@ -347,6 +379,8 @@ async function activarEvento(id) {
     el("evento-info").textContent = "";
     inscripciones = [];
     checkpointsEvento = [];
+    asistenciasEvento = [];
+    inscripcionesCheckpointEvento = [];
     actualizarBadgeCheckpoints();
     actualizarControlCheckpoints();
     return;
@@ -354,8 +388,13 @@ async function activarEvento(id) {
   const snap = await getDoc(doc(db, "eventos", id));
   if (!snap.exists()) return;
   eventoActivo = { id, ...snap.data() };
-  el("evento-info").innerHTML = `<strong>${eventoActivo.nombre}</strong> · ${fmtFecha(eventoActivo.fechaInicio)} – ${fmtFecha(eventoActivo.fechaFin)}`;
-  await Promise.all([cargarInscripciones(), cargarCheckpointsEvento(id)]);
+  el("evento-info").innerHTML = `<strong>${h(eventoActivo.nombre)}</strong> · ${fmtFecha(eventoActivo.fechaInicio)} – ${fmtFecha(eventoActivo.fechaFin)}`;
+  await Promise.all([
+    cargarInscripciones(),
+    cargarCheckpointsEvento(id),
+    cargarAsistenciasEvento(id),
+    cargarInscripcionesCheckpointEvento(id),
+  ]);
   actualizarControlCheckpoints();
 }
 
@@ -371,6 +410,24 @@ async function cargarInscripciones() {
   if (!eventoActivo) { inscripciones = []; return; }
   const snap = await getDocs(query(collection(db, "inscripciones"), where("eventoId", "==", eventoActivo.id)));
   inscripciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function cargarAsistenciasEvento(eventoId) {
+  if (!eventoId) { asistenciasEvento = []; return; }
+  const snap = await getDocs(query(
+    collection(db, "asistencias_congreso"),
+    where("eventoId", "==", eventoId),
+  ));
+  asistenciasEvento = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function cargarInscripcionesCheckpointEvento(eventoId) {
+  if (!eventoId) { inscripcionesCheckpointEvento = []; return; }
+  const snap = await getDocs(query(
+    collection(db, "inscripciones_checkpoint"),
+    where("eventoId", "==", eventoId),
+  ));
+  inscripcionesCheckpointEvento = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -460,20 +517,20 @@ function renderVistaCheckpoints() {
 
   lista.innerHTML = checkpointsEvento.map(cp => {
     const hora    = cp.horaInicio && cp.horaFin ? `${cp.horaInicio}–${cp.horaFin}` : cp.horaInicio || "—";
-    const tipoCls = cp.tipo === "taller" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : "";
+    const tipoCls = cp.tipo === "taller" || cp.tipo === "workshop" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : cp.tipo === "congreso" ? "cp-tipo-congreso" : "";
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
     return `<div class="checkpoint-list-item">
       <div class="checkpoint-list-info">
-        <div style="font-weight:700;">${cp.nombre} <span class="cp-tipo-badge ${tipoCls}">${TIPO_LABELS[cp.tipo] || cp.tipo}</span></div>
-        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${cp.titulo}</div>` : ""}
-        <div style="font-size:12px;color:var(--gris-medio)">${fmtFechaCorta(cp.dia)} · ${hora}${cp.salon ? ` · ${cp.salon}` : ""}${cp.exponente ? ` · ${cp.exponente}` : ""}</div>
+        <div style="font-weight:700;">${h(cp.nombre)} <span class="cp-tipo-badge ${tipoCls}">${h(TIPO_LABELS[cp.tipo] || cp.tipo)}</span></div>
+        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${h(cp.titulo)}</div>` : ""}
+        <div style="font-size:12px;color:var(--gris-medio)">${fmtFechaCorta(cp.dia)} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
         ${cuposStr}
       </div>
       <div class="checkpoint-list-actions">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
     </div>`;
   }).join("");
@@ -492,20 +549,20 @@ function renderTablaCheckpoints() {
   lista.innerHTML = checkpointsEvento.map(cp => {
     const hora     = cp.horaInicio && cp.horaFin ? `${cp.horaInicio}–${cp.horaFin}` : cp.horaInicio || "—";
     const diaLabel = fmtFechaCorta(cp.dia);
-    const tipoCls  = cp.tipo === "taller" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : "";
+    const tipoCls  = cp.tipo === "taller" || cp.tipo === "workshop" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : cp.tipo === "congreso" ? "cp-tipo-congreso" : "";
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
     return `<div class="checkpoint-list-item">
       <div class="checkpoint-list-info">
-        <div style="font-weight:700;">${cp.nombre} <span class="cp-tipo-badge ${tipoCls}">${TIPO_LABELS[cp.tipo] || cp.tipo}</span></div>
-        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${cp.titulo}</div>` : ""}
-        <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${hora}${cp.salon ? ` · ${cp.salon}` : ""}${cp.exponente ? ` · ${cp.exponente}` : ""}</div>
+        <div style="font-weight:700;">${h(cp.nombre)} <span class="cp-tipo-badge ${tipoCls}">${h(TIPO_LABELS[cp.tipo] || cp.tipo)}</span></div>
+        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${h(cp.titulo)}</div>` : ""}
+        <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
         ${cuposStr}
       </div>
       <div class="checkpoint-list-actions">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
     </div>`;
   }).join("");
@@ -631,7 +688,7 @@ el("cp-ponente-select").addEventListener("change", () => {
     hiddenNom.value     = nombre;
     manual.style.display = "none";
     info.style.display   = "block";
-    info.innerHTML = `<strong>${nombre}</strong><br>Cédula: ${cedula || "—"}<br>Origen: ${origen}`;
+    info.innerHTML = `<strong>${h(nombre)}</strong><br>Cédula: ${h(cedula || "—")}<br>Origen: ${h(origen)}`;
   }
 });
 
@@ -644,6 +701,13 @@ el("cp-tipo").addEventListener("change", () => {
   const tipo = el("cp-tipo").value;
   el("cp-cupos-section").style.display = TIPO_CON_CUPOS.includes(tipo) ? "block" : "none";
   if (!TIPO_CON_CUPOS.includes(tipo)) el("cp-cupos").value = "";
+  const ayudas = {
+    congreso: "Entrada general: cada QR registra la asistencia del participante al congreso.",
+    taller: "El QR registra asistencia y reserva un cupo en una sola operación.",
+    workshop: "El QR registra asistencia y reserva un cupo en una sola operación.",
+    gira: "El QR registra asistencia y reserva un cupo en una sola operación.",
+  };
+  el("cp-tipo-ayuda").textContent = ayudas[tipo] || "El QR registra asistencia a este punto del programa.";
 });
 
 el("btn-guardar-cp").addEventListener("click", async () => {
@@ -683,6 +747,9 @@ el("btn-guardar-cp").addEventListener("click", async () => {
   }
 
   const cupos = TIPO_CON_CUPOS.includes(tipo) ? (parseInt(el("cp-cupos").value) || null) : null;
+  if (TIPO_CON_CUPOS.includes(tipo) && !cupos) {
+    mostrarAlertaCp("error", "Indica la cantidad de cupos disponibles."); return;
+  }
   const datos = {
     eventoId:      eventoActivo.id,
     eventoNombre:  eventoActivo.nombre,
@@ -703,7 +770,24 @@ el("btn-guardar-cp").addEventListener("click", async () => {
   try {
     el("btn-guardar-cp").disabled = true;
     if (editandoCpId) {
-      await updateDoc(doc(db, "checkpoints", editandoCpId), datos);
+      const checkpointRef = doc(db, "checkpoints", editandoCpId);
+      await runTransaction(db, async txn => {
+        const snap = await txn.get(checkpointRef);
+        if (!snap.exists()) throw new Error("El checkpoint ya no existe.");
+        const anterior = snap.data();
+        if (TIPO_CON_CUPOS.includes(tipo)) {
+          const usados = TIPO_CON_CUPOS.includes(anterior.tipo)
+            ? Math.max(0, Number(anterior.cupos || 0) - Number(anterior.cuposDisponibles ?? anterior.cupos ?? 0))
+            : 0;
+          if (cupos < usados) {
+            throw new Error(`No puedes reducir los cupos por debajo de los ${usados} ya registrados.`);
+          }
+          datos.cuposDisponibles = cupos - usados;
+        } else {
+          datos.cuposDisponibles = null;
+        }
+        txn.update(checkpointRef, datos);
+      });
       mostrarAlertaCp("success", "Checkpoint actualizado.");
       editandoCpId = null;
     } else {
@@ -724,7 +808,7 @@ el("btn-guardar-cp").addEventListener("click", async () => {
 function limpiarFormCp() {
   el("cp-nombre").value     = "";
   el("cp-titulo").value     = "";
-  el("cp-tipo").value       = "conferencia";
+  el("cp-tipo").value       = "congreso";
   el("cp-dia").value        = "";
   el("cp-salon").value      = "";
   el("cp-hora-inicio").value = "";
@@ -738,6 +822,7 @@ function limpiarFormCp() {
   el("cp-tipo-presencia").value         = "";
   el("cp-cupos").value      = "";
   el("cp-cupos-section").style.display  = "none";
+  el("cp-tipo-ayuda").textContent = "Entrada general: cada QR registra la asistencia del participante al congreso.";
   el("btn-guardar-cp").textContent      = "+ Agregar checkpoint";
   el("btn-cancelar-cp").style.display   = "none";
   editandoCpId = null;
@@ -781,8 +866,18 @@ window._editarCp = id => {
 };
 
 window._eliminarCp = async id => {
-  if (!confirm("¿Eliminar este checkpoint?")) return;
   try {
+    const tieneAsistenciaEmbebida = [...participantesGlobal, ...inscripciones]
+      .some(p => Boolean(p.asistencias?.[id]));
+    const [asistenciaSnap, inscripcionSnap] = await Promise.all([
+      getDocs(query(collection(db, "asistencias_congreso"), where("checkpointId", "==", id), limit(1))),
+      getDocs(query(collection(db, "inscripciones_checkpoint"), where("checkpointId", "==", id), limit(1))),
+    ]);
+    if (tieneAsistenciaEmbebida || !asistenciaSnap.empty || !inscripcionSnap.empty) {
+      mostrarAlertaCp("aviso", "Este checkpoint ya tiene registros y no se puede eliminar sin romper la asistencia histórica.");
+      return;
+    }
+    if (!confirm("¿Eliminar este checkpoint vacío?")) return;
     await deleteDoc(doc(db, "checkpoints", id));
     await cargarCheckpointsEvento(eventoActivo.id);
     mostrarAlerta("success", "Checkpoint eliminado.");
@@ -871,7 +966,7 @@ function renderMapeoCols() {
   tbody.innerHTML = CAMPOS_EURUS.map(campo => {
     const detectado = detectarColumna(campo.key, columnasArchivo);
     const ico = detectado ? "" : (campo.req ? iconoImg("advertencia") : "");
-    const opts = columnasArchivo.map(c => `<option value="${c}" ${c === detectado ? "selected" : ""}>${c}</option>`).join("");
+    const opts = columnasArchivo.map(c => `<option value="${escaparAtributo(c)}" ${c === detectado ? "selected" : ""}>${h(c)}</option>`).join("");
     return `<tr>
       <td>${ico} <strong>${campo.label}</strong>${campo.req ? " *" : ""}</td>
       <td><select id="map-${campo.key}"><option value="">— Ignorar —</option>${opts}</select></td>
@@ -937,11 +1032,11 @@ el("btn-preview-importar").addEventListener("click", () => {
   const thead = el("preview-thead");
   const tbody = el("preview-tbody");
   const campos = CAMPOS_EURUS.map(c => c.label);
-  thead.innerHTML = `<tr>${campos.map(c => `<th>${c}</th>`).join("")}</tr>`;
+  thead.innerHTML = `<tr>${campos.map(c => `<th>${h(c)}</th>`).join("")}</tr>`;
   tbody.innerHTML = filasArchivo.slice(0, 5).map(fila => {
     return `<tr>${CAMPOS_EURUS.map(c => {
       const val = mapeo[c.key] ? String(fila[mapeo[c.key]] ?? "").trim() : "";
-      return `<td>${val || "—"}</td>`;
+      return `<td>${h(val || "—")}</td>`;
     }).join("")}</tr>`;
   }).join("");
   el("preview-resumen").textContent = `${filasArchivo.length} filas en total. Mostrando las primeras 5.`;
@@ -1043,21 +1138,24 @@ function renderParticipantes() {
     const badge  = ESTADO_PAGO_BADGE[p.pago?.estado] || ESTADO_PAGO_BADGE["importado"];
     const metodo = p.pago?.metodo === "transferencia" ? "Transferencia" : p.pago?.metodo === "efectivo" ? "Efectivo" : "—";
     return `<tr style="animation:cardIn 0.3s ${i * 0.03}s both;">
-      <td><code style="font-size:11px;color:var(--verde-oscuro);">${p.codigo || "—"}</code></td>
+      <td><code style="font-size:11px;color:var(--verde-oscuro);">${h(p.codigo || "—")}</code></td>
       <td>
-        <strong>${nombre}</strong>
-        <br/><span style="font-size:11px;color:var(--gris-medio);">${p.correo || ""}</span>
+        <strong>${h(nombre)}</strong>
+        <br/><span style="font-size:11px;color:var(--gris-medio);">${h(p.correo || "")}</span>
       </td>
-      <td style="font-size:12px;font-family:monospace;">${p.cedula || "—"}</td>
-      <td style="font-size:12px;">${CATEGORIA_LABELS[p.categoria] || p.categoria || "—"}</td>
+      <td style="font-size:12px;font-family:monospace;">${h(p.cedula || "—")}</td>
+      <td style="font-size:12px;">${h(CATEGORIA_LABELS[p.categoria] || p.categoria || "—")}</td>
       <td>${badge}</td>
       <td style="font-size:13px;">${metodo}</td>
       <td style="font-size:12px;color:var(--gris-medio);">${fecha}</td>
       <td style="white-space:nowrap;">
-      <button class="btn btn-outline btn-sm" onclick="window._verQR('${p.id}')" style="width:auto">Ver QR</button>
+      <button class="btn btn-outline btn-sm" data-ver-qr="${escaparAtributo(p.id)}" style="width:auto">Ver QR</button>
       </td>
     </tr>`;
   }).join("");
+  tb.querySelectorAll("[data-ver-qr]").forEach(btn => {
+    btn.addEventListener("click", () => window._verQR(btn.dataset.verQr));
+  });
 }
 
 el("buscar-participante").addEventListener("input", renderParticipantes);
@@ -1138,6 +1236,87 @@ el("btn-gen-todos-qr").addEventListener("click", async () => {
 // ASISTENCIA
 // ═══════════════════════════════════════════════════════════
 
+function construirResumenAsistencia() {
+  const checkpointIds = new Set(checkpointsEvento.map(cp => cp.id));
+  const resumen = new Map();
+
+  const incorporar = (p, coleccion, incluirSinAsistencia = false) => {
+    const asistencias = Object.fromEntries(Object.entries(p.asistencias || {})
+      .filter(([checkpointId]) => checkpointIds.has(checkpointId)));
+    if (!incluirSinAsistencia && Object.keys(asistencias).length === 0) return null;
+    const clave = `${coleccion}:${p.id}`;
+    const existente = resumen.get(clave);
+    const fila = existente || {
+      ...p,
+      participanteId: p.id,
+      participanteColeccion: coleccion,
+      asistencias: {},
+    };
+    fila.asistencias = { ...fila.asistencias, ...asistencias };
+    fila.totalAsistencias = Object.keys(fila.asistencias).length;
+    resumen.set(clave, fila);
+    return fila;
+  };
+
+  // El formato histórico está asociado al evento, por lo que también mostramos
+  // sus participantes que todavía no han marcado ningún checkpoint.
+  inscripciones.forEach(p => incorporar(p, "inscripciones", true));
+  participantesGlobal.forEach(p => incorporar(p, "participantes"));
+
+  // Las versiones anteriores registraban talleres/giras únicamente aquí.
+  inscripcionesCheckpointEvento.forEach(registro => {
+    if (!checkpointIds.has(registro.checkpointId)) return;
+    const esLegacy = registro.participanteColeccion === "inscripciones" ||
+      (!participantesGlobal.some(p => p.id === registro.participanteId) &&
+       inscripciones.some(p => p.id === registro.participanteId));
+    const coleccion = esLegacy ? "inscripciones" : "participantes";
+    const lista = esLegacy ? inscripciones : participantesGlobal;
+    const base = lista.find(p => p.id === registro.participanteId) || {
+      id: registro.participanteId,
+      nombreCompleto: registro.participanteNombre,
+      nombre: registro.participanteNombre,
+      codigo: registro.participanteCodigo,
+    };
+    const fila = incorporar(base, coleccion, true);
+    fila.asistencias[registro.checkpointId] ||= {
+      marcadoEn: registro.registradoEn,
+      marcadoPor: registro.registradoPor,
+      checkpoint: registro.checkpointNombre,
+      eventoId: registro.eventoId,
+    };
+    fila.totalAsistencias = Object.keys(fila.asistencias).length;
+  });
+
+  asistenciasEvento.forEach(asistencia => {
+    if (!checkpointIds.has(asistencia.checkpointId)) return;
+    const coleccion = asistencia.participanteColeccion === "inscripciones"
+      ? "inscripciones"
+      : "participantes";
+    const lista = coleccion === "inscripciones" ? inscripciones : participantesGlobal;
+    const base = lista.find(p => p.id === asistencia.participanteId) || {
+      id: asistencia.participanteId,
+      nombreCompleto: asistencia.participanteNombre,
+      nombre: asistencia.participanteNombre,
+      correo: asistencia.participanteCorreo,
+      cedula: asistencia.participanteCedula,
+      codigo: asistencia.participanteCodigo,
+    };
+    const fila = incorporar(base, coleccion, true);
+    fila.asistencias[asistencia.checkpointId] = {
+      marcadoEn: asistencia.marcadoEn,
+      marcadoPor: asistencia.marcadoPor,
+      checkpoint: asistencia.checkpointNombre,
+      eventoId: asistencia.eventoId,
+    };
+    fila.totalAsistencias = Object.keys(fila.asistencias).length;
+  });
+
+  return [...resumen.values()].sort((a, b) =>
+    String(a.nombreCompleto || a.nombre || "").localeCompare(
+      String(b.nombreCompleto || b.nombre || ""), "es",
+    ));
+}
+
 function renderAsistencia() {
   if (!eventoActivo) { el("asistencia-tbody").innerHTML = ""; el("asistencia-thead").innerHTML = ""; return; }
   el("asistencia-spinner").style.display = "none";
@@ -1149,13 +1328,18 @@ function renderAsistencia() {
 
   el("asistencia-thead").innerHTML = `<tr>
     <th>Participante</th>
-    ${cps.map(cp => `<th title="${cp.titulo || cp.nombre}">${(cp.nombre || "").length > 14 ? (cp.nombre || "").slice(0, 14) + "…" : (cp.nombre || "")}</th>`).join("")}
+    ${cps.map(cp => `<th title="${escaparAtributo(cp.titulo || cp.nombre || "")}">${h((cp.nombre || "").length > 14 ? (cp.nombre || "").slice(0, 14) + "…" : (cp.nombre || ""))}</th>`).join("")}
     <th>Total</th>
     <th>Cert.</th>
   </tr>`;
 
   const minCert = eventoActivo.checkpointsMinCertificado || 1;
-  el("asistencia-tbody").innerHTML = inscripciones.map(p => {
+  const participantesEvento = construirResumenAsistencia();
+  if (!participantesEvento.length) {
+    el("asistencia-tbody").innerHTML = `<tr><td colspan="${cps.length + 3}" style="text-align:center;color:var(--gris-medio)">Todavía no hay participantes asociados a este evento.</td></tr>`;
+    return;
+  }
+  el("asistencia-tbody").innerHTML = participantesEvento.map(p => {
     const asis  = p.asistencias || {};
     const total = Object.keys(asis).length;
     const celdas = cps.map(cp => asis[cp.id]
@@ -1164,7 +1348,7 @@ function renderAsistencia() {
     const cert = total >= minCert
         ? `<td style="color:var(--verde-claro);font-weight:700;">Sí</td>`
       : `<td style="color:var(--gris-medio);">—</td>`;
-    return `<tr><td>${p.nombre}</td>${celdas}<td style="text-align:center;font-weight:700;">${total}</td>${cert}</tr>`;
+    return `<tr><td>${h(p.nombreCompleto || p.nombre || "—")}</td>${celdas}<td style="text-align:center;font-weight:700;">${total}</td>${cert}</tr>`;
   }).join("");
 }
 
@@ -1221,7 +1405,8 @@ function fmtRangoFechas(ini, fin) {
 function renderCertificados() {
   if (!eventoActivo) return;
   const minCert    = eventoActivo.checkpointsMinCertificado || 1;
-  const elegibles  = inscripciones.filter(p => (p.totalAsistencias || 0) >= minCert);
+  const elegibles  = construirResumenAsistencia()
+    .filter(p => (p.totalAsistencias || 0) >= minCert);
   const exponentes = checkpointsEvento.filter(cp => cp.exponente || cp.ponenteId);
 
   el("cert-elegibles").textContent  = elegibles.length;
@@ -1236,11 +1421,11 @@ function renderCertificados() {
   tb.innerHTML = elegibles.map(p => {
     const fullP  = participantesGlobal.find(g => g.cedula === p.cedula) || p;
     const origen = origenParticipante(fullP);
-    const asis   = Object.keys(p.asistencias || {}).length || p.totalAsistencias || 0;
+    const asis   = Object.keys(p.asistencias || {}).length;
     return `<tr>
-      <td><strong>${p.nombre || "—"}</strong></td>
-      <td>${p.cedula || "—"}</td>
-      <td style="font-size:12px;">${origen}</td>
+      <td><strong>${h(p.nombreCompleto || p.nombre || "—")}</strong></td>
+      <td>${h(p.cedula || "—")}</td>
+      <td style="font-size:12px;">${h(origen)}</td>
       <td style="text-align:center;">${asis} / ${checkpointsEvento.length}</td>
     </tr>`;
   }).join("");
@@ -1430,9 +1615,9 @@ el("btn-export-excel-programa").addEventListener("click", () => {
   ];
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(h1), "Información del evento");
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(h2), "Actividades");
-  XLSX.writeFile(wb, `Programa_${(eventoActivo.nombre || "evento").replace(/\s+/g, "_")}.xlsx`);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaSegura(h1)), "Información del evento");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaSegura(h2)), "Actividades");
+  XLSX.writeFile(wb, `Programa_${slugArchivo(eventoActivo.nombre)}.xlsx`);
 });
 
 // ── 3. Excel de exponentes ───────────────────────────────────
@@ -1472,8 +1657,8 @@ el("btn-export-excel-exponentes").addEventListener("click", () => {
   ];
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(filas), "Exponentes");
-  XLSX.writeFile(wb, `Exponentes_${(eventoActivo.nombre || "evento").replace(/\s+/g, "_")}.xlsx`);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaSegura(filas)), "Exponentes");
+  XLSX.writeFile(wb, `Exponentes_${slugArchivo(eventoActivo.nombre)}.xlsx`);
 });
 
 // ── 4. Excel de participantes elegibles ─────────────────────
@@ -1482,7 +1667,8 @@ el("btn-export-excel-participantes").addEventListener("click", () => {
   if (!eventoActivo) { mostrarAlerta("aviso", "Selecciona un evento primero."); return; }
 
   const minCert   = eventoActivo.checkpointsMinCertificado || 1;
-  const elegibles = inscripciones.filter(p => (p.totalAsistencias || 0) >= minCert);
+  const elegibles = construirResumenAsistencia()
+    .filter(p => (p.totalAsistencias || 0) >= minCert);
   if (!elegibles.length) { mostrarAlerta("aviso", "No hay participantes elegibles."); return; }
 
   // Total de horas del evento
@@ -1498,7 +1684,7 @@ el("btn-export-excel-participantes").addEventListener("click", () => {
     const rows  = [HEADER, ...grupo.map(p => {
       const fullP  = participantesGlobal.find(g => g.cedula === p.cedula) || p;
       return [
-        p.nombre || "—",
+        p.nombreCompleto || p.nombre || "—",
         p.cedula || "—",
         origenParticipante(fullP),
         horasLabel,
@@ -1507,10 +1693,10 @@ el("btn-export-excel-participantes").addEventListener("click", () => {
     const sheetName = elegibles.length <= CHUNK
       ? "Participantes"
       : `Participantes ${i + 1}–${Math.min(i + CHUNK, elegibles.length)}`;
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), sheetName);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(hojaSegura(rows)), sheetName);
   }
 
-  XLSX.writeFile(wb, `Participantes_${(eventoActivo.nombre || "evento").replace(/\s+/g, "_")}.xlsx`);
+  XLSX.writeFile(wb, `Participantes_${slugArchivo(eventoActivo.nombre)}.xlsx`);
 });
 
 // ═══════════════════════════════════════════════════════════

@@ -12,7 +12,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
- requirePermiso("gestionar_inscripciones");
+ await requirePermiso("gestionar_inscripciones");
  </script>
  <style>
  .container { max-width: 960px; }
@@ -75,6 +75,7 @@
  .cp-tipo-badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; background:var(--verde-fondo); color:var(--verde-oscuro); }
  .cp-tipo-taller { background:#fff3e0; color:#e65100; }
  .cp-tipo-gira { background:#e8eaf6; color:#283593; }
+ .cp-tipo-congreso { background:var(--verde-fondo); color:var(--verde-oscuro); }
 
  .topbar-actions,
  .evento-selector-row,
@@ -195,7 +196,7 @@
 
  <!-- TABS -->
  <div class="tabs">
- <button class="tab-btn active" data-tab="tab-evento">️ Evento</button>
+ <button class="tab-btn active" data-tab="tab-evento">Evento</button>
  <button class="tab-btn" data-tab="tab-importar"> Importar</button>
  <button class="tab-btn" data-tab="tab-participantes"> Participantes</button>
  <button class="tab-btn" data-tab="tab-asistencia"> Asistencia</button>
@@ -295,7 +296,7 @@
  <div id="mapeo-section" style="display:none;margin-top:20px;">
  <div class="card-title">Mapeo de columnas</div>
  <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
- Verifica que cada campo corresponda a la columna correcta del archivo. Los campos marcados con ️ no se detectaron automáticamente.
+ Verifica que cada campo corresponda a la columna correcta del archivo. Los campos marcados no se detectaron automáticamente.
  </p>
  <table class="mapeo-table">
  <thead><tr><th style="text-align:left;font-weight:600">Campo contecs</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
@@ -394,7 +395,7 @@
 <!-- MODAL QR -->
 <div class="modal-overlay" id="modal-qr">
  <div class="modal-box">
- <button class="modal-close" id="modal-qr-close"></button>
+ <button class="modal-close" id="modal-qr-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title" id="qr-modal-nombre"></div>
  <div id="qr-canvas-wrap"></div>
  <p id="qr-modal-info" style="text-align:center;font-size:13px;color:var(--gris-medio);margin-bottom:16px;"></p>
@@ -408,7 +409,7 @@
 <!-- MODAL PREVIEW IMPORTAR -->
 <div class="modal-overlay" id="modal-preview">
  <div class="modal-box" style="max-width:720px;width:100%;">
- <button class="modal-close" id="modal-preview-close"></button>
+ <button class="modal-close" id="modal-preview-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title">Vista previa (primeras 5 filas)</div>
  <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
  <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
@@ -420,7 +421,7 @@
 <!-- MODAL CHECKPOINTS -->
 <div class="modal-overlay" id="modal-checkpoints">
  <div class="modal-box" style="max-width:680px;width:100%;max-height:92vh;overflow-y:auto;">
- <button class="modal-close" id="modal-cp-close">&times;</button>
+ <button class="modal-close" id="modal-cp-close" type="button" aria-label="Cerrar">&times;</button>
  <div class="modal-title" id="modal-cp-titulo">Checkpoints del evento</div>
  <div id="alerta-cp" class="alerta"></div>
 
@@ -435,6 +436,7 @@
  <div class="form-groupE" style="margin:0;">
  <label style="color:var(--verde-oscuro)">Tipo</label>
  <select id="cp-tipo">
+ <option value="congreso">Congreso / control de acceso</option>
  <option value="conferencia">Conferencia</option>
  <option value="taller">Taller</option>
  <option value="gira">Gira</option>
@@ -442,6 +444,7 @@
  <option value="panel">Panel</option>
  <option value="otro">Otro</option>
  </select>
+ <small id="cp-tipo-ayuda" style="display:block;margin-top:6px;color:var(--gris-medio);line-height:1.4;">Entrada general: cada QR registra la asistencia del participante al congreso.</small>
  </div>
  </div>
  <div class="form-groupE" style="margin-top:10px;">
@@ -473,7 +476,7 @@
  <label style="color:var(--verde-oscuro)">Exponente / Ponente</label>
  <select id="cp-ponente-select" style="margin-bottom:6px;">
  <option value="">— Sin ponente / Seleccionar —</option>
- <option value="_otro">️ Otro (ingresar manualmente)</option>
+ <option value="_otro">Otro (ingresar manualmente)</option>
  </select>
  <input type="hidden" id="cp-ponente-id"/>
  <input type="hidden" id="cp-exponente"/>

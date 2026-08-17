@@ -459,9 +459,10 @@
  escucharProductosPorCategoria, crearProducto, editarProducto,
  desactivarProducto, reactivarProducto, estadoStock
  } from "../../../js/modulos/catalogo.js";
+ import { escaparAtributo, escaparHtml } from "../../../js/core/seguridad.js";
 
  guardRoute();
- requirePermiso("editar_catalogo");
+ await requirePermiso("editar_catalogo");
 
  // ── TABS ─────────────────────────────────────────────────────────────────
  const tabs = document.querySelectorAll(".tab-btn");
@@ -478,6 +479,7 @@
  let categorias = [];
  let unsubProductos = null;
  let confirmCallback= null;
+ const h = escaparHtml;
 
  // ── HELPERS UI ───────────────────────────────────────────────────────────
  function mostrarAlerta(id, msg, tipo = "error") {
@@ -547,12 +549,12 @@
  card.innerHTML = `
  <div class="cat-emoji">${getIconoHTML(cat.iconoId, { clase: "icono-lg" })}</div>
  <div class="cat-info">
- <div class="cat-nombre">${cat.nombre}</div>
- <div class="cat-count" id="count-${cat.id}">Cargando...</div>
+ <div class="cat-nombre">${h(cat.nombre)}</div>
+ <div class="cat-count" id="count-${escaparAtributo(cat.id)}">Cargando...</div>
  </div>
  <div class="cat-acciones">
- <button class="btn-icon" data-edit="${cat.id}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
- <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/></button>
+ <button class="btn-icon" data-edit="${escaparAtributo(cat.id)}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
+ <button class="btn-icon danger" data-del="${escaparAtributo(cat.id)}" title="Eliminar"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/></button>
  </div>`;
 
  import("../../../js/modulos/catalogo.js").then(({ escucharProductosPorCategoria }) => {
@@ -565,12 +567,12 @@
  });
  });
 
- card.querySelector(`[data-edit="${cat.id}"]`).addEventListener("click", (e) => {
+ card.querySelector("[data-edit]").addEventListener("click", (e) => {
  e.stopPropagation();
  abrirModalEditarCat(cat);
  });
 
- card.querySelector(`[data-del="${cat.id}"]`).addEventListener("click", (e) => {
+ card.querySelector("[data-del]").addEventListener("click", (e) => {
  e.stopPropagation();
  abrirConfirm(
  `¿Eliminar la categoría "${cat.nombre}"? Solo se puede eliminar si no tiene productos activos.`,
@@ -669,7 +671,7 @@
  const cat = categorias.find(c => c.id === catId);
  contenido.innerHTML = `
  <button class="btn btn-primary" id="btn-nuevo-prod" style="margin-bottom:16px;">
- + Agregar producto a ${cat ? cat.nombre : ""}
+ + Agregar producto a ${cat ? h(cat.nombre) : ""}
  </button>
  <div class="spinner-wrap" id="prod-spinner"><div class="spinner"></div></div>
  <div id="agotados-section"></div>
@@ -745,13 +747,13 @@
  card.innerHTML = `
  <div class="prod-emoji">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
  <div class="prod-info">
- <div class="prod-nombre">${prod.nombre}</div>
+ <div class="prod-nombre">${h(prod.nombre)}</div>
  <div class="prod-precio">$${(prod.precioVenta ?? 0).toLocaleString("es-PA", {minimumFractionDigits:2})} · Alerta: ${prod.alertaMinima ?? 0} uds</div>
  </div>
  <span class="stock-badge ${badgeClass}">${badgeText}</span>
  <div class="prod-acciones">
- <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
- <button class="btn-product-toggle ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "Reactivar" : "Desactivar"}</button>
+ <button class="btn-icon" data-edit-prod="${escaparAtributo(prod.id)}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
+ <button class="btn-product-toggle ${inactivo ? "" : "danger"}" data-toggle-prod="${escaparAtributo(prod.id)}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "Reactivar" : "Desactivar"}</button>
  </div>`;
 
  card.querySelector(`[data-edit-prod]`).addEventListener("click", () => abrirModalEditarProd(prod));

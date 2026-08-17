@@ -59,7 +59,7 @@ Este documento registra todas las modificaciones realizadas al proyecto CONTECS 
 Proyecto: contecs-utp
 Cuenta: alphamrv@gmail.com (personal de Alpha Vilchez)
 Servicios: Firestore + Authentication
-apiKey: AIzaSyDDx1wnAkSFz_KD390zGBZ6MCVTg2AUBqQ
+apiKey: [omitida del documento; consultar la configuración desplegada]
 ```
 
 ### 2.3 Estado de las fases al recibir el proyecto

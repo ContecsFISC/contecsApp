@@ -24,7 +24,14 @@ service cloud.firestore {
     }
 
     function isStaff() {
-      return userExists() && userRol() != 'sin_rol';
+      // Lista cerrada: un rol ausente, nulo o escrito incorrectamente nunca
+      // debe heredar permisos de staff por accidente.
+      return hasRol([
+        'ceo', 'junta_principal', 'junta', 'coordinador',
+        'finanzas', 'logistica', 'ventas', 'secretario', 'actividades',
+        'patrocinios', 'investigacion', 'voluntariado', 'giras',
+        'comunicaciones', 'staff_contecs', 'miembro'
+      ]);
     }
 
     function canGestionarParticipantes() {
@@ -42,23 +49,42 @@ service cloud.firestore {
       );
       allow create: if signedIn()
         && request.auth.uid == uid
-        && request.resource.data.rol == 'sin_rol';
+        && request.resource.data.keys().hasAll(['nombre', 'email', 'foto', 'rol', 'creadoEn'])
+        && request.resource.data.keys().hasOnly(['nombre', 'email', 'foto', 'rol', 'creadoEn'])
+        && request.resource.data.rol == 'sin_rol'
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.foto is string
+        && request.resource.data.foto.size() <= 2048;
       allow update: if signedIn() && (
         (request.auth.uid == uid
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol']))
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['nombre', 'foto', 'actualizadoEn'])
+          && request.resource.data.rol == resource.data.rol
+          && request.resource.data.email == resource.data.email
+          && request.resource.data.nombre is string
+          && request.resource.data.nombre.size() > 0
+          && request.resource.data.nombre.size() <= 120
+          && request.resource.data.foto is string
+          && request.resource.data.foto.size() <= 2048)
         || hasRol(['ceo', 'junta_principal'])
       );
     }
 
     // ── Participantes ─────────────────────────────────────────────────────────
-    // Escritura pública: el formulario de registro escribe directamente desde el browser.
-    // ── Participantes ────────────────────────────────────────────────────────
+    // El alta y el acceso público se realizan exclusivamente mediante Cloud
+    // Functions (Admin SDK). Nunca se expone la colección completa al browser.
     match /participantes/{docId} {
-      // Lectura pública: perfil.html consulta por codigo+token sin auth
-      allow read: if true;
-      // Escritura pública: registro desde el browser sin auth
-      allow create: if true;
-      allow update: if canGestionarParticipantes();
+      allow read: if canGestionarParticipantes();
+      allow create: if false;
+      allow update: if canGestionarParticipantes()
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'asistencias', 'totalAsistencias'
+        ]);
       allow delete: if hasRol(["ceo","junta_principal"]);
     }
 
@@ -67,14 +93,37 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Índices internos y límites antiabuso: únicamente Admin SDK.
+    match /identificadores_participantes/{id} {
+      allow read, write: if false;
+    }
+
+    match /limites_registro/{id} {
+      allow read, write: if false;
+    }
+
     // ── Inventario y catálogo ────────────────────────────────────────────────
     match /productos/{id} {
       allow read: if isStaff();
-      allow create, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
-      // Venta Rápida (todos los roles con permiso) solo puede tocar el stock;
-      // cambios a otros campos (precio, nombre, etc.) siguen restringidos a gestión.
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
+        && request.resource.data.keys().hasOnly([
+          'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId',
+          'stock', 'activo', 'creadoEn'
+        ])
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 150
+        && request.resource.data.precioVenta is number
+        && request.resource.data.precioVenta >= 0
+        && request.resource.data.alertaMinima is number
+        && request.resource.data.alertaMinima >= 0
+        && request.resource.data.stock == 0
+        && request.resource.data.activo == true;
       allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
-        || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock', 'actualizadoEn']));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activo'
+        ]);
+      allow delete: if false;
     }
 
     match /categorias/{id} {
@@ -85,53 +134,53 @@ service cloud.firestore {
     // ── Operaciones financieras ──────────────────────────────────────────────
     match /ventas/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      // Venta Rápida: cualquier rol (excepto sin_rol) puede registrar una venta.
-      allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      // Las ventas se crean exclusivamente desde Cloud Functions, que valida
+      // rol, identidad, productos, precios y movimientos relacionados.
+      allow create: if false;
+      allow update, delete: if false;
     }
 
     match /compras/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow create: if false;
       // Tras registrar la compra, el flujo sube la factura a Storage y luego
       // actualiza solo su estado (factura/facturaEstado/facturaError); quien
       // pudo crear la compra debe poder cerrar ese mismo paso.
-      allow update: if hasRol(['ceo', 'junta_principal'])
-        || (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['factura', 'facturaEstado', 'facturaError', 'actualizadoEn']));
-      allow delete: if hasRol(['ceo', 'junta_principal']);
+      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'factura', 'facturaEstado', 'facturaError', 'actualizadoEn'
+        ])
+        && request.resource.data.facturaEstado == 'subida'
+        && request.resource.data.factura is map
+        && request.resource.data.factura.uploadedBy == request.auth.uid;
+      allow delete: if false;
     }
 
     match /mermas/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      allow create: if false;
+      allow update, delete: if false;
     }
 
     match /fondos/{id} {
       // Ver y editar el fondo libremente: solo gestión financiera.
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
-      allow create, delete: if hasRol(['ceo', 'junta_principal', 'finanzas']);
-      // Venta Rápida / Compras / Ventas: cualquier staff puede sumar/restar el
-      // balance como efecto secundario de una venta o compra (vía increment(),
-      // que no requiere leer el documento antes), sin poder ver ni editar
-      // libremente el fondo.
-      allow update: if hasRol(['ceo', 'junta_principal', 'finanzas'])
-        || (isStaff() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'actualizadoEn']));
+      allow create, delete: if false;
+      // Los movimientos pasan por Cloud Functions; ni siquiera Finanzas puede
+      // reescribir el balance directamente desde DevTools.
+      allow update: if false;
     }
 
     match /fondos_entrada/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
-      // Venta Rápida: cualquier rol (excepto sin_rol) genera un movimiento de ingreso.
-      allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      allow create: if false;
+      allow update, delete: if false;
     }
 
     match /movimientos_inventario/{id} {
       allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
-      // Venta Rápida: cualquier rol (excepto sin_rol) genera el movimiento de salida.
-      allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal']);
+      allow create: if false;
+      allow update, delete: if false;
     }
 
     // ── Eventos e inscripciones internas ─────────────────────────────────────
@@ -142,7 +191,11 @@ service cloud.firestore {
 
     match /inscripciones/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow create, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'asistencias', 'totalAsistencias'
+        ]);
     }
 
     // Checkpoints detallados del programa (colección separada)
@@ -154,8 +207,13 @@ service cloud.firestore {
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
     match /inscripciones_checkpoint/{id} {
       allow read: if isStaff();
-      allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow create, update, delete: if false;
+    }
+
+    // Registro auditable y centralizado de cada asistencia confirmada por QR.
+    match /asistencias_congreso/{id} {
+      allow read: if isStaff();
+      allow create, update, delete: if false;
     }
 
     // ── Voluntarios ──────────────────────────────────────────────────────────
@@ -176,12 +234,16 @@ service cloud.firestore {
 
     match /voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])
+        && request.resource.data.totalHoras == 0;
+      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras']);
+      allow delete: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
     }
 
     match /asistencias_voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+      allow write: if false;
     }
 
     // ── Actividades de Ventas ────────────────────────────────────────────────

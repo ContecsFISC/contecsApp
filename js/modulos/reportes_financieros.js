@@ -1,34 +1,21 @@
 ﻿import { db } from "../core/firebase-config.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { escaparHtml } from "../core/seguridad.js";
 
 function formatMoney(v){return '$' + Number(v||0).toFixed(2)}
 
-function sampleData(){
-  // Keep a small fallback set in case Firestore isn't available
-  const ventas = [{items:[{nombre:'Camiseta',cantidad:80,precioUnitario:15,costoUnitario:7}],total:1200,utilidadTotal:640,creadoEn:'2026-05-01'}];
-  const compras = [{items:[{nombre:'Camiseta',cantidad:100,precioUnitario:7}],total:700,creadoEn:'2025-12-20'}];
-  const merma = [];
-  return {ventas,compras,merma};
-}
-
 async function fetchFromFirestore(){
-  try{
-    const ventasSnap = await getDocs(collection(db,'ventas'));
-    const comprasSnap = await getDocs(collection(db,'compras'));
-    const mermaSnap = await getDocs(collection(db,'mermas'));
-    const productosSnap = await getDocs(collection(db,'productos'));
-
-    const ventas = ventasSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const compras = comprasSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const merma = mermaSnap.docs.map(d=>({id:d.id,...d.data()}));
-    const productos = productosSnap.docs.map(d=>({id:d.id,...d.data()}));
-    return {ventas,compras,merma,productos};
-  }catch(e){
-    console.warn('Firestore no disponible, usando datos de ejemplo',e);
-    const s = sampleData();
-    s.productos = [];
-    return s;
-  }
+  const [ventasSnap, comprasSnap, mermaSnap, productosSnap] = await Promise.all([
+    getDocs(collection(db,'ventas')),
+    getDocs(collection(db,'compras')),
+    getDocs(collection(db,'mermas')),
+    getDocs(collection(db,'productos')),
+  ]);
+  const ventas = ventasSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const compras = comprasSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const merma = mermaSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const productos = productosSnap.docs.map(d=>({id:d.id,...d.data()}));
+  return {ventas,compras,merma,productos};
 }
 
 function groupByProductFromVentas(ventas){
@@ -71,7 +58,9 @@ export default async function initReportes(){
   // Perdidas: sumar merma tipo sin_vender costo * cantidad o totalPerdida si existe
   let perdidas = 0;
   merma.forEach(m=>{
-    if (Array.isArray(m.items)) {
+    if (m.totalPerdida != null) {
+      perdidas += Number(m.totalPerdida || 0);
+    } else if (Array.isArray(m.items)) {
       m.items.forEach(it=>{
         const tipo = String(it.tipo||it.tipoLinea||'').toLowerCase();
         if (tipo === 'sin_vender' || tipo === 'sin_vendida') {
@@ -79,14 +68,13 @@ export default async function initReportes(){
         }
       });
     }
-    if (m.totalPerdida) perdidas += Number(m.totalPerdida||0);
   });
 
   const ganancia = ventasTotal - comprasTotal - perdidas;
 
   document.getElementById('ventasTotal').innerText = formatMoney(ventasTotal);
   document.getElementById('comprasTotal').innerText = formatMoney(comprasTotal);
-  document.getElementById('gananciaTotal').innerText = formatMoney(Math.max(ganancia,0));
+  document.getElementById('gananciaTotal').innerText = formatMoney(ganancia);
   document.getElementById('perdidasTotal').innerText = formatMoney(perdidas);
 
   // Top productos
@@ -97,7 +85,7 @@ export default async function initReportes(){
   topTable.innerHTML = '';
   top.forEach(p=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="padding:6px 0">${p.name}</td><td>${p.units}</td><td>${formatMoney(p.revenue)}</td>`;
+    tr.innerHTML = `<td style="padding:6px 0">${escaparHtml(p.name)}</td><td>${p.units}</td><td>${formatMoney(p.revenue)}</td>`;
     topTable.appendChild(tr);
   });
 
@@ -118,7 +106,7 @@ export default async function initReportes(){
     const motivo = p.units < 20 ? 'Baja ventas' : 'Margen bajo';
     const accion = p.units < 20 ? 'Considerar bajar precio o promoción' : 'Revisar coste/precio';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="padding:6px 0">${p.name}</td><td>${motivo}</td><td>${accion}</td>`;
+    tr.innerHTML = `<td style="padding:6px 0">${escaparHtml(p.name)}</td><td>${motivo}</td><td>${accion}</td>`;
     riskTable.appendChild(tr);
   });
 

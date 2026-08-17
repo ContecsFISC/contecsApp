@@ -4,10 +4,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { resolverInvitados, formatearDuracion } from "./reuniones-utils.js";
+import {
+  escaparAtributo,
+  escaparHtml as escaparHtmlSeguro,
+  urlHttpSegura,
+} from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
 const usuario = getUsuarioActual();
-const reunionId = new URLSearchParams(window.location.search).get("id");
+const reunionIdCrudo = new URLSearchParams(window.location.search).get("id") || "";
+const reunionId = /^[A-Za-z0-9_-]{1,200}$/.test(reunionIdCrudo) ? reunionIdCrudo : "";
 
 let reunion = null;
 let listaUsuarios = [];
@@ -39,9 +45,7 @@ function parsearLineaMarkdown(linea) {
 }
 
 function escaparHtml(texto) {
-  const d = document.createElement("div");
-  d.textContent = texto;
-  return d.innerHTML;
+  return escaparHtmlSeguro(texto);
 }
 
 function negritaAHtml(texto) {
@@ -110,12 +114,13 @@ function renderPagina() {
   el("minuta-titulo").textContent = `Minuta — ${reunion.titulo} (${fmtFecha(reunion.fechaInicio)})`;
   el("link-editar-reunion").href = `agendarReunion.html?id=${reunion.id}`;
 
+  const linkVirtual = reunion.esVirtual ? urlHttpSegura(reunion.linkVirtual) : "";
   el("meta-grid").innerHTML = `
     <div><strong>Fecha</strong>${fmtFecha(reunion.fechaInicio)}</div>
     <div><strong>Duración</strong>${formatearDuracion(reunion.fechaInicio, reunion.fechaFin)}</div>
     <div><strong>Hora</strong>${fmtHora(reunion.fechaInicio)} – ${fmtHora(reunion.fechaFin)}</div>
-    <div><strong>Lugar</strong>${reunion.esVirtual ? `Virtual — <a href="${reunion.linkVirtual}" target="_blank" rel="noopener">${reunion.linkVirtual}</a>` : (reunion.lugar || "—")}</div>
-    <div style="grid-column:1/-1;"><strong>Agenda</strong>${reunion.agenda || "—"}</div>
+    <div><strong>Lugar</strong>${reunion.esVirtual ? (linkVirtual ? `Virtual — <a href="${escaparAtributo(linkVirtual)}" target="_blank" rel="noopener noreferrer">${escaparHtml(linkVirtual)}</a>` : "Virtual") : escaparHtml(reunion.lugar || "—")}</div>
+    <div style="grid-column:1/-1;"><strong>Agenda</strong>${escaparHtml(reunion.agenda || "—")}</div>
   `;
 
   if (invitadosResueltos.length === 0) {
@@ -123,8 +128,8 @@ function renderPagina() {
   } else {
     el("grid-asistencia").innerHTML = invitadosResueltos.map(u => `
       <label class="check-item">
-        <input type="checkbox" data-uid="${u.id}" ${reunion.asistencia?.[u.id] ? "checked" : ""}/>
-        ${u.nombre || u.email || "Sin nombre"}
+        <input type="checkbox" data-uid="${escaparAtributo(u.id)}" ${reunion.asistencia?.[u.id] ? "checked" : ""}/>
+        ${escaparHtml(u.nombre || u.email || "Sin nombre")}
       </label>
     `).join("");
   }

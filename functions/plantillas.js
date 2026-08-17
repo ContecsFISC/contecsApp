@@ -8,6 +8,16 @@ function aplicarPlantilla(texto, vars) {
   return String(texto).replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] ?? "");
 }
 
+function escaparHtml(valor) {
+  return String(valor ?? "").replace(/[&<>'"]/g, (caracter) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    "\"": "&quot;",
+  })[caracter]);
+}
+
 function leer(nombre) {
   return fs.readFileSync(path.join(TEMPLATES_DIR, nombre), "utf8");
 }
@@ -37,7 +47,10 @@ function htmlATexto(html) {
 function cargarCorreoPagoAprobado(vars) {
   const raw = leer("correo-pago-aprobado.html");
   const meta = parseMeta(raw);
-  const htmlContent = aplicarPlantilla(raw, vars);
+  const varsHtml = Object.fromEntries(
+      Object.entries(vars || {}).map(([key, value]) => [key, escaparHtml(value)]),
+  );
+  const htmlContent = aplicarPlantilla(raw, varsHtml);
 
   return {
     activo: meta.activo,

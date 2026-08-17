@@ -1,6 +1,7 @@
 import { guardRoute, requirePermiso, getUsuarioActual, usuarioTienePermiso } from "../core/auth.js";
 import { getIconoHTML } from "./catalogo.js";
 import { iconoImg, iconoComboImg } from "../core/iconos.js?v=20260817-combos";
+import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarVenta, registrarVentaConMerma, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -8,7 +9,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("acceso_venta_rapida");
+await requirePermiso("acceso_venta_rapida");
+const h = escaparHtml;
 
 // Clave de sessionStorage para no perder la venta en progreso si el vendedor
 // recarga la página por accidente antes de presionar "Enviar venta".
@@ -127,7 +129,7 @@ async function cargarActividades() {
 		// seleccionar por error una actividad vieja y ver sus productos/combos.
 		sel.innerHTML = `<option value="">— Selecciona una actividad —</option>` +
 			estado.actividades.map((a) =>
-			`<option value="${a.id}">${esHoy(a.fecha) ? "HOY — " : ""}${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
+			`<option value="${escaparAtributo(a.id)}">${esHoy(a.fecha) ? "HOY — " : ""}${h(a.nombre)}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
 			).join("");
 	} catch (e) {
 		console.warn("No se pudieron cargar actividades:", e.message);
@@ -281,7 +283,7 @@ function refrescarSelectorMerma() {
 		.slice()
 		.sort((a, b) => a.nombre.localeCompare(b.nombre));
 	mermaProducto.innerHTML = `<option value="">— Selecciona un producto —</option>` +
-		productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join("");
+		productos.map(p => `<option value="${escaparAtributo(p.id)}">${h(p.nombre)}</option>`).join("");
 	if (productos.some(p => p.id === valorActual)) mermaProducto.value = valorActual;
 }
 
@@ -412,11 +414,11 @@ function renderCatalogo() {
 				const enPedido = estado.pedido.get(`c_${c.id}`);
 				const cantidad = enPedido ? enPedido.cantidad : 0;
 				return `
-					<div class="item-card combo ${cantidad > 0 ? "tiene-cant" : ""}" data-combo-id="${c.id}">
+					<div class="item-card combo ${cantidad > 0 ? "tiene-cant" : ""}" data-combo-id="${escaparAtributo(c.id)}">
 						<span class="badge-combo">Combo</span>
-						${cantidad > 0 ? `<span class="badge-cant" data-combo-restar="${c.id}">${cantidad}</span>` : ""}
+						${cantidad > 0 ? `<span class="badge-cant" data-combo-restar="${escaparAtributo(c.id)}">${cantidad}</span>` : ""}
 						<div class="icono">${iconoComboImg(c, { clase: "icono-lg" })}</div>
-						<div class="nombre">${c.nombre}</div>
+						<div class="nombre">${h(c.nombre)}</div>
 						<div class="precio">${formatearMoneda(c.precioTotal)}</div>
 					</div>`;
 			}).join("")
@@ -430,10 +432,10 @@ function renderCatalogo() {
 				const cantidad = enPedido ? enPedido.cantidad : 0;
 				const agotado = Number(p.stock || 0) <= 0;
 				return `
-					<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-id="${p.id}">
-						${cantidad > 0 ? `<span class="badge-cant" data-producto-restar="${p.id}">${cantidad}</span>` : ""}
+					<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-id="${escaparAtributo(p.id)}">
+						${cantidad > 0 ? `<span class="badge-cant" data-producto-restar="${escaparAtributo(p.id)}">${cantidad}</span>` : ""}
 						<div class="icono">${getIconoHTML(p.iconoId, { clase: "icono-lg" })}</div>
-						<div class="nombre">${p.nombre}</div>
+						<div class="nombre">${h(p.nombre)}</div>
 						<div class="precio">${formatearMoneda(p.precioVenta || 0)}</div>
 					</div>`;
 			}).join("")
@@ -455,10 +457,10 @@ function renderCatalogo() {
 					const cantidad = enPedido ? enPedido.cantidad : 0;
 					const agotado = Number(p.stock || 0) <= 0;
 					return `
-						<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-extra-id="${p.id}">
-							${cantidad > 0 ? `<span class="badge-cant" data-producto-extra-restar="${p.id}">${cantidad}</span>` : ""}
+						<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-extra-id="${escaparAtributo(p.id)}">
+							${cantidad > 0 ? `<span class="badge-cant" data-producto-extra-restar="${escaparAtributo(p.id)}">${cantidad}</span>` : ""}
 							<div class="icono">${getIconoHTML(p.iconoId, { clase: "icono-lg" })}</div>
-							<div class="nombre">${p.nombre}</div>
+							<div class="nombre">${h(p.nombre)}</div>
 							<div class="precio">${formatearMoneda(p.precioVenta || 0)}</div>
 						</div>`;
 				}).join("")
@@ -540,13 +542,13 @@ function renderPedido() {
 				const faltantes = (it.items || [])
 					.filter((x) => unidadesEnPedidoProducto(x.productoId) > stockDisponibleCatalogo(x.productoId))
 					.map((x) => x.nombre);
-				if (faltantes.length > 0) aviso = `<div class="pedido-warn">Atención: supera stock de ${faltantes.join(", ")}. Se registrará igual.</div>`;
+				if (faltantes.length > 0) aviso = `<div class="pedido-warn">Atención: supera stock de ${faltantes.map(h).join(", ")}. Se registrará igual.</div>`;
 			}
 
 			return `
 				<div class="pedido-fila">
 					<div class="info">
-						<div class="nombre">${it.tipo === "combo" ? iconoComboImg(it) + " " : ""}${it.nombre}</div>
+						<div class="nombre">${it.tipo === "combo" ? iconoComboImg(it) + " " : ""}${h(it.nombre)}</div>
 						<div class="meta">Subtotal ${formatearMoneda(subtotal)}</div>
 						${aviso}
 					</div>
@@ -618,10 +620,10 @@ function renderMerma() {
 			<div class="merma-fila">
 				<div class="producto">
 					${getIconoHTML(item.iconoId)}
-					<span>${item.nombre}${restante < 0 ? `<small class="pedido-warn" style="display:block;">Supera el stock por ${Math.abs(restante)}</small>` : ""}</span>
+					<span>${h(item.nombre)}${restante < 0 ? `<small class="pedido-warn" style="display:block;">Supera el stock por ${Math.abs(restante)}</small>` : ""}</span>
 				</div>
-				<input type="number" min="1" step="1" value="${item.cantidad}" aria-label="Cantidad dañada de ${item.nombre}" data-merma-cantidad="${item.productoId}"/>
-				<button type="button" class="quitar" title="Quitar merma" data-merma-quitar="${item.productoId}">${iconoImg("eliminar")}</button>
+				<input type="number" min="1" step="1" value="${item.cantidad}" aria-label="Cantidad dañada de ${escaparAtributo(item.nombre)}" data-merma-cantidad="${escaparAtributo(item.productoId)}"/>
+				<button type="button" class="quitar" title="Quitar merma" data-merma-quitar="${escaparAtributo(item.productoId)}">${iconoImg("eliminar")}</button>
 			</div>`;
 	}).join("");
 

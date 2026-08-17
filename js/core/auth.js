@@ -100,7 +100,11 @@ export function guardRoute() {
         window.location.href = prefijoHaciaPanel() + "index.html";
       } else if (user && esPublica) {
         await cargarUsuario(user);
-        window.location.href = rutaHaciaDashboard();
+        // Un usuario recién registrado sin rol debe permanecer en la pantalla
+        // de acceso hasta que un administrador lo active.
+        if (sessionStorage.getItem("rol") !== "sin_rol") {
+          window.location.href = rutaHaciaDashboard();
+        }
       } else if (user && !esPublica) {
         // Si sessionStorage no tiene los datos de este usuario (pestaña nueva o
         // sesión restaurada sin haber pasado por el login en esta pestaña),
@@ -212,9 +216,19 @@ export function usuarioTienePermiso(permiso) {
   return tienePermiso(rol, permiso);
 }
 
-export function requirePermiso(...permisos) {
+export async function requirePermiso(...permisos) {
+  await esperarSesionLista();
+
+  // guardRoute ya inició la navegación al login. Mantener pendiente la
+  // evaluación del módulo evita que continúe consultando datos protegidos.
+  if (!auth.currentUser) {
+    await new Promise(() => {});
+  }
+
   const tiene = permisos.some(p => usuarioTienePermiso(p));
   if (!tiene) {
-    window.location.href = prefijoHaciaPanel() + "dashboard.html";
+    window.location.replace(prefijoHaciaPanel() + "dashboard.html");
+    await new Promise(() => {});
   }
+  return true;
 }

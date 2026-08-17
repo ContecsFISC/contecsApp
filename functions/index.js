@@ -14,6 +14,10 @@ initializeApp();
 
 const db = getFirestore();
 const bucket = getStorage().bucket();
+const {
+  ejecutarOperacionFinanciera,
+} = require("./operaciones-financieras");
+const {ejecutarOperacionQr} = require("./operaciones-qr");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 // La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
@@ -23,6 +27,19 @@ const bucket = getStorage().bucket();
 const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa"};
 const MAX_REENVIOS_CORREO_QR = 4;
+const MAX_REGISTROS_POR_HORA_IP = 25;
+const MAX_ESTUDIANTES_COLEGIO = 60;
+
+const CATEGORIAS_REGISTRO = Object.freeze({
+  estudiante_utp: {nombre: "Estudiante UTP", precio: 10},
+  estudiante_externo: {nombre: "Estudiante Externo", precio: 20},
+  academico_utp: {nombre: "Académico UTP", precio: 20},
+  academico_externo: {nombre: "Académico Externo", precio: 30},
+  profesional: {nombre: "Profesional", precio: 30},
+  autor: {nombre: "Autor de Resumen", precio: 35},
+  otros: {nombre: "Otros", precio: 20},
+  colegio: {nombre: "Colegio", precio: 6},
+});
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -31,6 +48,37 @@ const ROLES_ENVIAR_CORREO_QR = new Set([
   "ceo", "junta_principal", "junta", "coordinador",
   "actividades", "finanzas", "secretario", "comunicaciones", "staff_contecs",
 ]);
+
+// Toda modificación contable se ejecuta con Admin SDK después de validar la
+// sesión y el rol. El navegador ya no puede escribir saldos o ventas directo.
+exports.ejecutarOperacionFinanciera = onCall(
+    {region: "us-central1", maxInstances: 20},
+    async (request) => {
+      try {
+        return await ejecutarOperacionFinanciera(request);
+      } catch (error) {
+        if (error instanceof HttpsError) throw error;
+        console.error("ejecutarOperacionFinanciera:", error);
+        throw new HttpsError(
+            "internal",
+            "No se pudo completar la operación financiera.",
+        );
+      }
+    },
+);
+
+exports.ejecutarOperacionQr = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        return await ejecutarOperacionQr(request);
+      } catch (error) {
+        if (error instanceof HttpsError) throw error;
+        console.error("ejecutarOperacionQr:", error);
+        throw new HttpsError("internal", "No se pudo registrar el escaneo.");
+      }
+    },
+);
 
 const SSO_USER_URL = "https://sso.utp.ac.pa/ms/user";
 const ORIGENES_SSO_PERMITIDOS = new Set([
@@ -54,17 +102,71 @@ function generarToken() {
   return crypto.randomBytes(24).toString("hex");
 }
 
-async function generarCodigo() {
+function idBloqueoParticipante(tipo, valor) {
+  const hash = crypto.createHash("sha256")
+      .update(String(valor || "").trim().toLowerCase())
+      .digest("hex");
+  return `${tipo}_${hash}`;
+}
+
+async function crearParticipantesUnicos(registros) {
+  const entradas = registros.map((registro) => ({
+    ...registro,
+    correoRef: db.collection("identificadores_participantes")
+        .doc(idBloqueoParticipante("correo", registro.correo)),
+    cedulaRef: registro.cedula ?
+      db.collection("identificadores_participantes")
+          .doc(idBloqueoParticipante("cedula", registro.cedula)) : null,
+  }));
+  const refs = entradas.flatMap((entrada) => [
+    entrada.docRef,
+    entrada.correoRef,
+    ...(entrada.cedulaRef ? [entrada.cedulaRef] : []),
+  ]);
+  const rutas = refs.map((ref) => ref.path);
+  if (new Set(rutas).size !== rutas.length) {
+    throw new HttpsError(
+        "already-exists",
+        "El grupo contiene cédulas o correos repetidos.",
+    );
+  }
+
+  await db.runTransaction(async (tx) => {
+    const existentes = await tx.getAll(...refs);
+    if (existentes.some((snap) => snap.exists)) {
+      throw new HttpsError(
+          "already-exists",
+          "Ya existe una inscripción con una de estas cédulas o correos.",
+      );
+    }
+    entradas.forEach((entrada) => {
+      const bloqueo = {
+        participanteId: entrada.docRef.id,
+        creadoEn: FieldValue.serverTimestamp(),
+      };
+      tx.set(entrada.docRef, entrada.participante);
+      tx.set(entrada.correoRef, bloqueo);
+      if (entrada.cedulaRef) tx.set(entrada.cedulaRef, bloqueo);
+    });
+  });
+}
+
+async function generarCodigos(cantidad) {
   const counterRef = db.doc("contadores/inscripciones2026");
-  const seq = await db.runTransaction(async (tx) => {
+  const inicio = await db.runTransaction(async (tx) => {
     const snap = await tx.get(counterRef);
     const snapData = snap.data();
     const current = snapData ? (snapData.valor || 0) : 0;
-    const next = current + 1;
-    tx.set(counterRef, {valor: next, actualizadoEn: FieldValue.serverTimestamp()}, {merge: true});
-    return next;
+    const next = current + cantidad;
+    tx.set(counterRef, {
+      valor: next,
+      actualizadoEn: FieldValue.serverTimestamp(),
+    }, {merge: true});
+    return current + 1;
   });
-  return `CTCS-2026-${String(seq).padStart(5, "0")}`;
+  return Array.from({length: cantidad}, (_, indice) =>
+    `CTCS-2026-${String(inicio + indice).padStart(5, "0")}`,
+  );
 }
 
 function validarCorreo(correo) {
@@ -123,7 +225,82 @@ function validarTexto(valor, campo, {requerido = false, max = 200} = {}) {
   const texto = typeof valor === "string" ? valor.trim() : "";
   if (requerido && !texto) throw new HttpsError("invalid-argument", `El campo ${campo} es obligatorio.`);
   if (texto.length > max) throw new HttpsError("invalid-argument", `El campo ${campo} es demasiado largo.`);
+  const contieneControl = [...texto].some((caracter) => {
+    const codigo = caracter.charCodeAt(0);
+    return codigo === 127 || (codigo < 32 && codigo !== 9 && codigo !== 10 && codigo !== 13);
+  });
+  if (texto.includes("<") || texto.includes(">") || contieneControl) {
+    throw new HttpsError("invalid-argument", `El campo ${campo} contiene caracteres no permitidos.`);
+  }
   return texto;
+}
+
+function normalizarCamposExtra(valor) {
+  if (!valor || typeof valor !== "object" || Array.isArray(valor)) return {};
+  const entradas = Object.entries(valor);
+  if (entradas.length > 30) {
+    throw new HttpsError("invalid-argument", "Hay demasiados campos adicionales.");
+  }
+  return Object.fromEntries(entradas.map(([clave, contenido]) => {
+    const claveLimpia = validarTexto(clave, "nombre de campo adicional", {requerido: true, max: 60});
+    if (!/^[\p{L}\p{N}_ -]+$/u.test(claveLimpia)) {
+      throw new HttpsError("invalid-argument", "Un campo adicional tiene un nombre inválido.");
+    }
+    return [claveLimpia, validarTexto(String(contenido ?? ""), claveLimpia, {max: 500})];
+  }));
+}
+
+function normalizarTutor(valor) {
+  if (!valor || typeof valor !== "object" || Array.isArray(valor)) {
+    throw new HttpsError("invalid-argument", "Los datos del tutor son obligatorios.");
+  }
+  return {
+    nombre: validarTexto(valor.nombre, "nombre del tutor", {requerido: true, max: 100}),
+    apellido: validarTexto(valor.apellido, "apellido del tutor", {requerido: true, max: 100}),
+    correo: validarTexto(valor.correo, "correo del tutor", {requerido: true, max: 254}).toLowerCase(),
+    telefono: validarTexto(valor.telefono, "teléfono del tutor", {requerido: true, max: 30}),
+    colegio: validarTexto(valor.colegio, "colegio", {requerido: true, max: 200}),
+  };
+}
+
+function normalizarEstudiantes(valor) {
+  if (!Array.isArray(valor)) return [];
+  if (valor.length > MAX_ESTUDIANTES_COLEGIO) {
+    throw new HttpsError("invalid-argument", `Un grupo no puede superar ${MAX_ESTUDIANTES_COLEGIO} estudiantes.`);
+  }
+  return valor.map((est, indice) => ({
+    nombre: validarTexto(est?.nombre, `nombre del estudiante ${indice + 1}`, {requerido: true, max: 100}),
+    apellido: validarTexto(est?.apellido, `apellido del estudiante ${indice + 1}`, {requerido: true, max: 100}),
+    cedula: validarTexto(est?.cedula, `cédula del estudiante ${indice + 1}`, {max: 30}),
+    correo: validarTexto(est?.correo, `correo del estudiante ${indice + 1}`, {requerido: true, max: 254}).toLowerCase(),
+    grado: validarTexto(est?.grado, `grado del estudiante ${indice + 1}`, {max: 80}),
+    bachiller: validarTexto(est?.bachiller, `bachiller del estudiante ${indice + 1}`, {max: 120}),
+  }));
+}
+
+async function aplicarLimiteRegistro(request) {
+  const raw = request.rawRequest;
+  const ip = String(raw?.headers?.["x-forwarded-for"] || raw?.ip || "desconocida")
+      .split(",")[0].trim();
+  const hash = crypto.createHash("sha256").update(ip).digest("hex").slice(0, 32);
+  const ref = db.collection("limites_registro").doc(hash);
+  const ahora = Date.now();
+  const ventanaMs = 60 * 60 * 1000;
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.data() || {};
+    const inicio = Number(data.ventanaInicio || 0);
+    const vigente = ahora - inicio < ventanaMs;
+    const cantidad = vigente ? Number(data.cantidad || 0) : 0;
+    if (cantidad >= MAX_REGISTROS_POR_HORA_IP) {
+      throw new HttpsError("resource-exhausted", "Demasiados registros desde esta conexión. Intenta más tarde.");
+    }
+    tx.set(ref, {
+      ventanaInicio: vigente ? inicio : ahora,
+      cantidad: cantidad + 1,
+      actualizadoEn: FieldValue.serverTimestamp(),
+    });
+  });
 }
 
 async function subirComprobante({docId, base64, contentType, nombre}) {
@@ -132,7 +309,12 @@ async function subirComprobante({docId, base64, contentType, nombre}) {
   const buffer = Buffer.from(base64, "base64");
   if (!buffer.length || buffer.length > LIMITE_COMPROBANTE) throw new HttpsError("invalid-argument", "El comprobante no puede superar 10 MB.");
   const extMap = {"application/pdf": "pdf", "image/jpeg": "jpeg", "image/png": "png", "image/gif": "gif", "image/webp": "webp"};
-  const ruta = `comprobantes/${docId}.${extMap[contentType] || "bin"}`;
+  // Una ruta única evita que dos inscripciones simultáneas con la misma
+  // identidad se sobrescriban (y que limpiar la duplicada borre la válida).
+  const sufijo = crypto.randomBytes(6).toString("hex");
+  const ruta = `comprobantes/${docId}_${sufijo}.${
+    extMap[contentType] || "bin"
+  }`;
   await bucket.file(ruta).save(buffer, {
     metadata: {contentType, metadata: {nombreOriginal: String(nombre || "comprobante").slice(0, 200), subidoEn: new Date().toISOString()}},
   });
@@ -288,10 +470,16 @@ async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
     if (participante.pago?.correo_aprobacion_enviado && !forzarReenvio) {
       return {omitir: true, razon: "ya_enviado", reenviosUsados};
     }
-    if (participante.pago?.correo_aprobacion_enviando) {
+    const bloqueoInicio = participante.pago?.correo_aprobacion_enviandoEn?.toMillis?.() || 0;
+    const bloqueoVigente = participante.pago?.correo_aprobacion_enviando &&
+      Date.now() - bloqueoInicio < 5 * 60 * 1000;
+    if (bloqueoVigente) {
       return {omitir: true, razon: "en_proceso", reenviosUsados};
     }
-    tx.update(docRef, {"pago.correo_aprobacion_enviando": true});
+    tx.update(docRef, {
+      "pago.correo_aprobacion_enviando": true,
+      "pago.correo_aprobacion_enviandoEn": FieldValue.serverTimestamp(),
+    });
     return {omitir: false, participante, esReenvio, reenviosUsados};
   });
 
@@ -328,6 +516,7 @@ async function procesarCorreoQrAprobado({docId, forzarReenvio = false}) {
   const estadoCorreo = {
     "pago.correo_aprobacion_error": errorMsg,
     "pago.correo_aprobacion_enviando": false,
+    "pago.correo_aprobacion_enviandoEn": null,
   };
 
   if (bloqueo.esReenvio) {
@@ -451,14 +640,71 @@ exports.registrarParticipante = onCall(
           throw new HttpsError("invalid-argument", "Adjunta el comprobante de transferencia.");
         }
 
+        await aplicarLimiteRegistro(request);
+
+        const esColegio = data.esColegio === true;
+        const categoriaId = esColegio ? "colegio" : validarTexto(
+            data.categoria,
+            "categoría",
+            {requerido: true, max: 40},
+        );
+        const categoriaConfig = CATEGORIAS_REGISTRO[categoriaId];
+        if (!categoriaConfig) {
+          throw new HttpsError("invalid-argument", "La categoría seleccionada no es válida.");
+        }
+
+        const camposExtra = normalizarCamposExtra(data.camposExtra);
+        const estudiantesData = esColegio ? normalizarEstudiantes(data.estudiantes) : [];
+        const tutorData = esColegio ? normalizarTutor(data.tutor) : null;
+        if (esColegio && estudiantesData.length === 0) {
+          throw new HttpsError("invalid-argument", "Agrega al menos un estudiante al grupo del colegio.");
+        }
+        if (tutorData && !validarCorreo(tutorData.correo)) {
+          throw new HttpsError("invalid-argument", "El correo del tutor no es válido.");
+        }
+        for (const estudiante of estudiantesData) {
+          if (!validarCorreo(estudiante.correo)) {
+            throw new HttpsError("invalid-argument", `El correo de ${estudiante.nombre} no es válido.`);
+          }
+        }
+
+        const montoCalculado = esColegio ?
+          categoriaConfig.precio * (1 + estudiantesData.length) :
+          categoriaConfig.precio;
+
         const docId = generarDocId(cedula, correo);
         if (!docId) throw new HttpsError("invalid-argument", "Se requiere cédula o correo.");
 
         const docRef = db.collection("participantes").doc(docId);
-        const existe = await docRef.get();
-        if (existe.data()) throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+        const identidades = [
+          {cedula, correo, docId},
+          ...estudiantesData.map((estudiante) => ({
+            cedula: estudiante.cedula,
+            correo: estudiante.correo,
+            docId: generarDocId(estudiante.cedula, estudiante.correo),
+          })),
+        ];
+        const correos = identidades.map((item) => item.correo);
+        const cedulas = identidades.map((item) => item.cedula).filter(Boolean);
+        if (new Set(correos).size !== correos.length ||
+            new Set(cedulas).size !== cedulas.length) {
+          throw new HttpsError(
+              "already-exists",
+              "El grupo contiene cédulas o correos repetidos.",
+          );
+        }
+        // Consulta también la colección histórica: los registros creados antes
+        // de los bloqueos de identidad todavía no poseen un documento-lock.
+        const comprobacionesHistoricas = await Promise.all(
+            identidades.map((item) => db.collection("participantes")
+                .where("correo", "==", item.correo).limit(1).get()),
+        );
+        if (comprobacionesHistoricas.some((snap) => !snap.empty)) {
+          throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+        }
 
-        const codigo = await generarCodigo();
+        const codigos = await generarCodigos(identidades.length);
+        const codigo = codigos[0];
         const token = generarToken();
 
         let comprobanteRuta = null;
@@ -471,23 +717,18 @@ exports.registrarParticipante = onCall(
           });
         }
 
-        const esColegio = !!data.esColegio;
-        const camposExtra = typeof data.camposExtra === "object" && data.camposExtra ? data.camposExtra : {};
-        const estudiantesData = Array.isArray(data.estudiantes) ? data.estudiantes : [];
-        const tutorData = data.tutor && typeof data.tutor === "object" ? data.tutor : null;
-
         const participante = {
           codigo, token,
           nombre, apellido, nombreCompleto: `${nombre} ${apellido}`,
           cedula, correo, telefono,
-          categoria: esColegio ? "colegio" : (data.categoria || "otros"),
-          categoriaNombre: esColegio ? "Colegio" : (data.categoriaNombre || "Participante"),
+          categoria: categoriaId,
+          categoriaNombre: categoriaConfig.nombre,
           camposExtra,
           pago: {
             metodo: metodoPago,
             estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
             comprobanteRuta,
-            monto: esColegio ? null : (data.monto ?? null),
+            monto: montoCalculado,
             aprobadoPor: null,
             aprobadoEn: null,
             notas: null,
@@ -504,54 +745,66 @@ exports.registrarParticipante = onCall(
           actualizadoEn: FieldValue.serverTimestamp(),
         };
 
-        await docRef.set(participante);
-
-        // Guardar estudiantes si es colegio
-        const estudiantesGuardados = [];
-        if (esColegio && estudiantesData.length > 0) {
-          const batch = db.batch();
-          let ops = 0;
-          for (const est of estudiantesData) {
-            const estCedula = String(est.cedula || "").trim();
-            const estCorreo = String(est.correo || "").trim().toLowerCase();
-            const estId = generarDocId(estCedula, estCorreo);
-            if (!estId) continue;
-            const estRef = db.collection("participantes").doc(estId);
-            const estExiste = await estRef.get();
-            if (estExiste.data()) continue;
-            const estCodigo = await generarCodigo();
-            const estToken = generarToken();
-            estudiantesGuardados.push({
-              docId: estId,
-              codigo: estCodigo,
-              token: estToken,
-              nombre: `${String(est.nombre || "").trim()} ${String(est.apellido || "").trim()}`,
-              correo: estCorreo,
-            });
-            batch.set(estRef, {
-              codigo: estCodigo, token: estToken,
-              nombre: String(est.nombre || "").trim(),
-              apellido: String(est.apellido || "").trim(),
-              nombreCompleto: `${String(est.nombre||"").trim()} ${String(est.apellido||"").trim()}`,
-              cedula: estCedula, correo: estCorreo, telefono: "",
-              categoria: "colegio_estudiante", categoriaNombre: "Colegio",
-              camposExtra: {grado: est.grado || "", bachiller: est.bachiller || ""},
+        const registros = [{
+          docRef,
+          participante,
+          correo,
+          cedula,
+        }];
+        estudiantesData.forEach((est, indice) => {
+          const estId = generarDocId(est.cedula, est.correo);
+          const estRef = db.collection("participantes").doc(estId);
+          registros.push({
+            docRef: estRef,
+            correo: est.correo,
+            cedula: est.cedula,
+            participante: {
+              codigo: codigos[indice + 1],
+              token: generarToken(),
+              nombre: est.nombre,
+              apellido: est.apellido,
+              nombreCompleto: `${est.nombre} ${est.apellido}`,
+              cedula: est.cedula,
+              correo: est.correo,
+              telefono: "",
+              categoria: "colegio_estudiante",
+              categoriaNombre: "Colegio",
+              camposExtra: {grado: est.grado, bachiller: est.bachiller},
               pago: {
                 metodo: metodoPago,
-                estado: metodoPago === "transferencia" ? "comprobante_enviado" : "pendiente_efectivo",
-                comprobanteRuta, monto: null,
-                aprobadoPor: null, aprobadoEn: null, notas: null,
+                estado: metodoPago === "transferencia" ?
+                  "comprobante_enviado" : "pendiente_efectivo",
+                comprobanteRuta,
+                monto: null,
+                aprobadoPor: null,
+                aprobadoEn: null,
+                notas: null,
               },
-              esColegio: true, tutorCodigo: codigo,
-              tutor: tutorData, colegio: tutorData?.colegio || null,
-              estudiantes: [], estadoRegistro: "activo", asistencias: {},
-              correo_enviado: false, correo_pendiente: true,
+              esColegio: true,
+              tutorCodigo: codigo,
+              tutor: tutorData,
+              colegio: tutorData?.colegio || null,
+              estudiantes: [],
+              estadoRegistro: "activo",
+              asistencias: {},
+              correo_enviado: false,
+              correo_pendiente: true,
               fechaRegistro: FieldValue.serverTimestamp(),
               actualizadoEn: FieldValue.serverTimestamp(),
-            });
-            ops++;
+            },
+          });
+        });
+
+        try {
+          // Tutor y estudiantes se crean juntos: o se guarda todo el grupo o
+          // no se guarda nada, incluso ante dos solicitudes simultáneas.
+          await crearParticipantesUnicos(registros);
+        } catch (e) {
+          if (comprobanteRuta) {
+            await bucket.file(comprobanteRuta)
+                .delete({ignoreNotFound: true}).catch(() => {});
           }
-          if (ops > 0) await batch.commit();
+          throw e;
         }
 
         return {codigo, correo};

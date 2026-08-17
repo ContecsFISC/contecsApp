@@ -2,12 +2,14 @@
 import { db } from "../core/firebase-config.js";
 import { formatearMoneda, resumenItemPrincipal } from "../core/operaciones.js";
 import { generarReporteFinancieroExcel } from "./reporteFinancieroExcel.js";
+import { escaparHtml } from "../core/seguridad.js";
 import {
   doc, getDoc, collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("ver_fondos");
+await requirePermiso("ver_fondos");
+const h = escaparHtml;
 
 const estado = {
   balance: 0,
@@ -96,7 +98,7 @@ function cargarFiltroUsuarios() {
 
   const actual = filtroUsuario.value;
   filtroUsuario.innerHTML = '<option value="todos">Todos</option>' +
-    usuarios.map((u) => `<option value="${u}">${u}</option>`).join("");
+    usuarios.map((u) => `<option value="${h(u)}">${h(u)}</option>`).join("");
 
   if (usuarios.includes(actual)) filtroUsuario.value = actual;
 }
@@ -162,10 +164,10 @@ function renderTabla() {
     return `
       <tr>
         <td class="col-fecha">${fechaTexto(mov.creadoEn)}</td>
-        <td class="col-mov">${mov.titulo || mov.descripcion || "Movimiento"}</td>
-        <td class="col-usuario">${mov.usuarioNombre || mov.usuarioId || "-"}</td>
-        <td class="col-tipo">${mov.origen || "manual"}</td>
-        <td class="col-tipo">${mov.referenciaId || "-"}</td>
+        <td class="col-mov">${h(mov.titulo || mov.descripcion || "Movimiento")}</td>
+        <td class="col-usuario">${h(mov.usuarioNombre || mov.usuarioId || "-")}</td>
+        <td class="col-tipo">${h(mov.origen || "manual")}</td>
+        <td class="col-tipo">${h(mov.referenciaId || "-")}</td>
         <td class="col-ingreso">${ingreso}</td>
         <td class="col-egreso">${egreso}</td>
       </tr>`;

@@ -5,8 +5,14 @@ import {
 import { getUsuarioActual, esperarSesionLista } from "../core/auth.js";
 import { usuarioPuedeVerReunion, usuarioPuedeGestionarMinuta } from "./reuniones-utils.js";
 import { iconoImg } from "../core/iconos.js";
+import {
+  escaparAtributo,
+  escaparHtml,
+  urlHttpSegura,
+} from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
 let usuarioActual = null;
 
 let actividades = [], giras = [], ventas = [], reuniones = [], asignaciones = [];
@@ -101,7 +107,7 @@ function renderCalendario() {
 
     const evtsHtml = visibles.map(e => {
       const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
-      return `<span class="cal-evento evt-${e.tipo}" data-id="${e.id}" data-tipo="${e.tipo}">${nombre}</span>`;
+      return `<span class="cal-evento evt-${e.tipo}" data-id="${escaparAtributo(e.id)}" data-tipo="${e.tipo}">${h(nombre)}</span>`;
     }).join("");
 
     const masHtml = extras > 0
@@ -126,19 +132,20 @@ function fmtHora(ts) {
 // ─── Detalle de una reunión ───────────────────────────────────────────────────
 function verDetalleReunion(e) {
   const cfg = { label: "Reunión", color: "#1a56db", bg: "#eef2ff", border: "#a5b4fc" };
+  const linkVirtual = urlHttpSegura(e.linkVirtual);
   const lugarHtml = e.esVirtual
-    ? `Virtual — <a href="${e.linkVirtual}" target="_blank" rel="noopener">${e.linkVirtual}</a>`
-    : (e.lugar || "—");
+    ? (linkVirtual ? `Virtual — <a href="${escaparAtributo(linkVirtual)}" target="_blank" rel="noopener noreferrer">${h(linkVirtual)}</a>` : "Virtual")
+    : h(e.lugar || "—");
   const minutaLink = usuarioPuedeGestionarMinuta(usuarioActual)
-    ? `<div style="margin-top:14px;"><a href="../admin/minutaReunion.html?id=${e.id}" style="font-size:13px;font-weight:700;color:${cfg.color};">Minuta de la reunión →</a></div>`
+    ? `<div style="margin-top:14px;"><a href="../admin/minutaReunion.html?id=${escaparAtributo(e.id)}" style="font-size:13px;font-weight:700;color:${cfg.color};">Minuta de la reunión →</a></div>`
     : "";
 
   el("modal-detalle-contenido").innerHTML = `
     <div style="display:inline-flex;align-items:center;gap:8px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:14px;">
       ${cfg.label}
     </div>
-    <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${e.titulo}</div>
-    ${e.agenda ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${e.agenda}</p>` : ""}
+    <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${h(e.titulo)}</div>
+    ${e.agenda ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${h(e.agenda)}</p>` : ""}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:13px;">
       <div><strong style="color:${cfg.color};">Fecha</strong><br/>${fmtFecha(e.fechaInicio)}</div>
       <div><strong style="color:${cfg.color};">Hora</strong><br/>${fmtHora(e.fechaInicio)} – ${fmtHora(e.fechaFin)}</div>
@@ -168,7 +175,7 @@ function verDetalle(id, tipo) {
   }[tipo];
 
   const turnos = (e.turnos || []).map(t =>
-    `<span style="font-size:12px;background:${cfg.bg};color:${cfg.color};padding:3px 8px;border-radius:8px;display:inline-block;margin:2px;border:1px solid ${cfg.border};">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`
+    `<span style="font-size:12px;background:${cfg.bg};color:${cfg.color};padding:3px 8px;border-radius:8px;display:inline-block;margin:2px;border:1px solid ${cfg.border};">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`
   ).join("") || `<span style="color:var(--gris-medio);font-size:13px;">Sin turnos definidos</span>`;
 
   const req       = e.voluntariosReq || 0;
@@ -183,11 +190,11 @@ function verDetalle(id, tipo) {
     <div style="display:inline-flex;align-items:center;gap:8px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:14px;">
       ${cfg.label}
     </div>
-    <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${e.nombre}</div>
-    ${e.descripcion ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${e.descripcion}</p>` : ""}
+    <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${h(e.nombre)}</div>
+    ${e.descripcion ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${h(e.descripcion)}</p>` : ""}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;font-size:13px;">
       <div><strong style="color:${cfg.color};">Fecha</strong><br/>${fmtFecha(e.fecha)}</div>
-      <div><strong style="color:${cfg.color};">Lugar</strong><br/>${e.lugar || "—"}</div>
+      <div><strong style="color:${cfg.color};">Lugar</strong><br/>${h(e.lugar || "—")}</div>
       <div><strong style="color:${cfg.color};">Voluntarios</strong><br/>
         <span style="font-weight:700;font-size:15px;color:${volColor};">${volTexto}</span>
         ${req > 0 ? `<span style="font-size:11px;color:var(--gris-medio);margin-left:4px;">${asignados >= req ? "Completo" : `Faltan ${req - asignados}`}</span>` : ""}
@@ -198,8 +205,8 @@ function verDetalle(id, tipo) {
         </span>
       </div>
     </div>
-    ${e.colaboracion  ? `<div style="font-size:13px;margin-bottom:10px;"><strong style="color:${cfg.color};">Colaboración</strong><br/>${e.colaboracion}</div>` : ""}
-    ${e.responsables  ? `<div style="font-size:13px;margin-bottom:10px;"><strong style="color:${cfg.color};">Responsables</strong><br/>${e.responsables}</div>` : ""}
+    ${e.colaboracion  ? `<div style="font-size:13px;margin-bottom:10px;"><strong style="color:${cfg.color};">Colaboración</strong><br/>${h(e.colaboracion)}</div>` : ""}
+    ${e.responsables  ? `<div style="font-size:13px;margin-bottom:10px;"><strong style="color:${cfg.color};">Responsables</strong><br/>${h(e.responsables)}</div>` : ""}
     <div style="font-size:13px;"><strong style="color:${cfg.color};">Turnos</strong><br/><div style="margin-top:6px;">${turnos}</div></div>
   `;
   el("modal-detalle").classList.add("open");
@@ -225,9 +232,9 @@ function verDia(dia, año, mes) {
       }[e.tipo];
       const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
       return `<div style="background:${cfg.bg};color:${cfg.color};border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;"
-        data-id="${e.id}" data-tipo="${e.tipo}">
-        <div style="font-weight:700;font-size:14px;">${nombre}</div>
-        ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">${e.lugar}</div>` : ""}
+        data-id="${escaparAtributo(e.id)}" data-tipo="${e.tipo}">
+        <div style="font-weight:700;font-size:14px;">${h(nombre)}</div>
+        ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">${h(e.lugar)}</div>` : ""}
         ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">${iconoImg("persona")} ${e.voluntariosReq} voluntarios requeridos</div>` : ""}
       </div>`;
     }).join("")}

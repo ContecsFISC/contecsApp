@@ -72,6 +72,18 @@ body {
   overflow-x: clip;
 }
 
+img, svg, video, canvas { max-width: 100%; }
+p, td, th, label, .card-title { overflow-wrap: anywhere; }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid rgba(0, 160, 68, 0.42);
+  outline-offset: 2px;
+}
+
+button:disabled, input:disabled, select:disabled, textarea:disabled {
+  cursor: not-allowed;
+}
+
 /* ════════════════════════════════════
    ANIMACIONES DE ENTRADA DE PÁGINA
    ════════════════════════════════════ */
@@ -531,6 +543,7 @@ tr:hover td { background: var(--verde-fondo); }
     grid-template-columns: minmax(0, 1fr) !important;
   }
   .mobile-stack > * { min-width: 0; }
+  .grid, [class*="grid"], [class*="fila"], [class*="row"] { min-width: 0; }
   .mobile-actions {
     display: flex !important;
     flex-direction: column !important;

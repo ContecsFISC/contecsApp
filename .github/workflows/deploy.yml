@@ -21,10 +21,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Build public artifact
+        shell: bash
+        run: |
+          mkdir -p _site
+          cp index.html registro.html logocontecs.png logocontecsheader.png _site/
+          cp -R assets css icons img js panel public _site/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

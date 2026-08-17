@@ -2,12 +2,14 @@
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarMovimientoFondo, resumenItemPrincipal } from "../core/operaciones.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparHtml } from "../core/seguridad.js";
 import {
   doc, getDoc, collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 guardRoute();
-requirePermiso("ver_fondos");
+await requirePermiso("ver_fondos");
+const h = escaparHtml;
 const estado = {
   balance: 0,
   movimientos: [],
@@ -94,8 +96,8 @@ function renderHistorial() {
     return `
       <div class="fondo-item ${clase}">
         <div>
-          <div class="fondo-titulo">${icono} ${mov.titulo || mov.descripcion || "Movimiento"}</div>
-          <div class="fondo-meta">${mov.origen || "manual"} · ${mov.usuarioNombre || mov.usuarioId || ""}</div>
+          <div class="fondo-titulo">${icono} ${h(mov.titulo || mov.descripcion || "Movimiento")}</div>
+          <div class="fondo-meta">${h(mov.origen || "manual")} · ${h(mov.usuarioNombre || mov.usuarioId || "")}</div>
         </div>
         <div class="fondo-monto ${clase}">${mov.tipo === "ingreso" ? "+" : "-"}${formatearMoneda(mov.monto || 0)}</div>
       </div>`;
@@ -120,7 +122,7 @@ async function guardarMovimiento(event) {
   // Bloquear el botón y cambiar texto
   btn.disabled = true;
   const textoOriginal = btn.textContent;
-  btn.textContent = "⏳ Guardando...";
+  btn.textContent = "Guardando...";
 
   try {
     const datosUsuario = getUsuarioActual();

@@ -153,7 +153,7 @@
         <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
       </svg>
-      Continuar con Google
+      <span class="btn-login-label">Continuar con Google</span>
     </button>
 
     <button class="btn-microsoft" id="btn-microsoft">
@@ -163,7 +163,7 @@
         <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
         <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
       </svg>
-      Continuar con Microsoft (UTP)
+      <span class="btn-login-label">Continuar con Microsoft (UTP)</span>
     </button>
 
     <p class="nota">Solo miembros de <strong>CONTECS</strong> pueden ingresar.<br>Si eres nuevo, tu acceso será activado por un administrador.</p>
@@ -181,7 +181,7 @@
 
     async function manejarLogin(loginFn, btnEl, labelOriginal) {
       btnEl.disabled = true;
-      btnEl.childNodes[1].textContent = " Conectando...";
+      btnEl.querySelector(".btn-login-label").textContent = "Conectando...";
       msgError.classList.remove("show");
       msgAviso.classList.remove("show");
 
@@ -192,7 +192,7 @@
           msgAviso.textContent = "Tu cuenta fue registrada. Aún no tienes un rol asignado — cuando el administrador te active, entrarás automáticamente.";
           msgAviso.classList.add("show");
           btnEl.disabled = false;
-          btnEl.childNodes[1].textContent = labelOriginal;
+          btnEl.querySelector(".btn-login-label").textContent = labelOriginal;
           const uid = sessionStorage.getItem("uid");
           if (uid) {
             const { db } = await import("../js/core/firebase-config.js");
@@ -211,7 +211,7 @@
         window.location.href = "dashboard.html";
       } catch (e) {
         btnEl.disabled = false;
-        btnEl.childNodes[1].textContent = labelOriginal;
+        btnEl.querySelector(".btn-login-label").textContent = labelOriginal;
         if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
         if (e.code === "auth/popup-blocked") {
           msgError.textContent = "El navegador bloqueó la ventana emergente. Permite popups para este sitio e intenta de nuevo.";
@@ -225,7 +225,7 @@
     }
 
     btnGoogle.addEventListener("click", () =>
-      manejarLogin(loginConGoogle, btnGoogle, " Continuar con Google")
+      manejarLogin(loginConGoogle, btnGoogle, "Continuar con Google")
     );
 
     btnMicrosoft.addEventListener("click", () => {

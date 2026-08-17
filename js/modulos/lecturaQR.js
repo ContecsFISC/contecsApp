@@ -1,11 +1,20 @@
-import { db, auth } from "../core/firebase-config.js";
+import { app, db } from "../core/firebase-config.js";
 import {
-  collection, doc, getDoc, getDocs, addDoc, updateDoc,
-  query, where, orderBy, runTransaction, serverTimestamp,
+  collection, doc, getDoc, getDocs, query, where, orderBy,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import {
+  getFunctions,
+  httpsCallable,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
+const ejecutarOperacionQr = httpsCallable(
+  getFunctions(app, "us-central1"),
+  "ejecutarOperacionQr",
+);
 
 let scanner          = null;
 let escaneando       = false;
@@ -18,8 +27,11 @@ let checkpointSel    = null;  // objeto completo del checkpoint seleccionado
 let participanteSel  = null;
 let modoTaller       = false; // true cuando el checkpoint es taller/gira con cupos
 let logSesion        = [];
+let secuenciaCargaEvento = 0;
+let tokenProcesamiento = 0;
+let guardandoRegistro = false;
 
-const TIPO_CON_CUPOS = ["taller", "gira"];
+const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -43,6 +55,8 @@ async function cargarEventos() {
 }
 
 el("sel-evento-qr").addEventListener("change", async () => {
+  const secuencia = ++secuenciaCargaEvento;
+  await limpiarSeleccionSesion();
   const id = el("sel-evento-qr").value;
   if (!id) {
     eventoActivo = null;
@@ -51,11 +65,12 @@ el("sel-evento-qr").addEventListener("change", async () => {
     return;
   }
   const snap = await getDoc(doc(db, "eventos", id));
-  if (!snap.exists()) return;
+  if (!snap.exists() || secuencia !== secuenciaCargaEvento) return;
   eventoActivo = { id, ...snap.data() };
 
   // Cargar checkpoints desde la colección (nuevo sistema)
   const cpSnap = await getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", id)));
+  if (secuencia !== secuenciaCargaEvento) return;
   checkpointsSesion = cpSnap.docs
     .map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => {
@@ -63,22 +78,25 @@ el("sel-evento-qr").addEventListener("change", async () => {
       return (a.horaInicio || "") < (b.horaInicio || "") ? -1 : 1;
     });
 
-  // Fallback: si no hay en la colección, usar el array inline del evento (legacy)
-  if (!checkpointsSesion.length && eventoActivo.checkpoints?.length) {
-    checkpointsSesion = eventoActivo.checkpoints.map(cp => ({
-      id: cp.id, nombre: cp.nombre, tipo: "conferencia",
-      cupos: null, cuposDisponibles: null,
-    }));
-  }
-
   renderCheckpoints();
   el("cp-section").style.display = "block";
 });
 
+async function limpiarSeleccionSesion() {
+  tokenProcesamiento++;
+  if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+  checkpointSel = null;
+  participanteSel = null;
+  modoTaller = false;
+  el("resultado-box").style.display = "none";
+  el("res-cupos-wrap").style.display = "none";
+  el("cp-seleccionado").textContent = "";
+}
+
 function renderCheckpoints() {
   const grid = el("cp-grid");
   if (!checkpointsSesion.length) {
-    grid.innerHTML = `<p style="font-size:13px;color:var(--gris-medio);grid-column:1/-1">Sin checkpoints registrados para este evento.</p>`;
+    grid.innerHTML = `<p style="font-size:13px;color:var(--gris-medio);grid-column:1/-1;line-height:1.5">Este evento todavía no tiene checkpoints operativos. Créalo en Gestión de Eventos; para la entrada general selecciona el tipo Congreso / control de acceso.</p>`;
     return;
   }
   grid.innerHTML = checkpointsSesion.map(cp => {
@@ -86,24 +104,36 @@ function renderCheckpoints() {
     const cuposTag = esTaller && cp.cupos != null
       ? `<span class="cp-cupos-tag">${iconoImg("ticket")} ${cp.cuposDisponibles ?? cp.cupos} / ${cp.cupos} cupos</span>`
       : "";
-    const tipoTag  = cp.tipo && cp.tipo !== "conferencia"
-      ? `<span class="cp-tipo-tag">${cp.tipo.toUpperCase()}</span>`
+    const tipoTag  = cp.tipo
+      ? `<span class="cp-tipo-tag">${h(cp.tipo.toUpperCase())}</span>`
       : "";
-    const clsExtra = esTaller ? ` ${cp.tipo}` : "";
-    return `<div class="cp-card${clsExtra}" data-id="${cp.id}" onclick="seleccionarCP(this)">
-      ${cp.nombre}${tipoTag}${cuposTag}
+    const clsExtra = `${cp.tipo ? ` ${cp.tipo}` : ""}${checkpointSel?.id === cp.id ? " selected" : ""}`;
+    return `<div class="cp-card${clsExtra}" data-id="${escaparAtributo(cp.id)}">
+      ${h(cp.nombre || "Sin nombre")}${tipoTag}${cuposTag}
     </div>`;
   }).join("");
+  grid.querySelectorAll(".cp-card").forEach(card => {
+    card.addEventListener("click", () => void window.seleccionarCP(card));
+  });
 }
 
-window.seleccionarCP = function(card) {
-  if (card.classList.contains("ya-marcado")) return;
+window.seleccionarCP = async function(card) {
+  if (guardandoRegistro || card.classList.contains("ya-marcado")) return;
+  tokenProcesamiento++;
+  if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+  participanteSel = null;
+  el("resultado-box").style.display = "none";
   document.querySelectorAll(".cp-card").forEach(c => c.classList.remove("selected"));
   card.classList.add("selected");
   checkpointSel = checkpointsSesion.find(cp => cp.id === card.dataset.id) || null;
   modoTaller    = checkpointSel ? TIPO_CON_CUPOS.includes(checkpointSel.tipo) && checkpointSel.cupos != null : false;
 
-  let label = `Checkpoint activo: ${checkpointSel?.nombre || ""}`;
+  const tipo = checkpointSel?.tipo === "congreso"
+    ? "Control de acceso al congreso"
+    : String(checkpointSel?.tipo || "conferencia").replace(/^./, c => c.toUpperCase());
+  const horario = [checkpointSel?.dia, checkpointSel?.horaInicio].filter(Boolean).join(" · ");
+  let label = `Checkpoint activo: ${checkpointSel?.nombre || ""} · ${tipo}`;
+  if (horario) label += ` · ${horario}`;
   if (modoTaller) label += ` · ${checkpointSel.cuposDisponibles ?? checkpointSel.cupos} cupos disponibles`;
   el("cp-seleccionado").textContent = label;
 };
@@ -293,6 +323,9 @@ async function buscarParticipanteQr(credencial) {
 
 async function procesarQrDetectado(rawQR) {
   if (procesandoQR || !escaneando) return;
+  const tokenActual = ++tokenProcesamiento;
+  const eventoIdActual = eventoActivo?.id;
+  const checkpointIdActual = checkpointSel?.id;
   procesandoQR = true;
   pausarScanner();
   estadoScanner("QR detectado. Validando credencial...", "activo");
@@ -300,13 +333,21 @@ async function procesarQrDetectado(rawQR) {
   try {
     const credencial = extraerCredencialQr(rawQR);
     const { participante, esNuevoFormato } = await buscarParticipanteQr(credencial);
+    if (tokenActual !== tokenProcesamiento || eventoActivo?.id !== eventoIdActual ||
+        checkpointSel?.id !== checkpointIdActual) return;
+    if (esNuevoFormato && participante.pago?.estado !== "aprobado") {
+      throw new Error("El participante todavía no tiene el pago aprobado.");
+    }
     participanteSel = { ...participante, esNuevoFormato };
 
-    if (modoTaller) await mostrarInfoTaller(participante);
+    if (modoTaller) await mostrarInfoTaller(participante, tokenActual);
     else mostrarInfoAsistencia(participante);
+
+    if (tokenActual !== tokenProcesamiento) return;
 
     estadoScanner("Credencial reconocida.", "activo");
   } catch (e) {
+    if (tokenActual !== tokenProcesamiento) return;
     console.error("Error procesando QR:", e);
     alerta("error", e.message || "No se pudo procesar el código QR.");
     estadoScanner(e.message || "No se pudo procesar el código QR.", "error");
@@ -317,7 +358,7 @@ async function procesarQrDetectado(rawQR) {
       }
     }, 5000);
   } finally {
-    procesandoQR = false;
+    if (tokenActual === tokenProcesamiento) procesandoQR = false;
   }
 }
 
@@ -363,7 +404,9 @@ function mostrarInfoAsistencia(p) {
 }
 
 // ─── Modo Taller (inscripción in-situ con cupos) ──────────────────────────────
-async function mostrarInfoTaller(p) {
+async function mostrarInfoTaller(p, tokenActual) {
+  const checkpoint = checkpointSel;
+  if (!checkpoint) return;
   el("res-nombre").textContent      = p.nombreCompleto || p.nombre || "—";
   el("res-correo").textContent      = p.correo   || "—";
   el("res-cedula").textContent      = p.cedula   || "—";
@@ -371,8 +414,9 @@ async function mostrarInfoTaller(p) {
   el("res-carrera").textContent     = p.camposExtra?.carrera || p.carrera || "—";
 
   // Recargar cupos actuales del checkpoint
-  const cpSnap = await getDoc(doc(db, "checkpoints", checkpointSel.id));
-  const cpData  = cpSnap.exists() ? cpSnap.data() : checkpointSel;
+  const cpSnap = await getDoc(doc(db, "checkpoints", checkpoint.id));
+  if (tokenActual !== tokenProcesamiento) return;
+  const cpData  = cpSnap.exists() ? cpSnap.data() : checkpoint;
   const disponibles = cpData.cuposDisponibles ?? cpData.cupos ?? 0;
 
   el("res-cupos-wrap").style.display = "block";
@@ -382,28 +426,35 @@ async function mostrarInfoTaller(p) {
 
   const badge = el("res-estado-badge");
 
-  // Verificar si ya está inscrito en este taller
-  const yaSnap = await getDocs(query(
-    collection(db, "inscripciones_checkpoint"),
-    where("checkpointId",    "==", checkpointSel.id),
-    where("participanteId",  "==", p.id),
-  ));
+  // Compatibilidad con el ID actual y el formato histórico de inscripciones.
+  const coleccionParticipante = participanteSel?.esNuevoFormato ? "participantes" : "inscripciones";
+  const [yaSnap, yaLegacySnap, previasSnap] = await Promise.all([
+    getDoc(doc(db, "inscripciones_checkpoint", `${checkpoint.id}_${coleccionParticipante}_${p.id}`)),
+    getDoc(doc(db, "inscripciones_checkpoint", `${checkpoint.id}_${p.id}`)),
+    getDocs(query(
+      collection(db, "inscripciones_checkpoint"),
+      where("checkpointId", "==", checkpoint.id),
+    )),
+  ]);
+  if (tokenActual !== tokenProcesamiento) return;
+  const yaMarcado = Boolean(p.asistencias?.[checkpoint.id]);
+  const yaHistorico = previasSnap.docs.some(d => d.data().participanteId === p.id);
 
-  if (!yaSnap.empty) {
+  if (yaSnap.exists() || yaLegacySnap.exists() || yaMarcado || yaHistorico) {
     badge.className   = "estado-badge estado-err";
-    badge.textContent = `Ya inscrito en "${checkpointSel.nombre}"`;
+    badge.textContent = `Ya inscrito en "${checkpoint.nombre}"`;
     el("btn-confirmar-asistencia").disabled = true;
   } else if (disponibles <= 0) {
     badge.className   = "estado-badge estado-err";
-    badge.textContent = `Sin cupos disponibles para "${checkpointSel.nombre}"`;
+    badge.textContent = `Sin cupos disponibles para "${checkpoint.nombre}"`;
     el("btn-confirmar-asistencia").disabled = true;
   } else {
     badge.className   = "estado-badge estado-ok";
-    badge.textContent = `Listo para inscribir en: ${checkpointSel.nombre}`;
+    badge.textContent = `Listo para registrar: ${checkpoint.nombre}`;
     el("btn-confirmar-asistencia").disabled = false;
   }
 
-  el("btn-confirmar-asistencia").textContent = "Inscribir en taller";
+  el("btn-confirmar-asistencia").textContent = "Confirmar asistencia y cupo";
   el("res-asistencias-actuales").textContent = "";
   el("resultado-box").style.display = "block";
   el("resultado-box").scrollIntoView({ behavior: "smooth" });
@@ -411,44 +462,52 @@ async function mostrarInfoTaller(p) {
 
 // ─── Confirmar (asistencia o inscripción taller) ──────────────────────────────
 el("btn-confirmar-asistencia").addEventListener("click", async () => {
-  if (!participanteSel || !checkpointSel) return;
+  if (!participanteSel || !checkpointSel || guardandoRegistro) return;
+  const contexto = {
+    participante: participanteSel,
+    checkpoint: checkpointSel,
+    eventoId: eventoActivo?.id,
+    modoTaller,
+  };
+  if (!contexto.eventoId) return;
+  guardandoRegistro = true;
+  el("sel-evento-qr").disabled = true;
+  el("cp-grid").style.pointerEvents = "none";
   el("btn-confirmar-asistencia").disabled = true;
   el("btn-confirmar-asistencia").textContent = "Guardando...";
 
-  if (modoTaller) {
-    await confirmarInscripcionTaller();
-  } else {
-    await confirmarAsistencia();
+  try {
+    if (contexto.modoTaller) {
+      await confirmarInscripcionTaller(contexto);
+    } else {
+      await confirmarAsistencia(contexto);
+    }
+  } finally {
+    guardandoRegistro = false;
+    el("sel-evento-qr").disabled = false;
+    el("cp-grid").style.pointerEvents = "";
   }
 });
 
-async function confirmarAsistencia() {
-  const nuevaAsis = {
-    marcadoEn:  serverTimestamp(),
-    marcadoPor: auth.currentUser?.uid || "desconocido",
-    checkpoint: checkpointSel.nombre,
-  };
-
-  const coleccion = participanteSel.esNuevoFormato ? "participantes" : "inscripciones";
-  const nuevasAsistencias = { ...(participanteSel.asistencias || {}), [checkpointSel.id]: nuevaAsis };
-  const nuevoTotal = Object.keys(nuevasAsistencias).length;
-
+async function confirmarAsistencia({ participante, checkpoint, eventoId }) {
+  const coleccion = participante.esNuevoFormato ? "participantes" : "inscripciones";
   try {
-    await updateDoc(doc(db, coleccion, participanteSel.id), {
-      [`asistencias.${checkpointSel.id}`]: nuevaAsis,
-      totalAsistencias: nuevoTotal,
-      estado: "presente",
-      actualizadoEn: serverTimestamp(),
+    await ejecutarOperacionQr({
+      tipo: "asistencia_participante",
+      participanteId: participante.id,
+      checkpointId: checkpoint.id,
+      coleccion,
+      eventoId,
     });
 
     logSesion.unshift({
-      nombre:     participanteSel.nombreCompleto || participanteSel.nombre,
-      checkpoint: checkpointSel.nombre,
+      nombre:     participante.nombreCompleto || participante.nombre,
+      checkpoint: checkpoint.nombre,
       hora:       new Date().toLocaleTimeString("es-PA"),
       tipo:       "asistencia",
     });
     renderLog();
-    alerta("success", `Asistencia confirmada: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
+    alerta("success", `Asistencia confirmada: ${participante.nombreCompleto || participante.nombre}`);
   } catch (e) {
     alerta("error", "Error al guardar asistencia: " + e.message);
   }
@@ -456,53 +515,39 @@ async function confirmarAsistencia() {
   cerrarResultado();
 }
 
-async function confirmarInscripcionTaller() {
-  const cpRef = doc(db, "checkpoints", checkpointSel.id);
-
+async function confirmarInscripcionTaller({ participante, checkpoint, eventoId }) {
   try {
-    await runTransaction(db, async txn => {
-      const cpSnap = await txn.get(cpRef);
-      if (!cpSnap.exists()) throw new Error("Checkpoint no encontrado.");
-
-      const disponibles = cpSnap.data().cuposDisponibles ?? cpSnap.data().cupos ?? 0;
-      if (disponibles <= 0) throw new Error("Ya no hay cupos disponibles.");
-
-      // Escribir inscripción
-      const inscRef = doc(collection(db, "inscripciones_checkpoint"));
-      txn.set(inscRef, {
-        checkpointId:     checkpointSel.id,
-        checkpointNombre: checkpointSel.nombre,
-        eventoId:         eventoActivo.id,
-        eventoNombre:     eventoActivo.nombre,
-        participanteId:   participanteSel.id,
-        participanteCodigo: participanteSel.codigo || null,
-        participanteNombre: participanteSel.nombreCompleto || participanteSel.nombre || null,
-        registradoEn:     serverTimestamp(),
-        registradoPor:    auth.currentUser?.uid || "desconocido",
-      });
-
-      // Decrementar cupo
-      txn.update(cpRef, { cuposDisponibles: disponibles - 1 });
+    const respuesta = await ejecutarOperacionQr({
+      tipo: "inscripcion_taller",
+      participanteId: participante.id,
+      checkpointId: checkpoint.id,
+      coleccion: participante.esNuevoFormato ? "participantes" : "inscripciones",
+      eventoId,
     });
+    const disponibles = respuesta.data.cuposDisponibles;
 
     // Actualizar local para siguiente escaneo
-    const cpLocal = checkpointsSesion.find(c => c.id === checkpointSel.id);
-    if (cpLocal) cpLocal.cuposDisponibles = (cpLocal.cuposDisponibles ?? cpLocal.cupos) - 1;
-    checkpointSel = { ...checkpointSel, cuposDisponibles: (checkpointSel.cuposDisponibles ?? checkpointSel.cupos) - 1 };
+    const cpLocal = checkpointsSesion.find(c => c.id === checkpoint.id);
+    if (cpLocal) cpLocal.cuposDisponibles = disponibles;
+    if (checkpointSel?.id === checkpoint.id) {
+      checkpointSel = { ...checkpointSel, cuposDisponibles: disponibles };
+    }
 
     // Actualizar el label del checkpoint seleccionado
-    const label = `Checkpoint activo: ${checkpointSel.nombre} · ${checkpointSel.cuposDisponibles} cupos disponibles`;
-    el("cp-seleccionado").textContent = label;
+    if (checkpointSel?.id === checkpoint.id) {
+      const label = `Checkpoint activo: ${checkpoint.nombre} · ${disponibles} cupos disponibles`;
+      el("cp-seleccionado").textContent = label;
+    }
     renderCheckpoints();
 
     logSesion.unshift({
-      nombre:     participanteSel.nombreCompleto || participanteSel.nombre,
-      checkpoint: checkpointSel.nombre,
+      nombre:     participante.nombreCompleto || participante.nombre,
+      checkpoint: checkpoint.nombre,
       hora:       new Date().toLocaleTimeString("es-PA"),
       tipo:       "taller",
     });
     renderLog();
-    alerta("success", `Inscrito en taller: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
+    alerta("success", `Asistencia y cupo confirmados: ${participante.nombreCompleto || participante.nombre}`);
   } catch (e) {
     alerta("error", e.message || "Error al inscribir en taller.");
   }
@@ -517,7 +562,7 @@ function cerrarResultado() {
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;
-  el("btn-confirmar-asistencia").textContent = modoTaller ? "Inscribir en taller" : "Confirmar asistencia";
+  el("btn-confirmar-asistencia").textContent = modoTaller ? "Confirmar asistencia y cupo" : "Confirmar asistencia";
   if (escaneando) reanudarScanner();
 }
 
@@ -530,9 +575,9 @@ function renderLog() {
   }
   tb.innerHTML = logSesion.slice(0, 20).map(entry => `
     <tr>
-      <td>${entry.nombre}</td>
-      <td>${entry.checkpoint}${entry.tipo === "taller" ? " (taller)" : ""}</td>
-      <td>${entry.hora}</td>
+      <td>${h(entry.nombre)}</td>
+      <td>${h(entry.checkpoint)}${entry.tipo === "taller" ? " (taller)" : ""}</td>
+      <td>${h(entry.hora)}</td>
     </tr>`).join("");
 }
 

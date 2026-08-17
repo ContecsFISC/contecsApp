@@ -38,8 +38,9 @@
  </div>
  </div>
  <script type="module">
- import { guardRoute } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
+ await requirePermiso("exportar_datos");
  </script>
 </body>
 </html>

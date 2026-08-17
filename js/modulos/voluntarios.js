@@ -6,14 +6,29 @@ import {
 import { getUsuarioActual } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
+import {
+  escaparAtributo,
+  escaparHtml,
+  neutralizarFormulaHoja,
+} from "../core/seguridad.js";
 
 const el  = id => document.getElementById(id);
+const h = escaparHtml;
 const QRCode = window.QRCode;
 const Papa   = window.Papa;
 const XLSX   = window.XLSX;
 
 const DIACRITICOS_RE = new RegExp("[̀-ͯ]", "g");
-const normalizarParaComparar = s => s.toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
+const normalizarParaComparar = s => String(s || "").toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
+
+function filasSegurasHoja(filas) {
+  return filas.map(fila => Object.fromEntries(
+    Object.entries(fila).map(([clave, valor]) => [
+      clave,
+      typeof valor === "string" ? neutralizarFormulaHoja(valor) : valor,
+    ])
+  ));
+}
 
 function nombreCompletoVol(v) {
   const nombre   = (v?.nombre || "").trim();
@@ -55,7 +70,7 @@ const HORARIOS = [
 
 function normalizarHorario(texto) {
   if (!texto) return "";
-  const t = texto.toLowerCase();
+  const t = String(texto).toLowerCase();
   for (const h of HORARIOS) {
     if (h.kw.some(k => t.includes(k))) return h.valor;
   }
@@ -216,17 +231,17 @@ function renderTablaActividades() {
   tb.innerHTML = actividades.map(a => `
     <tr>
       <td>
-        <strong>${a.nombre}</strong>
-        ${a.descripcion ? `<br/><small style="color:var(--gris-medio)">${a.descripcion}</small>` : ""}
-        ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${a.colaboracion}</small>` : ""}
+        <strong>${h(a.nombre)}</strong>
+        ${a.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(a.descripcion)}</small>` : ""}
+        ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(a.colaboracion)}</small>` : ""}
       </td>
       <td>${fmtFecha(a.fecha)}</td>
-      <td>${a.area || "—"}</td>
-      <td>${a.lugar || "—"}</td>
+      <td>${h(a.area || "—")}</td>
+      <td>${h(a.lugar || "—")}</td>
       <td style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${a.voluntariosReq}</strong>` : "—"}</td>
       <td style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${a.cupo}</strong>` : "—"}</td>
       <td>
-        ${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`).join("") || "—"}
+        ${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}
       </td>
       <td>
         <span style="font-size:12px;background:${a.activo ? "var(--verde-fondo)" : "#f8f9fa"};color:${a.activo ? "var(--verde-oscuro)" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
@@ -234,11 +249,11 @@ function renderTablaActividades() {
         </span>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarActividad('${a.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
-        <button onclick="toggleActividad('${a.id}',${!!a.activo})" style="background:${a.activo?"var(--rojo)":"var(--verde-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
+        <button class="btn btn-outline btn-sm" onclick="editarActividad('${escaparAtributo(a.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+        <button onclick="toggleActividad('${escaparAtributo(a.id)}',${!!a.activo})" style="background:${a.activo?"var(--rojo)":"var(--verde-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${a.activo ? "Desactivar" : "Activar"}
         </button>
-        <button onclick="eliminarActividad('${a.id}','${a.nombre.replace(/'/g, "\\'")}')"
+        <button onclick="eliminarActividad('${escaparAtributo(a.id)}')"
           style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`).join("");
@@ -328,7 +343,8 @@ window.toggleActividad = async function(id, estadoActual) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-window.eliminarActividad = async function(id, nombre) {
+window.eliminarActividad = async function(id) {
+  const nombre = actividades.find(a => a.id === id)?.nombre || "esta actividad";
   if (!confirm(`¿Eliminar la actividad "${nombre}"? Esta acción no se puede deshacer.`)) return;
   try {
     await deleteDoc(doc(db, "actividades_voluntarios", id));
@@ -382,7 +398,7 @@ async function cargarSolicitudesAutocomplete() {
       item.className = "act-sug-item";
       item.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0fdf4;font-size:14px;";
       item.innerHTML = `
-        <span style="flex:1;color:#1f2937;">${s.nombreActividad}</span>
+        <span style="flex:1;color:#1f2937;">${h(s.nombreActividad)}</span>
         <span style="font-size:11px;background:#d1fae5;color:#065f46;padding:2px 9px;border-radius:10px;white-space:nowrap;font-weight:600;border:1px solid #6ee7b7;">Solicitada</span>`;
       item.addEventListener("mouseenter", () => { item.style.background = "#f0fdf4"; });
       item.addEventListener("mouseleave", () => { item.style.background = ""; });
@@ -502,7 +518,7 @@ function mostrarMapeo() {
       <td>
         <select id="map-${campo.key}">
           <option value="">— No incluir —</option>
-          ${columnasArchivo.map(c => `<option value="${c}"${c === det ? " selected" : ""}>${c}</option>`).join("")}
+          ${columnasArchivo.map(c => `<option value="${escaparAtributo(c)}"${c === det ? " selected" : ""}>${h(c)}</option>`).join("")}
         </select>
       </td>
     </tr>`;
@@ -512,9 +528,9 @@ function mostrarMapeo() {
 
 el("btn-preview-importar")?.addEventListener("click", () => {
   const mapeo = CAMPOS_VOL.map(c => ({ key: c.key, label: c.label, col: el(`map-${c.key}`)?.value })).filter(m => m.col);
-  el("preview-thead").innerHTML = `<tr>${mapeo.map(m => `<th>${m.label}</th>`).join("")}</tr>`;
+  el("preview-thead").innerHTML = `<tr>${mapeo.map(m => `<th>${h(m.label)}</th>`).join("")}</tr>`;
   el("preview-tbody").innerHTML = filasArchivo.slice(0, 5).map(row =>
-    `<tr>${mapeo.map(m => `<td>${row[m.col] ?? "—"}</td>`).join("")}</tr>`
+    `<tr>${mapeo.map(m => `<td>${h(row[m.col] ?? "—")}</td>`).join("")}</tr>`
   ).join("");
   el("preview-resumen").textContent = `${filasArchivo.length} filas encontradas en el archivo.`;
   el("modal-preview").classList.add("open");
@@ -600,9 +616,9 @@ function renderVoluntarios(filtro = "") {
   if (!tb) return;
   let lista = voluntarios;
   if (filtro)         lista = lista.filter(v =>
-    v.nombre.toLowerCase().includes(filtro) ||
-    (v.apellido || "").toLowerCase().includes(filtro) ||
-    (v.id || "").toLowerCase().includes(filtro)
+    String(v.nombre || "").toLowerCase().includes(filtro) ||
+    String(v.apellido || "").toLowerCase().includes(filtro) ||
+    String(v.id || "").toLowerCase().includes(filtro)
   );
   if (filtroHorarioVol) lista = lista.filter(v => v.horario === filtroHorarioVol);
 
@@ -614,35 +630,37 @@ function renderVoluntarios(filtro = "") {
   tb.innerHTML = lista.map(v => {
     const hCfg = HORARIO_CFG[v.horario];
     const horarioBadge = hCfg
-      ? `<span style="font-size:11px;background:${hCfg.bg};color:${hCfg.color};padding:3px 9px;border-radius:12px;white-space:nowrap;font-weight:600;">${hCfg.icono} ${v.horario}</span>`
+      ? `<span style="font-size:11px;background:${hCfg.bg};color:${hCfg.color};padding:3px 9px;border-radius:12px;white-space:nowrap;font-weight:600;">${h(hCfg.icono)} ${h(v.horario)}</span>`
       : `<span style="color:var(--gris-medio);font-size:12px;">—</span>`;
 
     const nombreCompleto = nombreCompletoVol(v);
     return `<tr>
       <td>
-        <strong>${nombreCompleto}</strong>
-        ${v.correo ? `<br/><small style="color:var(--gris-medio)">${v.correo}</small>` : ""}
-        ${v.anio   ? `<br/><small style="color:var(--gris-medio)">Año ${v.anio}</small>` : ""}
+        <strong>${h(nombreCompleto)}</strong>
+        ${v.correo ? `<br/><small style="color:var(--gris-medio)">${h(v.correo)}</small>` : ""}
+        ${v.anio   ? `<br/><small style="color:var(--gris-medio)">Año ${h(v.anio)}</small>` : ""}
       </td>
-      <td>${v.id || "—"}</td>
-      <td>${v.carrera || "—"}</td>
+      <td>${h(v.id || "—")}</td>
+      <td>${h(v.carrera || "—")}</td>
       <td>${horarioBadge}</td>
       <td><span class="horas-badge">${(v.totalHoras || 0).toFixed(2)}h</span></td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="verQR('${v.id}')" style="width:auto;margin-right:4px" title="Ver QR del voluntario">Ver QR</button>
-        <button onclick="eliminarVoluntario('${v.id}','${v.nombre.replace(/'/g, "\\'")}')"
+        <button class="btn btn-outline btn-sm" onclick="verQR('${escaparAtributo(v.id)}')" style="width:auto;margin-right:4px" title="Ver QR del voluntario">Ver QR</button>
+        <button onclick="eliminarVoluntario('${escaparAtributo(v._docId)}')"
           style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`;
   }).join("");
 }
 
-window.eliminarVoluntario = async function(id, nombre) {
+window.eliminarVoluntario = async function(id) {
+  const voluntario = voluntarios.find(v => v._docId === id);
+  const nombre = voluntario ? nombreCompletoVol(voluntario) : "este voluntario";
   if (!confirm(`¿Eliminar al voluntario "${nombre}"? Esta acción no se puede deshacer.`)) return;
   try {
     await deleteDoc(doc(db, "voluntarios", id));
-    voluntarios = voluntarios.filter(v => v.id !== id);
-    renderVoluntarios(el("buscar-voluntario").value.toLowerCase().trim());
+    voluntarios = voluntarios.filter(v => v._docId !== id);
+    renderVoluntarios(el("buscar-voluntario")?.value.toLowerCase().trim() || "");
     actualizarStats();
     mostrarAlerta("success", "Voluntario eliminado.");
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
@@ -724,7 +742,7 @@ el("btn-exportar-excel")?.addEventListener("click", () => {
     "Habilidad destacada":             v.habilidad || "",
     "Horas ganadas": +(v.totalHoras || 0).toFixed(2),
   }));
-  const ws = XLSX.utils.json_to_sheet(filas);
+  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Voluntarios");
   XLSX.writeFile(wb, `voluntarios_contecs_${new Date().toISOString().split("T")[0]}.xlsx`);
@@ -973,13 +991,13 @@ function renderTablaAsistencias(lista) {
     const { nomVol, nomAct, nomTurno } = resolverAsistencia(a);
     return `
     <tr>
-      <td><strong>${nomVol}</strong></td>
-      <td>${nomAct}</td>
-      <td>${nomTurno}</td>
+      <td><strong>${h(nomVol)}</strong></td>
+      <td>${h(nomAct)}</td>
+      <td>${h(nomTurno)}</td>
       <td>${fmtHora(a.horaEntrada)}</td>
       <td>${a.horaSalida ? fmtHora(a.horaSalida) : '<span style="color:var(--verde-claro);font-weight:600">En curso</span>'}</td>
       <td><span class="horas-badge">${a.horasGanadas != null ? a.horasGanadas.toFixed(2) + "h" : "—"}</span></td>
-      <td title="${ETIQUETAS[a.calificacion] || "Sin calificar"}">${ESTRELLAS[a.calificacion] || "—"}</td>
+      <td title="${escaparAtributo(ETIQUETAS[a.calificacion] || "Sin calificar")}">${ESTRELLAS[a.calificacion] || "—"}</td>
     </tr>`;
   }).join("");
 }
@@ -1017,7 +1035,7 @@ el("btn-exportar-asistencias")?.addEventListener("click", () => {
       "Área":          area,
     };
   });
-  const ws = XLSX.utils.json_to_sheet(filas);
+  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Asistencias");
   XLSX.writeFile(wb, `asistencias_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
@@ -1053,17 +1071,17 @@ function renderTablaGiras() {
   tb.innerHTML = giras.map(g => `
     <tr>
       <td>
-        <strong>${g.nombre}</strong>
-        ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${g.descripcion}</small>` : ""}
-        ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${g.colaboracion}</small>` : ""}
+        <strong>${h(g.nombre)}</strong>
+        ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(g.descripcion)}</small>` : ""}
+        ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(g.colaboracion)}</small>` : ""}
       </td>
       <td>${fmtFecha(g.fecha)}</td>
-      <td>${g.area || "—"}</td>
-      <td>${g.lugar || "—"}</td>
+      <td>${h(g.area || "—")}</td>
+      <td>${h(g.lugar || "—")}</td>
       <td style="text-align:center;">${g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"}</td>
       <td style="text-align:center;">${g.cupo ? `<strong style="color:#1a56db;">${g.cupo}</strong>` : "—"}</td>
       <td>
-        ${(g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`).join("") || "—"}
+        ${(g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}
       </td>
       <td>
         <span style="font-size:12px;background:${g.activo ? "#fff3cd" : "#f8f9fa"};color:${g.activo ? "#856404" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
@@ -1071,11 +1089,11 @@ function renderTablaGiras() {
         </span>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarGira('${g.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
-        <button onclick="toggleGira('${g.id}',${!!g.activo})" style="background:${g.activo ? "var(--rojo)" : "#ffc107"};color:${g.activo ? "#fff" : "#856404"};border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
+        <button class="btn btn-outline btn-sm" onclick="editarGira('${escaparAtributo(g.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+        <button onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" style="background:${g.activo ? "var(--rojo)" : "#ffc107"};color:${g.activo ? "#fff" : "#856404"};border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${g.activo ? "Desactivar" : "Activar"}
         </button>
-        <button onclick="eliminarGira('${g.id}','${g.nombre.replace(/'/g, "\\'")}')"
+        <button onclick="eliminarGira('${escaparAtributo(g.id)}')"
           style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`).join("");
@@ -1151,7 +1169,8 @@ window.toggleGira = async function(id, estadoActual) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-window.eliminarGira = async function(id, nombre) {
+window.eliminarGira = async function(id) {
+  const nombre = giras.find(g => g.id === id)?.nombre || "esta gira";
   if (!confirm(`¿Eliminar la gira "${nombre}"? Esta acción no se puede deshacer.`)) return;
   try {
     await deleteDoc(doc(db, "giras_voluntarios", id));
@@ -1214,12 +1233,12 @@ function renderTablaAsignaciones() {
   const tipoClass = { actividad: "tipo-actividad", gira: "tipo-gira", venta: "tipo-venta" };
   tb.innerHTML = lista.map(a => `
     <tr>
-      <td><strong>${a.voluntarioNombre || "—"}</strong></td>
-      <td>${a.areaTrabajo ? `<span class="area-badge">${a.areaTrabajo}</span>` : `<span style="color:var(--gris-medio);font-size:12px;">Sin asignar</span>`}</td>
-      <td><span class="tipo-badge ${tipoClass[a.tipo] || ""}">${tipoLabel[a.tipo] || a.tipo}</span></td>
-      <td>${a.eventoNombre || "—"}</td>
-      <td>${a.turnoNombre || "—"}</td>
-      <td><button onclick="eliminarAsignacion('${a.id}')" style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">${iconoImg("eliminar")}</button></td>
+      <td><strong>${h(a.voluntarioNombre || "—")}</strong></td>
+      <td>${a.areaTrabajo ? `<span class="area-badge">${h(a.areaTrabajo)}</span>` : `<span style="color:var(--gris-medio);font-size:12px;">Sin asignar</span>`}</td>
+      <td><span class="tipo-badge ${tipoClass[a.tipo] || ""}">${h(tipoLabel[a.tipo] || a.tipo || "—")}</span></td>
+      <td>${h(a.eventoNombre || "—")}</td>
+      <td>${h(a.turnoNombre || "—")}</td>
+      <td><button onclick="eliminarAsignacion('${escaparAtributo(a.id)}')" style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">${iconoImg("eliminar")}</button></td>
     </tr>`).join("");
 }
 
@@ -1381,7 +1400,7 @@ el("btn-exportar-asignaciones")?.addEventListener("click", () => {
     "Evento":          a.eventoNombre || "",
     "Turno":           a.turnoNombre || "",
   }));
-  const ws = XLSX.utils.json_to_sheet(filas);
+  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Asignaciones");
   XLSX.writeFile(wb, `asignaciones_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
@@ -1423,8 +1442,8 @@ function renderTurnosEvt() {
   lista.innerHTML = turnos.map(t => `
     <span style="display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #c7d9fc;
       border-radius:20px;padding:5px 12px;font-size:13px;margin:3px;color:#1a56db;">
-      ${iconoImg("reloj")} <strong>${t.nombre}</strong>&nbsp;${t.horaInicio} – ${t.horaFin}
-      <button onclick="eliminarTurnoEvt('${tipo}','${eventoId}','${t.id}')"
+      ${iconoImg("reloj")} <strong>${h(t.nombre)}</strong>&nbsp;${h(t.horaInicio)} – ${h(t.horaFin)}
+      <button onclick="eliminarTurnoEvt('${escaparAtributo(tipo)}','${escaparAtributo(eventoId)}','${escaparAtributo(t.id)}')"
         style="background:none;border:none;cursor:pointer;color:#1a56db;font-size:15px;line-height:1;padding:0 2px;">×</button>
     </span>`).join("");
 }
@@ -1568,8 +1587,8 @@ function renderCardPendientes() {
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#f8f9fa;margin-bottom:8px;flex-wrap:wrap;">
         <div style="flex:1;min-width:120px;">
-          <div style="font-weight:700;font-size:13px;color:var(--gris-texto);">${p.nombre}</div>
-          <div style="font-size:12px;color:var(--gris-medio);margin-top:2px;">${fmtFecha(p.fecha)}${p.lugar ? " · " + p.lugar : ""}</div>
+          <div style="font-weight:700;font-size:13px;color:var(--gris-texto);">${h(p.nombre)}</div>
+          <div style="font-size:12px;color:var(--gris-medio);margin-top:2px;">${fmtFecha(p.fecha)}${p.lugar ? " · " + h(p.lugar) : ""}</div>
         </div>
         <span style="font-size:11px;background:${t.bg};color:${t.color};border:1px solid ${t.border};padding:2px 8px;border-radius:12px;flex-shrink:0;">${t.label}</span>
         <div style="text-align:right;flex-shrink:0;">
@@ -1703,7 +1722,7 @@ el("grupo-evento")?.addEventListener("change", () => {
   }
   const tipoLabel = { actividad: "Actividad", gira: "Gira", venta: "Venta" }[tipo];
   el("grupo-info").style.display = "block";
-  el("grupo-info").innerHTML = `<strong>${tipoLabel}:</strong> ${evento.nombre} &nbsp;·&nbsp; <strong>Fecha:</strong> ${fmtFecha(evento.fecha)} &nbsp;·&nbsp; <strong>Voluntarios requeridos:</strong> <span style="font-weight:700;">${grupoReq || "No especificado"}</span>`;
+  el("grupo-info").innerHTML = `<strong>${h(tipoLabel)}:</strong> ${h(evento.nombre)} &nbsp;·&nbsp; <strong>Fecha:</strong> ${fmtFecha(evento.fecha)} &nbsp;·&nbsp; <strong>Voluntarios requeridos:</strong> <span style="font-weight:700;">${grupoReq || "No especificado"}</span>`;
   renderVoluntariosGrupo();
 });
 
@@ -1723,7 +1742,7 @@ function renderVoluntariosGrupo() {
   // Aviso si ya hay voluntarios asignados a este evento
   if (yaAsignados.size > 0) {
     aviso.style.display = "block";
-    aviso.innerHTML = `${iconoImg("advertencia")} Ya hay <strong>${yaAsignados.size}</strong> voluntario${yaAsignados.size !== 1 ? "s" : ""} asignado${yaAsignados.size !== 1 ? "s" : ""} para <strong>"${evento?.nombre || "este evento"}"</strong>. Aparecen marcados abajo.`;
+    aviso.innerHTML = `${iconoImg("advertencia")} Ya hay <strong>${yaAsignados.size}</strong> voluntario${yaAsignados.size !== 1 ? "s" : ""} asignado${yaAsignados.size !== 1 ? "s" : ""} para <strong>"${h(evento?.nombre || "este evento")}"</strong>. Aparecen marcados abajo.`;
   } else {
     aviso.style.display = "none";
   }
@@ -1750,17 +1769,17 @@ function renderVoluntariosGrupo() {
     else if (esOcupado)
       badge = `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 8px;border-radius:12px;white-space:nowrap;">Ocupado ese día</span>`;
     else if (esConflictoHorario)
-      badge = `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;white-space:nowrap;border:1px solid #fcd34d;">${iconoImg("advertencia")} Choca con clases ${v.horario}</span>`;
+      badge = `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;white-space:nowrap;border:1px solid #fcd34d;">${iconoImg("advertencia")} Choca con clases ${h(v.horario)}</span>`;
     const dataAttrs = disabled
       ? `disabled data-fixed="1"${esYaAsig ? ' data-ya-asignado="1"' : ""}`
       : "";
     return `<label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
       cursor:${disabled ? "not-allowed" : "pointer"};background:${disabled ? "#f8f9fa" : "#fff"};
       margin-bottom:3px;${disabled ? "opacity:0.55;" : ""}">
-      <input type="checkbox" value="${v.id}" data-nombre="${nombre.replace(/"/g, '&quot;')}"
+      <input type="checkbox" value="${escaparAtributo(v.id)}" data-nombre="${escaparAtributo(nombre)}"
         ${dataAttrs} onchange="actualizarBtnGrupo()"
         style="accent-color:#1a56db;width:16px;height:16px;flex-shrink:0;"/>
-      <span style="flex:1;font-size:13px;">${nombre}${v.id ? ` <small style="color:var(--gris-medio)">(${v.id})</small>` : ""}</span>
+      <span style="flex:1;font-size:13px;">${h(nombre)}${v.id ? ` <small style="color:var(--gris-medio)">(${h(v.id)})</small>` : ""}</span>
       ${badge}
     </label>`;
   }).join("");

@@ -4,8 +4,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { formatearDuracion } from "./reuniones-utils.js";
 import { iconoImg } from "../core/iconos.js";
+import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
 
 function fmtFechaHora(ts) {
   if (!ts) return "—";
@@ -31,15 +33,15 @@ function render(reuniones) {
     const tieneMinuta = !!(r.minuta?.contenidoMarkdown || "").trim();
     const asistentes = Object.keys(r.asistencia || {}).length;
     return `
-      <a class="reunion-card" href="minutaReunion.html?id=${r.id}">
+      <a class="reunion-card" href="minutaReunion.html?id=${escaparAtributo(r.id)}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-          <div class="reunion-titulo">${r.titulo || "Sin título"}</div>
+          <div class="reunion-titulo">${h(r.titulo || "Sin título")}</div>
           <span class="badge-minuta ${tieneMinuta ? "badge-lista" : "badge-vacia"}">${tieneMinuta ? "Minuta guardada" : "Sin minuta"}</span>
         </div>
         <div class="reunion-meta">
           <span>${fmtFechaHora(r.fechaInicio)}</span>
           <span>${iconoImg("reloj")} ${formatearDuracion(r.fechaInicio, r.fechaFin)}</span>
-          <span>${r.esVirtual ? "Virtual" : (r.lugar || "—")}</span>
+          <span>${r.esVirtual ? "Virtual" : h(r.lugar || "—")}</span>
           <span>${etiquetaInvitados(r)}</span>
           <span>${asistentes} asistente(s)</span>
         </div>

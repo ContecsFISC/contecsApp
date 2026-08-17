@@ -9,7 +9,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
- requirePermiso("ver_participantes");
+ await requirePermiso("ver_participantes");
  </script>
  <style>
  .container { max-width: 1100px; }
@@ -455,7 +455,7 @@
  <div class="bs-handle"></div>
  <div class="bs-header">
  <span class="bs-titulo" id="bs-titulo">Perfil del participante</span>
- <button class="bs-cerrar" onclick="cerrarSheet()">&times;</button>
+ <button class="bs-cerrar" type="button" aria-label="Cerrar" onclick="cerrarSheet()">&times;</button>
  </div>
  <div class="bs-body" id="bs-body">
  <!-- Contenido dinámico -->
@@ -465,6 +465,7 @@
 <script type="module">
 import { tienePermiso } from "../../../js/core/permisos.js";
 import { enviarCorreoQrParticipante } from "../../../js/core/participantes-api.js";
+import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../../../js/core/seguridad.js";
 import {
  collection, getDocs, doc, updateDoc, getDoc,
  query, orderBy, serverTimestamp
@@ -477,6 +478,7 @@ import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/
 const fireFunc = getFunctions(undefined, "us-central1");
 
 const el = id => document.getElementById(id);
+const h = escaparHtml;
 const rol = sessionStorage.getItem("rol") || "";
 const uid = sessionStorage.getItem("uid") || "";
 
@@ -568,33 +570,37 @@ function renderTabla() {
  const fecha = p.fechaRegistro?.toDate?.()
  ? p.fechaRegistro.toDate().toLocaleDateString("es-PA")
  : "—";
- const estadoBadge = ESTADO_BADGE[p.pago?.estado] || `<span class="badge badge-pendiente">—</span>`;
+ const estadoBadge = ESTADO_BADGE[p.pago?.estado] || `<span class="badge badge-pendiente">${h(p.pago?.estado || "—")}</span>`;
  const metodoIcon = p.pago?.metodo === "transferencia" ? "T" : "E";
 
  const btnAprobar = canAprobar && p.pago?.estado !== "aprobado"
- ? `<button class="btn-accion btn-aprobar" onclick="window._abrirPerfil('${p.id}')">Revisar</button>`
+ ? `<button class="btn-accion btn-aprobar" data-perfil-id="${escaparAtributo(p.id)}">Revisar</button>`
  : "";
 
  return `
  <tr style="animation: cardIn 0.3s ${i * 0.03}s both;">
- <td><code style="font-size:12px;color:var(--verde-oscuro);">${p.codigo || "—"}</code></td>
+ <td><code style="font-size:12px;color:var(--verde-oscuro);">${h(p.codigo || "—")}</code></td>
  <td>
- <strong>${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</strong>
+ <strong>${h(p.nombreCompleto || `${p.nombre || ""} ${p.apellido || ""}`.trim())}</strong>
  ${p.esColegio ? '<br/><span style="font-size:11px;color:var(--gris-medio);">Colegio</span>' : ""}
  </td>
- <td style="font-family:'Courier New',monospace;font-size:12px;">${p.cedula || "—"}</td>
- <td><span style="font-size:12px;">${CATEGORIA_LABELS[p.categoria] || p.categoria || "—"}</span></td>
+ <td style="font-family:'Courier New',monospace;font-size:12px;">${h(p.cedula || "—")}</td>
+ <td><span style="font-size:12px;">${h(CATEGORIA_LABELS[p.categoria] || p.categoria || "—")}</span></td>
  <td>${estadoBadge}</td>
  <td>${metodoIcon} <span style="font-size:12px;">${p.pago?.metodo === "transferencia" ? "Trans." : "Efectivo"}</span></td>
  <td style="font-size:12px;color:var(--gris-medio);">${fecha}</td>
  <td>
  <div class="acciones-cel">
- <button class="btn-accion btn-ver-perfil" onclick="window._abrirPerfil('${p.id}')">Ver</button>
+ <button class="btn-accion btn-ver-perfil" data-perfil-id="${escaparAtributo(p.id)}">Ver</button>
  ${btnAprobar}
  </div>
  </td>
  </tr>`;
  }).join("");
+
+ el("tabla-body").querySelectorAll("[data-perfil-id]").forEach(btn => {
+   btn.addEventListener("click", () => window._abrirPerfil(btn.dataset.perfilId));
+ });
 }
 
 // ── BOTTOM SHEET ──────────────────────────────────────────────────────────
@@ -638,24 +644,24 @@ function renderSheet(p) {
 
  el("bs-body").innerHTML = `
  <div class="perfil-avatar">P</div>
- <div class="perfil-nombre">${p.nombreCompleto || `${p.nombre} ${p.apellido}`}</div>
- <div class="perfil-codigo">${p.codigo || "—"}</div>
+ <div class="perfil-nombre">${h(p.nombreCompleto || `${p.nombre || ""} ${p.apellido || ""}`.trim())}</div>
+ <div class="perfil-codigo">${h(p.codigo || "—")}</div>
 
  <div class="datos-grid" style="margin-top:16px;">
- <div class="dato-item"><div class="di-label">Cédula</div><div class="di-valor">${p.cedula}</div></div>
- <div class="dato-item"><div class="di-label">Teléfono</div><div class="di-valor">${p.telefono}</div></div>
- <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Gmail</div><div class="di-valor" style="font-size:13px;">${p.correo}</div></div>
+ <div class="dato-item"><div class="di-label">Cédula</div><div class="di-valor">${h(p.cedula || "—")}</div></div>
+ <div class="dato-item"><div class="di-label">Teléfono</div><div class="di-valor">${h(p.telefono || "—")}</div></div>
+ <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Gmail</div><div class="di-valor" style="font-size:13px;">${h(p.correo || "—")}</div></div>
  ${(p.camposExtra?.['correo-inst'] || p.camposExtra?.correoInst) ? `
- <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Institucional</div><div class="di-valor" style="font-size:13px;">${p.camposExtra['correo-inst'] || p.camposExtra.correoInst}</div></div>` : ""}
- <div class="dato-item"><div class="di-label">Categoría</div><div class="di-valor">${p.categoriaNombre || p.categoria}</div></div>
- <div class="dato-item"><div class="di-label">Facultad</div><div class="di-valor" style="font-size:12px;">${p.camposExtra?.facultad || "—"}</div></div>
+ <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Correo Institucional</div><div class="di-valor" style="font-size:13px;">${h(p.camposExtra['correo-inst'] || p.camposExtra.correoInst)}</div></div>` : ""}
+ <div class="dato-item"><div class="di-label">Categoría</div><div class="di-valor">${h(p.categoriaNombre || p.categoria || "—")}</div></div>
+ <div class="dato-item"><div class="di-label">Facultad</div><div class="di-valor" style="font-size:12px;">${h(p.camposExtra?.facultad || "—")}</div></div>
  ${p.esColegio && p.tutor ? `
  <div class="dato-item" style="grid-column:1/-1;">
  <div class="di-label">Tutor responsable</div>
- <div class="di-valor">${p.tutor.nombre} · ${p.tutor.correo}</div>
+ <div class="di-valor">${h(p.tutor.nombre || "—")} · ${h(p.tutor.correo || "—")}</div>
  </div>` : ""}
  <div class="dato-item"><div class="di-label">Fecha registro</div><div class="di-valor" style="font-size:12px;">${fecha}</div></div>
- <div class="dato-item"><div class="di-label">Estado general</div><div class="di-valor">${p.estadoRegistro || "activo"}</div></div>
+ <div class="dato-item"><div class="di-label">Estado general</div><div class="di-valor">${h(p.estadoRegistro || "activo")}</div></div>
  </div>
 
  <!-- QR MINI -->
@@ -668,15 +674,15 @@ function renderSheet(p) {
  <div class="seccion-pago">
  <div class="sp-titulo">Estado del pago</div>
  <div class="sp-fila"><span class="sp-label">Método</span><span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span></div>
- <div class="sp-fila"><span class="sp-label">Estado</span><span class="sp-valor">${ESTADO_BADGE[estadoPago] || estadoPago}</span></div>
- <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : `$${p.pago?.monto}.00`}</span></div>
- ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${p.pago.aprobadoPor}</span></div>` : ""}
- ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${p.pago.notas}</span></div>` : ""}
+ <div class="sp-fila"><span class="sp-label">Estado</span><span class="sp-valor">${ESTADO_BADGE[estadoPago] || h(estadoPago)}</span></div>
+ <div class="sp-fila"><span class="sp-label">Monto</span><span class="sp-valor">${p.pago?.monto === 0 ? "Gratuito" : h(`$${Number(p.pago?.monto || 0).toFixed(2)}`)}</span></div>
+ ${p.pago?.aprobadoPor ? `<div class="sp-fila"><span class="sp-label">Aprobado por</span><span class="sp-valor" style="font-size:12px;">${h(p.pago.aprobadoPor)}</span></div>` : ""}
+ ${p.pago?.notas ? `<div class="sp-fila"><span class="sp-label">Notas</span><span class="sp-valor" style="font-size:12px;">${h(p.pago.notas)}</span></div>` : ""}
 
  <!-- COMPROBANTE -->
  ${p.pago?.metodo === "transferencia"
  ? p.pago?.comprobanteRuta
- ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+ ? `<button class="comprobante-link" data-comprobante-ruta="${escaparAtributo(p.pago.comprobanteRuta)}">
  Ver comprobante de pago
  </button>`
  : `<div style="margin-top:10px;font-size:12px;color:var(--amarillo);font-weight:600;"> Sin comprobante adjunto</div>`
@@ -701,7 +707,7 @@ function renderSheet(p) {
  </div>
  </div>`
  : p.pago?.comprobanteRuta
- ? `<button class="comprobante-link" onclick="window._verComprobante('${encodeURIComponent(p.pago.comprobanteRuta)}')">
+ ? `<button class="comprobante-link" data-comprobante-ruta="${escaparAtributo(p.pago.comprobanteRuta)}">
  Ver foto del pago en efectivo
  </button>`
  : `<div style="margin-top:10px;font-size:12px;color:var(--gris-medio);font-weight:600;"> Pago en efectivo — pendiente de registro</div>`
@@ -715,7 +721,7 @@ function renderSheet(p) {
  <span class="sp-label">Método registrado por el participante</span>
  <span class="sp-valor">${p.pago?.metodo === "transferencia" ? "Transferencia" : "Efectivo"}</span>
  </div>
- <textarea class="notas-area" id="notas-pago" placeholder="Notas internas (opcional)...">${p.pago?.notas || ""}</textarea>
+ <textarea class="notas-area" id="notas-pago" placeholder="Notas internas (opcional)...">${h(p.pago?.notas || "")}</textarea>
  </div>
  <div class="acciones-pago">
  <button class="btn-grande btn-aprobar-grande" id="btn-aprobar-sh" onclick="window._aprobar()">
@@ -743,6 +749,10 @@ function renderSheet(p) {
  ${tienePermiso(rol, "ver_participantes") ? "Límite de 4 reenvíos alcanzado" : ""}
  </div>`}` : ""}
  `;
+
+ el("bs-body").querySelectorAll("[data-comprobante-ruta]").forEach(btn => {
+   btn.addEventListener("click", () => window._verComprobante(encodeURIComponent(btn.dataset.comprobanteRuta)));
+ });
 
  // Generar QR si está aprobado
  if (yaAprobado) {
@@ -809,7 +819,7 @@ window._aprobar = async function() {
  // Advertir si es efectivo y no hay foto
  if (esEfectivo && !fotoBase64) {
  const continuar = confirm(
- "️ No has subido una foto del pago en efectivo.\n\n¿Deseas aprobar el pago sin foto de respaldo?"
+ "No has subido una foto del pago en efectivo.\n\n¿Deseas aprobar el pago sin foto de respaldo?"
  );
  if (!continuar) {
  document.getElementById("btn-aprobar-sh").disabled = false;
@@ -915,7 +925,7 @@ el("btn-exportar").addEventListener("click", () => {
  p.pago?.metodo, p.pago?.estado,
  p.institucion || p.colegio || "",
  p.fechaRegistro?.toDate?.()?.toLocaleDateString("es-PA") || ""
- ].map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(","));
+ ].map(v => `"${neutralizarFormulaHoja(v).replace(/"/g,'""')}"`).join(","));
 
  const csv = [cols.join(","), ...rows].join("\n");
  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
