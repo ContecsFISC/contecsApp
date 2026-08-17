@@ -1,6 +1,6 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T11:12:55.125773+00:00**
+- Generado: **2026-08-17T11:15:29.689379+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
 - Huella del proyecto: `e478d6a7c9523923…`
 - Archivos analizados: **143**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,905 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,338 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**72,442 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**6,898 tokens** · leer primero
+- `GraphCompleto.json` — ~**39,332 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**72,436 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **90.5%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -73,9 +73,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
