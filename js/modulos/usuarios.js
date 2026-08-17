@@ -48,7 +48,7 @@ function renderUsuarios() {
       <div class="info">
         <div class="nombre">${usuario.nombre || "Sin nombre"} ${esMismo ? '<span style="font-size:11px;color:#39b54a;">(tú)</span>' : ""}</div>
         <div class="email">${usuario.email || ""}</div>
-        <div class="guardando" id="guardando-${usuario.id}">✓ Guardado</div>
+      <div class="guardando" id="guardando-${usuario.id}">Guardado</div>
       </div>
       <select class="rol-select" id="select-${usuario.id}" ${esMismo ? "disabled" : ""}>
         <option value="sin_rol" ${sinRol ? "selected" : ""}>Sin rol</option>

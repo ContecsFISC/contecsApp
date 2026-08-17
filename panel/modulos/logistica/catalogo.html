@@ -61,6 +61,7 @@
  .cat-card.seleccionada { border-left-color: var(--verde-oscuro); background: var(--verde-fondo); }
 
  .cat-emoji { font-size: 28px; line-height: 1; }
+ .cat-emoji .icono-svg { width: 28px; height: 28px; }
  .cat-info { flex: 1; min-width: 0; }
  .cat-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
  .cat-count { font-size: 12px; color: var(--gris-medio); }
@@ -97,6 +98,7 @@
  .prod-card:active { transform: scale(0.98); }
 
  .prod-emoji { font-size: 28px; line-height: 1; flex-shrink: 0; }
+ .prod-emoji .icono-svg { width: 28px; height: 28px; }
  .prod-info { flex: 1; min-width: 0; }
  .prod-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
  .prod-precio { font-size: 12px; color: var(--gris-medio); }
@@ -193,6 +195,7 @@
  .icono-opcion:active { transform: scale(0.92); }
  .icono-opcion.seleccionado { border-color: var(--verde); background: var(--verde-fondo); transform: scale(1.05); }
  .icono-opcion .emoji { font-size: 22px; }
+ .icono-opcion .emoji .icono-svg { width: 22px; height: 22px; }
  .icono-opcion .label { font-size: 9px; color: var(--gris-medio); text-align: center; line-height: 1.2; }
 
  .empty-state {
@@ -202,6 +205,7 @@
  animation: fadeScaleIn 0.35s var(--ease-spring) both;
  }
  .empty-state .emoji { font-size: 40px; margin-bottom: 8px; }
+ .empty-state .emoji .icono-svg { width: 40px; height: 40px; color: var(--gris-medio); }
  .empty-state p { font-size: 14px; }
  
  .btn-volver {
@@ -230,8 +234,8 @@
 
  <!-- TABS -->
  <div class="tabs">
- <button class="tab-btn activo" data-tab="categorias">🗂️ Categorías</button>
- <button class="tab-btn" data-tab="productos">📦 Productos</button>
+ <button class="tab-btn activo" data-tab="categorias">Categorías</button>
+ <button class="tab-btn" data-tab="productos"><img src="../../../img/iconos/producto.svg" class="icono-svg" alt=""/> Productos</button>
  </div>
 
  <!-- ══ TAB: CATEGORÍAS ══ -->
@@ -246,7 +250,7 @@
  <div class="spinner-wrap" id="cat-spinner"><div class="spinner"></div></div>
  <div class="cat-grid" id="cat-grid"></div>
  <div class="empty-state" id="cat-empty" style="display:none">
- <div class="emoji">🗂️</div>
+ <div class="emoji"></div>
  <p>No hay categorías aún.<br>Crea la primera con el botón de arriba.</p>
  </div>
  </div>
@@ -265,7 +269,7 @@
 
  <div id="productos-contenido">
  <div class="empty-state">
- <div class="emoji">📦</div>
+ <div class="emoji"><img src="../../../img/iconos/producto.svg" class="icono-svg icono-hero" alt=""/></div>
  <p>Selecciona una categoría para ver sus productos.</p>
  </div>
  </div>
@@ -278,7 +282,7 @@
  <div class="modal">
  <div class="modal-titulo">
  <span id="modal-cat-titulo">Nueva categoría</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-cat" title="Cerrar">✕</button>
+ <button class="btn-cerrar-modal" id="cerrar-modal-cat" title="Cerrar"><img src="../../../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
  </div>
  <div class="form-group">
  <label>Nombre de la categoría</label>
@@ -304,7 +308,7 @@
  <div class="modal">
  <div class="modal-titulo">
  <span id="modal-prod-titulo">Nuevo producto</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-prod" title="Cerrar">✕</button>
+ <button class="btn-cerrar-modal" id="cerrar-modal-prod" title="Cerrar"><img src="../../../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
  </div>
  <div class="form-group">
  <label>Nombre del producto</label>
@@ -338,8 +342,8 @@
  <div class="modal-overlay" id="modal-confirm">
  <div class="modal" style="padding-bottom:28px;">
  <div class="modal-titulo">
- <span>⚠️ Confirmar acción</span>
- <button class="btn-cerrar-modal" id="cerrar-modal-confirm" title="Cerrar">✕</button>
+ <span><img src="../../../img/iconos/advertencia.svg" class="icono-svg" alt=""/> Confirmar acción</span>
+ <button class="btn-cerrar-modal" id="cerrar-modal-confirm" title="Cerrar"><img src="../../../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
  </div>
  <p id="confirm-mensaje" style="font-size:14px;color:var(--gris-texto);margin-bottom:20px;"></p>
  <div style="display:flex;gap:10px;">
@@ -352,7 +356,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  import {
- ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, getEmoji,
+ ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, getIconoHTML,
  escucharCategorias, crearCategoria, editarCategoria, eliminarCategoria,
  escucharProductosPorCategoria, crearProducto, editarProducto,
  desactivarProducto, reactivarProducto, estadoStock
@@ -399,7 +403,7 @@
  const div = document.createElement("div");
  div.className = "icono-opcion";
  div.dataset.id = icono.id;
- div.innerHTML = `<span class="emoji">${icono.emoji}</span><span class="label">${icono.label}</span>`;
+ div.innerHTML = `<span class="emoji">${getIconoHTML(icono.id)}</span><span class="label">${icono.label}</span>`;
  div.addEventListener("click", () => {
  container.querySelectorAll(".icono-opcion").forEach(d => d.classList.remove("seleccionado"));
  div.classList.add("seleccionado");
@@ -431,7 +435,7 @@
  cats.forEach(c => {
  const opt = document.createElement("option");
  opt.value = c.id;
- opt.textContent = `${getEmoji(c.iconoId)} ${c.nombre}`;
+ opt.textContent = c.nombre;
  filtroCat.appendChild(opt);
  });
 
@@ -443,14 +447,14 @@
  card.className = "cat-card";
  card.style.animationDelay = `${0.06 + idx * 0.07}s`;
  card.innerHTML = `
- <div class="cat-emoji">${getEmoji(cat.iconoId)}</div>
+ <div class="cat-emoji">${getIconoHTML(cat.iconoId, { clase: "icono-lg" })}</div>
  <div class="cat-info">
  <div class="cat-nombre">${cat.nombre}</div>
  <div class="cat-count" id="count-${cat.id}">Cargando...</div>
  </div>
  <div class="cat-acciones">
- <button class="btn-icon" data-edit="${cat.id}" title="Editar">✏️</button>
- <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar">🗑️</button>
+ <button class="btn-icon" data-edit="${cat.id}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
+ <button class="btn-icon danger" data-del="${cat.id}" title="Eliminar"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/></button>
  </div>`;
 
  import("../../../js/modulos/catalogo.js").then(({ escucharProductosPorCategoria }) => {
@@ -560,7 +564,7 @@
  const contenido = document.getElementById("productos-contenido");
 
  if (!catId) {
- contenido.innerHTML = `<div class="empty-state"><div class="emoji">📦</div><p>Selecciona una categoría.</p></div>`;
+ contenido.innerHTML = `<div class="empty-state"><div class="emoji"><img src="../../../img/iconos/producto.svg" class="icono-svg icono-hero" alt=""/></div><p>Selecciona una categoría.</p></div>`;
  return;
  }
 
@@ -573,7 +577,7 @@
  <div id="agotados-section"></div>
  <div class="prod-lista" id="prod-lista"></div>
  <div class="empty-state" id="prod-empty" style="display:none">
- <div class="emoji">📦</div>
+ <div class="emoji"><img src="../../../img/iconos/producto.svg" class="icono-svg icono-hero" alt=""/></div>
  <p>No hay productos en esta categoría.<br>Agrega el primero con el botón de arriba.</p>
  </div>`;
 
@@ -604,7 +608,7 @@
  let cardIdx = 0;
 
  if (agotados.length > 0) {
- agotadosSec.innerHTML = `<div class="agotados-titulo">⛔ Sin stock (${agotados.length})</div>`;
+ agotadosSec.innerHTML = `<div class="agotados-titulo">Sin stock (${agotados.length})</div>`;
  agotados.forEach(p => {
  const c = renderProductoCard(p);
  c.style.animationDelay = `${cardIdx++ * 0.05}s`;
@@ -622,7 +626,7 @@
  const sep = document.createElement("div");
  sep.className = "agotados-titulo";
  sep.style.color = "var(--gris-medio)";
- sep.textContent = `🚫 Desactivados (${inactivos.length})`;
+ sep.textContent = `Desactivados (${inactivos.length})`;
  lista.appendChild(sep);
  inactivos.forEach(p => {
  const c = renderProductoCard(p, true);
@@ -636,20 +640,20 @@
  function renderProductoCard(prod, inactivo = false) {
  const estado = estadoStock(prod.stock ?? 0, prod.alertaMinima ?? 0);
  const badgeClass = { ok: "stock-ok", alerta: "stock-alerta", agotado: "stock-agotado" }[estado];
- const badgeText = { ok: `✅ ${prod.stock}`, alerta: `⚠️ ${prod.stock}`, agotado: "⛔ Agotado" }[estado];
+ const badgeText = { ok: `${prod.stock}`, alerta: `<img src="../../../img/iconos/advertencia.svg" class="icono-svg" alt=""/> ${prod.stock}`, agotado: "Agotado" }[estado];
 
  const card = document.createElement("div");
  card.className = `prod-card${inactivo ? " prod-inactivo" : ""}`;
  card.innerHTML = `
- <div class="prod-emoji">${getEmoji(prod.iconoId)}</div>
+ <div class="prod-emoji">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
  <div class="prod-info">
  <div class="prod-nombre">${prod.nombre}</div>
  <div class="prod-precio">$${(prod.precioVenta ?? 0).toLocaleString("es-PA", {minimumFractionDigits:2})} · Alerta: ${prod.alertaMinima ?? 0} uds</div>
  </div>
  <span class="stock-badge ${badgeClass}">${badgeText}</span>
  <div class="cat-acciones">
- <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar">✏️</button>
- <button class="btn-icon ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "🔄" : "🚫"}</button>
+ <button class="btn-icon" data-edit-prod="${prod.id}" title="Editar"><img src="../../../img/iconos/editar.svg" class="icono-svg" alt=""/></button>
+ <button class="btn-icon ${inactivo ? "" : "danger"}" data-toggle-prod="${prod.id}" title="${inactivo ? "Reactivar" : "Desactivar"}">${inactivo ? "Reactivar" : "Desactivar"}</button>
  </div>`;
 
  card.querySelector(`[data-edit-prod]`).addEventListener("click", () => abrirModalEditarProd(prod));

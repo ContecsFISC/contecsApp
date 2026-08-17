@@ -1,5 +1,6 @@
 ﻿import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
-import { escucharCategorias, getEmoji, ICONOS_PRODUCTO, crearProducto } from "./catalogo.js";
+import { escucharCategorias, getIconoHTML, ICONOS_PRODUCTO, crearProducto } from "./catalogo.js";
+import { iconoImg } from "../core/iconos.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarCompra, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -56,7 +57,7 @@ function renderGaleriaIconos(containerId, inputId) {
     const div = document.createElement("div");
     div.className = "icono-opcion";
     div.dataset.id = icono.id;
-    div.innerHTML = `<span class="emoji">${icono.emoji}</span><span class="label">${icono.label}</span>`;
+    div.innerHTML = `<span class="emoji">${iconoImg(icono.icono)}</span><span class="label">${icono.label}</span>`;
     div.addEventListener("click", () => {
       container.querySelectorAll(".icono-opcion").forEach((item) => item.classList.remove("seleccionado"));
       div.classList.add("seleccionado");
@@ -81,7 +82,7 @@ function renderSelectorCategoriasProducto() {
   categorias.forEach((categoria) => {
     const option = document.createElement("option");
     option.value = categoria.id;
-    option.textContent = `${getEmoji(categoria.iconoId)} ${categoria.nombre}`;
+    option.textContent = categoria.nombre;
     selectCategoriaProducto.appendChild(option);
   });
 
@@ -99,7 +100,7 @@ function mostrarFormularioProducto(categoriaId) {
 
   estado.productoModalCategoriaId = categoriaId;
   $("prod-cat-id").value = categoriaId;
-  resumenCategoriaProducto.textContent = `Categoría seleccionada: ${getEmoji(categoria.iconoId)} ${categoria.nombre}`;
+  resumenCategoriaProducto.textContent = `Categoría seleccionada: ${categoria.nombre}`;
   formProductoWrap.classList.remove("is-hidden");
   errorCategoriaProducto.classList.remove("show");
   renderGaleriaIconos("galeria-prod", "prod-icono-sel");
@@ -401,7 +402,7 @@ function renderCarrito() {
   if (items.length === 0) {
     carritoWrap.innerHTML = `
       <div class="empty-state" style="padding:24px 16px;">
-        <div class="emoji">🧾</div>
+        <div class="emoji">${iconoImg("recibo", { clase: "icono-hero" })}</div>
         <p>Aún no agregas productos a la compra.</p>
       </div>`;
     actualizarResumen();
@@ -453,7 +454,7 @@ function renderCarrito() {
                   <div class="carrito-acciones">
                     <button class="chip-btn" data-action="menos" data-id="${item.productoId}">−</button>
                     <button class="chip-btn" data-action="mas" data-id="${item.productoId}">+</button>
-                    <button class="chip-btn chip-danger" data-action="quitar" data-id="${item.productoId}">✕</button>
+                  <button class="chip-btn chip-danger" data-action="quitar" data-id="${item.productoId}" title="Quitar">${iconoImg("cerrar")}</button>
                   </div>
                 </td>
               </tr>`;
@@ -527,7 +528,7 @@ function renderProductos() {
   if (productosFiltrados.length === 0) {
     contenedor.innerHTML = `
       <div class="empty-state">
-        <div class="emoji">🔍</div>
+        <div class="emoji"></div>
         <p>No hay productos que coincidan con tu búsqueda.</p>
       </div>`;
     return;
@@ -542,7 +543,7 @@ function renderProductos() {
 
     const titulo = document.createElement("div");
     titulo.className = "seccion-cat-titulo";
-    titulo.innerHTML = `<span style="font-size:20px;">${getEmoji(categoria.iconoId)}</span>${categoria.nombre}`;
+    titulo.innerHTML = `<span>${getIconoHTML(categoria.iconoId, { clase: "icono-md" })}</span>${categoria.nombre}`;
     seccion.appendChild(titulo);
 
     const grid = document.createElement("div");
@@ -552,7 +553,7 @@ function renderProductos() {
       const card = document.createElement("div");
       card.className = "venta-card compra-card";
       card.innerHTML = `
-        <div class="venta-icono">${getEmoji(prod.iconoId)}</div>
+        <div class="venta-icono">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
         <div class="venta-info">
           <div class="venta-nombre">${prod.nombre}</div>
           <div class="venta-meta">Stock: ${prod.stock ?? 0}</div>

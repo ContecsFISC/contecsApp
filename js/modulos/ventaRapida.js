@@ -1,5 +1,6 @@
 import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
-import { getEmoji } from "./catalogo.js";
+import { getIconoHTML } from "./catalogo.js";
+import { iconoImg } from "../core/iconos.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarVenta, registrarVentaConMerma, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -108,7 +109,7 @@ async function cargarActividades() {
 		// seleccionar por error una actividad vieja y ver sus productos/combos.
 		sel.innerHTML = `<option value="">— Selecciona una actividad —</option>` +
 			estado.actividades.map((a) =>
-				`<option value="${a.id}">${esHoy(a.fecha) ? "⭐ HOY — " : ""}${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
+			`<option value="${a.id}">${esHoy(a.fecha) ? "HOY — " : ""}${a.nombre}${a.fecha ? " — " + fmtFecha(a.fecha) : ""}</option>`
 			).join("");
 	} catch (e) {
 		console.warn("No se pudieron cargar actividades:", e.message);
@@ -429,7 +430,7 @@ function renderCatalogo() {
 	const bloques = [];
 
 	if (estado.combosDisponibles.length > 0) {
-		bloques.push(`<div class="seccion-titulo">🍔 Combos</div><div class="catalogo-grid">${
+		bloques.push(`<div class="seccion-titulo">${iconoImg("combo")} Combos</div><div class="catalogo-grid">${
 			estado.combosDisponibles.map((c) => {
 				const enPedido = estado.pedido.get(`c_${c.id}`);
 				const cantidad = enPedido ? enPedido.cantidad : 0;
@@ -437,7 +438,7 @@ function renderCatalogo() {
 					<div class="item-card combo ${cantidad > 0 ? "tiene-cant" : ""}" data-combo-id="${c.id}">
 						<span class="badge-combo">Combo</span>
 						${cantidad > 0 ? `<span class="badge-cant" data-combo-restar="${c.id}">${cantidad}</span>` : ""}
-						<div class="icono">🍔</div>
+						<div class="icono">${iconoImg("combo", { clase: "icono-lg" })}</div>
 						<div class="nombre">${c.nombre}</div>
 						<div class="precio">${formatearMoneda(c.precioTotal)}</div>
 					</div>`;
@@ -446,7 +447,7 @@ function renderCatalogo() {
 	}
 
 	if (estado.productosDisponibles.length > 0) {
-		bloques.push(`<div class="seccion-titulo">🧾 Productos</div><div class="catalogo-grid">${
+		bloques.push(`<div class="seccion-titulo">${iconoImg("producto")} Productos</div><div class="catalogo-grid">${
 			estado.productosDisponibles.map((p) => {
 				const enPedido = estado.pedido.get(`p_${p.id}`);
 				const cantidad = enPedido ? enPedido.cantidad : 0;
@@ -454,7 +455,7 @@ function renderCatalogo() {
 				return `
 					<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-id="${p.id}">
 						${cantidad > 0 ? `<span class="badge-cant" data-producto-restar="${p.id}">${cantidad}</span>` : ""}
-						<div class="icono">${getEmoji(p.iconoId)}</div>
+						<div class="icono">${getIconoHTML(p.iconoId, { clase: "icono-lg" })}</div>
 						<div class="nombre">${p.nombre}</div>
 						<div class="precio">${formatearMoneda(p.precioVenta || 0)}</div>
 					</div>`;
@@ -468,7 +469,7 @@ function renderCatalogo() {
 	if (estado.productosNoAsignados.length > 0) {
 		bloques.push(`
 			<div class="seccion-titulo" style="cursor:pointer;justify-content:space-between;" id="toggle-todos-productos">
-				<span>📦 Todos los productos (${estado.productosNoAsignados.length})</span>
+				<span>${iconoImg("producto")} Todos los productos (${estado.productosNoAsignados.length})</span>
 				<span>${mostrarTodosLosProductos ? "▲ Ocultar" : "▼ Ver todos"}</span>
 			</div>
 			${mostrarTodosLosProductos ? `<div class="catalogo-grid">${
@@ -479,7 +480,7 @@ function renderCatalogo() {
 					return `
 						<div class="item-card ${cantidad > 0 ? "tiene-cant" : ""} ${agotado ? "agotado" : ""}" data-producto-extra-id="${p.id}">
 							${cantidad > 0 ? `<span class="badge-cant" data-producto-extra-restar="${p.id}">${cantidad}</span>` : ""}
-							<div class="icono">${getEmoji(p.iconoId)}</div>
+							<div class="icono">${getIconoHTML(p.iconoId, { clase: "icono-lg" })}</div>
 							<div class="nombre">${p.nombre}</div>
 							<div class="precio">${formatearMoneda(p.precioVenta || 0)}</div>
 						</div>`;
@@ -546,7 +547,7 @@ function renderPedido() {
 	if (items.length === 0) {
 		pedidoWrap.innerHTML = `
 			<div class="empty-state" style="padding:16px 4px;">
-				<div class="emoji">🧾</div>
+				<div class="emoji">${iconoImg("recibo", { clase: "icono-hero" })}</div>
 				<p>Toca un producto o combo arriba para agregarlo.</p>
 			</div>`;
 	} else {
@@ -569,7 +570,7 @@ function renderPedido() {
 			return `
 				<div class="pedido-fila" style="flex-wrap:wrap;">
 					<div class="info">
-						<div class="nombre">${it.tipo === "combo" ? "🍔 " : ""}${it.nombre}</div>
+						<div class="nombre">${it.tipo === "combo" ? iconoImg("combo") + " " : ""}${it.nombre}</div>
 						<div class="meta">Subtotal ${formatearMoneda(subtotal)}</div>
 						${aviso}
 					</div>
@@ -583,7 +584,7 @@ function renderPedido() {
 						<input type="text" inputmode="numeric" pattern="[0-9]*" value="${it.cantidad}" data-pedido-cantidad="${key}">
 						<button type="button" data-pedido-mas="${key}">+</button>
 					</div>
-					<button type="button" class="quitar" data-pedido-quitar="${key}">✕</button>
+					<button type="button" class="quitar" data-pedido-quitar="${key}" title="Quitar">${iconoImg("cerrar")}</button>
 					${mermaHtml}
 				</div>`;
 		}).join("");

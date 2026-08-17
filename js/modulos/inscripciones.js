@@ -4,6 +4,7 @@ import {
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { iconoImg } from "../core/iconos.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
@@ -34,11 +35,11 @@ const CATEGORIA_LABELS = {
 };
 
 const ESTADO_PAGO_BADGE = {
-  aprobado:            `<span style="background:var(--verde-fondo);color:var(--verde-oscuro);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">✅ Aprobado</span>`,
-  comprobante_enviado: `<span style="background:#e3f2fd;color:#1565c0;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">🔍 Revisión</span>`,
-  pendiente_efectivo:  `<span style="background:var(--amarillo-fondo);color:var(--amarillo);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">⏳ Pendiente</span>`,
-  rechazado:           `<span style="background:var(--rojo-fondo);color:var(--rojo);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">❌ Rechazado</span>`,
-  importado:           `<span style="background:var(--gris-suave);color:var(--gris-medio);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">📥 Importado</span>`,
+  aprobado:            `<span style="background:var(--verde-fondo);color:var(--verde-oscuro);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">Aprobado</span>`,
+  comprobante_enviado: `<span style="background:#e3f2fd;color:#1565c0;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">Revisión</span>`,
+  pendiente_efectivo:  `<span style="background:var(--amarillo-fondo);color:var(--amarillo);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${iconoImg("reloj")} Pendiente</span>`,
+  rechazado:           `<span style="background:var(--rojo-fondo);color:var(--rojo);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">${iconoImg("cerrar")} Rechazado</span>`,
+  importado:           `<span style="background:var(--gris-suave);color:var(--gris-medio);padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;">Importado</span>`,
 };
 
 const TIPO_LABELS = {
@@ -203,8 +204,8 @@ function renderTablaEventos(eventos) {
       <td style="font-size:12px;">${diasLabel}</td>
       <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${ev.id}')" style="width:auto;margin-right:4px">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${ev.id}')" style="width:auto">🗑</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${ev.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${ev.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`;
   }).join("");
@@ -439,8 +440,8 @@ function renderVistaCheckpoints() {
         ${cuposStr}
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto">✏️</button>
-        <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${cp.id}')" style="width:auto">🗑</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
     </div>`;
   }).join("");
@@ -471,8 +472,8 @@ function renderTablaCheckpoints() {
         ${cuposStr}
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0;">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${cp.id}')" style="width:auto">🗑</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
     </div>`;
   }).join("");
@@ -546,7 +547,7 @@ function poblarSelectPonentes() {
   while (sel.options.length > 1) sel.remove(1);
   const optOtro = document.createElement("option");
   optOtro.value = "_otro";
-  optOtro.textContent = "✏️ Otro (ingresar manualmente)";
+  optOtro.textContent = "Otro (ingresar manualmente)";
   ponentes.forEach(p => {
     const opt   = document.createElement("option");
     opt.value   = p.id;
@@ -741,7 +742,7 @@ window._editarCp = id => {
 
   el("cp-cupos").value       = cp.cupos       || "";
   el("cp-cupos-section").style.display = TIPO_CON_CUPOS.includes(cp.tipo) ? "block" : "none";
-  el("btn-guardar-cp").textContent    = "💾 Actualizar checkpoint";
+  el("btn-guardar-cp").textContent    = "Actualizar checkpoint";
   el("btn-cancelar-cp").style.display = "inline-flex";
   el("modal-checkpoints").style.display = "flex";
   el("cp-nombre").focus();
@@ -837,7 +838,7 @@ function renderMapeoCols() {
   const tbody = el("mapeo-tbody");
   tbody.innerHTML = CAMPOS_EURUS.map(campo => {
     const detectado = detectarColumna(campo.key, columnasArchivo);
-    const ico = detectado ? "✅" : (campo.req ? "⚠️" : "⬜");
+    const ico = detectado ? "" : (campo.req ? iconoImg("advertencia") : "");
     const opts = columnasArchivo.map(c => `<option value="${c}" ${c === detectado ? "selected" : ""}>${c}</option>`).join("");
     return `<tr>
       <td>${ico} <strong>${campo.label}</strong>${campo.req ? " *" : ""}</td>
@@ -1008,7 +1009,7 @@ function renderParticipantes() {
       ? p.fechaRegistro.toDate().toLocaleDateString("es-PA")
       : "—";
     const badge  = ESTADO_PAGO_BADGE[p.pago?.estado] || ESTADO_PAGO_BADGE["importado"];
-    const metodo = p.pago?.metodo === "transferencia" ? "🏦" : p.pago?.metodo === "efectivo" ? "💵" : "—";
+    const metodo = p.pago?.metodo === "transferencia" ? "Transferencia" : p.pago?.metodo === "efectivo" ? "Efectivo" : "—";
     return `<tr style="animation:cardIn 0.3s ${i * 0.03}s both;">
       <td><code style="font-size:11px;color:var(--verde-oscuro);">${p.codigo || "—"}</code></td>
       <td>
@@ -1021,7 +1022,7 @@ function renderParticipantes() {
       <td style="font-size:13px;">${metodo}</td>
       <td style="font-size:12px;color:var(--gris-medio);">${fecha}</td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="window._verQR('${p.id}')" style="width:auto">🔲 QR</button>
+      <button class="btn btn-outline btn-sm" onclick="window._verQR('${p.id}')" style="width:auto">Ver QR</button>
       </td>
     </tr>`;
   }).join("");
@@ -1126,10 +1127,10 @@ function renderAsistencia() {
     const asis  = p.asistencias || {};
     const total = Object.keys(asis).length;
     const celdas = cps.map(cp => asis[cp.id]
-      ? `<td class="asistio" title="${fmtFecha(asis[cp.id].marcadoEn)}">✅</td>`
+      ? `<td class="asistio" title="${fmtFecha(asis[cp.id].marcadoEn)}">Sí</td>`
       : `<td class="no-asistio">—</td>`).join("");
     const cert = total >= minCert
-      ? `<td style="color:var(--verde-claro);font-weight:700;">✔</td>`
+        ? `<td style="color:var(--verde-claro);font-weight:700;">Sí</td>`
       : `<td style="color:var(--gris-medio);">—</td>`;
     return `<tr><td>${p.nombre}</td>${celdas}<td style="text-align:center;font-weight:700;">${total}</td>${cert}</tr>`;
   }).join("");

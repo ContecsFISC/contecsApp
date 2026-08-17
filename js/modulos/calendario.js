@@ -4,6 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual, esperarSesionLista } from "../core/auth.js";
 import { usuarioPuedeVerReunion, usuarioPuedeGestionarMinuta } from "./reuniones-utils.js";
+import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 let usuarioActual = null;
@@ -98,11 +99,9 @@ function renderCalendario() {
     const visibles = evts.slice(0, MAX);
     const extras   = evts.length - MAX;
 
-    const ICONOS = { actividad: "🎯", gira: "🚌", venta: "💰", reunion: "🗓️" };
     const evtsHtml = visibles.map(e => {
-      const ico = ICONOS[e.tipo] || "📌";
       const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
-      return `<span class="cal-evento evt-${e.tipo}" data-id="${e.id}" data-tipo="${e.tipo}">${ico} ${nombre}</span>`;
+      return `<span class="cal-evento evt-${e.tipo}" data-id="${e.id}" data-tipo="${e.tipo}">${nombre}</span>`;
     }).join("");
 
     const masHtml = extras > 0
@@ -126,17 +125,17 @@ function fmtHora(ts) {
 
 // ─── Detalle de una reunión ───────────────────────────────────────────────────
 function verDetalleReunion(e) {
-  const cfg = { label: "Reunión", ico: "🗓️", color: "#1a56db", bg: "#eef2ff", border: "#a5b4fc" };
+  const cfg = { label: "Reunión", color: "#1a56db", bg: "#eef2ff", border: "#a5b4fc" };
   const lugarHtml = e.esVirtual
     ? `Virtual — <a href="${e.linkVirtual}" target="_blank" rel="noopener">${e.linkVirtual}</a>`
     : (e.lugar || "—");
   const minutaLink = usuarioPuedeGestionarMinuta(usuarioActual)
-    ? `<div style="margin-top:14px;"><a href="../admin/minutaReunion.html?id=${e.id}" style="font-size:13px;font-weight:700;color:${cfg.color};">📋 Minuta de la reunión →</a></div>`
+    ? `<div style="margin-top:14px;"><a href="../admin/minutaReunion.html?id=${e.id}" style="font-size:13px;font-weight:700;color:${cfg.color};">Minuta de la reunión →</a></div>`
     : "";
 
   el("modal-detalle-contenido").innerHTML = `
     <div style="display:inline-flex;align-items:center;gap:8px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:14px;">
-      ${cfg.ico} ${cfg.label}
+      ${cfg.label}
     </div>
     <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${e.titulo}</div>
     ${e.agenda ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${e.agenda}</p>` : ""}
@@ -163,9 +162,9 @@ function verDetalle(id, tipo) {
   if (!e) return;
 
   const cfg = {
-    actividad: { label:"Actividad", ico:"🎯", color:"var(--verde-oscuro)", bg:"var(--verde-fondo)", border:"var(--verde-claro)" },
-    gira:      { label:"Gira",      ico:"🚌", color:"#856404",             bg:"#fff3cd",            border:"#ffc107" },
-    venta:     { label:"Venta",     ico:"💰", color:"#c81e1e",             bg:"#fde8e8",            border:"#f05252" },
+    actividad: { label:"Actividad", color:"var(--verde-oscuro)", bg:"var(--verde-fondo)", border:"var(--verde-claro)" },
+    gira:      { label:"Gira",      color:"#856404",             bg:"#fff3cd",            border:"#ffc107" },
+    venta:     { label:"Venta",     color:"#c81e1e",             bg:"#fde8e8",            border:"#f05252" },
   }[tipo];
 
   const turnos = (e.turnos || []).map(t =>
@@ -182,7 +181,7 @@ function verDetalle(id, tipo) {
 
   el("modal-detalle-contenido").innerHTML = `
     <div style="display:inline-flex;align-items:center;gap:8px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:14px;">
-      ${cfg.ico} ${cfg.label}
+      ${cfg.label}
     </div>
     <div style="font-size:18px;font-weight:700;color:var(--gris-titulo);margin-bottom:4px;">${e.nombre}</div>
     ${e.descripcion ? `<p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">${e.descripcion}</p>` : ""}
@@ -191,7 +190,7 @@ function verDetalle(id, tipo) {
       <div><strong style="color:${cfg.color};">Lugar</strong><br/>${e.lugar || "—"}</div>
       <div><strong style="color:${cfg.color};">Voluntarios</strong><br/>
         <span style="font-weight:700;font-size:15px;color:${volColor};">${volTexto}</span>
-        ${req > 0 ? `<span style="font-size:11px;color:var(--gris-medio);margin-left:4px;">${asignados >= req ? "✓ completo" : `faltan ${req - asignados}`}</span>` : ""}
+        ${req > 0 ? `<span style="font-size:11px;color:var(--gris-medio);margin-left:4px;">${asignados >= req ? "Completo" : `Faltan ${req - asignados}`}</span>` : ""}
       </div>
       <div><strong style="color:${cfg.color};">Estado</strong><br/>
         <span style="font-size:12px;background:${e.activo ? cfg.bg : "#f8f9fa"};color:${e.activo ? cfg.color : "var(--gris-medio)"};padding:2px 10px;border-radius:12px;border:1px solid ${e.activo ? cfg.border : "var(--gris-borde)"};">
@@ -219,17 +218,17 @@ function verDia(dia, año, mes) {
     <div style="font-size:16px;font-weight:700;color:var(--gris-titulo);margin-bottom:16px;text-transform:capitalize;">${fecha}</div>
     ${evts.map(e => {
       const cfg = {
-        actividad: { ico:"🎯", color:"var(--verde-oscuro)", bg:"var(--verde-fondo)" },
-        gira:      { ico:"🚌", color:"#856404",             bg:"#fff3cd" },
-        venta:     { ico:"💰", color:"#c81e1e",             bg:"#fde8e8" },
-        reunion:   { ico:"🗓️", color:"#1a56db",             bg:"#eef2ff" },
+        actividad: { color:"var(--verde-oscuro)", bg:"var(--verde-fondo)" },
+        gira:      { color:"#856404",             bg:"#fff3cd" },
+        venta:     { color:"#c81e1e",             bg:"#fde8e8" },
+        reunion:   { color:"#1a56db",             bg:"#eef2ff" },
       }[e.tipo];
       const nombre = e.tipo === "reunion" ? e.titulo : e.nombre;
       return `<div style="background:${cfg.bg};color:${cfg.color};border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;"
         data-id="${e.id}" data-tipo="${e.tipo}">
-        <div style="font-weight:700;font-size:14px;">${cfg.ico} ${nombre}</div>
-        ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">📍 ${e.lugar}</div>` : ""}
-        ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">👥 ${e.voluntariosReq} voluntarios requeridos</div>` : ""}
+        <div style="font-weight:700;font-size:14px;">${nombre}</div>
+        ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">${e.lugar}</div>` : ""}
+        ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">${iconoImg("persona")} ${e.voluntariosReq} voluntarios requeridos</div>` : ""}
       </div>`;
     }).join("")}
   `;

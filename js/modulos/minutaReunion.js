@@ -288,7 +288,7 @@ async function generarDocxMinuta(reunion, invitados, contenidoMarkdown) {
             new TableRow({ children: [lCell("NOMBRE", 4), lCell("ASISTIÓ", 2)] }),
             ...invitados.map(u => new TableRow({ children: [
               vCell(u.nombre || u.email || "—", 4),
-              vCell(reunion.asistencia?.[u.id] ? "☑ Sí" : "☐ No", 2),
+      vCell(reunion.asistencia?.[u.id] ? "Sí" : "No", 2),
             ]})),
           ]
         })

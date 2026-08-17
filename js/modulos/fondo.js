@@ -1,6 +1,7 @@
 ﻿import { guardRoute, requirePermiso, usuarioTienePermiso, getUsuarioActual } from "../core/auth.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarMovimientoFondo, resumenItemPrincipal } from "../core/operaciones.js";
+import { iconoImg } from "../core/iconos.js";
 import {
   doc, getDoc, collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -81,7 +82,7 @@ function renderHistorial() {
   if (estado.movimientos.length === 0) {
     historial.innerHTML = `
       <div class="empty-state" style="padding:24px 16px;">
-        <div class="emoji">💳</div>
+        <div class="emoji">${iconoImg("caja", { clase: "icono-hero" })}</div>
         <p>No hay movimientos registrados todavía.</p>
       </div>`;
     return;

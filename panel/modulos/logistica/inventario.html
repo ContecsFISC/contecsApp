@@ -106,6 +106,7 @@
  .inv-card.agotado { border-top-color: var(--rojo); background: var(--rojo-fondo); }
 
  .inv-emoji { font-size: 30px; line-height: 1; }
+ .inv-emoji .icono-svg { width: 30px; height: 30px; }
  .inv-nombre { font-size: 12px; font-weight: 600; color: var(--gris-texto); line-height: 1.3; }
  .inv-stock { font-size: 22px; font-weight: 800; }
  .inv-stock.ok { color: var(--verde); }
@@ -161,6 +162,7 @@
  animation: fadeScaleIn 0.4s var(--ease-spring) both;
  }
  .empty-state .emoji { font-size: 44px; margin-bottom: 10px; }
+ .empty-state .emoji .icono-svg { width: 44px; height: 44px; color: var(--gris-medio); }
 
  .timestamp {
  text-align: center;
@@ -226,7 +228,7 @@
 
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
- import { escucharCategorias, getEmoji, estadoStock } from "../../../js/modulos/catalogo.js";
+ import { escucharCategorias, getIconoHTML, estadoStock } from "../../../js/modulos/catalogo.js";
  import { db } from "../../../js/core/firebase-config.js";
  import {
  collection, query, where, onSnapshot
@@ -305,7 +307,7 @@
  <div class="agotados-banner-titulo"> Productos agotados (${agotados.length})</div>
  ${agotados.map(p => `
  <div class="agotado-item">
- <span style="font-size:20px;">${getEmoji(p.iconoId)}</span>
+ <span>${getIconoHTML(p.iconoId, { clase: "icono-md" })}</span>
  <span style="font-weight:600;flex:1;">${p.nombre}</span>
  <span class="inv-badge-agotado">Sin stock</span>
  </div>`).join("")}`;
@@ -330,7 +332,7 @@
  const titulo = document.createElement("div");
  titulo.className = "seccion-cat-titulo";
  titulo.innerHTML = `
- <span style="font-size:20px;">${getEmoji(cat.iconoId)}</span>
+ <span>${getIconoHTML(cat.iconoId, { clase: "icono-md" })}</span>
  ${cat.nombre}
  <span style="font-size:12px;font-weight:400;color:var(--gris-medio);margin-left:4px;">(${prods.length})</span>`;
  seccion.appendChild(titulo);
@@ -354,7 +356,7 @@
  cardGlobal++;
 
  card.innerHTML = `
- <div class="inv-emoji">${getEmoji(prod.iconoId)}</div>
+ <div class="inv-emoji">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
  <div class="inv-nombre">${prod.nombre}</div>
  <div class="inv-stock ${estado}">
  ${estado === "agotado" ? "0" : prod.stock ?? 0}

@@ -1,5 +1,6 @@
 ﻿import { guardRoute, requirePermiso, getUsuarioActual } from "../core/auth.js";
-import { escucharCategorias, getEmoji } from "./catalogo.js";
+import { escucharCategorias, getIconoHTML } from "./catalogo.js";
+import { iconoImg } from "../core/iconos.js";
 import { db, auth } from "../core/firebase-config.js";
 import { formatearMoneda, registrarCompra, esperarAuthListo } from "../core/operaciones.js";
 import {
@@ -260,7 +261,7 @@ function renderCarrito() {
   if (items.length === 0) {
     carritoWrap.innerHTML = `
       <div class="empty-state" style="padding:24px 16px;">
-        <div class="emoji">🧾</div>
+        <div class="emoji">${iconoImg("recibo", { clase: "icono-hero" })}</div>
         <p>Aún no agregas productos a la compra.</p>
       </div>`;
     actualizarResumen();
@@ -276,7 +277,7 @@ function renderCarrito() {
       <div class="carrito-controles">
         <button class="chip-btn" data-action="menos" data-id="${item.productoId}">−</button>
         <button class="chip-btn" data-action="mas" data-id="${item.productoId}">+</button>
-        <button class="chip-btn chip-danger" data-action="quitar" data-id="${item.productoId}">✕</button>
+        <button class="chip-btn chip-danger" data-action="quitar" data-id="${item.productoId}" title="Quitar">${iconoImg("cerrar")}</button>
       </div>
       <div class="carrito-campos">
         <div class="form-group">
@@ -347,7 +348,7 @@ function renderProductos() {
   if (productosFiltrados.length === 0) {
     contenedor.innerHTML = `
       <div class="empty-state">
-        <div class="emoji">🔍</div>
+        <div class="emoji"></div>
         <p>No hay productos que coincidan con tu búsqueda.</p>
       </div>`;
     return;
@@ -362,7 +363,7 @@ function renderProductos() {
 
     const titulo = document.createElement("div");
     titulo.className = "seccion-cat-titulo";
-    titulo.innerHTML = `<span style="font-size:20px;">${getEmoji(categoria.iconoId)}</span>${categoria.nombre}`;
+    titulo.innerHTML = `<span>${getIconoHTML(categoria.iconoId, { clase: "icono-md" })}</span>${categoria.nombre}`;
     seccion.appendChild(titulo);
 
     const grid = document.createElement("div");
@@ -372,7 +373,7 @@ function renderProductos() {
       const card = document.createElement("div");
       card.className = "venta-card compra-card";
       card.innerHTML = `
-        <div class="venta-icono">${getEmoji(prod.iconoId)}</div>
+        <div class="venta-icono">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
         <div class="venta-info">
           <div class="venta-nombre">${prod.nombre}</div>
           <div class="venta-meta">Stock: ${prod.stock ?? 0}</div>

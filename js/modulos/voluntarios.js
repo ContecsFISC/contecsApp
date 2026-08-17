@@ -5,6 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
+import { iconoImg, estrellasImg } from "../core/iconos.js";
 
 const el  = id => document.getElementById(id);
 const QRCode = window.QRCode;
@@ -217,7 +218,7 @@ function renderTablaActividades() {
       <td>
         <strong>${a.nombre}</strong>
         ${a.descripcion ? `<br/><small style="color:var(--gris-medio)">${a.descripcion}</small>` : ""}
-        ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">🤝 ${a.colaboracion}</small>` : ""}
+        ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${a.colaboracion}</small>` : ""}
       </td>
       <td>${fmtFecha(a.fecha)}</td>
       <td>${a.area || "—"}</td>
@@ -233,12 +234,12 @@ function renderTablaActividades() {
         </span>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarActividad('${a.id}')" style="width:auto;margin-right:4px">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="editarActividad('${a.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
         <button onclick="toggleActividad('${a.id}',${!!a.activo})" style="background:${a.activo?"var(--rojo)":"var(--verde-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${a.activo ? "Desactivar" : "Activar"}
         </button>
         <button onclick="eliminarActividad('${a.id}','${a.nombre.replace(/'/g, "\\'")}')"
-          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;">🗑</button>
+          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`).join("");
 }
@@ -495,7 +496,7 @@ function detectarCol(campo) {
 function mostrarMapeo() {
   el("mapeo-tbody").innerHTML = CAMPOS_VOL.map(campo => {
     const det = detectarCol(campo);
-    const ind = det ? "✅" : (campo.requerido ? "⚠️" : "—");
+    const ind = det ? "" : (campo.requerido ? iconoImg("advertencia") : "—");
     return `<tr>
       <td><strong>${ind} ${campo.label}${campo.requerido ? ' <span style="color:#dc3545">*</span>' : ""}</strong></td>
       <td>
@@ -589,9 +590,9 @@ function actualizarStats() {
 }
 
 const HORARIO_CFG = {
-  "Diurno":     { bg: "#eff6ff", color: "#1e40af", icono: "☀️" },
-  "Vespertino": { bg: "#fff7ed", color: "#9a3412", icono: "🌤️" },
-  "Nocturno":   { bg: "#1e1b4b", color: "#c7d2fe", icono: "🌙" },
+  "Diurno":     { bg: "#eff6ff", color: "#1e40af", icono: "" },
+  "Vespertino": { bg: "#fff7ed", color: "#9a3412", icono: "" },
+  "Nocturno":   { bg: "#1e1b4b", color: "#c7d2fe", icono: "" },
 };
 
 function renderVoluntarios(filtro = "") {
@@ -628,9 +629,9 @@ function renderVoluntarios(filtro = "") {
       <td>${horarioBadge}</td>
       <td><span class="horas-badge">${(v.totalHoras || 0).toFixed(2)}h</span></td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="verQR('${v.id}')" style="width:auto;margin-right:4px" title="Ver QR del voluntario">📷</button>
+        <button class="btn btn-outline btn-sm" onclick="verQR('${v.id}')" style="width:auto;margin-right:4px" title="Ver QR del voluntario">Ver QR</button>
         <button onclick="eliminarVoluntario('${v.id}','${v.nombre.replace(/'/g, "\\'")}')"
-          style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">🗑</button>
+          style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`;
   }).join("");
@@ -691,7 +692,7 @@ el("btn-descargar-qr")?.addEventListener("click", async () => {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 
   btn.disabled = false;
-  btn.textContent = "⬇ Descargar";
+  btn.textContent = "Descargar";
 });
 
 el("btn-copiar-qr")?.addEventListener("click", async () => {
@@ -844,10 +845,10 @@ async function dibujarCarnet(v, qrDataURL) {
   // Correo
   ctx.fillStyle = "#555555";
   ctx.font = "12px Arial";
-  ctx.fillText(truncarTexto(ctx, "✉  " + (v.correo || "—"), maxW), W / 2, 202);
+  ctx.fillText(truncarTexto(ctx, v.correo || "—", maxW), W / 2, 202);
 
   // Carrera
-  ctx.fillText(truncarTexto(ctx, "🎓  " + (v.carrera || "—"), maxW), W / 2, 224);
+  ctx.fillText(truncarTexto(ctx, v.carrera || "—", maxW), W / 2, 224);
 
   // QR
   if (qrDataURL) {
@@ -918,7 +919,7 @@ el("btn-exportar-qr")?.addEventListener("click", async () => {
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 
   btn.disabled = false;
-  btn.textContent = "🪪 Exportar QR";
+  btn.textContent = "Exportar QR";
   mostrarAlerta("success", `ZIP con ${lista.length} carnet${lista.length !== 1 ? "s" : ""} descargado. ¡Listo para distribuir!`);
 });
 
@@ -946,7 +947,7 @@ async function cargarAsistencias() {
   if (spAsist) spAsist.style.display = "none";
 }
 
-const ESTRELLAS = { 1: "⭐", 2: "⭐⭐", 3: "⭐⭐⭐", 4: "⭐⭐⭐⭐", 5: "⭐⭐⭐⭐⭐" };
+  const ESTRELLAS = { 1: estrellasImg(1), 2: estrellasImg(2), 3: estrellasImg(3), 4: estrellasImg(4), 5: estrellasImg(5) };
 const ETIQUETAS = { 1: "Necesita mejora", 2: "Regular", 3: "Bueno", 4: "Muy bueno", 5: "Excelente" };
 
 function resolverAsistencia(a) {
@@ -1054,7 +1055,7 @@ function renderTablaGiras() {
       <td>
         <strong>${g.nombre}</strong>
         ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${g.descripcion}</small>` : ""}
-        ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">🤝 ${g.colaboracion}</small>` : ""}
+        ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${g.colaboracion}</small>` : ""}
       </td>
       <td>${fmtFecha(g.fecha)}</td>
       <td>${g.area || "—"}</td>
@@ -1070,12 +1071,12 @@ function renderTablaGiras() {
         </span>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarGira('${g.id}')" style="width:auto;margin-right:4px">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="editarGira('${g.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
         <button onclick="toggleGira('${g.id}',${!!g.activo})" style="background:${g.activo ? "var(--rojo)" : "#ffc107"};color:${g.activo ? "#fff" : "#856404"};border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${g.activo ? "Desactivar" : "Activar"}
         </button>
         <button onclick="eliminarGira('${g.id}','${g.nombre.replace(/'/g, "\\'")}')"
-          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;">🗑</button>
+          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`).join("");
 }
@@ -1218,7 +1219,7 @@ function renderTablaAsignaciones() {
       <td><span class="tipo-badge ${tipoClass[a.tipo] || ""}">${tipoLabel[a.tipo] || a.tipo}</span></td>
       <td>${a.eventoNombre || "—"}</td>
       <td>${a.turnoNombre || "—"}</td>
-      <td><button onclick="eliminarAsignacion('${a.id}')" style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;">🗑</button></td>
+      <td><button onclick="eliminarAsignacion('${a.id}')" style="background:#dc3545;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;" title="Eliminar">${iconoImg("eliminar")}</button></td>
     </tr>`).join("");
 }
 
@@ -1422,7 +1423,7 @@ function renderTurnosEvt() {
   lista.innerHTML = turnos.map(t => `
     <span style="display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #c7d9fc;
       border-radius:20px;padding:5px 12px;font-size:13px;margin:3px;color:#1a56db;">
-      🕐 <strong>${t.nombre}</strong>&nbsp;${t.horaInicio} – ${t.horaFin}
+      ${iconoImg("reloj")} <strong>${t.nombre}</strong>&nbsp;${t.horaInicio} – ${t.horaFin}
       <button onclick="eliminarTurnoEvt('${tipo}','${eventoId}','${t.id}')"
         style="background:none;border:none;cursor:pointer;color:#1a56db;font-size:15px;line-height:1;padding:0 2px;">×</button>
     </span>`).join("");
@@ -1722,7 +1723,7 @@ function renderVoluntariosGrupo() {
   // Aviso si ya hay voluntarios asignados a este evento
   if (yaAsignados.size > 0) {
     aviso.style.display = "block";
-    aviso.innerHTML = `⚠️ Ya hay <strong>${yaAsignados.size}</strong> voluntario${yaAsignados.size !== 1 ? "s" : ""} asignado${yaAsignados.size !== 1 ? "s" : ""} para <strong>"${evento?.nombre || "este evento"}"</strong>. Aparecen marcados abajo.`;
+    aviso.innerHTML = `${iconoImg("advertencia")} Ya hay <strong>${yaAsignados.size}</strong> voluntario${yaAsignados.size !== 1 ? "s" : ""} asignado${yaAsignados.size !== 1 ? "s" : ""} para <strong>"${evento?.nombre || "este evento"}"</strong>. Aparecen marcados abajo.`;
   } else {
     aviso.style.display = "none";
   }
@@ -1749,7 +1750,7 @@ function renderVoluntariosGrupo() {
     else if (esOcupado)
       badge = `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 8px;border-radius:12px;white-space:nowrap;">Ocupado ese día</span>`;
     else if (esConflictoHorario)
-      badge = `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;white-space:nowrap;border:1px solid #fcd34d;">⚠️ Choca con clases ${v.horario}</span>`;
+      badge = `<span style="font-size:11px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;white-space:nowrap;border:1px solid #fcd34d;">${iconoImg("advertencia")} Choca con clases ${v.horario}</span>`;
     const dataAttrs = disabled
       ? `disabled data-fixed="1"${esYaAsig ? ' data-ya-asignado="1"' : ""}`
       : "";

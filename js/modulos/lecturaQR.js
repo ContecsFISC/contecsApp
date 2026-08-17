@@ -3,6 +3,7 @@ import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc,
   query, where, orderBy, runTransaction, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 
@@ -80,7 +81,7 @@ function renderCheckpoints() {
   grid.innerHTML = checkpointsSesion.map(cp => {
     const esTaller = TIPO_CON_CUPOS.includes(cp.tipo);
     const cuposTag = esTaller && cp.cupos != null
-      ? `<span class="cp-cupos-tag">📋 ${cp.cuposDisponibles ?? cp.cupos} / ${cp.cupos} cupos</span>`
+      ? `<span class="cp-cupos-tag">${iconoImg("ticket")} ${cp.cuposDisponibles ?? cp.cupos} / ${cp.cupos} cupos</span>`
       : "";
     const tipoTag  = cp.tipo && cp.tipo !== "conferencia"
       ? `<span class="cp-tipo-tag">${cp.tipo.toUpperCase()}</span>`
@@ -232,15 +233,15 @@ function mostrarInfoAsistencia(p) {
 
   if (yaMarcado) {
     badge.className   = "estado-badge estado-err";
-    badge.textContent = `⚠️ Ya registrado en "${checkpointSel.nombre}"`;
+    badge.textContent = `Ya registrado en "${checkpointSel.nombre}"`;
     el("btn-confirmar-asistencia").disabled = true;
   } else {
     badge.className   = "estado-badge estado-ok";
-    badge.textContent = `✅ Listo para marcar: ${checkpointSel.nombre}`;
+    badge.textContent = `Listo para marcar: ${checkpointSel.nombre}`;
     el("btn-confirmar-asistencia").disabled = false;
   }
 
-  el("btn-confirmar-asistencia").textContent = "✅ Confirmar asistencia";
+  el("btn-confirmar-asistencia").textContent = "Confirmar asistencia";
 
   const cps = checkpointsSesion;
   const marcados = Object.keys(asis).map(k => {
@@ -284,19 +285,19 @@ async function mostrarInfoTaller(p) {
 
   if (!yaSnap.empty) {
     badge.className   = "estado-badge estado-err";
-    badge.textContent = `⚠️ Ya inscrito en "${checkpointSel.nombre}"`;
+    badge.textContent = `Ya inscrito en "${checkpointSel.nombre}"`;
     el("btn-confirmar-asistencia").disabled = true;
   } else if (disponibles <= 0) {
     badge.className   = "estado-badge estado-err";
-    badge.textContent = `❌ Sin cupos disponibles para "${checkpointSel.nombre}"`;
+    badge.textContent = `Sin cupos disponibles para "${checkpointSel.nombre}"`;
     el("btn-confirmar-asistencia").disabled = true;
   } else {
     badge.className   = "estado-badge estado-ok";
-    badge.textContent = `✅ Listo para inscribir en: ${checkpointSel.nombre}`;
+    badge.textContent = `Listo para inscribir en: ${checkpointSel.nombre}`;
     el("btn-confirmar-asistencia").disabled = false;
   }
 
-  el("btn-confirmar-asistencia").textContent = "📋 Inscribir en taller";
+  el("btn-confirmar-asistencia").textContent = "Inscribir en taller";
   el("res-asistencias-actuales").textContent = "";
   el("resultado-box").style.display = "block";
   el("resultado-box").scrollIntoView({ behavior: "smooth" });
@@ -341,7 +342,7 @@ async function confirmarAsistencia() {
       tipo:       "asistencia",
     });
     renderLog();
-    alerta("success", `✅ Asistencia confirmada: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
+    alerta("success", `Asistencia confirmada: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
   } catch (e) {
     alerta("error", "Error al guardar asistencia: " + e.message);
   }
@@ -395,7 +396,7 @@ async function confirmarInscripcionTaller() {
       tipo:       "taller",
     });
     renderLog();
-    alerta("success", `📋 Inscrito en taller: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
+    alerta("success", `Inscrito en taller: ${participanteSel.nombreCompleto || participanteSel.nombre}`);
   } catch (e) {
     alerta("error", e.message || "Error al inscribir en taller.");
   }
@@ -410,7 +411,7 @@ async function cerrarResultado() {
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;
-  el("btn-confirmar-asistencia").textContent = modoTaller ? "📋 Inscribir en taller" : "✅ Confirmar asistencia";
+  el("btn-confirmar-asistencia").textContent = modoTaller ? "Inscribir en taller" : "Confirmar asistencia";
   if (scanner && escaneando) await scanner.resume();
 }
 
@@ -424,7 +425,7 @@ function renderLog() {
   tb.innerHTML = logSesion.slice(0, 20).map(entry => `
     <tr>
       <td>${entry.nombre}</td>
-      <td>${entry.checkpoint}${entry.tipo === "taller" ? " 📋" : ""}</td>
+      <td>${entry.checkpoint}${entry.tipo === "taller" ? " (taller)" : ""}</td>
       <td>${entry.hora}</td>
     </tr>`).join("");
 }

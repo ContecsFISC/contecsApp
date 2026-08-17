@@ -3,6 +3,7 @@ import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc,
   query, where, orderBy, increment, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 
@@ -99,7 +100,7 @@ function renderTurnos() {
       onclick="seleccionarTurno(this,'${t.id}','${t.nombre}','${t.horaInicio}','${t.horaFin}')"
       style="background:var(--verde-fondo);border-radius:var(--radio-sm,8px);padding:10px 14px;font-size:13px;font-weight:600;color:var(--verde-oscuro);cursor:pointer;border:2px solid transparent;transition:border-color 0.2s,background 0.2s;"
     >
-      🕐 ${t.nombre}<br/><small style="font-weight:400">${t.horaInicio} – ${t.horaFin}</small>
+      ${iconoImg("reloj")} ${t.nombre}<br/><small style="font-weight:400">${t.horaInicio} – ${t.horaFin}</small>
     </div>`).join("");
 }
 
@@ -225,21 +226,21 @@ function mostrarResultado() {
 
   if (modoActual === "entrada") {
     badge.className   = "estado-badge estado-entrada";
-    badge.textContent = "🟢 ENTRADA — Primera vez en este turno";
-    btnConf.textContent = "✅ Registrar entrada";
+    badge.textContent = "ENTRADA — Primera vez en este turno";
+    btnConf.textContent = "Registrar entrada";
     btnConf.disabled    = false;
   } else if (modoActual === "salida") {
     const entrada    = asistenciaActual.horaEntrada?.toDate ? asistenciaActual.horaEntrada.toDate() : new Date();
     const ahora      = new Date();
     const horasPreview = ((ahora - entrada) / 3600000).toFixed(2);
     badge.className   = "estado-badge estado-salida";
-    badge.textContent = `🟡 SALIDA — Entró a las ${fmtHora(asistenciaActual.horaEntrada)} · ${horasPreview}h`;
+    badge.textContent = `SALIDA — Entró a las ${fmtHora(asistenciaActual.horaEntrada)} · ${horasPreview}h`;
     ratingSection.style.display = "block";
-    btnConf.textContent = "✅ Registrar salida";
+    btnConf.textContent = "Registrar salida";
     btnConf.disabled    = true;  // se habilita al seleccionar rating
   } else {
     badge.className   = "estado-badge estado-completo";
-    badge.textContent = `✔ Completado — ${fmtHora(asistenciaActual.horaEntrada)} → ${fmtHora(asistenciaActual.horaSalida)} · ${(asistenciaActual.horasGanadas || 0).toFixed(2)}h`;
+    badge.textContent = `Completado — ${fmtHora(asistenciaActual.horaEntrada)} → ${fmtHora(asistenciaActual.horaSalida)} · ${(asistenciaActual.horasGanadas || 0).toFixed(2)}h`;
     btnConf.textContent = "—";
     btnConf.disabled    = true;
   }
@@ -281,7 +282,7 @@ el("btn-confirmar").addEventListener("click", async () => {
       });
 
       agregarLog("entrada", voluntarioActual.nombre, turnoActivo.nombre, null);
-      alerta("success", `✅ Entrada registrada: ${voluntarioActual.nombre}`);
+      alerta("success", `Entrada registrada: ${voluntarioActual.nombre}`);
 
     } else if (modoActual === "salida") {
       // Calcular horas reales desde la hora de entrada guardada
@@ -303,12 +304,12 @@ el("btn-confirmar").addEventListener("click", async () => {
       });
 
       agregarLog("salida", voluntarioActual.nombre, turnoActivo.nombre, horasGanadas);
-      alerta("success", `✅ Salida registrada: ${voluntarioActual.nombre} · +${horasGanadas.toFixed(2)}h`);
+      alerta("success", `Salida registrada: ${voluntarioActual.nombre} · +${horasGanadas.toFixed(2)}h`);
     }
   } catch (e) {
     alerta("error", "Error al guardar: " + e.message);
     el("btn-confirmar").disabled    = false;
-    el("btn-confirmar").textContent = modoActual === "entrada" ? "✅ Registrar entrada" : "✅ Registrar salida";
+    el("btn-confirmar").textContent = modoActual === "entrada" ? "Registrar entrada" : "Registrar salida";
     return;
   }
 
@@ -321,7 +322,7 @@ async function cerrarResultado() {
   voluntarioActual = asistenciaActual = modoActual = null;
   ratingSeleccionado = null;
   el("resultado-box").style.display = "none";
-  el("btn-confirmar").textContent   = "✅ Confirmar";
+  el("btn-confirmar").textContent   = "Confirmar";
   el("btn-confirmar").disabled      = false;
   if (scanner && escaneando) await scanner.resume();
 }
@@ -345,7 +346,7 @@ function renderLog() {
   tb.innerHTML = logSesion.slice(0, 20).map(entry => `
     <tr>
       <td>${entry.nombre}</td>
-      <td class="log-${entry.tipo}">${entry.tipo === "entrada" ? "🟢 Entrada" : "🟡 Salida"}</td>
+      <td class="log-${entry.tipo}">${entry.tipo === "entrada" ? "Entrada" : "Salida"}</td>
       <td>${entry.turno}</td>
       <td>${entry.hora}</td>
       <td><strong>${entry.horas}</strong></td>

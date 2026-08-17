@@ -216,13 +216,14 @@
       animation-delay: 0.1s;
     }
     .sin-rol-card .icono { font-size: 48px; margin-bottom: 12px; }
+    .sin-rol-card .icono .icono-svg { width: 48px; height: 48px; color: var(--gris-medio); }
     .sin-rol-card h3 { font-size: 17px; color: var(--gris-texto); margin-bottom: 8px; }
     .sin-rol-card p  { font-size: 14px; color: var(--gris-medio); line-height: 1.5; }
 
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
     }
-    /* ══════════ ☰ Botón menú (abre bottom sheet de módulos) ══════════ */
+    /* ══════════ Botón menú (abre bottom sheet de módulos) ══════════ */
     .btn-menu {
       display: flex;
       flex-direction: column;
@@ -353,11 +354,11 @@
     }
     .btn-logout:hover  { background: rgba(255,255,255,0.24); }
 
-    /* Tabs — ocultas en mobile, viven en el ☰ (bottom sheet) */
+    /* Tabs — ocultas en mobile, viven en el bottom sheet */
     .topbar-nav { display: none; }
 
     @media (min-width: 1024px) {
-      /* El ☰ y el bottom sheet son cosa de mobile */
+      /* El botón de menú y el bottom sheet son exclusivos de mobile */
       .btn-menu, .bottom-sheet, .sheet-backdrop { display: none !important; }
 
       body { background: var(--gris-suave); }
@@ -530,7 +531,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-header">
       <span>Módulos</span>
-      <button class="sheet-close" id="sheet-close" aria-label="Cerrar">✕</button>
+      <button class="sheet-close" id="sheet-close" aria-label="Cerrar"><img src="../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
     </div>
     <div class="sheet-body" id="sheet-body"></div>
   </div>
@@ -563,7 +564,7 @@
     document.getElementById("nombre-usuario").textContent = usuario.nombre || "Usuario";
     document.getElementById("rol-label").textContent      = info.label || "Sin rol";
 
-    // Badge dorado exclusivo para el rol CEO 🏆
+    // Badge dorado exclusivo para el rol CEO
     if (String(rol).toLowerCase() === "ceo") {
       document.getElementById("badge-verificado").classList.add("badge-verificado--ceo");
     }
@@ -882,8 +883,8 @@
         .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => tienePermiso(rol, m.permiso)) }))
         .filter(cat => cat.modulos.length > 0);
 
-      // ══════════ Mobile — bottom sheet (☰): lista de texto limpia, sin
-      // emojis, solo una flechita indicando que se navega a otra pantalla ══════════
+      // ══════════ Mobile — bottom sheet: lista de texto limpia,
+      // con una flecha que indica que se navega a otra pantalla ══════════
       const sheetBody = document.getElementById("sheet-body");
       categoriasVisibles.forEach((cat, idx) => {
         const bloque = document.createElement("div");
@@ -942,7 +943,7 @@
 
     document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
 
-    // ══════════ ☰ Bottom sheet — abrir/cerrar ══════════
+    // ══════════ Bottom sheet — abrir/cerrar ══════════
     const btnMenu       = document.getElementById("btn-menu");
     const sheetEl        = document.getElementById("bottom-sheet");
     const sheetBackdrop  = document.getElementById("sheet-backdrop");
@@ -1018,7 +1019,7 @@
     }
 
     // Nota: el scroll-reveal de categorías se retiró — los módulos ahora
-    // viven en el bottom sheet (☰), que tiene su propia animación de entrada.
+    // viven en el bottom sheet, que tiene su propia animación de entrada.
   </script>
 </body>
 </html>

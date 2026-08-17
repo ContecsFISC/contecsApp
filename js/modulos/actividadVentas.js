@@ -4,6 +4,7 @@ import {
   query, orderBy, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
+import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 const XLSX = window.XLSX;
@@ -49,7 +50,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 function renderTurnos() {
   el("venta-turnos-lista").innerHTML = turnosForm.map((t, i) => `
     <span class="turno-tag">
-      🕐 <strong>${t.nombre}</strong> &nbsp;${t.horaInicio} – ${t.horaFin}
+      ${iconoImg("reloj")} <strong>${t.nombre}</strong> &nbsp;${t.horaInicio} – ${t.horaFin}
       <button onclick="quitarTurno(${i})">×</button>
     </span>`).join("");
 }
@@ -114,7 +115,7 @@ async function cargarUsuariosEnSelector() {
 function renderResponsables() {
   el("venta-responsables-lista").innerHTML = responsablesForm.map((n, i) => `
     <span class="turno-tag">
-      👤 <strong>${n}</strong>
+      ${iconoImg("persona")} <strong>${n}</strong>
       <button onclick="quitarResponsable(${i})">×</button>
     </span>`).join("");
 }
@@ -158,7 +159,7 @@ async function cargarProductosEnSelector() {
 function renderProductosForm() {
   el("venta-productos-lista").innerHTML = productosForm.map((p, i) => `
     <span class="turno-tag">
-      🛒 <strong>${p.nombre}</strong>
+      ${iconoImg("carrito")} <strong>${p.nombre}</strong>
       <button onclick="quitarProductoForm(${i})">×</button>
     </span>`).join("");
 }
@@ -227,7 +228,7 @@ function renderCombos() {
   el("venta-combos-lista").innerHTML = combosForm.map((c, i) => `
     <div style="background:#fff;border:1px solid #f98080;border-radius:var(--radio-sm);padding:8px 10px;margin-bottom:6px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong style="color:#c81e1e;">🍔 ${c.nombre}</strong>
+      <strong style="color:#c81e1e;">${iconoImg("combo")} ${c.nombre}</strong>
         <span style="display:flex;align-items:center;gap:8px;">
           <strong style="color:#c81e1e;">${formatearMonedaLocal(c.precioTotal)}</strong>
           <button onclick="quitarCombo(${i})" style="background:none;border:none;cursor:pointer;color:#c81e1e;font-size:15px;">×</button>
@@ -419,7 +420,7 @@ function renderTablaVentas() {
       <td>
         <strong>${v.nombre}</strong>
         ${v.descripcion ? `<br/><small style="color:var(--gris-medio)">${v.descripcion}</small>` : ""}
-        ${v.colaboracion ? `<br/><small style="color:var(--gris-medio)">🤝 ${v.colaboracion}</small>` : ""}
+        ${v.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${v.colaboracion}</small>` : ""}
       </td>
       <td>${fmtFecha(v.fecha)}</td>
       <td>${v.tipo || "—"}</td>
@@ -430,10 +431,10 @@ function renderTablaVentas() {
         ${(v.turnos || []).map(t => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${t.nombre} ${t.horaInicio}–${t.horaFin}</span>`).join("") || "—"}
       </td>
       <td>
-        ${(v.productos || []).map(p => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">🛒 ${p.nombre}</span>`).join("") || "—"}
+        ${(v.productos || []).map(p => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${iconoImg("carrito")} ${p.nombre}</span>`).join("") || "—"}
       </td>
       <td>
-        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">🍔 ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
+        ${(v.combos || []).map(c => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;" title="${c.items.map(it => `${it.nombre} (${formatearMonedaLocal(it.precio)})`).join(" + ")}">${iconoImg("combo")} ${c.nombre} · ${formatearMonedaLocal(c.precioTotal)}</span>`).join("") || "—"}
       </td>
       <td>
         <span style="font-size:12px;background:${v.activo ? "#fde8e8" : "#f8f9fa"};color:${v.activo ? "#c81e1e" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
@@ -441,12 +442,12 @@ function renderTablaVentas() {
         </span>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarVenta('${v.id}')" style="width:auto;margin-right:4px">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="editarVenta('${v.id}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
         <button onclick="toggleVenta('${v.id}',${!!v.activo})" style="background:${v.activo ? "var(--rojo)" : "#f05252"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${v.activo ? "Desactivar" : "Activar"}
         </button>
         <button onclick="eliminarVenta('${v.id}','${v.nombre.replace(/'/g, "\\'")}')"
-          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;">🗑</button>
+          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`).join("");
 }

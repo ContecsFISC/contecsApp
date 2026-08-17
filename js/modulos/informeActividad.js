@@ -137,7 +137,7 @@ el("btn-generar-informe").addEventListener("click", async () => {
     mostrarAlerta("El informe se guardó pero hubo un error al generar el .docx.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "📄 Generar informe .docx";
+    btn.textContent = "Generar informe .docx";
   }
 });
 
@@ -171,7 +171,7 @@ async function generarDocxInforme(datos, imagenes) {
     })]
   });
 
-  const check = marcado => marcado ? "☑" : "☐";
+  const check = marcado => marcado ? "Sí" : "No";
 
   const LICENCIATURAS = [
     "Lic. En Ing. de Sistemas y Computación",

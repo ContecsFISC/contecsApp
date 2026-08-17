@@ -40,7 +40,7 @@ function nuevaFilaPrograma() {
     <td><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
     <td><input type="text" placeholder="Tema o actividad"/></td>
     <td><input type="text" placeholder="Sala / lugar"/></td>
-    <td><button class="btn-fila-del" type="button" title="Eliminar fila">✕</button></td>
+    <td><button class="btn-fila-del" type="button" title="Eliminar fila">Eliminar</button></td>
   `;
   tr.querySelector(".btn-fila-del").addEventListener("click", () => {
     if (el("programa-tbody").rows.length > 1) tr.remove();
@@ -184,7 +184,7 @@ el("btn-generar-solicitud").addEventListener("click", async () => {
     mostrarAlerta("El documento se guardó pero hubo un error al generar el .docx.");
   } finally {
     btn.disabled = false;
-    btn.textContent = "📄 Generar solicitud .docx";
+    btn.textContent = "Generar solicitud .docx";
   }
 });
 
@@ -213,7 +213,7 @@ async function generarDocxSolicitud(datos) {
   const LW  = COL * 2; // 3120 — ancho de columna de etiqueta
   const VW  = COL * 4; // 6240 — ancho de columna de valor
 
-  const check = v => v ? "☑" : "☐";
+  const check = v => v ? "Sí" : "No";
 
   // ── Borders ───────────────────────────────────────────────────────────────
   const bN = { style: BorderStyle.NONE };

@@ -3,6 +3,7 @@ import {
   collection, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { formatearDuracion } from "./reuniones-utils.js";
+import { iconoImg } from "../core/iconos.js";
 
 const el = id => document.getElementById(id);
 
@@ -14,9 +15,9 @@ function fmtFechaHora(ts) {
 }
 
 function etiquetaInvitados(reunion) {
-  if (reunion.modoInvitados === "todos") return "👥 Todos";
-  if (reunion.modoInvitados === "rol") return `👥 ${(reunion.invitadosRoles || []).length} rol(es)`;
-  if (reunion.modoInvitados === "individual") return `👤 ${(reunion.invitadosUids || []).length} invitado(s)`;
+  if (reunion.modoInvitados === "todos") return `${iconoImg("persona")} Todos`;
+  if (reunion.modoInvitados === "rol") return `${iconoImg("persona")} ${(reunion.invitadosRoles || []).length} rol(es)`;
+  if (reunion.modoInvitados === "individual") return `${iconoImg("persona")} ${(reunion.invitadosUids || []).length} invitado(s)`;
   return "—";
 }
 
@@ -36,11 +37,11 @@ function render(reuniones) {
           <span class="badge-minuta ${tieneMinuta ? "badge-lista" : "badge-vacia"}">${tieneMinuta ? "Minuta guardada" : "Sin minuta"}</span>
         </div>
         <div class="reunion-meta">
-          <span>🗓️ ${fmtFechaHora(r.fechaInicio)}</span>
-          <span>⏱️ ${formatearDuracion(r.fechaInicio, r.fechaFin)}</span>
-          <span>📍 ${r.esVirtual ? "Virtual" : (r.lugar || "—")}</span>
+          <span>${fmtFechaHora(r.fechaInicio)}</span>
+          <span>${iconoImg("reloj")} ${formatearDuracion(r.fechaInicio, r.fechaFin)}</span>
+          <span>${r.esVirtual ? "Virtual" : (r.lugar || "—")}</span>
           <span>${etiquetaInvitados(r)}</span>
-          <span>✅ ${asistentes} asistente(s)</span>
+          <span>${asistentes} asistente(s)</span>
         </div>
       </a>
     `;

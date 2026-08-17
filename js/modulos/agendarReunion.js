@@ -75,8 +75,8 @@ el("reu-es-virtual").addEventListener("change", function () {
 // ── Precargar datos si estamos editando una reunión existente ─────────────────
 function prefillFormulario(r) {
   document.title = "CONTECS — Editar Reunión";
-  el("pagina-titulo").textContent = "✏️ Editar Reunión";
-  el("btn-agendar").textContent = "💾 Guardar cambios";
+  el("pagina-titulo").textContent = "Editar Reunión";
+  el("btn-agendar").textContent = "Guardar cambios";
   el("link-cancelar").href = `minutaReunion.html?id=${r.id}`;
 
   el("reu-titulo").value = r.titulo || "";

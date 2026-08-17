@@ -1,53 +1,55 @@
 ﻿import { db } from "../core/firebase-config.js";
+import { iconoImg } from "../core/iconos.js";
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
   onSnapshot, query, orderBy, where, serverTimestamp, getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 // ─── ICONOS DE CATEGORÍAS — 6 genéricos ──────────────────────────────────────
+// El campo "icono" es el nombre del archivo SVG en /img/iconos/ (sin ".svg")
 export const ICONOS_CATEGORIA = [
-  { id: "cat_comida",   emoji: "🍔", label: "Comida" },
-  { id: "cat_bebidas",  emoji: "🥤", label: "Bebidas" },
-  { id: "cat_dulces",   emoji: "🍬", label: "Dulces" },
-  { id: "cat_snacks",   emoji: "🍿", label: "Snacks" },
-  { id: "cat_postres",  emoji: "🍰", label: "Postres" },
-  { id: "cat_otros",    emoji: "📦", label: "Otros" },
+  { id: "cat_comida",   icono: "cat_comida",  label: "Comida" },
+  { id: "cat_bebidas",  icono: "cat_bebidas", label: "Bebidas" },
+  { id: "cat_dulces",   icono: "cat_dulces",  label: "Dulces" },
+  { id: "cat_snacks",   icono: "cat_snacks",  label: "Snacks" },
+  { id: "cat_postres",  icono: "cat_postres", label: "Postres" },
+  { id: "cat_otros",    icono: "cat_otros",   label: "Otros" },
 ];
 
 // ─── ICONOS DE PRODUCTOS — específicos por tipo ───────────────────────────────
 export const ICONOS_PRODUCTO = [
   // Comida
-  { id: "hamburguesa", emoji: "🍔", label: "Hamburguesa" },
-  { id: "hotdog",      emoji: "🌭", label: "Hot Dog" },
-  { id: "sandwich",    emoji: "🥪", label: "Sandwich" },
-  { id: "wrap",        emoji: "🌯", label: "Wrap" },
-  { id: "pizza",       emoji: "🍕", label: "Pizza" },
-  { id: "pollo",       emoji: "🍗", label: "Pollo" },
-  { id: "papas",       emoji: "🍟", label: "Papas fritas" },
-  { id: "siu_mai",     emoji: "🥟", label: "Siu Mai" },
-  { id: "nachos",      emoji: "🧀", label: "Nachos" },
+  { id: "hamburguesa", icono: "hamburguesa", label: "Hamburguesa" },
+  { id: "hotdog",      icono: "hotdog",      label: "Hot Dog" },
+  { id: "sandwich",    icono: "sandwich",    label: "Sandwich" },
+  { id: "wrap",        icono: "wrap",        label: "Wrap" },
+  { id: "pizza",       icono: "pizza",       label: "Pizza" },
+  { id: "pollo",       icono: "producto",    label: "Pollo" }, // no hay SVG específico de pollo en el set de 52 iconos
+  { id: "papas",       icono: "papas",       label: "Papas fritas" },
+  { id: "siu_mai",     icono: "siu_mai",     label: "Siu Mai" },
+  { id: "nachos",      icono: "nachos",      label: "Nachos" },
   // Bebidas
-  { id: "soda",        emoji: "🥤", label: "Soda / Refresco" },
-  { id: "agua",        emoji: "💧", label: "Agua" },
-  { id: "cafe",        emoji: "☕", label: "Café" },
-  { id: "jugo",        emoji: "🍹", label: "Jugo" },
+  { id: "soda",        icono: "soda",        label: "Soda / Refresco" },
+  { id: "agua",        icono: "agua",        label: "Agua" },
+  { id: "cafe",        icono: "cafe",        label: "Café" },
+  { id: "jugo",        icono: "jugo",        label: "Jugo" },
   // Dulces & Postres
-  { id: "pudin",       emoji: "🍮", label: "Pudín / Flan" },
-  { id: "helado",      emoji: "🍦", label: "Helado" },
-  { id: "pastel",      emoji: "🎂", label: "Pastel / Torta" },
-  { id: "galleta",     emoji: "🍪", label: "Galleta" },
-  { id: "donut",       emoji: "🍩", label: "Dona" },
-  { id: "paleta",      emoji: "🍭", label: "Paleta" },
-  { id: "chocolate",   emoji: "🍫", label: "Chocolate" },
-  { id: "dulce",       emoji: "🍬", label: "Dulce / Caramelo" },
+  { id: "pudin",       icono: "pudin",       label: "Pudín / Flan" },
+  { id: "helado",      icono: "helado",      label: "Helado" },
+  { id: "pastel",      icono: "pastel",      label: "Pastel / Torta" },
+  { id: "galleta",     icono: "galleta",     label: "Galleta" },
+  { id: "donut",       icono: "donut",       label: "Dona" },
+  { id: "paleta",      icono: "paleta",      label: "Paleta" },
+  { id: "chocolate",   icono: "chocolate",   label: "Chocolate" },
+  { id: "dulce",       icono: "dulce",       label: "Dulce / Caramelo" },
   // Snacks
-  { id: "papitas",     emoji: "🥔", label: "Papitas" },
-  { id: "palomitas",   emoji: "🍿", label: "Palomitas" },
-  { id: "nueces",      emoji: "🥜", label: "Nueces / Maní" },
+  { id: "papitas",     icono: "papitas",     label: "Papitas" },
+  { id: "palomitas",   icono: "palomitas",   label: "Palomitas" },
+  { id: "nueces",      icono: "nueces",      label: "Nueces / Maní" },
   // Otros / General
-  { id: "ticket",      emoji: "🎟️", label: "Ticket / Entrada" },
-  { id: "regalo",      emoji: "🎁", label: "Regalo / Souvenir" },
-  { id: "producto",    emoji: "🏷️", label: "Producto general" },
+  { id: "ticket",      icono: "ticket",      label: "Ticket / Entrada" },
+  { id: "regalo",      icono: "regalo",      label: "Regalo / Souvenir" },
+  { id: "producto",    icono: "producto",    label: "Producto general" },
 ];
 
 // Mantener ICONOS y TODOS_ICONOS para compatibilidad con código existente
@@ -65,9 +67,15 @@ export const ICONOS = {
 
 export const TODOS_ICONOS = [...ICONOS_CATEGORIA, ...ICONOS_PRODUCTO];
 
-export function getEmoji(iconoId) {
+// Devuelve el nombre de archivo SVG (sin ".svg") para un iconoId dado
+export function getIconoNombre(iconoId) {
   const found = TODOS_ICONOS.find(i => i.id === iconoId);
-  return found ? found.emoji : "📦";
+  return found ? found.icono : "producto";
+}
+
+// Devuelve el HTML <img> listo para insertar (reemplaza al antiguo getEmoji)
+export function getIconoHTML(iconoId, opts = {}) {
+  return iconoImg(getIconoNombre(iconoId), opts);
 }
 
 // ─── CATEGORÍAS ───────────────────────────────────────────────────────────────

@@ -189,7 +189,7 @@
         await loginFn();
         const rol = sessionStorage.getItem("rol");
         if (rol === "sin_rol") {
-          msgAviso.textContent = "✅ Tu cuenta fue registrada. Aún no tienes un rol asignado — cuando el administrador te active, entrarás automáticamente.";
+          msgAviso.textContent = "Tu cuenta fue registrada. Aún no tienes un rol asignado — cuando el administrador te active, entrarás automáticamente.";
           msgAviso.classList.add("show");
           btnEl.disabled = false;
           btnEl.childNodes[1].textContent = labelOriginal;
@@ -214,11 +214,11 @@
         btnEl.childNodes[1].textContent = labelOriginal;
         if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return;
         if (e.code === "auth/popup-blocked") {
-          msgError.textContent = "⚠️ El navegador bloqueó la ventana emergente. Permite popups para este sitio e intenta de nuevo.";
+          msgError.textContent = "El navegador bloqueó la ventana emergente. Permite popups para este sitio e intenta de nuevo.";
         } else if (e.code === "auth/unauthorized-domain") {
-          msgError.textContent = "⚠️ Firebase no tiene autorizado este dominio. Agrega este sitio en Firebase Console > Authentication > Settings > Authorized domains.";
+          msgError.textContent = "Firebase no tiene autorizado este dominio. Agrega este sitio en Firebase Console > Authentication > Settings > Authorized domains.";
         } else {
-          msgError.textContent = "❌ Error al iniciar sesión. Intenta de nuevo.";
+          msgError.textContent = "Error al iniciar sesión. Intenta de nuevo.";
         }
         msgError.classList.add("show");
       }
