@@ -69,9 +69,35 @@
 
  .dia-evento-fila { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--verde-fondo); border-radius:var(--radio-sm); margin-bottom:6px; gap:8px; flex-wrap:wrap; }
  .dia-label { font-size:13px; font-weight:600; color:var(--verde-oscuro); text-transform:capitalize; min-width:160px; }
+ .dia-horas { display:grid; grid-template-columns:110px auto 110px; gap:8px; align-items:center; }
+ .dia-horas input { width:110px; padding:8px; border:1.5px solid var(--verde-claro); border-radius:6px; font-size:13px; }
+ .dia-horas-separador { font-size:13px; color:var(--gris-medio); text-align:center; }
  .cp-tipo-badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; background:var(--verde-fondo); color:var(--verde-oscuro); }
  .cp-tipo-taller { background:#fff3e0; color:#e65100; }
  .cp-tipo-gira { background:#e8eaf6; color:#283593; }
+
+ .topbar-actions,
+ .evento-selector-row,
+ .form-actions,
+ .checkpoint-button-row,
+ .card-heading-row { display:flex; align-items:center; gap:10px; }
+ .topbar-actions { flex-shrink:0; }
+ .evento-selector-row { align-items:flex-end; }
+ .evento-selector-row .form-groupE { flex:1; min-width:0; margin:0; }
+ .form-grid-2,
+ .checkpoint-form-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+ .checkpoint-form-grid { gap:10px; margin-top:10px; }
+ .checkpoint-form-grid:first-of-type { margin-top:0; }
+ .checkpoint-form-grid .form-groupE { min-width:0; margin:0; }
+ .checkpoint-button-row { margin:12px 0; flex-wrap:wrap; }
+ .checkpoint-helper { font-size:12px; color:var(--gris-medio); line-height:1.4; }
+ .form-actions { flex-wrap:wrap; }
+ .card-heading-row { justify-content:space-between; flex-wrap:wrap; margin-bottom:12px; }
+ .checkpoint-form-shell { background:var(--verde-fondo); border-radius:var(--radio); padding:16px; margin-bottom:16px; }
+ .checkpoint-list-item { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--gris-borde); }
+ .checkpoint-list-info { flex:1; min-width:0; }
+ .checkpoint-list-actions { display:flex; gap:6px; flex-shrink:0; }
+ #btn-abrir-modal-cp:disabled { opacity:0.48; cursor:not-allowed; box-shadow:none; transform:none; }
 
  @keyframes cardIn {
  from { opacity: 0; transform: translateY(8px); }
@@ -79,9 +105,50 @@
  }
 
  @media(max-width:600px) {
- .stats-grid { grid-template-columns:1fr 1fr; }
- .tabs { gap:2px; }
- .tab-btn { font-size:11px; padding:8px 6px; min-width:60px; }
+ .topbar { padding:10px 12px; gap:10px; }
+ .topbar h1 { min-width:0; font-size:14px; line-height:1.2; letter-spacing:0.2px; }
+ .topbar-actions { gap:7px; }
+ .btn-qr-scan { padding:7px 10px; font-size:12px; white-space:nowrap; }
+ .btn-volver { width:34px; height:34px; }
+ .container { padding:18px 12px 40px; }
+ .card { padding:16px 14px; margin-bottom:14px; }
+ .tabs { flex-wrap:nowrap; overflow-x:auto; gap:6px; padding:5px; margin:0 -2px 16px; scrollbar-width:none; scroll-snap-type:x proximity; }
+ .tabs::-webkit-scrollbar { display:none; }
+ .tab-btn { flex:0 0 auto; min-width:108px; padding:9px 12px; font-size:12px; scroll-snap-align:start; }
+ .stats-grid { grid-template-columns:1fr 1fr; gap:8px; }
+ .stat-mini { padding:13px 10px; }
+ .stat-mini .num { font-size:22px; }
+ .evento-selector-row,
+ .form-grid-2,
+ .checkpoint-form-grid { grid-template-columns:1fr; }
+ .evento-selector-row { display:grid; align-items:stretch; }
+ .evento-selector-row .btn { width:100% !important; }
+ .form-grid-2,
+ .checkpoint-form-grid { gap:0; }
+ .dia-evento-fila { align-items:stretch; flex-direction:column; padding:12px; gap:10px; margin-bottom:8px; }
+ .dia-label { min-width:0; }
+ .dia-horas { width:100%; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); }
+ .dia-horas input { width:100%; min-width:0; min-height:42px; }
+ .checkpoint-button-row,
+ .form-actions { align-items:stretch; flex-direction:column; }
+ .checkpoint-button-row .btn,
+ .form-actions .btn { width:100% !important; }
+ .card-heading-row { align-items:stretch; flex-direction:column; }
+ .card-heading-row .card-title { width:100%; }
+ .card-heading-row .btn { width:100% !important; }
+ .modal-overlay { align-items:flex-end; padding:0; }
+ .modal-box { max-width:none !important; max-height:92dvh !important; border-radius:20px 20px 0 0; padding:22px 16px calc(18px + env(safe-area-inset-bottom)); }
+ .checkpoint-form-shell { padding:14px 12px; }
+ .checkpoint-list-item { align-items:stretch; flex-direction:column; gap:9px; }
+ .checkpoint-list-actions { width:100%; }
+ .checkpoint-list-actions .btn { flex:1; }
+ .tabla-wrap { margin-inline:-4px; }
+ }
+
+ @media(max-width:370px) {
+ .topbar h1 { font-size:13px; }
+ .btn-qr-scan { padding-inline:8px; }
+ .stats-grid { grid-template-columns:1fr; }
  }
  
  .btn-volver {
@@ -104,7 +171,7 @@
 
 <div class="topbar">
  <h1>CONTECS 2026 — Gestión de Eventos </h1>
- <div style="display:flex;align-items:center;gap:10px;">
+ <div class="topbar-actions">
  <a href="lecturaQR.html" class="btn-qr-scan"> Leer QR</a>
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
  </div>
@@ -117,8 +184,8 @@
  <!-- SELECTOR EVENTO ACTIVO -->
  <div class="card" style="margin-bottom:16px; border-left: 3px solid var(--verde-claro);">
  <div class="card-title">Evento activo</div>
- <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
- <div class="form-groupE" style="flex:1;margin:0;">
+ <div class="evento-selector-row">
+ <div class="form-groupE">
  <select id="sel-evento"><option value="">— Selecciona un evento —</option></select>
  </div>
  <button class="btn btn-outline btn-sm" id="btn-nuevo-evento" style="width:auto">+ Nuevo</button>
@@ -147,7 +214,7 @@
  <label style="color:var(--verde-oscuro)">Descripción (objetivo)</label>
  <textarea id="ev-descripcion" rows="2" placeholder="Descripción breve"></textarea>
  </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+ <div class="form-grid-2">
  <div class="form-groupE">
  <label style="color:var(--verde-oscuro)">Fecha inicio *</label>
  <input type="date" id="ev-fecha-inicio"/>
@@ -163,11 +230,12 @@
  </div>
 
  <!-- Botón checkpoints -->
- <div style="margin:12px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
- <button type="button" class="btn btn-outline" id="btn-abrir-modal-cp" style="width:auto">
+ <div class="checkpoint-button-row">
+ <button type="button" class="btn btn-outline" id="btn-abrir-modal-cp" style="width:auto" disabled>
  Gestionar checkpoints
  </button>
  <span id="cp-count-badge" style="font-size:13px;color:var(--gris-medio);"></span>
+ <span class="checkpoint-helper" id="cp-form-helper">Guarda o selecciona un evento para administrar sus checkpoints.</span>
  </div>
 
  <div class="form-groupE">
@@ -175,7 +243,7 @@
  <input type="number" id="ev-min-cert" min="1" value="1"/>
  <small id="ev-min-cert-hint" style="color:var(--gris-medio);font-size:12px;">Se calcula automáticamente como el 60 % de los checkpoints del evento.</small>
  </div>
- <div style="display:flex;gap:10px;flex-wrap:wrap;">
+ <div class="form-actions">
  <button class="btn btn-primary" id="btn-guardar-evento" style="flex:1">Guardar evento</button>
  <button class="btn btn-outline btn-sm" id="btn-cancelar-evento" style="width:auto;display:none">Cancelar</button>
  </div>
@@ -198,7 +266,7 @@
 
  <!-- CARD CHECKPOINTS DEL EVENTO -->
  <div class="card" style="border-left: 3px solid var(--verde-claro);" id="card-checkpoints-vista">
- <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+ <div class="card-heading-row">
  <div class="card-title" style="margin-bottom:0" id="cp-vista-titulo">Checkpoints del evento</div>
  <button class="btn btn-outline btn-sm" id="btn-abrir-modal-cp-vista" style="width:auto;display:none"> Gestionar checkpoints</button>
  </div>
@@ -357,9 +425,9 @@
  <div id="alerta-cp" class="alerta"></div>
 
  <!-- Formulario para agregar/editar checkpoint -->
- <div style="background:var(--verde-fondo);border-radius:var(--radio);padding:16px;margin-bottom:16px;">
+ <div class="checkpoint-form-shell">
  <div style="font-size:13px;font-weight:700;color:var(--verde-oscuro);margin-bottom:10px;" id="cp-form-titulo">Nuevo checkpoint</div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+ <div class="checkpoint-form-grid">
  <div class="form-groupE" style="margin:0;">
  <label style="color:var(--verde-oscuro)">Nombre corto *</label>
  <input type="text" id="cp-nombre" placeholder="ej. Conf. Magistral IA"/>
@@ -380,7 +448,7 @@
  <label style="color:var(--verde-oscuro)">Título formal completo</label>
  <input type="text" id="cp-titulo" placeholder="ej. IA generativa para el acceso a la Medicina..."/>
  </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+ <div class="checkpoint-form-grid">
  <div class="form-groupE" style="margin:0;">
  <label style="color:var(--verde-oscuro)">Día del evento</label>
  <select id="cp-dia"><option value="">— Selecciona un día —</option></select>
@@ -390,16 +458,17 @@
  <input type="text" id="cp-salon" placeholder="ej. Auditorio A"/>
  </div>
  </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+ <div class="checkpoint-form-grid">
  <div class="form-groupE" style="margin:0;">
  <label style="color:var(--verde-oscuro)">Hora inicio</label>
- <input type="time" id="cp-hora-inicio"/>
+ <input type="time" id="cp-hora-inicio" step="300"/>
  </div>
  <div class="form-groupE" style="margin:0;">
  <label style="color:var(--verde-oscuro)">Hora fin</label>
- <input type="time" id="cp-hora-fin"/>
+ <input type="time" id="cp-hora-fin" step="300"/>
  </div>
  </div>
+ <div class="checkpoint-helper" style="margin-top:6px;">Duración mínima: 5 minutos.</div>
  <div class="form-groupE" style="margin-top:10px;">
  <label style="color:var(--verde-oscuro)">Exponente / Ponente</label>
  <select id="cp-ponente-select" style="margin-bottom:6px;">

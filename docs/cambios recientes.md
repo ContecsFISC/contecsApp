@@ -676,7 +676,7 @@ El campo de texto libre para el exponente no permitía vincular el checkpoint co
 Se añadieron tres validaciones en el handler `btn-guardar-cp` antes de guardar en Firestore:
 
 1. **Ambas o ninguna**: si solo se llena `horaInicio` o solo `horaFin` → error *"Debes indicar tanto la hora de inicio como la de fin."*
-2. **Duración mínima de 30 minutos**: si `horaFin - horaInicio < 30 min` → error *"La duración mínima de un checkpoint es 30 minutos."*
+2. **Duración mínima de 5 minutos**: si `horaFin - horaInicio < 5 min` → error *"La duración mínima de un checkpoint es 5 minutos."*. El mínimo se redujo el 17 de agosto de 2026 para permitir pausas cortas y coffee breaks sin perder la validación básica del horario.
 3. **Límite del horario del evento ese día**: busca el día seleccionado en `eventoActivo.diasEvento[]`; si tiene `horaInicio` y `horaFin` definidos, verifica que el checkpoint no empiece antes ni termine después. Errores: *"El checkpoint no puede iniciar antes de las HH:MM (límite del evento ese día)."* / *"...terminar después de las HH:MM..."*. Si el día no tiene horario definido, esta validación se omite sin bloquear.
 
 ### Por qué se hizo

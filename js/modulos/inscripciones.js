@@ -52,6 +52,7 @@ const TIPO_LABELS = {
 };
 
 const TIPO_CON_CUPOS = ["taller", "gira"];
+const DURACION_MINIMA_CHECKPOINT = 5;
 
 // ─── Alerta ─────────────────────────────────────────────────────────────────
 function mostrarAlerta(tipo, msg, duracion = 5000) {
@@ -145,10 +146,10 @@ function renderDiasEvento(dias, diasEvento = []) {
     });
     return `<div class="dia-evento-fila" data-fecha="${fecha}">
       <span class="dia-label">${label}</span>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <input type="time" class="dia-hora-inicio" value="${horaIni}" style="width:110px;padding:6px 8px;border:1.5px solid var(--verde-claro);border-radius:6px;font-size:13px;"/>
-        <span style="font-size:13px;color:var(--gris-medio)">a</span>
-        <input type="time" class="dia-hora-fin"    value="${horaFin}" style="width:110px;padding:6px 8px;border:1.5px solid var(--verde-claro);border-radius:6px;font-size:13px;"/>
+      <div class="dia-horas">
+        <input type="time" class="dia-hora-inicio" value="${horaIni}" step="300" aria-label="Hora de inicio del ${label}"/>
+        <span class="dia-horas-separador">a</span>
+        <input type="time" class="dia-hora-fin" value="${horaFin}" step="300" aria-label="Hora de fin del ${label}"/>
       </div>
     </div>`;
   }).join("");
@@ -233,12 +234,12 @@ el("btn-guardar-evento").addEventListener("click", async () => {
     actualizadoEn: serverTimestamp(),
   };
 
+  let nuevoEventoId = null;
   try {
     el("btn-guardar-evento").disabled = true;
     if (editandoEventoId) {
       // setDoc con merge para que funcione incluso si el doc fue eliminado
       await setDoc(doc(db, "eventos", editandoEventoId), datos, { merge: true });
-      mostrarAlerta("success", "Evento actualizado.");
       if (eventoActivo?.id === editandoEventoId) {
         eventoActivo = { ...eventoActivo, ...datos };
         poblarSelectorDiasCP();
@@ -247,11 +248,18 @@ el("btn-guardar-evento").addEventListener("click", async () => {
     } else {
       datos.creadoEn  = serverTimestamp();
       datos.creadoPor = auth.currentUser?.uid || "";
-      await addDoc(collection(db, "eventos"), datos);
-      mostrarAlerta("success", "Evento creado.");
+      const nuevoEvento = await addDoc(collection(db, "eventos"), datos);
+      nuevoEventoId = nuevoEvento.id;
     }
     limpiarFormEvento();
     await cargarEventos();
+    if (nuevoEventoId) {
+      el("sel-evento").value = nuevoEventoId;
+      await activarEvento(nuevoEventoId);
+      mostrarAlerta("success", "Evento creado y seleccionado. Ya puedes agregar sus checkpoints.");
+    } else {
+      mostrarAlerta("success", "Evento actualizado.");
+    }
   } catch (e) {
     mostrarAlerta("error", "Error al guardar evento: " + e.message);
   } finally {
@@ -309,6 +317,7 @@ window._editarEvento = async id => {
     eventoActivo = { id, ...ev };
     el("evento-info").innerHTML = `<strong>${ev.nombre}</strong>`;
     await Promise.all([cargarInscripciones(), cargarCheckpointsEvento(id)]);
+    actualizarControlCheckpoints();
   }
 };
 
@@ -322,6 +331,7 @@ window._eliminarEvento = async id => {
     inscripciones = [];
     checkpointsEvento = [];
     actualizarBadgeCheckpoints();
+    actualizarControlCheckpoints();
   }
   if (editandoEventoId === id) limpiarFormEvento();
   await cargarEventos();
@@ -331,14 +341,14 @@ el("btn-cancelar-evento").addEventListener("click", limpiarFormEvento);
 el("btn-nuevo-evento").addEventListener("click", () => { limpiarFormEvento(); document.querySelector('[data-tab="tab-evento"]').click(); });
 
 // Cambio de evento activo (selector superior)
-el("sel-evento").addEventListener("change", async () => {
-  const id = el("sel-evento").value;
+async function activarEvento(id) {
   if (!id) {
     eventoActivo = null;
     el("evento-info").textContent = "";
     inscripciones = [];
     checkpointsEvento = [];
     actualizarBadgeCheckpoints();
+    actualizarControlCheckpoints();
     return;
   }
   const snap = await getDoc(doc(db, "eventos", id));
@@ -346,6 +356,11 @@ el("sel-evento").addEventListener("change", async () => {
   eventoActivo = { id, ...snap.data() };
   el("evento-info").innerHTML = `<strong>${eventoActivo.nombre}</strong> · ${fmtFecha(eventoActivo.fechaInicio)} – ${fmtFecha(eventoActivo.fechaFin)}`;
   await Promise.all([cargarInscripciones(), cargarCheckpointsEvento(id)]);
+  actualizarControlCheckpoints();
+}
+
+el("sel-evento").addEventListener("change", async () => {
+  await activarEvento(el("sel-evento").value);
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -396,6 +411,23 @@ function actualizarBadgeCheckpoints() {
   renderVistaCheckpoints();
 }
 
+function actualizarControlCheckpoints() {
+  const btn = el("btn-abrir-modal-cp");
+  const helper = el("cp-form-helper");
+  const habilitado = Boolean(eventoActivo?.id);
+  if (btn) {
+    btn.disabled = !habilitado;
+    btn.title = habilitado
+      ? `Gestionar checkpoints de ${eventoActivo.nombre}`
+      : "Primero guarda o selecciona un evento";
+  }
+  if (helper) {
+    helper.textContent = habilitado
+      ? `Administrando checkpoints de “${eventoActivo.nombre}”.`
+      : "Guarda o selecciona un evento para administrar sus checkpoints.";
+  }
+}
+
 function renderVistaCheckpoints() {
   const sinEvento  = el("cp-vista-sin-evento");
   const lista      = el("cp-vista-lista");
@@ -432,14 +464,14 @@ function renderVistaCheckpoints() {
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gris-borde);">
-      <div style="flex:1;min-width:0;">
+    return `<div class="checkpoint-list-item">
+      <div class="checkpoint-list-info">
         <div style="font-weight:700;">${cp.nombre} <span class="cp-tipo-badge ${tipoCls}">${TIPO_LABELS[cp.tipo] || cp.tipo}</span></div>
         ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${cp.titulo}</div>` : ""}
         <div style="font-size:12px;color:var(--gris-medio)">${fmtFechaCorta(cp.dia)} · ${hora}${cp.salon ? ` · ${cp.salon}` : ""}${cp.exponente ? ` · ${cp.exponente}` : ""}</div>
         ${cuposStr}
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;">
+      <div class="checkpoint-list-actions">
         <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
         <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
@@ -464,14 +496,14 @@ function renderTablaCheckpoints() {
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gris-borde);">
-      <div style="flex:1;min-width:0;">
+    return `<div class="checkpoint-list-item">
+      <div class="checkpoint-list-info">
         <div style="font-weight:700;">${cp.nombre} <span class="cp-tipo-badge ${tipoCls}">${TIPO_LABELS[cp.tipo] || cp.tipo}</span></div>
         ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${cp.titulo}</div>` : ""}
         <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${hora}${cp.salon ? ` · ${cp.salon}` : ""}${cp.exponente ? ` · ${cp.exponente}` : ""}</div>
         ${cuposStr}
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;">
+      <div class="checkpoint-list-actions">
         <button class="btn btn-outline btn-sm" onclick="window._editarCp('${cp.id}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
         <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${cp.id}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
       </div>
@@ -635,8 +667,8 @@ el("btn-guardar-cp").addEventListener("click", async () => {
     if (fin <= ini) {
       mostrarAlertaCp("error", "La hora de fin debe ser mayor que la de inicio."); return;
     }
-    if (fin - ini < 30) {
-      mostrarAlertaCp("error", "La duración mínima de un checkpoint es 30 minutos."); return;
+    if (fin - ini < DURACION_MINIMA_CHECKPOINT) {
+      mostrarAlertaCp("error", `La duración mínima de un checkpoint es ${DURACION_MINIMA_CHECKPOINT} minutos.`); return;
     }
     const diaEvento = eventoActivo?.diasEvento?.find(d => d.fecha === dia);
     if (diaEvento?.horaInicio && diaEvento?.horaFin) {
@@ -1494,4 +1526,5 @@ el("modal-preview-close").addEventListener("click", () => el("modal-preview").cl
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
   await Promise.all([cargarEventos(), cargarParticipantes()]);
+  actualizarControlCheckpoints();
 });

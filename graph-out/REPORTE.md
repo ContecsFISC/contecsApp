@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T11:23:07.585823+00:00**
+- Generado: **2026-08-17T11:51:08.705115+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `3fe6e6843fe1dfcb…`
+- Huella del proyecto: `08edc9e4c1e752e4…`
 - Archivos analizados: **143**
 - Relaciones internas tipadas: **395**
-- Símbolos detectados: **2768**
-- Llamadas detectadas: **6287**
-- IDs DOM definidos: **692**
+- Símbolos detectados: **2775**
+- Llamadas detectadas: **6304**
+- IDs DOM definidos: **693**
 - Paquetes externos usados: **20**
 - Colecciones de Firestore detectadas: **23**
 - Cloud Functions detectadas: **6**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,933 tokens** · leer primero
+- `GraphCompacto.json` — ~**6,934 tokens** · leer primero
 - `GraphCompleto.json` — ~**39,338 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**72,704 tokens** · evidencia exhaustiva
+- `GraphProfundo.json` — ~**72,781 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **90.5%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -37,7 +37,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 - `js/core/auth.js` — riesgo 236.2 (conexiones: 117, 221 lineas)
 - `panel/dashboard.html` — riesgo 88.3 (conexiones: 39, 1026 lineas)
-- `css/styles.css` — riesgo 62.9 (conexiones: 29, 486 lineas)
+- `css/styles.css` — riesgo 62.7 (conexiones: 29, 473 lineas)
 - `js/core/firebase-config.js` — riesgo 62.4 (conexiones: 31, 35 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/operaciones.js` — riesgo 58.6 (conexiones: 25, 860 lineas)
@@ -49,7 +49,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/modulos/compras.js` — riesgo 35.5 (conexiones: 15, 548 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 31.2 (conexiones: 11, 918 lineas)
 - `panel/modulos/voluntariado/voluntarios.html` — riesgo 30.6 (conexiones: 13, 456 lineas)
-- `js/core/permisos.js` — riesgo 28.8 (conexiones: 14, 80 lineas)
+- `panel/modulos/congreso/inscripciones.html` — riesgo 29.2 (conexiones: 12, 516 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
@@ -74,8 +74,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -271,12 +271,12 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `compras` — regla explícita · 5 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
 - `contadores` — regla explícita · 0 operaciones detectadas
-- `eventos` — regla explícita · 6 operaciones detectadas
+- `eventos` — regla explícita · 7 operaciones detectadas
 - `fondos` — regla explícita · 1 operaciones detectadas
 - `fondos_entrada` — regla explícita · 6 operaciones detectadas
 - `giras_voluntarios` — regla explícita · 4 operaciones detectadas
 - `informes_actividad` — regla explícita · 2 operaciones detectadas
-- `inscripciones` — regla explícita · 3 operaciones detectadas
+- `inscripciones` — regla explícita · 2 operaciones detectadas
 - `inscripciones_checkpoint` — regla explícita · 3 operaciones detectadas
 - `mermas` — regla explícita · 4 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
