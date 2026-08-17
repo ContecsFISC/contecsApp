@@ -1,0 +1,1545 @@
+{
+  "schema_version": 4,
+  "generator": {
+    "name": "AlphaToolGraph",
+    "version": "4.0.0",
+    "engine": "stdlib-static-analysis"
+  },
+  "generated_at": "2026-08-17T09:31:03.984976+00:00",
+  "project_fingerprint": "f632590c3e69939882a14451c25ec7b2b7e28e6311187e7060c3b73c9fe45267",
+  "project": "contecsApp",
+  "view": "compact",
+  "ai_usage": {
+    "read_first": true,
+    "purpose": "Enrutador de bajo consumo. Localiza archivos y dependencias antes de abrir código o mapas mayores.",
+    "workflow": [
+      "1. Buscar aquí el dominio, archivo, colección o export relacionado con la tarea.",
+      "2. Abrir el archivo objetivo y, cuando aparezcan, sus key_neighbors.",
+      "3. Consultar GraphCompleto.json si faltan relaciones exactas.",
+      "4. Consultar GraphProfundo.json únicamente para evidencia por línea o auditoría exhaustiva."
+    ],
+    "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
+  },
+  "stats": {
+    "total_files": 143,
+    "total_edges": 395,
+    "total_orphans": 61,
+    "total_cycles": 0,
+    "total_external_packages": 20,
+    "total_firestore_collections": 23,
+    "total_cloud_functions": 6,
+    "total_possible_implicit_links": 5,
+    "total_symbols": 2743,
+    "total_function_calls": 6252,
+    "total_dom_ids": 691,
+    "total_diagnostics": 2,
+    "errors": 0,
+    "warnings": 1
+  },
+  "git": {
+    "available": true,
+    "branch": "main",
+    "head": "89035aa6c3b048b58ea10d821fae2b6ae339cbac",
+    "changed_files": [],
+    "changed_count": 0
+  },
+  "domains": [
+    {
+      "name": "(raiz)",
+      "file_count": 7,
+      "key_files": [
+        "index.html",
+        "registro.html",
+        "logocontecs.png",
+        "logocontecsheader.png",
+        "firebase.json",
+        "package.json",
+        "AGENTS.md"
+      ],
+      "collections": [
+        "usuarios"
+      ],
+      "average_risk": 5.5,
+      "diagnostics": 0
+    },
+    {
+      "name": "assets",
+      "file_count": 2,
+      "key_files": [
+        "assets/img/fisc-logo.png",
+        "assets/img/utp-logo.png"
+      ],
+      "collections": [],
+      "average_risk": 0.0,
+      "diagnostics": 0
+    },
+    {
+      "name": "css",
+      "file_count": 1,
+      "key_files": [
+        "css/styles.css"
+      ],
+      "collections": [],
+      "average_risk": 62.9,
+      "diagnostics": 0
+    },
+    {
+      "name": "docs",
+      "file_count": 2,
+      "key_files": [
+        "docs/cambios recientes.md",
+        "docs/Sprint 2 - bitacora_actualizaciones.md"
+      ],
+      "collections": [],
+      "average_risk": 7.2,
+      "diagnostics": 0
+    },
+    {
+      "name": "firebase_rules",
+      "file_count": 4,
+      "key_files": [
+        "firebase_rules/firestore.rules",
+        "firebase_rules/firebase_backup.json",
+        "firebase_rules/storage.rules",
+        "firebase_rules/firestore.indexes.json"
+      ],
+      "collections": [],
+      "average_risk": 0.8,
+      "diagnostics": 0
+    },
+    {
+      "name": "functions",
+      "file_count": 6,
+      "key_files": [
+        "functions/index.js",
+        "functions/plantillas.js",
+        "functions/qr-participante.js",
+        "functions/templates/correo-pago-aprobado.html",
+        "functions/.eslintrc.js",
+        "functions/package.json"
+      ],
+      "collections": [
+        "participantes",
+        "usuarios"
+      ],
+      "average_risk": 3.3,
+      "diagnostics": 0
+    },
+    {
+      "name": "icons",
+      "file_count": 1,
+      "key_files": [
+        "icons/bebida-lata.svg"
+      ],
+      "collections": [],
+      "average_risk": 0.0,
+      "diagnostics": 0
+    },
+    {
+      "name": "img",
+      "file_count": 52,
+      "key_files": [
+        "img/iconos/cerrar.svg",
+        "img/iconos/advertencia.svg",
+        "img/iconos/producto.svg",
+        "img/iconos/carrito.svg",
+        "img/iconos/editar.svg",
+        "img/iconos/eliminar.svg",
+        "img/iconos/agua.svg",
+        "img/iconos/bubble_tea.svg",
+        "img/iconos/cafe.svg",
+        "img/iconos/caja.svg"
+      ],
+      "collections": [],
+      "average_risk": 0.5,
+      "diagnostics": 0
+    },
+    {
+      "name": "js",
+      "file_count": 36,
+      "key_files": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/modulos/catalogo.js",
+        "js/core/operaciones.js",
+        "js/core/iconos.js",
+        "js/modulos/voluntarios.js",
+        "js/modulos/ventaRapida.js",
+        "js/modulos/compras2.js",
+        "js/modulos/compras.js",
+        "js/core/permisos.js"
+      ],
+      "collections": [
+        "actividades_ventas",
+        "actividades_voluntarios",
+        "asignaciones_voluntarios",
+        "asistencias_voluntarios",
+        "categorias",
+        "checkpoints",
+        "compras",
+        "eventos",
+        "fondos",
+        "fondos_entrada",
+        "giras_voluntarios",
+        "informes_actividad",
+        "inscripciones",
+        "inscripciones_checkpoint",
+        "mermas",
+        "movimientos_inventario",
+        "participantes",
+        "productos",
+        "reuniones",
+        "solicitudes_actividad",
+        "usuarios",
+        "ventas",
+        "voluntarios"
+      ],
+      "average_risk": 27.8,
+      "diagnostics": 1
+    },
+    {
+      "name": "panel",
+      "file_count": 30,
+      "key_files": [
+        "panel/dashboard.html",
+        "panel/modulos/logistica/catalogo.html",
+        "panel/modulos/congreso/modulos_participantes.html",
+        "panel/modulos/voluntariado/voluntarios.html",
+        "panel/modulos/admin/minutas.html",
+        "panel/modulos/congreso/inscripciones.html",
+        "panel/modulos/finanzas/bitacora.html",
+        "panel/modulos/voluntariado/actividades.html",
+        "panel/modulos/logistica/inventario.html",
+        "panel/modulos/admin/secretaria.html"
+      ],
+      "collections": [
+        "actividades_ventas",
+        "compras",
+        "fondos",
+        "fondos_entrada",
+        "mermas",
+        "movimientos_inventario",
+        "participantes",
+        "productos",
+        "reuniones",
+        "usuarios",
+        "ventas",
+        "voluntarios"
+      ],
+      "average_risk": 22.0,
+      "diagnostics": 0
+    },
+    {
+      "name": "public",
+      "file_count": 2,
+      "key_files": [
+        "public/perfil.html",
+        "public/ms/auth.html"
+      ],
+      "collections": [],
+      "average_risk": 15.0,
+      "diagnostics": 1
+    }
+  ],
+  "critical_files": [
+    {
+      "label": "js/core/auth.js",
+      "risk_score": 236.2,
+      "degree": 117,
+      "in_cycle": false,
+      "loc": 221
+    },
+    {
+      "label": "panel/dashboard.html",
+      "risk_score": 88.3,
+      "degree": 39,
+      "in_cycle": false,
+      "loc": 1026
+    },
+    {
+      "label": "css/styles.css",
+      "risk_score": 62.9,
+      "degree": 29,
+      "in_cycle": false,
+      "loc": 486
+    },
+    {
+      "label": "js/core/firebase-config.js",
+      "risk_score": 62.4,
+      "degree": 31,
+      "in_cycle": false,
+      "loc": 35
+    },
+    {
+      "label": "js/modulos/catalogo.js",
+      "risk_score": 59.5,
+      "degree": 29,
+      "in_cycle": false,
+      "loc": 150
+    },
+    {
+      "label": "js/core/operaciones.js",
+      "risk_score": 58.6,
+      "degree": 25,
+      "in_cycle": false,
+      "loc": 860
+    },
+    {
+      "label": "js/core/iconos.js",
+      "risk_score": 56.9,
+      "degree": 28,
+      "in_cycle": false,
+      "loc": 88
+    },
+    {
+      "label": "panel/modulos/logistica/catalogo.html",
+      "risk_score": 55.9,
+      "degree": 24,
+      "in_cycle": false,
+      "loc": 785
+    },
+    {
+      "label": "js/modulos/voluntarios.js",
+      "risk_score": 41.9,
+      "degree": 11,
+      "in_cycle": false,
+      "loc": 1841
+    },
+    {
+      "label": "js/modulos/ventaRapida.js",
+      "risk_score": 41.8,
+      "degree": 17,
+      "in_cycle": false,
+      "loc": 783
+    },
+    {
+      "label": "js/modulos/compras2.js",
+      "risk_score": 40.2,
+      "degree": 16,
+      "in_cycle": false,
+      "loc": 820
+    },
+    {
+      "label": "js/modulos/compras.js",
+      "risk_score": 35.5,
+      "degree": 15,
+      "in_cycle": false,
+      "loc": 548
+    },
+    {
+      "label": "panel/modulos/congreso/modulos_participantes.html",
+      "risk_score": 31.1,
+      "degree": 11,
+      "in_cycle": false,
+      "loc": 910
+    },
+    {
+      "label": "panel/modulos/voluntariado/voluntarios.html",
+      "risk_score": 30.6,
+      "degree": 13,
+      "in_cycle": false,
+      "loc": 456
+    },
+    {
+      "label": "js/core/permisos.js",
+      "risk_score": 28.8,
+      "degree": 14,
+      "in_cycle": false,
+      "loc": 80
+    }
+  ],
+  "files": [
+    {
+      "file": "AGENTS.md",
+      "risk": 0.1,
+      "relations": 0
+    },
+    {
+      "file": "css/styles.css",
+      "risk": 62.9,
+      "relations": 29,
+      "key_neighbors": [
+        "panel/dashboard.html",
+        "panel/modulos/admin/agendarReunion.html",
+        "panel/modulos/admin/exportar.html",
+        "panel/modulos/admin/minutaReunion.html",
+        "panel/modulos/admin/minutas.html",
+        "panel/modulos/admin/secretaria.html",
+        "panel/modulos/admin/usuarios.html",
+        "panel/modulos/congreso/inscripciones.html",
+        "panel/modulos/congreso/lecturaQR.html",
+        "panel/modulos/congreso/modulos_participantes.html",
+        "panel/modulos/congreso/reportes_estadisticaCont.html",
+        "panel/modulos/finanzas/bitacora.html"
+      ]
+    },
+    {
+      "file": "docs/Sprint 2 - bitacora_actualizaciones.md",
+      "risk": 6.2,
+      "relations": 0,
+      "exports": [
+        "ICONOS_CATEGORIA",
+        "ICONOS_PRODUCTO",
+        "storage"
+      ]
+    },
+    {
+      "file": "docs/cambios recientes.md",
+      "risk": 8.3,
+      "relations": 0
+    },
+    {
+      "file": "firebase.json",
+      "risk": 0.4,
+      "relations": 0
+    },
+    {
+      "file": "firebase_rules/firebase_backup.json",
+      "risk": 0.4,
+      "relations": 0
+    },
+    {
+      "file": "firebase_rules/firestore.indexes.json",
+      "risk": 0.2,
+      "relations": 0
+    },
+    {
+      "file": "firebase_rules/firestore.rules",
+      "risk": 2.2,
+      "relations": 0,
+      "purpose": "── Helpers ──────────────────────────────────────────────────────────────"
+    },
+    {
+      "file": "firebase_rules/storage.rules",
+      "risk": 0.4,
+      "relations": 0
+    },
+    {
+      "file": "functions/.eslintrc.js",
+      "risk": 0.3,
+      "relations": 0,
+      "exports": [
+        "env",
+        "node"
+      ]
+    },
+    {
+      "file": "functions/index.js",
+      "risk": 12.3,
+      "relations": 2,
+      "exports": [
+        "accederParticipante",
+        "enviarCorreoQrParticipante",
+        "notificarPagoAprobado",
+        "registrarParticipante",
+        "subirFotoEfectivo",
+        "validarTokenSSO"
+      ],
+      "collections": [
+        "participantes",
+        "usuarios"
+      ]
+    },
+    {
+      "file": "functions/package.json",
+      "risk": 0.3,
+      "relations": 0
+    },
+    {
+      "file": "functions/plantillas.js",
+      "risk": 2.5,
+      "relations": 1,
+      "exports": [
+        "aplicarPlantilla",
+        "cargarCorreoPagoAprobado"
+      ]
+    },
+    {
+      "file": "functions/qr-participante.js",
+      "risk": 2.1,
+      "relations": 1,
+      "purpose": "El correo de aprobación NO envía el QR como imagen: solo incluye los datos del participante y un botón/enlace hacia perfil.html, donde el QR se genera en el navegador (misma lógica",
+      "exports": [
+        "URL_BASE_PERFIL",
+        "linkPerfilParticipante"
+      ]
+    },
+    {
+      "file": "functions/templates/correo-pago-aprobado.html",
+      "risk": 2.0,
+      "relations": 0
+    },
+    {
+      "file": "img/iconos/advertencia.svg",
+      "risk": 6.0,
+      "relations": 3
+    },
+    {
+      "file": "img/iconos/carrito.svg",
+      "risk": 2.0,
+      "relations": 1
+    },
+    {
+      "file": "img/iconos/cerrar.svg",
+      "risk": 8.0,
+      "relations": 4
+    },
+    {
+      "file": "img/iconos/editar.svg",
+      "risk": 2.0,
+      "relations": 1
+    },
+    {
+      "file": "img/iconos/eliminar.svg",
+      "risk": 2.0,
+      "relations": 1
+    },
+    {
+      "file": "img/iconos/producto.svg",
+      "risk": 4.0,
+      "relations": 2
+    },
+    {
+      "file": "index.html",
+      "risk": 16.4,
+      "relations": 7,
+      "collections": [
+        "usuarios"
+      ]
+    },
+    {
+      "file": "js/core/auth.js",
+      "risk": 236.2,
+      "relations": 117,
+      "exports": [
+        "cargarUsuario",
+        "cerrarSesion",
+        "escucharCambiosDeRol",
+        "esperarSesionLista",
+        "getUsuarioActual",
+        "guardRoute",
+        "loginConGoogle",
+        "loginConSSO",
+        "requirePermiso",
+        "usuarioTienePermiso"
+      ],
+      "collections": [
+        "usuarios"
+      ],
+      "key_neighbors": [
+        "index.html",
+        "js/core/firebase-config.js",
+        "js/core/permisos.js",
+        "js/core/sso-config.js",
+        "js/modulos/actividadVentas.js",
+        "js/modulos/agendarReunion.js",
+        "js/modulos/calendario.js",
+        "js/modulos/compras.js",
+        "js/modulos/compras2.js",
+        "js/modulos/detalleFondo.js",
+        "js/modulos/fondo.js",
+        "js/modulos/informeActividad.js"
+      ]
+    },
+    {
+      "file": "js/core/firebase-config.js",
+      "risk": 62.4,
+      "relations": 31,
+      "exports": [
+        "analytics",
+        "app",
+        "auth",
+        "db",
+        "storage"
+      ],
+      "key_neighbors": [
+        "index.html",
+        "js/core/auth.js",
+        "js/core/operaciones.js",
+        "js/core/participantes-api.js",
+        "js/modulos/actividadVentas.js",
+        "js/modulos/agendarReunion.js",
+        "js/modulos/calendario.js",
+        "js/modulos/catalogo.js",
+        "js/modulos/compras.js",
+        "js/modulos/compras2.js",
+        "js/modulos/detalleFondo.js",
+        "js/modulos/fondo.js"
+      ]
+    },
+    {
+      "file": "js/core/iconos.js",
+      "risk": 56.9,
+      "relations": 28,
+      "purpose": "iconos.js — Helper central de iconografía SVG de CONTECS Sustituye la iconografía Unicode anterior por los SVG propios ubicados en img/iconos/. Se usa `import.meta.url` para calcul",
+      "exports": [
+        "ICONOS_DISPONIBLES",
+        "estrellasImg",
+        "iconoComboImg",
+        "iconoImg",
+        "nombreIconoCombo",
+        "rutaIcono"
+      ],
+      "key_neighbors": [
+        "js/modulos/actividadVentas.js",
+        "js/modulos/calendario.js",
+        "js/modulos/catalogo.js",
+        "js/modulos/compras.js",
+        "js/modulos/compras2.js",
+        "js/modulos/fondo.js",
+        "js/modulos/inscripciones.js",
+        "js/modulos/lecturaQR.js",
+        "js/modulos/lecturaQRVoluntarios.js",
+        "js/modulos/minutas.js",
+        "js/modulos/ventaRapida.js",
+        "js/modulos/voluntarios.js"
+      ]
+    },
+    {
+      "file": "js/core/operaciones.js",
+      "risk": 58.6,
+      "relations": 25,
+      "exports": [
+        "ajustarStock",
+        "esperarAuthListo",
+        "formatearMoneda",
+        "registrarCompra",
+        "registrarMerma",
+        "registrarMovimientoFondo",
+        "registrarVenta",
+        "registrarVentaConMerma",
+        "resumenItemPrincipal",
+        "subirFacturaAStorage"
+      ],
+      "collections": [
+        "compras",
+        "fondos",
+        "fondos_entrada",
+        "mermas",
+        "movimientos_inventario",
+        "productos",
+        "ventas"
+      ],
+      "key_neighbors": [
+        "js/core/firebase-config.js",
+        "js/modulos/compras.js",
+        "js/modulos/compras2.js",
+        "js/modulos/detalleFondo.js",
+        "js/modulos/fondo.js",
+        "js/modulos/ventaRapida.js",
+        "panel/dashboard.html",
+        "panel/modulos/finanzas/bitacora.html"
+      ]
+    },
+    {
+      "file": "js/core/participantes-api.js",
+      "risk": 12.7,
+      "relations": 6,
+      "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
+      "exports": [
+        "accederParticipante",
+        "archivoABase64",
+        "enviarCorreoQrParticipante",
+        "registrarParticipante"
+      ]
+    },
+    {
+      "file": "js/core/permisos.js",
+      "risk": 28.8,
+      "relations": 14,
+      "purpose": "============================================= CONTECS — Sistema de Roles y Permisos =============================================",
+      "exports": [
+        "PERMISOS",
+        "ROLES",
+        "infoRol",
+        "permisosDeRol",
+        "tienePermiso"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/modulos/agendarReunion.js",
+        "js/modulos/informeActividad.js",
+        "js/modulos/reuniones-utils.js",
+        "js/modulos/usuarios.js",
+        "js/modulos/voluntarios.js",
+        "panel/dashboard.html",
+        "panel/modulos/congreso/modulos_participantes.html"
+      ]
+    },
+    {
+      "file": "js/core/sso-config.js",
+      "risk": 4.1,
+      "relations": 2,
+      "purpose": "Configuración del SSO institucional UTP y URLs públicas de la app.",
+      "exports": [
+        "SSO_LOGIN_URL",
+        "SSO_USER_URL",
+        "URL_BASE_PERFIL",
+        "VALIDAR_TOKEN_SSO_URL"
+      ]
+    },
+    {
+      "file": "js/libs/exceljs.min.js",
+      "risk": 2.5,
+      "relations": 1,
+      "exports": [
+        "codes",
+        "f"
+      ]
+    },
+    {
+      "file": "js/libs/html5-qrcode.min.js",
+      "risk": 4.0,
+      "relations": 2
+    },
+    {
+      "file": "js/libs/jspdf.umd.min.js",
+      "risk": 6.0,
+      "relations": 1,
+      "purpose": "@license jsPDF - PDF Document creation from JavaScript Version 2.5.1 Built on 2022-01-28T15:37:57.789Z                      CommitID 00000000 Copyright (c) 2010-2021 James Hall <ja"
+    },
+    {
+      "file": "js/libs/jszip.min.js",
+      "risk": 2.1,
+      "relations": 1
+    },
+    {
+      "file": "js/libs/papaparse.min.js",
+      "risk": 4.1,
+      "relations": 2
+    },
+    {
+      "file": "js/libs/qrcode.min.js",
+      "risk": 8.0,
+      "relations": 4
+    },
+    {
+      "file": "js/libs/xlsx.full.min.js",
+      "risk": 10.2,
+      "relations": 5
+    },
+    {
+      "file": "js/modulos/actividadVentas.js",
+      "risk": 19.1,
+      "relations": 7,
+      "collections": [
+        "actividades_ventas",
+        "productos",
+        "usuarios"
+      ]
+    },
+    {
+      "file": "js/modulos/agendarReunion.js",
+      "risk": 16.0,
+      "relations": 7,
+      "collections": [
+        "reuniones",
+        "usuarios"
+      ]
+    },
+    {
+      "file": "js/modulos/calendario.js",
+      "risk": 22.9,
+      "relations": 10,
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/modulos/reuniones-utils.js",
+        "panel/modulos/voluntariado/calendario.html"
+      ]
+    },
+    {
+      "file": "js/modulos/catalogo.js",
+      "risk": 59.5,
+      "relations": 29,
+      "purpose": "─── ICONOS DE CATEGORÍAS — 6 genéricos ──────────────────────────────────────",
+      "exports": [
+        "ICONOS",
+        "ICONOS_CATEGORIA",
+        "ICONOS_PRODUCTO",
+        "TODOS_ICONOS",
+        "crearCategoria",
+        "crearProducto",
+        "desactivarProducto",
+        "editarCategoria",
+        "editarProducto",
+        "eliminarCategoria",
+        "escucharCategorias",
+        "escucharProductosPorCategoria"
+      ],
+      "collections": [
+        "categorias",
+        "productos"
+      ],
+      "key_neighbors": [
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/modulos/compras.js",
+        "js/modulos/compras2.js",
+        "js/modulos/ventaRapida.js",
+        "panel/modulos/logistica/catalogo.html",
+        "panel/modulos/logistica/inventario.html"
+      ]
+    },
+    {
+      "file": "js/modulos/compras.js",
+      "risk": 35.5,
+      "relations": 15,
+      "collections": [
+        "productos"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/operaciones.js",
+        "js/modulos/catalogo.js",
+        "panel/modulos/finanzas/compras.html"
+      ]
+    },
+    {
+      "file": "js/modulos/compras2.js",
+      "risk": 40.2,
+      "relations": 16,
+      "collections": [
+        "productos"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/operaciones.js",
+        "js/modulos/catalogo.js",
+        "panel/modulos/finanzas/compras2.html"
+      ]
+    },
+    {
+      "file": "js/modulos/detalleFondo.js",
+      "risk": 22.4,
+      "relations": 10,
+      "collections": [
+        "fondos",
+        "fondos_entrada",
+        "usuarios"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/operaciones.js",
+        "js/modulos/reporteFinancieroExcel.js",
+        "panel/modulos/finanzas/detalleFondo.html"
+      ]
+    },
+    {
+      "file": "js/modulos/fondo.js",
+      "risk": 27.7,
+      "relations": 13,
+      "collections": [
+        "fondos",
+        "fondos_entrada",
+        "usuarios"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/operaciones.js",
+        "panel/modulos/finanzas/fondos.html"
+      ]
+    },
+    {
+      "file": "js/modulos/informeActividad.js",
+      "risk": 15.4,
+      "relations": 5,
+      "collections": [
+        "actividades_voluntarios",
+        "informes_actividad",
+        "solicitudes_actividad",
+        "usuarios"
+      ]
+    },
+    {
+      "file": "js/modulos/inscripciones.js",
+      "risk": 23.0,
+      "relations": 4,
+      "collections": [
+        "checkpoints",
+        "eventos",
+        "inscripciones",
+        "participantes"
+      ],
+      "key_neighbors": [
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "panel/modulos/congreso/inscripciones.html"
+      ]
+    },
+    {
+      "file": "js/modulos/lecturaQR.js",
+      "risk": 12.3,
+      "relations": 4,
+      "collections": [
+        "checkpoints",
+        "eventos",
+        "inscripciones",
+        "inscripciones_checkpoint",
+        "participantes"
+      ]
+    },
+    {
+      "file": "js/modulos/lecturaQRVoluntarios.js",
+      "risk": 11.6,
+      "relations": 4,
+      "collections": [
+        "actividades_voluntarios",
+        "asistencias_voluntarios",
+        "voluntarios"
+      ]
+    },
+    {
+      "file": "js/modulos/minutaReunion.js",
+      "risk": 21.5,
+      "relations": 9,
+      "collections": [
+        "reuniones",
+        "usuarios"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/modulos/reuniones-utils.js",
+        "panel/modulos/admin/minutaReunion.html",
+        "panel/modulos/admin/minutas.html"
+      ]
+    },
+    {
+      "file": "js/modulos/minutas.js",
+      "risk": 12.6,
+      "relations": 6,
+      "collections": [
+        "reuniones"
+      ]
+    },
+    {
+      "file": "js/modulos/reporteFinancieroExcel.js",
+      "risk": 11.4,
+      "relations": 3,
+      "purpose": "Requiere que js/libs/exceljs.min.js esté cargado en la página (expone `ExcelJS` global). ── Paleta de marca (tomada de css/styles.css) ───────────────────────────────",
+      "exports": [
+        "generarReporteFinancieroExcel"
+      ],
+      "collections": [
+        "categorias",
+        "compras",
+        "mermas",
+        "productos",
+        "ventas"
+      ]
+    },
+    {
+      "file": "js/modulos/reportes_estadisticaCont.js",
+      "risk": 7.2,
+      "relations": 2,
+      "exports": [
+        "init"
+      ],
+      "collections": [
+        "actividades_voluntarios",
+        "asistencias_voluntarios",
+        "checkpoints",
+        "inscripciones_checkpoint",
+        "voluntarios"
+      ]
+    },
+    {
+      "file": "js/modulos/reportes_financieros.js",
+      "risk": 7.4,
+      "relations": 3,
+      "purpose": "Keep a small fallback set in case Firestore isn't available",
+      "exports": [
+        "initReportes"
+      ],
+      "collections": [
+        "compras",
+        "mermas",
+        "productos",
+        "ventas"
+      ]
+    },
+    {
+      "file": "js/modulos/reuniones-utils.js",
+      "risk": 24.4,
+      "relations": 12,
+      "purpose": "¿El usuario puede ver esta reunión (en calendario o listados)?",
+      "exports": [
+        "formatearDuracion",
+        "resolverInvitados",
+        "usuarioPuedeGestionarMinuta",
+        "usuarioPuedeVerReunion"
+      ],
+      "key_neighbors": [
+        "js/core/permisos.js",
+        "js/modulos/calendario.js",
+        "js/modulos/minutaReunion.js",
+        "js/modulos/minutas.js",
+        "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "js/modulos/solicitudActividad.js",
+      "risk": 15.1,
+      "relations": 4,
+      "collections": [
+        "solicitudes_actividad"
+      ]
+    },
+    {
+      "file": "js/modulos/usuarios.js",
+      "risk": 14.9,
+      "relations": 7,
+      "collections": [
+        "usuarios"
+      ]
+    },
+    {
+      "file": "js/modulos/ventaRapida.js",
+      "risk": 41.8,
+      "relations": 17,
+      "collections": [
+        "actividades_ventas",
+        "productos"
+      ],
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/operaciones.js",
+        "js/modulos/catalogo.js",
+        "panel/modulos/finanzas/ventaRapida.html"
+      ]
+    },
+    {
+      "file": "js/modulos/voluntarios.js",
+      "risk": 41.9,
+      "relations": 11,
+      "collections": [
+        "actividades_ventas",
+        "actividades_voluntarios",
+        "asignaciones_voluntarios",
+        "asistencias_voluntarios",
+        "giras_voluntarios",
+        "solicitudes_actividad",
+        "voluntarios"
+      ],
+      "diagnostics": 1,
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/permisos.js",
+        "panel/modulos/voluntariado/actividades.html",
+        "panel/modulos/voluntariado/giras.html",
+        "panel/modulos/voluntariado/voluntarios.html"
+      ]
+    },
+    {
+      "file": "logocontecs.png",
+      "risk": 8.0,
+      "relations": 4
+    },
+    {
+      "file": "logocontecsheader.png",
+      "risk": 2.0,
+      "relations": 1
+    },
+    {
+      "file": "package.json",
+      "risk": 0.3,
+      "relations": 0
+    },
+    {
+      "file": "panel/dashboard.html",
+      "risk": 88.3,
+      "relations": 39,
+      "collections": [
+        "fondos",
+        "participantes",
+        "productos",
+        "reuniones",
+        "usuarios",
+        "voluntarios"
+      ],
+      "key_neighbors": [
+        "css/styles.css",
+        "img/iconos/cerrar.svg",
+        "index.html",
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/operaciones.js",
+        "js/core/permisos.js",
+        "js/modulos/reuniones-utils.js",
+        "logocontecsheader.png",
+        "panel/index.html",
+        "panel/modulos/admin/exportar.html",
+        "panel/modulos/admin/secretaria.html"
+      ]
+    },
+    {
+      "file": "panel/index.html",
+      "risk": 18.4,
+      "relations": 8,
+      "collections": [
+        "usuarios"
+      ]
+    },
+    {
+      "file": "panel/modulos/admin/agendarReunion.html",
+      "risk": 19.5,
+      "relations": 9
+    },
+    {
+      "file": "panel/modulos/admin/exportar.html",
+      "risk": 8.5,
+      "relations": 4
+    },
+    {
+      "file": "panel/modulos/admin/minutaReunion.html",
+      "risk": 15.1,
+      "relations": 7
+    },
+    {
+      "file": "panel/modulos/admin/minutas.html",
+      "risk": 28.7,
+      "relations": 14,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/modulos/agendarReunion.js",
+        "js/modulos/minutaReunion.js",
+        "js/modulos/minutas.js",
+        "panel/modulos/admin/agendarReunion.html",
+        "panel/modulos/admin/minutaReunion.html",
+        "panel/modulos/admin/secretaria.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/admin/secretaria.html",
+      "risk": 20.8,
+      "relations": 10,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "panel/dashboard.html",
+        "panel/modulos/admin/agendarReunion.html",
+        "panel/modulos/admin/minutas.html",
+        "panel/modulos/voluntariado/calendario.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/admin/usuarios.html",
+      "risk": 7.3,
+      "relations": 3
+    },
+    {
+      "file": "panel/modulos/congreso/inscripciones.html",
+      "risk": 28.5,
+      "relations": 12,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/libs/jspdf.umd.min.js",
+        "js/libs/papaparse.min.js",
+        "js/libs/qrcode.min.js",
+        "js/libs/xlsx.full.min.js",
+        "js/modulos/inscripciones.js",
+        "panel/dashboard.html",
+        "panel/modulos/congreso/lecturaQR.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/congreso/lecturaQR.html",
+      "risk": 17.6,
+      "relations": 8
+    },
+    {
+      "file": "panel/modulos/congreso/modulos_participantes.html",
+      "risk": 31.1,
+      "relations": 11,
+      "collections": [
+        "participantes"
+      ],
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/participantes-api.js",
+        "js/core/permisos.js",
+        "js/libs/qrcode.min.js",
+        "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "risk": 16.1,
+      "relations": 7
+    },
+    {
+      "file": "panel/modulos/finanzas/bitacora.html",
+      "risk": 25.8,
+      "relations": 8,
+      "collections": [
+        "actividades_ventas",
+        "compras",
+        "fondos_entrada",
+        "mermas",
+        "movimientos_inventario",
+        "productos",
+        "ventas"
+      ],
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/operaciones.js",
+        "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/finanzas/compras.html",
+      "risk": 8.0,
+      "relations": 3
+    },
+    {
+      "file": "panel/modulos/finanzas/compras2.html",
+      "risk": 10.0,
+      "relations": 3
+    },
+    {
+      "file": "panel/modulos/finanzas/detalleFondo.html",
+      "risk": 12.2,
+      "relations": 5
+    },
+    {
+      "file": "panel/modulos/finanzas/fondos.html",
+      "risk": 11.1,
+      "relations": 5
+    },
+    {
+      "file": "panel/modulos/finanzas/reportes.html",
+      "risk": 12.5,
+      "relations": 6
+    },
+    {
+      "file": "panel/modulos/finanzas/reportes_financieros.html",
+      "risk": 14.9,
+      "relations": 7
+    },
+    {
+      "file": "panel/modulos/finanzas/ventaRapida.html",
+      "risk": 18.7,
+      "relations": 8
+    },
+    {
+      "file": "panel/modulos/logistica/actividadVentas.html",
+      "risk": 20.1,
+      "relations": 9,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/libs/xlsx.full.min.js",
+        "js/modulos/actividadVentas.js",
+        "panel/dashboard.html",
+        "panel/modulos/finanzas/ventaRapida.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/logistica/catalogo.html",
+      "risk": 55.9,
+      "relations": 24,
+      "key_neighbors": [
+        "css/styles.css",
+        "img/iconos/advertencia.svg",
+        "img/iconos/cerrar.svg",
+        "img/iconos/producto.svg",
+        "js/core/auth.js",
+        "js/modulos/catalogo.js",
+        "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/logistica/inventario.html",
+      "risk": 24.0,
+      "relations": 10,
+      "collections": [
+        "productos"
+      ],
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/modulos/catalogo.js",
+        "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/voluntariado/actividades.html",
+      "risk": 25.6,
+      "relations": 12,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/libs/xlsx.full.min.js",
+        "js/modulos/voluntarios.js",
+        "panel/dashboard.html",
+        "panel/modulos/voluntariado/calendario.html",
+        "panel/modulos/voluntariado/informeActividad.html",
+        "panel/modulos/voluntariado/solicitudActividad.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/voluntariado/calendario.html",
+      "risk": 19.3,
+      "relations": 9
+    },
+    {
+      "file": "panel/modulos/voluntariado/giras.html",
+      "risk": 17.4,
+      "relations": 8
+    },
+    {
+      "file": "panel/modulos/voluntariado/informeActividad.html",
+      "risk": 16.8,
+      "relations": 7
+    },
+    {
+      "file": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "risk": 17.8,
+      "relations": 8
+    },
+    {
+      "file": "panel/modulos/voluntariado/solicitudActividad.html",
+      "risk": 20.1,
+      "relations": 8,
+      "key_neighbors": [
+        "css/styles.css",
+        "img/iconos/eliminar.svg",
+        "js/core/auth.js",
+        "js/modulos/solicitudActividad.js",
+        "panel/modulos/voluntariado/actividades.html"
+      ]
+    },
+    {
+      "file": "panel/modulos/voluntariado/voluntarios.html",
+      "risk": 30.6,
+      "relations": 13,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/libs/jszip.min.js",
+        "js/libs/papaparse.min.js",
+        "js/libs/qrcode.min.js",
+        "js/libs/xlsx.full.min.js",
+        "js/modulos/voluntarios.js",
+        "panel/dashboard.html",
+        "panel/modulos/voluntariado/calendario.html",
+        "panel/modulos/voluntariado/lecturaQRVoluntarios.html"
+      ]
+    },
+    {
+      "file": "public/ms/auth.html",
+      "risk": 13.2,
+      "relations": 5,
+      "diagnostics": 1,
+      "key_neighbors": [
+        "js/core/auth.js",
+        "js/core/firebase-config.js",
+        "js/core/sso-config.js",
+        "panel/index.html"
+      ]
+    },
+    {
+      "file": "public/perfil.html",
+      "risk": 16.8,
+      "relations": 5
+    },
+    {
+      "file": "registro.html",
+      "risk": 11.4,
+      "relations": 1
+    }
+  ],
+  "firestore_collections": {
+    "actividades_ventas": [
+      "js/modulos/actividadVentas.js",
+      "js/modulos/ventaRapida.js",
+      "js/modulos/voluntarios.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "actividades_voluntarios": [
+      "js/modulos/informeActividad.js",
+      "js/modulos/lecturaQRVoluntarios.js",
+      "js/modulos/reportes_estadisticaCont.js",
+      "js/modulos/voluntarios.js"
+    ],
+    "asignaciones_voluntarios": [
+      "js/modulos/voluntarios.js"
+    ],
+    "asistencias_voluntarios": [
+      "js/modulos/lecturaQRVoluntarios.js",
+      "js/modulos/reportes_estadisticaCont.js",
+      "js/modulos/voluntarios.js"
+    ],
+    "categorias": [
+      "js/modulos/catalogo.js",
+      "js/modulos/reporteFinancieroExcel.js"
+    ],
+    "checkpoints": [
+      "js/modulos/inscripciones.js",
+      "js/modulos/lecturaQR.js",
+      "js/modulos/reportes_estadisticaCont.js"
+    ],
+    "compras": [
+      "js/core/operaciones.js",
+      "js/modulos/reporteFinancieroExcel.js",
+      "js/modulos/reportes_financieros.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "eventos": [
+      "js/modulos/inscripciones.js",
+      "js/modulos/lecturaQR.js"
+    ],
+    "fondos": [
+      "js/core/operaciones.js",
+      "js/modulos/detalleFondo.js",
+      "js/modulos/fondo.js",
+      "panel/dashboard.html"
+    ],
+    "fondos_entrada": [
+      "js/core/operaciones.js",
+      "js/modulos/detalleFondo.js",
+      "js/modulos/fondo.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "giras_voluntarios": [
+      "js/modulos/voluntarios.js"
+    ],
+    "informes_actividad": [
+      "js/modulos/informeActividad.js"
+    ],
+    "inscripciones": [
+      "js/modulos/inscripciones.js",
+      "js/modulos/lecturaQR.js"
+    ],
+    "inscripciones_checkpoint": [
+      "js/modulos/lecturaQR.js",
+      "js/modulos/reportes_estadisticaCont.js"
+    ],
+    "mermas": [
+      "js/core/operaciones.js",
+      "js/modulos/reporteFinancieroExcel.js",
+      "js/modulos/reportes_financieros.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "movimientos_inventario": [
+      "js/core/operaciones.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "participantes": [
+      "functions/index.js",
+      "js/modulos/inscripciones.js",
+      "js/modulos/lecturaQR.js",
+      "panel/dashboard.html",
+      "panel/modulos/congreso/modulos_participantes.html"
+    ],
+    "productos": [
+      "js/core/operaciones.js",
+      "js/modulos/actividadVentas.js",
+      "js/modulos/catalogo.js",
+      "js/modulos/compras.js",
+      "js/modulos/compras2.js",
+      "js/modulos/reporteFinancieroExcel.js",
+      "js/modulos/reportes_financieros.js",
+      "js/modulos/ventaRapida.js",
+      "panel/dashboard.html",
+      "panel/modulos/finanzas/bitacora.html",
+      "panel/modulos/logistica/inventario.html"
+    ],
+    "reuniones": [
+      "js/modulos/agendarReunion.js",
+      "js/modulos/minutaReunion.js",
+      "js/modulos/minutas.js",
+      "panel/dashboard.html"
+    ],
+    "solicitudes_actividad": [
+      "js/modulos/informeActividad.js",
+      "js/modulos/solicitudActividad.js",
+      "js/modulos/voluntarios.js"
+    ],
+    "usuarios": [
+      "functions/index.js",
+      "index.html",
+      "js/core/auth.js",
+      "js/modulos/actividadVentas.js",
+      "js/modulos/agendarReunion.js",
+      "js/modulos/detalleFondo.js",
+      "js/modulos/fondo.js",
+      "js/modulos/informeActividad.js",
+      "js/modulos/minutaReunion.js",
+      "js/modulos/usuarios.js",
+      "panel/dashboard.html",
+      "panel/index.html"
+    ],
+    "ventas": [
+      "js/core/operaciones.js",
+      "js/modulos/reporteFinancieroExcel.js",
+      "js/modulos/reportes_financieros.js",
+      "panel/modulos/finanzas/bitacora.html"
+    ],
+    "voluntarios": [
+      "js/modulos/lecturaQRVoluntarios.js",
+      "js/modulos/reportes_estadisticaCont.js",
+      "js/modulos/voluntarios.js",
+      "panel/dashboard.html"
+    ]
+  },
+  "cloud_functions": [
+    {
+      "file": "functions/index.js",
+      "functions": [
+        "accederParticipante",
+        "enviarCorreoQrParticipante",
+        "notificarPagoAprobado",
+        "registrarParticipante",
+        "subirFotoEfectivo",
+        "validarTokenSSO"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "category": "missing_navigation",
+      "file": "public/ms/auth.html",
+      "message": "Destino de navegación no encontrado: ../dashboard.html",
+      "provenance": "extracted",
+      "line": 161
+    },
+    {
+      "severity": "info",
+      "category": "optional_dom_id",
+      "file": "js/modulos/voluntarios.js",
+      "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
+      "provenance": "extracted",
+      "line": 186,
+      "evidence": {
+        "pages": [
+          "panel/modulos/voluntariado/actividades.html",
+          "panel/modulos/voluntariado/giras.html",
+          "panel/modulos/voluntariado/voluntarios.html"
+        ]
+      }
+    }
+  ],
+  "estimated_tokens": 6875
+}
