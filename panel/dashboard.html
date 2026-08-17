@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CONTECS — Panel Principal</title>
-  <link rel="stylesheet" href="../css/styles.css"/>
+  <link rel="stylesheet" href="../css/styles.css?v=20260817.3"/>
   <style>
     /* ══════════ ZONA A — HEADER ══════════ */
     .header-a {
@@ -327,7 +327,7 @@
         top: 0;
         padding: 11px 14px;
         gap: 10px;
-        background: var(--verde-oscuro) !important;
+        background: var(--topbar-verde) !important;
       }
       .topbar-brand h1 { font-size: 16px; letter-spacing: 1.4px; }
       body .topbar-logo { height: 24px; }
@@ -534,7 +534,7 @@
        el mouse. Ya no existe una segunda barra blanca debajo.
        ══════════════════════════════════════════════════════ */
     .topbar {
-      background: var(--verde-oscuro) !important;
+      background: var(--topbar-verde) !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
       border-bottom: none !important;
@@ -1421,6 +1421,8 @@
       }
 
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
+      const UI_VERSION = "20260817.3";
+      const versionarRutaUI = ruta => `${ruta}${ruta.includes("?") ? "&" : "?"}v=${UI_VERSION}`;
       const CATEGORIAS = [
         {
           id: "congreso", label: "Congreso",
@@ -1484,7 +1486,7 @@
         grid.className = "grid-modulos";
         cat.modulos.forEach((mod, i) => {
           const a = document.createElement("a");
-          a.href = mod.href;
+          a.href = versionarRutaUI(mod.href);
           a.className = "modulo-btn" + (mod.admin ? " mod-admin" : "");
           a.innerHTML = `<span class="label">${mod.label}</span><span class="chevron">›</span>`;
           a.style.animationDelay = `${0.05 + (idx * 4 + i) * 0.03}s`;
@@ -1518,7 +1520,7 @@
         const dropdown = document.createElement("div");
         dropdown.className = "tab-dropdown";
         dropdown.innerHTML = cat.modulos
-          .map(m => `<a href="${m.href}" class="modulo-btn"><span class="label">${m.label}</span></a>`)
+          .map(m => `<a href="${versionarRutaUI(m.href)}" class="modulo-btn"><span class="label">${m.label}</span></a>`)
           .join("");
         wrap.appendChild(dropdown);
 

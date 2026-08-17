@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-17T14:42:19.328548+00:00**
+- Generado: **2026-08-17T14:52:25.775676+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `a94e563087c6f5f0…`
+- Huella del proyecto: `5039648e18d6c9de…`
 - Archivos analizados: **143**
 - Relaciones internas tipadas: **395**
-- Símbolos detectados: **2866**
-- Llamadas detectadas: **6530**
+- Símbolos detectados: **2868**
+- Llamadas detectadas: **6532**
 - IDs DOM definidos: **716**
 - Paquetes externos usados: **20**
 - Colecciones de Firestore detectadas: **23**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**6,937 tokens** · leer primero
-- `GraphCompleto.json` — ~**39,443 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**73,790 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **90.6%** frente al profundo
+- `GraphCompacto.json` — ~**7,423 tokens** · leer primero
+- `GraphCompleto.json` — ~**39,930 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**74,300 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **90.0%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -36,8 +36,8 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 236.2 (conexiones: 117, 221 lineas)
-- `panel/dashboard.html` — riesgo 94.2 (conexiones: 39, 1616 lineas)
-- `css/styles.css` — riesgo 64.2 (conexiones: 29, 621 lineas)
+- `panel/dashboard.html` — riesgo 94.2 (conexiones: 39, 1618 lineas)
+- `css/styles.css` — riesgo 64.2 (conexiones: 29, 622 lineas)
 - `js/core/firebase-config.js` — riesgo 62.4 (conexiones: 31, 35 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/operaciones.js` — riesgo 58.6 (conexiones: 25, 860 lineas)
@@ -73,9 +73,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
