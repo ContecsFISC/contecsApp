@@ -463,6 +463,17 @@ td { padding: 10px 12px; border-bottom: 1px solid var(--gris-borde); }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--verde-fondo); }
 
+/* ---- TABLA RESPONSIVE ("tarjetas" en movil) ----
+   Anade la clase .tabla-cards al contenedor .tabla-wrap y pon data-label="…"
+   en cada <td>. En escritorio la tabla se ve igual; por debajo de 600px cada
+   fila se apila como tarjeta etiquetada en vez de aplastar N columnas dentro
+   de la pantalla. Un <td> sin data-label (o vacio) se muestra a ancho completo,
+   util para la celda de acciones y para los <td colspan> de estado. */
+.tabla-cards th { white-space: nowrap; }
+.tabla-cards td.celda-acciones { white-space: nowrap; }
+/* Texto auxiliar que solo aparece en el layout de tarjetas movil. */
+.solo-movil { display: none; }
+
 /* ---- STOCK ---- */
 .stock-ok    { color: var(--verde-claro); font-weight: 700; }
 .stock-bajo  { color: var(--rojo);        font-weight: 700; }
@@ -568,6 +579,134 @@ tr:hover td { background: var(--verde-fondo); }
     scrollbar-width: thin;
     scrollbar-color: rgba(0,114,46,0.32) transparent;
   }
+
+  /* Tablas anchas apiladas como tarjetas (ver .tabla-cards arriba). */
+  .tabla-cards {
+    overflow-x: visible;
+    margin-inline: 0;
+    padding: 0;
+  }
+  .tabla-cards table { display: block; width: 100%; }
+  .tabla-cards thead {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .tabla-cards tbody { display: block; width: 100%; }
+  .tabla-cards tbody tr {
+    display: block;
+    width: 100%;
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: var(--radio);
+    padding: 4px 13px;
+    margin-bottom: 11px;
+    box-shadow: 0 2px 8px rgba(14,55,29,0.05);
+  }
+  .tabla-cards tbody tr:last-child { margin-bottom: 0; }
+  .tabla-cards tbody tr:hover td { background: transparent; }
+  .tabla-cards tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    padding: 9px 0;
+    border: 0;
+    border-bottom: 1px solid var(--gris-borde);
+    text-align: right;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  .tabla-cards tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 40%;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--verde-oscuro);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1.5;
+  }
+  /* Celdas sin etiqueta (acciones, mensajes con colspan): ancho completo. */
+  .tabla-cards tbody td:not([data-label])::before,
+  .tabla-cards tbody td[data-label=""]::before { content: none; }
+  .tabla-cards tbody td:not([data-label]),
+  .tabla-cards tbody td[data-label=""] { display: block; text-align: left; }
+  .tabla-cards tbody td[colspan] { text-align: center; }
+  .tabla-cards tbody td:last-child { border-bottom: 0; }
+  .tabla-cards tbody td.celda-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    white-space: normal;
+    padding-top: 11px;
+  }
+  .tabla-cards tbody td.celda-acciones > * { margin: 0 !important; flex: 0 1 auto; }
+
+  /* Variante para tablas editables: etiqueta encima y campo a ancho completo,
+     en vez de tres inputs aplastados en la misma linea. */
+  .tabla-cards-form tbody { counter-reset: fila-tabla; }
+  .tabla-cards-form tbody tr { counter-increment: fila-tabla; padding: 12px 13px; }
+  .tabla-cards-form tbody tr::before {
+    content: "Bloque " counter(fila-tabla);
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--verde-oscuro);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .tabla-cards-form tbody td {
+    display: block;
+    text-align: left;
+    padding: 6px 0;
+    border-bottom: 0;
+  }
+  .tabla-cards-form tbody td::before {
+    display: block;
+    flex: none;
+    margin-bottom: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12.5px;
+  }
+  .tabla-cards-form tbody td input {
+    width: 100%;
+    border: 1.5px solid var(--gris-borde) !important;
+    border-radius: var(--radio-sm);
+    padding: 10px 12px !important;
+    background: var(--blanco) !important;
+  }
+  .tabla-cards-form tbody td input:focus {
+    outline: none;
+    border-color: var(--verde-claro) !important;
+  }
+  /* Primera celda: encabezado de la tarjeta, a ancho completo y sin etiqueta. */
+  .tabla-cards tbody td.celda-titulo {
+    display: block;
+    text-align: left;
+    padding-top: 12px;
+    font-size: 15px;
+  }
+  .tabla-cards tbody td.celda-titulo::before { content: none; }
+  .tabla-cards tbody td.celda-titulo small { display: inline-block; margin-top: 3px; line-height: 1.45; }
+  /* Los botones de accion traen estilos inline; unificarlos necesita !important
+     para que las tres acciones tengan la misma altura dentro de la tarjeta. */
+  .tabla-cards tbody td.celda-acciones button {
+    min-height: 40px;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    border-radius: var(--radio-sm) !important;
+  }
+  .solo-movil { display: inline; }
 
   .modal-overlay { padding: 14px 10px env(safe-area-inset-bottom); }
   .modal, .modal-box, .modal-content {

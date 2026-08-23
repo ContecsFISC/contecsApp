@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CONTECS — Solicitud de Actividad</title>
-  <link rel="stylesheet" href="../../../css/styles.css?v=20260817.3"/>
+  <link rel="stylesheet" href="../../../css/styles.css?v=20260822.1"/>
   <script type="module">
     import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
     guardRoute();
@@ -87,6 +87,18 @@
     @media(max-width:600px) {
       .container { padding: 12px; }
       .checkbox-grid { grid-template-columns: 1fr 1fr; }
+      .programa-tabla { margin-top: 0; }
+      .btn-fila-del {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px 12px;
+        border: 1.5px solid var(--rojo);
+        border-radius: var(--radio-sm);
+        font-size: 13px;
+        font-weight: 600;
+      }
     }
   </style>
 </head>
@@ -358,7 +370,7 @@
       <div class="seccion-label" style="margin-bottom:0;">Propuesta de programa</div>
       <button class="btn btn-outline btn-sm" id="btn-add-fila" style="width:auto;" type="button">+ Añadir fila</button>
     </div>
-    <div class="tabla-wrap">
+    <div class="tabla-wrap tabla-cards tabla-cards-form">
       <table class="programa-tabla">
         <thead>
           <tr>
@@ -370,10 +382,10 @@
         </thead>
         <tbody id="programa-tbody">
           <tr>
-            <td><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
-            <td><input type="text" placeholder="Tema o actividad"/></td>
-            <td><input type="text" placeholder="Sala / lugar"/></td>
-            <td><button class="btn-fila-del" type="button" title="Eliminar fila"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/></button></td>
+            <td data-label="Horario"><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
+            <td data-label="Tema"><input type="text" placeholder="Tema o actividad"/></td>
+            <td data-label="Lugar"><input type="text" placeholder="Sala / lugar"/></td>
+            <td><button class="btn-fila-del" type="button" title="Eliminar fila"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/><span class="solo-movil"> Eliminar bloque</span></button></td>
           </tr>
         </tbody>
       </table>

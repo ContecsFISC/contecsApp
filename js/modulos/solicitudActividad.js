@@ -39,10 +39,10 @@ el("tipo-gira").addEventListener("change", function () {
 function nuevaFilaPrograma() {
   const tr = document.createElement("tr");
   tr.innerHTML = `
-    <td><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
-    <td><input type="text" placeholder="Tema o actividad"/></td>
-    <td><input type="text" placeholder="Sala / lugar"/></td>
-    <td><button class="btn-fila-del" type="button" title="Eliminar fila">Eliminar</button></td>
+    <td data-label="Horario"><input type="text" placeholder="ej. 8:00 – 9:00 am"/></td>
+    <td data-label="Tema"><input type="text" placeholder="Tema o actividad"/></td>
+    <td data-label="Lugar"><input type="text" placeholder="Sala / lugar"/></td>
+    <td><button class="btn-fila-del" type="button" title="Eliminar fila"><img src="../../../img/iconos/eliminar.svg" class="icono-svg" alt=""/><span class="solo-movil"> Eliminar bloque</span></button></td>
   `;
   tr.querySelector(".btn-fila-del").addEventListener("click", () => {
     if (el("programa-tbody").rows.length > 1) tr.remove();

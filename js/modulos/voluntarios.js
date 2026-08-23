@@ -225,36 +225,38 @@ function renderTablaActividades() {
   const tb = el("tabla-actividades-body");
   if (!tb) return;
   if (!actividades.length) {
-    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Sin actividades registradas. Crea la primera usando el formulario.</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Sin actividades registradas. Crea la primera usando el formulario.</td></tr>`;
     return;
   }
   tb.innerHTML = actividades.map(a => `
     <tr>
-      <td>
-        <strong>${h(a.nombre)}</strong>
-        ${a.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(a.descripcion)}</small>` : ""}
-        ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(a.colaboracion)}</small>` : ""}
+      <td class="celda-titulo" data-label="Nombre">
+        <span>
+          <strong>${h(a.nombre)}</strong>
+          ${a.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(a.descripcion)}</small>` : ""}
+          ${a.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(a.colaboracion)}</small>` : ""}
+        </span>
       </td>
-      <td>${fmtFecha(a.fecha)}</td>
-      <td>${h(a.area || "—")}</td>
-      <td>${h(a.lugar || "—")}</td>
-      <td style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${a.voluntariosReq}</strong>` : "—"}</td>
-      <td style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${a.cupo}</strong>` : "—"}</td>
-      <td>
-        ${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}
+      <td data-label="Fecha">${fmtFecha(a.fecha)}</td>
+      <td data-label="Tipo">${h(a.area || "—")}</td>
+      <td data-label="Lugar">${h(a.lugar || "—")}</td>
+      <td data-label="Vol. req." style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${a.voluntariosReq}</strong>` : "—"}</td>
+      <td data-label="Cupo" style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${a.cupo}</strong>` : "—"}</td>
+      <td data-label="Turnos">
+        <span>${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}</span>
       </td>
-      <td>
+      <td data-label="Estado">
         <span style="font-size:12px;background:${a.activo ? "var(--verde-fondo)" : "#f8f9fa"};color:${a.activo ? "var(--verde-oscuro)" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
           ${a.activo ? "Activa" : "Inactiva"}
         </span>
       </td>
-      <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarActividad('${escaparAtributo(a.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+      <td class="celda-acciones">
+        <button class="btn btn-outline btn-sm" onclick="editarActividad('${escaparAtributo(a.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}<span class="solo-movil"> Editar</span></button>
         <button onclick="toggleActividad('${escaparAtributo(a.id)}',${!!a.activo})" style="background:${a.activo?"var(--rojo)":"var(--verde-claro)"};color:#fff;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${a.activo ? "Desactivar" : "Activar"}
         </button>
         <button onclick="eliminarActividad('${escaparAtributo(a.id)}')"
-          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
+          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}<span class="solo-movil"> Eliminar</span></button>
       </td>
     </tr>`).join("");
 }

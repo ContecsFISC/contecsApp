@@ -217,9 +217,12 @@ service cloud.firestore {
     }
 
     // ── Voluntarios ──────────────────────────────────────────────────────────
+    // El rol 'actividades' (Lider de Actividades) es el dueno funcional del
+    // modulo panel/modulos/voluntariado/actividades.html: crea, edita, activa,
+    // desactiva y elimina actividades, y administra sus turnos.
     match /actividades_voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades']);
     }
 
     match /giras_voluntarios/{id} {
