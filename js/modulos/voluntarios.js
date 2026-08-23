@@ -1173,7 +1173,8 @@ function renderTablaGiras() {
           </button>
         </div>
       </td>
-    </tr>`).join("");
+    </tr>`;
+  }).join("");
 }
 
 // ── SELECTOR DE PARTICIPANTES (cascada + búsqueda) ──────────────────────────
