@@ -1,4 +1,4 @@
-﻿import { db, auth } from "../core/firebase-config.js";
+import { db, auth } from "../core/firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp
@@ -1104,17 +1104,41 @@ function renderTablaGiras() {
     tb.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--gris-medio)">Sin giras registradas. Crea la primera usando el formulario.</td></tr>`;
     return;
   }
-  tb.innerHTML = giras.map(g => `
+  tb.innerHTML = giras.map(g => {
+    const numParticipantes = (g.participantes || []).length;
+    const numNotificados   = (g.notificados   || []).length;
+
+    const metaBadges = [
+      g.descripcion
+        ? `<span style="display:block;margin-top:5px;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
+        : "",
+      g.colaboracion
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#f4f7f5;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
+        : "",
+      numParticipantes
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+             ${numParticipantes} participante${numParticipantes === 1 ? "" : "s"}
+           </span>`
+        : "",
+      numNotificados
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#e8f5ec;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+             ${numNotificados} notificado${numNotificados === 1 ? "" : "s"}
+           </span>`
+        : "",
+    ].filter(Boolean).join(" ");
+
+    return `
     <tr>
-      <td>
-        <strong>${h(g.nombre)}</strong>
-        ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(g.descripcion)}</small>` : ""}
-        ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(g.colaboracion)}</small>` : ""}
-        ${(g.participantes || []).length ? `<br/><small style="color:#856404;font-weight:600;">${g.participantes.length} participante${g.participantes.length === 1 ? "" : "s"} seleccionado${g.participantes.length === 1 ? "" : "s"}</small>` : ""}
-        ${(g.notificados || []).length ? `<br/><small style="color:var(--gris-medio);">${g.notificados.length} notificado${g.notificados.length === 1 ? "" : "s"} por correo</small>` : ""}
+      <td style="min-width:160px;">
+        <strong style="font-size:13.5px;">${h(g.nombre)}</strong>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;align-items:flex-start;">
+          ${metaBadges}
+        </div>
       </td>
-      <td>${fmtFecha(g.fecha)}</td>
-      <td>${g.hora ? h(fmtHora12(g.hora)) : "—"}</td>
+      <td style="white-space:nowrap;">${fmtFecha(g.fecha)}</td>
+      <td style="white-space:nowrap;">${g.hora ? h(fmtHora12(g.hora)) : "—"}</td>
       <td>${h(g.area || "—")}</td>
       <td>${h(g.lugar || "—")}</td>
       <td style="text-align:center;">${g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"}</td>
@@ -1123,7 +1147,7 @@ function renderTablaGiras() {
         ${(g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}
       </td>
       <td>
-        <span style="font-size:12px;background:${g.activo ? "#fff3cd" : "#f8f9fa"};color:${g.activo ? "#856404" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;">
+        <span style="font-size:12px;background:${g.activo ? "#fff3cd" : "#f8f9fa"};color:${g.activo ? "#856404" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;white-space:nowrap;">
           ${g.activo ? "Activa" : "Inactiva"}
         </span>
       </td>
