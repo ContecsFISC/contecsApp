@@ -5,6 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
+import { listarParticipantesParaGiras } from "../core/participantes-api.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
 import {
   escaparAtributo,
@@ -74,6 +75,16 @@ let editandoActividadId = null;
 let editandoGiraId      = null;
 let filtroHorarioVol  = "";
 let solicitudesActividad = [];
+
+// Selector de participantes para giras (lista mínima vía listarParticipantesParaGiras)
+let participantesGiraCache = [];
+let participantesGiraCargados = false;
+let participantesGiraSeleccionados = []; // [{id, nombre, cedula, codigo, categoria}]
+const CATEGORIA_LABELS_GIRA = {
+  estudiante_utp: "Est. UTP", estudiante_externo: "Est. Externo",
+  academico_utp: "Académico UTP", academico_externo: "Académico Externo",
+  profesional: "Profesional", autor: "Autor", otros: "Otro", colegio: "Colegio",
+};
 
 const HORARIOS = [
   { valor: "Diurno",     label: "Diurno (7:50 am – 12:00 pm)",    inicio: "07:50", fin: "12:00", kw: ["diurno","matutino","mañana","7:50"] },
@@ -1089,6 +1100,7 @@ function renderTablaGiras() {
         <strong>${h(g.nombre)}</strong>
         ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(g.descripcion)}</small>` : ""}
         ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(g.colaboracion)}</small>` : ""}
+        ${(g.participantes || []).length ? `<br/><small style="color:#856404;font-weight:600;">${g.participantes.length} participante${g.participantes.length === 1 ? "" : "s"} seleccionado${g.participantes.length === 1 ? "" : "s"}</small>` : ""}
       </td>
       <td>${fmtFecha(g.fecha)}</td>
       <td>${h(g.area || "—")}</td>
@@ -1114,6 +1126,114 @@ function renderTablaGiras() {
     </tr>`).join("");
 }
 
+// ── SELECTOR DE PARTICIPANTES (cascada + búsqueda) ──────────────────────────
+async function asegurarParticipantesGiraCargados() {
+  if (participantesGiraCargados) return;
+  const lista = el("lista-participantes-gira");
+  try {
+    participantesGiraCache = await listarParticipantesParaGiras();
+    participantesGiraCargados = true;
+  } catch (e) {
+    if (lista) lista.innerHTML = `<div style="text-align:center;padding:24px;color:var(--rojo);font-size:13px;">${h(e.message)}</div>`;
+    throw e;
+  }
+}
+
+function renderListaParticipantesGira() {
+  const lista = el("lista-participantes-gira");
+  if (!lista) return;
+  const termino = (el("buscar-participante-gira")?.value || "").toLowerCase().trim();
+  const idsSeleccionados = new Set(participantesGiraSeleccionados.map(p => p.id));
+
+  const filtrados = participantesGiraCache.filter(p => {
+    if (!termino) return true;
+    return (p.nombre || "").toLowerCase().includes(termino)
+        || (p.cedula || "").toLowerCase().includes(termino)
+        || (p.codigo || "").toLowerCase().includes(termino);
+  });
+
+  if (filtrados.length === 0) {
+    lista.innerHTML = `<div style="text-align:center;padding:24px;color:var(--gris-medio);font-size:13px;">No hay participantes que coincidan con tu búsqueda.</div>`;
+    return;
+  }
+
+  lista.innerHTML = filtrados.map(p => {
+    const sel = idsSeleccionados.has(p.id);
+    const meta = [p.codigo, CATEGORIA_LABELS_GIRA[p.categoria] || p.categoria, p.cedula].filter(Boolean).join(" · ");
+    return `
+      <div class="part-item ${sel ? "selected" : ""}" data-id="${escaparAtributo(p.id)}">
+        <div class="part-item-check">${sel ? "✓" : ""}</div>
+        <div class="part-item-info">
+          <div class="part-item-nombre">${h(p.nombre || "(sin nombre)")}</div>
+          <div class="part-item-meta">${h(meta || "—")}</div>
+        </div>
+      </div>`;
+  }).join("");
+
+  lista.querySelectorAll(".part-item").forEach(item => {
+    item.addEventListener("click", () => toggleParticipanteGira(item.dataset.id));
+  });
+}
+
+function toggleParticipanteGira(id) {
+  const yaSeleccionado = participantesGiraSeleccionados.find(p => p.id === id);
+  if (yaSeleccionado) {
+    participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
+  } else {
+    const p = participantesGiraCache.find(x => x.id === id);
+    if (p) participantesGiraSeleccionados.push(p);
+  }
+  renderListaParticipantesGira();
+  renderChipsParticipantesGira();
+}
+
+function renderChipsParticipantesGira() {
+  const cont  = el("gira-participantes-chips");
+  const vacio = el("gira-participantes-vacio");
+  if (!cont) return;
+  if (participantesGiraSeleccionados.length === 0) {
+    cont.innerHTML = "";
+    if (vacio) vacio.style.display = "block";
+    return;
+  }
+  if (vacio) vacio.style.display = "none";
+  cont.innerHTML = participantesGiraSeleccionados.map(p => `
+    <span class="chip-participante" data-id="${escaparAtributo(p.id)}">
+      ${h(p.nombre || "(sin nombre)")}
+      <button type="button" title="Quitar" data-quitar="${escaparAtributo(p.id)}">✕</button>
+    </span>`).join("");
+  cont.querySelectorAll("[data-quitar]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== btn.dataset.quitar);
+      renderChipsParticipantesGira();
+      renderListaParticipantesGira();
+    });
+  });
+}
+
+function abrirSheetParticipantesGira() {
+  el("overlay-part")?.classList.add("show");
+  el("sheet-part")?.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+function cerrarSheetParticipantesGira() {
+  el("overlay-part")?.classList.remove("show");
+  el("sheet-part")?.classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+el("btn-abrir-participantes-gira")?.addEventListener("click", async () => {
+  abrirSheetParticipantesGira();
+  try {
+    await asegurarParticipantesGiraCargados();
+    renderListaParticipantesGira();
+  } catch { /* el mensaje de error ya quedó en el sheet */ }
+});
+el("buscar-participante-gira")?.addEventListener("input", renderListaParticipantesGira);
+el("btn-cerrar-sheet-part")?.addEventListener("click", cerrarSheetParticipantesGira);
+el("btn-listo-participantes-gira")?.addEventListener("click", cerrarSheetParticipantesGira);
+el("overlay-part")?.addEventListener("click", cerrarSheetParticipantesGira);
+
 el("btn-guardar-gira")?.addEventListener("click", async () => {
   const nombre = el("gira-nombre").value.trim();
   const fecha  = el("gira-fecha").value;
@@ -1126,6 +1246,9 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
     voluntariosReq: parseInt(el("gira-voluntarios-req").value) || 0,
     cupo:           parseInt(el("gira-cupo").value) || null,
     colaboracion:   el("gira-colaboracion").value.trim(),
+    participantes:  participantesGiraSeleccionados.map(p => ({
+      id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
+    })),
     activo: true, actualizadoEn: serverTimestamp(),
   };
   el("btn-guardar-gira").disabled = true;
@@ -1152,6 +1275,8 @@ function limpiarFormGira() {
   el("gira-voluntarios-req").value = el("gira-colaboracion").value = "";
   el("gira-cupo").value = "";
   editandoGiraId = null;
+  participantesGiraSeleccionados = [];
+  renderChipsParticipantesGira();
   el("form-gira-titulo").textContent = "Crear nueva gira";
   el("btn-cancelar-gira").style.display = "none";
 }
@@ -1171,6 +1296,8 @@ window.editarGira = function(id) {
     const d = g.fecha.toDate ? g.fecha.toDate() : new Date(g.fecha);
     el("gira-fecha").value = d.toISOString().split("T")[0];
   }
+  participantesGiraSeleccionados = (g.participantes || []).map(p => ({ ...p }));
+  renderChipsParticipantesGira();
   el("form-gira-titulo").textContent = "Editar gira";
   el("btn-cancelar-gira").style.display = "inline-flex";
   activarTab("tab-giras");
@@ -1868,6 +1995,7 @@ el("btn-confirmar-grupo")?.addEventListener("click", async () => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+renderChipsParticipantesGira();
 Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas(), cargarSolicitudesAutocomplete()]).then(() => {
   const tabActivo = document.querySelector(".tab-btn.active");
   if (tabActivo?.dataset.tab === "tab-voluntariado") iniciarTabVoluntariado();

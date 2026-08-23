@@ -40,6 +40,63 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+
+ /* Selector de participantes (cascada con búsqueda) */
+ .overlay-part {
+ position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+ z-index: 400; display: none; backdrop-filter: blur(3px);
+ }
+ .overlay-part.show { display: block; animation: fadeInPart 0.2s both; }
+ @keyframes fadeInPart { from { opacity:0; } to { opacity:1; } }
+
+ .sheet-part {
+ position: fixed; bottom: 0; left: 0; right: 0;
+ background: #fff; border-radius: 20px 20px 0 0;
+ max-height: 85vh; z-index: 401;
+ display: flex; flex-direction: column;
+ transform: translateY(100%);
+ transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+ max-width: 640px; margin: 0 auto;
+ }
+ .sheet-part.show { transform: translateY(0); }
+ .sheet-part-handle { width:36px; height:4px; background:#e5e5e5; border-radius:2px; margin:10px auto 0; flex-shrink:0; }
+ .sheet-part-header {
+ padding: 12px 16px; display:flex; align-items:center; justify-content:space-between;
+ border-bottom: 1.5px solid #f0e6c8; flex-shrink:0;
+ }
+ .sheet-part-titulo { font-size:16px; font-weight:800; color:#856404; }
+ .sheet-part-cerrar {
+ background:#f8f9fa; border:none; width:30px; height:30px; border-radius:50%;
+ cursor:pointer; font-size:16px; color:#666; line-height:1;
+ }
+ .sheet-part-buscar { padding: 10px 16px; flex-shrink:0; }
+ .sheet-part-buscar input {
+ width:100%; padding:9px 12px; border:1.5px solid #e5e5e5; border-radius:10px; font-size:14px;
+ }
+ .sheet-part-lista { overflow-y:auto; flex:1; padding: 0 8px 8px; }
+ .part-item {
+ display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:10px;
+ cursor:pointer; user-select:none;
+ }
+ .part-item:hover { background:#fffbea; }
+ .part-item.selected { background:#fff3cd; }
+ .part-item-check {
+ width:20px; height:20px; border-radius:6px; border:1.5px solid #ccc; flex-shrink:0;
+ display:flex; align-items:center; justify-content:center; font-size:13px; color:#fff;
+ }
+ .part-item.selected .part-item-check { background:#856404; border-color:#856404; }
+ .part-item-info { flex:1; min-width:0; }
+ .part-item-nombre { font-size:13.5px; font-weight:600; color:#333; }
+ .part-item-meta { font-size:11.5px; color:var(--gris-medio); }
+ .sheet-part-footer { padding:12px 16px; border-top:1.5px solid #f0e6c8; flex-shrink:0; }
+
+ .chip-participante {
+ display:inline-flex; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107;
+ border-radius:20px; padding:4px 10px; font-size:12.5px; color:#856404;
+ }
+ .chip-participante button {
+ background:none; border:none; cursor:pointer; color:var(--rojo); font-size:14px; line-height:1; padding:0 2px;
+ }
  </style>
 </head>
 <body>
@@ -105,6 +162,17 @@
  <label style="color:#856404;">Colaboración</label>
  <textarea id="gira-colaboracion" rows="2" placeholder="Empresas o agrupaciones que apoyan (separadas por coma)"></textarea>
  </div>
+
+ <!-- PARTICIPANTES DE LA GIRA -->
+ <div class="form-groupE">
+ <label style="color:#856404;">Participantes de la gira</label>
+ <div id="gira-participantes-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;"></div>
+ <button type="button" class="btn btn-outline btn-sm" id="btn-abrir-participantes-gira" style="width:auto;color:#856404;border-color:#ffc107;">
+ + Añadir participantes
+ </button>
+ <div id="gira-participantes-vacio" style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Ningún participante seleccionado todavía.</div>
+ </div>
+
  <div style="display:flex;gap:10px;flex-wrap:wrap;">
  <button class="btn btn-primary" id="btn-guardar-gira" style="flex:1">Guardar gira</button>
  <button class="btn btn-outline btn-sm" id="btn-cancelar-gira" style="width:auto;display:none">Cancelar</button>
@@ -130,6 +198,25 @@
  <tbody id="tabla-giras-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
  </table>
  </div>
+ </div>
+</div>
+
+<!-- SELECTOR DE PARTICIPANTES (cascada + búsqueda) -->
+<div class="overlay-part" id="overlay-part"></div>
+<div class="sheet-part" id="sheet-part">
+ <div class="sheet-part-handle"></div>
+ <div class="sheet-part-header">
+ <span class="sheet-part-titulo">Seleccionar participantes</span>
+ <button type="button" class="sheet-part-cerrar" id="btn-cerrar-sheet-part">✕</button>
+ </div>
+ <div class="sheet-part-buscar">
+ <input type="text" id="buscar-participante-gira" placeholder="Buscar por nombre, cédula o código..." autocomplete="off"/>
+ </div>
+ <div class="sheet-part-lista" id="lista-participantes-gira">
+ <div style="text-align:center;padding:24px;color:var(--gris-medio);font-size:13px;">Cargando participantes...</div>
+ </div>
+ <div class="sheet-part-footer">
+ <button type="button" class="btn btn-primary" id="btn-listo-participantes-gira" style="width:100%;">Listo</button>
  </div>
 </div>
 

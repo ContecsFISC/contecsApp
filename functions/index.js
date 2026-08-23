@@ -49,6 +49,13 @@ const ROLES_ENVIAR_CORREO_QR = new Set([
   "actividades", "finanzas", "secretario", "comunicaciones", "staff_contecs",
 ]);
 
+// Quiénes pueden pedir la lista mínima de participantes para armar giras.
+// Mismo set que el permiso "gestionar_giras" en js/core/permisos.js — no
+// canGestionarParticipantes() completo a propósito: este set más chico solo
+// habilita la lectura acotada de listarParticipantesParaGiras, nunca lectura
+// directa de /participantes desde el cliente.
+const ROLES_LISTAR_PARTICIPANTES_GIRAS = new Set(["ceo", "junta_principal", "giras"]);
+
 // Toda modificación contable se ejecuta con Admin SDK después de validar la
 // sesión y el rol. El navegador ya no puede escribir saldos o ventas directo.
 exports.ejecutarOperacionFinanciera = onCall(
@@ -901,6 +908,49 @@ exports.enviarCorreoQrParticipante = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("enviarCorreoQrParticipante:", e);
         throw new HttpsError("internal", e.message || "Error al enviar el correo.");
+      }
+    },
+);
+
+// ─── GIRAS: lectura mínima de participantes para selección manual ───────────
+// El rol "giras" NO tiene permiso de lectura sobre /participantes en
+// firestore.rules (a propósito: esa colección trae comprobantes de pago,
+// teléfono y cédula). Esta función corre con Admin SDK, verifica el rol
+// ella misma, y devuelve solo lo necesario para armar un selector de nombres
+// — incluyendo participantes con pago pendiente/rechazado, tal como se pidió.
+exports.listarParticipantesParaGiras = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        if (!request.auth?.uid) {
+          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+        }
+        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
+        const rol = snapUsuario.data()?.rol;
+        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
+          throw new HttpsError("permission-denied", "No tienes permiso para ver la lista de participantes.");
+        }
+
+        const snap = await db.collection("participantes")
+            .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria")
+            .get();
+
+        const participantes = snap.docs.map((d) => {
+          const data = d.data();
+          return {
+            id: d.id,
+            nombre: data.nombreCompleto || `${data.nombre || ""} ${data.apellido || ""}`.trim(),
+            cedula: data.cedula || "",
+            codigo: data.codigo || "",
+            categoria: data.categoria || "",
+          };
+        });
+
+        return {participantes, total: participantes.length};
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("listarParticipantesParaGiras:", e);
+        throw new HttpsError("internal", "Error al obtener la lista de participantes.");
       }
     },
 );

@@ -69,3 +69,24 @@ export async function enviarCorreoQrParticipante(docId, { forzarReenvio = false 
     throw new Error(msg);
   }
 }
+
+const ERRORES_LISTAR_PARTICIPANTES_GIRAS = {
+  "unauthenticated":   "Debes iniciar sesión para ver los participantes.",
+  "permission-denied": "No tienes permiso para ver la lista de participantes.",
+  "internal":          "Error al obtener la lista de participantes.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Lista mínima (id, nombre, cédula, código, categoría) para el selector de
+// GIRAS. No trae datos de pago ni comprobantes — ver listarParticipantesParaGiras
+// en functions/index.js.
+export async function listarParticipantesParaGiras() {
+  try {
+    const fn = httpsCallable(functions, "listarParticipantesParaGiras");
+    const result = await fn();
+    return result.data?.participantes || [];
+  } catch (error) {
+    const msg = ERRORES_LISTAR_PARTICIPANTES_GIRAS[error.code] || error.message || "Error inesperado.";
+    throw new Error(msg);
+  }
+}

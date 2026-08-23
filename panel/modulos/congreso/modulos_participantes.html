@@ -917,11 +917,15 @@ window._rechazar = async function() {
 
 // ── EXPORTAR CSV ──────────────────────────────────────────────────────────
 el("btn-exportar").addEventListener("click", () => {
- const cols = ["Código","Nombre","Cédula","Correo","Teléfono","Categoría","Método","Estado pago","Institución","Fecha"];
+ const cols = ["Código","Nombre","Cédula","Correo","Correo Institucional","Teléfono","Categoría","Carrera","Año","Método","Estado pago","Institución","Fecha"];
  const rows = participanteFiltrado.map(p => [
  p.codigo, p.nombreCompleto || `${p.nombre} ${p.apellido}`,
- p.cedula, p.correo, p.telefono,
+ p.cedula, p.correo,
+ p.camposExtra?.["correo-inst"] || p.camposExtra?.correoInst || "",
+ p.telefono,
  CATEGORIA_LABELS[p.categoria] || p.categoria,
+ p.camposExtra?.carrera || "",
+ p.camposExtra?.anio || "",
  p.pago?.metodo, p.pago?.estado,
  p.institucion || p.colegio || "",
  p.fechaRegistro?.toDate?.()?.toLocaleDateString("es-PA") || ""
