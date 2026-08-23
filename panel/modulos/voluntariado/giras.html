@@ -67,7 +67,8 @@
  .sheet-part-titulo { font-size:16px; font-weight:800; color:#856404; }
  .sheet-part-cerrar {
  background:#f8f9fa; border:none; width:30px; height:30px; border-radius:50%;
- cursor:pointer; font-size:16px; color:#666; line-height:1;
+ cursor:pointer; color:#666;
+ display:flex; align-items:center; justify-content:center;
  }
  .sheet-part-buscar { padding: 10px 16px; flex-shrink:0; }
  .sheet-part-buscar input {
@@ -214,8 +215,30 @@
  </div>
  </div>
  <div class="form-groupE">
+ <label style="color:#856404;">Lugar de encuentro</label>
+ <input type="text" id="gira-lugar-encuentro" placeholder="ej. Estacionamiento del edificio 3, entrada principal"/>
+ <div style="font-size:11px;color:var(--gris-medio);margin-top:4px;">Es la hora de arriba — aquí solo se indica dónde se reúnen los participantes antes de salir.</div>
+ </div>
+ <div class="form-groupE">
  <label style="color:#856404;">Colaboración</label>
  <textarea id="gira-colaboracion" rows="2" placeholder="Empresas o agrupaciones que apoyan (separadas por coma)"></textarea>
+ </div>
+
+ <!-- COORDINADOR DE LA GIRA -->
+ <div class="form-groupE">
+ <label style="color:#856404;">Coordinador de la gira</label>
+ <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;">
+ <input type="text" id="gira-coord-nombre" placeholder="Nombre completo"/>
+ <select id="gira-coord-tipo">
+ <option value="">— Profesor o staff —</option>
+ <option value="profesor">Profesor</option>
+ <option value="staff">Staff</option>
+ </select>
+ </div>
+ <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+ <input type="tel" id="gira-coord-telefono" placeholder="Teléfono"/>
+ <input type="email" id="gira-coord-correo" placeholder="correo@utp.ac.pa"/>
+ </div>
  </div>
 
  <!-- PARTICIPANTES DE LA GIRA -->
@@ -263,7 +286,7 @@
  <div class="sheet-part-handle"></div>
  <div class="sheet-part-header">
  <span class="sheet-part-titulo">Seleccionar participantes</span>
- <button type="button" class="sheet-part-cerrar" id="btn-cerrar-sheet-part">✕</button>
+ <button type="button" class="sheet-part-cerrar" id="btn-cerrar-sheet-part"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
  </div>
  <div class="sheet-part-buscar">
  <input type="text" id="buscar-participante-gira" placeholder="Buscar por nombre, cédula o código..." autocomplete="off"/>

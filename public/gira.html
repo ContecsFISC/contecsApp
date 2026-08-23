@@ -277,9 +277,21 @@
  <div class="ic-fila"><span class="ic-label">Descripción</span><span class="ic-valor" id="d-descripcion">—</span></div>
  <div class="ic-fila"><span class="ic-label">Fecha</span><span class="ic-valor" id="d-fecha">—</span></div>
  <div class="ic-fila" id="row-hora" style="display:none;"><span class="ic-label">Hora</span><span class="ic-valor" id="d-hora">—</span></div>
+ <div class="ic-fila" id="row-lugar-encuentro" style="display:none;"><span class="ic-label">Lugar de encuentro</span><span class="ic-valor" id="d-lugar-encuentro">—</span></div>
  <div class="ic-fila"><span class="ic-label">Tipo</span><span class="ic-valor" id="d-area">—</span></div>
  <div class="ic-fila"><span class="ic-label">Lugar</span><span class="ic-valor" id="d-lugar">—</span></div>
  <div class="ic-fila" id="row-colaboracion" style="display:none;"><span class="ic-label">Colaboración</span><span class="ic-valor" id="d-colaboracion">—</span></div>
+ </div>
+
+ <!-- COORDINADOR DE LA GIRA -->
+ <div class="info-card" id="coord-card" style="display:none;">
+ <div class="ic-titulo">
+   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+   Coordinador de la gira
+ </div>
+ <div class="ic-fila"><span class="ic-label">Nombre</span><span class="ic-valor" id="d-coord-nombre">—</span></div>
+ <div class="ic-fila" id="row-coord-tipo" style="display:none;"><span class="ic-label">Rol</span><span class="ic-valor" id="d-coord-tipo">—</span></div>
+ <div class="ic-fila" id="row-coord-telefono" style="display:none;"><span class="ic-label">Teléfono</span><span class="ic-valor" id="d-coord-telefono">—</span></div>
  </div>
 
  <!-- QR CREDENCIAL -->
@@ -409,11 +421,28 @@ function renderGira(data, codigo, token) {
   el("row-hora").style.display = "flex";
   el("d-hora").textContent = g.horaTexto;
  }
+ if (g.lugarEncuentro) {
+  el("row-lugar-encuentro").style.display = "flex";
+  el("d-lugar-encuentro").textContent = g.lugarEncuentro;
+ }
  el("d-area").textContent = g.area || "—";
  el("d-lugar").textContent = g.lugar || "Por confirmar";
  if (g.colaboracion) {
   el("row-colaboracion").style.display = "flex";
   el("d-colaboracion").textContent = g.colaboracion;
+ }
+
+ if (g.coordinador?.nombre) {
+  el("coord-card").style.display = "block";
+  el("d-coord-nombre").textContent = g.coordinador.nombre;
+  if (g.coordinador.tipo) {
+   el("row-coord-tipo").style.display = "flex";
+   el("d-coord-tipo").textContent = g.coordinador.tipo === "profesor" ? "Profesor" : "Staff";
+  }
+  if (g.coordinador.telefono) {
+   el("row-coord-telefono").style.display = "flex";
+   el("d-coord-telefono").textContent = g.coordinador.telefono;
+  }
  }
 
  renderCheckpoint("entrada", data.checkpoints?.entrada);

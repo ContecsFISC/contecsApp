@@ -947,17 +947,23 @@ exports.listarParticipantesParaGiras = onCall(
         }
 
         const snap = await db.collection("participantes")
-            .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria")
+            .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria", "camposExtra")
             .get();
 
         const participantes = snap.docs.map((d) => {
           const data = d.data();
+          // Correo institucional (@utp.ac.pa): se captura en el formulario de
+          // inscripción bajo camposExtra y es el que debe aparecer en informes,
+          // a diferencia del correo personal (gmail) usado para notificaciones.
+          const correoInstitucional = data.camposExtra?.["correo-inst"] ||
+            data.camposExtra?.correoInst || "";
           return {
             id: d.id,
             nombre: data.nombreCompleto || `${data.nombre || ""} ${data.apellido || ""}`.trim(),
             cedula: data.cedula || "",
             codigo: data.codigo || "",
             categoria: data.categoria || "",
+            correoInstitucional,
           };
         });
 
@@ -1169,9 +1175,15 @@ exports.accederGiraParticipante = onCall(
             descripcion: gira.descripcion || null,
             area: gira.area || null,
             lugar: gira.lugar || null,
+            lugarEncuentro: gira.lugarEncuentro || null,
             colaboracion: gira.colaboracion || null,
             fechaTexto: formatearFechaGira(gira.fecha),
             horaTexto: formatearHoraGira(gira.hora),
+            coordinador: gira.coordinador?.nombre ? {
+              nombre: gira.coordinador.nombre || null,
+              tipo: gira.coordinador.tipo || null,
+              telefono: gira.coordinador.telefono || null,
+            } : null,
           },
           checkpoints: {
             entrada: entradaSnap.exists ? {

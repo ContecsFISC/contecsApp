@@ -1112,6 +1112,18 @@ function renderTablaGiras() {
       g.descripcion
         ? `<span style="display:block;margin-top:5px;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
         : "",
+      g.lugarEncuentro
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#eaf4fb;color:#2471a3;padding:2px 8px;border-radius:8px;">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+             Encuentro: ${h(g.lugarEncuentro)}
+           </span>`
+        : "",
+      g.coordinador?.nombre
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#f4e9ff;color:#6b3fa0;padding:2px 8px;border-radius:8px;">
+             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+             Coord.: ${h(g.coordinador.nombre)}${g.coordinador.tipo ? ` (${g.coordinador.tipo === "profesor" ? "Profesor" : "Staff"})` : ""}
+           </span>`
+        : "",
       g.colaboracion
         ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#f4f7f5;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
         : "",
@@ -1213,7 +1225,7 @@ function renderListaParticipantesGira() {
     const meta = [p.codigo, CATEGORIA_LABELS_GIRA[p.categoria] || p.categoria, p.cedula].filter(Boolean).join(" · ");
     return `
       <div class="part-item ${sel ? "selected" : ""}" data-id="${escaparAtributo(p.id)}">
-        <div class="part-item-check">${sel ? "✓" : ""}</div>
+        <div class="part-item-check">${sel ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ""}</div>
         <div class="part-item-info">
           <div class="part-item-nombre">${h(p.nombre || "(sin nombre)")}</div>
           <div class="part-item-meta">${h(meta || "—")}</div>
@@ -1251,7 +1263,7 @@ function renderChipsParticipantesGira() {
   cont.innerHTML = participantesGiraSeleccionados.map(p => `
     <span class="chip-participante" data-id="${escaparAtributo(p.id)}">
       ${h(p.nombre || "(sin nombre)")}
-      <button type="button" title="Quitar" data-quitar="${escaparAtributo(p.id)}">✕</button>
+      <button type="button" title="Quitar" data-quitar="${escaparAtributo(p.id)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </span>`).join("");
   cont.querySelectorAll("[data-quitar]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1291,16 +1303,30 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
   const hora   = el("gira-hora").value; // "HH:MM" o "" si no se puso
   const area   = el("gira-area").value;
   if (!nombre || !fecha || !area) { mostrarAlerta("error", "Nombre, fecha y tipo son obligatorios."); return; }
+
+  const coordCorreo = el("gira-coord-correo").value.trim();
+  if (coordCorreo && !/@utp\.ac\.pa$/i.test(coordCorreo)) {
+    mostrarAlerta("error", "El correo del coordinador debe ser institucional (@utp.ac.pa)."); return;
+  }
+
   const data = {
     nombre, descripcion: el("gira-descripcion").value.trim(),
     fecha: new Date(fecha + "T" + (hora || "12:00") + ":00"),
     hora: hora || null, area,
     lugar:          el("gira-lugar").value.trim(),
+    lugarEncuentro: el("gira-lugar-encuentro").value.trim(),
     voluntariosReq: parseInt(el("gira-voluntarios-req").value) || 0,
     cupo:           parseInt(el("gira-cupo").value) || null,
     colaboracion:   el("gira-colaboracion").value.trim(),
+    coordinador: {
+      nombre:    el("gira-coord-nombre").value.trim(),
+      tipo:      el("gira-coord-tipo").value,
+      telefono:  el("gira-coord-telefono").value.trim(),
+      correoInstitucional: coordCorreo,
+    },
     participantes:  participantesGiraSeleccionados.map(p => ({
       id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
+      correoInstitucional: p.correoInstitucional || "",
     })),
     activo: true, actualizadoEn: serverTimestamp(),
   };
@@ -1326,8 +1352,11 @@ function limpiarFormGira() {
   el("gira-nombre").value = el("gira-descripcion").value = el("gira-fecha").value = "";
   el("gira-hora").value = "";
   el("gira-area").value = el("gira-lugar").value = "";
+  el("gira-lugar-encuentro").value = "";
   el("gira-voluntarios-req").value = el("gira-colaboracion").value = "";
   el("gira-cupo").value = "";
+  el("gira-coord-nombre").value = el("gira-coord-telefono").value = el("gira-coord-correo").value = "";
+  el("gira-coord-tipo").value = "";
   editandoGiraId = null;
   participantesGiraSeleccionados = [];
   renderChipsParticipantesGira();
@@ -1343,9 +1372,14 @@ window.editarGira = function(id) {
   el("gira-descripcion").value     = g.descripcion || "";
   el("gira-area").value            = g.area || "";
   el("gira-lugar").value           = g.lugar || "";
+  el("gira-lugar-encuentro").value = g.lugarEncuentro || "";
   el("gira-voluntarios-req").value = g.voluntariosReq || "";
   el("gira-cupo").value            = g.cupo || "";
   el("gira-colaboracion").value    = g.colaboracion || "";
+  el("gira-coord-nombre").value    = g.coordinador?.nombre || "";
+  el("gira-coord-tipo").value      = g.coordinador?.tipo || "";
+  el("gira-coord-telefono").value  = g.coordinador?.telefono || "";
+  el("gira-coord-correo").value    = g.coordinador?.correoInstitucional || "";
   if (g.fecha) {
     const d = g.fecha.toDate ? g.fecha.toDate() : new Date(g.fecha);
     el("gira-fecha").value = d.toISOString().split("T")[0];
