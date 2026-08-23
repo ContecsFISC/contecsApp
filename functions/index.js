@@ -1008,12 +1008,26 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
     throw new Error("Participante sin codigo, token o correo");
   }
 
+  // Encargado de la gira, en una sola línea (nombre + rol + teléfono si hay).
+  // Se arma como texto plano (no HTML) porque la plantilla lo inserta con
+  // {{coordinador_info}} y el motor de plantillas escapa todo — ver plantillas.js.
+  let coordinadorInfo = "Por confirmar";
+  if (gira.coordinador?.nombre) {
+    const tipoLabel = gira.coordinador.tipo === "profesor" ? "Profesor" :
+      gira.coordinador.tipo === "staff" ? "Staff" : "";
+    let linea = gira.coordinador.nombre + (tipoLabel ? ` (${tipoLabel})` : "");
+    if (gira.coordinador.telefono) linea += ` · ${gira.coordinador.telefono}`;
+    coordinadorInfo = linea;
+  }
+
   const vars = {
     nombre,
     gira_nombre: gira.nombre || "Gira CONTECS",
     gira_fecha: formatearFechaGira(gira.fecha),
     gira_hora: formatearHoraGira(gira.hora) || "Por confirmar",
     gira_lugar: gira.lugar || "Por confirmar",
+    gira_lugar_encuentro: gira.lugarEncuentro || "Por confirmar",
+    coordinador_info: coordinadorInfo,
     link_gira: linkGiraParticipante(codigo, token, giraId),
   };
 

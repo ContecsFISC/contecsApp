@@ -1101,7 +1101,7 @@ function renderTablaGiras() {
   const tb = el("tabla-giras-body");
   if (!tb) return;
   if (!giras.length) {
-    tb.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--gris-medio)">Sin giras registradas. Crea la primera usando el formulario.</td></tr>`;
+    tb.innerHTML = `<div style="text-align:center;color:var(--gris-medio);padding:18px 0;">Sin giras registradas. Crea la primera usando el formulario.</div>`;
     return;
   }
   tb.innerHTML = giras.map(g => {
@@ -1110,82 +1110,81 @@ function renderTablaGiras() {
 
     const metaBadges = [
       g.descripcion
-        ? `<span style="display:block;margin-top:5px;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
-        : "",
-      g.lugarEncuentro
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#eaf4fb;color:#2471a3;padding:2px 8px;border-radius:8px;">
-             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-             Encuentro: ${h(g.lugarEncuentro)}
-           </span>`
-        : "",
-      g.coordinador?.nombre
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#f4e9ff;color:#6b3fa0;padding:2px 8px;border-radius:8px;">
-             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-             Coord.: ${h(g.coordinador.nombre)}${g.coordinador.tipo ? ` (${g.coordinador.tipo === "profesor" ? "Profesor" : "Staff"})` : ""}
-           </span>`
+        ? `<span style="display:block;width:100%;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
         : "",
       g.colaboracion
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#f4f7f5;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#f4f7f5;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
         : "",
       numParticipantes
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
              ${numParticipantes} participante${numParticipantes === 1 ? "" : "s"}
            </span>`
         : "",
       numNotificados
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:11px;background:#e8f5ec;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#e8f5ec;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
              ${numNotificados} notificado${numNotificados === 1 ? "" : "s"}
            </span>`
         : "",
     ].filter(Boolean).join(" ");
 
+    const filas = [
+      ["Fecha", fmtFecha(g.fecha)],
+      g.hora ? ["Hora", h(fmtHora12(g.hora))] : null,
+      g.lugarEncuentro ? ["Lugar de encuentro", h(g.lugarEncuentro)] : null,
+      ["Tipo", h(g.area || "—")],
+      ["Lugar", h(g.lugar || "—")],
+      g.coordinador?.nombre ? ["Coordinador", `${h(g.coordinador.nombre)}${g.coordinador.tipo ? ` (${g.coordinador.tipo === "profesor" ? "Profesor" : "Staff"})` : ""}`] : null,
+      g.coordinador?.telefono ? ["Tel. coordinador", h(g.coordinador.telefono)] : null,
+      ["Voluntarios req.", g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"],
+      ["Cupo", g.cupo ? `<strong style="color:#1a56db;">${g.cupo}</strong>` : "—"],
+      (g.turnos || []).length
+        ? ["Turnos", (g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("")]
+        : null,
+    ].filter(Boolean);
+
     return `
-    <tr>
-      <td style="min-width:160px;">
-        <strong style="font-size:13.5px;">${h(g.nombre)}</strong>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;align-items:flex-start;">
-          ${metaBadges}
+    <div class="gira-card">
+      <div class="gira-card-top">
+        <div>
+          <strong class="gira-card-nombre">${h(g.nombre)}</strong>
+          <div class="gira-card-badges">${metaBadges}</div>
         </div>
-      </td>
-      <td style="white-space:nowrap;">${fmtFecha(g.fecha)}</td>
-      <td style="white-space:nowrap;">${g.hora ? h(fmtHora12(g.hora)) : "—"}</td>
-      <td>${h(g.area || "—")}</td>
-      <td>${h(g.lugar || "—")}</td>
-      <td style="text-align:center;">${g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"}</td>
-      <td style="text-align:center;">${g.cupo ? `<strong style="color:#1a56db;">${g.cupo}</strong>` : "—"}</td>
-      <td>
-        ${(g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}
-      </td>
-      <td>
-        <span style="font-size:12px;background:${g.activo ? "#fff3cd" : "#f8f9fa"};color:${g.activo ? "#856404" : "var(--gris-medio)"};padding:2px 8px;border-radius:12px;white-space:nowrap;">
+        <span class="gira-estado" style="background:${g.activo ? "#fff3cd" : "#f8f9fa"};color:${g.activo ? "#856404" : "var(--gris-medio)"};">
           ${g.activo ? "Activa" : "Inactiva"}
         </span>
-      </td>
-      <td>
-        <div class="acciones-gira">
-          <button class="btn-fila editar" onclick="editarGira('${escaparAtributo(g.id)}')" title="Editar">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Editar
-          </button>
-          <button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
-            ${(g.participantes || []).length ? "" : "disabled"}
-            title="Notificar participantes por correo">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            Notificar
-          </button>
-          <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
-            ${g.activo ? "Desactivar" : "Activar"}
-          </button>
-          <button class="btn-fila eliminar" onclick="eliminarGira('${escaparAtributo(g.id)}')" title="Eliminar">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Eliminar
-          </button>
-        </div>
-      </td>
-    </tr>`;
+      </div>
+
+      <div class="gira-card-datos">
+        ${filas.map(([label, valor]) => `
+          <div class="gira-fila">
+            <span class="gf-label">${label}</span>
+            <span class="gf-valor">${valor}</span>
+          </div>`).join("")}
+      </div>
+
+      <div class="gira-card-acciones acciones-gira">
+        <button class="btn-fila editar" onclick="editarGira('${escaparAtributo(g.id)}')" title="Editar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Editar
+        </button>
+        <button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
+          ${(g.participantes || []).length ? "" : "disabled"}
+          title="Notificar participantes por correo">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          Notificar
+        </button>
+        <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+          ${g.activo ? "Desactivar" : "Activar"}
+        </button>
+        <button class="btn-fila eliminar" onclick="eliminarGira('${escaparAtributo(g.id)}')" title="Eliminar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Eliminar
+        </button>
+      </div>
+    </div>`;
   }).join("");
 }
 

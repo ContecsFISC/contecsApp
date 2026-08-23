@@ -22,6 +22,27 @@
  .turno-tag { display:inline-flex; align-items:center; gap:6px; background:#fff3cd; border:1px solid #ffc107; border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:#856404; }
  .turno-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
 
+ /* Lista de giras: una tarjeta por gira, con "tablita" interna de datos.
+    Reemplaza la tabla ancha de columnas para que cada gira tenga su propio
+    espacio y no se compriman los encabezados cuando el texto es largo. */
+ .gira-card {
+ border: 1px solid #f0e6c8; border-radius: 12px;
+ padding: 14px 16px; margin-bottom: 12px; background: #fffdf7;
+ }
+ .gira-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+ .gira-card-nombre { font-size:14.5px; color:#3a2e05; }
+ .gira-card-badges { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+ .gira-estado { font-size:12px; padding:3px 10px; border-radius:12px; white-space:nowrap; flex-shrink:0; font-weight:600; }
+ .gira-card-datos { margin-top:12px; border-top:1px solid #f0e6c8; }
+ .gira-fila {
+ display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+ padding:8px 2px; border-bottom:1px solid #f5eed7; font-size:13px;
+ }
+ .gira-fila:last-child { border-bottom:none; }
+ .gira-fila .gf-label { color:#a08a3f; flex-shrink:0; }
+ .gira-fila .gf-valor { color:#3a2e05; font-weight:600; text-align:right; }
+ .gira-card-acciones { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+
  @media(max-width:600px) {
  .container { padding: 12px; }
  }
@@ -257,25 +278,11 @@
  </div>
  </div>
 
- <!-- TABLA GIRAS -->
+ <!-- LISTA DE GIRAS (tarjetas, una por gira) -->
  <div class="card" style="border-left:3px solid #ffc107;">
  <div class="card-title">Giras registradas</div>
- <div class="tabla-wrap">
- <table>
- <thead><tr>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Nombre</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Fecha</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Hora</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Lugar</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Vol. req.</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Cupo</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Turnos</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Estado</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107"></th>
- </tr></thead>
- <tbody id="tabla-giras-body"><tr><td colspan="10" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
- </table>
+ <div id="tabla-giras-body" class="giras-lista">
+ <div style="text-align:center;color:var(--gris-medio);padding:18px 0;">Cargando...</div>
  </div>
  </div>
 </div>
