@@ -13,6 +13,19 @@ import {
 } from "../core/seguridad.js";
 
 const el  = id => document.getElementById(id);
+
+// Desplaza hasta un elemento dejando espacio para el topbar fijo,
+// para que el titulo y el primer campo del formulario queden visibles.
+function scrollAElemento(id, margenExtra = 16) {
+  const destino = el(id);
+  if (!destino) return;
+  requestAnimationFrame(() => {
+    const topbar = document.querySelector(".topbar");
+    const alturaTopbar = topbar ? topbar.getBoundingClientRect().height : 0;
+    const y = destino.getBoundingClientRect().top + window.pageYOffset - alturaTopbar - margenExtra;
+    window.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
+  });
+}
 const h = escaparHtml;
 const QRCode = window.QRCode;
 const Papa   = window.Papa;
@@ -335,7 +348,7 @@ window.editarActividad = function(id) {
   el("form-actividad-titulo").textContent = "Editar actividad";
   el("btn-cancelar-actividad").style.display = "inline-flex";
   activarTab("tab-actividades");
-  el("act-nombre").scrollIntoView({ behavior: "smooth" });
+  scrollAElemento("form-actividad-titulo");
 };
 
 window.toggleActividad = async function(id, estadoActual) {
