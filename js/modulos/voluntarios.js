@@ -5,7 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
-import { listarParticipantesParaGiras } from "../core/participantes-api.js";
+import { listarParticipantesParaGiras, notificarParticipantesGira } from "../core/participantes-api.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
 import {
   escaparAtributo,
@@ -1101,6 +1101,7 @@ function renderTablaGiras() {
         ${g.descripcion ? `<br/><small style="color:var(--gris-medio)">${h(g.descripcion)}</small>` : ""}
         ${g.colaboracion ? `<br/><small style="color:var(--gris-medio)">${iconoImg("manos")} ${h(g.colaboracion)}</small>` : ""}
         ${(g.participantes || []).length ? `<br/><small style="color:#856404;font-weight:600;">${g.participantes.length} participante${g.participantes.length === 1 ? "" : "s"} seleccionado${g.participantes.length === 1 ? "" : "s"}</small>` : ""}
+        ${(g.notificados || []).length ? `<br/><small style="color:var(--gris-medio);">${g.notificados.length} notificado${g.notificados.length === 1 ? "" : "s"} por correo</small>` : ""}
       </td>
       <td>${fmtFecha(g.fecha)}</td>
       <td>${h(g.area || "—")}</td>
@@ -1117,6 +1118,12 @@ function renderTablaGiras() {
       </td>
       <td style="white-space:nowrap;">
         <button class="btn btn-outline btn-sm" onclick="editarGira('${escaparAtributo(g.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
+        <button onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
+          ${(g.participantes || []).length ? "" : "disabled"}
+          style="background:#eaf4fb;color:#1f4e6b;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;margin-right:2px;"
+          title="Notificar participantes por correo">
+          Notificar participantes
+        </button>
         <button onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" style="background:${g.activo ? "var(--rojo)" : "#ffc107"};color:${g.activo ? "#fff" : "#856404"};border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
           ${g.activo ? "Desactivar" : "Activar"}
         </button>
@@ -1320,6 +1327,23 @@ window.eliminarGira = async function(id) {
     renderTablaGiras();
     mostrarAlerta("success", "Gira eliminada.");
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
+};
+
+window.notificarGira = async function(id) {
+  const btn = el(`btn-notificar-${id}`);
+  if (!btn) return;
+  const textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Notificando...";
+  try {
+    const resultado = await notificarParticipantesGira(id);
+    mostrarAlerta(resultado.enviados > 0 ? "success" : "aviso", resultado.mensaje);
+    await cargarGiras();
+  } catch (e) {
+    mostrarAlerta("error", "Error al notificar: " + e.message);
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
 };
 
 el("btn-cancelar-gira")?.addEventListener("click", limpiarFormGira);

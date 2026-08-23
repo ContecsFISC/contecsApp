@@ -90,3 +90,69 @@ export async function listarParticipantesParaGiras() {
     throw new Error(msg);
   }
 }
+
+const ERRORES_NOTIFICAR_GIRA = {
+  "unauthenticated":   "Debes iniciar sesión para notificar a la gira.",
+  "permission-denied": "No tienes permiso para notificar esta gira.",
+  "not-found":         "La gira ya no existe.",
+  "internal":          "Error al notificar a los participantes de la gira.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Envía el correo de notificación (punto 3 del plan de GIRAS) solo a los
+// participantes de la gira que todavía no fueron notificados.
+export async function notificarParticipantesGira(giraId) {
+  try {
+    const fn = httpsCallable(functions, "notificarParticipantesGira");
+    const result = await fn({giraId});
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_NOTIFICAR_GIRA[error.code] || error.message || "Error inesperado al notificar la gira.";
+    throw new Error(msg);
+  }
+}
+
+const ERRORES_ACCESO_GIRA = {
+  "not-found":         "Código o clave incorrectos. Revisa el correo que recibiste de Giras.",
+  "permission-denied": "No estás en la lista de participantes de esta gira.",
+  "invalid-argument":  "Faltan datos para acceder a la información de la gira.",
+  "internal":          "Error del servidor. Intenta de nuevo en unos segundos.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Página pública public/gira.html — punto 4 del plan de GIRAS.
+export async function accederGiraParticipante(codigo, token, giraId) {
+  try {
+    const fn = httpsCallable(functions, "accederGiraParticipante");
+    const result = await fn({codigo, token, giraId});
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_ACCESO_GIRA[error.code] || error.message || "Error inesperado. Intenta de nuevo.";
+    throw new Error(msg);
+  }
+}
+
+const ERRORES_CHECKPOINT_GIRA = {
+  "unauthenticated":      "Debes iniciar sesión.",
+  "permission-denied":    "No tienes permiso para escanear en esta gira, o el QR no es válido.",
+  "not-found":            "QR no reconocido o la gira ya no existe.",
+  "failed-precondition":  "Este participante no está en la lista de esta gira.",
+  "already-exists":       "Este checkpoint ya fue registrado.",
+  "invalid-argument":     "El QR no trae datos de participante válidos.",
+  "internal":             "Error al registrar el checkpoint.",
+  "unavailable":          "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Check-in ("entrada") / check-out ("salida") de gira — punto 5 del plan.
+// NO valida pago.estado: si GIRAS ya seleccionó al participante, puede
+// abordar sin importar el estado de pago del congreso.
+export async function marcarCheckpointGira({giraId, codigo, token, tipo}) {
+  try {
+    const fn = httpsCallable(functions, "marcarCheckpointGira");
+    const result = await fn({giraId, codigo, token, tipo});
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_CHECKPOINT_GIRA[error.code] || error.message || "Error al registrar el checkpoint.";
+    throw new Error(msg);
+  }
+}

@@ -60,4 +60,20 @@ function cargarCorreoPagoAprobado(vars) {
   };
 }
 
-module.exports = {aplicarPlantilla, cargarCorreoPagoAprobado};
+function cargarCorreoNotificacionGira(vars) {
+  const raw = leer("correo-notificacion-gira.html");
+  const meta = parseMeta(raw);
+  const varsHtml = Object.fromEntries(
+      Object.entries(vars || {}).map(([key, value]) => [key, escaparHtml(value)]),
+  );
+  const htmlContent = aplicarPlantilla(raw, varsHtml);
+
+  return {
+    activo: meta.activo,
+    subject: aplicarPlantilla(meta.subject, vars),
+    htmlContent,
+    textContent: htmlATexto(htmlContent),
+  };
+}
+
+module.exports = {aplicarPlantilla, cargarCorreoPagoAprobado, cargarCorreoNotificacionGira};

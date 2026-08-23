@@ -7,8 +7,8 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
-const {linkPerfilParticipante} = require("./qr-participante");
-const {cargarCorreoPagoAprobado} = require("./plantillas");
+const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
+const {cargarCorreoPagoAprobado, cargarCorreoNotificacionGira} = require("./plantillas");
 
 initializeApp();
 
@@ -17,7 +17,7 @@ const bucket = getStorage().bucket();
 const {
   ejecutarOperacionFinanciera,
 } = require("./operaciones-financieras");
-const {ejecutarOperacionQr} = require("./operaciones-qr");
+const {ejecutarOperacionQr, marcarCheckpointGira} = require("./operaciones-qr");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 // La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
@@ -83,6 +83,21 @@ exports.ejecutarOperacionQr = onCall(
         if (error instanceof HttpsError) throw error;
         console.error("ejecutarOperacionQr:", error);
         throw new HttpsError("internal", "No se pudo registrar el escaneo.");
+      }
+    },
+);
+
+// Check-in/check-out de gira: función nueva y separada de ejecutarOperacionQr
+// a propósito (ver PLAN_GIRAS_Y_CSV.md, punto 5) — no valida pago.estado.
+exports.marcarCheckpointGira = onCall(
+    {region: "us-central1", maxInstances: 10},
+    async (request) => {
+      try {
+        return await marcarCheckpointGira(request);
+      } catch (error) {
+        if (error instanceof HttpsError) throw error;
+        console.error("marcarCheckpointGira:", error);
+        throw new HttpsError("internal", "No se pudo registrar el checkpoint de gira.");
       }
     },
 );
@@ -951,6 +966,214 @@ exports.listarParticipantesParaGiras = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("listarParticipantesParaGiras:", e);
         throw new HttpsError("internal", "Error al obtener la lista de participantes.");
+      }
+    },
+);
+
+function formatearFechaGira(fecha) {
+  try {
+    const d = fecha?.toDate ? fecha.toDate() : new Date(fecha);
+    if (Number.isNaN(d.getTime())) return "Por confirmar";
+    return d.toLocaleDateString("es-PA", {
+      weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "America/Panama",
+    });
+  } catch (e) {
+    return "Por confirmar";
+  }
+}
+
+async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
+  const codigo = participante.codigo;
+  const token = participante.token;
+  const correo = participante.correo;
+  const nombre = participante.nombreCompleto ||
+    `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
+  if (!codigo || !token || !correo) {
+    throw new Error("Participante sin codigo, token o correo");
+  }
+
+  const vars = {
+    nombre,
+    gira_nombre: gira.nombre || "Gira CONTECS",
+    gira_fecha: formatearFechaGira(gira.fecha),
+    gira_lugar: gira.lugar || "Por confirmar",
+    link_gira: linkGiraParticipante(codigo, token, giraId),
+  };
+
+  const plantilla = cargarCorreoNotificacionGira(vars);
+  if (!plantilla.activo) {
+    return {enviado: false, omitido: true};
+  }
+
+  const brevoResp = await enviarCorreoTransaccional({
+    sender: CORREO_REMITENTE,
+    to: [{email: correo, name: nombre}],
+    subject: plantilla.subject,
+    htmlContent: plantilla.htmlContent,
+    textContent: plantilla.textContent,
+  });
+
+  return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
+}
+
+// ─── GIRAS: notificación por correo a los participantes de una gira ────────
+// Disparo manual (botón "Notificar participantes"), separado de "Guardar
+// gira" a propósito — ver PLAN_GIRAS_Y_CSV.md, punto 3. Solo envía a los
+// participantes de la gira que todavía no fueron notificados (se guarda el
+// registro en gira.notificados), para no reenviar a todo el mundo cada vez
+// que GIRAS ajusta la lista y vuelve a hacer clic.
+exports.notificarParticipantesGira = onCall(
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
+    async (request) => {
+      try {
+        if (!request.auth?.uid) {
+          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+        }
+        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
+        const rol = snapUsuario.data()?.rol;
+        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
+          throw new HttpsError("permission-denied", "No tienes permiso para notificar esta gira.");
+        }
+
+        const giraId = validarTexto(request.data?.giraId, "giraId", {requerido: true, max: 200});
+        const giraRef = db.collection("giras_voluntarios").doc(giraId);
+        const giraSnap = await giraRef.get();
+        if (!giraSnap.exists) {
+          throw new HttpsError("not-found", "La gira ya no existe.");
+        }
+        const gira = giraSnap.data();
+        const participantesGira = Array.isArray(gira.participantes) ? gira.participantes : [];
+        if (participantesGira.length === 0) {
+          return {enviados: 0, omitidos: 0, mensaje: "Esta gira todavía no tiene participantes seleccionados."};
+        }
+
+        const yaNotificados = new Set(gira.notificados || []);
+        const pendientes = participantesGira.filter((p) => p?.id && !yaNotificados.has(p.id));
+
+        if (pendientes.length === 0) {
+          return {
+            enviados: 0,
+            omitidos: participantesGira.length,
+            mensaje: "Todos los participantes de esta gira ya fueron notificados.",
+          };
+        }
+
+        const resultados = await Promise.allSettled(pendientes.map(async (p) => {
+          const participanteSnap = await db.collection("participantes").doc(p.id).get();
+          if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
+          const resultado = await enviarCorreoNotificacionGira({
+            giraId, gira, participante: participanteSnap.data(),
+          });
+          if (resultado.omitido) throw new Error("plantilla_desactivada");
+          return p.id;
+        }));
+
+        const enviadosIds = resultados
+            .filter((r) => r.status === "fulfilled")
+            .map((r) => r.value);
+        const fallidos = resultados.filter((r) => r.status === "rejected").length;
+
+        if (enviadosIds.length > 0) {
+          await giraRef.update({
+            notificados: FieldValue.arrayUnion(...enviadosIds),
+            ultimaNotificacionEn: FieldValue.serverTimestamp(),
+          });
+        }
+
+        console.log("notificarParticipantesGira:", giraId, "enviados:", enviadosIds.length, "fallidos:", fallidos);
+
+        return {
+          enviados: enviadosIds.length,
+          fallidos,
+          omitidos: participantesGira.length - pendientes.length,
+          mensaje: fallidos > 0 ?
+            `Se notificó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.` :
+            `Se notificó a ${enviadosIds.length} participante(s) nuevo(s).`,
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("notificarParticipantesGira:", e);
+        throw new HttpsError("internal", "Error al notificar a los participantes de la gira.");
+      }
+    },
+);
+
+// ─── GIRAS: página pública de información de gira ───────────────────────────
+// Función pública nueva, separada de accederParticipante (ver
+// PLAN_GIRAS_Y_CSV.md, punto 4). Valida codigo+token igual que la credencial
+// del congreso, confirma que el participante esté en el array `participantes`
+// de la gira solicitada, y devuelve solo lo necesario para la página pública
+// de gira — nunca datos de pago ni comprobantes, para no mezclar los dos
+// conceptos de aprobación (pago del congreso vs. selección para la gira).
+exports.accederGiraParticipante = onCall(
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    async (request) => {
+      try {
+        const codigo = String(request.data?.codigo || "").trim().toUpperCase();
+        const token = String(request.data?.token || "").trim();
+        const giraId = String(request.data?.giraId || "").trim();
+
+        if (!codigo || !token || !giraId) {
+          throw new HttpsError("invalid-argument", "Faltan datos para acceder a la información de la gira.");
+        }
+        if (codigo.length > 30 || token.length > 64 || giraId.length > 200) {
+          throw new HttpsError("invalid-argument", "Credenciales inválidas.");
+        }
+
+        const snap = await db.collection("participantes")
+            .where("codigo", "==", codigo)
+            .where("token", "==", token)
+            .limit(1)
+            .get();
+        if (snap.empty) {
+          throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste de Giras.");
+        }
+        const participanteSnap = snap.docs[0];
+        const participante = participanteSnap.data();
+        const participanteId = participanteSnap.id;
+
+        const giraSnap = await db.collection("giras_voluntarios").doc(giraId).get();
+        if (!giraSnap.exists) {
+          throw new HttpsError("not-found", "La gira ya no existe.");
+        }
+        const gira = giraSnap.data();
+        const enGira = (gira.participantes || []).some((p) => p.id === participanteId);
+        if (!enGira) {
+          throw new HttpsError("permission-denied", "No estás en la lista de participantes de esta gira.");
+        }
+
+        const [entradaSnap, salidaSnap] = await Promise.all([
+          db.collection("asistencias_giras").doc(`${giraId}_${participanteId}_entrada`).get(),
+          db.collection("asistencias_giras").doc(`${giraId}_${participanteId}_salida`).get(),
+        ]);
+
+        return {
+          participante: {
+            nombreCompleto: participante.nombreCompleto ||
+              `${participante.nombre || ""} ${participante.apellido || ""}`.trim(),
+            codigo: participante.codigo,
+          },
+          gira: {
+            nombre: gira.nombre || null,
+            descripcion: gira.descripcion || null,
+            area: gira.area || null,
+            lugar: gira.lugar || null,
+            colaboracion: gira.colaboracion || null,
+            fechaTexto: formatearFechaGira(gira.fecha),
+          },
+          checkpoints: {
+            entrada: entradaSnap.exists ? {
+              marcadoEn: entradaSnap.data().marcadoEn?.toMillis?.() || null,
+            } : null,
+            salida: salidaSnap.exists ? {
+              marcadoEn: salidaSnap.data().marcadoEn?.toMillis?.() || null,
+            } : null,
+          },
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("accederGiraParticipante:", e);
+        throw new HttpsError("internal", "Error al consultar la información de la gira. Intenta de nuevo.");
       }
     },
 );

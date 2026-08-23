@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS 2026 — Mi Gira</title>
+ <style>
+ :root {
+ --oro: #856404;
+ --oro-oscuro: #5c4403;
+ --oro-claro: #c8960a;
+ --oro-fondo: #fff3cd;
+ --gris-texto: #1a2e1e;
+ --gris-suave: #f4f7f5;
+ --gris-borde: #d0dbd2;
+ --gris-medio: #8a9e8d;
+ --rojo: #c0392b;
+ --rojo-fondo: #fdedec;
+ --verde: #00722e;
+ --verde-fondo: #e8f5ec;
+ --azul: #2471a3;
+ --azul-fondo: #eaf4fb;
+ --radio: 12px;
+ --radio-sm: 8px;
+ --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+ --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+ }
+
+ * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+ body {
+ font-family: var(--fuente);
+ background: var(--gris-suave);
+ color: var(--gris-texto);
+ min-height: 100vh;
+ }
+
+ /* ── MENSAJE DE ENLACE INVÁLIDO ── */
+ .msg-wrap {
+ min-height: 100vh;
+ display: flex; flex-direction: column; align-items: center; justify-content: center;
+ padding: 24px 16px;
+ background: linear-gradient(160deg, var(--oro-oscuro) 0%, var(--oro) 60%, var(--oro-claro) 100%);
+ }
+ .msg-card {
+ background: #fff;
+ border-radius: 20px;
+ padding: 32px 24px;
+ width: 100%;
+ max-width: 400px;
+ text-align: center;
+ box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+ animation: fadeScaleIn 0.5s var(--ease-spring) both;
+ }
+ .msg-card .logo-circulo {
+ width: 80px; height: 80px;
+ background: #ffffff;
+ border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
+ margin: 0 auto 16px;
+ overflow: hidden;
+ box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+ }
+ .msg-card h1 { font-size: 19px; font-weight: 800; color: var(--oro-oscuro); margin-bottom: 10px; }
+ .msg-card p { font-size: 14px; color: var(--gris-medio); line-height: 1.6; }
+ .msg-alerta {
+ margin-top: 16px;
+ padding: 11px 14px;
+ border-radius: var(--radio-sm);
+ font-size: 13px;
+ background: var(--rojo-fondo);
+ color: var(--rojo);
+ border-left: 3px solid var(--rojo);
+ text-align: left;
+ }
+
+ /* ── PÁGINA DE GIRA ── */
+ .gira-wrap { display: none; }
+ .gira-wrap.visible { display: block; }
+
+ .hero-gira {
+ background: linear-gradient(160deg, var(--oro-oscuro) 0%, var(--oro) 70%, var(--oro-claro) 100%);
+ padding: 28px 20px 70px;
+ text-align: center;
+ position: relative;
+ overflow: hidden;
+ }
+ .hero-gira::before {
+ content: '';
+ position: absolute; inset: 0;
+ background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+ }
+ .hg-nombre { color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 4px; position: relative; }
+ .hg-participante { color: rgba(255,255,255,0.85); font-size: 14px; position: relative; }
+ .hg-tag {
+ display: inline-flex; align-items: center; gap: 6px;
+ padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+ margin-top: 12px; position: relative;
+ background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.35);
+ }
+
+ .container {
+ max-width: 480px;
+ margin: 0 auto;
+ padding: 0 16px 60px;
+ position: relative;
+ top: -42px;
+ }
+
+ .info-card {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ padding: 20px;
+ margin-bottom: 14px;
+ animation: cardIn 0.5s var(--ease-spring) both;
+ }
+ .ic-titulo {
+ font-size: 14px; font-weight: 700; color: var(--oro-oscuro);
+ margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+ }
+ .ic-fila {
+ display: flex; justify-content: space-between; align-items: flex-start;
+ padding: 9px 0; border-bottom: 1px solid var(--gris-borde);
+ gap: 12px; font-size: 14px;
+ }
+ .ic-fila:last-child { border-bottom: none; }
+ .ic-label { color: var(--gris-medio); font-size: 13px; flex-shrink: 0; }
+ .ic-valor { font-weight: 600; color: var(--gris-texto); text-align: right; word-break: break-word; }
+
+ /* ── AVISO INDEPENDENCIA DE PAGO ── */
+ .aviso-pago {
+ background: var(--azul-fondo);
+ border: 1.5px solid #85c1e9;
+ border-radius: var(--radio);
+ padding: 14px 16px;
+ font-size: 12.5px;
+ color: #1f4e6b;
+ line-height: 1.6;
+ margin-bottom: 14px;
+ animation: cardIn 0.5s var(--ease-spring) 0.05s both;
+ }
+
+ /* ── CHECKPOINTS ── */
+ .checkpoint-card {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ padding: 20px;
+ margin-bottom: 14px;
+ animation: cardIn 0.5s var(--ease-spring) 0.1s both;
+ }
+ .cp-fila {
+ display: flex; align-items: center; gap: 12px;
+ padding: 12px 0; border-bottom: 1px solid var(--gris-borde);
+ }
+ .cp-fila:last-child { border-bottom: none; }
+ .cp-icono {
+ width: 38px; height: 38px; border-radius: 50%;
+ display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+ }
+ .cp-icono.pendiente { background: var(--gris-suave); color: var(--gris-medio); }
+ .cp-icono.hecho { background: var(--verde-fondo); color: var(--verde); }
+ .cp-texto-titulo { font-size: 14px; font-weight: 700; color: var(--gris-texto); }
+ .cp-texto-sub { font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+
+ .ayuda-card {
+ background: var(--oro-fondo);
+ border-radius: var(--radio);
+ padding: 16px;
+ font-size: 13px;
+ color: var(--oro-oscuro);
+ line-height: 1.6;
+ margin-bottom: 14px;
+ }
+
+ .loading-wrap {
+ min-height: 100vh;
+ display: flex; align-items: center; justify-content: center;
+ background: var(--gris-suave);
+ }
+ .loading-box { text-align: center; animation: fadeIn 0.3s both; }
+ @keyframes spin { to { transform: rotate(360deg); } }
+ .spinner-grande {
+ width: 48px; height: 48px;
+ border: 3px solid var(--oro-fondo);
+ border-top-color: var(--oro);
+ border-radius: 50%;
+ animation: spin 0.8s linear infinite;
+ margin: 0 auto 16px;
+ }
+ .loading-txt { font-size: 14px; color: var(--gris-medio); }
+
+ @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+ @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+ @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+ .footer { text-align: center; padding: 20px 16px 40px; font-size: 12px; color: var(--gris-medio); }
+ </style>
+</head>
+<body>
+
+<!-- CARGANDO -->
+<div class="loading-wrap" id="loading-wrap">
+ <div class="loading-box">
+ <div class="spinner-grande"></div>
+ <div class="loading-txt">Cargando tu gira...</div>
+ </div>
+</div>
+
+<!-- ENLACE INVÁLIDO / ERROR -->
+<div class="msg-wrap" id="msg-wrap" style="display:none;">
+ <div class="msg-card">
+ <div class="logo-circulo">
+ <img src="../logocontecs.png" alt="CONTECS"
+ style="width:54px;height:54px;object-fit:contain;"
+ onerror="this.style.display='none';this.parentElement.innerHTML=''"/>
+ </div>
+ <h1>CONTECS 2026 — Giras</h1>
+ <p>Este enlace no es válido o ya expiró.<br/>Usa el enlace que recibiste en el correo de Giras.</p>
+ <div class="msg-alerta" id="msg-alerta" style="display:none;"></div>
+ </div>
+</div>
+
+<!-- PÁGINA DE GIRA -->
+<div class="gira-wrap" id="gira-wrap">
+
+ <div class="hero-gira">
+ <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
+ <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);">
+ <img src="../logocontecs.png" alt="CONTECS"
+ style="width:74px;height:74px;object-fit:contain;"
+ onerror="this.style.display='none';"/>
+ </div>
+ </div>
+ <div class="hg-nombre" id="hg-nombre">—</div>
+ <div class="hg-participante" id="hg-participante">—</div>
+ <div class="hg-tag">Giras CONTECS 2026</div>
+ </div>
+
+ <div class="container">
+
+ <!-- AVISO: independencia del pago -->
+ <div class="aviso-pago">
+ Tu participación en esta gira <strong>no depende del estado de pago</strong> de tu
+ inscripción al congreso. La información de esta página es exclusivamente sobre
+ logística de la gira.
+ </div>
+
+ <!-- DATOS DE LA GIRA -->
+ <div class="info-card">
+ <div class="ic-titulo">Detalles de la gira</div>
+ <div class="ic-fila"><span class="ic-label">Descripción</span><span class="ic-valor" id="d-descripcion">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Fecha</span><span class="ic-valor" id="d-fecha">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Tipo</span><span class="ic-valor" id="d-area">—</span></div>
+ <div class="ic-fila"><span class="ic-label">Lugar</span><span class="ic-valor" id="d-lugar">—</span></div>
+ <div class="ic-fila" id="row-colaboracion" style="display:none;"><span class="ic-label">Colaboración</span><span class="ic-valor" id="d-colaboracion">—</span></div>
+ </div>
+
+ <!-- CHECK-IN / CHECK-OUT -->
+ <div class="checkpoint-card">
+ <div class="ic-titulo">Tu estado en la gira</div>
+ <div class="cp-fila">
+ <div class="cp-icono" id="cp-icono-entrada">
+ <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+ </div>
+ <div>
+ <div class="cp-texto-titulo">Entrada</div>
+ <div class="cp-texto-sub" id="cp-texto-entrada">Todavía no registrada</div>
+ </div>
+ </div>
+ <div class="cp-fila">
+ <div class="cp-icono" id="cp-icono-salida">
+ <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+ </div>
+ <div>
+ <div class="cp-texto-titulo">Salida</div>
+ <div class="cp-texto-sub" id="cp-texto-salida">Todavía no registrada</div>
+ </div>
+ </div>
+ </div>
+
+ <div class="ayuda-card">
+ <strong>¿Tienes alguna duda sobre la gira?</strong> Comunícate con el equipo de Giras de CONTECS.
+ <br/><br/>
+ <a href="mailto:congresofisc@utp.ac.pa" style="color:var(--oro-oscuro);font-weight:700;">congresofisc@utp.ac.pa</a>
+ </div>
+
+ <div class="footer">
+ CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
+ Universidad Tecnológica de Panamá
+ </div>
+
+ </div>
+</div>
+
+<script type="module">
+import { accederGiraParticipante } from "../js/core/participantes-api.js";
+
+const el = id => document.getElementById(id);
+
+function fmtHora(ms) {
+ if (!ms) return null;
+ return new Date(ms).toLocaleString("es-PA", {
+ day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+ });
+}
+
+function mostrarError(msg) {
+ el("loading-wrap").style.display = "none";
+ el("msg-wrap").style.display = "flex";
+ if (msg) {
+ el("msg-alerta").textContent = msg;
+ el("msg-alerta").style.display = "block";
+ }
+}
+
+async function init() {
+ const params = new URLSearchParams(window.location.search);
+ const codigo = params.get("c");
+ const token = params.get("t");
+ const giraId = params.get("g");
+
+ if (!codigo || !token || !giraId) {
+ mostrarError(null);
+ return;
+ }
+
+ try {
+ const data = await accederGiraParticipante(codigo.toUpperCase(), token, giraId);
+ renderGira(data);
+ } catch (err) {
+ mostrarError(err.message || "Error de conexión. Verifica tu internet e intenta de nuevo.");
+ }
+}
+
+function renderCheckpoint(tipo, info) {
+ const icono = el(`cp-icono-${tipo}`);
+ const texto = el(`cp-texto-${tipo}`);
+ if (info?.marcadoEn) {
+ icono.classList.add("hecho");
+ texto.textContent = `Registrada — ${fmtHora(info.marcadoEn)}`;
+ } else {
+ icono.classList.add("pendiente");
+ texto.textContent = "Todavía no registrada";
+ }
+}
+
+function renderGira(data) {
+ el("loading-wrap").style.display = "none";
+ el("gira-wrap").classList.add("visible");
+
+ const p = data.participante || {};
+ const g = data.gira || {};
+
+ el("hg-nombre").textContent = g.nombre || "Gira CONTECS";
+ el("hg-participante").textContent = p.nombreCompleto ? `${p.nombreCompleto} · ${p.codigo || ""}` : (p.codigo || "—");
+
+ el("d-descripcion").textContent = g.descripcion || "—";
+ el("d-fecha").textContent = g.fechaTexto || "Por confirmar";
+ el("d-area").textContent = g.area || "—";
+ el("d-lugar").textContent = g.lugar || "Por confirmar";
+ if (g.colaboracion) {
+ el("row-colaboracion").style.display = "flex";
+ el("d-colaboracion").textContent = g.colaboracion;
+ }
+
+ renderCheckpoint("entrada", data.checkpoints?.entrada);
+ renderCheckpoint("salida", data.checkpoints?.salida);
+}
+
+init();
+</script>
+</body>
+</html>

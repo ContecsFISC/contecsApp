@@ -12,6 +12,10 @@ const ROLES_CONGRESO = new Set([
 const ROLES_VOLUNTARIADO = new Set([
   "ceo", "junta_principal", "voluntariado",
 ]);
+// Mismo set que ROLES_LISTAR_PARTICIPANTES_GIRAS en functions/index.js —
+// quienes pueden armar la lista de una gira son los únicos que pueden
+// marcar sus checkpoints de entrada/salida.
+const ROLES_GIRAS = new Set(["ceo", "junta_principal", "giras"]);
 
 function idValido(valor, campo) {
   const id = typeof valor === "string" ? valor.trim() : "";
@@ -358,6 +362,105 @@ async function asistenciaVoluntario(request) {
   });
 }
 
+// ─── GIRAS: check-in / check-out (doble checkpoint) ─────────────────────────
+// Función nueva y separada de asistenciaParticipante a propósito (ver
+// PLAN_GIRAS_Y_CSV.md, punto 5): esta NO bloquea por pago.estado — si GIRAS
+// ya seleccionó al participante para la gira, puede marcar entrada/salida sin
+// importar el estado de pago del congreso. El llamador (frontend de
+// lecturaQRGiras) usa `pagoAprobado` en la respuesta solo para pintar una
+// advertencia informativa, nunca para bloquear.
+//
+// El QR que trae el participante codifica codigo+token de su credencial
+// (mismo formato que perfil.html) — no un ID de Firestore — porque el rol
+// "giras" no tiene lectura directa de /participantes (firestore.rules). Por
+// eso la validación de identidad ocurre aquí, con Admin SDK.
+async function marcarCheckpointGira(request) {
+  const actorId = await validarActor(request, ROLES_GIRAS);
+  const data = request.data || {};
+  const giraId = idValido(data.giraId, "gira");
+  const codigo = String(data.codigo || "").trim().toUpperCase();
+  const token = String(data.token || "").trim();
+  const tipo = data.tipo === "salida" ? "salida" : "entrada";
+
+  if (!codigo || !token) {
+    throw new HttpsError("invalid-argument", "El QR no trae un código y clave de participante válidos.");
+  }
+  if (codigo.length > 30 || token.length > 64) {
+    throw new HttpsError("invalid-argument", "Credenciales inválidas.");
+  }
+
+  const giraRef = db.collection("giras_voluntarios").doc(giraId);
+  const giraSnap = await giraRef.get();
+  if (!giraSnap.exists) {
+    throw new HttpsError("not-found", "La gira ya no existe.");
+  }
+  const gira = giraSnap.data();
+
+  const participanteQuery = await db.collection("participantes")
+      .where("codigo", "==", codigo)
+      .limit(1)
+      .get();
+  if (participanteQuery.empty) {
+    throw new HttpsError("not-found", "QR no reconocido. Participante no encontrado.");
+  }
+  const participanteSnap = participanteQuery.docs[0];
+  const participante = participanteSnap.data();
+  if (String(participante.token || "") !== token) {
+    throw new HttpsError("permission-denied", "QR inválido: el código de acceso no coincide.");
+  }
+  const participanteId = participanteSnap.id;
+
+  const enGira = (gira.participantes || []).some((p) => p.id === participanteId);
+  if (!enGira) {
+    throw new HttpsError(
+        "failed-precondition",
+        "Este participante no está en la lista de esta gira.",
+    );
+  }
+
+  const asistenciaRef = db.collection("asistencias_giras")
+      .doc(`${giraId}_${participanteId}_${tipo}`);
+  const nombreParticipanteVal = nombreParticipante(participante);
+
+  return db.runTransaction(async (tx) => {
+    const asistenciaSnap = await tx.get(asistenciaRef);
+    if (asistenciaSnap.exists) {
+      throw new HttpsError(
+          "already-exists",
+          tipo === "entrada" ?
+            "La entrada ya fue registrada para este participante." :
+            "La salida ya fue registrada para este participante.",
+      );
+    }
+    if (tipo === "salida") {
+      const entradaRef = db.collection("asistencias_giras")
+          .doc(`${giraId}_${participanteId}_entrada`);
+      const entradaSnap = await tx.get(entradaRef);
+      if (!entradaSnap.exists) {
+        throw new HttpsError("failed-precondition", "Registra primero la entrada de este participante.");
+      }
+    }
+    tx.set(asistenciaRef, {
+      giraId,
+      giraNombre: gira.nombre || null,
+      participanteId,
+      participanteNombre: nombreParticipanteVal,
+      participanteCodigo: participante.codigo || null,
+      tipo,
+      marcadoEn: FieldValue.serverTimestamp(),
+      marcadoPor: actorId,
+    });
+    return {
+      ok: true,
+      tipo,
+      participanteNombre: nombreParticipanteVal,
+      participanteCodigo: participante.codigo || null,
+      // Puramente informativo para el frontend — nunca bloquea el check-in.
+      pagoAprobado: participante.pago?.estado === "aprobado",
+    };
+  });
+}
+
 async function ejecutarOperacionQr(request) {
   switch (request.data?.tipo) {
     case "asistencia_participante": return asistenciaParticipante(request);
@@ -368,4 +471,4 @@ async function ejecutarOperacionQr(request) {
   }
 }
 
-module.exports = {ejecutarOperacionQr};
+module.exports = {ejecutarOperacionQr, marcarCheckpointGira};

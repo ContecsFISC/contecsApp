@@ -230,6 +230,14 @@ service cloud.firestore {
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras']);
     }
 
+    // Check-in/check-out de gira (doble checkpoint) — escritura únicamente
+    // vía Cloud Function marcarCheckpointGira (Admin SDK). No bloquea por
+    // pago.estado a propósito: ver PLAN_GIRAS_Y_CSV.md, punto 5.
+    match /asistencias_giras/{id} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+
     match /asignaciones_voluntarios/{id} {
       allow read: if isStaff();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);

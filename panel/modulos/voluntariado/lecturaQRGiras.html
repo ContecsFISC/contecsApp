@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Escaneo Giras</title>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20260822.1"/>
+ <script src="../../../js/libs/html5-qrcode.min.js"></script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("gestionar_giras");
+ </script>
+ <style>
+ .btn-primary { background: linear-gradient(135deg, #856404, #ffc107); box-shadow: 0 4px 12px rgba(133,100,4,0.3); color: #fff; }
+ .btn-primary:hover { opacity: 0.88; }
+ .btn-outline { color: #856404; border-color: #856404; }
+ .btn-outline:hover { background: #fff3cd; color: #856404; }
+ .card-title { color: #856404; }
+ .container { max-width: 560px; }
+
+ #reader { width: 100%; border-radius: var(--radio); overflow: hidden; }
+
+ .scanner-overlay { position: relative; }
+ .scanner-overlay.activo::after {
+ content: ''; position: absolute; top: 50%; left: 50%;
+ transform: translate(-50%,-50%);
+ width: 200px; height: 200px;
+ border: 3px solid #ffc107; border-radius: 12px;
+ pointer-events: none;
+ box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+ }
+
+ .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid #ffc107; }
+ .info-nombre { font-size: 22px; font-weight: 700; color: #856404; margin-bottom: 6px; }
+ .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
+ .info-fila strong { color: var(--gris-texto); }
+
+ .estado-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+ .estado-entrada { background: #fff3cd; color: #856404; }
+ .estado-salida { background: var(--verde-fondo); color: var(--verde-oscuro); }
+
+ /* Advertencia amarilla de pago pendiente — puramente informativa, sin botón */
+ .aviso-pago-pendiente {
+ background: #fff3cd; border: 1.5px solid #ffc107; border-radius: var(--radio-sm);
+ padding: 10px 14px; font-size: 12.5px; color: #856404; margin-top: 10px;
+ display: flex; align-items: center; gap: 8px;
+ }
+
+ /* Selector de tipo (entrada/salida) */
+ .tipo-selector { display: flex; gap: 8px; margin-top: 6px; }
+ .tipo-btn {
+ flex: 1; padding: 10px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde);
+ background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gris-medio);
+ text-align: center; transition: all 0.15s;
+ }
+ .tipo-btn.selected.entrada { border-color: #ffc107; background: #fff3cd; color: #856404; }
+ .tipo-btn.selected.salida  { border-color: var(--verde-claro); background: var(--verde-fondo); color: var(--verde-oscuro); }
+
+ #log-recientes td { font-size: 12px; }
+ .log-entrada { color: #856404; font-weight: 600; }
+ .log-salida  { color: var(--verde-oscuro); font-weight: 600; }
+
+ @media(max-width:600px) {
+   .scanner-overlay { border-radius:14px; overflow:hidden; background:#101914; }
+   .scanner-overlay.activo::after { width:min(68vw,220px); height:min(68vw,220px); }
+   .info-box { padding:17px 15px; border-left:0; border-top:3px solid #ffc107; border-radius:16px; }
+   .info-nombre { font-size:19px; line-height:1.25; }
+   #log-recientes td { white-space:nowrap; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Escaneo — Giras</h1>
+ <a href="giras.html" class="btn-volver" title="Volver a giras" aria-label="Volver a giras"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container anim-page-in">
+ <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+ <!-- CONFIGURACIÓN SESIÓN -->
+ <div class="card" style="border:2px solid #ffc107;">
+ <div class="card-title">Configuración de sesión</div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Gira</label>
+ <select id="sel-gira-qr"><option value="">— Selecciona una gira —</option></select>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Tipo de checkpoint</label>
+ <div class="tipo-selector">
+ <button type="button" class="tipo-btn entrada" id="btn-tipo-entrada" onclick="seleccionarTipo('entrada')">Entrada</button>
+ <button type="button" class="tipo-btn salida" id="btn-tipo-salida" onclick="seleccionarTipo('salida')">Salida</button>
+ </div>
+ </div>
+ <div id="sesion-activa" style="font-size:13px;color:#856404;font-weight:600;margin-top:4px;"></div>
+ </div>
+
+ <!-- CÁMARA -->
+ <div class="card" style="border-left:2px solid #ffc107;">
+ <div class="card-title">Escanear QR del participante</div>
+ <div class="scanner-overlay">
+ <div id="reader"></div>
+ </div>
+ <div style="margin-top:12px;display:flex;gap:8px;">
+ <button class="btn btn-primary" id="btn-iniciar" style="flex:1"
+   onclick="solicitarCamara()">
+   Abrir cámara
+ </button>
+ <button class="btn btn-outline btn-sm" id="btn-detener" style="width:auto;display:none">Detener</button>
+ </div>
+ <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
+   Apunta la cámara trasera a la credencial QR del participante
+ </p>
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
+   Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
+ </div>
+ </div>
+ <script>
+ function solicitarCamara() {
+   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+     document.getElementById('camara-aviso').style.display = 'block';
+     return;
+   }
+   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+     .then(stream => {
+       stream.getTracks().forEach(t => t.stop());
+       document.getElementById('btn-iniciar').click();
+     })
+     .catch(() => {
+       document.getElementById('camara-aviso').style.display = 'block';
+     });
+ }
+ document.getElementById('btn-iniciar').removeAttribute('onclick');
+ </script>
+
+ <!-- RESULTADO DEL ESCANEO -->
+ <div id="resultado-box" style="display:none;">
+ <div class="info-box">
+ <div class="info-nombre" id="res-nombre"></div>
+ <div class="info-fila"><span></span><strong id="res-codigo"></strong></div>
+
+ <div style="margin-top:14px;">
+ <span id="res-estado-badge" class="estado-badge"></span>
+ </div>
+
+ <div class="aviso-pago-pendiente" id="aviso-pago" style="display:none;">
+ ⚠️ Usuario aún sin pago aprobado — el check-in se registra igual, esto es solo informativo para el staff.
+ </div>
+
+ <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+ <button class="btn btn-primary" id="btn-confirmar" style="flex:1">Confirmar</button>
+ <button class="btn btn-outline btn-sm" id="btn-cancelar-scan" style="width:auto">Cancelar</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- LOG SESIÓN -->
+ <div class="card" style="margin-top:20px;border:2px solid #ffc107;">
+ <div class="card-title">Últimos registros de esta sesión</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Participante</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Hora</th>
+ </tr></thead>
+ <tbody id="log-recientes"><tr><td colspan="3" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/lecturaQRGiras.js"></script>
+</body>
+</html>
