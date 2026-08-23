@@ -982,6 +982,16 @@ function formatearFechaGira(fecha) {
   }
 }
 
+// Convierte "HH:MM" (24h, como devuelve un <input type="time">) a un texto
+// legible en formato de 12 horas, ej. "08:00" -> "8:00 a.m.".
+function formatearHoraGira(hora) {
+  if (!hora || typeof hora !== "string" || !/^\d{2}:\d{2}$/.test(hora)) return null;
+  const [h, m] = hora.split(":").map(Number);
+  const periodo = h < 12 ? "a.m." : "p.m.";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${periodo}`;
+}
+
 async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
   const codigo = participante.codigo;
   const token = participante.token;
@@ -996,6 +1006,7 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
     nombre,
     gira_nombre: gira.nombre || "Gira CONTECS",
     gira_fecha: formatearFechaGira(gira.fecha),
+    gira_hora: formatearHoraGira(gira.hora) || "Por confirmar",
     gira_lugar: gira.lugar || "Por confirmar",
     link_gira: linkGiraParticipante(codigo, token, giraId),
   };
@@ -1106,7 +1117,7 @@ exports.notificarParticipantesGira = onCall(
 // de gira — nunca datos de pago ni comprobantes, para no mezclar los dos
 // conceptos de aprobación (pago del congreso vs. selección para la gira).
 exports.accederGiraParticipante = onCall(
-    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    {region: "us-central1", maxInstances: 20, invoker: "public"},
     async (request) => {
       try {
         const codigo = String(request.data?.codigo || "").trim().toUpperCase();
@@ -1160,6 +1171,7 @@ exports.accederGiraParticipante = onCall(
             lugar: gira.lugar || null,
             colaboracion: gira.colaboracion || null,
             fechaTexto: formatearFechaGira(gira.fecha),
+            horaTexto: formatearHoraGira(gira.hora),
           },
           checkpoints: {
             entrada: entradaSnap.exists ? {

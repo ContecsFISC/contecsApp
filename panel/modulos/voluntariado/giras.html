@@ -97,6 +97,52 @@
  .chip-participante button {
  background:none; border:none; cursor:pointer; color:var(--rojo); font-size:14px; line-height:1; padding:0 2px;
  }
+
+ /* ── Botones de acceso rápido (encabezado) ── */
+ .btn-acceso-rapido {
+ display: inline-flex; align-items: center; gap: 8px;
+ padding: 10px 18px; border-radius: 12px;
+ font-size: 13.5px; font-weight: 700; text-decoration: none;
+ border: none; cursor: pointer;
+ transition: transform 0.15s, box-shadow 0.15s;
+ }
+ .btn-acceso-rapido:hover { transform: translateY(-2px); }
+ .btn-acceso-rapido:active { transform: translateY(0); }
+ .btn-acceso-rapido.dorado {
+ background: linear-gradient(135deg, #856404, #ffc107);
+ color: #fff;
+ box-shadow: 0 4px 14px rgba(133,100,4,0.28);
+ }
+ .btn-acceso-rapido.dorado:hover { box-shadow: 0 6px 18px rgba(133,100,4,0.38); }
+ .btn-acceso-rapido.claro {
+ background: #fff3cd;
+ color: #856404;
+ box-shadow: 0 2px 8px rgba(133,100,4,0.12);
+ border: 1.5px solid #ffe293;
+ }
+ .btn-acceso-rapido.claro:hover { background: #ffecb3; box-shadow: 0 4px 12px rgba(133,100,4,0.18); }
+
+ /* ── Botones de acción por fila (tabla de giras) ── */
+ .acciones-gira { display: flex; flex-wrap: wrap; gap: 6px; }
+ .btn-fila {
+ display: inline-flex; align-items: center; gap: 5px;
+ padding: 6px 12px; border-radius: 20px;
+ font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px;
+ border: none; cursor: pointer; white-space: nowrap;
+ transition: transform 0.12s, box-shadow 0.12s, opacity 0.12s;
+ box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+ }
+ .btn-fila:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.14); }
+ .btn-fila:active { transform: translateY(0); }
+ .btn-fila:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+ .btn-fila svg { flex-shrink: 0; }
+ .btn-fila.editar { background: #eef1f5; color: #3f4b5c; }
+ .btn-fila.editar:hover:not(:disabled) { background: #e1e6ec; }
+ .btn-fila.notificar { background: linear-gradient(135deg, #2471a3, #5dade2); color: #fff; }
+ .btn-fila.activar { background: linear-gradient(135deg, #17824e, #27ae60); color: #fff; }
+ .btn-fila.desactivar { background: linear-gradient(135deg, #a93226, #c0392b); color: #fff; }
+ .btn-fila.eliminar { background: #fdecea; color: #c0392b; }
+ .btn-fila.eliminar:hover:not(:disabled) { background: #fbd7d3; }
  </style>
 </head>
 <body>
@@ -113,10 +159,12 @@
 
  <!-- ACCESO RÁPIDO CALENDARIO Y ESCANEO -->
  <div style="margin-bottom:16px;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
- <a href="lecturaQRGiras.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:#856404;border-color:#ffc107;">
+ <a href="lecturaQRGiras.html" class="btn-acceso-rapido dorado">
+ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M17 21v.01M21 21h.01M14 21v-3"/></svg>
  Escanear check-in / check-out
  </a>
- <a href="calendario.html" class="btn btn-outline" style="width:auto;display:inline-flex;align-items:center;gap:8px;color:#856404;border-color:#ffc107;">
+ <a href="calendario.html" class="btn-acceso-rapido claro">
+ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
  Ver calendario de eventos
  </a>
  </div>
@@ -132,10 +180,14 @@
  <label style="color:#856404;">Descripción</label>
  <textarea id="gira-descripcion" rows="2" placeholder="Descripción breve"></textarea>
  </div>
-<div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+<div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
  <div class="form-groupE">
  <label style="color:#856404;">Fecha *</label>
  <input type="date" id="gira-fecha"/>
+ </div>
+ <div class="form-groupE">
+ <label style="color:#856404;">Hora</label>
+ <input type="time" id="gira-hora"/>
  </div>
  <div class="form-groupE">
  <label style="color:#856404;">Tipo de gira *</label>
@@ -190,6 +242,7 @@
  <thead><tr>
  <th style="color:#856404;border-bottom:2px solid #ffc107">Nombre</th>
  <th style="color:#856404;border-bottom:2px solid #ffc107">Fecha</th>
+ <th style="color:#856404;border-bottom:2px solid #ffc107">Hora</th>
  <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
  <th style="color:#856404;border-bottom:2px solid #ffc107">Lugar</th>
  <th style="color:#856404;border-bottom:2px solid #ffc107">Vol. req.</th>
@@ -198,7 +251,7 @@
  <th style="color:#856404;border-bottom:2px solid #ffc107">Estado</th>
  <th style="color:#856404;border-bottom:2px solid #ffc107"></th>
  </tr></thead>
- <tbody id="tabla-giras-body"><tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+ <tbody id="tabla-giras-body"><tr><td colspan="10" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
  </table>
  </div>
  </div>

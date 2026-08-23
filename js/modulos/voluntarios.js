@@ -162,6 +162,16 @@ function fmtHora(ts) {
   return d.toLocaleTimeString("es-PA", { hour: "2-digit", minute: "2-digit" });
 }
 
+// Convierte "HH:MM" (24h, valor crudo de <input type="time">) a 12h legible.
+function fmtHora12(horaStr) {
+  if (!horaStr || typeof horaStr !== "string") return "—";
+  const [hh, mm] = horaStr.split(":").map(Number);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return "—";
+  const periodo = hh < 12 ? "a.m." : "p.m.";
+  const h12 = hh % 12 === 0 ? 12 : hh % 12;
+  return `${h12}:${String(mm).padStart(2, "0")} ${periodo}`;
+}
+
 // ─── TABS ────────────────────────────────────────────────────────────────────
 const TAB_PERMISOS = {
   "tab-actividades":  "gestionar_actividades",
@@ -1091,7 +1101,7 @@ function renderTablaGiras() {
   const tb = el("tabla-giras-body");
   if (!tb) return;
   if (!giras.length) {
-    tb.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Sin giras registradas. Crea la primera usando el formulario.</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="10" style="text-align:center;color:var(--gris-medio)">Sin giras registradas. Crea la primera usando el formulario.</td></tr>`;
     return;
   }
   tb.innerHTML = giras.map(g => `
@@ -1104,6 +1114,7 @@ function renderTablaGiras() {
         ${(g.notificados || []).length ? `<br/><small style="color:var(--gris-medio);">${g.notificados.length} notificado${g.notificados.length === 1 ? "" : "s"} por correo</small>` : ""}
       </td>
       <td>${fmtFecha(g.fecha)}</td>
+      <td>${g.hora ? h(fmtHora12(g.hora)) : "—"}</td>
       <td>${h(g.area || "—")}</td>
       <td>${h(g.lugar || "—")}</td>
       <td style="text-align:center;">${g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"}</td>
@@ -1116,19 +1127,27 @@ function renderTablaGiras() {
           ${g.activo ? "Activa" : "Inactiva"}
         </span>
       </td>
-      <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="editarGira('${escaparAtributo(g.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
-        <button onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
-          ${(g.participantes || []).length ? "" : "disabled"}
-          style="background:#eaf4fb;color:#1f4e6b;border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;margin-right:2px;"
-          title="Notificar participantes por correo">
-          Notificar participantes
-        </button>
-        <button onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" style="background:${g.activo ? "var(--rojo)" : "#ffc107"};color:${g.activo ? "#fff" : "#856404"};border:none;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;">
-          ${g.activo ? "Desactivar" : "Activar"}
-        </button>
-        <button onclick="eliminarGira('${escaparAtributo(g.id)}')"
-          style="background:#6b7280;color:#fff;border:none;border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12px;margin-left:2px;" title="Eliminar">${iconoImg("eliminar")}</button>
+      <td>
+        <div class="acciones-gira">
+          <button class="btn-fila editar" onclick="editarGira('${escaparAtributo(g.id)}')" title="Editar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
+            ${(g.participantes || []).length ? "" : "disabled"}
+            title="Notificar participantes por correo">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            Notificar
+          </button>
+          <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            ${g.activo ? "Desactivar" : "Activar"}
+          </button>
+          <button class="btn-fila eliminar" onclick="eliminarGira('${escaparAtributo(g.id)}')" title="Eliminar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Eliminar
+          </button>
+        </div>
       </td>
     </tr>`).join("");
 }
@@ -1244,11 +1263,13 @@ el("overlay-part")?.addEventListener("click", cerrarSheetParticipantesGira);
 el("btn-guardar-gira")?.addEventListener("click", async () => {
   const nombre = el("gira-nombre").value.trim();
   const fecha  = el("gira-fecha").value;
+  const hora   = el("gira-hora").value; // "HH:MM" o "" si no se puso
   const area   = el("gira-area").value;
   if (!nombre || !fecha || !area) { mostrarAlerta("error", "Nombre, fecha y tipo son obligatorios."); return; }
   const data = {
     nombre, descripcion: el("gira-descripcion").value.trim(),
-    fecha: new Date(fecha + "T12:00:00"), area,
+    fecha: new Date(fecha + "T" + (hora || "12:00") + ":00"),
+    hora: hora || null, area,
     lugar:          el("gira-lugar").value.trim(),
     voluntariosReq: parseInt(el("gira-voluntarios-req").value) || 0,
     cupo:           parseInt(el("gira-cupo").value) || null,
@@ -1278,6 +1299,7 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
 
 function limpiarFormGira() {
   el("gira-nombre").value = el("gira-descripcion").value = el("gira-fecha").value = "";
+  el("gira-hora").value = "";
   el("gira-area").value = el("gira-lugar").value = "";
   el("gira-voluntarios-req").value = el("gira-colaboracion").value = "";
   el("gira-cupo").value = "";
@@ -1303,6 +1325,7 @@ window.editarGira = function(id) {
     const d = g.fecha.toDate ? g.fecha.toDate() : new Date(g.fecha);
     el("gira-fecha").value = d.toISOString().split("T")[0];
   }
+  el("gira-hora").value = g.hora || "";
   participantesGiraSeleccionados = (g.participantes || []).map(p => ({ ...p }));
   renderChipsParticipantesGira();
   el("form-gira-titulo").textContent = "Editar gira";

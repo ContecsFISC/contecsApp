@@ -4,6 +4,7 @@
  <meta charset="UTF-8"/>
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <title>CONTECS 2026 — Mi Gira</title>
+ <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
  <style>
  :root {
  --oro: #856404;
@@ -128,17 +129,36 @@
  .ic-label { color: var(--gris-medio); font-size: 13px; flex-shrink: 0; }
  .ic-valor { font-weight: 600; color: var(--gris-texto); text-align: right; word-break: break-word; }
 
- /* ── AVISO INDEPENDENCIA DE PAGO ── */
- .aviso-pago {
- background: var(--azul-fondo);
- border: 1.5px solid #85c1e9;
+ /* ── QR CREDENCIAL ── */
+ .qr-card {
+ background: #fff;
  border-radius: var(--radio);
- padding: 14px 16px;
- font-size: 12.5px;
- color: #1f4e6b;
- line-height: 1.6;
+ box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ padding: 20px;
  margin-bottom: 14px;
  animation: cardIn 0.5s var(--ease-spring) 0.05s both;
+ text-align: center;
+ }
+ .qr-titulo {
+ font-size: 14px; font-weight: 700; color: var(--oro-oscuro);
+ margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px;
+ }
+ .qr-subtitulo {
+ font-size: 12px; color: var(--gris-medio); margin-bottom: 16px; line-height: 1.5;
+ }
+ .qr-canvas-wrap {
+ display: inline-flex;
+ padding: 12px;
+ background: #fff;
+ border-radius: 12px;
+ border: 2px solid var(--oro-fondo);
+ box-shadow: 0 4px 16px rgba(133,100,4,0.12);
+ margin-bottom: 12px;
+ }
+ .qr-canvas-wrap canvas { display: block; border-radius: 6px; }
+ .qr-codigo {
+ font-size: 18px; font-weight: 800; color: var(--oro-oscuro);
+ letter-spacing: 2px;
  }
 
  /* ── CHECKPOINTS ── */
@@ -173,6 +193,18 @@
  line-height: 1.6;
  margin-bottom: 14px;
  }
+
+ .soporte-card {
+ background: var(--gris-suave);
+ border: 1px solid var(--gris-borde);
+ border-radius: var(--radio);
+ padding: 14px 16px;
+ font-size: 12px;
+ color: var(--gris-medio);
+ line-height: 1.6;
+ margin-bottom: 14px;
+ }
+ .soporte-card strong { color: var(--gris-texto); }
 
  .loading-wrap {
  min-height: 100vh;
@@ -240,21 +272,28 @@
 
  <div class="container">
 
- <!-- AVISO: independencia del pago -->
- <div class="aviso-pago">
- Tu participación en esta gira <strong>no depende del estado de pago</strong> de tu
- inscripción al congreso. La información de esta página es exclusivamente sobre
- logística de la gira.
- </div>
-
  <!-- DATOS DE LA GIRA -->
  <div class="info-card">
  <div class="ic-titulo">Detalles de la gira</div>
  <div class="ic-fila"><span class="ic-label">Descripción</span><span class="ic-valor" id="d-descripcion">—</span></div>
  <div class="ic-fila"><span class="ic-label">Fecha</span><span class="ic-valor" id="d-fecha">—</span></div>
+ <div class="ic-fila" id="row-hora" style="display:none;"><span class="ic-label">Hora</span><span class="ic-valor" id="d-hora">—</span></div>
  <div class="ic-fila"><span class="ic-label">Tipo</span><span class="ic-valor" id="d-area">—</span></div>
  <div class="ic-fila"><span class="ic-label">Lugar</span><span class="ic-valor" id="d-lugar">—</span></div>
  <div class="ic-fila" id="row-colaboracion" style="display:none;"><span class="ic-label">Colaboración</span><span class="ic-valor" id="d-colaboracion">—</span></div>
+ </div>
+
+ <!-- QR CREDENCIAL -->
+ <div class="qr-card" id="qr-card" style="display:none;">
+ <div class="qr-titulo">
+   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M14 17h.01M17 14h.01M17 17h3v3h-3z"/></svg>
+   Tu credencial QR
+ </div>
+ <div class="qr-subtitulo">Muéstrale este código al personal de Giras<br/>para registrar tu entrada y salida.</div>
+ <div class="qr-canvas-wrap">
+   <canvas id="qr-canvas"></canvas>
+ </div>
+ <div class="qr-codigo" id="qr-codigo"></div>
  </div>
 
  <!-- CHECK-IN / CHECK-OUT -->
@@ -278,12 +317,20 @@
  <div class="cp-texto-sub" id="cp-texto-salida">Todavía no registrada</div>
  </div>
  </div>
+ <p style="font-size:11.5px;color:var(--gris-medio);margin-top:10px;line-height:1.5;">
+ El personal de Giras registra tu entrada y salida escaneando el código QR que aparece arriba en esta página.
+ </p>
  </div>
 
  <div class="ayuda-card">
  <strong>¿Tienes alguna duda sobre la gira?</strong> Comunícate con el equipo de Giras de CONTECS.
  <br/><br/>
  <a href="mailto:congresofisc@utp.ac.pa" style="color:var(--oro-oscuro);font-weight:700;">congresofisc@utp.ac.pa</a>
+ </div>
+
+ <div class="soporte-card">
+ <strong>¿Problemas técnicos con esta página?</strong><br/>
+ Contacta a Alpha Vílchez, encargado — 6290-1553
  </div>
 
  <div class="footer">
@@ -328,7 +375,7 @@ async function init() {
 
  try {
  const data = await accederGiraParticipante(codigo.toUpperCase(), token, giraId);
- renderGira(data);
+ renderGira(data, codigo.toUpperCase(), token);
  } catch (err) {
  mostrarError(err.message || "Error de conexión. Verifica tu internet e intenta de nuevo.");
  }
@@ -346,7 +393,7 @@ function renderCheckpoint(tipo, info) {
  }
 }
 
-function renderGira(data) {
+function renderGira(data, codigo, token) {
  el("loading-wrap").style.display = "none";
  el("gira-wrap").classList.add("visible");
 
@@ -358,15 +405,41 @@ function renderGira(data) {
 
  el("d-descripcion").textContent = g.descripcion || "—";
  el("d-fecha").textContent = g.fechaTexto || "Por confirmar";
+ if (g.horaTexto) {
+  el("row-hora").style.display = "flex";
+  el("d-hora").textContent = g.horaTexto;
+ }
  el("d-area").textContent = g.area || "—";
  el("d-lugar").textContent = g.lugar || "Por confirmar";
  if (g.colaboracion) {
- el("row-colaboracion").style.display = "flex";
- el("d-colaboracion").textContent = g.colaboracion;
+  el("row-colaboracion").style.display = "flex";
+  el("d-colaboracion").textContent = g.colaboracion;
  }
 
  renderCheckpoint("entrada", data.checkpoints?.entrada);
  renderCheckpoint("salida", data.checkpoints?.salida);
+
+ // ── Generar QR con la credencial del participante ──────────────────────────
+ // El formato JSON {codigo, token} es el que acepta lecturaQRGiras.js.
+ // Se genera 100% en el cliente: no requiere cambios en el backend.
+ generarQR(codigo, token, p.codigo || codigo);
+}
+
+function generarQR(codigo, token, codigoDisplay) {
+ const payload = JSON.stringify({codigo, token});
+ const canvas = el("qr-canvas");
+ QRCode.toCanvas(canvas, payload, {
+  width: 200,
+  margin: 1,
+  color: { dark: "#5c4403", light: "#ffffff" },
+ }, (err) => {
+  if (err) {
+   console.error("QR error:", err);
+   return;
+  }
+  el("qr-codigo").textContent = codigoDisplay;
+  el("qr-card").style.display = "block";
+ });
 }
 
 init();
