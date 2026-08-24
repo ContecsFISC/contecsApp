@@ -642,8 +642,8 @@ async function ejecutarMovimientoFondo(request) {
 }
 
 async function ejecutarOperacionFinanciera(request) {
-  const tipo = request.data?.tipo;
-  switch (tipo) {
+  const operacion = request.data?.operacion;
+  switch (operacion) {
     case "venta": return ejecutarVenta(request, false);
     case "venta_merma": return ejecutarVenta(request, true);
     case "compra": return ejecutarCompra(request);

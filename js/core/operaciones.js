@@ -55,14 +55,20 @@ export async function esperarAuthListo(timeout = 10000) {
   });
 }
 
-async function llamarOperacion(tipo, datos = {}) {
+async function llamarOperacion(operacion, datos = {}) {
   await esperarAuthListo();
   if (!auth.currentUser) {
     throw new Error("Tu sesión expiró. Inicia sesión nuevamente.");
   }
 
   try {
-    const respuesta = await ejecutarOperacion({tipo, ...datos});
+    // "operacion" identifica QUÉ función ejecutar en el backend (venta, compra,
+    // movimiento_fondo, etc). Se manda en una clave separada de "datos" a
+    // propósito: varios "datos" (ej. movimiento_fondo, ajuste_stock) también
+    // traen su propio campo "tipo" (ingreso/salida, entrada/salida) y un
+    // spread tipo {tipo, ...datos} dejaría que ese "tipo" interno sobrescriba
+    // al selector de operación.
+    const respuesta = await ejecutarOperacion({operacion, ...datos});
     return respuesta.data || {};
   } catch (error) {
     const mensaje = String(error?.message || "")

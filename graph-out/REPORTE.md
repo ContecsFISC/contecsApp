@@ -1,14 +1,14 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-23T03:35:58.037800+00:00**
+- Generado: **2026-08-24T19:33:21.882537+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `6432abb95264865c…`
+- Huella del proyecto: `9009887fd88edf97…`
 - Archivos analizados: **151**
 - Relaciones internas tipadas: **472**
-- Símbolos detectados: **3256**
-- Llamadas detectadas: **7393**
-- IDs DOM definidos: **760**
-- Paquetes externos usados: **21**
+- Símbolos detectados: **3274**
+- Llamadas detectadas: **7463**
+- IDs DOM definidos: **779**
+- Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **12**
 - Archivos huerfanos: **62**
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,251 tokens** · leer primero
-- `GraphCompleto.json` — ~**45,071 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**83,022 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**8,272 tokens** · leer primero
+- `GraphCompleto.json` — ~**45,118 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**83,470 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **90.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:225` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:235` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -42,7 +42,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
-- `js/modulos/voluntarios.js` — riesgo 55.8 (conexiones: 17, 2027 lineas)
+- `js/modulos/voluntarios.js` — riesgo 56.6 (conexiones: 17, 2108 lineas)
 - `js/core/operaciones.js` — riesgo 52.4 (conexiones: 25, 243 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -345,6 +345,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `firebase-admin/firestore` — usado en 4 archivo(s)
 - `firebase-admin/storage` — usado en 1 archivo(s)
 - `firebase-functions/params` — usado en 1 archivo(s)
+- `firebase-functions/v2/core` — usado en 1 archivo(s)
 - `firebase-functions/v2/firestore` — usado en 1 archivo(s)
 - `firebase-functions/v2/https` — usado en 3 archivo(s)
 - `fs` — usado en 1 archivo(s)
@@ -352,6 +353,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
 - `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 3 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
+- `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 5 archivo(s)
