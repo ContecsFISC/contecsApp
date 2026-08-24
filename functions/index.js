@@ -1,5 +1,6 @@
 const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {onInit} = require("firebase-functions/v2/core");
 const {defineSecret} = require("firebase-functions/params");
 const {initializeApp} = require("firebase-admin/app");
 const {getAuth} = require("firebase-admin/auth");
@@ -13,7 +14,20 @@ const {cargarCorreoPagoAprobado, cargarCorreoNotificacionGira} = require("./plan
 initializeApp();
 
 const db = getFirestore();
-const bucket = getStorage().bucket();
+
+// El bucket de Storage se resuelve dentro de onInit(), NO en el scope global.
+// Antes `getStorage().bucket()` corría al cargar el módulo, y Firebase CLI
+// intenta cargar/"descubrir" este archivo durante el deploy con un límite de
+// 10s — si esa llamada tarda (o no puede resolver el proyecto en ese
+// contexto), el deploy entero falla con:
+//   "Cannot determine backend specification. Timeout after 10000."
+// onInit() solo corre cuando la función realmente se ejecuta en Cloud Run,
+// nunca durante el descubrimiento del deploy. Ver:
+// https://firebase.google.com/docs/functions/tips#avoid_deployment_timeouts_during_initialization
+let bucket;
+onInit(() => {
+  bucket = getStorage().bucket();
+});
 const {
   ejecutarOperacionFinanciera,
 } = require("./operaciones-financieras");
