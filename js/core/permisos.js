@@ -51,7 +51,7 @@ export const PERMISOS = {
   gestionar_actividades:   ["junta_principal","actividades","ceo"],
   gestionar_ventas:        ["junta_principal","junta","ventas","ceo"],
   gestionar_giras:         ["junta_principal","giras","ceo"],
-  ver_participantes:       ["ceo", "junta_principal", "junta", "staff_contecs"],
+  ver_participantes:       ["ceo", "junta_principal", "junta", "coordinador", "staff_contecs"],
   aprobar_pagos:           ["ceo", "junta_principal", "junta", "finanzas", "secretario", "staff_contecs"],
   // Estadísticas del CONGRESO (asistencia, checkpoints, participantes) —
   // separado de "ver_reportes" (Finanzas) a propósito, para que Staff CONTECS

@@ -16,17 +16,20 @@ service firebase.storage {
         ];
     }
 
-    function canGestionarParticipantes() {
+    // Ver comprobantes de pago es parte del flujo de aprobación, no de "ver
+    // participantes" — coordinador puede ver la lista de participantes
+    // (firestore.rules) pero no las fotos de comprobantes de pago.
+    // Debe reflejar "aprobar_pagos" en js/core/permisos.js.
+    function canAprobarPagosParticipantes() {
       return signedIn()
         && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.rol in [
-          'ceo', 'junta_principal', 'junta', 'coordinador',
-          'actividades', 'finanzas', 'secretario', 'comunicaciones', 'staff_contecs'
+          'ceo', 'junta_principal', 'junta', 'finanzas', 'secretario', 'staff_contecs'
         ];
     }
 
     // CVE-C03: comprobantes de pago — escritura solo vía Admin SDK (Cloud Function)
     match /comprobantes/{filename} {
-      allow read: if canGestionarParticipantes();
+      allow read: if canAprobarPagosParticipantes();
       allow write: if false;
     }
 

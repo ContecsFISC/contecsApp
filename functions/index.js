@@ -271,6 +271,14 @@ function validarTexto(valor, campo, {requerido = false, max = 200} = {}) {
   return texto;
 }
 
+function validarDocId(valor, campo) {
+  const id = typeof valor === "string" ? valor.trim() : "";
+  if (!/^[A-Za-z0-9_-]{1,200}$/.test(id)) {
+    throw new HttpsError("invalid-argument", `El campo ${campo} no es válido.`);
+  }
+  return id;
+}
+
 function normalizarCamposExtra(valor) {
   if (!valor || typeof valor !== "object" || Array.isArray(valor)) return {};
   const entradas = Object.entries(valor);
@@ -892,7 +900,7 @@ exports.enviarCorreoQrParticipante = onCall(
     async (request) => {
       try {
         await verificarStaffCorreo(request);
-        const docId = validarTexto(request.data?.docId, "docId", {requerido: true, max: 200});
+        const docId = validarDocId(request.data?.docId, "docId");
         const forzarReenvio = !!request.data?.forzarReenvio;
 
         console.log("enviarCorreoQrParticipante:", docId, forzarReenvio ? "(reenvío)" : "(envío)");
@@ -1324,12 +1332,11 @@ exports.subirFotoEfectivo = onCall(
           throw new HttpsError("permission-denied", "No tienes permiso para registrar pagos en efectivo.");
         }
 
-        const docId = String(request.data?.docId || "").trim();
+        const docId = validarDocId(request.data?.docId, "docId");
         const base64 = request.data?.base64;
         const contentType = String(request.data?.contentType || "").trim();
         const nombre = String(request.data?.nombre || "foto-efectivo").trim();
 
-        if (!docId) throw new HttpsError("invalid-argument", "docId requerido.");
         if (!base64) throw new HttpsError("invalid-argument", "Foto requerida.");
 
         // Solo imágenes (no PDF) para fotos de efectivo

@@ -34,10 +34,21 @@ service cloud.firestore {
       ]);
     }
 
-    function canGestionarParticipantes() {
+    // Debe reflejar exactamente "ver_participantes" en js/core/permisos.js.
+    // Coordinador SÍ puede ver la lista de participantes; actividades y
+    // comunicaciones NO (no tienen ese permiso en el modelo de la app).
+    function canVerParticipantes() {
       return hasRol([
-        'ceo', 'junta_principal', 'junta', 'coordinador',
-        'actividades', 'finanzas', 'secretario', 'comunicaciones', 'staff_contecs'
+        'ceo', 'junta_principal', 'junta', 'coordinador', 'staff_contecs'
+      ]);
+    }
+
+    // Debe reflejar exactamente "aprobar_pagos" en js/core/permisos.js.
+    // Ver la lista no implica poder aprobar/rechazar un pago — coordinador
+    // queda fuera de este segundo permiso a propósito.
+    function canAprobarPagosParticipantes() {
+      return hasRol([
+        'ceo', 'junta_principal', 'junta', 'finanzas', 'secretario', 'staff_contecs'
       ]);
     }
 
@@ -79,9 +90,9 @@ service cloud.firestore {
     // El alta y el acceso público se realizan exclusivamente mediante Cloud
     // Functions (Admin SDK). Nunca se expone la colección completa al browser.
     match /participantes/{docId} {
-      allow read: if canGestionarParticipantes();
+      allow read: if canVerParticipantes();
       allow create: if false;
-      allow update: if canGestionarParticipantes()
+      allow update: if canAprobarPagosParticipantes()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'asistencias', 'totalAsistencias'
         ]);
