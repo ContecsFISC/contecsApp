@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arquitectura de CONTECS</title>
+<meta name="description" content="Mapa técnico completo del sistema CONTECS: frontend, backend Express, PostgreSQL, seguridad y migración."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"/>
+<style>
+  :root {
+    --bg:        #f3f6f3;
+    --bg-2:      #e9efea;
+    --surface:   #ffffff;
+    --ink:       #14201b;
+    --ink-soft:  #4c5852;
+    --ink-faint: #7c877f;
+    --rule:      #dce3dd;
+    --rule-2:    #c8d2cb;
+    --green:     #0c4a34;
+    --green-2:   #128a5f;
+    --green-lite:#3fb883;
+    --gold:      #9c7615;
+    --gold-lite: #cca63a;
+    --sky:       #1f6f8b;
+    --plum:      #6b4a8a;
+    --rose:      #b5476b;
+    --amber:     #b7791f;
+    --glow:      0 0 0 1px var(--rule), 0 10px 40px -20px rgba(12,74,52,.4);
+    --shadow:    0 1px 2px rgba(16,32,27,.05), 0 14px 40px -24px rgba(16,32,27,.22);
+    --tier-front: #1f6f8b;
+    --tier-back:  #0c4a34;
+    --tier-db:    #9c7615;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #0c1210;
+      --bg-2:      #121b17;
+      --surface:   #141e19;
+      --ink:       #e9efea;
+      --ink-soft:  #a6b2ab;
+      --ink-faint: #74807a;
+      --rule:      #253029;
+      --rule-2:    #33413a;
+      --green:     #4fb98d;
+      --green-2:   #56c596;
+      --green-lite:#6fd6a8;
+      --gold:      #d8b45c;
+      --gold-lite: #e6c877;
+      --sky:       #63b4cf;
+      --plum:      #b291d6;
+      --rose:      #e58aa9;
+      --amber:     #e0b45c;
+      --glow:      0 0 0 1px var(--rule), 0 12px 44px -20px rgba(0,0,0,.7);
+      --shadow:    0 1px 2px rgba(0,0,0,.4), 0 16px 44px -26px rgba(0,0,0,.8);
+      --tier-front:#63b4cf;
+      --tier-back: #4fb98d;
+      --tier-db:   #d8b45c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0c1210;--bg-2:#121b17;--surface:#141e19;--ink:#e9efea;--ink-soft:#a6b2ab;--ink-faint:#74807a;
+    --rule:#253029;--rule-2:#33413a;--green:#4fb98d;--green-2:#56c596;--green-lite:#6fd6a8;--gold:#d8b45c;
+    --gold-lite:#e6c877;--sky:#63b4cf;--plum:#b291d6;--rose:#e58aa9;--amber:#e0b45c;
+    --glow:0 0 0 1px var(--rule),0 12px 44px -20px rgba(0,0,0,.7);
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 16px 44px -26px rgba(0,0,0,.8);
+    --tier-front:#63b4cf;--tier-back:#4fb98d;--tier-db:#d8b45c;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Public Sans", system-ui, sans-serif; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(60% 40% at 80% -5%, color-mix(in srgb, var(--green) 9%, transparent), transparent),
+      radial-gradient(50% 40% at 0% 10%, color-mix(in srgb, var(--sky) 7%, transparent), transparent);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: clamp(48px, 9vw, 100px) 0 40px; position: relative; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 9px; font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--green); font-family: "IBM Plex Mono", monospace;
+    border: 1px solid var(--rule-2); border-radius: 40px; padding: 6px 14px; background: var(--surface);
+  }
+  .badge .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green-lite); position: relative; }
+  .badge .pulse::after { content:""; position:absolute; inset:-4px; border-radius:50%; border:1px solid var(--green-lite); animation: ping 2.4s ease-out infinite; }
+  @keyframes ping { 0%{transform:scale(.6);opacity:.8} 100%{transform:scale(2.2);opacity:0} }
+  h1 {
+    font-family: "Fraunces", Georgia, serif; font-weight: 600; letter-spacing: -.02em;
+    font-size: clamp(38px, 8vw, 76px); line-height: .98; margin: 22px 0 16px; text-wrap: balance;
+  }
+  h1 .accent { background: linear-gradient(105deg, var(--green), var(--green-lite)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lede { font-size: clamp(17px, 2.4vw, 21px); color: var(--ink-soft); max-width: 60ch; margin: 0; }
+  .stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 14px 20px; box-shadow: var(--shadow); }
+  .stat .n { font-family: "Fraunces", serif; font-weight: 600; font-size: 28px; line-height: 1; color: var(--green); font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; color: var(--ink-faint); margin-top: 5px; letter-spacing: .02em; }
+
+  /* ---------- SECTION ---------- */
+  section { padding: clamp(40px, 7vw, 80px) 0; }
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin: 0 0 10px; }
+  h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(26px, 4.4vw, 40px); letter-spacing: -.01em; margin: 0 0 14px; text-wrap: balance; }
+  .section-intro { color: var(--ink-soft); max-width: 64ch; font-size: 16.5px; margin: 0 0 36px; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--rule-2), transparent); border: 0; margin: 0; }
+
+  /* ---------- STACK (3 capas) ---------- */
+  .stack { display: grid; gap: 14px; }
+  .layer {
+    position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: 18px;
+    padding: 22px 24px; box-shadow: var(--shadow); overflow: hidden;
+  }
+  .layer::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--c); }
+  .layer .lh { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .layer .lh .tag { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--c); font-weight: 600; }
+  .layer h3 { font-size: 19px; margin: 0; font-weight: 700; }
+  .layer .desc { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; padding: 4px 10px; border-radius: 8px;
+    background: var(--bg-2); border: 1px solid var(--rule); color: var(--ink-soft);
+  }
+  .flow-arrow { display: grid; place-items: center; height: 26px; color: var(--ink-faint); }
+  .flow-arrow svg { animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(-2px)} 50%{transform:translateY(2px)} }
+
+  /* ---------- BRANCHES (MAIN → módulos) ---------- */
+  .hub-wrap { display: flex; flex-direction: column; align-items: center; }
+  .hub {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+    background: linear-gradient(160deg, #0f5a40, #072e20);
+    color: #fff; border-radius: 18px; padding: 20px 34px; box-shadow: 0 18px 44px -22px rgba(9,55,38,.8);
+    position: relative; z-index: 2;
+  }
+  .hub .t { font-family: "Fraunces", serif; font-weight: 700; font-size: 24px; color: #fff; }
+  .hub .s { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; opacity: .85; letter-spacing: .08em; color: #eaf4ef; }
+  .branch-stem { width: 2px; height: 34px; background: linear-gradient(var(--green-lite), transparent); }
+  .branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; width: 100%; margin-top: -8px; }
+  .branch {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 18px;
+    box-shadow: var(--shadow); position: relative; transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, border-color .25s;
+  }
+  .branch:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -22px color-mix(in srgb, var(--bc) 60%, transparent); border-color: color-mix(in srgb, var(--bc) 50%, var(--rule)); }
+  .branch .dot { width: 30px; height: 30px; border-radius: 9px; background: color-mix(in srgb, var(--bc) 16%, transparent); color: var(--bc); display: grid; place-items: center; margin-bottom: 10px; }
+  .branch h4 { margin: 0 0 3px; font-size: 15.5px; font-weight: 700; }
+  .branch .role { font-size: 12px; color: var(--ink-faint); margin: 0 0 12px; }
+  .branch ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+  .branch li { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; }
+  .branch li::before { content:""; width: 5px; height: 5px; border-radius: 50%; background: var(--bc); flex-shrink: 0; }
+
+  /* ---------- REQUEST LIFECYCLE ---------- */
+  .pipe { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 16px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+  .hop { padding: 18px; border-right: 1px solid var(--rule); position: relative; }
+  .hop:last-child { border-right: 0; }
+  .hop .k { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--gold); letter-spacing: .08em; }
+  .hop .h { font-weight: 700; font-size: 15px; margin: 6px 0 6px; }
+  .hop .d { font-size: 12.5px; color: var(--ink-soft); }
+  .hop .step { position: absolute; top: 12px; right: 14px; font-family: "Fraunces", serif; font-size: 13px; color: var(--ink-faint); }
+
+  /* ---------- SECURITY ---------- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); }
+  .card.pub { border-top: 3px solid var(--sky); }
+  .card.stf { border-top: 3px solid var(--green); }
+  .card h3 { margin: 0 0 4px; font-size: 17px; }
+  .card .sub { font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-faint); margin-bottom: 12px; }
+  .card ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 14px; }
+  .card li { margin-bottom: 6px; }
+  .seclist { display: grid; gap: 10px; margin-top: 16px; }
+  .secrow { display: grid; grid-template-columns: 24px 1fr; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 18px; }
+  .secrow svg { margin-top: 2px; }
+  .secrow b { font-size: 14.5px; }
+  .secrow p { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+  /* ---------- MIGRATION ---------- */
+  .mig { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; }
+  .mig-node { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); text-align: center; }
+  .mig-node .icon { font-size: 26px; }
+  .mig-node h3 { margin: 8px 0 4px; font-size: 16px; }
+  .mig-node p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
+  .mig-mid { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--green); }
+  .mig-mid .tool { font-family: "IBM Plex Mono", monospace; font-size: 11px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: 20px; padding: 3px 10px; }
+  .mig-arrow { width: 90px; height: 2px; background: repeating-linear-gradient(90deg, var(--green) 0 8px, transparent 8px 14px); position: relative; }
+  .mig-arrow::after { content:""; position:absolute; right:-1px; top:-4px; border-left: 8px solid var(--green); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .note { margin-top: 18px; border-left: 3px solid var(--green); background: var(--bg-2); border-radius: 0 12px 12px 0; padding: 14px 18px; font-size: 14px; color: var(--ink-soft); }
+  .note b { color: var(--ink); }
+
+  /* ---------- FILE MAP ---------- */
+  .filemap { background: #0e1512; border: 1px solid #23302a; border-radius: 16px; padding: 22px 24px; overflow-x: auto; box-shadow: var(--shadow); }
+  .filemap pre { margin: 0; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; line-height: 1.85; color: #cfe6db; white-space: pre; }
+  .filemap .c { color: #6f8b7f; }
+  .filemap .d { color: #7fd6aa; }
+  .filemap .f { color: #e6c877; }
+
+  footer { padding: 40px 0 64px; color: var(--ink-faint); font-size: 13px; }
+  footer .divider { margin-bottom: 22px; }
+
+  @media (max-width: 720px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .mig { grid-template-columns: 1fr; }
+    .mig-arrow { width: 2px; height: 40px; background: repeating-linear-gradient(180deg, var(--green) 0 8px, transparent 8px 14px); }
+    .mig-arrow::after { right:-4px; top:auto; bottom:-1px; border-left:5px solid transparent; border-right:5px solid transparent; border-top:8px solid var(--green); border-bottom:0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <span class="badge reveal"><span class="pulse"></span> Documentación técnica · CONTECS</span>
+    <h1 class="reveal">Arquitectura del<br/><span class="accent">sistema CONTECS</span></h1>
+    <p class="lede reveal">La plataforma que administra el II CONTECS 2026 de la FISC–UTP: inscripciones, credenciales QR, pagos, voluntariado, giras y finanzas. Migrada de Firebase a un servidor propio con Node.js, PostgreSQL y Nginx.</p>
+    <div class="stats reveal">
+      <div class="stat"><div class="n">277</div><div class="l">Participantes migrados</div></div>
+      <div class="stat"><div class="n">30</div><div class="l">Tablas en PostgreSQL</div></div>
+      <div class="stat"><div class="n">27</div><div class="l">Rutas de API</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">Áreas funcionales</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">Capas de la arquitectura</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= STACK ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Vista general</p>
+    <h2 class="reveal">Tres capas, un solo origen</h2>
+    <p class="section-intro reveal">Todo se sirve desde el mismo servidor: Nginx entrega el sitio estático y hace de puerta única hacia la API; la API en Express resuelve la lógica y habla con PostgreSQL. El navegador nunca toca la base directamente.</p>
+
+    <div class="stack">
+      <div class="layer reveal" style="--c:var(--tier-front)">
+        <div class="lh"><span class="tag">Capa 1 · Cliente</span><h3>Frontend estático</h3></div>
+        <p class="desc">HTML + JavaScript modular servido por Nginx. Sin framework pesado: cada página carga solo su módulo. La sesión viaja en cookie; el JS nunca la ve.</p>
+        <div class="chips"><span class="chip">index / registro</span><span class="chip">public/perfil.html</span><span class="chip">public/gira.html</span><span class="chip">panel/dashboard.html</span><span class="chip">js/core · api-client</span><span class="chip">guard-pagina</span><span class="chip">CSP estricta</span></div>
+      </div>
+
+      <div class="flow-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+
+      <div class="layer reveal" style="--c:var(--tier-back)">
+        <div class="lh"><span class="tag">Capa 2 · Servidor</span><h3>API — Node.js + Express</h3></div>
+        <p class="desc">Servicio <span class="mono">contecs.service</span> (systemd) escuchando en loopback. Autentica con el SSO institucional de la UTP + sesión JWT propia, autoriza por rol y resuelve cada operación en transacciones.</p>
+        <div class="chips"><span class="chip">routes/*.js (27)</span><span class="chip">middleware/auth</span><span class="chip">permisos.js</span><span class="chip">operacionesQr</span><span class="chip">lib/correo · Brevo</span><span class="chip">helmet · hpp · rate-limit</span></div>
+      </div>
+
+      <div class="flow-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+
+      <div class="layer reveal" style="--c:var(--tier-db)">
+        <div class="lh"><span class="tag">Capa 3 · Datos</span><h3>PostgreSQL 16</h3></div>
+        <p class="desc">Base <span class="mono">contecs</span>, rol de aplicación <span class="mono">contecs_app</span> sin superusuario. Claves foráneas reales, restricciones UNIQUE y bloqueos por fila que hacen imposible el doble escaneo. Respaldos diarios a las 3 AM.</p>
+        <div class="chips"><span class="chip">participantes</span><span class="chip">voluntarios</span><span class="chip">giras_voluntarios</span><span class="chip">asistencias_giras</span><span class="chip">ventas · compras · fondos</span><span class="chip">+ 24 más</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ================= BRANCHES ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">El árbol del sistema</p>
+    <h2 class="reveal">Un núcleo, cinco ramas</h2>
+    <p class="section-intro reveal">El panel de administración se organiza en cinco áreas funcionales. Cada rama agrupa sus módulos, sus rutas de API y sus tablas. Los permisos por rol deciden qué ramas ve cada persona del equipo.</p>
+
+    <div class="hub-wrap">
+      <div class="hub reveal"><span class="t">CONTECS</span><span class="s">panel/dashboard.html</span></div>
+      <div class="branch-stem reveal" aria-hidden="true"></div>
+
+      <div class="branches">
+        <div class="branch reveal" style="--bc:var(--sky)">
+          <div class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg></div>
+          <h4>Congreso</h4>
+          <p class="role">Inscripciones y acreditación</p>
+          <ul><li>participantes</li><li>inscripciones</li><li>lectura QR</li><li>estadísticas</li></ul>
+        </div>
+
+        <div class="branch reveal" style="--bc:var(--green-2)">
+          <div class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .9-4.5 4.2L18 20l-6-3.2L6 20l1.5-6.9L3 8.9 9 8z"/></svg></div>
+          <h4>Voluntariado</h4>
+          <p class="role">Voluntarios, actividades y giras</p>
+          <ul><li>voluntarios</li><li>actividades · turnos</li><li>giras · QR giras</li><li>calendario</li></ul>
+        </div>
+
+        <div class="branch reveal" style="--bc:var(--gold)">
+          <div class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 4 3 5-7"/></svg></div>
+          <h4>Finanzas</h4>
+          <p class="role">Fondos, ventas y compras</p>
+          <ul><li>ventas · venta rápida</li><li>compras</li><li>fondos · detalle</li><li>reportes · bitácora</li></ul>
+        </div>
+
+        <div class="branch reveal" style="--bc:var(--plum)">
+          <div class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></div>
+          <h4>Logística</h4>
+          <p class="role">Catálogo e inventario</p>
+          <ul><li>catálogo</li><li>inventario</li><li>actividades de venta</li><li>mermas</li></ul>
+        </div>
+
+        <div class="branch reveal" style="--bc:var(--rose)">
+          <div class="dot"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+          <h4>Administración</h4>
+          <p class="role">Usuarios, roles y secretaría</p>
+          <ul><li>usuarios · roles</li><li>secretaría</li><li>reuniones · minutas</li><li>exportar</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ================= LIFECYCLE ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Ciclo de una petición</p>
+    <h2 class="reveal">Del navegador a la base, con controles en cada salto</h2>
+    <p class="section-intro reveal">Ninguna petición llega a la base sin pasar por Nginx (TLS + límites) y por la capa de autorización de Express. Las escrituras sensibles corren dentro de transacciones con bloqueo de fila.</p>
+
+    <div class="pipe">
+      <div class="hop reveal"><span class="step">1</span><div class="k">CLIENTE</div><div class="h">Navegador</div><div class="d">La página llama a <span class="mono">/api/…</span> con la cookie de sesión que manda el navegador solo.</div></div>
+      <div class="hop reveal"><span class="step">2</span><div class="k">BORDE</div><div class="h">Nginx</div><div class="d">TLS, cabeceras de seguridad, CSP y límites de tasa. Puerta única; el backend no se expone.</div></div>
+      <div class="hop reveal"><span class="step">3</span><div class="k">AUTZ</div><div class="h">Express + auth</div><div class="d">Verifica la sesión, relee el rol de la base y aplica el permiso de la ruta.</div></div>
+      <div class="hop reveal"><span class="step">4</span><div class="k">DATOS</div><div class="h">PostgreSQL</div><div class="d">Transacción con <span class="mono">FOR UPDATE</span>; las restricciones UNIQUE son la red final.</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ================= SECURITY ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Modelo de seguridad</p>
+    <h2 class="reveal">Público y administración: dos mundos separados</h2>
+    <p class="section-intro reveal">La gente sin sesión solo puede hacer lo suyo. Entrar a administrar exige cuenta institucional de la UTP y un rol otorgado por un responsable.</p>
+
+    <div class="grid2">
+      <div class="card pub reveal">
+        <div class="sub">Sin iniciar sesión</div>
+        <h3>Participantes y público</h3>
+        <ul><li>Inscribirse al congreso</li><li>Ver su propia credencial con QR</li><li>Ver la información de su gira</li></ul>
+      </div>
+      <div class="card stf reveal">
+        <div class="sub">Con cuenta UTP</div>
+        <h3>Personal del congreso</h3>
+        <ul><li>Login con el SSO institucional</li><li>Primer ingreso = sin permisos</li><li>Un admin le asigna el rol</li></ul>
+      </div>
+    </div>
+
+    <div class="seclist">
+      <div class="secrow reveal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="color-mix(in srgb, var(--green) 16%, transparent)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Credenciales con token de 192 bits</b><p>El QR lleva código + clave aleatoria imposible de adivinar; alterar el enlace no da acceso a nada ajeno ni al panel.</p></div></div>
+      <div class="secrow reveal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="color-mix(in srgb, var(--green) 16%, transparent)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Sesión en cookie HttpOnly, firmada, solo HTTPS</b><p>Un XSS no puede robarla; el rol se relee en cada acción, así una revocación es inmediata.</p></div></div>
+      <div class="secrow reveal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="color-mix(in srgb, var(--green) 16%, transparent)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Nadie se auto-aprueba un pago ni se da un rol</b><p>El registro público crea una inscripción pendiente; estados y roles los fija el servidor.</p></div></div>
+      <div class="secrow reveal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="color-mix(in srgb, var(--green) 16%, transparent)"/><path d="M7 12.5l3.2 3.2L17 9" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Defensa en profundidad</b><p>CSP <span class="mono">script-src 'self'</span>, límites de tasa por IP, HSTS, archivos subidos aislados y servidos solo como descarga.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ================= MIGRATION ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">De Firebase a la VM</p>
+    <h2 class="reveal">Migración sin romper credenciales</h2>
+    <p class="section-intro reveal">El sistema original vive en Firebase (proyecto <span class="mono">contecs-fa6e6</span>). Se exporta a JSON y se importa a PostgreSQL preservando cada <span class="mono">id</span>, <span class="mono">código</span> y <span class="mono">token</span>: los QR ya emitidos siguen funcionando.</p>
+
+    <div class="mig">
+      <div class="mig-node reveal"><div class="icon">🔥</div><h3>Firebase</h3><p>Firestore · contecs-fa6e6<br/>(sistema vivo hoy)</p></div>
+      <div class="mig-mid reveal"><span class="tool">exportdb.html</span><div class="mig-arrow" aria-hidden="true"></div><span class="tool">import.js</span></div>
+      <div class="mig-node reveal"><div class="icon">🐘</div><h3>PostgreSQL</h3><p>Base contecs en la VM<br/>(destino UTP)</p></div>
+    </div>
+
+    <div class="note reveal"><b>Probado en producción:</b> 277 participantes importados, credenciales 1:1, un QR real resuelve por la API tras migrar. El corte final se repite el día del go-live para traer los registros más recientes.</div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ================= FILE MAP ================= -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Dónde vive cada cosa</p>
+    <h2 class="reveal">Mapa del repositorio</h2>
+    <p class="section-intro reveal">Referencia rápida de la estructura, para ubicarse sin rebuscar. El repo se despliega a <span class="mono">/opt/contecs</span> en la VM.</p>
+
+    <div class="filemap reveal">
+<pre><span class="c"># repo: ~/contecs-deploy   →   despliegue: /opt/contecs</span>
+<span class="d">app/</span>
+├─ <span class="d">server/</span>            <span class="c"># API Express (systemd: contecs.service, :3000)</span>
+│  ├─ <span class="f">index.js</span>         <span class="c"># monta rutas, rate-limits, arranque</span>
+│  ├─ <span class="d">routes/</span>          <span class="c"># 27 endpoints /api/* (participantes, giras, ventas…)</span>
+│  ├─ <span class="d">lib/</span>             <span class="c"># correo(Brevo), plantillas, participantes, giras, sesión</span>
+│  ├─ <span class="d">middleware/</span>      <span class="c"># auth.js (sesión + permisos)</span>
+│  ├─ <span class="f">permisos.js</span>      <span class="c"># tabla rol → permiso (autoridad real)</span>
+│  └─ <span class="d">templates/</span>       <span class="c"># correos HTML (pago aprobado, notificación gira)</span>
+├─ <span class="d">postgres/</span>
+│  ├─ <span class="f">schema.sql</span>       <span class="c"># 30 tablas</span>
+│  ├─ <span class="f">import.js</span>        <span class="c"># Firestore JSON → Postgres (preserva QR/token)</span>
+│  ├─ <span class="f">exportdb.html</span>    <span class="c"># exporta Firestore → JSON (correr en el navegador)</span>
+│  └─ <span class="f">migracion-giras-*.sql</span> <span class="c"># migraciones incrementales</span>
+└─ <span class="d">uploads/</span>          <span class="c"># comprobantes de pago</span>
+<span class="d">sitio/</span>               <span class="c"># frontend estático (Nginx)</span>
+├─ <span class="f">index.html · registro.html</span>
+├─ <span class="d">public/</span>          <span class="c"># perfil.html, gira.html (sin login)</span>
+├─ <span class="d">panel/</span>           <span class="c"># dashboard + modulos/{admin,congreso,finanzas,logistica,voluntariado}</span>
+└─ <span class="d">js/</span>              <span class="c"># core/ (api-client, auth, permisos, guard) · modulos/ · paginas/</span>
+<span class="c"># infra en la VM (fuera del repo):</span>
+<span class="c">#   /etc/contecs/contecs.env        secretos (BREVO_API_KEY, SESSION_SECRET, PG…)</span>
+<span class="c">#   /etc/nginx/sites-*/contecs      TLS, CSP, rate-limits, proxy</span>
+<span class="c">#   /var/backups/contecs/           respaldos diarios (3 AM) + pre-corte</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <hr class="divider"/>
+    <p><b style="color:var(--ink)">CONTECS</b> · II CONTECS 2026 — FISC, Universidad Tecnológica de Panamá. &nbsp;Documento de arquitectura generado para orientar el desarrollo y las próximas sesiones. &nbsp;Stack: Node.js · Express · PostgreSQL 16 · Nginx · systemd · Brevo · SSO UTP.</p>
+  </div>
+</footer>
+
+<script>
+  // reveal on scroll
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach(function (e) { e.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en, i) {
+        if (en.isIntersecting) {
+          var el = en.target;
+          setTimeout(function(){ el.classList.add('in'); }, Math.min(i * 40, 200));
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>
