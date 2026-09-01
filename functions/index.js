@@ -955,6 +955,10 @@ exports.enviarCorreoQrParticipante = onCall(
 // teléfono y cédula). Esta función corre con Admin SDK, verifica el rol
 // ella misma, y devuelve solo lo necesario para armar un selector de nombres
 // — incluyendo participantes con pago pendiente/rechazado, tal como se pidió.
+// Se incluye `pagoAprobado` solo como dato informativo (verde/rojo en el
+// selector) para que GIRAS sepa quién no ha pagado antes de llevarlo a la
+// gira; esto NO bloquea la selección ni el check-in — la lógica de negocio
+// sigue siendo la misma.
 exports.listarParticipantesParaGiras = onCall(
     {region: "us-central1", maxInstances: 10},
     async (request) => {
@@ -969,7 +973,7 @@ exports.listarParticipantesParaGiras = onCall(
         }
 
         const snap = await db.collection("participantes")
-            .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria", "camposExtra")
+            .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria", "camposExtra", "pago")
             .get();
 
         const participantes = snap.docs.map((d) => {
@@ -986,6 +990,7 @@ exports.listarParticipantesParaGiras = onCall(
             codigo: data.codigo || "",
             categoria: data.categoria || "",
             correoInstitucional,
+            pagoAprobado: data.pago?.estado === "aprobado",
           };
         });
 

@@ -78,7 +78,8 @@ const ERRORES_LISTAR_PARTICIPANTES_GIRAS = {
 };
 
 // Lista mínima (id, nombre, cédula, código, categoría) para el selector de
-// GIRAS. No trae datos de pago ni comprobantes — ver listarParticipantesParaGiras
+// GIRAS. Incluye `pagoAprobado` (booleano) solo como aviso visual — no trae
+// comprobantes ni otros datos de pago. Ver listarParticipantesParaGiras
 // en functions/index.js.
 export async function listarParticipantesParaGiras() {
   try {

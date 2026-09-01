@@ -1222,12 +1222,15 @@ function renderListaParticipantesGira() {
   lista.innerHTML = filtrados.map(p => {
     const sel = idsSeleccionados.has(p.id);
     const meta = [p.codigo, CATEGORIA_LABELS_GIRA[p.categoria] || p.categoria, p.cedula].filter(Boolean).join(" · ");
+    const pagoClase = p.pagoAprobado ? "aprobado" : "rechazado";
+    const pagoTexto = p.pagoAprobado ? "Pago aprobado" : "Pago sin aprobar";
     return `
       <div class="part-item ${sel ? "selected" : ""}" data-id="${escaparAtributo(p.id)}">
         <div class="part-item-check">${sel ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ""}</div>
         <div class="part-item-info">
           <div class="part-item-nombre">${h(p.nombre || "(sin nombre)")}</div>
           <div class="part-item-meta">${h(meta || "—")}</div>
+          <div class="part-item-pago ${pagoClase}">${pagoTexto}</div>
         </div>
       </div>`;
   }).join("");
