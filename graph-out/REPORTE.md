@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-08-24T19:33:21.882537+00:00**
+- Generado: **2026-09-05T23:27:02.732668+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `9009887fd88edf97…`
-- Archivos analizados: **151**
+- Huella del proyecto: `dde8bf6a1ed5513a…`
+- Archivos analizados: **153**
 - Relaciones internas tipadas: **472**
-- Símbolos detectados: **3274**
-- Llamadas detectadas: **7463**
-- IDs DOM definidos: **779**
+- Símbolos detectados: **3365**
+- Llamadas detectadas: **7581**
+- IDs DOM definidos: **780**
 - Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
-- Cloud Functions detectadas: **12**
-- Archivos huerfanos: **62**
+- Cloud Functions detectadas: **13**
+- Archivos huerfanos: **64**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,272 tokens** · leer primero
-- `GraphCompleto.json` — ~**45,118 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**83,470 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **90.1%** frente al profundo
+- `GraphCompacto.json` — ~**8,414 tokens** · leer primero
+- `GraphCompleto.json` — ~**45,517 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**84,383 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **90.0%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:235` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:251` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -39,11 +39,11 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
 - `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
+- `js/modulos/voluntarios.js` — riesgo 61.6 (conexiones: 18, 2415 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
-- `js/modulos/voluntarios.js` — riesgo 56.6 (conexiones: 17, 2108 lineas)
-- `js/core/operaciones.js` — riesgo 52.4 (conexiones: 25, 243 lineas)
+- `js/core/operaciones.js` — riesgo 52.5 (conexiones: 25, 249 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
 - `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
@@ -62,25 +62,25 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/modulos/logistica/catalogo.html` — grado 26 | exporta: (sin exports detectados)
 - `js/core/operaciones.js` — grado 25 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
 - `js/modulos/ventaRapida.js` — grado 19 | exporta: (sin exports detectados)
+- `js/modulos/voluntarios.js` — grado 18 | exporta: (sin exports detectados)
 - `js/modulos/compras2.js` — grado 17 | exporta: (sin exports detectados)
-- `js/modulos/voluntarios.js` — grado 17 | exporta: (sin exports detectados)
 - `js/modulos/compras.js` — grado 16 | exporta: (sin exports detectados)
+- `js/core/participantes-api.js` — grado 14 | exporta: accederGiraParticipante, accederParticipante, archivoABase64, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoAprobadosGira, notificarParticipantesGira
 - `js/core/permisos.js` — grado 14 | exporta: PERMISOS, ROLES, infoRol, permisosDeRol, tienePermiso
-- `js/modulos/fondo.js` — grado 14 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
 ## Cloud Functions detectadas
 
-- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
+- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoAprobadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
 
 ## Archivos huerfanos
 
@@ -96,6 +96,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `firebase_rules/storage.rules`
 - `functions/.eslintrc.js`
 - `functions/package.json`
+- `functions/templates/correo-no-aprobado-gira.html`
 - `functions/templates/correo-notificacion-gira.html`
 - `functions/templates/correo-pago-aprobado.html`
 - `icons/bebida-lata.svg`
@@ -123,8 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/hamburguesa.svg`
 - `img/iconos/helado.svg`
 - `img/iconos/hotdog.svg`
-- `img/iconos/jugo.svg`
-- ...y 22 mas
+- ...y 24 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -330,10 +330,10 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 180
+- `calls_imported_symbol`: 181
 - `imports`: 149
 - `navigates_to`: 57
-- `loads_script`: 37
+- `loads_script`: 36
 - `loads_stylesheet`: 30
 - `loads_asset`: 19
 
@@ -351,7 +351,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `fs` — usado en 1 archivo(s)
 - `https` — usado en 1 archivo(s)
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
-- `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 3 archivo(s)
+- `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 4 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)

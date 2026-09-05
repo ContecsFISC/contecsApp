@@ -5,7 +5,9 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <title>CONTECS — Giras</title>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260822.1"/>
- <script src="../../../js/libs/xlsx.full.min.js"></script>
+ <!-- xlsx.full.min.js (930 KB) NO se carga aqui: esta pagina no exporta hojas de
+      calculo. Solo voluntarios.html y actividades.html lo necesitan. Cargarlo
+      bloqueaba el primer render de la lista de giras, sobre todo en movil. -->
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -88,7 +90,7 @@
  .sheet-part-titulo { font-size:16px; font-weight:800; color:#856404; }
  .sheet-part-cerrar {
  background:#f8f9fa; border:none; width:30px; height:30px; border-radius:50%;
- cursor:pointer; color:#666;
+ cursor:pointer; color:#666; flex-shrink:0;
  display:flex; align-items:center; justify-content:center;
  }
  .sheet-part-buscar { padding: 10px 16px; flex-shrink:0; }
@@ -168,6 +170,53 @@
  .btn-fila.desactivar { background: linear-gradient(135deg, #a93226, #c0392b); color: #fff; }
  .btn-fila.eliminar { background: #fdecea; color: #c0392b; }
  .btn-fila.eliminar:hover:not(:disabled) { background: #fbd7d3; }
+ .btn-fila.notificar-no { background: linear-gradient(135deg, #8e4b10, #d68910); color: #fff; }
+
+ /* ── Estado de pago dentro del selector de participantes ──
+    "NO INCLUIDO EN LA GIRA" es una etiqueta informativa: marca a quien fue
+    seleccionado por staff pero todavia no tiene el pago aprobado. No bloquea
+    el check-in (ver marcarCheckpointGira en functions/operaciones-qr.js). */
+ .part-item-pago.no-incluido { color:#c0392b; }
+ .part-item-pago .pill-no-incluido {
+ display:inline-block; background:#fdecea; border:1px solid #f5b7b1;
+ color:#a93226; border-radius:6px; padding:1px 6px; font-size:10px;
+ letter-spacing:0.3px; margin-left:4px;
+ }
+ .sheet-part-contador { font-size:11.5px; color:var(--gris-medio); font-weight:600; }
+ .sheet-part-mas {
+ width:100%; margin:8px 0 4px; padding:10px; border-radius:10px;
+ border:1.5px dashed #ffc107; background:#fffdf7; color:#856404;
+ font-size:12.5px; font-weight:700; cursor:pointer;
+ }
+ .sheet-part-mas:hover { background:#fff8e1; }
+
+ /* ── Desglose de participantes dentro de la tarjeta de gira ── */
+ .gira-participantes { margin-top:12px; border-top:1px solid #f0e6c8; padding-top:10px; }
+ .gira-participantes-titulo {
+ display:flex; align-items:center; justify-content:space-between; gap:8px;
+ font-size:12px; font-weight:800; color:#856404; letter-spacing:0.3px;
+ cursor:pointer; user-select:none;
+ }
+ .gira-participantes-lista { margin-top:8px; display:none; }
+ .gira-participantes.abierta .gira-participantes-lista { display:block; }
+ .gira-participantes.abierta .gp-caret { transform: rotate(90deg); }
+ .gp-caret { transition: transform 0.15s; flex-shrink:0; }
+ .gp-item {
+ display:flex; align-items:center; justify-content:space-between; gap:10px;
+ padding:7px 2px; border-bottom:1px solid #f5eed7; font-size:12.5px;
+ }
+ .gp-item:last-child { border-bottom:none; }
+ .gp-nombre { color:#3a2e05; font-weight:600; min-width:0; overflow-wrap:anywhere; }
+ .gp-codigo { color:#a08a3f; font-weight:500; font-size:11px; }
+ .gp-estado {
+ flex-shrink:0; font-size:10.5px; font-weight:800; letter-spacing:0.3px;
+ padding:3px 9px; border-radius:20px; white-space:nowrap;
+ }
+ .gp-estado.incluido { background:#e8f5ec; color:#1a7a3f; }
+ .gp-estado.no-incluido { background:#fdecea; color:#a93226; }
+ @media(max-width:520px) {
+ .gp-item { flex-direction:column; align-items:flex-start; gap:4px; }
+ }
  </style>
 </head>
 <body>
@@ -295,7 +344,10 @@
 <div class="sheet-part" id="sheet-part">
  <div class="sheet-part-handle"></div>
  <div class="sheet-part-header">
- <span class="sheet-part-titulo">Seleccionar participantes</span>
+ <div>
+   <span class="sheet-part-titulo">Seleccionar participantes</span>
+   <div class="sheet-part-contador" id="sheet-part-contador">Cargando...</div>
+  </div>
  <button type="button" class="sheet-part-cerrar" id="btn-cerrar-sheet-part"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
  </div>
  <div class="sheet-part-buscar">

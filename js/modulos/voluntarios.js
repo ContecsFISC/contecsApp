@@ -5,7 +5,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
-import { listarParticipantesParaGiras, notificarParticipantesGira } from "../core/participantes-api.js";
+import {
+  listarParticipantesParaGiras,
+  notificarParticipantesGira,
+  notificarNoAprobadosGira,
+} from "../core/participantes-api.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
 import {
   escaparAtributo,
@@ -30,7 +34,19 @@ function scrollAElemento(id, margenExtra = 16) {
 const h = escaparHtml;
 const QRCode = window.QRCode;
 const Papa   = window.Papa;
-const XLSX   = window.XLSX;
+
+// XLSX se resuelve al usarlo, no al cargar el modulo: giras.html ya no carga
+// xlsx.full.min.js (930 KB) porque no exporta hojas de calculo. Capturarlo en
+// una const al importar dejaria `undefined` en esa pagina y romperia cualquier
+// llamada futura; asi cada export lo pide en el momento y falla con un mensaje
+// claro si la pagina anfitriona no incluyo la libreria.
+function xlsx() {
+  const lib = window.XLSX;
+  if (!lib) {
+    throw new Error("La libreria de Excel no esta disponible en esta pagina.");
+  }
+  return lib;
+}
 
 const DIACRITICOS_RE = new RegExp("[̀-ͯ]", "g");
 const normalizarParaComparar = s => String(s || "").toLowerCase().normalize("NFD").replace(DIACRITICOS_RE, "");
@@ -525,9 +541,9 @@ function procesarArchivo(file) {
   } else if (["xlsx","xls"].includes(ext)) {
     const reader = new FileReader();
     reader.onload = e2 => {
-      const wb   = XLSX.read(e2.target.result, { type: "array" });
+      const wb   = xlsx().read(e2.target.result, { type: "array" });
       const ws   = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      const data = xlsx().utils.sheet_to_json(ws, { header: 1 });
       if (!data.length) return;
       columnasArchivo = data[0].map(String);
       filasArchivo    = data.slice(1).map(row =>
@@ -778,10 +794,10 @@ el("btn-exportar-excel")?.addEventListener("click", () => {
     "Habilidad destacada":             v.habilidad || "",
     "Horas ganadas": +(v.totalHoras || 0).toFixed(2),
   }));
-  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Voluntarios");
-  XLSX.writeFile(wb, `voluntarios_contecs_${new Date().toISOString().split("T")[0]}.xlsx`);
+  const ws = xlsx().utils.json_to_sheet(filasSegurasHoja(filas));
+  const wb = xlsx().utils.book_new();
+  xlsx().utils.book_append_sheet(wb, ws, "Voluntarios");
+  xlsx().writeFile(wb, `voluntarios_contecs_${new Date().toISOString().split("T")[0]}.xlsx`);
 });
 
 // ── EXPORTAR CARNETS QR (ZIP de PNGs) ─────────────────────────────────────────
@@ -1071,10 +1087,10 @@ el("btn-exportar-asistencias")?.addEventListener("click", () => {
       "Área":          area,
     };
   });
-  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Asistencias");
-  XLSX.writeFile(wb, `asistencias_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
+  const ws = xlsx().utils.json_to_sheet(filasSegurasHoja(filas));
+  const wb = xlsx().utils.book_new();
+  xlsx().utils.book_append_sheet(wb, ws, "Asistencias");
+  xlsx().writeFile(wb, `asistencias_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
 });
 
 // ─── Utilidad tab ─────────────────────────────────────────────────────────────
@@ -1097,6 +1113,27 @@ async function cargarGiras() {
   renderTablaGiras();
 }
 
+// Resuelve el estado de pago de cada participante de una gira. Se prefiere el
+// dato en vivo del selector (`participantesGiraCache`) sobre el que quedo
+// guardado en el documento, para que un pago aprobado despues de crear la gira
+// se refleje sin tener que volver a editarla.
+function participantesGiraConEstado(gira) {
+  return (gira.participantes || []).map(p => {
+    const vivo = participantesGiraCache.find(x => x.id === p.id);
+    return {
+      id: p.id,
+      nombre: p.nombre || "",
+      codigo: p.codigo || "",
+      aprobado: vivo ? vivo.pagoAprobado === true : p.pagoAprobado === true,
+    };
+  });
+}
+
+// Alterna el desglose de participantes de una tarjeta de gira.
+window.toggleParticipantesGira = function(id) {
+  el(`participantes-gira-${id}`)?.classList.toggle("abierta");
+};
+
 function renderTablaGiras() {
   const tb = el("tabla-giras-body");
   if (!tb) return;
@@ -1105,8 +1142,11 @@ function renderTablaGiras() {
     return;
   }
   tb.innerHTML = giras.map(g => {
-    const numParticipantes = (g.participantes || []).length;
+    const listaParticipantes = participantesGiraConEstado(g);
+    const noAprobados      = listaParticipantes.filter(p => !p.aprobado);
+    const numParticipantes = listaParticipantes.length;
     const numNotificados   = (g.notificados   || []).length;
+    const numNotifNoAprob  = (g.notificadosNoAprobados || []).length;
 
     const metaBadges = [
       g.descripcion
@@ -1119,6 +1159,16 @@ function renderTablaGiras() {
         ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
              ${numParticipantes} participante${numParticipantes === 1 ? "" : "s"}
+           </span>`
+        : "",
+      noAprobados.length
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fdecea;color:#a93226;padding:3px 8px;border-radius:8px;">
+             ${noAprobados.length} NO INCLUIDO${noAprobados.length === 1 ? "" : "S"} EN LA GIRA
+           </span>`
+        : "",
+      numNotifNoAprob
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#fdf3e6;color:#8e4b10;padding:3px 8px;border-radius:8px;">
+             ${numNotifNoAprob} avisado${numNotifNoAprob === 1 ? "" : "s"} (no aprobado${numNotifNoAprob === 1 ? "" : "s"})
            </span>`
         : "",
       numNotificados
@@ -1164,6 +1214,21 @@ function renderTablaGiras() {
           </div>`).join("")}
       </div>
 
+      ${numParticipantes ? `
+      <div class="gira-participantes${noAprobados.length ? " abierta" : ""}" id="participantes-gira-${escaparAtributo(g.id)}">
+        <div class="gira-participantes-titulo" onclick="toggleParticipantesGira('${escaparAtributo(g.id)}')">
+          <span>Participantes (${numParticipantes})</span>
+          <svg class="gp-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="gira-participantes-lista">
+          ${listaParticipantes.map(p => `
+          <div class="gp-item">
+            <span class="gp-nombre">${h(p.nombre || "(sin nombre)")}${p.codigo ? ` <span class="gp-codigo">${h(p.codigo)}</span>` : ""}</span>
+            <span class="gp-estado ${p.aprobado ? "incluido" : "no-incluido"}">${p.aprobado ? "Incluido" : "NO INCLUIDO EN LA GIRA"}</span>
+          </div>`).join("")}
+        </div>
+      </div>` : ""}
+
       <div class="gira-card-acciones acciones-gira">
         <button class="btn-fila editar" onclick="editarGira('${escaparAtributo(g.id)}')" title="Editar">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1174,6 +1239,12 @@ function renderTablaGiras() {
           title="Notificar participantes por correo">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
           Notificar
+        </button>
+        <button class="btn-fila notificar-no" onclick="notificarNoAprobados('${escaparAtributo(g.id)}')" id="btn-notificar-no-${escaparAtributo(g.id)}"
+          ${noAprobados.length ? "" : "disabled"}
+          title="Avisar por correo a quienes quedaron NO INCLUIDOS por pago sin aprobar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Notificar NO Aprobados${noAprobados.length ? ` (${noAprobados.length})` : ""}
         </button>
         <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
@@ -1189,66 +1260,183 @@ function renderTablaGiras() {
 }
 
 // ── SELECTOR DE PARTICIPANTES (cascada + búsqueda) ──────────────────────────
+// Esta lista puede traer miles de participantes del congreso. La version
+// anterior reconstruia el innerHTML completo y volvia a colgar un listener por
+// fila en cada tecla del buscador y en cada clic de seleccion, lo que en movil
+// se sentia como medio segundo de bloqueo por pulsacion. Ahora:
+//   1. la lista se precarga en segundo plano al abrir la pagina,
+//   2. cada participante trae su texto de busqueda ya normalizado,
+//   3. se pinta por lotes (scroll infinito dentro del sheet),
+//   4. hay un unico listener delegado en el contenedor, y
+//   5. seleccionar a alguien repinta solo su fila, no la lista entera.
+const LOTE_PARTICIPANTES = 60;
+
+let participantesGiraPromesa = null;   // dedupe de cargas concurrentes
+let participantesGiraFiltrados = [];   // resultado del filtro actual
+let participantesGiraVisibles = 0;     // cuantas filas hay pintadas ya
+let temporizadorBusquedaGira = null;
+
+// Texto unico contra el que se busca (sin tildes y en minusculas), calculado
+// una sola vez por participante en vez de en cada tecla.
+function prepararParticipanteGira(p) {
+  p._buscar = normalizarParaComparar(
+    [p.nombre, p.cedula, p.codigo].filter(Boolean).join(" ")
+  );
+  return p;
+}
+
 async function asegurarParticipantesGiraCargados() {
   if (participantesGiraCargados) return;
-  const lista = el("lista-participantes-gira");
+  if (!participantesGiraPromesa) {
+    participantesGiraPromesa = listarParticipantesParaGiras()
+      .then(lista => {
+        participantesGiraCache = (lista || []).map(prepararParticipanteGira);
+        participantesGiraCargados = true;
+      })
+      .catch(e => {
+        // Se limpia la promesa para que un reintento del staff vuelva a pedirla.
+        participantesGiraPromesa = null;
+        throw e;
+      });
+  }
   try {
-    participantesGiraCache = await listarParticipantesParaGiras();
-    participantesGiraCargados = true;
+    await participantesGiraPromesa;
   } catch (e) {
+    const lista = el("lista-participantes-gira");
     if (lista) lista.innerHTML = `<div style="text-align:center;padding:24px;color:var(--rojo);font-size:13px;">${h(e.message)}</div>`;
+    const contador = el("sheet-part-contador");
+    if (contador) contador.textContent = "No se pudo cargar";
     throw e;
   }
+}
+
+// Precarga silenciosa: si falla no se avisa nada, el staff lo reintentara al
+// abrir el selector y ahi si vera el error.
+function precalentarParticipantesGira() {
+  asegurarParticipantesGiraCargados()
+    // Las tarjetas ya se pintaron con el `pagoAprobado` guardado en cada gira;
+    // al llegar el cache se repintan con el estado real de hoy.
+    .then(() => { if (giras.length) renderTablaGiras(); })
+    .catch(() => {});
+}
+
+// Un participante seleccionado cuyo pago no esta aprobado sigue en la lista de
+// la gira, pero se marca como NO INCLUIDO. Es una etiqueta informativa para el
+// staff y para los correos; el check-in por QR no la consulta (ver
+// marcarCheckpointGira en functions/operaciones-qr.js).
+function estaAprobadoParaGira(p) {
+  return p?.pagoAprobado === true;
+}
+
+function filaParticipanteGira(p, seleccionado) {
+  const meta = [p.codigo, CATEGORIA_LABELS_GIRA[p.categoria] || p.categoria, p.cedula]
+    .filter(Boolean).join(" · ");
+  const aprobado = estaAprobadoParaGira(p);
+  const clasePago = aprobado ? "aprobado" : "no-incluido";
+  const textoPago = aprobado
+    ? "Pago aprobado"
+    : `Pago sin aprobar<span class="pill-no-incluido">NO INCLUIDO EN LA GIRA</span>`;
+  const check = seleccionado
+    ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    : "";
+  return `
+      <div class="part-item ${seleccionado ? "selected" : ""}" data-id="${escaparAtributo(p.id)}">
+        <div class="part-item-check">${check}</div>
+        <div class="part-item-info">
+          <div class="part-item-nombre">${h(p.nombre || "(sin nombre)")}</div>
+          <div class="part-item-meta">${h(meta || "—")}</div>
+          <div class="part-item-pago ${clasePago}">${textoPago}</div>
+        </div>
+      </div>`;
+}
+
+function actualizarContadorParticipantesGira() {
+  const contador = el("sheet-part-contador");
+  if (!contador) return;
+  const total = participantesGiraFiltrados.length;
+  const sel   = participantesGiraSeleccionados.length;
+  const mostrando = total > participantesGiraVisibles
+    ? `${participantesGiraVisibles} de ${total}`
+    : String(total);
+  contador.textContent = `${mostrando} participante${total === 1 ? "" : "s"} · ${sel} seleccionado${sel === 1 ? "" : "s"}`;
+}
+
+// Pinta el siguiente lote al final de la lista, sin tocar lo ya renderizado.
+function pintarLoteParticipantesGira() {
+  const lista = el("lista-participantes-gira");
+  if (!lista) return;
+  const idsSeleccionados = new Set(participantesGiraSeleccionados.map(p => p.id));
+  const siguiente = participantesGiraFiltrados.slice(
+    participantesGiraVisibles,
+    participantesGiraVisibles + LOTE_PARTICIPANTES,
+  );
+  if (!siguiente.length) return;
+
+  el("btn-mas-participantes-gira")?.remove();
+  lista.insertAdjacentHTML(
+    "beforeend",
+    siguiente.map(p => filaParticipanteGira(p, idsSeleccionados.has(p.id))).join(""),
+  );
+  participantesGiraVisibles += siguiente.length;
+
+  const faltan = participantesGiraFiltrados.length - participantesGiraVisibles;
+  if (faltan > 0) {
+    lista.insertAdjacentHTML(
+      "beforeend",
+      `<button type="button" class="sheet-part-mas" id="btn-mas-participantes-gira">Mostrar ${Math.min(faltan, LOTE_PARTICIPANTES)} más (quedan ${faltan})</button>`,
+    );
+  }
+  actualizarContadorParticipantesGira();
 }
 
 function renderListaParticipantesGira() {
   const lista = el("lista-participantes-gira");
   if (!lista) return;
-  const termino = (el("buscar-participante-gira")?.value || "").toLowerCase().trim();
-  const idsSeleccionados = new Set(participantesGiraSeleccionados.map(p => p.id));
+  const termino = normalizarParaComparar(el("buscar-participante-gira")?.value || "").trim();
 
-  const filtrados = participantesGiraCache.filter(p => {
-    if (!termino) return true;
-    return (p.nombre || "").toLowerCase().includes(termino)
-        || (p.cedula || "").toLowerCase().includes(termino)
-        || (p.codigo || "").toLowerCase().includes(termino);
-  });
+  participantesGiraFiltrados = termino
+    ? participantesGiraCache.filter(p => (p._buscar || "").includes(termino))
+    : participantesGiraCache;
 
-  if (filtrados.length === 0) {
+  lista.innerHTML = "";
+  participantesGiraVisibles = 0;
+
+  if (participantesGiraFiltrados.length === 0) {
     lista.innerHTML = `<div style="text-align:center;padding:24px;color:var(--gris-medio);font-size:13px;">No hay participantes que coincidan con tu búsqueda.</div>`;
+    actualizarContadorParticipantesGira();
     return;
   }
+  lista.scrollTop = 0;
+  pintarLoteParticipantesGira();
+}
 
-  lista.innerHTML = filtrados.map(p => {
-    const sel = idsSeleccionados.has(p.id);
-    const meta = [p.codigo, CATEGORIA_LABELS_GIRA[p.categoria] || p.categoria, p.cedula].filter(Boolean).join(" · ");
-    const pagoClase = p.pagoAprobado ? "aprobado" : "rechazado";
-    const pagoTexto = p.pagoAprobado ? "Pago aprobado" : "Pago sin aprobar";
-    return `
-      <div class="part-item ${sel ? "selected" : ""}" data-id="${escaparAtributo(p.id)}">
-        <div class="part-item-check">${sel ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ""}</div>
-        <div class="part-item-info">
-          <div class="part-item-nombre">${h(p.nombre || "(sin nombre)")}</div>
-          <div class="part-item-meta">${h(meta || "—")}</div>
-          <div class="part-item-pago ${pagoClase}">${pagoTexto}</div>
-        </div>
-      </div>`;
-  }).join("");
-
-  lista.querySelectorAll(".part-item").forEach(item => {
-    item.addEventListener("click", () => toggleParticipanteGira(item.dataset.id));
-  });
+// Repinta una sola fila tras seleccionarla/deseleccionarla. Si el participante
+// no esta en el lote visible (p. ej. se quito desde un chip) simplemente no hay
+// nada que actualizar en pantalla.
+function actualizarFilaParticipanteGira(id) {
+  const fila = el("lista-participantes-gira")
+    ?.querySelector(`.part-item[data-id="${CSS.escape(id)}"]`);
+  if (!fila) return;
+  const seleccionado = participantesGiraSeleccionados.some(p => p.id === id);
+  fila.classList.toggle("selected", seleccionado);
+  const check = fila.querySelector(".part-item-check");
+  if (check) {
+    check.innerHTML = seleccionado
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : "";
+  }
 }
 
 function toggleParticipanteGira(id) {
-  const yaSeleccionado = participantesGiraSeleccionados.find(p => p.id === id);
+  const yaSeleccionado = participantesGiraSeleccionados.some(p => p.id === id);
   if (yaSeleccionado) {
     participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
   } else {
     const p = participantesGiraCache.find(x => x.id === id);
     if (p) participantesGiraSeleccionados.push(p);
   }
-  renderListaParticipantesGira();
+  actualizarFilaParticipanteGira(id);
+  actualizarContadorParticipantesGira();
   renderChipsParticipantesGira();
 }
 
@@ -1262,19 +1450,28 @@ function renderChipsParticipantesGira() {
     return;
   }
   if (vacio) vacio.style.display = "none";
-  cont.innerHTML = participantesGiraSeleccionados.map(p => `
+  cont.innerHTML = participantesGiraSeleccionados.map(p => {
+    const aviso = estaAprobadoParaGira(p)
+      ? ""
+      : ` <span title="Pago sin aprobar — quedará marcado como NO INCLUIDO EN LA GIRA" style="color:#a93226;font-weight:800;">●</span>`;
+    return `
     <span class="chip-participante" data-id="${escaparAtributo(p.id)}">
-      ${h(p.nombre || "(sin nombre)")}
+      ${h(p.nombre || "(sin nombre)")}${aviso}
       <button type="button" title="Quitar" data-quitar="${escaparAtributo(p.id)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
-    </span>`).join("");
-  cont.querySelectorAll("[data-quitar]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== btn.dataset.quitar);
-      renderChipsParticipantesGira();
-      renderListaParticipantesGira();
-    });
-  });
+    </span>`;
+  }).join("");
 }
+
+// Un unico listener delegado para los chips, colgado una sola vez.
+el("gira-participantes-chips")?.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-quitar]");
+  if (!btn) return;
+  const id = btn.dataset.quitar;
+  participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
+  renderChipsParticipantesGira();
+  actualizarFilaParticipanteGira(id);
+  actualizarContadorParticipantesGira();
+});
 
 function abrirSheetParticipantesGira() {
   el("overlay-part")?.classList.add("show");
@@ -1287,14 +1484,47 @@ function cerrarSheetParticipantesGira() {
   document.body.style.overflow = "";
 }
 
+// Delegacion: un solo listener para toda la lista, en vez de uno por fila.
+el("lista-participantes-gira")?.addEventListener("click", (ev) => {
+  if (ev.target.closest("#btn-mas-participantes-gira")) {
+    pintarLoteParticipantesGira();
+    return;
+  }
+  const item = ev.target.closest(".part-item");
+  if (item?.dataset.id) toggleParticipanteGira(item.dataset.id);
+});
+
+// Scroll infinito dentro del sheet: al acercarse al final se pinta otro lote.
+el("lista-participantes-gira")?.addEventListener("scroll", (ev) => {
+  const cont = ev.currentTarget;
+  if (participantesGiraVisibles >= participantesGiraFiltrados.length) return;
+  if (cont.scrollTop + cont.clientHeight >= cont.scrollHeight - 240) {
+    pintarLoteParticipantesGira();
+  }
+}, { passive: true });
+
 el("btn-abrir-participantes-gira")?.addEventListener("click", async () => {
   abrirSheetParticipantesGira();
+  const lista = el("lista-participantes-gira");
+  if (!participantesGiraCargados) {
+    // Si la precarga en segundo plano habia fallado, el sheet conserva su
+    // mensaje de error; se limpia antes de reintentar.
+    if (lista) lista.innerHTML = `<div style="text-align:center;padding:24px;color:var(--gris-medio);font-size:13px;">Cargando participantes...</div>`;
+    const contador = el("sheet-part-contador");
+    if (contador) contador.textContent = "Cargando...";
+  }
   try {
     await asegurarParticipantesGiraCargados();
     renderListaParticipantesGira();
   } catch { /* el mensaje de error ya quedó en el sheet */ }
 });
-el("buscar-participante-gira")?.addEventListener("input", renderListaParticipantesGira);
+
+// El filtro se aplica tras una pausa corta: escribir "gonzalez" ya no dispara
+// ocho filtrados y ocho repintados seguidos.
+el("buscar-participante-gira")?.addEventListener("input", () => {
+  clearTimeout(temporizadorBusquedaGira);
+  temporizadorBusquedaGira = setTimeout(renderListaParticipantesGira, 120);
+});
 el("btn-cerrar-sheet-part")?.addEventListener("click", cerrarSheetParticipantesGira);
 el("btn-listo-participantes-gira")?.addEventListener("click", cerrarSheetParticipantesGira);
 el("overlay-part")?.addEventListener("click", cerrarSheetParticipantesGira);
@@ -1326,9 +1556,14 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
       telefono:  el("gira-coord-telefono").value.trim(),
       correoInstitucional: coordCorreo,
     },
+    // Se guarda `pagoAprobado` tal como estaba al crear/editar la gira, para
+    // que la tarjeta pueda marcar "NO INCLUIDO EN LA GIRA" sin depender de que
+    // el selector ya haya cargado. Al pintar se prefiere el dato en vivo del
+    // cache (un pago aprobado despues deja de aparecer como no incluido).
     participantes:  participantesGiraSeleccionados.map(p => ({
       id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
       correoInstitucional: p.correoInstitucional || "",
+      pagoAprobado: estaAprobadoParaGira(p),
     })),
     activo: true, actualizadoEn: serverTimestamp(),
   };
@@ -1387,7 +1622,12 @@ window.editarGira = function(id) {
     el("gira-fecha").value = d.toISOString().split("T")[0];
   }
   el("gira-hora").value = g.hora || "";
-  participantesGiraSeleccionados = (g.participantes || []).map(p => ({ ...p }));
+  // Al reabrir una gira se refresca el estado de pago desde el cache si ya
+  // esta disponible; si no, se conserva el valor guardado con la gira.
+  participantesGiraSeleccionados = (g.participantes || []).map(p => {
+    const vivo = participantesGiraCache.find(x => x.id === p.id);
+    return { ...p, pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true };
+  });
   renderChipsParticipantesGira();
   el("form-gira-titulo").textContent = "Editar gira";
   el("btn-cancelar-gira").style.display = "inline-flex";
@@ -1427,6 +1667,42 @@ window.notificarGira = async function(id) {
     mostrarAlerta("error", "Error al notificar: " + e.message);
     btn.disabled = false;
     btn.textContent = textoOriginal;
+  }
+};
+
+// Aviso a quienes quedaron fuera por pago sin aprobar. El correo no lleva
+// credenciales ni enlace a la gira a proposito: no fueron incluidos, asi que no
+// deben recibir el acceso. La Cloud Function vuelve a comprobar el estado de
+// pago con Admin SDK antes de enviar — el cliente solo propone a quien avisar.
+window.notificarNoAprobados = async function(id) {
+  const btn = el(`btn-notificar-no-${id}`);
+  if (!btn) return;
+  const gira = giras.find(g => g.id === id);
+  const pendientes = participantesGiraConEstado(gira || {}).filter(p => !p.aprobado);
+  if (!pendientes.length) {
+    mostrarAlerta("aviso", "No hay participantes sin pago aprobado en esta gira.");
+    return;
+  }
+  const uno = pendientes.length === 1;
+  if (!confirm(
+    `Se avisará por correo a ${uno ? "1 participante" : `hasta ${pendientes.length} participantes`} ` +
+    `de "${gira?.nombre || "esta gira"}" que no ${uno ? "quedó incluido" : "quedaron incluidos"} ` +
+    `por tener el pago sin aprobar.\n\n` +
+    `Se omite a quienes ya fueron avisados antes o cuyo pago ya se aprobó.\n` +
+    `El correo no incluye credenciales ni enlace a la gira.\n\n¿Continuar?`
+  )) return;
+
+  const contenidoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+  try {
+    const resultado = await notificarNoAprobadosGira(id);
+    mostrarAlerta(resultado.enviados > 0 ? "success" : "aviso", resultado.mensaje);
+    await cargarGiras();
+  } catch (e) {
+    mostrarAlerta("error", "Error al notificar: " + e.message);
+    btn.disabled = false;
+    btn.innerHTML = contenidoOriginal;
   }
 };
 
@@ -1650,10 +1926,10 @@ el("btn-exportar-asignaciones")?.addEventListener("click", () => {
     "Evento":          a.eventoNombre || "",
     "Turno":           a.turnoNombre || "",
   }));
-  const ws = XLSX.utils.json_to_sheet(filasSegurasHoja(filas));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Asignaciones");
-  XLSX.writeFile(wb, `asignaciones_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
+  const ws = xlsx().utils.json_to_sheet(filasSegurasHoja(filas));
+  const wb = xlsx().utils.book_new();
+  xlsx().utils.book_append_sheet(wb, ws, "Asignaciones");
+  xlsx().writeFile(wb, `asignaciones_voluntarios_${new Date().toISOString().split("T")[0]}.xlsx`);
 });
 
 // ════════════════════════════════════════════════════════════
@@ -2103,8 +2379,36 @@ el("btn-confirmar-grupo")?.addEventListener("click", async () => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+// Este modulo lo comparten tres paginas (actividades.html, giras.html y
+// voluntarios.html) y antes las cinco colecciones se leian siempre, en las
+// tres. En giras.html eso significaba cuatro consultas completas
+// (actividades_voluntarios, voluntarios, actividades_ventas y
+// solicitudes_actividad) cuyos resultados no se pintaban en ningun lado,
+// porque los render correspondientes salen temprano con `if (!tb) return`.
+// Ahora cada carga se pide solo si la pagina anfitriona tiene el DOM que la
+// consume. Cada bandera lista los IDs que realmente dependen de esos datos.
 renderChipsParticipantesGira();
-Promise.all([cargarActividades(), cargarVoluntarios(), cargarGiras(), cargarVentas(), cargarSolicitudesAutocomplete()]).then(() => {
+
+const necesitaActividades  = !!(el("tabla-actividades-body") || el("filtro-actividad") || el("asig-evento"));
+const necesitaVoluntarios  = !!(el("tabla-voluntarios-body") || el("asig-voluntario"));
+const necesitaGiras        = !!(el("tabla-giras-body") || el("asig-tipo") || el("turno-evt-tipo"));
+const necesitaVentas       = !!(el("asig-evento") || el("turno-evt-tipo"));
+const necesitaSolicitudes  = !!el("act-nombre");
+
+const tareasIniciales = [
+  necesitaActividades && cargarActividades(),
+  necesitaVoluntarios && cargarVoluntarios(),
+  necesitaGiras       && cargarGiras(),
+  necesitaVentas      && cargarVentas(),
+  necesitaSolicitudes && cargarSolicitudesAutocomplete(),
+].filter(Boolean);
+
+Promise.all(tareasIniciales).then(() => {
   const tabActivo = document.querySelector(".tab-btn.active");
   if (tabActivo?.dataset.tab === "tab-voluntariado") iniciarTabVoluntariado();
+  // El selector de participantes se precalienta despues de pintar las giras:
+  // listarParticipantesParaGiras es una Cloud Function y su arranque en frio
+  // se paga una sola vez, en segundo plano, en vez de hacerlo esperar al
+  // staff cuando abre el selector.
+  if (necesitaGiras) precalentarParticipantesGira();
 });
