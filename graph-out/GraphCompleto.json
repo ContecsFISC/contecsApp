@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-08-24T19:33:21.882537+00:00",
-  "project_fingerprint": "9009887fd88edf978e1ddb20149179298a528a97677ff0c96400b66ff2a49c9b",
+  "generated_at": "2026-09-05T23:27:02.732668+00:00",
+  "project_fingerprint": "dde8bf6a1ed5513ab8275ba266c6fefc45a6a983db5f023fd55511d219ca0422",
   "project": "contecsApp",
   "root": ".",
   "view": "complete",
   "stats": {
-    "total_files": 151,
+    "total_files": 153,
     "total_edges": 472,
-    "total_orphans": 62,
+    "total_orphans": 64,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 12,
+    "total_cloud_functions": 13,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3274,
-    "total_function_calls": 7463,
-    "total_dom_ids": 779,
+    "total_symbols": 3365,
+    "total_function_calls": 7581,
+    "total_dom_ids": 780,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -156,17 +156,17 @@
       "exports": []
     },
     {
+      "label": "js/modulos/voluntarios.js",
+      "degree": 18,
+      "in": 3,
+      "out": 15,
+      "exports": []
+    },
+    {
       "label": "js/modulos/compras2.js",
       "degree": 17,
       "in": 1,
       "out": 16,
-      "exports": []
-    },
-    {
-      "label": "js/modulos/voluntarios.js",
-      "degree": 17,
-      "in": 3,
-      "out": 14,
       "exports": []
     },
     {
@@ -175,6 +175,23 @@
       "in": 1,
       "out": 15,
       "exports": []
+    },
+    {
+      "label": "js/core/participantes-api.js",
+      "degree": 14,
+      "in": 13,
+      "out": 1,
+      "exports": [
+        "accederGiraParticipante",
+        "accederParticipante",
+        "archivoABase64",
+        "enviarCorreoQrParticipante",
+        "listarParticipantesParaGiras",
+        "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
+        "notificarParticipantesGira",
+        "registrarParticipante"
+      ]
     },
     {
       "label": "js/core/permisos.js",
@@ -188,13 +205,6 @@
         "permisosDeRol",
         "tienePermiso"
       ]
-    },
-    {
-      "label": "js/modulos/fondo.js",
-      "degree": 14,
-      "in": 1,
-      "out": 13,
-      "exports": []
     }
   ],
   "top_risk_files": [
@@ -234,6 +244,13 @@
       "loc": 35
     },
     {
+      "label": "js/modulos/voluntarios.js",
+      "risk_score": 61.6,
+      "degree": 18,
+      "in_cycle": false,
+      "loc": 2415
+    },
+    {
       "label": "panel/modulos/logistica/catalogo.html",
       "risk_score": 60.9,
       "degree": 26,
@@ -255,18 +272,11 @@
       "loc": 88
     },
     {
-      "label": "js/modulos/voluntarios.js",
-      "risk_score": 56.6,
-      "degree": 17,
-      "in_cycle": false,
-      "loc": 2108
-    },
-    {
       "label": "js/core/operaciones.js",
-      "risk_score": 52.4,
+      "risk_score": 52.5,
       "degree": 25,
       "in_cycle": false,
-      "loc": 243
+      "loc": 249
     },
     {
       "label": "js/modulos/ventaRapida.js",
@@ -317,6 +327,7 @@
     "firebase_rules/storage.rules",
     "functions/.eslintrc.js",
     "functions/package.json",
+    "functions/templates/correo-no-aprobado-gira.html",
     "functions/templates/correo-notificacion-gira.html",
     "functions/templates/correo-pago-aprobado.html",
     "icons/bebida-lata.svg",
@@ -366,7 +377,8 @@
     "img/iconos/soda.svg",
     "img/iconos/ticket.svg",
     "img/iconos/wrap.svg",
-    "package.json"
+    "package.json",
+    "vercel.json"
   ],
   "circular_dependencies": [],
   "external_packages": {
@@ -414,6 +426,7 @@
       "panel/modulos/finanzas/reportes_financieros.html"
     ],
     "https://contecsfisc.github.io/contecsApp/logocontecs.png": [
+      "functions/templates/correo-no-aprobado-gira.html",
       "functions/templates/correo-notificacion-gira.html",
       "functions/templates/correo-pago-aprobado.html",
       "registro.html"
@@ -714,7 +727,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 1438
+        "line": 1717
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
@@ -758,35 +771,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 224
+        "line": 240
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "actividades_voluntarios",
-        "line": 328
+        "line": 344
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 322
+        "line": 338
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 377
+        "line": 393
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "actividades_voluntarios",
-        "line": 386
+        "line": 402
       }
     ],
     "asignaciones_voluntarios": [
@@ -795,28 +808,28 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "asignaciones_voluntarios",
-        "line": 1451
+        "line": 1730
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 1612
+        "line": 1891
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 2083
+        "line": 2362
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "asignaciones_voluntarios",
-        "line": 1628
+        "line": 1907
       }
     ],
     "asistencias_congreso": [
@@ -975,7 +988,7 @@
         "operation": "setDoc",
         "kind": "write",
         "collection": "compras",
-        "line": 182
+        "line": 188
       },
       {
         "file": "js/modulos/reporteFinancieroExcel.js",
@@ -1123,35 +1136,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "giras_voluntarios",
-        "line": 1094
+        "line": 1110
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "giras_voluntarios",
-        "line": 1341
+        "line": 1579
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1336
+        "line": 1574
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1397
+        "line": 1640
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "giras_voluntarios",
-        "line": 1406
+        "line": 1649
       }
     ],
     "informes_actividad": [
@@ -1568,7 +1581,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "solicitudes_actividad",
-        "line": 400
+        "line": 416
       }
     ],
     "usuarios": [
@@ -1721,28 +1734,28 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 589
+        "line": 605
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 628
+        "line": 644
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "voluntarios",
-        "line": 592
+        "line": 608
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "voluntarios",
-        "line": 697
+        "line": 713
       },
       {
         "file": "panel/dashboard.html",
@@ -1790,504 +1803,504 @@
         "collection": "usuarios",
         "operations": "read",
         "condition": "signedIn() && ( request.auth.uid == uid || hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'finanzas']) )",
-        "line": 46,
+        "line": 57,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "create",
         "condition": "signedIn() && request.auth.uid == uid && request.resource.data.keys().hasAll(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.keys().hasOnly(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.ro",
-        "line": 50,
+        "line": 61,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "update",
         "condition": "signedIn() && ( (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys() .hasOnly(['nombre', 'foto', 'actualizadoEn']) && request.resource.data.rol == resource.data.rol && request.resource.data.email == resource.",
-        "line": 63,
+        "line": 74,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "read",
-        "condition": "canGestionarParticipantes()",
-        "line": 82,
+        "condition": "canVerParticipantes()",
+        "line": 93,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "create",
         "condition": "false",
-        "line": 83,
+        "line": 94,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "update",
-        "condition": "canGestionarParticipantes() && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
-        "line": 84,
+        "condition": "canAprobarPagosParticipantes() && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
+        "line": 95,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "delete",
         "condition": "hasRol([\"ceo\",\"junta_principal\"])",
-        "line": 88,
+        "line": 99,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "contadores",
         "operations": "read, write",
         "condition": "false",
-        "line": 93,
+        "line": 104,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "identificadores_participantes",
         "operations": "read, write",
         "condition": "false",
-        "line": 98,
+        "line": 109,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "limites_registro",
         "operations": "read, write",
         "condition": "false",
-        "line": 102,
+        "line": 113,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 107,
+        "line": 118,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "create",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.keys().hasOnly([ 'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId', 'stock', 'activo', 'creadoEn' ]) && request.resource.data.nombre",
-        "line": 108,
+        "line": 119,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activo' ])",
-        "line": 122,
+        "line": 133,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "delete",
         "condition": "false",
-        "line": 126,
+        "line": 137,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 130,
+        "line": 141,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 131,
+        "line": 142,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 136,
+        "line": 147,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "create",
         "condition": "false",
-        "line": 139,
+        "line": 150,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "update, delete",
         "condition": "false",
-        "line": 140,
+        "line": 151,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 144,
+        "line": 155,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "create",
         "condition": "false",
-        "line": 145,
+        "line": 156,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'factura', 'facturaEstado', 'facturaError', 'actualizadoEn' ]) && request.resource.data.fac",
-        "line": 149,
+        "line": 160,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "delete",
         "condition": "false",
-        "line": 156,
+        "line": 167,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 160,
+        "line": 171,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "create",
         "condition": "false",
-        "line": 161,
+        "line": 172,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "update, delete",
         "condition": "false",
-        "line": 162,
+        "line": 173,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 167,
+        "line": 178,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "create, delete",
         "condition": "false",
-        "line": 168,
+        "line": 179,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "update",
         "condition": "false",
-        "line": 171,
+        "line": 182,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 175,
+        "line": 186,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "create",
         "condition": "false",
-        "line": 176,
+        "line": 187,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "update, delete",
         "condition": "false",
-        "line": 177,
+        "line": 188,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 181,
+        "line": 192,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "create",
         "condition": "false",
-        "line": 182,
+        "line": 193,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "update, delete",
         "condition": "false",
-        "line": 183,
+        "line": 194,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 188,
+        "line": 199,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 189,
+        "line": 200,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 193,
+        "line": 204,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "create, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 194,
+        "line": 205,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
-        "line": 195,
+        "line": 206,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 203,
+        "line": 214,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 204,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "inscripciones_checkpoint",
-        "operations": "read",
-        "condition": "isStaff()",
-        "line": 209,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "inscripciones_checkpoint",
-        "operations": "create, update, delete",
-        "condition": "false",
-        "line": 210,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "asistencias_congreso",
-        "operations": "read",
-        "condition": "isStaff()",
         "line": 215,
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "inscripciones_checkpoint",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 220,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "inscripciones_checkpoint",
+        "operations": "create, update, delete",
+        "condition": "false",
+        "line": 221,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "asistencias_congreso",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 226,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "asistencias_congreso",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 216,
+        "line": 227,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 224,
+        "line": 235,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades'])",
-        "line": 225,
+        "line": 236,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 229,
+        "line": 240,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])",
-        "line": 230,
+        "line": 241,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_giras",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 237,
+        "line": 248,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_giras",
         "operations": "write",
         "condition": "false",
-        "line": 238,
+        "line": 249,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 242,
+        "line": 253,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 243,
+        "line": 254,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 247,
+        "line": 258,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "create",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && request.resource.data.totalHoras == 0",
-        "line": 248,
+        "line": 259,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras'])",
-        "line": 250,
+        "line": 261,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 252,
+        "line": 263,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 256,
+        "line": 267,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "write",
         "condition": "false",
-        "line": 257,
+        "line": 268,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 262,
+        "line": 273,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 263,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "solicitudes_actividad",
-        "operations": "read",
-        "condition": "isStaff()",
-        "line": 268,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "solicitudes_actividad",
-        "operations": "create",
-        "condition": "isStaff()",
-        "line": 269,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "solicitudes_actividad",
-        "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
-        "line": 270,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "informes_actividad",
-        "operations": "read",
-        "condition": "isStaff()",
         "line": 274,
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "solicitudes_actividad",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 279,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "solicitudes_actividad",
+        "operations": "create",
+        "condition": "isStaff()",
+        "line": 280,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "solicitudes_actividad",
+        "operations": "update, delete",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
+        "line": 281,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "informes_actividad",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 285,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "informes_actividad",
         "operations": "create",
         "condition": "isStaff()",
-        "line": 275,
+        "line": 286,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "update, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
-        "line": 276,
+        "line": 287,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 281,
+        "line": 292,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "create, update, delete",
         "condition": "hasRol(['ceo', 'secretario'])",
-        "line": 282,
+        "line": 293,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "comprobantes",
         "operations": "read",
-        "condition": "canGestionarParticipantes()",
-        "line": 29,
+        "condition": "canAprobarPagosParticipantes()",
+        "line": 32,
         "file": "firebase_rules/storage.rules"
       },
       {
         "collection": "comprobantes",
         "operations": "write",
         "condition": "false",
-        "line": 30,
+        "line": 33,
         "file": "firebase_rules/storage.rules"
       }
     ]
@@ -2303,6 +2316,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -2334,6 +2348,9 @@
     "marcarCheckpointGira": [
       "js/core/participantes-api.js"
     ],
+    "notificarNoAprobadosGira": [
+      "js/core/participantes-api.js"
+    ],
     "notificarParticipantesGira": [
       "js/core/participantes-api.js"
     ],
@@ -2353,12 +2370,12 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/inscripciones.js"
+      "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/actividadVentas.js"
+      "usado_en": "js/modulos/inscripciones.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -2378,7 +2395,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 235,
+      "line": 251,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -2511,8 +2528,8 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 1997,
-      "loc": 89,
+      "size_bytes": 2029,
+      "loc": 91,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2568,8 +2585,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 13086,
-      "loc": 291,
+      "size_bytes": 13623,
+      "loc": 302,
       "exports": [],
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────",
       "minified_or_vendor": false,
@@ -2579,7 +2596,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.9
+      "risk_score": 3.0
     },
     {
       "id": "firebase_rules/storage.rules",
@@ -2587,8 +2604,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 1936,
-      "loc": 52,
+      "size_bytes": 2168,
+      "loc": 55,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2598,7 +2615,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 0.5
+      "risk_score": 0.6
     },
     {
       "id": "functions/.eslintrc.js",
@@ -2628,8 +2645,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 57314,
-      "loc": 1374,
+      "size_bytes": 64083,
+      "loc": 1552,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -2638,6 +2655,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -2659,7 +2677,7 @@
       "degree": 4,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 21.7
+      "risk_score": 23.5
     },
     {
       "id": "functions/operaciones-financieras.js",
@@ -2667,7 +2685,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 22285,
+      "size_bytes": 22300,
       "loc": 659,
       "exports": [
         "ejecutarOperacionFinanciera"
@@ -2750,10 +2768,11 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2281,
-      "loc": 80,
+      "size_bytes": 2958,
+      "loc": 104,
       "exports": [
         "aplicarPlantilla",
+        "cargarCorreoNoAprobadoGira",
         "cargarCorreoNotificacionGira",
         "cargarCorreoPagoAprobado"
       ],
@@ -2765,7 +2784,7 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.8
+      "risk_score": 3.0
     },
     {
       "id": "functions/qr-participante.js",
@@ -2790,6 +2809,25 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 2.2
+    },
+    {
+      "id": "functions/templates/correo-no-aprobado-gira.html",
+      "label": "functions/templates/correo-no-aprobado-gira.html",
+      "folder": "functions",
+      "ext": ".html",
+      "kind": "source",
+      "size_bytes": 8999,
+      "loc": 188,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 1.9
     },
     {
       "id": "functions/templates/correo-notificacion-gira.html",
@@ -3920,8 +3958,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 6480,
-      "loc": 243,
+      "size_bytes": 6922,
+      "loc": 249,
       "exports": [
         "ajustarStock",
         "esperarAuthListo",
@@ -3944,7 +3982,7 @@
       "degree": 25,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 52.4
+      "risk_score": 52.5
     },
     {
       "id": "js/core/participantes-api.js",
@@ -3952,8 +3990,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 6951,
-      "loc": 159,
+      "size_bytes": 7930,
+      "loc": 183,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -3961,18 +3999,19 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
       ],
       "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 12,
+      "in_degree": 13,
       "out_degree": 1,
-      "degree": 13,
+      "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 27.6
+      "risk_score": 29.8
     },
     {
       "id": "js/core/permisos.js",
@@ -3980,7 +4019,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 4304,
+      "size_bytes": 4319,
       "loc": 80,
       "exports": [
         "PERMISOS",
@@ -4177,12 +4216,12 @@
       "purpose": "",
       "minified_or_vendor": true,
       "firestore_collections": [],
-      "in_degree": 5,
+      "in_degree": 4,
       "out_degree": 0,
-      "degree": 5,
+      "degree": 4,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 10.2
+      "risk_score": 8.2
     },
     {
       "id": "js/modulos/actividadVentas.js",
@@ -4714,8 +4753,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 97871,
-      "loc": 2108,
+      "size_bytes": 110299,
+      "loc": 2415,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4729,11 +4768,11 @@
         "voluntarios"
       ],
       "in_degree": 3,
-      "out_degree": 14,
-      "degree": 17,
+      "out_degree": 15,
+      "degree": 18,
       "in_cycle": false,
       "diagnostic_count": 1,
-      "risk_score": 56.6
+      "risk_score": 61.6
     },
     {
       "id": "logocontecs.png",
@@ -5294,18 +5333,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 14889,
-      "loc": 312,
+      "size_bytes": 17403,
+      "loc": 367,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 1,
-      "out_degree": 9,
-      "degree": 10,
+      "out_degree": 8,
+      "degree": 9,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 23.1
+      "risk_score": 21.7
     },
     {
       "id": "panel/modulos/voluntariado/informeActividad.html",
@@ -5477,6 +5516,25 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 11.4
+    },
+    {
+      "id": "vercel.json",
+      "label": "vercel.json",
+      "folder": "(raiz)",
+      "ext": ".json",
+      "kind": "source",
+      "size_bytes": 518,
+      "loc": 18,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 0.2
     }
   ],
   "edges": [
@@ -5496,7 +5554,7 @@
       "target": "functions/plantillas.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 12,
+      "line": 16,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5507,7 +5565,7 @@
       "target": "functions/operaciones-financieras.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 33,
+      "line": 37,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5518,7 +5576,7 @@
       "target": "functions/operaciones-qr.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 34,
+      "line": 38,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -6800,7 +6858,8 @@
       "detail": {
         "symbols": [
           "listarParticipantesParaGiras",
-          "notificarParticipantesGira"
+          "notificarParticipantesGira",
+          "notificarNoAprobadosGira"
         ],
         "dynamic": false
       }
@@ -6810,7 +6869,7 @@
       "target": "js/core/iconos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 9,
+      "line": 13,
       "detail": {
         "symbols": [
           "iconoImg",
@@ -6824,7 +6883,7 @@
       "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 10,
+      "line": 14,
       "detail": {
         "symbols": [
           "escaparAtributo",
@@ -8077,7 +8136,7 @@
       "target": "js/core/auth.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 10,
+      "line": 12,
       "detail": {
         "symbols": [
           "guardRoute",
@@ -8095,38 +8154,31 @@
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
-      "target": "js/libs/xlsx.full.min.js",
-      "type": "loads_script",
-      "provenance": "extracted",
-      "line": 8
-    },
-    {
-      "source": "panel/modulos/voluntariado/giras.html",
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 175
+      "line": 227
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 184
+      "line": 236
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "panel/modulos/voluntariado/calendario.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 188
+      "line": 240
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "js/modulos/voluntarios.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 309
+      "line": 364
     },
     {
       "source": "panel/modulos/voluntariado/informeActividad.html",
@@ -8499,7 +8551,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -8509,7 +8561,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8529,7 +8581,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -8549,17 +8601,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
-      }
-    },
-    {
-      "source": "js/modulos/actividadVentas.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 8,
-      "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -8570,6 +8612,16 @@
       "line": 8,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -8699,7 +8751,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -8719,17 +8771,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8740,6 +8782,16 @@
       "line": 2,
       "detail": {
         "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -8759,7 +8811,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8779,7 +8831,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -8789,7 +8841,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -8809,27 +8861,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -8844,6 +8876,26 @@
     },
     {
       "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8859,7 +8911,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8879,7 +8931,17 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
+      }
+    },
+    {
+      "source": "js/modulos/detalleFondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -8894,12 +8956,12 @@
     },
     {
       "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/auth.js",
+      "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1,
+      "line": 3,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -8914,42 +8976,12 @@
     },
     {
       "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/detalleFondo.js",
       "target": "js/modulos/reporteFinancieroExcel.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 4,
       "detail": {
         "symbol": "generarReporteFinancieroExcel"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -8974,6 +9006,26 @@
     },
     {
       "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -8989,7 +9041,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "resumenItemPrincipal"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -8999,7 +9051,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -9039,7 +9091,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9049,7 +9101,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -9119,7 +9171,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "formatearDuracion"
+        "symbol": "resolverInvitados"
       }
     },
     {
@@ -9129,17 +9181,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "resolverInvitados"
-      }
-    },
-    {
-      "source": "js/modulos/minutaReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "formatearDuracion"
       }
     },
     {
@@ -9150,6 +9192,16 @@
       "line": 7,
       "detail": {
         "symbol": "escaparHtml"
+      }
+    },
+    {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -9229,7 +9281,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9249,7 +9301,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9269,7 +9321,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -9279,7 +9331,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "urlImagenSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9289,7 +9341,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -9319,7 +9371,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9339,7 +9391,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -9349,7 +9401,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -9369,26 +9421,6 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVentaConMerma"
-      }
-    },
-    {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
         "symbol": "registrarVenta"
       }
     },
@@ -9399,7 +9431,27 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
+        "symbol": "registrarVentaConMerma"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
         "symbol": "esperarAuthListo"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -9439,6 +9491,16 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
+        "symbol": "notificarNoAprobadosGira"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/participantes-api.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
         "symbol": "notificarParticipantesGira"
       }
     },
@@ -9447,9 +9509,9 @@
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 13,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -9457,9 +9519,9 @@
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 13,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -9467,19 +9529,19 @@
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
-      "detail": {
-        "symbol": "neutralizarFormulaHoja"
-      }
-    },
-    {
-      "source": "js/modulos/voluntarios.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
+      "line": 14,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -9499,7 +9561,7 @@
       "provenance": "extracted",
       "line": 810,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9509,17 +9571,7 @@
       "provenance": "extracted",
       "line": 810,
       "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "panel/dashboard.html",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 811,
-      "detail": {
-        "symbol": "infoRol"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9530,6 +9582,16 @@
       "line": 811,
       "detail": {
         "symbol": "tienePermiso"
+      }
+    },
+    {
+      "source": "panel/dashboard.html",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 811,
+      "detail": {
+        "symbol": "infoRol"
       }
     },
     {
@@ -9559,7 +9621,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -9569,17 +9631,7 @@
       "provenance": "extracted",
       "line": 173,
       "detail": {
-        "symbol": "loginConSSO"
-      }
-    },
-    {
-      "source": "panel/modulos/admin/agendarReunion.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 9,
-      "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9593,11 +9645,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/exportar.html",
+      "source": "panel/modulos/admin/agendarReunion.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 41,
+      "line": 9,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9613,11 +9665,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutaReunion.html",
+      "source": "panel/modulos/admin/exportar.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 41,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9633,7 +9685,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutas.html",
+      "source": "panel/modulos/admin/minutaReunion.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -9653,7 +9705,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/secretaria.html",
+      "source": "panel/modulos/admin/minutas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -9673,11 +9725,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/inscripciones.html",
+      "source": "panel/modulos/admin/secretaria.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 9,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9693,11 +9745,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/lecturaQR.html",
+      "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 13,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9713,11 +9765,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9730,6 +9782,16 @@
       "line": 10,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9759,7 +9821,7 @@
       "provenance": "extracted",
       "line": 468,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9769,17 +9831,7 @@
       "provenance": "extracted",
       "line": 468,
       "detail": {
-        "symbol": "escaparAtributo"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 212,
-      "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -9793,11 +9845,11 @@
       }
     },
     {
-      "source": "panel/modulos/finanzas/bitacora.html",
+      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 325,
+      "line": 212,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -9810,6 +9862,16 @@
       "line": 325,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 325,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9849,7 +9911,7 @@
       "provenance": "extracted",
       "line": 69,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9859,16 +9921,6 @@
       "provenance": "extracted",
       "line": 69,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/finanzas/reportes_financieros.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 91,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -9880,6 +9932,16 @@
       "line": 91,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 91,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9899,7 +9961,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9909,16 +9971,6 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 455,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -9930,6 +9982,16 @@
       "line": 455,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 455,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -9949,7 +10011,7 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "editarProducto"
+        "symbol": "crearCategoria"
       }
     },
     {
@@ -9959,7 +10021,17 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "editarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "eliminarCategoria"
       }
     },
     {
@@ -9979,7 +10051,17 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "eliminarCategoria"
+        "symbol": "editarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "estadoStock"
       }
     },
     {
@@ -10009,37 +10091,17 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "crearCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
         "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -10059,7 +10121,7 @@
       "provenance": "extracted",
       "line": 243,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10069,7 +10131,17 @@
       "provenance": "extracted",
       "line": 243,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 244,
+      "detail": {
+        "symbol": "estadoStock"
       }
     },
     {
@@ -10093,26 +10165,6 @@
       }
     },
     {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 244,
-      "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/actividades.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
-      "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
       "source": "panel/modulos/voluntariado/actividades.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -10123,11 +10175,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/calendario.html",
+      "source": "panel/modulos/voluntariado/actividades.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -10143,11 +10195,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/giras.html",
+      "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 9,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -10157,7 +10209,27 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 12,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/giras.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/informeActividad.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -10173,26 +10245,6 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/informeActividad.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 9,
-      "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
-      "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
       "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -10203,7 +10255,7 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -10223,11 +10275,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/solicitudActividad.html",
+      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -10243,11 +10295,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "source": "panel/modulos/voluntariado/solicitudActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 9,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -10260,6 +10312,16 @@
       "line": 13,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10336,14 +10398,39 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "207426493d6f6e0476cbf6ddd749bde17c625989",
-    "changed_files": [],
-    "changed_count": 0
+    "head": "8fa4ef51f3da20220638c1e1a5cf7c5cb7690111",
+    "changed_files": [
+      {
+        "file": "functions/index.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/plantillas.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/participantes-api.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/voluntarios.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/voluntariado/giras.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "status": "??"
+      }
+    ],
+    "changed_count": 6
   },
   "ai_usage": {
     "purpose": "Mapa arquitectónico normal. Abrir después de GraphCompacto.json cuando se necesiten relaciones exactas.",
     "next_view": "GraphProfundo.json",
     "source_of_truth": "El código real; este archivo es un índice estático."
   },
-  "estimated_tokens": 45118
+  "estimated_tokens": 45517
 }

@@ -76,4 +76,28 @@ function cargarCorreoNotificacionGira(vars) {
   };
 }
 
-module.exports = {aplicarPlantilla, cargarCorreoPagoAprobado, cargarCorreoNotificacionGira};
+// Aviso a quien quedo fuera de una gira por pago sin aprobar. A diferencia de
+// las otras dos plantillas, esta no recibe (ni debe recibir) codigo, token ni
+// enlace: no fue incluido en la gira, asi que no se le entrega ningun acceso.
+function cargarCorreoNoAprobadoGira(vars) {
+  const raw = leer("correo-no-aprobado-gira.html");
+  const meta = parseMeta(raw);
+  const varsHtml = Object.fromEntries(
+      Object.entries(vars || {}).map(([key, value]) => [key, escaparHtml(value)]),
+  );
+  const htmlContent = aplicarPlantilla(raw, varsHtml);
+
+  return {
+    activo: meta.activo,
+    subject: aplicarPlantilla(meta.subject, vars),
+    htmlContent,
+    textContent: htmlATexto(htmlContent),
+  };
+}
+
+module.exports = {
+  aplicarPlantilla,
+  cargarCorreoPagoAprobado,
+  cargarCorreoNotificacionGira,
+  cargarCorreoNoAprobadoGira,
+};

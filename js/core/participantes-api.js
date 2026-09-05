@@ -113,6 +113,29 @@ export async function notificarParticipantesGira(giraId) {
   }
 }
 
+const ERRORES_NOTIFICAR_NO_APROBADOS = {
+  "unauthenticated":   "Debes iniciar sesión para avisar a los participantes.",
+  "permission-denied": "No tienes permiso para notificar esta gira.",
+  "not-found":         "La gira ya no existe.",
+  "internal":          "Error al avisar a los participantes sin pago aprobado.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Contraparte de notificarParticipantesGira: avisa a quienes quedaron marcados
+// como NO INCLUIDOS EN LA GIRA por tener el pago sin aprobar. El correo que
+// envía la función no lleva credenciales ni enlace a la gira — solo el motivo y
+// el correo de contacto administrativo.
+export async function notificarNoAprobadosGira(giraId) {
+  try {
+    const fn = httpsCallable(functions, "notificarNoAprobadosGira");
+    const result = await fn({giraId});
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_NOTIFICAR_NO_APROBADOS[error.code] || error.message || "Error inesperado al avisar a los participantes.";
+    throw new Error(msg);
+  }
+}
+
 const ERRORES_ACCESO_GIRA = {
   "not-found":         "Código o clave incorrectos. Revisa el correo que recibiste de Giras.",
   "permission-denied": "No estás en la lista de participantes de esta gira.",

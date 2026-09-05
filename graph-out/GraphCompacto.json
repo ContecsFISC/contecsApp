@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-08-24T19:33:21.882537+00:00",
-  "project_fingerprint": "9009887fd88edf978e1ddb20149179298a528a97677ff0c96400b66ff2a49c9b",
+  "generated_at": "2026-09-05T23:27:02.732668+00:00",
+  "project_fingerprint": "dde8bf6a1ed5513ab8275ba266c6fefc45a6a983db5f023fd55511d219ca0422",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 151,
+    "total_files": 153,
     "total_edges": 472,
-    "total_orphans": 62,
+    "total_orphans": 64,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 12,
+    "total_cloud_functions": 13,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3274,
-    "total_function_calls": 7463,
-    "total_dom_ids": 779,
+    "total_symbols": 3365,
+    "total_function_calls": 7581,
+    "total_dom_ids": 780,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,27 +39,53 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "207426493d6f6e0476cbf6ddd749bde17c625989",
-    "changed_files": [],
-    "changed_count": 0
+    "head": "8fa4ef51f3da20220638c1e1a5cf7c5cb7690111",
+    "changed_files": [
+      {
+        "file": "functions/index.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/plantillas.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/participantes-api.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/voluntarios.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/voluntariado/giras.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "status": "??"
+      }
+    ],
+    "changed_count": 6
   },
   "domains": [
     {
       "name": "(raiz)",
-      "file_count": 7,
+      "file_count": 8,
       "key_files": [
         "index.html",
         "logocontecs.png",
         "registro.html",
         "logocontecsheader.png",
         "firebase.json",
+        "vercel.json",
         "AGENTS.md",
         "package.json"
       ],
       "collections": [
         "usuarios"
       ],
-      "average_risk": 6.1,
+      "average_risk": 5.4,
       "diagnostics": 0
     },
     {
@@ -104,12 +130,12 @@
         "firebase_rules/firestore.indexes.json"
       ],
       "collections": [],
-      "average_risk": 1.0,
+      "average_risk": 1.1,
       "diagnostics": 0
     },
     {
       "name": "functions",
-      "file_count": 10,
+      "file_count": 11,
       "key_files": [
         "functions/index.js",
         "functions/operaciones-qr.js",
@@ -119,8 +145,8 @@
         "functions/qr-participante.js",
         "functions/templates/correo-notificacion-gira.html",
         "functions/templates/correo-pago-aprobado.html",
-        "functions/.eslintrc.js",
-        "functions/package.json"
+        "functions/templates/correo-no-aprobado-gira.html",
+        "functions/.eslintrc.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -145,7 +171,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 5.3,
+      "average_risk": 5.1,
       "diagnostics": 0
     },
     {
@@ -184,9 +210,9 @@
         "js/core/auth.js",
         "js/core/seguridad.js",
         "js/core/firebase-config.js",
+        "js/modulos/voluntarios.js",
         "js/modulos/catalogo.js",
         "js/core/iconos.js",
-        "js/modulos/voluntarios.js",
         "js/core/operaciones.js",
         "js/modulos/ventaRapida.js",
         "js/modulos/compras2.js",
@@ -217,7 +243,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.6,
+      "average_risk": 32.7,
       "diagnostics": 1
     },
     {
@@ -251,7 +277,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 23.3,
+      "average_risk": 23.2,
       "diagnostics": 0
     },
     {
@@ -304,6 +330,13 @@
       "loc": 35
     },
     {
+      "label": "js/modulos/voluntarios.js",
+      "risk_score": 61.6,
+      "degree": 18,
+      "in_cycle": false,
+      "loc": 2415
+    },
+    {
       "label": "panel/modulos/logistica/catalogo.html",
       "risk_score": 60.9,
       "degree": 26,
@@ -325,18 +358,11 @@
       "loc": 88
     },
     {
-      "label": "js/modulos/voluntarios.js",
-      "risk_score": 56.6,
-      "degree": 17,
-      "in_cycle": false,
-      "loc": 2108
-    },
-    {
       "label": "js/core/operaciones.js",
-      "risk_score": 52.4,
+      "risk_score": 52.5,
       "degree": 25,
       "in_cycle": false,
-      "loc": 243
+      "loc": 249
     },
     {
       "label": "js/modulos/ventaRapida.js",
@@ -431,13 +457,13 @@
     },
     {
       "file": "firebase_rules/firestore.rules",
-      "risk": 2.9,
+      "risk": 3.0,
       "relations": 0,
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────"
     },
     {
       "file": "firebase_rules/storage.rules",
-      "risk": 0.5,
+      "risk": 0.6,
       "relations": 0
     },
     {
@@ -451,7 +477,7 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 21.7,
+      "risk": 23.5,
       "relations": 4,
       "exports": [
         "accederGiraParticipante",
@@ -461,11 +487,11 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
-        "subirFotoEfectivo",
-        "validarTokenSSO"
+        "subirFotoEfectivo"
       ],
       "collections": [
         "asistencias_giras",
@@ -529,10 +555,11 @@
     },
     {
       "file": "functions/plantillas.js",
-      "risk": 2.8,
+      "risk": 3.0,
       "relations": 1,
       "exports": [
         "aplicarPlantilla",
+        "cargarCorreoNoAprobadoGira",
         "cargarCorreoNotificacionGira",
         "cargarCorreoPagoAprobado"
       ]
@@ -548,6 +575,11 @@
         "linkGiraParticipante",
         "linkPerfilParticipante"
       ]
+    },
+    {
+      "file": "functions/templates/correo-no-aprobado-gira.html",
+      "risk": 1.9,
+      "relations": 0
     },
     {
       "file": "functions/templates/correo-notificacion-gira.html",
@@ -701,7 +733,7 @@
     },
     {
       "file": "js/core/operaciones.js",
-      "risk": 52.4,
+      "risk": 52.5,
       "relations": 25,
       "exports": [
         "ajustarStock",
@@ -731,8 +763,8 @@
     },
     {
       "file": "js/core/participantes-api.js",
-      "risk": 27.6,
-      "relations": 13,
+      "risk": 29.8,
+      "relations": 14,
       "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
       "exports": [
         "accederGiraParticipante",
@@ -741,6 +773,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
       ],
@@ -853,8 +886,8 @@
     },
     {
       "file": "js/libs/xlsx.full.min.js",
-      "risk": 10.2,
-      "relations": 5
+      "risk": 8.2,
+      "relations": 4
     },
     {
       "file": "js/modulos/actividadVentas.js",
@@ -1201,8 +1234,8 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 56.6,
-      "relations": 17,
+      "risk": 61.6,
+      "relations": 18,
       "collections": [
         "actividades_ventas",
         "actividades_voluntarios",
@@ -1502,12 +1535,11 @@
     },
     {
       "file": "panel/modulos/voluntariado/giras.html",
-      "risk": 23.1,
-      "relations": 10,
+      "risk": 21.7,
+      "relations": 9,
       "key_neighbors": [
         "css/styles.css",
         "js/core/auth.js",
-        "js/libs/xlsx.full.min.js",
         "js/modulos/voluntarios.js",
         "panel/dashboard.html",
         "panel/modulos/voluntariado/calendario.html",
@@ -1577,6 +1609,11 @@
       "file": "registro.html",
       "risk": 11.4,
       "relations": 1
+    },
+    {
+      "file": "vercel.json",
+      "risk": 0.2,
+      "relations": 0
     }
   ],
   "firestore_collections": {
@@ -1764,6 +1801,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
+        "notificarNoAprobadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -1779,7 +1817,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 235,
+      "line": 251,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -1789,5 +1827,5 @@
       }
     }
   ],
-  "estimated_tokens": 8272
+  "estimated_tokens": 8414
 }

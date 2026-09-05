@@ -9,7 +9,11 @@ const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
 const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
-const {cargarCorreoPagoAprobado, cargarCorreoNotificacionGira} = require("./plantillas");
+const {
+  cargarCorreoPagoAprobado,
+  cargarCorreoNotificacionGira,
+  cargarCorreoNoAprobadoGira,
+} = require("./plantillas");
 
 initializeApp();
 
@@ -1074,6 +1078,40 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
   return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
 }
 
+// Aviso a quien fue considerado para una gira pero quedo NO INCLUIDO porque su
+// pago del congreso no esta aprobado. Deliberadamente NO recibe codigo, token
+// ni enlace a la gira: no forma parte de ella, asi que no se le entrega acceso
+// alguno. Solo se le indica el motivo y el correo de contacto administrativo.
+async function enviarCorreoNoAprobadoGira({gira, participante}) {
+  const correo = participante.correo;
+  const nombre = participante.nombreCompleto ||
+    `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
+  if (!correo) {
+    throw new Error("Participante sin correo");
+  }
+
+  const vars = {
+    nombre,
+    gira_nombre: gira.nombre || "Gira CONTECS",
+    gira_fecha: formatearFechaGira(gira.fecha),
+  };
+
+  const plantilla = cargarCorreoNoAprobadoGira(vars);
+  if (!plantilla.activo) {
+    return {enviado: false, omitido: true};
+  }
+
+  const brevoResp = await enviarCorreoTransaccional({
+    sender: CORREO_REMITENTE,
+    to: [{email: correo, name: nombre}],
+    subject: plantilla.subject,
+    htmlContent: plantilla.htmlContent,
+    textContent: plantilla.textContent,
+  });
+
+  return {enviado: true, brevoMessageId: brevoResp?.messageId || null};
+}
+
 // ─── GIRAS: notificación por correo a los participantes de una gira ────────
 // Disparo manual (botón "Notificar participantes"), separado de "Guardar
 // gira" a propósito — ver PLAN_GIRAS_Y_CSV.md, punto 3. Solo envía a los
@@ -1116,19 +1154,32 @@ exports.notificarParticipantesGira = onCall(
           };
         }
 
+        // El correo de este boton dice "fuiste incluido en la gira", asi que no
+        // debe llegarle a quien la app marca como NO INCLUIDO por tener el pago
+        // sin aprobar — para esos existe notificarNoAprobadosGira. El estado se
+        // vuelve a leer aqui con Admin SDK: si el pago se aprueba mas tarde, el
+        // siguiente clic en "Notificar" ya lo incluye sin tocar nada mas.
         const resultados = await Promise.allSettled(pendientes.map(async (p) => {
           const participanteSnap = await db.collection("participantes").doc(p.id).get();
           if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
+          const participante = participanteSnap.data();
+          if (participante.pago?.estado !== "aprobado") {
+            return {id: p.id, estado: "no_aprobado"};
+          }
           const resultado = await enviarCorreoNotificacionGira({
-            giraId, gira, participante: participanteSnap.data(),
+            giraId, gira, participante,
           });
           if (resultado.omitido) throw new Error("plantilla_desactivada");
-          return p.id;
+          return {id: p.id, estado: "enviado"};
         }));
 
-        const enviadosIds = resultados
+        const cumplidos = resultados
             .filter((r) => r.status === "fulfilled")
             .map((r) => r.value);
+        const enviadosIds = cumplidos
+            .filter((r) => r.estado === "enviado")
+            .map((r) => r.id);
+        const noAprobados = cumplidos.filter((r) => r.estado === "no_aprobado").length;
         const fallidos = resultados.filter((r) => r.status === "rejected").length;
 
         if (enviadosIds.length > 0) {
@@ -1138,20 +1189,135 @@ exports.notificarParticipantesGira = onCall(
           });
         }
 
-        console.log("notificarParticipantesGira:", giraId, "enviados:", enviadosIds.length, "fallidos:", fallidos);
+        console.log("notificarParticipantesGira:", giraId, "enviados:", enviadosIds.length,
+            "fallidos:", fallidos, "sin pago aprobado:", noAprobados);
+
+        const avisoNoAprobados = noAprobados > 0 ?
+          ` ${noAprobados} quedó(aron) fuera por pago sin aprobar — usa "Notificar NO Aprobados" para avisarles.` :
+          "";
 
         return {
           enviados: enviadosIds.length,
           fallidos,
+          noAprobados,
           omitidos: participantesGira.length - pendientes.length,
           mensaje: fallidos > 0 ?
-            `Se notificó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.` :
-            `Se notificó a ${enviadosIds.length} participante(s) nuevo(s).`,
+            `Se notificó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.${avisoNoAprobados}` :
+            `Se notificó a ${enviadosIds.length} participante(s) nuevo(s).${avisoNoAprobados}`,
         };
       } catch (e) {
         if (e instanceof HttpsError) throw e;
         console.error("notificarParticipantesGira:", e);
         throw new HttpsError("internal", "Error al notificar a los participantes de la gira.");
+      }
+    },
+);
+
+// ─── GIRAS: aviso a los NO INCLUIDOS por pago sin aprobar ──────────────────
+// Contraparte de notificarParticipantesGira. Recorre los participantes de la
+// gira, se queda con los que NO tienen el pago aprobado (comprobado aqui con
+// Admin SDK, no confiando en lo que traiga el cliente) y les envia un correo
+// explicando el motivo y a donde escribir. Ese correo no lleva credenciales ni
+// enlace a la gira — ver enviarCorreoNoAprobadoGira.
+//
+// Se lleva un registro aparte en gira.notificadosNoAprobados para no volver a
+// avisar a la misma persona cada vez que GIRAS pulsa el boton. Si su pago se
+// aprueba despues, deja de aparecer en esta lista y pasa a la de
+// "Notificar" normal.
+exports.notificarNoAprobadosGira = onCall(
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
+    async (request) => {
+      try {
+        if (!request.auth?.uid) {
+          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+        }
+        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
+        const rol = snapUsuario.data()?.rol;
+        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
+          throw new HttpsError("permission-denied", "No tienes permiso para notificar esta gira.");
+        }
+
+        const giraId = validarTexto(request.data?.giraId, "giraId", {requerido: true, max: 200});
+        const giraRef = db.collection("giras_voluntarios").doc(giraId);
+        const giraSnap = await giraRef.get();
+        if (!giraSnap.exists) {
+          throw new HttpsError("not-found", "La gira ya no existe.");
+        }
+        const gira = giraSnap.data();
+        const participantesGira = Array.isArray(gira.participantes) ? gira.participantes : [];
+        if (participantesGira.length === 0) {
+          return {enviados: 0, omitidos: 0, mensaje: "Esta gira todavía no tiene participantes seleccionados."};
+        }
+
+        const yaAvisados = new Set(gira.notificadosNoAprobados || []);
+        const candidatos = participantesGira.filter((p) => p?.id && !yaAvisados.has(p.id));
+        if (candidatos.length === 0) {
+          return {
+            enviados: 0,
+            omitidos: participantesGira.length,
+            mensaje: "Ya se avisó a todos los participantes sin pago aprobado de esta gira.",
+          };
+        }
+
+        const resultados = await Promise.allSettled(candidatos.map(async (p) => {
+          const participanteSnap = await db.collection("participantes").doc(p.id).get();
+          if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
+          const participante = participanteSnap.data();
+          // El pago pudo aprobarse entre que se pinto la tarjeta y este clic.
+          if (participante.pago?.estado === "aprobado") {
+            return {id: p.id, estado: "ya_aprobado"};
+          }
+          const resultado = await enviarCorreoNoAprobadoGira({gira, participante});
+          if (resultado.omitido) throw new Error("plantilla_desactivada");
+          return {id: p.id, estado: "enviado"};
+        }));
+
+        const cumplidos = resultados
+            .filter((r) => r.status === "fulfilled")
+            .map((r) => r.value);
+        const enviadosIds = cumplidos
+            .filter((r) => r.estado === "enviado")
+            .map((r) => r.id);
+        const yaAprobados = cumplidos.filter((r) => r.estado === "ya_aprobado").length;
+        const fallidos = resultados.filter((r) => r.status === "rejected").length;
+
+        if (enviadosIds.length > 0) {
+          await giraRef.update({
+            notificadosNoAprobados: FieldValue.arrayUnion(...enviadosIds),
+            ultimoAvisoNoAprobadosEn: FieldValue.serverTimestamp(),
+          });
+        }
+
+        console.log("notificarNoAprobadosGira:", giraId, "enviados:", enviadosIds.length,
+            "fallidos:", fallidos, "ya aprobados:", yaAprobados);
+
+        if (enviadosIds.length === 0 && fallidos === 0) {
+          return {
+            enviados: 0,
+            fallidos: 0,
+            yaAprobados,
+            omitidos: participantesGira.length - candidatos.length,
+            mensaje: "No hay participantes pendientes por avisar: todos tienen el pago aprobado.",
+          };
+        }
+
+        const avisoAprobados = yaAprobados > 0 ?
+          ` ${yaAprobados} ya tenía(n) el pago aprobado y no se le(s) escribió.` :
+          "";
+
+        return {
+          enviados: enviadosIds.length,
+          fallidos,
+          yaAprobados,
+          omitidos: participantesGira.length - candidatos.length,
+          mensaje: fallidos > 0 ?
+            `Se avisó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.${avisoAprobados}` :
+            `Se avisó a ${enviadosIds.length} participante(s) sin pago aprobado.${avisoAprobados}`,
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("notificarNoAprobadosGira:", e);
+        throw new HttpsError("internal", "Error al avisar a los participantes sin pago aprobado.");
       }
     },
 );
