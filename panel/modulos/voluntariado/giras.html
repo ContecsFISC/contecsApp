@@ -190,6 +190,15 @@
  border:1px solid #e0a458; border-radius:20px; padding:4px 10px;
  font-size:12.5px; color:#8e4b10;
  }
+ .chip-correo {
+ display:inline-flex; align-items:center; gap:6px; background:#eef4fb;
+ border:1px solid #a9c6e8; border-radius:20px; padding:4px 10px;
+ font-size:12.5px; color:#1a4e7a; max-width:100%; overflow-wrap:anywhere;
+ }
+ .chip-correo button {
+ background:none; border:none; cursor:pointer; color:var(--rojo);
+ font-size:14px; line-height:1; padding:0 2px; flex-shrink:0;
+ }
  .chip-nosel button {
  background:none; border:none; cursor:pointer; color:var(--rojo);
  font-size:14px; line-height:1; padding:0 2px;
@@ -367,6 +376,19 @@
  </button>
  <div id="gira-nosel-vacio" style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Nadie en la lista de no seleccionados.</div>
  <div class="aviso-en-ambas" id="gira-aviso-ambas"></div>
+
+ <!-- Correos sueltos: gente que aplico a la gira sin estar inscrita en el
+      congreso, asi que no aparece en el selector de participantes. -->
+ <div style="margin-top:14px;">
+ <label style="color:#8e4b10;font-size:13px;font-weight:600;">Correos de personas no inscritas</label>
+ <div class="nota-no-sel">Aplicaron a la gira pero no están en el congreso. Uno por línea, o separados por coma. Puedes poner <code>Nombre &lt;correo@ejemplo.com&gt;</code> para que el correo salude por su nombre.</div>
+ <textarea id="gira-nosel-correos" rows="3" placeholder="ana.perez@gmail.com&#10;Luis Gómez &lt;luis@gmail.com&gt;"></textarea>
+ <button type="button" class="btn btn-sm btn-nosel" id="btn-agregar-correos-nosel" style="width:auto;margin-top:8px;">
+ + Agregar correos
+ </button>
+ <div id="gira-correos-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;"></div>
+ <div class="aviso-en-ambas" id="gira-correos-error"></div>
+ </div>
  </div>
 
  <div class="form-groupE">
