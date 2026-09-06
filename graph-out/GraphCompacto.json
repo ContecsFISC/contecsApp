@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-05T23:27:02.732668+00:00",
-  "project_fingerprint": "dde8bf6a1ed5513ab8275ba266c6fefc45a6a983db5f023fd55511d219ca0422",
+  "generated_at": "2026-09-06T01:15:00.996606+00:00",
+  "project_fingerprint": "dab708b5caf55af1725302cb259b2e6b43cabe6facad6d929980985d27256524",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 153,
-    "total_edges": 472,
-    "total_orphans": 64,
+    "total_files": 157,
+    "total_edges": 475,
+    "total_orphans": 65,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 13,
+    "total_cloud_functions": 14,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3365,
-    "total_function_calls": 7581,
-    "total_dom_ids": 780,
+    "total_symbols": 3420,
+    "total_function_calls": 7696,
+    "total_dom_ids": 788,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,7 +39,7 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "8fa4ef51f3da20220638c1e1a5cf7c5cb7690111",
+    "head": "4cb497dddb2c42b4b0f1befae28624ddc1143f3c",
     "changed_files": [
       {
         "file": "functions/index.js",
@@ -48,6 +48,10 @@
       {
         "file": "functions/plantillas.js",
         "status": " M"
+      },
+      {
+        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "status": " D"
       },
       {
         "file": "js/core/participantes-api.js",
@@ -62,11 +66,11 @@
         "status": " M"
       },
       {
-        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "file": "functions/templates/correo-no-seleccionado-gira.html",
         "status": "??"
       }
     ],
-    "changed_count": 6
+    "changed_count": 7
   },
   "domains": [
     {
@@ -86,6 +90,16 @@
         "usuarios"
       ],
       "average_risk": 5.4,
+      "diagnostics": 0
+    },
+    {
+      "name": ".claude",
+      "file_count": 1,
+      "key_files": [
+        ".claude/settings.json"
+      ],
+      "collections": [],
+      "average_risk": 0.1,
       "diagnostics": 0
     },
     {
@@ -135,18 +149,18 @@
     },
     {
       "name": "functions",
-      "file_count": 11,
+      "file_count": 14,
       "key_files": [
         "functions/index.js",
         "functions/operaciones-qr.js",
         "functions/operaciones-financieras.js",
+        "functions/identidad.js",
         "functions/test/operaciones-qr.integration.js",
         "functions/plantillas.js",
+        "functions/test/identidad.test.js",
+        "functions/test/id-bloqueo.js",
         "functions/qr-participante.js",
-        "functions/templates/correo-notificacion-gira.html",
-        "functions/templates/correo-pago-aprobado.html",
-        "functions/templates/correo-no-aprobado-gira.html",
-        "functions/.eslintrc.js"
+        "functions/templates/correo-notificacion-gira.html"
       ],
       "collections": [
         "actividades_ventas",
@@ -277,7 +291,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 23.2,
+      "average_risk": 23.3,
       "diagnostics": 0
     },
     {
@@ -331,10 +345,10 @@
     },
     {
       "label": "js/modulos/voluntarios.js",
-      "risk_score": 61.6,
+      "risk_score": 63.0,
       "degree": 18,
       "in_cycle": false,
-      "loc": 2415
+      "loc": 2545
     },
     {
       "label": "panel/modulos/logistica/catalogo.html",
@@ -401,6 +415,11 @@
     }
   ],
   "files": [
+    {
+      "file": ".claude/settings.json",
+      "risk": 0.1,
+      "relations": 0
+    },
     {
       "file": "AGENTS.md",
       "risk": 0.1,
@@ -476,22 +495,35 @@
       ]
     },
     {
+      "file": "functions/identidad.js",
+      "risk": 6.7,
+      "relations": 3,
+      "purpose": "Identidad de participantes: cómo se deriva el id de un documento, cómo se derivan los documentos-lock de `identificadores_participantes` y cuándo un lock bloquea de verdad un regis",
+      "exports": [
+        "CORREO_SOPORTE",
+        "errorDuplicado",
+        "generarDocId",
+        "idBloqueoParticipante",
+        "locksQueBloquean"
+      ]
+    },
+    {
       "file": "functions/index.js",
-      "risk": 23.5,
-      "relations": 4,
+      "risk": 26.4,
+      "relations": 5,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
+        "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
-        "registrarParticipante",
-        "subirFotoEfectivo"
+        "registrarParticipante"
       ],
       "collections": [
         "asistencias_giras",
@@ -502,6 +534,7 @@
         "usuarios"
       ],
       "key_neighbors": [
+        "functions/identidad.js",
         "functions/operaciones-financieras.js",
         "functions/operaciones-qr.js",
         "functions/plantillas.js",
@@ -555,11 +588,11 @@
     },
     {
       "file": "functions/plantillas.js",
-      "risk": 3.0,
+      "risk": 3.3,
       "relations": 1,
       "exports": [
         "aplicarPlantilla",
-        "cargarCorreoNoAprobadoGira",
+        "cargarCorreoNoSeleccionadoGira",
         "cargarCorreoNotificacionGira",
         "cargarCorreoPagoAprobado"
       ]
@@ -577,8 +610,8 @@
       ]
     },
     {
-      "file": "functions/templates/correo-no-aprobado-gira.html",
-      "risk": 1.9,
+      "file": "functions/templates/correo-no-seleccionado-gira.html",
+      "risk": 1.5,
       "relations": 0
     },
     {
@@ -590,6 +623,18 @@
       "file": "functions/templates/correo-pago-aprobado.html",
       "risk": 2.0,
       "relations": 0
+    },
+    {
+      "file": "functions/test/id-bloqueo.js",
+      "risk": 2.6,
+      "relations": 1,
+      "purpose": "Calcula el ID del documento-lock de identidad que usa registrarParticipante. La colección `identificadores_participantes` es `read, write: if false` en firestore.rules: no se puede"
+    },
+    {
+      "file": "functions/test/identidad.test.js",
+      "risk": 2.8,
+      "relations": 1,
+      "purpose": "Prueba de la decisión que hace crearParticipantesUnicos sobre los documentos de `identificadores_participantes`. Es la parte delicada del arreglo: un lock solo debe bloquear un reg"
     },
     {
       "file": "functions/test/operaciones-qr.integration.js",
@@ -763,7 +808,7 @@
     },
     {
       "file": "js/core/participantes-api.js",
-      "risk": 29.8,
+      "risk": 29.9,
       "relations": 14,
       "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
       "exports": [
@@ -773,7 +818,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
       ],
@@ -1234,7 +1279,7 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 61.6,
+      "risk": 63.0,
       "relations": 18,
       "collections": [
         "actividades_ventas",
@@ -1535,7 +1580,7 @@
     },
     {
       "file": "panel/modulos/voluntariado/giras.html",
-      "risk": 21.7,
+      "risk": 22.3,
       "relations": 9,
       "key_neighbors": [
         "css/styles.css",
@@ -1799,9 +1844,10 @@
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
+        "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -1817,7 +1863,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 251,
+      "line": 266,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -1827,5 +1873,5 @@
       }
     }
   ],
-  "estimated_tokens": 8414
+  "estimated_tokens": 8712
 }

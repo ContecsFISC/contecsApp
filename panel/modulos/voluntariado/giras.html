@@ -172,6 +172,35 @@
  .btn-fila.eliminar:hover:not(:disabled) { background: #fbd7d3; }
  .btn-fila.notificar-no { background: linear-gradient(135deg, #8e4b10, #d68910); color: #fff; }
 
+ /* ── Bloque de NO SELECCIONADOS ──
+    Se separa visualmente en tono cobre para que no se confunda con la lista de
+    participantes que sí van (dorado). */
+ .bloque-no-sel {
+ border: 1px solid #f0d9bd; border-left: 3px solid #d68910;
+ border-radius: 10px; background: #fffaf3;
+ padding: 14px 16px 4px; margin: 16px 0;
+ }
+ .nota-no-sel { font-size: 11px; color: #a5742f; margin-top: 4px; line-height: 1.5; }
+ .btn-nosel {
+ background: #fdf3e6; color: #8e4b10; border: 1.5px solid #e0a458;
+ }
+ .btn-nosel:hover { background: #fbe8d2; }
+ .chip-nosel {
+ display:inline-flex; align-items:center; gap:6px; background:#fdf3e6;
+ border:1px solid #e0a458; border-radius:20px; padding:4px 10px;
+ font-size:12.5px; color:#8e4b10;
+ }
+ .chip-nosel button {
+ background:none; border:none; cursor:pointer; color:var(--rojo);
+ font-size:14px; line-height:1; padding:0 2px;
+ }
+ .aviso-en-ambas {
+ display:none; margin-top:8px; padding:8px 10px; border-radius:8px;
+ background:#fdecea; border:1px solid #f5b7b1; color:#a93226;
+ font-size:11.5px; line-height:1.5;
+ }
+ .aviso-en-ambas.visible { display:block; }
+
  /* ── Estado de pago dentro del selector de participantes ──
     "NO INCLUIDO EN LA GIRA" es una etiqueta informativa: marca a quien fue
     seleccionado por staff pero todavia no tiene el pago aprobado. No bloquea
@@ -324,6 +353,38 @@
  <div id="gira-participantes-vacio" style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Ningún participante seleccionado todavía.</div>
  </div>
 
+ <!-- NO SELECCIONADOS — lista aparte de la de arriba.
+      Aquí van quienes no cupieron, no fueron seleccionados o no tienen el pago
+      aprobado. No participan en la gira ni en el check-in: solo reciben el
+      correo de aviso que se redacta abajo. -->
+ <div class="bloque-no-sel">
+ <div class="form-groupE">
+ <label style="color:#8e4b10;">Participantes NO seleccionados</label>
+ <div class="nota-no-sel">No van a la gira. Solo reciben el correo de aviso que escribas abajo.</div>
+ <div id="gira-nosel-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;"></div>
+ <button type="button" class="btn btn-sm btn-nosel" id="btn-abrir-nosel-gira" style="width:auto;">
+ + Añadir no seleccionados
+ </button>
+ <div id="gira-nosel-vacio" style="font-size:12px;color:var(--gris-medio);margin-top:6px;">Nadie en la lista de no seleccionados.</div>
+ <div class="aviso-en-ambas" id="gira-aviso-ambas"></div>
+ </div>
+
+ <div class="form-groupE">
+ <label style="color:#8e4b10;">Motivo</label>
+ <input type="text" id="gira-nosel-motivo" maxlength="120" placeholder="ej. Cupo lleno · No seleccionado · Pago sin aprobar"/>
+ <div class="nota-no-sel">Sale destacado arriba del correo. Corto y claro.</div>
+ </div>
+
+ <div class="form-groupE">
+ <label style="color:#8e4b10;">Mensaje del correo</label>
+ <textarea id="gira-nosel-mensaje" rows="7" maxlength="4000" placeholder="Escribe aquí el cuerpo del correo. Deja una línea en blanco entre párrafos."></textarea>
+ <div class="nota-no-sel">
+ Va en el centro del correo, con la cabecera y el cierre de CONTECS alrededor.
+ <span id="gira-nosel-contador"></span>
+ </div>
+ </div>
+ </div>
+
  <div style="display:flex;gap:10px;flex-wrap:wrap;">
  <button class="btn btn-primary" id="btn-guardar-gira" style="flex:1">Guardar gira</button>
  <button class="btn btn-outline btn-sm" id="btn-cancelar-gira" style="width:auto;display:none">Cancelar</button>
@@ -345,7 +406,7 @@
  <div class="sheet-part-handle"></div>
  <div class="sheet-part-header">
  <div>
-   <span class="sheet-part-titulo">Seleccionar participantes</span>
+   <span class="sheet-part-titulo" id="sheet-part-titulo-txt">Seleccionar participantes</span>
    <div class="sheet-part-contador" id="sheet-part-contador">Cargando...</div>
   </div>
  <button type="button" class="sheet-part-cerrar" id="btn-cerrar-sheet-part"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
