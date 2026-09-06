@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-06T01:15:00.996606+00:00",
-  "project_fingerprint": "dab708b5caf55af1725302cb259b2e6b43cabe6facad6d929980985d27256524",
+  "generated_at": "2026-09-06T03:18:36.543285+00:00",
+  "project_fingerprint": "c874bc408cba091f7942c439684ab4e0210f08effc3bb88d879f577a4d94d600",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 157,
+    "total_files": 158,
     "total_edges": 475,
-    "total_orphans": 65,
+    "total_orphans": 66,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
     "total_cloud_functions": 14,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3420,
-    "total_function_calls": 7696,
-    "total_dom_ids": 788,
+    "total_symbols": 3457,
+    "total_function_calls": 7759,
+    "total_dom_ids": 792,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,10 +39,14 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "4cb497dddb2c42b4b0f1befae28624ddc1143f3c",
+    "head": "15cd44363636daa2d6c25b00c9de37921674ca32",
     "changed_files": [
       {
         "file": "functions/index.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/package.json",
         "status": " M"
       },
       {
@@ -50,11 +54,7 @@
         "status": " M"
       },
       {
-        "file": "functions/templates/correo-no-aprobado-gira.html",
-        "status": " D"
-      },
-      {
-        "file": "js/core/participantes-api.js",
+        "file": "functions/templates/correo-no-seleccionado-gira.html",
         "status": " M"
       },
       {
@@ -66,7 +66,7 @@
         "status": " M"
       },
       {
-        "file": "functions/templates/correo-no-seleccionado-gira.html",
+        "file": "functions/test/correos-nosel.test.js",
         "status": "??"
       }
     ],
@@ -149,7 +149,7 @@
     },
     {
       "name": "functions",
-      "file_count": 14,
+      "file_count": 15,
       "key_files": [
         "functions/index.js",
         "functions/operaciones-qr.js",
@@ -185,7 +185,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 5.1,
+      "average_risk": 4.8,
       "diagnostics": 0
     },
     {
@@ -257,7 +257,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.7,
+      "average_risk": 32.8,
       "diagnostics": 1
     },
     {
@@ -345,10 +345,10 @@
     },
     {
       "label": "js/modulos/voluntarios.js",
-      "risk_score": 63.0,
+      "risk_score": 64.0,
       "degree": 18,
       "in_cycle": false,
-      "loc": 2545
+      "loc": 2645
     },
     {
       "label": "panel/modulos/logistica/catalogo.html",
@@ -509,7 +509,7 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 26.4,
+      "risk": 26.7,
       "relations": 5,
       "exports": [
         "accederGiraParticipante",
@@ -623,6 +623,12 @@
       "file": "functions/templates/correo-pago-aprobado.html",
       "risk": 2.0,
       "relations": 0
+    },
+    {
+      "file": "functions/test/correos-nosel.test.js",
+      "risk": 0.9,
+      "relations": 0,
+      "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras (js/modulos/voluntarios.js). Es la entrada más frágil de esa pantalla: la escribe una persona a mano, peg"
     },
     {
       "file": "functions/test/id-bloqueo.js",
@@ -1279,7 +1285,7 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 63.0,
+      "risk": 64.0,
       "relations": 18,
       "collections": [
         "actividades_ventas",
@@ -1580,7 +1586,7 @@
     },
     {
       "file": "panel/modulos/voluntariado/giras.html",
-      "risk": 22.3,
+      "risk": 22.5,
       "relations": 9,
       "key_neighbors": [
         "css/styles.css",
@@ -1873,5 +1879,5 @@
       }
     }
   ],
-  "estimated_tokens": 8712
+  "estimated_tokens": 8774
 }

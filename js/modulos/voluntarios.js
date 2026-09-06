@@ -1247,8 +1247,10 @@ function renderTablaGiras() {
           </div>`).join("")}
           ${noSeleccionados.map(p => `
           <div class="gp-item">
-            <span class="gp-nombre">${h(p.nombre || "(sin nombre)")}${p.codigo ? ` <span class="gp-codigo">${h(p.codigo)}</span>` : ""}</span>
-            <span class="gp-estado no-incluido">NO SELECCIONADO</span>
+            <span class="gp-nombre">${h(p.nombre || p.correo || "(sin nombre)")}${
+              p.codigo ? ` <span class="gp-codigo">${h(p.codigo)}</span>` :
+              p.correo && p.nombre ? ` <span class="gp-codigo">${h(p.correo)}</span>` : ""}</span>
+            <span class="gp-estado no-incluido">NO SELECCIONADO${p.id ? "" : " · no inscrito"}</span>
           </div>`).join("")}
         </div>
       </div>` : ""}
@@ -1490,6 +1492,84 @@ function renderChipsParticipantesGira() {
   }).join("");
 }
 
+// ── Correos sueltos ─────────────────────────────────────────────────────────
+// Gente que aplico a la gira sin estar inscrita en el congreso: no tiene
+// documento en /participantes, asi que no aparece en el selector. Se guardan en
+// la misma lista `noSeleccionados`, pero sin `id` y con `origen: "externo"`.
+let correosNoSeleccionados = []; // [{correo, nombre}]
+
+const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Acepta "correo@x.com" y "Nombre Apellido <correo@x.com>". Devuelve null si no
+// hay un correo reconocible.
+function parsearEntradaCorreo(texto) {
+  const bruto = String(texto || "").trim();
+  if (!bruto) return null;
+  const conNombre = bruto.match(/^(.*?)<([^>]+)>$/);
+  const nombre = conNombre ? conNombre[1].trim().replace(/^["']|["']$/g, "") : "";
+  const correo = (conNombre ? conNombre[2] : bruto).trim().toLowerCase();
+  if (!RE_CORREO.test(correo) || correo.length > 254) return null;
+  return { correo, nombre };
+}
+
+function renderChipsCorreosNoSeleccionados() {
+  const cont = el("gira-correos-chips");
+  if (!cont) return;
+  cont.innerHTML = correosNoSeleccionados.map(c => `
+    <span class="chip-correo" data-correo="${escaparAtributo(c.correo)}">
+      ${c.nombre ? `${h(c.nombre)} · ` : ""}${h(c.correo)}
+      <button type="button" title="Quitar" data-quitar-correo="${escaparAtributo(c.correo)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
+    </span>`).join("");
+}
+
+el("btn-agregar-correos-nosel")?.addEventListener("click", () => {
+  const campo = el("gira-nosel-correos");
+  const error = el("gira-correos-error");
+  if (!campo) return;
+
+  const partes = campo.value.split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+  const yaEstan = new Set(correosNoSeleccionados.map(c => c.correo));
+  const invalidos = [];
+  let agregados = 0;
+  let repetidos = 0;
+
+  partes.forEach(parte => {
+    const entrada = parsearEntradaCorreo(parte);
+    if (!entrada) { invalidos.push(parte); return; }
+    if (yaEstan.has(entrada.correo)) { repetidos += 1; return; }
+    yaEstan.add(entrada.correo);
+    correosNoSeleccionados.push(entrada);
+    agregados += 1;
+  });
+
+  // Lo que no se pudo interpretar se queda en el campo para poder corregirlo,
+  // en vez de desaparecer sin explicacion.
+  campo.value = invalidos.join("\n");
+  renderChipsCorreosNoSeleccionados();
+
+  if (error) {
+    if (invalidos.length) {
+      error.classList.add("visible");
+      error.textContent = `No se pudo leer ${invalidos.length === 1 ? "esta dirección" : `estas ${invalidos.length} direcciones`}: ${invalidos.join(", ")}. Quedaron en el campo para que las corrijas.`;
+    } else {
+      error.classList.remove("visible");
+      error.textContent = "";
+    }
+  }
+  if (agregados || repetidos) {
+    mostrarAlerta(agregados ? "success" : "aviso",
+        `${agregados} correo${agregados === 1 ? "" : "s"} agregado${agregados === 1 ? "" : "s"}` +
+        (repetidos ? ` · ${repetidos} ya estaba${repetidos === 1 ? "" : "n"} en la lista` : ""));
+  }
+});
+
+el("gira-correos-chips")?.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-quitar-correo]");
+  if (!btn) return;
+  correosNoSeleccionados = correosNoSeleccionados.filter(c => c.correo !== btn.dataset.quitarCorreo);
+  renderChipsCorreosNoSeleccionados();
+});
+
 function renderChipsNoSeleccionados() {
   const cont  = el("gira-nosel-chips");
   const vacio = el("gira-nosel-vacio");
@@ -1662,10 +1742,18 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
     // Lista aparte: no van a la gira, solo reciben el correo de aviso. El
     // motivo y el mensaje se guardan con la gira para que la Cloud Function los
     // lea del documento y no de lo que mande el navegador.
-    noSeleccionados: participantesNoSeleccionados.map(p => ({
-      id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
-      pagoAprobado: estaAprobadoParaGira(p),
-    })),
+    noSeleccionados: [
+      ...participantesNoSeleccionados.map(p => ({
+        origen: "participante",
+        id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
+        pagoAprobado: estaAprobadoParaGira(p),
+      })),
+      // Sin `id`: no tienen documento en /participantes. La Cloud Function los
+      // distingue por eso y les escribe directo al correo.
+      ...correosNoSeleccionados.map(c => ({
+        origen: "externo", correo: c.correo, nombre: c.nombre || "",
+      })),
+    ],
     motivoNoSeleccionados:  el("gira-nosel-motivo").value.trim(),
     mensajeNoSeleccionados: el("gira-nosel-mensaje").value.trim(),
     activo: true, actualizadoEn: serverTimestamp(),
@@ -1702,8 +1790,12 @@ function limpiarFormGira() {
   editandoGiraId = null;
   participantesGiraSeleccionados = [];
   participantesNoSeleccionados = [];
+  correosNoSeleccionados = [];
+  el("gira-nosel-correos").value = "";
+  el("gira-correos-error").classList.remove("visible");
   renderChipsParticipantesGira();
   renderChipsNoSeleccionados();
+  renderChipsCorreosNoSeleccionados();
   avisarParticipantesEnAmbasListas();
   el("form-gira-titulo").textContent = "Crear nueva gira";
   el("btn-cancelar-gira").style.display = "none";
@@ -1736,10 +1828,17 @@ window.editarGira = function(id) {
     const vivo = participantesGiraCache.find(x => x.id === p.id);
     return { ...p, pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true };
   });
-  participantesNoSeleccionados = (g.noSeleccionados || []).map(p => {
+  const noSelGuardados = g.noSeleccionados || [];
+  participantesNoSeleccionados = noSelGuardados.filter(p => p.id).map(p => {
     const vivo = participantesGiraCache.find(x => x.id === p.id);
     return { ...p, pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true };
   });
+  correosNoSeleccionados = noSelGuardados
+    .filter(p => !p.id && p.correo)
+    .map(p => ({ correo: p.correo, nombre: p.nombre || "" }));
+  el("gira-nosel-correos").value = "";
+  el("gira-correos-error").classList.remove("visible");
+  renderChipsCorreosNoSeleccionados();
   el("gira-nosel-motivo").value  = g.motivoNoSeleccionados  || "";
   el("gira-nosel-mensaje").value = g.mensajeNoSeleccionados || "";
   el("gira-nosel-mensaje").dispatchEvent(new Event("input"));
@@ -2518,6 +2617,7 @@ el("btn-confirmar-grupo")?.addEventListener("click", async () => {
 // consume. Cada bandera lista los IDs que realmente dependen de esos datos.
 renderChipsParticipantesGira();
 renderChipsNoSeleccionados();
+renderChipsCorreosNoSeleccionados();
 
 const necesitaActividades  = !!(el("tabla-actividades-body") || el("filtro-actividad") || el("asig-evento"));
 const necesitaVoluntarios  = !!(el("tabla-voluntarios-body") || el("asig-voluntario"));

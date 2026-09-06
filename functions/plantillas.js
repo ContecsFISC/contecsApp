@@ -104,11 +104,17 @@ function textoAParrafosHtml(texto) {
 function cargarCorreoNoSeleccionadoGira(vars) {
   const raw = leer("correo-no-seleccionado-gira.html");
   const meta = parseMeta(raw);
-  const {mensaje, ...resto} = vars || {};
+  const {mensaje, nombre, ...resto} = vars || {};
   const varsHtml = Object.fromEntries(
       Object.entries(resto).map(([key, value]) => [key, escaparHtml(value)]),
   );
   varsHtml.mensaje_html = textoAParrafosHtml(mensaje);
+  // Los avisos a correos sueltos (gente que aplico sin estar inscrita) pueden
+  // no traer nombre. En ese caso el saludo va sin el, en vez de un "Hola ,".
+  const limpio = String(nombre || "").trim();
+  varsHtml.saludo_html = limpio ?
+    `Hola <strong>${escaparHtml(limpio)}</strong>,` :
+    "Hola,";
   const htmlContent = aplicarPlantilla(raw, varsHtml);
 
   return {

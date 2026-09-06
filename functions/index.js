@@ -1153,6 +1153,15 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
 //
 // Deliberadamente NO lleva codigo, token ni enlace a la gira: no forma parte de
 // ella, asi que no se le entrega ningun acceso.
+// Identifica una entrada de la lista de no seleccionados para no avisarle dos
+// veces: los participantes inscritos por su id, y los correos sueltos por el
+// propio correo normalizado.
+function claveNoSeleccionado(entrada) {
+  if (entrada?.id) return entrada.id;
+  const correo = String(entrada?.correo || "").trim().toLowerCase();
+  return correo ? `correo:${correo}` : null;
+}
+
 async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensaje}) {
   const correo = participante.correo;
   const nombre = participante.nombreCompleto ||
@@ -1322,7 +1331,10 @@ exports.notificarNoSeleccionadosGira = onCall(
         }
 
         const yaAvisados = new Set(gira.notificadosNoSeleccionados || []);
-        const pendientes = lista.filter((p) => p?.id && !yaAvisados.has(p.id));
+        const pendientes = lista.filter((p) => {
+          const clave = claveNoSeleccionado(p);
+          return clave && !yaAvisados.has(clave);
+        });
         if (pendientes.length === 0) {
           return {
             enviados: 0,
@@ -1332,13 +1344,26 @@ exports.notificarNoSeleccionadosGira = onCall(
         }
 
         const resultados = await Promise.allSettled(pendientes.map(async (p) => {
-          const participanteSnap = await db.collection("participantes").doc(p.id).get();
-          if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
+          let destinatario;
+          if (p.id) {
+            const participanteSnap = await db.collection("participantes").doc(p.id).get();
+            if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
+            destinatario = participanteSnap.data();
+          } else {
+            // Correo suelto: alguien que aplico a la gira sin estar inscrito en
+            // el congreso, asi que no tiene documento en /participantes. El
+            // correo se revalida aqui — el navegador no es fuente de confianza.
+            const correo = String(p.correo || "").trim().toLowerCase();
+            if (!validarCorreo(correo)) {
+              throw new Error(`Correo no válido: ${correo || "(vacío)"}`);
+            }
+            destinatario = {correo, nombreCompleto: String(p.nombre || "").trim()};
+          }
           const resultado = await enviarCorreoNoSeleccionadoGira({
-            gira, participante: participanteSnap.data(), motivo, mensaje,
+            gira, participante: destinatario, motivo, mensaje,
           });
           if (resultado.omitido) throw new Error("plantilla_desactivada");
-          return p.id;
+          return claveNoSeleccionado(p);
         }));
 
         const enviadosIds = resultados

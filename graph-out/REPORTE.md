@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-06T01:15:00.996606+00:00**
+- Generado: **2026-09-06T03:18:36.543285+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `dab708b5caf55af1…`
-- Archivos analizados: **157**
+- Huella del proyecto: `c874bc408cba091f…`
+- Archivos analizados: **158**
 - Relaciones internas tipadas: **475**
-- Símbolos detectados: **3420**
-- Llamadas detectadas: **7696**
-- IDs DOM definidos: **788**
+- Símbolos detectados: **3457**
+- Llamadas detectadas: **7759**
+- IDs DOM definidos: **792**
 - Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **14**
-- Archivos huerfanos: **65**
+- Archivos huerfanos: **66**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,712 tokens** · leer primero
-- `GraphCompleto.json` — ~**46,196 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**85,667 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**8,774 tokens** · leer primero
+- `GraphCompleto.json` — ~**46,343 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**86,081 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -39,7 +39,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
 - `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
-- `js/modulos/voluntarios.js` — riesgo 63.0 (conexiones: 18, 2545 lineas)
+- `js/modulos/voluntarios.js` — riesgo 64.0 (conexiones: 18, 2645 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -100,6 +100,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/templates/correo-no-seleccionado-gira.html`
 - `functions/templates/correo-notificacion-gira.html`
 - `functions/templates/correo-pago-aprobado.html`
+- `functions/test/correos-nosel.test.js`
 - `icons/bebida-lata.svg`
 - `img/iconos/agua.svg`
 - `img/iconos/bubble_tea.svg`
@@ -123,8 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/galleta.svg`
 - `img/iconos/galleta_alt.svg`
 - `img/iconos/hamburguesa.svg`
-- `img/iconos/helado.svg`
-- ...y 25 mas
+- ...y 26 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -360,5 +360,5 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 31 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 2 archivo(s)
+- `node:assert/strict` — usado en 3 archivo(s)
 - `path` — usado en 1 archivo(s)
