@@ -10,6 +10,7 @@ import {
   notificarParticipantesGira,
   notificarNoSeleccionadosGira,
 } from "../core/participantes-api.js";
+import { parsearListaCorreos } from "../core/correos.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
 import {
   escaparAtributo,
@@ -1270,7 +1271,7 @@ function renderTablaGiras() {
           ${listoParaAvisar ? "" : "disabled"}
           title="${listoParaAvisar ?
             "Enviar el correo que escribiste a los no seleccionados" :
-            "Añade no seleccionados y escribe el motivo y el mensaje (Editar gira)"}">
+            "Edita la gira: añade no seleccionados, escribe el motivo y el mensaje, y guarda"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Notificar no seleccionados${noSeleccionados.length ? ` (${noSeleccionados.length})` : ""}
         </button>
@@ -1496,21 +1497,8 @@ function renderChipsParticipantesGira() {
 // Gente que aplico a la gira sin estar inscrita en el congreso: no tiene
 // documento en /participantes, asi que no aparece en el selector. Se guardan en
 // la misma lista `noSeleccionados`, pero sin `id` y con `origen: "externo"`.
+// El parseo vive en js/core/correos.js para poder probarlo de verdad.
 let correosNoSeleccionados = []; // [{correo, nombre}]
-
-const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-// Acepta "correo@x.com" y "Nombre Apellido <correo@x.com>". Devuelve null si no
-// hay un correo reconocible.
-function parsearEntradaCorreo(texto) {
-  const bruto = String(texto || "").trim();
-  if (!bruto) return null;
-  const conNombre = bruto.match(/^(.*?)<([^>]+)>$/);
-  const nombre = conNombre ? conNombre[1].trim().replace(/^["']|["']$/g, "") : "";
-  const correo = (conNombre ? conNombre[2] : bruto).trim().toLowerCase();
-  if (!RE_CORREO.test(correo) || correo.length > 254) return null;
-  return { correo, nombre };
-}
 
 function renderChipsCorreosNoSeleccionados() {
   const cont = el("gira-correos-chips");
@@ -1522,30 +1510,23 @@ function renderChipsCorreosNoSeleccionados() {
     </span>`).join("");
 }
 
-el("btn-agregar-correos-nosel")?.addEventListener("click", () => {
+// Vuelca lo que haya en el campo de texto a la lista de chips. Devuelve cuantos
+// entraron, para que "Guardar gira" pueda avisar si habia texto sin procesar.
+function absorberCorreosEscritos({silencioso = false} = {}) {
   const campo = el("gira-nosel-correos");
   const error = el("gira-correos-error");
-  if (!campo) return;
+  if (!campo || !campo.value.trim()) return { validos: 0, invalidos: 0 };
 
-  const partes = campo.value.split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
-  const yaEstan = new Set(correosNoSeleccionados.map(c => c.correo));
-  const invalidos = [];
-  let agregados = 0;
-  let repetidos = 0;
-
-  partes.forEach(parte => {
-    const entrada = parsearEntradaCorreo(parte);
-    if (!entrada) { invalidos.push(parte); return; }
-    if (yaEstan.has(entrada.correo)) { repetidos += 1; return; }
-    yaEstan.add(entrada.correo);
-    correosNoSeleccionados.push(entrada);
-    agregados += 1;
-  });
+  const { validos, invalidos, repetidos } = parsearListaCorreos(
+    campo.value, correosNoSeleccionados.map(c => c.correo),
+  );
+  correosNoSeleccionados = [...correosNoSeleccionados, ...validos];
 
   // Lo que no se pudo interpretar se queda en el campo para poder corregirlo,
   // en vez de desaparecer sin explicacion.
   campo.value = invalidos.join("\n");
   renderChipsCorreosNoSeleccionados();
+  avisarParticipantesEnAmbasListas();
 
   if (error) {
     if (invalidos.length) {
@@ -1556,30 +1537,36 @@ el("btn-agregar-correos-nosel")?.addEventListener("click", () => {
       error.textContent = "";
     }
   }
-  if (agregados || repetidos) {
-    mostrarAlerta(agregados ? "success" : "aviso",
-        `${agregados} correo${agregados === 1 ? "" : "s"} agregado${agregados === 1 ? "" : "s"}` +
+  if (!silencioso && (validos.length || repetidos)) {
+    mostrarAlerta(validos.length ? "success" : "warning",
+        `${validos.length} correo${validos.length === 1 ? "" : "s"} agregado${validos.length === 1 ? "" : "s"}` +
         (repetidos ? ` · ${repetidos} ya estaba${repetidos === 1 ? "" : "n"} en la lista` : ""));
   }
-});
+  return { validos: validos.length, invalidos: invalidos.length };
+}
+
+el("btn-agregar-correos-nosel")?.addEventListener("click", () => absorberCorreosEscritos());
 
 el("gira-correos-chips")?.addEventListener("click", (ev) => {
   const btn = ev.target.closest("[data-quitar-correo]");
   if (!btn) return;
   correosNoSeleccionados = correosNoSeleccionados.filter(c => c.correo !== btn.dataset.quitarCorreo);
   renderChipsCorreosNoSeleccionados();
+  avisarParticipantesEnAmbasListas();
 });
 
 function renderChipsNoSeleccionados() {
   const cont  = el("gira-nosel-chips");
   const vacio = el("gira-nosel-vacio");
   if (!cont) return;
+  // El aviso de "no hay nadie" mira las dos clases de entrada: una gira con
+  // solo correos sueltos tiene lista, aunque no tenga participantes inscritos.
+  const hayAlguien = participantesNoSeleccionados.length + correosNoSeleccionados.length > 0;
+  if (vacio) vacio.style.display = hayAlguien ? "none" : "block";
   if (participantesNoSeleccionados.length === 0) {
     cont.innerHTML = "";
-    if (vacio) vacio.style.display = "block";
     return;
   }
-  if (vacio) vacio.style.display = "none";
   cont.innerHTML = participantesNoSeleccionados.map(p => `
     <span class="chip-nosel" data-id="${escaparAtributo(p.id)}">
       ${h(p.nombre || "(sin nombre)")}
@@ -1594,7 +1581,19 @@ function avisarParticipantesEnAmbasListas() {
   const aviso = el("gira-aviso-ambas");
   if (!aviso) return;
   const enGira = new Set(participantesGiraSeleccionados.map(p => p.id));
-  const repetidos = participantesNoSeleccionados.filter(p => enGira.has(p.id));
+  // Los correos sueltos tambien se cruzan: pegar la lista completa de
+  // solicitantes suele incluir a gente que SI fue seleccionada, y esa recibiria
+  // los dos correos. Solo se puede comparar contra el correo institucional, que
+  // es el unico que trae listarParticipantesParaGiras.
+  const correosEnGira = new Set(
+    participantesGiraSeleccionados
+      .map(p => String(p.correoInstitucional || "").trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const repetidos = [
+    ...participantesNoSeleccionados.filter(p => enGira.has(p.id)),
+    ...correosNoSeleccionados.filter(c => correosEnGira.has(c.correo)),
+  ];
   if (!repetidos.length) {
     aviso.classList.remove("visible");
     aviso.textContent = "";
@@ -1603,7 +1602,7 @@ function avisarParticipantesEnAmbasListas() {
   aviso.classList.add("visible");
   aviso.textContent =
     `${repetidos.length === 1 ? "Esta persona está" : `Estas ${repetidos.length} personas están`} ` +
-    `en las dos listas: ${repetidos.map(p => p.nombre || p.id).join(", ")}. ` +
+    `en las dos listas: ${repetidos.map(p => p.nombre || p.correo || p.id).join(", ")}. ` +
     `Recibirá${repetidos.length === 1 ? "" : "n"} los dos correos. Quítal${repetidos.length === 1 ? "a" : "as"} de una.`;
 }
 
@@ -1632,8 +1631,9 @@ el("gira-participantes-chips")?.addEventListener("click", (ev) => {
   const id = btn.dataset.quitar;
   participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
   renderChipsParticipantesGira();
-  actualizarFilaParticipanteGira(id);
+  if (destinoSeleccionGira === "participantes") actualizarFilaParticipanteGira(id);
   actualizarContadorParticipantesGira();
+  avisarParticipantesEnAmbasListas();
 });
 
 function abrirSheetParticipantesGira() {
@@ -1704,6 +1704,21 @@ el("btn-listo-participantes-gira")?.addEventListener("click", cerrarSheetPartici
 el("overlay-part")?.addEventListener("click", cerrarSheetParticipantesGira);
 
 el("btn-guardar-gira")?.addEventListener("click", async () => {
+  // Si quedo texto sin procesar en el campo de correos, se absorbe ahora: de
+  // lo contrario "Guardar gira" reportaba exito y limpiarFormGira() borraba el
+  // campo, perdiendo en silencio todo lo que se hubiera pegado ahi.
+  const pendiente = absorberCorreosEscritos({silencioso: true});
+  if (pendiente.invalidos) {
+    mostrarAlerta("error",
+        `Hay ${pendiente.invalidos} dirección(es) que no se pudieron leer. Corrígelas o bórralas antes de guardar.`);
+    el("gira-nosel-correos").focus();
+    return;
+  }
+  if (pendiente.validos) {
+    mostrarAlerta("warning",
+        `Se agregaron ${pendiente.validos} correo(s) que habías escrito pero no añadido.`);
+  }
+
   const nombre = el("gira-nombre").value.trim();
   const fecha  = el("gira-fecha").value;
   const hora   = el("gira-hora").value; // "HH:MM" o "" si no se puso
@@ -1877,7 +1892,7 @@ window.notificarGira = async function(id) {
   btn.textContent = "Notificando...";
   try {
     const resultado = await notificarParticipantesGira(id);
-    mostrarAlerta(resultado.enviados > 0 ? "success" : "aviso", resultado.mensaje);
+    mostrarAlerta(resultado.enviados > 0 ? "success" : "warning", resultado.mensaje);
     await cargarGiras();
   } catch (e) {
     mostrarAlerta("error", "Error al notificar: " + e.message);
@@ -1903,11 +1918,11 @@ window.notificarNoSeleccionados = async function(id) {
   const mensaje = String(gira?.mensajeNoSeleccionados || "").trim();
 
   if (!lista.length) {
-    mostrarAlerta("aviso", "Esta gira no tiene nadie en la lista de no seleccionados.");
+    mostrarAlerta("warning", "Esta gira no tiene nadie en la lista de no seleccionados.");
     return;
   }
   if (!motivo || !mensaje) {
-    mostrarAlerta("aviso", "Falta el motivo o el mensaje del correo. Edita la gira y complétalos.");
+    mostrarAlerta("warning", "Falta el motivo o el mensaje del correo. Edita la gira y complétalos.");
     return;
   }
 
@@ -1925,7 +1940,7 @@ window.notificarNoSeleccionados = async function(id) {
   btn.textContent = "Enviando...";
   try {
     const resultado = await notificarNoSeleccionadosGira(id);
-    mostrarAlerta(resultado.enviados > 0 ? "success" : "aviso", resultado.mensaje);
+    mostrarAlerta(resultado.enviados > 0 ? "success" : "warning", resultado.mensaje);
     await cargarGiras();
   } catch (e) {
     mostrarAlerta("error", "Error al notificar: " + e.message);

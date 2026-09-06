@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-06T03:18:36.543285+00:00",
-  "project_fingerprint": "c874bc408cba091f7942c439684ab4e0210f08effc3bb88d879f577a4d94d600",
+  "generated_at": "2026-09-06T03:33:41.935630+00:00",
+  "project_fingerprint": "c4b1c3f608d4e0bc04cd63b6f3d8be80b9fa450184057a5853db2b6a3ff9c461",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,16 +21,16 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 158,
-    "total_edges": 475,
-    "total_orphans": 66,
+    "total_files": 159,
+    "total_edges": 482,
+    "total_orphans": 65,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
     "total_cloud_functions": 14,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3457,
-    "total_function_calls": 7759,
+    "total_symbols": 3461,
+    "total_function_calls": 7795,
     "total_dom_ids": 792,
     "total_diagnostics": 1,
     "errors": 0,
@@ -39,8 +39,12 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "15cd44363636daa2d6c25b00c9de37921674ca32",
+    "head": "1510205a4bb3fedf9428fa1634ba72cec5d17bbe",
     "changed_files": [
+      {
+        "file": "functions/identidad.js",
+        "status": " M"
+      },
       {
         "file": "functions/index.js",
         "status": " M"
@@ -54,23 +58,27 @@
         "status": " M"
       },
       {
-        "file": "functions/templates/correo-no-seleccionado-gira.html",
-        "status": " M"
+        "file": "functions/test/correos-nosel.test.js",
+        "status": " D"
       },
       {
         "file": "js/modulos/voluntarios.js",
         "status": " M"
       },
       {
-        "file": "panel/modulos/voluntariado/giras.html",
+        "file": "package.json",
         "status": " M"
       },
       {
-        "file": "functions/test/correos-nosel.test.js",
+        "file": "functions/test/correos.test.mjs",
+        "status": "??"
+      },
+      {
+        "file": "js/core/correos.js",
         "status": "??"
       }
     ],
-    "changed_count": 7
+    "changed_count": 9
   },
   "domains": [
     {
@@ -152,15 +160,15 @@
       "file_count": 15,
       "key_files": [
         "functions/index.js",
+        "functions/test/correos.test.mjs",
+        "functions/identidad.js",
         "functions/operaciones-qr.js",
         "functions/operaciones-financieras.js",
-        "functions/identidad.js",
         "functions/test/operaciones-qr.integration.js",
         "functions/plantillas.js",
         "functions/test/identidad.test.js",
         "functions/test/id-bloqueo.js",
-        "functions/qr-participante.js",
-        "functions/templates/correo-notificacion-gira.html"
+        "functions/qr-participante.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -185,7 +193,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 4.8,
+      "average_risk": 5.7,
       "diagnostics": 0
     },
     {
@@ -219,12 +227,12 @@
     },
     {
       "name": "js",
-      "file_count": 38,
+      "file_count": 39,
       "key_files": [
         "js/core/auth.js",
         "js/core/seguridad.js",
-        "js/core/firebase-config.js",
         "js/modulos/voluntarios.js",
+        "js/core/firebase-config.js",
         "js/modulos/catalogo.js",
         "js/core/iconos.js",
         "js/core/operaciones.js",
@@ -257,7 +265,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.8,
+      "average_risk": 32.4,
       "diagnostics": 1
     },
     {
@@ -330,6 +338,13 @@
       "loc": 1618
     },
     {
+      "label": "js/modulos/voluntarios.js",
+      "risk_score": 68.1,
+      "degree": 20,
+      "in_cycle": false,
+      "loc": 2660
+    },
+    {
       "label": "css/styles.css",
       "risk_score": 67.7,
       "degree": 30,
@@ -342,13 +357,6 @@
       "degree": 33,
       "in_cycle": false,
       "loc": 35
-    },
-    {
-      "label": "js/modulos/voluntarios.js",
-      "risk_score": 64.0,
-      "degree": 18,
-      "in_cycle": false,
-      "loc": 2645
     },
     {
       "label": "panel/modulos/logistica/catalogo.html",
@@ -496,12 +504,14 @@
     },
     {
       "file": "functions/identidad.js",
-      "risk": 6.7,
-      "relations": 3,
+      "risk": 8.8,
+      "relations": 4,
       "purpose": "Identidad de participantes: cómo se deriva el id de un documento, cómo se derivan los documentos-lock de `identificadores_participantes` y cuándo un lock bloquea de verdad un regis",
       "exports": [
         "CORREO_SOPORTE",
+        "RE_CORREO",
         "errorDuplicado",
+        "esCorreoValido",
         "generarDocId",
         "idBloqueoParticipante",
         "locksQueBloquean"
@@ -509,7 +519,7 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 26.7,
+      "risk": 27.0,
       "relations": 5,
       "exports": [
         "accederGiraParticipante",
@@ -588,7 +598,7 @@
     },
     {
       "file": "functions/plantillas.js",
-      "risk": 3.3,
+      "risk": 3.4,
       "relations": 1,
       "exports": [
         "aplicarPlantilla",
@@ -625,10 +635,10 @@
       "relations": 0
     },
     {
-      "file": "functions/test/correos-nosel.test.js",
-      "risk": 0.9,
-      "relations": 0,
-      "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras (js/modulos/voluntarios.js). Es la entrada más frágil de esa pantalla: la escribe una persona a mano, peg"
+      "file": "functions/test/correos.test.mjs",
+      "risk": 11.1,
+      "relations": 5,
+      "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras. Es la entrada más frágil de esa pantalla: la escribe una persona a mano, pegando de un chat o de una hoj"
     },
     {
       "file": "functions/test/id-bloqueo.js",
@@ -726,6 +736,18 @@
         "js/modulos/detalleFondo.js",
         "js/modulos/fondo.js",
         "js/modulos/informeActividad.js"
+      ]
+    },
+    {
+      "file": "js/core/correos.js",
+      "risk": 12.6,
+      "relations": 6,
+      "purpose": "Lectura de direcciones de correo escritas a mano. Vive aparte para que se pueda probar con el código real en vez de una copia (functions/test/correos.test.mjs). El equivalente del ",
+      "exports": [
+        "RE_CORREO",
+        "esCorreoValido",
+        "parsearEntradaCorreo",
+        "parsearListaCorreos"
       ]
     },
     {
@@ -1285,8 +1307,8 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 64.0,
-      "relations": 18,
+      "risk": 68.1,
+      "relations": 20,
       "collections": [
         "actividades_ventas",
         "actividades_voluntarios",
@@ -1299,6 +1321,7 @@
       "diagnostics": 1,
       "key_neighbors": [
         "js/core/auth.js",
+        "js/core/correos.js",
         "js/core/firebase-config.js",
         "js/core/iconos.js",
         "js/core/participantes-api.js",
@@ -1869,7 +1892,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 266,
+      "line": 267,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -1879,5 +1902,5 @@
       }
     }
   ],
-  "estimated_tokens": 8774
+  "estimated_tokens": 8876
 }

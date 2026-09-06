@@ -15,6 +15,7 @@ const {
   idBloqueoParticipante,
   errorDuplicado,
   locksQueBloquean,
+  esCorreoValido,
 } = require("./identidad");
 const {
   cargarCorreoPagoAprobado,
@@ -327,6 +328,30 @@ function validarTexto(valor, campo, {requerido = false, max = 200} = {}) {
     return codigo === 127 || (codigo < 32 && codigo !== 9 && codigo !== 10 && codigo !== 13);
   });
   if (texto.includes("<") || texto.includes(">") || contieneControl) {
+    throw new HttpsError("invalid-argument", `El campo ${campo} contiene caracteres no permitidos.`);
+  }
+  return texto;
+}
+
+// El cuerpo del correo a los no seleccionados lo redacta una persona, y es
+// razonable que escriba "cupo <30" o "empresa & universidad". validarTexto
+// prohibe "<" y ">" como medida general anti-inyeccion, pero aqui esa defensa
+// la da el escapado de plantillas.js (textoAParrafosHtml escapa TODO antes de
+// introducir marcado). Asi que solo se controlan longitud y caracteres de
+// control, y se deja escribir con naturalidad.
+function validarTextoLibre(valor, campo, {requerido = false, max = 4000} = {}) {
+  const texto = typeof valor === "string" ? valor.trim() : "";
+  if (requerido && !texto) {
+    throw new HttpsError("invalid-argument", `El campo ${campo} es obligatorio.`);
+  }
+  if (texto.length > max) {
+    throw new HttpsError("invalid-argument", `El campo ${campo} es demasiado largo.`);
+  }
+  const contieneControl = [...texto].some((caracter) => {
+    const codigo = caracter.charCodeAt(0);
+    return codigo === 127 || (codigo < 32 && codigo !== 9 && codigo !== 10 && codigo !== 13);
+  });
+  if (contieneControl) {
     throw new HttpsError("invalid-argument", `El campo ${campo} contiene caracteres no permitidos.`);
   }
   return texto;
@@ -1183,7 +1208,7 @@ async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensa
 
   const brevoResp = await enviarCorreoTransaccional({
     sender: CORREO_REMITENTE,
-    to: [{email: correo, name: nombre}],
+    to: [nombre ? {email: correo, name: nombre} : {email: correo}],
     subject: plantilla.subject,
     htmlContent: plantilla.htmlContent,
     textContent: plantilla.textContent,
@@ -1318,8 +1343,8 @@ exports.notificarNoSeleccionadosGira = onCall(
         // El motivo y el mensaje se leen del documento de la gira, no de lo que
         // mande el navegador: asi el correo siempre corresponde a lo que quedo
         // guardado y revisado en el panel.
-        const motivo = validarTexto(gira.motivoNoSeleccionados, "motivo", {requerido: true, max: 120});
-        const mensaje = validarTexto(gira.mensajeNoSeleccionados, "mensaje", {requerido: true, max: 4000});
+        const motivo = validarTextoLibre(gira.motivoNoSeleccionados, "motivo", {requerido: true, max: 120});
+        const mensaje = validarTextoLibre(gira.mensajeNoSeleccionados, "mensaje", {requerido: true, max: 4000});
 
         const lista = Array.isArray(gira.noSeleccionados) ? gira.noSeleccionados : [];
         if (lista.length === 0) {
@@ -1353,11 +1378,20 @@ exports.notificarNoSeleccionadosGira = onCall(
             // Correo suelto: alguien que aplico a la gira sin estar inscrito en
             // el congreso, asi que no tiene documento en /participantes. El
             // correo se revalida aqui — el navegador no es fuente de confianza.
+            // esCorreoValido, no validarCorreo: este ultimo solo comprueba que
+            // haya una arroba, y deja pasar pegados como "mailto:ana@x.com" o
+            // "<ana@x.com" que rebotan despues en Brevo sin decir cual fue. Los
+            // roles con escritura sobre giras_voluntarios pueden guardar aqui
+            // sin pasar por el parseo del panel, asi que esta es la unica
+            // barrera real.
             const correo = String(p.correo || "").trim().toLowerCase();
-            if (!validarCorreo(correo)) {
+            if (!esCorreoValido(correo)) {
               throw new Error(`Correo no válido: ${correo || "(vacío)"}`);
             }
-            destinatario = {correo, nombreCompleto: String(p.nombre || "").trim()};
+            destinatario = {
+              correo,
+              nombreCompleto: validarTextoLibre(p.nombre, "nombre", {max: 200}),
+            };
           }
           const resultado = await enviarCorreoNoSeleccionadoGira({
             gira, participante: destinatario, motivo, mensaje,

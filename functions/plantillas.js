@@ -39,7 +39,15 @@ function htmlATexto(html) {
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n\n")
       .replace(/<[^>]+>/g, "")
+      // Se deshacen las entidades DESPUES de quitar etiquetas: el HTML viene
+      // escapado, y sin esto la version en texto plano del correo mostraba
+      // "cupo &lt;30 (empresa &amp; universidad)" en clientes sin HTML.
       .replace(/&nbsp;/g, " ")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, "\"")
+      .replace(/&amp;/g, "&")
       .replace(/\n{3,}/g, "\n\n")
       .trim();
 }

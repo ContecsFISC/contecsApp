@@ -10,6 +10,19 @@
 const crypto = require("crypto");
 const {HttpsError} = require("firebase-functions/v2/https");
 
+// Debe ser IDENTICA a RE_CORREO en js/core/correos.js. El navegador parsea y
+// filtra, pero los roles con escritura sobre `giras_voluntarios` pueden dejar
+// entradas ahi sin pasar por el panel, asi que esta es la validacion que
+// realmente cuenta antes de enviar un correo. test/correos.test.mjs comprueba
+// que las dos expresiones no se desincronicen.
+const RE_CORREO =
+  /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
+function esCorreoValido(valor) {
+  const texto = String(valor ?? "").trim();
+  return texto.length > 0 && texto.length <= 254 && RE_CORREO.test(texto);
+}
+
 const CORREO_SOPORTE = "congresofisc@utp.ac.pa";
 
 // El id del documento del participante se deriva de la cédula si la hay, y del
@@ -62,6 +75,8 @@ function locksQueBloquean(ocupados, idsVivos) {
 
 module.exports = {
   CORREO_SOPORTE,
+  RE_CORREO,
+  esCorreoValido,
   generarDocId,
   idBloqueoParticipante,
   errorDuplicado,
