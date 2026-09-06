@@ -25,12 +25,12 @@ function renderUsuarios() {
 
   const sinRol = todosUsuarios.filter(u => !u.rol || u.rol === "sin_rol").length;
   contador.innerHTML =
-    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#d4850a" : "#39b54a"}">${sinRol}</strong> sin rol asignado`;
+    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#c47f17" : "#39b54a"}">${sinRol}</strong> sin rol asignado`;
 
   lista.innerHTML = "";
 
   if (filtrados.length === 0) {
-    lista.innerHTML = `<p style="text-align:center;color:#8a9e8d;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
+    lista.innerHTML = `<p style="text-align:center;color:#86868b;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
     return;
   }
 

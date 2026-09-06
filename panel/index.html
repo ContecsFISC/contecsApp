@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -120,8 +120,8 @@
       line-height: 1.4;
     }
     .alerta.show { display: block; }
-    .alerta-error  { background: #fdedec; color: #d0342c; border-left: 4px solid #d0342c; }
-    .alerta-aviso  { background: #fef9e7; color: #d4850a; border-left: 4px solid #d4850a; }
+    .alerta-error  { background: #fdf0ef; color: #d0342c; border-left: 4px solid #d0342c; }
+    .alerta-aviso  { background: #fdf6e9; color: #c47f17; border-left: 4px solid #c47f17; }
     .nota {
       font-size: 12px;
       color: #aaa;
@@ -138,10 +138,10 @@
   </script>
   <style>
     @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: vtSalidaSolo 0.18s ease-in-out both; }
+    ::view-transition-old(root) { animation: vtSalidaSolo 0.18s cubic-bezier(0.4,0,0.2,1) both; }
     ::view-transition-new(root) { animation: vtEntradaSolo 0.26s cubic-bezier(0.25,0.46,0.45,0.94) both; }
     @keyframes vtSalidaSolo { to { opacity: 0; transform: translateY(-6px); } }
-    @keyframes vtEntradaSolo { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes vtEntradaSolo { from { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) {
       ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
     }
