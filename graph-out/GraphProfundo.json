@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-05T23:27:02.732668+00:00",
-  "project_fingerprint": "dde8bf6a1ed5513ab8275ba266c6fefc45a6a983db5f023fd55511d219ca0422",
+  "generated_at": "2026-09-06T01:15:00.996606+00:00",
+  "project_fingerprint": "dab708b5caf55af1725302cb259b2e6b43cabe6facad6d929980985d27256524",
   "project": "contecsApp",
   "root": ".",
   "view": "deep",
   "stats": {
-    "total_files": 153,
-    "total_edges": 472,
-    "total_orphans": 64,
+    "total_files": 157,
+    "total_edges": 475,
+    "total_orphans": 65,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 13,
+    "total_cloud_functions": 14,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3365,
-    "total_function_calls": 7581,
-    "total_dom_ids": 780,
+    "total_symbols": 3420,
+    "total_function_calls": 7696,
+    "total_dom_ids": 788,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -188,7 +188,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
       ]
@@ -245,10 +245,10 @@
     },
     {
       "label": "js/modulos/voluntarios.js",
-      "risk_score": 61.6,
+      "risk_score": 63.0,
       "degree": 18,
       "in_cycle": false,
-      "loc": 2415
+      "loc": 2545
     },
     {
       "label": "panel/modulos/logistica/catalogo.html",
@@ -315,6 +315,7 @@
     }
   ],
   "orphans": [
+    ".claude/settings.json",
     "AGENTS.md",
     "assets/img/fisc-logo.png",
     "assets/img/utp-logo.png",
@@ -327,7 +328,7 @@
     "firebase_rules/storage.rules",
     "functions/.eslintrc.js",
     "functions/package.json",
-    "functions/templates/correo-no-aprobado-gira.html",
+    "functions/templates/correo-no-seleccionado-gira.html",
     "functions/templates/correo-notificacion-gira.html",
     "functions/templates/correo-pago-aprobado.html",
     "icons/bebida-lata.svg",
@@ -383,6 +384,7 @@
   "circular_dependencies": [],
   "external_packages": {
     "crypto": [
+      "functions/identidad.js",
       "functions/index.js"
     ],
     "firebase-admin/app": [
@@ -411,6 +413,7 @@
       "functions/index.js"
     ],
     "firebase-functions/v2/https": [
+      "functions/identidad.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js"
@@ -426,7 +429,7 @@
       "panel/modulos/finanzas/reportes_financieros.html"
     ],
     "https://contecsfisc.github.io/contecsApp/logocontecs.png": [
-      "functions/templates/correo-no-aprobado-gira.html",
+      "functions/templates/correo-no-seleccionado-gira.html",
       "functions/templates/correo-notificacion-gira.html",
       "functions/templates/correo-pago-aprobado.html",
       "registro.html"
@@ -498,6 +501,7 @@
       "panel/modulos/congreso/modulos_participantes.html"
     ],
     "node:assert/strict": [
+      "functions/test/identidad.test.js",
       "functions/test/operaciones-qr.integration.js"
     ],
     "path": [
@@ -727,7 +731,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_ventas",
-        "line": 1717
+        "line": 1846
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
@@ -771,35 +775,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "actividades_voluntarios",
-        "line": 240
+        "line": 255
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "actividades_voluntarios",
-        "line": 344
+        "line": 359
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 338
+        "line": 353
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "actividades_voluntarios",
-        "line": 393
+        "line": 408
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "actividades_voluntarios",
-        "line": 402
+        "line": 417
       }
     ],
     "asignaciones_voluntarios": [
@@ -808,28 +812,28 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "asignaciones_voluntarios",
-        "line": 1730
+        "line": 1859
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 1891
+        "line": 2020
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "asignaciones_voluntarios",
-        "line": 2362
+        "line": 2491
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "asignaciones_voluntarios",
-        "line": 1907
+        "line": 2036
       }
     ],
     "asistencias_congreso": [
@@ -1136,35 +1140,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "giras_voluntarios",
-        "line": 1110
+        "line": 1125
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "giras_voluntarios",
-        "line": 1579
+        "line": 1682
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1574
+        "line": 1677
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "giras_voluntarios",
-        "line": 1640
+        "line": 1757
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "giras_voluntarios",
-        "line": 1649
+        "line": 1766
       }
     ],
     "informes_actividad": [
@@ -1581,7 +1585,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "solicitudes_actividad",
-        "line": 416
+        "line": 431
       }
     ],
     "usuarios": [
@@ -1734,28 +1738,28 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 605
+        "line": 620
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 644
+        "line": 659
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "voluntarios",
-        "line": 608
+        "line": 623
       },
       {
         "file": "js/modulos/voluntarios.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "voluntarios",
-        "line": 713
+        "line": 728
       },
       {
         "file": "panel/dashboard.html",
@@ -2314,9 +2318,10 @@
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
+        "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -2348,7 +2353,7 @@
     "marcarCheckpointGira": [
       "js/core/participantes-api.js"
     ],
-    "notificarNoAprobadosGira": [
+    "notificarNoSeleccionadosGira": [
       "js/core/participantes-api.js"
     ],
     "notificarParticipantesGira": [
@@ -2365,7 +2370,7 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/voluntarios.js"
+      "usado_en": "js/modulos/inscripciones.js"
     },
     {
       "variable": "window.XLSX",
@@ -2375,7 +2380,7 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/inscripciones.js"
+      "usado_en": "js/modulos/voluntarios.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -2395,7 +2400,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 251,
+      "line": 266,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -2406,6 +2411,25 @@
     }
   ],
   "nodes": [
+    {
+      "id": ".claude/settings.json",
+      "label": ".claude/settings.json",
+      "folder": ".claude",
+      "ext": ".json",
+      "kind": "source",
+      "size_bytes": 68,
+      "loc": 6,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 0.1
+    },
     {
       "id": "AGENTS.md",
       "label": "AGENTS.md",
@@ -2640,22 +2664,48 @@
       "risk_score": 0.3
     },
     {
+      "id": "functions/identidad.js",
+      "label": "functions/identidad.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 2852,
+      "loc": 70,
+      "exports": [
+        "CORREO_SOPORTE",
+        "errorDuplicado",
+        "generarDocId",
+        "idBloqueoParticipante",
+        "locksQueBloquean"
+      ],
+      "purpose": "Identidad de participantes: cómo se deriva el id de un documento, cómo se derivan los documentos-lock de `identificadores_participantes` y cuándo un lock bloquea de verdad un regis",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 3,
+      "out_degree": 0,
+      "degree": 3,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 6.7
+    },
+    {
       "id": "functions/index.js",
       "label": "functions/index.js",
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 64083,
-      "loc": 1552,
+      "size_bytes": 68410,
+      "loc": 1643,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "enviarCorreoQrParticipante",
+        "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarPagoAprobado",
         "notificarParticipantesGira",
         "registrarParticipante",
@@ -2673,11 +2723,11 @@
         "usuarios"
       ],
       "in_degree": 0,
-      "out_degree": 4,
-      "degree": 4,
+      "out_degree": 5,
+      "degree": 5,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 23.5
+      "risk_score": 26.4
     },
     {
       "id": "functions/operaciones-financieras.js",
@@ -2749,8 +2799,8 @@
       "folder": "functions",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 726,
-      "loc": 27,
+      "size_bytes": 743,
+      "loc": 28,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2768,11 +2818,11 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2958,
-      "loc": 104,
+      "size_bytes": 3965,
+      "loc": 128,
       "exports": [
         "aplicarPlantilla",
-        "cargarCorreoNoAprobadoGira",
+        "cargarCorreoNoSeleccionadoGira",
         "cargarCorreoNotificacionGira",
         "cargarCorreoPagoAprobado"
       ],
@@ -2784,7 +2834,7 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 3.0
+      "risk_score": 3.3
     },
     {
       "id": "functions/qr-participante.js",
@@ -2811,13 +2861,13 @@
       "risk_score": 2.2
     },
     {
-      "id": "functions/templates/correo-no-aprobado-gira.html",
-      "label": "functions/templates/correo-no-aprobado-gira.html",
+      "id": "functions/templates/correo-no-seleccionado-gira.html",
+      "label": "functions/templates/correo-no-seleccionado-gira.html",
       "folder": "functions",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8999,
-      "loc": 188,
+      "size_bytes": 6374,
+      "loc": 147,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -2827,7 +2877,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 1.9
+      "risk_score": 1.5
     },
     {
       "id": "functions/templates/correo-notificacion-gira.html",
@@ -2866,6 +2916,44 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 2.0
+    },
+    {
+      "id": "functions/test/id-bloqueo.js",
+      "label": "functions/test/id-bloqueo.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 2274,
+      "loc": 58,
+      "exports": [],
+      "purpose": "Calcula el ID del documento-lock de identidad que usa registrarParticipante. La colección `identificadores_participantes` es `read, write: if false` en firestore.rules: no se puede",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 1,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 2.6
+    },
+    {
+      "id": "functions/test/identidad.test.js",
+      "label": "functions/test/identidad.test.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 2736,
+      "loc": 76,
+      "exports": [],
+      "purpose": "Prueba de la decisión que hace crearParticipantesUnicos sobre los documentos de `identificadores_participantes`. Es la parte delicada del arreglo: un lock solo debe bloquear un reg",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 1,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 2.8
     },
     {
       "id": "functions/test/operaciones-qr.integration.js",
@@ -3990,8 +4078,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 7930,
-      "loc": 183,
+      "size_bytes": 8333,
+      "loc": 189,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -3999,7 +4087,7 @@
         "enviarCorreoQrParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoAprobadosGira",
+        "notificarNoSeleccionadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
       ],
@@ -4011,7 +4099,7 @@
       "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 29.8
+      "risk_score": 29.9
     },
     {
       "id": "js/core/permisos.js",
@@ -4753,8 +4841,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 110299,
-      "loc": 2415,
+      "size_bytes": 116401,
+      "loc": 2545,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -4772,7 +4860,7 @@
       "degree": 18,
       "in_cycle": false,
       "diagnostic_count": 1,
-      "risk_score": 61.6
+      "risk_score": 63.0
     },
     {
       "id": "logocontecs.png",
@@ -5333,8 +5421,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 17403,
-      "loc": 367,
+      "size_bytes": 20178,
+      "loc": 428,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5344,7 +5432,7 @@
       "degree": 9,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 21.7
+      "risk_score": 22.3
     },
     {
       "id": "panel/modulos/voluntariado/informeActividad.html",
@@ -5543,7 +5631,18 @@
       "target": "functions/qr-participante.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 11,
+      "line": 12,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 18,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5554,7 +5653,7 @@
       "target": "functions/plantillas.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 16,
+      "line": 23,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5565,7 +5664,7 @@
       "target": "functions/operaciones-financieras.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 37,
+      "line": 44,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5576,7 +5675,29 @@
       "target": "functions/operaciones-qr.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 38,
+      "line": 45,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/id-bloqueo.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 15,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/identidad.test.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 14,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -6859,7 +6980,7 @@
         "symbols": [
           "listarParticipantesParaGiras",
           "notificarParticipantesGira",
-          "notificarNoAprobadosGira"
+          "notificarNoSeleccionadosGira"
         ],
         "dynamic": false
       }
@@ -8157,28 +8278,28 @@
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 227
+      "line": 256
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 236
+      "line": 265
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "panel/modulos/voluntariado/calendario.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 240
+      "line": 269
     },
     {
       "source": "panel/modulos/voluntariado/giras.html",
       "target": "js/modulos/voluntarios.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 364
+      "line": 425
     },
     {
       "source": "panel/modulos/voluntariado/informeActividad.html",
@@ -8581,16 +8702,6 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
-      }
-    },
-    {
-      "source": "js/modulos/actividadVentas.js",
-      "target": "js/core/iconos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
         "symbol": "nombreIconoCombo"
       }
     },
@@ -8602,6 +8713,16 @@
       "line": 7,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/iconos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -8641,16 +8762,6 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "urlHttpSegura"
-      }
-    },
-    {
-      "source": "js/modulos/agendarReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
         "symbol": "urlImagenSegura"
       }
     },
@@ -8665,13 +8776,13 @@
       }
     },
     {
-      "source": "js/modulos/calendario.js",
-      "target": "js/core/auth.js",
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 5,
+      "line": 7,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -8682,6 +8793,16 @@
       "line": 5,
       "detail": {
         "symbol": "esperarSesionLista"
+      }
+    },
+    {
+      "source": "js/modulos/calendario.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 5,
+      "detail": {
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -8721,7 +8842,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -8731,7 +8852,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -8781,7 +8902,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -8791,7 +8912,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -8802,16 +8923,6 @@
       "line": 3,
       "detail": {
         "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8832,6 +8943,16 @@
       "line": 6,
       "detail": {
         "symbol": "registrarCompra"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8881,7 +9002,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -8891,7 +9012,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -8902,16 +9023,6 @@
       "line": 3,
       "detail": {
         "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -8932,6 +9043,16 @@
       "line": 6,
       "detail": {
         "symbol": "registrarCompra"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -9031,7 +9152,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "registrarMovimientoFondo"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -9041,7 +9162,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "registrarMovimientoFondo"
       }
     },
     {
@@ -9171,7 +9292,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "resolverInvitados"
+        "symbol": "formatearDuracion"
       }
     },
     {
@@ -9181,7 +9302,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "formatearDuracion"
+        "symbol": "resolverInvitados"
       }
     },
     {
@@ -9201,7 +9322,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9211,7 +9332,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -9391,7 +9512,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -9401,7 +9522,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -9421,7 +9542,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVenta"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -9441,7 +9562,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -9451,7 +9572,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -9481,6 +9602,16 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
+        "symbol": "notificarParticipantesGira"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/participantes-api.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
         "symbol": "listarParticipantesParaGiras"
       }
     },
@@ -9491,17 +9622,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarNoAprobadosGira"
-      }
-    },
-    {
-      "source": "js/modulos/voluntarios.js",
-      "target": "js/core/participantes-api.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 8,
-      "detail": {
-        "symbol": "notificarParticipantesGira"
+        "symbol": "notificarNoSeleccionadosGira"
       }
     },
     {
@@ -9891,7 +10012,7 @@
       "provenance": "extracted",
       "line": 328,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9901,7 +10022,7 @@
       "provenance": "extracted",
       "line": 328,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -10011,66 +10132,6 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
-        "symbol": "crearCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "escucharProductosPorCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "editarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 456,
-      "detail": {
         "symbol": "desactivarProducto"
       }
     },
@@ -10091,6 +10152,16 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
+        "symbol": "editarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
         "symbol": "getIconoHTML"
       }
     },
@@ -10101,7 +10172,57 @@
       "provenance": "extracted",
       "line": 456,
       "detail": {
+        "symbol": "escucharProductosPorCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
         "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 456,
+      "detail": {
+        "symbol": "editarProducto"
       }
     },
     {
@@ -10141,16 +10262,6 @@
       "provenance": "extracted",
       "line": 244,
       "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 244,
-      "detail": {
         "symbol": "escucharCategorias"
       }
     },
@@ -10162,6 +10273,16 @@
       "line": 244,
       "detail": {
         "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 244,
+      "detail": {
+        "symbol": "estadoStock"
       }
     },
     {
@@ -10398,7 +10519,7 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "8fa4ef51f3da20220638c1e1a5cf7c5cb7690111",
+    "head": "4cb497dddb2c42b4b0f1befae28624ddc1143f3c",
     "changed_files": [
       {
         "file": "functions/index.js",
@@ -10407,6 +10528,10 @@
       {
         "file": "functions/plantillas.js",
         "status": " M"
+      },
+      {
+        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "status": " D"
       },
       {
         "file": "js/core/participantes-api.js",
@@ -10421,11 +10546,11 @@
         "status": " M"
       },
       {
-        "file": "functions/templates/correo-no-aprobado-gira.html",
+        "file": "functions/templates/correo-no-seleccionado-gira.html",
         "status": "??"
       }
     ],
-    "changed_count": 6
+    "changed_count": 7
   },
   "ai_usage": {
     "read_last": true,
@@ -10433,126 +10558,138 @@
     "warning": "Archivo grande. Consultar secciones o claves concretas; no cargarlo entero sin necesidad."
   },
   "evidence_by_file": {
+    "functions/identidad.js": {
+      "architectural_calls": {
+        "errorDuplicado": [
+          37,
+          1
+        ],
+        "generarDocId": [
+          17,
+          1
+        ],
+        "idBloqueoParticipante": [
+          27,
+          1
+        ],
+        "locksQueBloquean": [
+          57,
+          1
+        ]
+      }
+    },
     "functions/index.js": {
       "architectural_calls": {
         "aplicarLimiteRegistro": [
-          329,
+          386,
           2
         ],
         "brevoRequest": [
-          437,
+          494,
           2
         ],
         "brevoRequestOnce": [
-          397,
+          454,
           3
         ],
         "consultarUsuarioSSO": [
-          245,
+          302,
           2
         ],
         "crearParticipantesUnicos": [
-          152,
+          155,
           2
         ],
-        "enviarCorreoNoAprobadoGira": [
-          1085,
+        "enviarCorreoNoSeleccionadoGira": [
+          1156,
           2
         ],
         "enviarCorreoNotificacionGira": [
-          1032,
+          1098,
           2
         ],
         "enviarCorreoPagoAprobado": [
-          468,
+          525,
           2
         ],
         "enviarCorreoTransaccional": [
-          451,
+          508,
           4
         ],
         "esTokenSSOValido": [
-          216,
+          273,
           2
         ],
         "extraerEmailSSO": [
-          220,
+          277,
           2
         ],
         "extraerNombreSSO": [
-          236,
+          293,
           2
         ],
         "formatearFechaGira": [
-          1010,
+          1076,
           4
         ],
         "formatearHoraGira": [
-          1024,
+          1090,
           3
         ],
         "generarCodigos": [
-          194,
+          251,
           2
         ],
-        "generarDocId": [
-          133,
-          4
-        ],
         "generarToken": [
-          141,
-          3
-        ],
-        "idBloqueoParticipante": [
-          145,
+          140,
           3
         ],
         "marcarCheckpointGira": [
-          114,
+          121,
           1
         ],
         "normalizarCamposExtra": [
-          286,
+          343,
           2
         ],
         "normalizarEstudiantes": [
-          314,
+          371,
           2
         ],
         "normalizarTutor": [
-          301,
+          358,
           2
         ],
         "origenPermitidoParaSSO": [
-          258,
+          315,
           2
         ],
         "procesarCorreoQrAprobado": [
-          504,
+          561,
           4
         ],
         "sanitizarParticipante": [
-          372,
+          429,
           2
         ],
         "subirComprobante": [
-          354,
+          411,
           2
         ],
         "validarCorreo": [
-          212,
+          269,
           4
         ],
         "validarDocId": [
-          278,
+          335,
           3
         ],
         "validarTexto": [
-          264,
-          22
+          321,
+          24
         ],
         "verificarStaffCorreo": [
-          456,
+          513,
           2
         ]
       }
@@ -10711,8 +10848,8 @@
           6,
           7
         ],
-        "cargarCorreoNoAprobadoGira": [
-          82,
+        "cargarCorreoNoSeleccionadoGira": [
+          104,
           1
         ],
         "cargarCorreoNotificacionGira": [
@@ -10725,7 +10862,7 @@
         ],
         "escaparHtml": [
           11,
-          4
+          5
         ],
         "htmlATexto": [
           34,
@@ -10738,6 +10875,10 @@
         "parseMeta": [
           25,
           4
+        ],
+        "textoAParrafosHtml": [
+          83,
+          2
         ]
       }
     },
@@ -10750,6 +10891,26 @@
         "linkPerfilParticipante": [
           11,
           1
+        ]
+      }
+    },
+    "functions/test/id-bloqueo.js": {
+      "architectural_calls": {
+        "consola": [
+          19,
+          4
+        ]
+      }
+    },
+    "functions/test/identidad.test.js": {
+      "architectural_calls": {
+        "lock": [
+          35,
+          7
+        ],
+        "prueba": [
+          22,
+          7
         ]
       }
     },
@@ -11068,39 +11229,39 @@
     "js/core/participantes-api.js": {
       "architectural_calls": {
         "accederGiraParticipante": [
-          148,
+          154,
           1
         ],
         "accederParticipante": [
-          43,
+          47,
           1
         ],
         "archivoABase64": [
-          23,
+          27,
           1
         ],
         "enviarCorreoQrParticipante": [
-          62,
+          66,
           1
         ],
         "listarParticipantesParaGiras": [
-          84,
+          88,
           1
         ],
         "marcarCheckpointGira": [
-          173,
+          179,
           1
         ],
-        "notificarNoAprobadosGira": [
-          128,
+        "notificarNoSeleccionadosGira": [
+          134,
           1
         ],
         "notificarParticipantesGira": [
-          105,
+          109,
           1
         ],
         "registrarParticipante": [
-          32,
+          36,
           1
         ]
       }
@@ -15167,112 +15328,124 @@
     },
     "js/modulos/voluntarios.js": {
       "architectural_calls": {
+        "abrirSelectorGira": [
+          1589,
+          3
+        ],
         "abrirSheetParticipantesGira": [
-          1476,
+          1559,
           2
         ],
         "activarTab": [
-          387,
+          402,
           3
         ],
         "actualizarContadorParticipantesGira": [
-          1353,
-          5
+          1379,
+          6
         ],
         "actualizarFilaParticipanteGira": [
-          1416,
-          3
+          1442,
+          4
         ],
         "actualizarStats": [
-          651,
+          666,
           3
         ],
         "actualizarStatsAsignaciones": [
-          1735,
+          1864,
           3
         ],
         "aplicarPermisosTab": [
-          201,
+          216,
           2
         ],
         "asegurarParticipantesGiraCargados": [
-          1288,
+          1314,
           3
         ],
         "autorellenarDesdeSolicitud": [
-          459,
+          474,
           2
         ],
+        "avisarParticipantesEnAmbasListas": [
+          1468,
+          5
+        ],
         "cargarActividades": [
-          238,
+          253,
           5
         ],
         "cargarAsignaciones": [
-          1726,
+          1855,
           4
         ],
         "cargarAsistencias": [
-          227,
+          242,
           3
         ],
         "cargarGiras": [
-          1108,
+          1123,
           7
         ],
         "cargarImagen": [
-          824,
+          839,
           2
         ],
         "cargarSolicitudesAutocomplete": [
-          414,
+          429,
           2
         ],
         "cargarVentas": [
-          1715,
+          1844,
           4
         ],
         "cargarVoluntarios": [
-          631,
+          646,
           3
         ],
         "cerrarSheetParticipantesGira": [
-          1481,
+          1564,
           1
         ],
         "coleccionPorTipo": [
-          1939,
+          2068,
           3
         ],
         "detectarCol": [
-          560,
+          575,
           2
         ],
         "dibujarCarnet": [
-          754,
+          769,
           3
         ],
         "el": [
           25,
-          299
+          315
         ],
         "escaparAtributo": [
-          304,
-          20
+          319,
+          22
         ],
         "estaAprobadoParaGira": [
-          1327,
-          4
+          1353,
+          5
         ],
         "estrellasImg": [
-          1020,
+          1035,
           1
         ],
         "eventosPorTipo": [
-          1945,
+          2074,
           5
         ],
+        "fijarListaDestinoGira": [
+          110,
+          3
+        ],
         "filaParticipanteGira": [
-          1331,
+          1357,
           2
         ],
         "filasSegurasHoja": [
@@ -15280,71 +15453,75 @@
           4
         ],
         "fitTextSize": [
-          833,
+          848,
           2
         ],
         "fmtFecha": [
-          169,
+          184,
           9
         ],
         "fmtHora": [
-          175,
+          190,
           5
         ],
         "fmtHora12": [
-          182,
+          197,
           2
         ],
         "generarQRDataURL": [
-          804,
+          819,
           2
         ],
         "getEstadoVoluntarios": [
-          1857,
+          1986,
           3
         ],
         "getUsuarioActual": [
-          137,
+          152,
           1
         ],
         "hayConflictoHorario": [
-          126,
+          141,
           3
         ],
         "iconoImg": [
-          287,
+          302,
           9
         ],
         "iniciarAutocompleteSolicitud": [
-          423,
+          438,
           1
         ],
         "iniciarTabVoluntariado": [
-          228,
+          243,
           3
         ],
         "limpiarFormActividad": [
-          347,
+          362,
           2
         ],
         "limpiarFormGira": [
-          1582,
+          1685,
           2
         ],
+        "listaDestinoGira": [
+          106,
+          5
+        ],
         "listarParticipantesParaGiras": [
-          1291,
+          1317,
           1
         ],
         "minutosDeHora": [
-          120,
+          135,
           5
         ],
         "mostrarAlerta": [
-          140,
-          56
+          155,
+          57
         ],
         "mostrarMapeo": [
-          539,
+          554,
           3
         ],
         "neutralizarFormulaHoja": [
@@ -15356,115 +15533,119 @@
           12
         ],
         "normalizarHorario": [
-          111,
+          126,
           2
         ],
         "normalizarParaComparar": [
-          1282,
+          1308,
           2
         ],
-        "notificarNoAprobadosGira": [
-          1699,
+        "notificarNoSeleccionadosGira": [
+          1828,
           1
         ],
         "notificarParticipantesGira": [
-          1663,
+          1780,
           1
         ],
         "participantesGiraConEstado": [
-          1120,
-          3
+          1135,
+          2
         ],
         "pintarLoteParticipantesGira": [
-          1365,
+          1391,
           4
         ],
         "poblarSelectorVoluntarios": [
-          1771,
+          1900,
           2
         ],
         "posicionar": [
-          432,
+          447,
           2
         ],
         "precalentarParticipantesGira": [
-          1315,
+          1341,
           2
         ],
         "prepararParticipanteGira": [
-          1281,
+          1307,
           1
         ],
         "procesarArchivo": [
-          529,
+          544,
           3
         ],
         "recargarEventosPorTipo": [
-          1951,
+          2080,
           3
         ],
         "renderCardPendientes": [
-          1736,
+          1865,
           3
         ],
+        "renderChipsNoSeleccionados": [
+          1467,
+          6
+        ],
         "renderChipsParticipantesGira": [
-          1440,
+          1466,
           6
         ],
         "renderFiltroActividades": [
-          247,
+          262,
           3
         ],
         "renderListaParticipantesGira": [
-          1392,
+          1418,
           2
         ],
         "renderSelectorActividades": [
-          246,
+          261,
           3
         ],
         "renderSugerencias": [
-          439,
+          454,
           3
         ],
         "renderTablaActividades": [
-          245,
+          260,
           3
         ],
         "renderTablaAsignaciones": [
-          1734,
+          1863,
           3
         ],
         "renderTablaAsistencias": [
-          1016,
+          1031,
           2
         ],
         "renderTablaGiras": [
-          1113,
+          1128,
           4
         ],
         "renderTurnosEvt": [
-          1957,
+          2086,
           4
         ],
         "renderVoluntarios": [
-          226,
+          241,
           6
         ],
         "renderVoluntariosGrupo": [
-          2252,
+          2381,
           3
         ],
         "resetModalGrupo": [
-          2183,
+          2312,
           2
         ],
         "resolverAsistencia": [
-          1023,
+          1038,
           3
         ],
         "revisar": [
-          2089,
+          2218,
           3
         ],
         "scrollAElemento": [
@@ -15472,23 +15653,23 @@
           2
         ],
         "tienePermiso": [
-          205,
+          220,
           1
         ],
         "toMin": [
-          2024,
+          2153,
           4
         ],
         "toggleParticipanteGira": [
-          1430,
+          1456,
           2
         ],
         "truncarTexto": [
-          842,
+          857,
           3
         ],
         "turnosSuperpuestos": [
-          2041,
+          2170,
           3
         ],
         "xlsx": [
@@ -15499,702 +15680,741 @@
       "dom": {
         "ids": {
           "act-area": [
-            319,
-            358,
-            375,
-            480,
-            498,
-            499
+            334,
+            373,
+            390,
+            495,
+            513,
+            514
           ],
           "act-colaboracion": [
-            329,
-            363,
-            380,
-            492,
-            494
+            344,
+            378,
+            395,
+            507,
+            509
           ],
           "act-cupo": [
-            328,
-            361,
-            378,
-            501
+            343,
+            376,
+            393,
+            516
           ],
           "act-cupo-group": [
-            362,
-            379,
-            500
+            377,
+            394,
+            515
           ],
           "act-descripcion": [
-            317,
-            357,
-            374,
-            477
+            332,
+            372,
+            389,
+            492
           ],
           "act-fecha": [
-            318,
-            357,
-            383,
-            478
+            333,
+            372,
+            398,
+            493
           ],
           "act-lugar": [
-            326,
-            359,
-            376,
-            489
+            341,
+            374,
+            391,
+            504
           ],
           "act-nombre": [
-            316,
-            357,
-            373,
-            424,
-            476,
-            2396
+            331,
+            372,
+            388,
+            439,
+            491,
+            2526
           ],
           "act-voluntarios-req": [
-            327,
-            360,
-            377
+            342,
+            375,
+            392
           ],
           "alerta-global": [
-            141
+            156
           ],
           "asig-area-trabajo": [
-            1825,
-            1893
+            1954,
+            2022
           ],
           "asig-evento": [
-            1787,
-            1803,
-            1805,
-            1827,
-            1894,
-            1895,
-            2392,
-            2395
+            1916,
+            1932,
+            1934,
+            1956,
+            2023,
+            2024,
+            2522,
+            2525
           ],
           "asig-tipo": [
-            1785,
-            1786,
-            1804,
-            1826,
-            1893,
-            2131,
-            2132,
-            2394
+            1914,
+            1915,
+            1933,
+            1955,
+            2022,
+            2260,
+            2261,
+            2524
           ],
           "asig-turno": [
-            1788,
-            1806,
-            1845,
-            1896,
-            1897
+            1917,
+            1935,
+            1974,
+            2025,
+            2026
           ],
           "asig-voluntario": [
-            1772,
-            1824,
-            1893,
-            2393
+            1901,
+            1953,
+            2022,
+            2523
           ],
           "asignaciones-spinner": [
-            1727
+            1856
           ],
           "asistencias-spinner": [
-            1003
+            1018
           ],
           "btn-abrir-grupo": [
-            2199
+            2328
           ],
-          "btn-abrir-participantes-gira": [
-            1506
-          ],
-          "btn-add-turno-evt": [
-            2014
-          ],
-          "btn-asignar": [
-            1823,
-            1888,
-            1889,
-            1900,
-            1901
-          ],
-          "btn-cancelar-actividad": [
-            366,
-            386,
-            411
-          ],
-          "btn-cancelar-gira": [
-            1601,
-            1633,
-            1709
-          ],
-          "btn-cerrar-sheet-part": [
-            1528
-          ],
-          "btn-confirmar-grupo": [
-            2194,
-            2195,
-            2211,
-            2233,
-            2335,
-            2336,
-            2341,
-            2355
-          ],
-          "btn-confirmar-importar": [
-            591,
-            599,
-            629
-          ],
-          "btn-copiar-qr": [
-            768
-          ],
-          "btn-descargar-qr": [
-            746,
-            748
-          ],
-          "btn-exportar-asignaciones": [
-            1919
-          ],
-          "btn-exportar-asistencias": [
-            1075
-          ],
-          "btn-exportar-excel": [
-            781
-          ],
-          "btn-exportar-qr": [
-            947,
-            964
-          ],
-          "btn-guardar-actividad": [
-            315,
-            334,
-            335,
-            352,
-            353
-          ],
-          "btn-guardar-gira": [
-            1532,
-            1570,
-            1571,
-            1584,
-            1585
-          ],
-          "btn-listo-participantes-gira": [
-            1529
-          ],
-          "btn-mas-participantes-gira": [
-            1375
-          ],
-          "btn-preview-importar": [
-            581
-          ],
-          "buscar-participante-gira": [
-            1395,
-            1524
-          ],
-          "buscar-voluntario": [
-            715,
-            721,
-            722,
-            952
-          ],
-          "filtro-actividad": [
-            263,
-            1001,
-            1057,
-            1058,
-            2392
-          ],
-          "filtro-asig-area": [
-            1748,
-            1917
-          ],
-          "filtro-asig-tipo": [
-            1747,
-            1916
-          ],
-          "filtro-horario-vol": [
-            722
-          ],
-          "filtro-turno": [
-            1002,
-            1059,
-            1073
-          ],
-          "form-actividad-titulo": [
-            365,
-            385
-          ],
-          "form-gira-titulo": [
-            1600,
-            1632
-          ],
-          "gira-area": [
-            1536,
-            1591,
-            1610
-          ],
-          "gira-colaboracion": [
-            1552,
-            1593,
-            1615
-          ],
-          "gira-coord-correo": [
-            1539,
-            1595,
-            1619
-          ],
-          "gira-coord-nombre": [
-            1554,
-            1595,
-            1616
-          ],
-          "gira-coord-telefono": [
-            1556,
-            1595,
-            1618
-          ],
-          "gira-coord-tipo": [
-            1555,
-            1596,
-            1617
-          ],
-          "gira-cupo": [
-            1551,
-            1594,
-            1614
-          ],
-          "gira-descripcion": [
-            1545,
-            1589,
-            1609
-          ],
-          "gira-fecha": [
-            1534,
-            1589,
-            1622
-          ],
-          "gira-hora": [
-            1535,
-            1590,
-            1624
-          ],
-          "gira-lugar": [
-            1548,
-            1591,
-            1611
-          ],
-          "gira-lugar-encuentro": [
-            1549,
-            1592,
-            1612
-          ],
-          "gira-nombre": [
-            1533,
-            1589,
-            1608,
-            1635
-          ],
-          "gira-participantes-chips": [
-            1444,
-            1466
-          ],
-          "gira-participantes-vacio": [
-            1445
-          ],
-          "gira-voluntarios-req": [
-            1550,
-            1593,
+          "btn-abrir-nosel-gira": [
             1613
           ],
-          "grupo-area": [
-            2188,
-            2256,
-            2331,
-            2344
+          "btn-abrir-participantes-gira": [
+            1611
           ],
-          "grupo-aviso": [
-            2192,
-            2209,
-            2231,
-            2266
+          "btn-add-turno-evt": [
+            2143
           ],
-          "grupo-contador": [
-            2332
+          "btn-asignar": [
+            1952,
+            2017,
+            2018,
+            2029,
+            2030
           ],
-          "grupo-evento": [
-            2186,
-            2187,
-            2204,
-            2224,
-            2226,
-            2255,
-            2256,
-            2260,
-            2343
+          "btn-cancelar-actividad": [
+            381,
+            401,
+            426
           ],
-          "grupo-info": [
-            2191,
-            2208,
-            2230,
-            2250,
-            2251
+          "btn-cancelar-gira": [
+            1709,
+            1750,
+            1838
           ],
-          "grupo-progreso": [
-            2196,
-            2356,
-            2360
+          "btn-cerrar-sheet-part": [
+            1622
           ],
-          "grupo-tipo": [
-            2185,
-            2202,
-            2203,
-            2225,
-            2259,
-            2342
+          "btn-confirmar-grupo": [
+            2323,
+            2324,
+            2340,
+            2362,
+            2464,
+            2465,
+            2470,
+            2484
           ],
-          "grupo-turno": [
-            2189,
-            2190,
-            2206,
-            2207,
-            2227,
-            2255,
-            2261,
-            2345
+          "btn-confirmar-importar": [
+            606,
+            614,
+            644
           ],
-          "grupo-voluntarios-lista": [
-            2277
+          "btn-copiar-qr": [
+            783
           ],
-          "grupo-voluntarios-wrap": [
-            2193,
-            2210,
-            2232,
-            2276
+          "btn-descargar-qr": [
+            761,
+            763
           ],
-          "importar-progreso": [
-            598,
-            625,
-            628
+          "btn-exportar-asignaciones": [
+            2048
           ],
-          "input-archivo": [
-            524,
-            531
+          "btn-exportar-asistencias": [
+            1090
           ],
-          "lista-participantes-gira": [
-            1305,
-            1366,
-            1393,
-            1417,
-            1488,
-            1498,
-            1508
+          "btn-exportar-excel": [
+            796
           ],
-          "map-nombre": [
-            592
+          "btn-exportar-qr": [
+            962,
+            979
           ],
-          "mapeo-section": [
-            578
+          "btn-guardar-actividad": [
+            330,
+            349,
+            350,
+            367,
+            368
           ],
-          "mapeo-tbody": [
-            565
+          "btn-guardar-gira": [
+            1626,
+            1673,
+            1674,
+            1687,
+            1688
           ],
-          "modal-grupo": [
-            2199,
-            2200,
-            2376
+          "btn-listo-participantes-gira": [
+            1623
           ],
-          "modal-grupo-close": [
-            2200
+          "btn-mas-participantes-gira": [
+            1401
           ],
-          "modal-preview": [
-            588,
-            634
+          "btn-preview-importar": [
+            596
           ],
-          "modal-preview-close": [
-            634
+          "buscar-participante-gira": [
+            1421,
+            1618
           ],
-          "modal-qr": [
-            741,
-            744
+          "buscar-voluntario": [
+            730,
+            736,
+            737,
+            967
           ],
-          "modal-qr-close": [
-            744
+          "filtro-actividad": [
+            278,
+            1016,
+            1072,
+            1073,
+            2522
           ],
-          "overlay-part": [
-            1477,
-            1482,
-            1530
+          "filtro-asig-area": [
+            1877,
+            2046
           ],
-          "pendientes-wrap": [
-            2069
+          "filtro-asig-tipo": [
+            1876,
+            2045
           ],
-          "preview-resumen": [
-            587
+          "filtro-horario-vol": [
+            737
           ],
-          "preview-tbody": [
-            584
+          "filtro-turno": [
+            1017,
+            1074,
+            1088
           ],
-          "preview-thead": [
-            583
+          "form-actividad-titulo": [
+            380,
+            400
           ],
-          "qr-canvas-wrap": [
-            731,
-            752,
-            769
+          "form-gira-titulo": [
+            1708,
+            1749
           ],
-          "qr-modal-info": [
-            730
+          "gira-area": [
+            1630,
+            1694,
+            1718
           ],
-          "qr-modal-nombre": [
-            729
+          "gira-aviso-ambas": [
+            1514
           ],
-          "sel-actividad": [
-            251
+          "gira-colaboracion": [
+            1646,
+            1696,
+            1723
           ],
-          "sheet-part": [
-            1478,
-            1483
+          "gira-coord-correo": [
+            1633,
+            1698,
+            1727
           ],
-          "sheet-part-contador": [
-            1307,
-            1354,
-            1513
+          "gira-coord-nombre": [
+            1648,
+            1698,
+            1724
           ],
-          "stat-asignados": [
-            1741
+          "gira-coord-telefono": [
+            1650,
+            1698,
+            1726
           ],
-          "stat-horas": [
-            657
+          "gira-coord-tipo": [
+            1649,
+            1699,
+            1725
           ],
-          "stat-sin-area": [
-            1742
+          "gira-cupo": [
+            1645,
+            1697,
+            1722
           ],
-          "stat-total": [
-            656
+          "gira-descripcion": [
+            1639,
+            1692,
+            1717
           ],
-          "stat-vol-asignados": [
-            1743
+          "gira-fecha": [
+            1628,
+            1692,
+            1730
           ],
-          "tabla-actividades-body": [
-            275,
-            2392
+          "gira-hora": [
+            1629,
+            1693,
+            1732
           ],
-          "tabla-asignaciones-body": [
+          "gira-lugar": [
+            1642,
+            1694,
+            1719
+          ],
+          "gira-lugar-encuentro": [
+            1643,
+            1695,
+            1720
+          ],
+          "gira-nombre": [
+            1627,
+            1692,
+            1716,
             1752
           ],
-          "tabla-asistencias-body": [
-            1036
+          "gira-nosel-chips": [
+            1494,
+            1530
           ],
-          "tabla-giras-body": [
-            1138,
-            2394
+          "gira-nosel-contador": [
+            1543,
+            1701
           ],
-          "tabla-voluntarios-body": [
-            667,
-            2393
+          "gira-nosel-mensaje": [
+            1542,
+            1544,
+            1670,
+            1700,
+            1744,
+            1745
           ],
-          "toast-voluntarios": [
-            147
+          "gira-nosel-motivo": [
+            1669,
+            1700,
+            1743
           ],
-          "turno-evt-evento": [
-            1959,
-            1979,
-            2003,
-            2004,
-            2016
+          "gira-nosel-vacio": [
+            1495
           ],
-          "turno-evt-fin": [
-            2019,
-            2051
+          "gira-participantes-chips": [
+            1472,
+            1549
           ],
-          "turno-evt-form": [
-            1984,
-            2000,
-            2007,
-            2011
+          "gira-participantes-vacio": [
+            1473
           ],
-          "turno-evt-inicio": [
-            2018,
-            2051
+          "gira-voluntarios-req": [
+            1644,
+            1696,
+            1721
           ],
-          "turno-evt-lista": [
-            1960,
-            1983,
-            1999,
-            2006
+          "grupo-area": [
+            2317,
+            2385,
+            2460,
+            2473
           ],
-          "turno-evt-nombre": [
-            2017,
-            2051
-          ],
-          "turno-evt-tipo": [
-            1958,
-            1977,
-            1978,
-            2015,
-            2133,
-            2134,
-            2394,
+          "grupo-aviso": [
+            2321,
+            2338,
+            2360,
             2395
           ],
+          "grupo-contador": [
+            2461
+          ],
+          "grupo-evento": [
+            2315,
+            2316,
+            2333,
+            2353,
+            2355,
+            2384,
+            2385,
+            2389,
+            2472
+          ],
+          "grupo-info": [
+            2320,
+            2337,
+            2359,
+            2379,
+            2380
+          ],
+          "grupo-progreso": [
+            2325,
+            2485,
+            2489
+          ],
+          "grupo-tipo": [
+            2314,
+            2331,
+            2332,
+            2354,
+            2388,
+            2471
+          ],
+          "grupo-turno": [
+            2318,
+            2319,
+            2335,
+            2336,
+            2356,
+            2384,
+            2390,
+            2474
+          ],
+          "grupo-voluntarios-lista": [
+            2406
+          ],
+          "grupo-voluntarios-wrap": [
+            2322,
+            2339,
+            2361,
+            2405
+          ],
+          "importar-progreso": [
+            613,
+            640,
+            643
+          ],
+          "input-archivo": [
+            539,
+            546
+          ],
+          "lista-participantes-gira": [
+            1331,
+            1392,
+            1419,
+            1443,
+            1571,
+            1581,
+            1597
+          ],
+          "map-nombre": [
+            607
+          ],
+          "mapeo-section": [
+            593
+          ],
+          "mapeo-tbody": [
+            580
+          ],
+          "modal-grupo": [
+            2328,
+            2329,
+            2505
+          ],
+          "modal-grupo-close": [
+            2329
+          ],
+          "modal-preview": [
+            603,
+            649
+          ],
+          "modal-preview-close": [
+            649
+          ],
+          "modal-qr": [
+            756,
+            759
+          ],
+          "modal-qr-close": [
+            759
+          ],
+          "overlay-part": [
+            1560,
+            1565,
+            1624
+          ],
+          "pendientes-wrap": [
+            2198
+          ],
+          "preview-resumen": [
+            602
+          ],
+          "preview-tbody": [
+            599
+          ],
+          "preview-thead": [
+            598
+          ],
+          "qr-canvas-wrap": [
+            746,
+            767,
+            784
+          ],
+          "qr-modal-info": [
+            745
+          ],
+          "qr-modal-nombre": [
+            744
+          ],
+          "sel-actividad": [
+            266
+          ],
+          "sheet-part": [
+            1561,
+            1566
+          ],
+          "sheet-part-contador": [
+            1333,
+            1380,
+            1602
+          ],
+          "sheet-part-titulo-txt": [
+            1591
+          ],
+          "stat-asignados": [
+            1870
+          ],
+          "stat-horas": [
+            672
+          ],
+          "stat-sin-area": [
+            1871
+          ],
+          "stat-total": [
+            671
+          ],
+          "stat-vol-asignados": [
+            1872
+          ],
+          "tabla-actividades-body": [
+            290,
+            2522
+          ],
+          "tabla-asignaciones-body": [
+            1881
+          ],
+          "tabla-asistencias-body": [
+            1051
+          ],
+          "tabla-giras-body": [
+            1153,
+            2524
+          ],
+          "tabla-voluntarios-body": [
+            682,
+            2523
+          ],
+          "toast-voluntarios": [
+            162
+          ],
+          "turno-evt-evento": [
+            2088,
+            2108,
+            2132,
+            2133,
+            2145
+          ],
+          "turno-evt-fin": [
+            2148,
+            2180
+          ],
+          "turno-evt-form": [
+            2113,
+            2129,
+            2136,
+            2140
+          ],
+          "turno-evt-inicio": [
+            2147,
+            2180
+          ],
+          "turno-evt-lista": [
+            2089,
+            2112,
+            2128,
+            2135
+          ],
+          "turno-evt-nombre": [
+            2146,
+            2180
+          ],
+          "turno-evt-tipo": [
+            2087,
+            2106,
+            2107,
+            2144,
+            2262,
+            2263,
+            2524,
+            2525
+          ],
           "upload-zone": [
-            522
+            537
           ],
           "voluntarios-spinner": [
-            641
+            656
           ]
         },
         "selectors": {
           "#grupo-voluntarios-lista input[type=checkbox]": [
-            2317
+            2446
           ],
           "#grupo-voluntarios-lista input[type=checkbox]:checked": [
-            2348
+            2477
           ],
           ".part-item-check": [
-            1422
+            1448
           ],
           ".tab-btn": [
-            203,
-            220,
-            222,
-            1098
+            218,
+            235,
+            237,
+            1113
           ],
           ".tab-btn.active": [
-            211,
-            2407
+            226,
+            2537
           ],
           ".tab-panel": [
-            223,
-            1101
+            238,
+            1116
           ],
           ".topbar": [
             28
           ],
           "canvas": [
-            752,
-            769,
-            816
+            767,
+            784,
+            831
           ],
           "img": [
-            752,
-            769,
-            816
+            767,
+            784,
+            831
           ]
         },
         "generated_ids": {
           "act-nombre-suggestions": [
-            428
+            443
           ],
           "btn-mas-participantes-gira": [
-            1386
+            1412
           ],
           "toast-voluntarios": [
-            150
+            165
           ]
         },
         "generated_prefixes": {
           "btn-notificar-": [
-            1237
+            1261
           ],
           "btn-notificar-no-": [
-            1243
+            1267
           ],
           "map-": [
-            571
+            586
           ],
           "participantes-gira-": [
-            1218
+            1237
           ]
         }
       },
       "events_listened": {
         "blur": [
-          471
+          486
         ],
         "change": [
-          498,
-          531,
-          722,
-          1057,
-          1073,
-          1785,
-          1803,
-          1916,
-          1917,
-          1977,
-          2003,
-          2202,
-          2224,
-          2255,
-          2256
+          513,
+          546,
+          737,
+          1072,
+          1088,
+          1914,
+          1932,
+          2045,
+          2046,
+          2106,
+          2132,
+          2331,
+          2353,
+          2384,
+          2385
         ],
         "click": [
-          221,
-          315,
-          411,
-          524,
-          581,
-          591,
-          634,
-          744,
-          746,
-          768,
-          781,
-          947,
-          1075,
-          1466,
-          1488,
-          1506,
-          1528,
-          1529,
+          236,
+          330,
+          426,
+          539,
+          596,
+          606,
+          649,
+          759,
+          761,
+          783,
+          796,
+          962,
+          1090,
           1530,
-          1532,
-          1709,
-          1823,
-          1919,
-          2014,
-          2199,
-          2200,
-          2341
+          1549,
+          1571,
+          1611,
+          1613,
+          1622,
+          1623,
+          1624,
+          1626,
+          1838,
+          1952,
+          2048,
+          2143,
+          2328,
+          2329,
+          2470
         ],
         "dragleave": [
-          526
+          541
         ],
         "dragover": [
-          525
+          540
         ],
         "drop": [
-          527
+          542
         ],
         "focus": [
-          470
+          485
         ],
         "input": [
-          469,
-          721,
-          1524
+          484,
+          736,
+          1542,
+          1618
         ],
         "mousedown": [
-          457
+          472
         ],
         "mouseenter": [
-          455
+          470
         ],
         "mouseleave": [
-          456
+          471
         ],
         "scroll": [
-          472,
-          1498
+          487,
+          1581
         ]
       },
       "events_dispatched": {
         "change": [
-          486,
-          2132,
-          2134
+          501,
+          2261,
+          2263
+        ],
+        "input": [
+          1745
         ]
       }
     },
@@ -20367,182 +20587,230 @@
       "html": {
         "ids": {
           "alerta-global": [
-            232
+            261
+          ],
+          "btn-abrir-nosel-gira": [
+            365
           ],
           "btn-abrir-participantes-gira": [
-            321
+            350
           ],
           "btn-cancelar-gira": [
-            329
+            390
           ],
           "btn-cerrar-sheet-part": [
-            351
+            412
           ],
           "btn-guardar-gira": [
-            328
+            389
           ],
           "btn-listo-participantes-gira": [
-            360
+            421
           ],
           "buscar-participante-gira": [
-            354
+            415
           ],
           "form-gira-titulo": [
-            248
+            277
           ],
           "gira-area": [
-            268
-          ],
-          "gira-colaboracion": [
             297
           ],
+          "gira-aviso-ambas": [
+            369
+          ],
+          "gira-colaboracion": [
+            326
+          ],
           "gira-coord-correo": [
-            313
+            342
           ],
           "gira-coord-nombre": [
-            304
+            333
           ],
           "gira-coord-telefono": [
-            312
+            341
           ],
           "gira-coord-tipo": [
-            305
+            334
           ],
           "gira-cupo": [
-            287
+            316
           ],
           "gira-descripcion": [
-            255
+            284
           ],
           "gira-fecha": [
-            260
+            289
           ],
           "gira-hora": [
-            264
+            293
           ],
           "gira-lugar": [
-            279
+            308
           ],
           "gira-lugar-encuentro": [
-            292
+            321
           ],
           "gira-nombre": [
-            251
+            280
+          ],
+          "gira-nosel-chips": [
+            364
+          ],
+          "gira-nosel-contador": [
+            383
+          ],
+          "gira-nosel-mensaje": [
+            380
+          ],
+          "gira-nosel-motivo": [
+            374
+          ],
+          "gira-nosel-vacio": [
+            368
           ],
           "gira-participantes-chips": [
-            320
-          ],
-          "gira-participantes-vacio": [
-            324
-          ],
-          "gira-voluntarios-req": [
-            283
-          ],
-          "lista-participantes-gira": [
-            356
-          ],
-          "overlay-part": [
-            343
-          ],
-          "sheet-part": [
-            344
-          ],
-          "sheet-part-contador": [
             349
           ],
+          "gira-participantes-vacio": [
+            353
+          ],
+          "gira-voluntarios-req": [
+            312
+          ],
+          "lista-participantes-gira": [
+            417
+          ],
+          "overlay-part": [
+            404
+          ],
+          "sheet-part": [
+            405
+          ],
+          "sheet-part-contador": [
+            410
+          ],
+          "sheet-part-titulo-txt": [
+            409
+          ],
           "tabla-giras-body": [
-            336
+            397
           ]
         }
       },
       "dom": {
         "generated_ids": {
           "alerta-global": [
-            227
+            254
+          ],
+          "btn-abrir-nosel-gira": [
+            358
           ],
           "btn-abrir-participantes-gira": [
-            316
+            343
           ],
           "btn-cancelar-gira": [
-            324
+            383
           ],
           "btn-cerrar-sheet-part": [
-            346
+            405
           ],
           "btn-guardar-gira": [
-            323
+            382
           ],
           "btn-listo-participantes-gira": [
-            355
+            414
           ],
           "buscar-participante-gira": [
-            349
+            408
           ],
           "form-gira-titulo": [
-            243
+            270
           ],
           "gira-area": [
-            263
+            290
+          ],
+          "gira-aviso-ambas": [
+            362
           ],
           "gira-colaboracion": [
-            292
-          ],
-          "gira-coord-correo": [
-            308
-          ],
-          "gira-coord-nombre": [
-            299
-          ],
-          "gira-coord-telefono": [
-            307
-          ],
-          "gira-coord-tipo": [
-            300
-          ],
-          "gira-cupo": [
-            282
-          ],
-          "gira-descripcion": [
-            250
-          ],
-          "gira-fecha": [
-            255
-          ],
-          "gira-hora": [
-            259
-          ],
-          "gira-lugar": [
-            274
-          ],
-          "gira-lugar-encuentro": [
-            287
-          ],
-          "gira-nombre": [
-            246
-          ],
-          "gira-participantes-chips": [
-            315
-          ],
-          "gira-participantes-vacio": [
             319
           ],
+          "gira-coord-correo": [
+            335
+          ],
+          "gira-coord-nombre": [
+            326
+          ],
+          "gira-coord-telefono": [
+            334
+          ],
+          "gira-coord-tipo": [
+            327
+          ],
+          "gira-cupo": [
+            309
+          ],
+          "gira-descripcion": [
+            277
+          ],
+          "gira-fecha": [
+            282
+          ],
+          "gira-hora": [
+            286
+          ],
+          "gira-lugar": [
+            301
+          ],
+          "gira-lugar-encuentro": [
+            314
+          ],
+          "gira-nombre": [
+            273
+          ],
+          "gira-nosel-chips": [
+            357
+          ],
+          "gira-nosel-contador": [
+            376
+          ],
+          "gira-nosel-mensaje": [
+            373
+          ],
+          "gira-nosel-motivo": [
+            367
+          ],
+          "gira-nosel-vacio": [
+            361
+          ],
+          "gira-participantes-chips": [
+            342
+          ],
+          "gira-participantes-vacio": [
+            346
+          ],
           "gira-voluntarios-req": [
-            278
+            305
           ],
           "lista-participantes-gira": [
-            351
+            410
           ],
           "overlay-part": [
-            338
+            397
           ],
           "sheet-part": [
-            339
+            398
           ],
           "sheet-part-contador": [
-            344
+            403
+          ],
+          "sheet-part-titulo-txt": [
+            402
           ],
           "tabla-giras-body": [
-            331
+            390
           ]
         }
       }
@@ -23357,6 +23625,14 @@
           false
         ]
       ],
+      "abrirSelectorGira": [
+        [
+          "js/modulos/voluntarios.js",
+          1589,
+          "function",
+          false
+        ]
+      ],
       "abrirSheet": [
         [
           "panel/dashboard.html",
@@ -23368,7 +23644,7 @@
       "abrirSheetParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1476,
+          1559,
           "function",
           false
         ]
@@ -23384,7 +23660,7 @@
       "accederGiraParticipante": [
         [
           "js/core/participantes-api.js",
-          148,
+          154,
           "function",
           true
         ]
@@ -23392,7 +23668,7 @@
       "accederParticipante": [
         [
           "js/core/participantes-api.js",
-          43,
+          47,
           "function",
           true
         ]
@@ -23414,7 +23690,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          1097,
+          1112,
           "function",
           false
         ]
@@ -23460,7 +23736,7 @@
       "actualizarContadorParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1353,
+          1379,
           "function",
           false
         ]
@@ -23476,7 +23752,7 @@
       "actualizarFilaParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
-          1416,
+          1442,
           "function",
           false
         ]
@@ -23552,7 +23828,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          654,
+          669,
           "function",
           false
         ],
@@ -23572,7 +23848,7 @@
       "actualizarStatsAsignaciones": [
         [
           "js/modulos/voluntarios.js",
-          1739,
+          1868,
           "function",
           false
         ]
@@ -23742,7 +24018,7 @@
       "aplicarLimiteRegistro": [
         [
           "functions/index.js",
-          329,
+          386,
           "function",
           false
         ]
@@ -23750,7 +24026,7 @@
       "aplicarPermisosTab": [
         [
           "js/modulos/voluntarios.js",
-          201,
+          216,
           "function",
           false
         ]
@@ -23774,7 +24050,7 @@
       "archivoABase64": [
         [
           "js/core/participantes-api.js",
-          23,
+          27,
           "function",
           true
         ]
@@ -23782,7 +24058,7 @@
       "asegurarParticipantesGiraCargados": [
         [
           "js/modulos/voluntarios.js",
-          1288,
+          1314,
           "function",
           false
         ]
@@ -23822,7 +24098,7 @@
       "autorellenarDesdeSolicitud": [
         [
           "js/modulos/voluntarios.js",
-          475,
+          490,
           "function",
           false
         ]
@@ -23831,6 +24107,14 @@
         [
           "js/modulos/informeActividad.js",
           440,
+          "function",
+          false
+        ]
+      ],
+      "avisarParticipantesEnAmbasListas": [
+        [
+          "js/modulos/voluntarios.js",
+          1513,
           "function",
           false
         ]
@@ -23854,7 +24138,7 @@
       "brevoRequest": [
         [
           "functions/index.js",
-          437,
+          494,
           "function",
           false
         ]
@@ -23862,7 +24146,7 @@
       "brevoRequestOnce": [
         [
           "functions/index.js",
-          397,
+          454,
           "function",
           false
         ]
@@ -24028,7 +24312,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          238,
+          253,
           "function",
           false
         ]
@@ -24044,7 +24328,7 @@
       "cargarAsignaciones": [
         [
           "js/modulos/voluntarios.js",
-          1726,
+          1855,
           "function",
           false
         ]
@@ -24052,7 +24336,7 @@
       "cargarAsistencias": [
         [
           "js/modulos/voluntarios.js",
-          1000,
+          1015,
           "function",
           false
         ]
@@ -24073,10 +24357,10 @@
           false
         ]
       ],
-      "cargarCorreoNoAprobadoGira": [
+      "cargarCorreoNoSeleccionadoGira": [
         [
           "functions/plantillas.js",
-          82,
+          104,
           "function",
           false
         ]
@@ -24166,7 +24450,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          1108,
+          1123,
           "function",
           false
         ]
@@ -24174,7 +24458,7 @@
       "cargarImagen": [
         [
           "js/modulos/voluntarios.js",
-          824,
+          839,
           "function",
           false
         ]
@@ -24254,7 +24538,7 @@
       "cargarSolicitudesAutocomplete": [
         [
           "js/modulos/voluntarios.js",
-          414,
+          429,
           "function",
           false
         ]
@@ -24300,7 +24584,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          1715,
+          1844,
           "function",
           false
         ]
@@ -24308,7 +24592,7 @@
       "cargarVoluntarios": [
         [
           "js/modulos/voluntarios.js",
-          640,
+          655,
           "function",
           false
         ]
@@ -24390,7 +24674,7 @@
       "cerrarSheetParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1481,
+          1564,
           "function",
           false
         ]
@@ -24442,7 +24726,7 @@
       "coleccionPorTipo": [
         [
           "js/modulos/voluntarios.js",
-          1939,
+          2068,
           "function",
           false
         ]
@@ -24487,6 +24771,14 @@
           false
         ]
       ],
+      "consola": [
+        [
+          "functions/test/id-bloqueo.js",
+          19,
+          "function",
+          false
+        ]
+      ],
       "construirResumenAsistencia": [
         [
           "js/modulos/inscripciones.js",
@@ -24498,7 +24790,7 @@
       "consultarUsuarioSSO": [
         [
           "functions/index.js",
-          245,
+          302,
           "function",
           false
         ]
@@ -24522,7 +24814,7 @@
       "crearParticipantesUnicos": [
         [
           "functions/index.js",
-          152,
+          155,
           "function",
           false
         ]
@@ -24594,7 +24886,7 @@
       "detectarCol": [
         [
           "js/modulos/voluntarios.js",
-          560,
+          575,
           "function",
           false
         ]
@@ -24618,7 +24910,7 @@
       "dibujarCarnet": [
         [
           "js/modulos/voluntarios.js",
-          849,
+          864,
           "function",
           false
         ]
@@ -24847,10 +25139,10 @@
           false
         ]
       ],
-      "enviarCorreoNoAprobadoGira": [
+      "enviarCorreoNoSeleccionadoGira": [
         [
           "functions/index.js",
-          1085,
+          1156,
           "function",
           false
         ]
@@ -24858,7 +25150,7 @@
       "enviarCorreoNotificacionGira": [
         [
           "functions/index.js",
-          1032,
+          1098,
           "function",
           false
         ]
@@ -24866,7 +25158,7 @@
       "enviarCorreoPagoAprobado": [
         [
           "functions/index.js",
-          468,
+          525,
           "function",
           false
         ]
@@ -24874,7 +25166,7 @@
       "enviarCorreoQrParticipante": [
         [
           "js/core/participantes-api.js",
-          62,
+          66,
           "function",
           true
         ]
@@ -24882,7 +25174,7 @@
       "enviarCorreoTransaccional": [
         [
           "functions/index.js",
-          451,
+          508,
           "function",
           false
         ]
@@ -24891,6 +25183,14 @@
         [
           "js/modulos/ventaRapida.js",
           653,
+          "function",
+          false
+        ]
+      ],
+      "errorDuplicado": [
+        [
+          "functions/identidad.js",
+          37,
           "function",
           false
         ]
@@ -24938,7 +25238,7 @@
       "esTokenSSOValido": [
         [
           "functions/index.js",
-          216,
+          273,
           "function",
           false
         ]
@@ -25020,7 +25320,7 @@
       "estaAprobadoParaGira": [
         [
           "js/modulos/voluntarios.js",
-          1327,
+          1353,
           "function",
           false
         ]
@@ -25100,7 +25400,7 @@
       "eventosPorTipo": [
         [
           "js/modulos/voluntarios.js",
-          1945,
+          2074,
           "function",
           false
         ]
@@ -25130,7 +25430,7 @@
       "extraerEmailSSO": [
         [
           "functions/index.js",
-          220,
+          277,
           "function",
           false
         ]
@@ -25138,7 +25438,7 @@
       "extraerNombreSSO": [
         [
           "functions/index.js",
-          236,
+          293,
           "function",
           false
         ]
@@ -25229,6 +25529,14 @@
           false
         ]
       ],
+      "fijarListaDestinoGira": [
+        [
+          "js/modulos/voluntarios.js",
+          110,
+          "function",
+          false
+        ]
+      ],
       "filaAInscripcion": [
         [
           "js/modulos/inscripciones.js",
@@ -25240,7 +25548,7 @@
       "filaParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
-          1331,
+          1357,
           "function",
           false
         ]
@@ -25270,7 +25578,7 @@
       "fitTextSize": [
         [
           "js/modulos/voluntarios.js",
-          833,
+          848,
           "function",
           false
         ]
@@ -25330,7 +25638,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          169,
+          184,
           "function",
           false
         ]
@@ -25372,7 +25680,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          175,
+          190,
           "function",
           false
         ],
@@ -25386,7 +25694,7 @@
       "fmtHora12": [
         [
           "js/modulos/voluntarios.js",
-          182,
+          197,
           "function",
           false
         ]
@@ -25442,7 +25750,7 @@
       "formatearFechaGira": [
         [
           "functions/index.js",
-          1010,
+          1076,
           "function",
           false
         ]
@@ -25450,7 +25758,7 @@
       "formatearHoraGira": [
         [
           "functions/index.js",
-          1024,
+          1090,
           "function",
           false
         ]
@@ -25496,15 +25804,15 @@
       "generarCodigos": [
         [
           "functions/index.js",
-          194,
+          251,
           "function",
           false
         ]
       ],
       "generarDocId": [
         [
-          "functions/index.js",
-          133,
+          "functions/identidad.js",
+          17,
           "function",
           false
         ]
@@ -25544,7 +25852,7 @@
       "generarQRDataURL": [
         [
           "js/modulos/voluntarios.js",
-          804,
+          819,
           "function",
           false
         ]
@@ -25568,7 +25876,7 @@
       "generarToken": [
         [
           "functions/index.js",
-          141,
+          140,
           "function",
           false
         ]
@@ -25584,7 +25892,7 @@
       "getEstadoVoluntarios": [
         [
           "js/modulos/voluntarios.js",
-          2152,
+          2281,
           "function",
           false
         ]
@@ -25734,7 +26042,7 @@
       "hayConflictoHorario": [
         [
           "js/modulos/voluntarios.js",
-          126,
+          141,
           "function",
           false
         ]
@@ -25845,8 +26153,8 @@
       ],
       "idBloqueoParticipante": [
         [
-          "functions/index.js",
-          145,
+          "functions/identidad.js",
+          27,
           "function",
           false
         ]
@@ -25902,7 +26210,7 @@
       "iniciarAutocompleteSolicitud": [
         [
           "js/modulos/voluntarios.js",
-          423,
+          438,
           "function",
           false
         ]
@@ -25926,7 +26234,7 @@
       "iniciarTabVoluntariado": [
         [
           "js/modulos/voluntarios.js",
-          2128,
+          2257,
           "function",
           false
         ]
@@ -26116,7 +26424,7 @@
       "limpiarFormActividad": [
         [
           "js/modulos/voluntarios.js",
-          356,
+          371,
           "function",
           false
         ]
@@ -26140,7 +26448,7 @@
       "limpiarFormGira": [
         [
           "js/modulos/voluntarios.js",
-          1588,
+          1691,
           "function",
           false
         ]
@@ -26199,10 +26507,18 @@
           false
         ]
       ],
+      "listaDestinoGira": [
+        [
+          "js/modulos/voluntarios.js",
+          106,
+          "function",
+          false
+        ]
+      ],
       "listarParticipantesParaGiras": [
         [
           "js/core/participantes-api.js",
-          84,
+          88,
           "function",
           true
         ]
@@ -26211,6 +26527,22 @@
         [
           "js/core/operaciones.js",
           58,
+          "function",
+          false
+        ]
+      ],
+      "lock": [
+        [
+          "functions/test/identidad.test.js",
+          16,
+          "function",
+          false
+        ]
+      ],
+      "locksQueBloquean": [
+        [
+          "functions/identidad.js",
+          57,
           "function",
           false
         ]
@@ -26286,7 +26618,7 @@
         ],
         [
           "js/core/participantes-api.js",
-          173,
+          179,
           "function",
           true
         ]
@@ -26302,7 +26634,7 @@
       "minutosDeHora": [
         [
           "js/modulos/voluntarios.js",
-          120,
+          135,
           "function",
           false
         ]
@@ -26394,7 +26726,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          140,
+          155,
           "function",
           false
         ],
@@ -26496,7 +26828,7 @@
       "mostrarMapeo": [
         [
           "js/modulos/voluntarios.js",
-          564,
+          579,
           "function",
           false
         ]
@@ -26576,7 +26908,7 @@
       "normalizarCamposExtra": [
         [
           "functions/index.js",
-          286,
+          343,
           "function",
           false
         ]
@@ -26584,7 +26916,7 @@
       "normalizarEstudiantes": [
         [
           "functions/index.js",
-          314,
+          371,
           "function",
           false
         ]
@@ -26592,7 +26924,7 @@
       "normalizarHorario": [
         [
           "js/modulos/voluntarios.js",
-          111,
+          126,
           "function",
           false
         ]
@@ -26622,15 +26954,15 @@
       "normalizarTutor": [
         [
           "functions/index.js",
-          301,
+          358,
           "function",
           false
         ]
       ],
-      "notificarNoAprobadosGira": [
+      "notificarNoSeleccionadosGira": [
         [
           "js/core/participantes-api.js",
-          128,
+          134,
           "function",
           true
         ]
@@ -26638,7 +26970,7 @@
       "notificarParticipantesGira": [
         [
           "js/core/participantes-api.js",
-          105,
+          109,
           "function",
           true
         ]
@@ -26802,7 +27134,7 @@
       "origenPermitidoParaSSO": [
         [
           "functions/index.js",
-          258,
+          315,
           "function",
           false
         ]
@@ -26870,7 +27202,7 @@
       "participantesGiraConEstado": [
         [
           "js/modulos/voluntarios.js",
-          1120,
+          1135,
           "function",
           false
         ]
@@ -26894,7 +27226,7 @@
       "pintarLoteParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1365,
+          1391,
           "function",
           false
         ]
@@ -26918,7 +27250,7 @@
       "poblarSelectorVoluntarios": [
         [
           "js/modulos/voluntarios.js",
-          1771,
+          1900,
           "function",
           false
         ]
@@ -26946,7 +27278,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          432,
+          447,
           "function",
           false
         ]
@@ -26954,7 +27286,7 @@
       "precalentarParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1315,
+          1341,
           "function",
           false
         ]
@@ -27022,7 +27354,7 @@
       "prepararParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
-          1281,
+          1307,
           "function",
           false
         ]
@@ -27060,7 +27392,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          534,
+          549,
           "function",
           false
         ]
@@ -27076,7 +27408,7 @@
       "procesarCorreoQrAprobado": [
         [
           "functions/index.js",
-          504,
+          561,
           "function",
           false
         ]
@@ -27093,6 +27425,14 @@
         [
           "js/modulos/lecturaQR.js",
           324,
+          "function",
+          false
+        ]
+      ],
+      "prueba": [
+        [
+          "functions/test/identidad.test.js",
+          22,
           "function",
           false
         ]
@@ -27162,7 +27502,7 @@
       "recargarEventosPorTipo": [
         [
           "js/modulos/voluntarios.js",
-          1951,
+          2080,
           "function",
           false
         ]
@@ -27264,7 +27604,7 @@
       "registrarParticipante": [
         [
           "js/core/participantes-api.js",
-          32,
+          36,
           "function",
           true
         ]
@@ -27344,7 +27684,7 @@
       "renderCardPendientes": [
         [
           "js/modulos/voluntarios.js",
-          2068,
+          2197,
           "function",
           false
         ]
@@ -27403,10 +27743,18 @@
           false
         ]
       ],
+      "renderChipsNoSeleccionados": [
+        [
+          "js/modulos/voluntarios.js",
+          1493,
+          "function",
+          false
+        ]
+      ],
       "renderChipsParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1443,
+          1471,
           "function",
           false
         ]
@@ -27466,7 +27814,7 @@
       "renderFiltroActividades": [
         [
           "js/modulos/voluntarios.js",
-          262,
+          277,
           "function",
           false
         ]
@@ -27530,7 +27878,7 @@
       "renderListaParticipantesGira": [
         [
           "js/modulos/voluntarios.js",
-          1392,
+          1418,
           "function",
           false
         ]
@@ -27698,7 +28046,7 @@
       "renderSelectorActividades": [
         [
           "js/modulos/voluntarios.js",
-          250,
+          265,
           "function",
           false
         ]
@@ -27742,7 +28090,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          439,
+          454,
           "function",
           false
         ]
@@ -27764,7 +28112,7 @@
       "renderTablaActividades": [
         [
           "js/modulos/voluntarios.js",
-          274,
+          289,
           "function",
           false
         ]
@@ -27772,7 +28120,7 @@
       "renderTablaAsignaciones": [
         [
           "js/modulos/voluntarios.js",
-          1746,
+          1875,
           "function",
           false
         ]
@@ -27780,7 +28128,7 @@
       "renderTablaAsistencias": [
         [
           "js/modulos/voluntarios.js",
-          1035,
+          1050,
           "function",
           false
         ]
@@ -27804,7 +28152,7 @@
       "renderTablaGiras": [
         [
           "js/modulos/voluntarios.js",
-          1137,
+          1152,
           "function",
           false
         ]
@@ -27842,7 +28190,7 @@
       "renderTurnosEvt": [
         [
           "js/modulos/voluntarios.js",
-          1957,
+          2086,
           "function",
           false
         ]
@@ -27874,7 +28222,7 @@
       "renderVoluntarios": [
         [
           "js/modulos/voluntarios.js",
-          666,
+          681,
           "function",
           false
         ]
@@ -27882,7 +28230,7 @@
       "renderVoluntariosGrupo": [
         [
           "js/modulos/voluntarios.js",
-          2258,
+          2387,
           "function",
           false
         ]
@@ -27906,7 +28254,7 @@
       "resetModalGrupo": [
         [
           "js/modulos/voluntarios.js",
-          2183,
+          2312,
           "function",
           false
         ]
@@ -27914,7 +28262,7 @@
       "resolverAsistencia": [
         [
           "js/modulos/voluntarios.js",
-          1023,
+          1038,
           "function",
           false
         ]
@@ -27970,7 +28318,7 @@
       "revisar": [
         [
           "js/modulos/voluntarios.js",
-          2080,
+          2209,
           "function",
           false
         ]
@@ -28010,7 +28358,7 @@
       "sanitizarParticipante": [
         [
           "functions/index.js",
-          372,
+          429,
           "function",
           false
         ]
@@ -28134,7 +28482,7 @@
       "subirComprobante": [
         [
           "functions/index.js",
-          354,
+          411,
           "function",
           false
         ]
@@ -28197,6 +28545,14 @@
           false
         ]
       ],
+      "textoAParrafosHtml": [
+        [
+          "functions/plantillas.js",
+          83,
+          "function",
+          false
+        ]
+      ],
       "tienePermiso": [
         [
           "js/core/permisos.js",
@@ -28234,7 +28590,7 @@
         ],
         [
           "js/modulos/voluntarios.js",
-          2143,
+          2272,
           "function",
           false
         ]
@@ -28250,7 +28606,7 @@
       "toggleParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
-          1430,
+          1456,
           "function",
           false
         ]
@@ -28288,7 +28644,7 @@
       "truncarTexto": [
         [
           "js/modulos/voluntarios.js",
-          842,
+          857,
           "function",
           false
         ]
@@ -28312,7 +28668,7 @@
       "turnosSuperpuestos": [
         [
           "js/modulos/voluntarios.js",
-          2148,
+          2277,
           "function",
           false
         ]
@@ -28464,7 +28820,7 @@
       "validarCorreo": [
         [
           "functions/index.js",
-          212,
+          269,
           "function",
           false
         ]
@@ -28472,7 +28828,7 @@
       "validarDocId": [
         [
           "functions/index.js",
-          278,
+          335,
           "function",
           false
         ]
@@ -28528,7 +28884,7 @@
       "validarTexto": [
         [
           "functions/index.js",
-          264,
+          321,
           "function",
           false
         ]
@@ -28560,7 +28916,7 @@
       "verificarStaffCorreo": [
         [
           "functions/index.js",
-          456,
+          513,
           "function",
           false
         ]
@@ -28590,7 +28946,7 @@
           "file": "js/modulos/voluntarios.js",
           "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
           "provenance": "extracted",
-          "line": 251,
+          "line": 266,
           "evidence": {
             "pages": [
               "panel/modulos/voluntariado/actividades.html",
@@ -28602,6 +28958,7 @@
       ]
     },
     "files_by_hash": {
+      "76da8a1611ce88255c7d404d05a2bf7f714b7e7c17f62022773380f58a17a6de": ".claude/settings.json",
       "1df7f6447e13441ab6d530b1274eb5d31c0d5ccf52bbf6eae076ff73e175d457": "AGENTS.md",
       "binary:38175": "assets/img/fisc-logo.png",
       "binary:46628": "assets/img/utp-logo.png",
@@ -28614,15 +28971,18 @@
       "fea2750f4fede23d2a459b2eb73cc1eb5af49a10e67927a8b0d9b37e538b9c2f": "firebase_rules/firestore.rules",
       "12c6d42aefbcd149136b86b3964d0fcf335c7a39180b56607b30c65d3ae3c0f7": "firebase_rules/storage.rules",
       "d133f07094153566c2bd53792bdb37fae1efa7da2552b1df6f4e4b8aece050ab": "functions/.eslintrc.js",
-      "493eb6db337f23a1d2ea005ff30be53f1df5ef8366e531b4754701edd180e0e4": "functions/index.js",
+      "269b9e4bb2b252ccf98624c90cb34db7837e4cd7c37af8609036151273bcb8f1": "functions/identidad.js",
+      "38ea355f7cb4be6e03878bfcf03f4cc654ace1b408c09c98b136dfb7fa366a63": "functions/index.js",
       "5a974bba25ebb095be2f4b84e438c6601542afe626e4ab2d457d5fa5148d793a": "functions/operaciones-financieras.js",
       "3b590cd9c27faafaf9360aed1ddf63c982ca6cc368e68b1fda086aee12b135c4": "functions/operaciones-qr.js",
-      "574af75276b62e1b010bd29f2bcd1cc4af64080da315a0b92308a5e7c748becd": "functions/package.json",
-      "4403f1b3d0d5061ddad44043ebbe7584ed05dc327db690a9f16e995ed725a900": "functions/plantillas.js",
+      "e14bca22a9b87fcc7997d5f46596d17ac49fcb81b5150ccc249c0f60845b1be4": "functions/package.json",
+      "29bcb23672abe4f302f1e668739f8cf8959e55bd4863f61b11e92c4a8b218763": "functions/plantillas.js",
       "7a168c5376688df324fed4f11ceff481c83040eda8f951fbaf0968180be9c78f": "functions/qr-participante.js",
-      "4fb4947c9dd8f75a4701cc831ee5a07d06429324c317b777974fd6b3945ad8df": "functions/templates/correo-no-aprobado-gira.html",
+      "c31009f3d6b13d203c1004a7a68ec62e61b301c31fb02c62b1ae839dcb96d5d8": "functions/templates/correo-no-seleccionado-gira.html",
       "4314c31add891b56b8e832704a3bb3d78af2dda8225474aeb46a7b350c85911c": "functions/templates/correo-notificacion-gira.html",
       "20c28b0b9b3428ac0c7b77da95f4f31d898e5f10053dd1265c1e33900d3ed7d8": "functions/templates/correo-pago-aprobado.html",
+      "75a6db2cdeac1ab14e1cd13978578a5cbd80440cbfac028c7f77d934eed3adc4": "functions/test/id-bloqueo.js",
+      "b43c1a65830eb1d3e947e7a09f3e0cf30f262884fc01424557e67929cfc70eba": "functions/test/identidad.test.js",
       "4eda1cfc49aeb72ed036d3e3f186481ffcc04f214bce465580b03e235b4b4029": "functions/test/operaciones-qr.integration.js",
       "821d8ef13d0858f42afa13fdbe7fcb401a7f68616264278b4910258ee84c3c0d": "icons/bebida-lata.svg",
       "b58eb6742fedcb51d697ceef36b02911206443f810bb6f2977c533221d8e73be": "img/iconos/advertencia.svg",
@@ -28681,7 +29041,7 @@
       "ff7e423db65f5b54bb436b3ad7297d20e4ba7335c7c7bd47fb1772792ae1d671": "js/core/firebase-config.js",
       "95bc12ba9870da179532627cbf58e3f342166ffbdd1fd6d29f06e3c7c6fc4d2c": "js/core/iconos.js",
       "24283793bdd8b5c08b5ddbf11cb71eb28033c03faa817cff354ba2e4a031c156": "js/core/operaciones.js",
-      "4ca92bf9652d43db096d5a00096391600273addd96d670bcfa66ed91db08a09f": "js/core/participantes-api.js",
+      "5cbda87909f61dc6ea486e5d4604c3a2a3a4c0e54f806b9f40ef6d9eda43c7c0": "js/core/participantes-api.js",
       "0661c035b15e9cc0b18cf80f637c48f11ac0e8405c8e80027f910d42255d50bf": "js/core/permisos.js",
       "8d555eb48164965e94cd7f02c743684fd8b1be53d5564157c9acf618256e6129": "js/core/seguridad.js",
       "5d2c5044c8785a230f0f2077bcdef5b13d9dd92cce94039a1b45ca90e8cc6f19": "js/core/sso-config.js",
@@ -28714,7 +29074,7 @@
       "73017f63df289d37b1e1b4325cdab6cf3e6dd040178a82a839b06b848aa5db64": "js/modulos/solicitudActividad.js",
       "b67bd28b9f8bf9eb6f840f2a3d86774b62c0f92e9d48dfcb5a823478db094d68": "js/modulos/usuarios.js",
       "b7ca01193a3daaafe64038f6eab70b711050ab02b6ba080013e46f6bfae9b7a9": "js/modulos/ventaRapida.js",
-      "bab4b6846b2c6696b8cb5b227f5ffdce1e637aa75844550c71680b451d5b6a65": "js/modulos/voluntarios.js",
+      "81c9ba1db2da896c8b9f4956ae07a2a1283e3c5bcd10fe614a28691d2e38cae6": "js/modulos/voluntarios.js",
       "binary:122721": "logocontecs.png",
       "binary:103600": "logocontecsheader.png",
       "3cad9075074eb6ce3d8ed9cc845564ff717995844d9a042a4860700e2a62c2b2": "package.json",
@@ -28743,7 +29103,7 @@
       "b2617eed921338f2dcaa2d76f25d4e7828d8270b9ace8e4ff4923a3692ec6d6b": "panel/modulos/logistica/inventario.html",
       "09a88d162ab3706089a57569c924b20e7af03a77b33502167ce7d82009d7c60a": "panel/modulos/voluntariado/actividades.html",
       "d0dd84d784b6f2461d3cf5592729c74adf6b33e70e712d578eaa5c3bb2421e29": "panel/modulos/voluntariado/calendario.html",
-      "78386a32494696e8cb60594a868a2e3cbd0f000b70c26aeea1f280bcf5a34220": "panel/modulos/voluntariado/giras.html",
+      "c53f82506e047a8833f09739b2945f0fc1a1088b0ad2d0217291daa265f2f668": "panel/modulos/voluntariado/giras.html",
       "3738731b1f0910a254a325c948cbf94c0291c73084470c1a2591af845c4fe912": "panel/modulos/voluntariado/informeActividad.html",
       "9e26b8af91a57adeebb5dd7d60140420ee8c7c93e3fdfafd777284a48fb74040": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "415a171fbd0322e8aed288f128b4ec70fcd2aef0d2cb21c81adc8c0e1febf474": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
@@ -28757,10 +29117,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 3365,
-    "architectural_symbols_retained": 713,
-    "calls_detected": 7581,
-    "architectural_calls_retained": 4035,
+    "symbols_detected": 3420,
+    "architectural_symbols_retained": 724,
+    "calls_detected": 7696,
+    "architectural_calls_retained": 4098,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -28789,8 +29149,9 @@
       "submit"
     ],
     "dispatched": [
-      "change"
+      "change",
+      "input"
     ]
   },
-  "estimated_tokens": 84383
+  "estimated_tokens": 85667
 }

@@ -117,25 +117,27 @@ export async function notificarParticipantesGira(giraId) {
   }
 }
 
-const ERRORES_NOTIFICAR_NO_APROBADOS = {
+const ERRORES_NOTIFICAR_NO_SELECCIONADOS = {
   "unauthenticated":   "Debes iniciar sesión para avisar a los participantes.",
   "permission-denied": "No tienes permiso para notificar esta gira.",
   "not-found":         "La gira ya no existe.",
-  "internal":          "Error al avisar a los participantes sin pago aprobado.",
+  "invalid-argument":  "Falta el motivo o el mensaje del correo. Edita la gira y complétalos.",
+  "internal":          "Error al avisar a los participantes no seleccionados.",
   "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
 };
 
-// Contraparte de notificarParticipantesGira: avisa a quienes quedaron marcados
-// como NO INCLUIDOS EN LA GIRA por tener el pago sin aprobar. El correo que
-// envía la función no lleva credenciales ni enlace a la gira — solo el motivo y
-// el correo de contacto administrativo.
-export async function notificarNoAprobadosGira(giraId) {
+// Contraparte de notificarParticipantesGira: avisa a la lista de NO
+// SELECCIONADOS de la gira (los que no cupieron, no fueron seleccionados o no
+// tienen el pago aprobado). El motivo y el cuerpo del correo los escribe el
+// equipo de Giras en el formulario y viajan en el documento de la gira, no en
+// esta llamada. El correo no lleva credenciales ni enlace a la gira.
+export async function notificarNoSeleccionadosGira(giraId) {
   try {
-    const fn = httpsCallable(functions, "notificarNoAprobadosGira");
+    const fn = httpsCallable(functions, "notificarNoSeleccionadosGira");
     const result = await fn({giraId});
     return result.data;
   } catch (error) {
-    const msg = ERRORES_NOTIFICAR_NO_APROBADOS[error.code] || error.message || "Error inesperado al avisar a los participantes.";
+    const msg = ERRORES_NOTIFICAR_NO_SELECCIONADOS[error.code] || error.message || "Error inesperado al avisar a los participantes.";
     throw new Error(msg);
   }
 }

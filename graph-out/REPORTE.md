@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-05T23:27:02.732668+00:00**
+- Generado: **2026-09-06T01:15:00.996606+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `dde8bf6a1ed5513a…`
-- Archivos analizados: **153**
-- Relaciones internas tipadas: **472**
-- Símbolos detectados: **3365**
-- Llamadas detectadas: **7581**
-- IDs DOM definidos: **780**
+- Huella del proyecto: `dab708b5caf55af1…`
+- Archivos analizados: **157**
+- Relaciones internas tipadas: **475**
+- Símbolos detectados: **3420**
+- Llamadas detectadas: **7696**
+- IDs DOM definidos: **788**
 - Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
-- Cloud Functions detectadas: **13**
-- Archivos huerfanos: **64**
+- Cloud Functions detectadas: **14**
+- Archivos huerfanos: **65**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,414 tokens** · leer primero
-- `GraphCompleto.json` — ~**45,517 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**84,383 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **90.0%** frente al profundo
+- `GraphCompacto.json` — ~**8,712 tokens** · leer primero
+- `GraphCompleto.json` — ~**46,196 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**85,667 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:251` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:266` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -39,7 +39,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
 - `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
-- `js/modulos/voluntarios.js` — riesgo 61.6 (conexiones: 18, 2415 lineas)
+- `js/modulos/voluntarios.js` — riesgo 63.0 (conexiones: 18, 2545 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
@@ -65,25 +65,26 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/modulos/voluntarios.js` — grado 18 | exporta: (sin exports detectados)
 - `js/modulos/compras2.js` — grado 17 | exporta: (sin exports detectados)
 - `js/modulos/compras.js` — grado 16 | exporta: (sin exports detectados)
-- `js/core/participantes-api.js` — grado 14 | exporta: accederGiraParticipante, accederParticipante, archivoABase64, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoAprobadosGira, notificarParticipantesGira
+- `js/core/participantes-api.js` — grado 14 | exporta: accederGiraParticipante, accederParticipante, archivoABase64, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarParticipantesGira
 - `js/core/permisos.js` — grado 14 | exporta: PERMISOS, ROLES, infoRol, permisosDeRol, tienePermiso
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
 ## Cloud Functions detectadas
 
-- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoAprobadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
+- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, enviarCorreoQrParticipante, liberarIdentidadParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
 
 ## Archivos huerfanos
 
+- `.claude/settings.json`
 - `AGENTS.md`
 - `assets/img/fisc-logo.png`
 - `assets/img/utp-logo.png`
@@ -96,7 +97,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `firebase_rules/storage.rules`
 - `functions/.eslintrc.js`
 - `functions/package.json`
-- `functions/templates/correo-no-aprobado-gira.html`
+- `functions/templates/correo-no-seleccionado-gira.html`
 - `functions/templates/correo-notificacion-gira.html`
 - `functions/templates/correo-pago-aprobado.html`
 - `icons/bebida-lata.svg`
@@ -123,8 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/galleta_alt.svg`
 - `img/iconos/hamburguesa.svg`
 - `img/iconos/helado.svg`
-- `img/iconos/hotdog.svg`
-- ...y 24 mas
+- ...y 25 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -331,7 +331,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Tipos de relaciones
 
 - `calls_imported_symbol`: 181
-- `imports`: 149
+- `imports`: 152
 - `navigates_to`: 57
 - `loads_script`: 36
 - `loads_stylesheet`: 30
@@ -339,7 +339,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Paquetes/SDKs externos
 
-- `crypto` — usado en 1 archivo(s)
+- `crypto` — usado en 2 archivo(s)
 - `firebase-admin/app` — usado en 2 archivo(s)
 - `firebase-admin/auth` — usado en 1 archivo(s)
 - `firebase-admin/firestore` — usado en 4 archivo(s)
@@ -347,7 +347,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `firebase-functions/params` — usado en 1 archivo(s)
 - `firebase-functions/v2/core` — usado en 1 archivo(s)
 - `firebase-functions/v2/firestore` — usado en 1 archivo(s)
-- `firebase-functions/v2/https` — usado en 3 archivo(s)
+- `firebase-functions/v2/https` — usado en 4 archivo(s)
 - `fs` — usado en 1 archivo(s)
 - `https` — usado en 1 archivo(s)
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
@@ -360,5 +360,5 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 31 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 1 archivo(s)
+- `node:assert/strict` — usado en 2 archivo(s)
 - `path` — usado en 1 archivo(s)
