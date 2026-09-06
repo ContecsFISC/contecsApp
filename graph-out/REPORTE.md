@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-06T03:18:36.543285+00:00**
+- Generado: **2026-09-06T03:33:41.935630+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `c874bc408cba091f…`
-- Archivos analizados: **158**
-- Relaciones internas tipadas: **475**
-- Símbolos detectados: **3457**
-- Llamadas detectadas: **7759**
+- Huella del proyecto: `c4b1c3f608d4e0bc…`
+- Archivos analizados: **159**
+- Relaciones internas tipadas: **482**
+- Símbolos detectados: **3461**
+- Llamadas detectadas: **7795**
 - IDs DOM definidos: **792**
 - Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **14**
-- Archivos huerfanos: **66**
+- Archivos huerfanos: **65**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,774 tokens** · leer primero
-- `GraphCompleto.json` — ~**46,343 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**86,081 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**8,876 tokens** · leer primero
+- `GraphCompleto.json` — ~**46,819 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**86,727 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:266` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:267` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -37,9 +37,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/auth.js` — riesgo 250.3 (conexiones: 124, 235 lineas)
 - `js/core/seguridad.js` — riesgo 100.4 (conexiones: 50, 40 lineas)
 - `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
+- `js/modulos/voluntarios.js` — riesgo 68.1 (conexiones: 20, 2660 lineas)
 - `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
-- `js/modulos/voluntarios.js` — riesgo 64.0 (conexiones: 18, 2645 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
@@ -61,8 +61,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/iconos.js` — grado 28 | exporta: ICONOS_DISPONIBLES, estrellasImg, iconoComboImg, iconoImg, nombreIconoCombo, rutaIcono
 - `panel/modulos/logistica/catalogo.html` — grado 26 | exporta: (sin exports detectados)
 - `js/core/operaciones.js` — grado 25 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
+- `js/modulos/voluntarios.js` — grado 20 | exporta: (sin exports detectados)
 - `js/modulos/ventaRapida.js` — grado 19 | exporta: (sin exports detectados)
-- `js/modulos/voluntarios.js` — grado 18 | exporta: (sin exports detectados)
 - `js/modulos/compras2.js` — grado 17 | exporta: (sin exports detectados)
 - `js/modulos/compras.js` — grado 16 | exporta: (sin exports detectados)
 - `js/core/participantes-api.js` — grado 14 | exporta: accederGiraParticipante, accederParticipante, archivoABase64, enviarCorreoQrParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarParticipantesGira
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -100,7 +100,6 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/templates/correo-no-seleccionado-gira.html`
 - `functions/templates/correo-notificacion-gira.html`
 - `functions/templates/correo-pago-aprobado.html`
-- `functions/test/correos-nosel.test.js`
 - `icons/bebida-lata.svg`
 - `img/iconos/agua.svg`
 - `img/iconos/bubble_tea.svg`
@@ -124,7 +123,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/galleta.svg`
 - `img/iconos/galleta_alt.svg`
 - `img/iconos/hamburguesa.svg`
-- ...y 26 mas
+- `img/iconos/helado.svg`
+- ...y 25 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -330,8 +330,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 181
-- `imports`: 152
+- `calls_imported_symbol`: 185
+- `imports`: 155
 - `navigates_to`: 57
 - `loads_script`: 36
 - `loads_stylesheet`: 30
