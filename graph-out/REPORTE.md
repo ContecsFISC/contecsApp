@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-06T03:33:41.935630+00:00**
+- Generado: **2026-09-06T04:19:08.286193+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `c4b1c3f608d4e0bc…`
-- Archivos analizados: **159**
-- Relaciones internas tipadas: **482**
-- Símbolos detectados: **3461**
-- Llamadas detectadas: **7795**
-- IDs DOM definidos: **792**
+- Huella del proyecto: `60d319d5cb4b360f…`
+- Archivos analizados: **161**
+- Relaciones internas tipadas: **484**
+- Símbolos detectados: **3529**
+- Llamadas detectadas: **7909**
+- IDs DOM definidos: **794**
 - Paquetes externos usados: **23**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **14**
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**8,876 tokens** · leer primero
-- `GraphCompleto.json` — ~**46,819 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**86,727 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
+- `GraphCompacto.json` — ~**9,016 tokens** · leer primero
+- `GraphCompleto.json` — ~**47,163 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**87,471 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.7%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:267` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:270` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -37,7 +37,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/auth.js` — riesgo 250.3 (conexiones: 124, 235 lineas)
 - `js/core/seguridad.js` — riesgo 100.4 (conexiones: 50, 40 lineas)
 - `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
-- `js/modulos/voluntarios.js` — riesgo 68.1 (conexiones: 20, 2660 lineas)
+- `js/modulos/voluntarios.js` — riesgo 70.2 (conexiones: 20, 2866 lineas)
 - `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -331,7 +331,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Tipos de relaciones
 
 - `calls_imported_symbol`: 185
-- `imports`: 155
+- `imports`: 157
 - `navigates_to`: 57
 - `loads_script`: 36
 - `loads_stylesheet`: 30
@@ -360,5 +360,5 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 31 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 3 archivo(s)
+- `node:assert/strict` — usado en 4 archivo(s)
 - `path` — usado en 1 archivo(s)

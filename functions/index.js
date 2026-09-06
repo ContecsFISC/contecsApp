@@ -17,6 +17,7 @@ const {
   locksQueBloquean,
   esCorreoValido,
 } = require("./identidad");
+const {motivoDeEntrada, motivosCrudosDeGira} = require("./giras");
 const {
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
@@ -1187,7 +1188,7 @@ function claveNoSeleccionado(entrada) {
   return correo ? `correo:${correo}` : null;
 }
 
-async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensaje}) {
+async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensaje, nota}) {
   const correo = participante.correo;
   const nombre = participante.nombreCompleto ||
     `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
@@ -1201,6 +1202,7 @@ async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensa
     gira_fecha: formatearFechaGira(gira.fecha),
     motivo,
     mensaje,
+    nota,
   });
   if (!plantilla.activo) {
     return {enviado: false, omitido: true};
@@ -1307,15 +1309,39 @@ exports.notificarParticipantesGira = onCall(
     },
 );
 
-// ─── GIRAS: aviso a los NO SELECCIONADOS ────────────────────────────────────
-// Contraparte de notificarParticipantesGira. Recorre `gira.noSeleccionados` —
-// la lista que el equipo de Giras arma aparte, con quienes no cupieron, no
-// fueron seleccionados o no tienen el pago aprobado — y les envia el motivo y
-// el mensaje que ellos mismos escribieron en el panel.
+// Normaliza los motivos de aviso de una gira. Antes habia un unico
+// motivo/mensaje para toda la lista, y eso obligaba a mandarle el mismo texto a
+// alguien sin pago aprobado y a alguien sin seguro de matricula. Ahora la gira
+// define varios motivos y cada persona apunta al suyo.
 //
-// A diferencia de la version anterior, aqui NO se filtra por estado de pago: la
-// lista es explicita, la arma el staff, y las razones para estar en ella son
-// varias. El correo no lleva credenciales ni enlace a la gira.
+// Las giras guardadas con el formato viejo se leen igual: su motivo unico se
+// convierte aqui en un motivo con id "principal", al que van a parar todas las
+// entradas que no traigan `motivoId`.
+// Motivos de la gira, ya validados y listos para enviar. La forma cruda y la
+// migracion del formato anterior viven en ./giras (probadas en
+// test/giras.test.js); aqui solo se les aplica la validacion de contenido, que
+// es lo unico que necesita HttpsError.
+function motivosDeGira(gira) {
+  const motivos = new Map();
+  motivosCrudosDeGira(gira).forEach((m) => {
+    motivos.set(String(m.id).trim(), {
+      id: String(m.id).trim(),
+      titulo: validarTextoLibre(m.titulo, "motivo", {requerido: true, max: 120}),
+      mensaje: validarTextoLibre(m.mensaje, "mensaje", {requerido: true, max: 4000}),
+    });
+  });
+  return motivos;
+}
+
+// ─── GIRAS: aviso a los NO SELECCIONADOS ────────────────────────────────────
+// Recorre `gira.noSeleccionados` — la lista que el equipo de Giras arma aparte,
+// con quienes no cupieron, no fueron seleccionados o tienen algun requisito
+// pendiente — y a cada uno le envia el texto del motivo que le asignaron, mas
+// su nota individual si la tiene.
+//
+// Acepta dos clases de entrada: participantes inscritos (con `id`) y correos
+// sueltos de gente que aplico sin estar inscrita (con `correo`). No filtra por
+// estado de pago: la lista es explicita y las razones son varias.
 //
 // Se lleva registro en gira.notificadosNoSeleccionados para no volver a
 // escribirle a la misma persona cada vez que se pulsa el boton.
@@ -1340,11 +1366,14 @@ exports.notificarNoSeleccionadosGira = onCall(
         }
         const gira = giraSnap.data();
 
-        // El motivo y el mensaje se leen del documento de la gira, no de lo que
-        // mande el navegador: asi el correo siempre corresponde a lo que quedo
-        // guardado y revisado en el panel.
-        const motivo = validarTextoLibre(gira.motivoNoSeleccionados, "motivo", {requerido: true, max: 120});
-        const mensaje = validarTextoLibre(gira.mensajeNoSeleccionados, "mensaje", {requerido: true, max: 4000});
+        // Motivos y textos se leen del documento, no de lo que mande el
+        // navegador: asi lo que sale por correo es lo que quedo guardado y
+        // revisado en el panel.
+        const motivos = motivosDeGira(gira);
+        if (!motivos.size) {
+          throw new HttpsError("invalid-argument",
+              "Esta gira no tiene ningún motivo de aviso definido.");
+        }
 
         const lista = Array.isArray(gira.noSeleccionados) ? gira.noSeleccionados : [];
         if (lista.length === 0) {
@@ -1368,16 +1397,19 @@ exports.notificarNoSeleccionadosGira = onCall(
           };
         }
 
-        const resultados = await Promise.allSettled(pendientes.map(async (p) => {
+        // Quien no tenga un motivo valido no recibe nada: es preferible avisar
+        // al staff a mandarle a alguien un correo con el motivo de otro.
+        const sinMotivo = pendientes.filter((p) => !motivoDeEntrada(p, motivos));
+        const enviables = pendientes.filter((p) => motivoDeEntrada(p, motivos));
+
+        const resultados = await Promise.allSettled(enviables.map(async (p) => {
+          const motivo = motivoDeEntrada(p, motivos);
           let destinatario;
           if (p.id) {
             const participanteSnap = await db.collection("participantes").doc(p.id).get();
             if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
             destinatario = participanteSnap.data();
           } else {
-            // Correo suelto: alguien que aplico a la gira sin estar inscrito en
-            // el congreso, asi que no tiene documento en /participantes. El
-            // correo se revalida aqui — el navegador no es fuente de confianza.
             // esCorreoValido, no validarCorreo: este ultimo solo comprueba que
             // haya una arroba, y deja pasar pegados como "mailto:ana@x.com" o
             // "<ana@x.com" que rebotan despues en Brevo sin decir cual fue. Los
@@ -1394,7 +1426,11 @@ exports.notificarNoSeleccionadosGira = onCall(
             };
           }
           const resultado = await enviarCorreoNoSeleccionadoGira({
-            gira, participante: destinatario, motivo, mensaje,
+            gira,
+            participante: destinatario,
+            motivo: motivo.titulo,
+            mensaje: motivo.mensaje,
+            nota: validarTextoLibre(p.nota, "nota", {max: 1000}),
           });
           if (resultado.omitido) throw new Error("plantilla_desactivada");
           return claveNoSeleccionado(p);
@@ -1413,15 +1449,20 @@ exports.notificarNoSeleccionadosGira = onCall(
         }
 
         console.log("notificarNoSeleccionadosGira:", giraId,
-            "enviados:", enviadosIds.length, "fallidos:", fallidos);
+            "enviados:", enviadosIds.length, "fallidos:", fallidos,
+            "sin motivo:", sinMotivo.length);
+
+        const avisoSinMotivo = sinMotivo.length ?
+          ` ${sinMotivo.length} no se envió(aron) por no tener un motivo asignado.` : "";
 
         return {
           enviados: enviadosIds.length,
           fallidos,
+          sinMotivo: sinMotivo.length,
           omitidos: lista.length - pendientes.length,
           mensaje: fallidos > 0 ?
-            `Se avisó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.` :
-            `Se avisó a ${enviadosIds.length} participante(s) no seleccionado(s).`,
+            `Se avisó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.${avisoSinMotivo}` :
+            `Se avisó a ${enviadosIds.length} participante(s) no seleccionado(s).${avisoSinMotivo}`,
         };
       } catch (e) {
         if (e instanceof HttpsError) throw e;
