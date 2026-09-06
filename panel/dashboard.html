@@ -4,35 +4,57 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CONTECS — Panel Principal</title>
-  <link rel="stylesheet" href="../css/styles.css?v=20260822.1"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+  <link rel="stylesheet" href="../css/styles.css?v=20260906.1"/>
+  <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
+       sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
+       solo rozar el enlace. -->
+  <script type="speculationrules">
+  { "prefetch": [{ "where": { "href_matches": "/*modulos/*" }, "eagerness": "moderate" }] }
+  </script>
   <style>
     /* ══════════ ZONA A — HEADER ══════════ */
+    /* ── HERO invertido ──
+       Antes: bloque verde oscuro donde lo mas grande era tu propio nombre y
+       el dato vivo (la cuenta regresiva al congreso) quedaba enterrado abajo
+       en 16px. Ahora el hero es claro — el verde queda para el topbar y los
+       acentos — y el protagonista es el contador. El DOM no cambia: la
+       inversion es enteramente de grid + tipografia. */
     .header-a {
-      background: var(--verde-oscuro);
-      color: var(--blanco);
+      background: var(--blanco);
+      color: var(--gris-texto);
       border-radius: var(--radio-lg);
-      padding: 28px 24px;
+      padding: 26px 28px;
       margin-bottom: 20px;
-      box-shadow: var(--sombra-lg);
+      box-shadow: var(--sombra-md);
       position: relative;
       overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 24px;
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
       animation-delay: 0.05s;
     }
-    .header-a .saludo { font-size: 13px; opacity: 0.8; }
-    .header-a .nombre { font-size: 21px; font-weight: 700; margin: 3px 0 10px; }
-    .header-a .subtitulo-espacio {
-      font-size: 12.5px;
+    .header-a .saludo { grid-column: 1; font-size: 13px; color: var(--gris-medio); }
+    .header-a .nombre {
+      grid-column: 1;
+      font-family: var(--fuente-display);
+      font-size: 21px;
       font-weight: 600;
-      opacity: 0.75;
-      margin: -6px 0 10px;
-      letter-spacing: 0.2px;
+      letter-spacing: -0.01em;
+      margin: 2px 0 10px;
     }
-    .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* "Tu espacio CONTECS" no aporta informacion: fuera. */
+    .header-a .subtitulo-espacio { display: none; }
+    .pills { grid-column: 1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .rol-pill {
       display: inline-block;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
+      background: var(--verde-fondo);
+      border: 1px solid transparent;
+      color: var(--verde);
       padding: 4px 14px;
       border-radius: 20px;
       font-size: 12px;
@@ -52,24 +74,44 @@
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28));
     }
     .badge-verificado svg { width: 100%; height: 100%; display: block; }
-    .badge-verificado .bv-body { fill: #ffffff; }
-    .badge-verificado .bv-check { stroke: var(--verde); }
+    /* Sobre hero claro el cuerpo blanco desaparecia: se invierte. */
+    .badge-verificado .bv-body { fill: var(--verde); }
+    .badge-verificado .bv-check { stroke: #ffffff; }
 
     /* Variante dorada — exclusiva para el rol CEO */
     .badge-verificado--ceo { filter: drop-shadow(0 2px 6px rgba(184,134,47,0.55)); }
     .badge-verificado--ceo .bv-body { fill: #d4af37; }
     .badge-verificado--ceo .bv-check { stroke: #ffffff; }
+    /* La cuenta regresiva ES el dashboard: columna derecha, tipografia
+       grande y fina, numeros tabulares para que el tic de los segundos no
+       haga bailar el ancho. */
     .cuenta-regresiva {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255,255,255,0.2);
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      align-self: center;
+      justify-self: end;
+      text-align: right;
       display: flex;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
     }
-    .cuenta-regresiva .cr-label { font-size: 12px; opacity: 0.85; }
-    .cuenta-regresiva .cr-valor { font-size: 16px; font-weight: 700; }
+    .cuenta-regresiva .cr-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gris-medio);
+    }
+    .cuenta-regresiva .cr-valor {
+      font-family: var(--fuente-display);
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--verde);
+      font-variant-numeric: tabular-nums;
+    }
 
     /* ══════════ ZONA B — WIDGETS ══════════ */
     .widgets-grid {
@@ -89,10 +131,65 @@
     .widget-card:nth-child(2) { animation-delay: 0.16s; }
     .widget-card:nth-child(3) { animation-delay: 0.22s; }
     .widget-card:nth-child(4) { animation-delay: 0.28s; }
+    /* ── Luz especular (hover premium) ──
+       Dos capas por tarjeta, ambas pseudo-elementos y ambas animando SOLO
+       opacity: un anillo de borde que se enciende alrededor del cursor
+       (gradiente radial recortado con mask a 1px) y un halo interior muy
+       tenue. La posicion viaja en --mx/--my, actualizada por JS via rAF.
+       Sobre tarjetas blancas la luz blanca es invisible: aqui la luz es
+       verde CONTECS — fisica e identidad a la vez. */
+    .widget-card, .header-a { position: relative; }
+    .widget-card::before, .header-a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: radial-gradient(
+        260px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(0, 150, 62, 0.65),
+        rgba(0, 150, 62, 0.12) 45%,
+        transparent 72%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+      pointer-events: none;
+    }
+    .widget-card::after, .header-a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        320px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(0, 114, 46, 0.055),
+        transparent 62%
+      );
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+      pointer-events: none;
+    }
+    .widget-card:hover::before, .widget-card:hover::after,
+    .header-a:hover::before, .header-a:hover::after { opacity: 1; }
+    .widget-card {
+      transition: transform 0.25s var(--ease-out);
+      will-change: transform;
+    }
+    .widget-card:hover { transform: translateY(-2px); }
+
     .widget-label  { font-size: 12px; color: var(--gris-medio); margin-bottom: 4px; }
-    .widget-valor  { font-size: 19px; font-weight: 700; color: var(--verde); }
-    .widget-alerta { font-size: 19px; font-weight: 700; color: var(--rojo); }
-    .widget-ok     { font-size: 15px; font-weight: 700; color: var(--verde-claro); }
+    /* Los valores neutros van en tinta, no en verde: el color queda para el
+       significado. "Pendiente" es AMBAR — trabajo por hacer, no emergencia;
+       el rojo se reserva para lo que de verdad arde. Con dos de cuatro
+       metricas en rojo, el dashboard parecia estar siempre en crisis. */
+    .widget-valor  { font-family: var(--fuente-display); font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: var(--gris-texto); font-variant-numeric: tabular-nums; }
+    .widget-alerta { font-family: var(--fuente-display); font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: var(--amarillo); font-variant-numeric: tabular-nums; }
+    .widget-ok     { font-size: 15px; font-weight: 700; color: var(--verde); }
+    .widget-valor--marca { color: var(--verde); }
 
     /* ══════════ ZONA C — AGENDA (protagonista del home) ══════════ */
     .agenda-hoy-titulo, .agenda-proximos-titulo {
@@ -128,16 +225,45 @@
     .evento-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 11px 4px;
+      gap: 14px;
+      padding: 9px 4px;
       border-bottom: 1px solid var(--gris-borde);
       animation: cardCascade 0.35s var(--ease-out) both;
     }
     .eventos-lista .evento-item:last-child { border-bottom: none; }
-    .evento-item .evt-punto { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    /* Bloque de calendario: la fecha se LEE de un vistazo y el color del tipo
+       de evento vive en el dia de la semana. */
+    .evt-cal {
+      width: 46px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* La lista vive sobre el fondo gris de la pagina: el bloque va en
+         blanco con borde para no camuflarse. */
+      background: var(--blanco);
+      border: 1px solid var(--gris-borde);
+      border-radius: 10px;
+      padding: 6px 0 7px;
+      line-height: 1.1;
+      box-shadow: var(--sombra-sm);
+    }
+    .evt-cal-dia {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .evt-cal-num {
+      font-family: var(--fuente-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gris-texto);
+      font-variant-numeric: tabular-nums;
+    }
     .evento-item .evt-info  { flex: 1; min-width: 0; }
-    .evento-item .evt-nombre { font-size: 14px; font-weight: 500; color: var(--gris-texto); }
-    .evento-item .evt-fecha  { font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+    .evento-item .evt-nombre { font-size: 14px; font-weight: 600; color: var(--gris-texto); }
+    .evento-item .evt-fecha  { font-size: 12.5px; color: var(--gris-medio); margin-top: 2px; }
 
     .pill-en-vivo {
       background: var(--rojo-fondo);
@@ -149,11 +275,13 @@
       white-space: nowrap;
       animation: pulseSoft 1.6s ease-in-out infinite;
     }
+    /* El estado vacio es una linea discreta, no una seccion entera dedicada
+       a decir que no hay nada. */
     .sin-eventos {
-      text-align: center;
+      text-align: left;
       color: var(--gris-medio);
       font-size: 13px;
-      padding: 18px 0;
+      padding: 6px 2px 2px;
     }
 
     /* ══════════ ZONA D — MÓDULOS POR CATEGORÍA (lista limpia, sin emojis) ══════════ */
@@ -533,20 +661,20 @@
        opciones de categoría integradas como dropdowns al pasar
        el mouse. Ya no existe una segunda barra blanca debajo.
        ══════════════════════════════════════════════════════ */
+    /* Sticky ademas de ancla: un elemento sticky tambien posiciona a sus
+       hijos absolutos, asi que los dropdowns siguen colgando de el. El
+       vidrio (fondo translucido + blur) viene de styles.css; antes esta
+       regla lo apagaba y fijaba position:relative, con lo que el topbar se
+       iba con el scroll y el blur no se veia nunca. */
     .topbar {
-      background: var(--topbar-verde) !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      border-bottom: none !important;
-      color: var(--blanco) !important;
-      position: relative; /* ancla para los dropdowns de .tab-dropdown */
+      position: sticky;
+      top: 0;
       z-index: 200;
     }
-    .topbar::after,
-    .topbar::before { content: none !important; } /* sin liquid glass aquí */
+    /* Al hacer scroll el vidrio ES el efecto: solo se suma una sombra para
+       despegarlo del contenido que pasa por debajo. */
     .topbar.is-scrolled {
-      background: var(--verde-oscuro) !important;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.18) !important;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
     }
     .topbar h1 { color: var(--blanco) !important; }
 
@@ -618,36 +746,154 @@
 
       /* ── Dropdown por categoría: se despliega pegado al topbar,
          mismo tono verde, letras blancas, sin separación visual ── */
+      /* Llega OPACO y desliza — nunca se materializa translucido sobre el
+         contenido. Antes animaba max-height y padding durante 0.45s (layout,
+         repinta cada frame) con el fade desacoplado: a media transicion era
+         un fantasma ilegible sobre el hero. Ahora solo transform/opacity,
+         llegada en 0.18s y salida mas rapida que la entrada. */
       .tab-dropdown {
         position: absolute;
         top: 100%;
         left: 0;
         min-width: 220px;
-        background: var(--verde-oscuro);
+        /* El vidrio vive en .td-glass (escarcha + aberracion cromatica);
+           aqui solo queda la forma. */
+        background: transparent;
         border: 1px solid rgba(255,255,255,0.22);
         border-top: none;
         border-radius: 0 0 var(--radio) var(--radio);
-        box-shadow: var(--sombra-lg);
-        max-height: 0;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+        overflow: hidden; /* contiene el barrido de luz */
+        padding: 8px;
         opacity: 0;
-        overflow: hidden;
+        /* visibility ademas de opacity: un panel invisible con
+           backdrop-filter sigue costando GPU; hidden lo saca del
+           compositor. El retraso de 0.13s deja terminar el fade de salida. */
+        visibility: hidden;
         pointer-events: none;
-        transform: translateY(-6px);
-        padding: 0 8px;
+        transform: translateY(-8px) scale(0.98);
+        transform-origin: top center;
         transition:
-          max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-          opacity 0.28s ease-out,
-          transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-          padding 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+          opacity 0.13s var(--ease-in-out),
+          transform 0.13s var(--ease-in-out),
+          visibility 0s linear 0.13s;
       }
       .tab-wrap:hover .tab-dropdown,
       .tab-wrap:focus-within .tab-dropdown {
-        max-height: 420px;
         opacity: 1;
-        transform: translateY(0);
+        visibility: visible;
+        transform: translateY(0) scale(1);
         pointer-events: auto;
-        padding: 8px;
+        transition:
+          opacity 0.18s var(--ease-out),
+          transform 0.22s var(--ease-spring),
+          visibility 0s;
       }
+
+      /* ── Filo prismatico ──
+         El borde del cristal descompone la luz: un hilo de 1px que recorre
+         el contorno pasando del blanco calido al verde y a un cian frio.
+         Muy tenue — se percibe como calidad, no como arcoiris. */
+      .tab-dropdown::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+          130deg,
+          rgba(255, 245, 220, 0.55) 0%,
+          rgba(120, 235, 160, 0.35) 30%,
+          rgba(120, 210, 255, 0.30) 55%,
+          rgba(255, 255, 255, 0.10) 80%,
+          rgba(200, 160, 255, 0.22) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* ── Barrido prismatico al desplegar ──
+         Una banda de luz diagonal con dispersion cromatica cruza el panel
+         UNA vez al abrirse — el "choque" de la luz entrando al prisma. Se
+         reinicia solo porque el hover re-dispara la animacion. Solo
+         transform/opacity: gratis en GPU. */
+      .tab-dropdown::after {
+        content: "";
+        position: absolute;
+        top: -20%;
+        bottom: -20%;
+        left: 0;
+        width: 55%;
+        background: linear-gradient(
+          105deg,
+          transparent 0%,
+          rgba(160, 255, 200, 0.05) 30%,
+          rgba(255, 255, 255, 0.16) 48%,
+          rgba(255, 250, 230, 0.20) 52%,
+          rgba(140, 220, 255, 0.07) 70%,
+          transparent 100%
+        );
+        transform: translateX(-130%) skewX(-14deg);
+        opacity: 0;
+        pointer-events: none;
+      }
+      .tab-wrap:hover .tab-dropdown::after,
+      .tab-wrap:focus-within .tab-dropdown::after {
+        animation: barridoPrisma 0.7s var(--ease-out) 0.08s 1 both;
+      }
+      @keyframes barridoPrisma {
+        0%   { transform: translateX(-130%) skewX(-14deg); opacity: 0; }
+        18%  { opacity: 1; }
+        100% { transform: translateX(330%) skewX(-14deg); opacity: 0; }
+      }
+      /* ── Optica del cristal ──
+         El punto medio que pedia el equilibrio: escarcha DENSA, pero con el
+         fondo refractado atravesandola. Las dos muestras del fondo van muy
+         subidas de brillo y contraste precisamente porque la tinta de encima
+         es fuerte: lo que sobrevive al filtro es luz descompuesta (franja
+         calida a un lado, fria al otro), nunca texto legible. Con tinta
+         floja el fondo se veia "en plano" y barato; con tinta densa y
+         muestras timidas no se veia nada. Aqui: denso Y refractivo. */
+      .td-ab, .td-frost {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+      }
+      /* La lente: desplaza los pixeles del fondo con el campo de curvatura.
+         Va debajo de todo; las muestras cromaticas y la escarcha trabajan
+         sobre el fondo ya doblado. */
+      .td-lente {
+        position: absolute;
+        inset: -24px;
+        border-radius: inherit;
+        pointer-events: none;
+        backdrop-filter: url(#curvatura-espacio);
+        -webkit-backdrop-filter: url(#curvatura-espacio);
+      }
+      .td-ab { inset: -12px; }
+      .td-ab--calida {
+        backdrop-filter: blur(9px) saturate(2.6) hue-rotate(-45deg) brightness(1.35) contrast(1.18);
+        -webkit-backdrop-filter: blur(9px) saturate(2.6) hue-rotate(-45deg) brightness(1.35) contrast(1.18);
+        transform: translateX(3px);
+      }
+      .td-ab--fria {
+        backdrop-filter: blur(9px) saturate(2.6) hue-rotate(45deg) brightness(1.35) contrast(1.18);
+        -webkit-backdrop-filter: blur(9px) saturate(2.6) hue-rotate(45deg) brightness(1.35) contrast(1.18);
+        transform: translateX(-3px);
+        mix-blend-mode: lighten;
+      }
+      .td-frost {
+        background: rgba(3, 63, 27, 0.93);
+        backdrop-filter: blur(36px) saturate(1.7);
+        -webkit-backdrop-filter: blur(36px) saturate(1.7);
+      }
+
+      /* Las letras del menu por encima de la optica y el barrido. */
+      .tab-dropdown .modulo-btn { position: relative; z-index: 1; }
       .tab-dropdown .modulo-btn {
         display: block;
         padding: 11px 14px;
@@ -661,6 +907,8 @@
         transition: background 0.15s var(--ease-out);
       }
       .tab-dropdown .modulo-btn:hover { background: rgba(255,255,255,0.14); }
+      .tab-dropdown .modulo-btn { transition: background 0.15s var(--ease-out), transform var(--dur-tap) ease; }
+      .tab-dropdown .modulo-btn:active { transform: scale(0.97); }
       .tab-dropdown .modulo-btn .label {
         font-size: 14px;
         font-weight: 500;
@@ -675,8 +923,9 @@
         padding: 40px 48px 64px;
       }
 
-      .header-a { padding: 36px 40px; }
-      .header-a .nombre { font-size: 28px; }
+      .header-a { padding: 32px 40px; }
+      .header-a .nombre { font-size: 24px; }
+      .cuenta-regresiva .cr-valor { font-size: 36px; }
 
       .widgets-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .card { padding: 28px; }
@@ -686,6 +935,23 @@
 </head>
 
 <body>
+
+  <!-- Campo de curvatura para el vidrio del topbar: un feDisplacementMap
+       alimentado por ruido fractal MUY suave desplaza de verdad los pixeles
+       del fondo — los bordes que pasan detras del panel se curvan, como a
+       traves de una lente. Se aplica via backdrop-filter: url(#...), que es
+       territorio Chromium: donde no exista soporte, la capa simplemente no
+       hace nada y el vidrio queda como esta. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="curvatura-espacio" x="-30%" y="-30%" width="160%" height="160%"
+            color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.0028"
+                    numOctaves="1" seed="11" result="campo"/>
+      <feDisplacementMap in="SourceGraphic" in2="campo" scale="48"
+                         xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
   <div class="topbar">
     <div class="topbar-brand">
       <h1>CONTECS</h1>
@@ -1145,7 +1411,17 @@
         const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
         const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
-        el.textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+        const dd = (n) => String(n).padStart(2, "0");
+        // El contador es grande: la granularidad se gana con la cercania.
+        // A semanas vista los segundos son ruido que tiembla cada segundo;
+        // el ultimo dia si emocionan. Los ceros fijan el ancho.
+        if (dias > 0) {
+          el.textContent = `${dias}d ${dd(horas)}h ${dd(minutos)}m`;
+        } else if (horas > 0) {
+          el.textContent = `${dd(horas)}h ${dd(minutos)}m ${dd(segundos)}s`;
+        } else {
+          el.textContent = `${dd(minutos)}m ${dd(segundos)}s`;
+        }
       } else if (diferencia >= -86400000) {
         el.textContent = "¡Evento en curso!";
       } else {
@@ -1154,6 +1430,28 @@
     };
     calcularCuentaRegresiva();
     setInterval(calcularCuentaRegresiva, 1000);
+
+    // ── Luz especular: alimenta --mx/--my de cada tarjeta con la posicion
+    //    del cursor. Un solo listener delegado y coalescido via rAF: como
+    //    mucho una escritura de estilo por frame, cueste lo que cueste el
+    //    pointermove. El efecto visual completo vive en CSS.
+    (() => {
+      let pendiente = null;
+      const aplicarLuz = () => {
+        const { objetivo, x, y } = pendiente;
+        pendiente = null;
+        const r = objetivo.getBoundingClientRect();
+        objetivo.style.setProperty("--mx", `${x - r.left}px`);
+        objetivo.style.setProperty("--my", `${y - r.top}px`);
+      };
+      document.addEventListener("pointermove", (ev) => {
+        const objetivo = ev.target.closest?.(".widget-card, .header-a");
+        if (!objetivo) return;
+        const habiaPendiente = pendiente !== null;
+        pendiente = { objetivo, x: ev.clientX, y: ev.clientY };
+        if (!habiaPendiente) requestAnimationFrame(aplicarLuz);
+      }, { passive: true });
+    })();
 
     const contenido = document.getElementById("contenido-principal");
 
@@ -1221,7 +1519,7 @@
             onSnapshot(doc(db, "fondos", "principal"), (snap) => {
               const data = snap.exists() ? snap.data() : { balance: 0 };
               valEl.textContent = formatearMoneda(Number(data.balance || 0));
-              valEl.className = "widget-valor";
+              valEl.className = "widget-valor widget-valor--marca";
             }, (error) => {
               valEl.textContent = "No disponible";
               manejarErrorSnapshot(error, "fondos/principal");
@@ -1377,7 +1675,7 @@
 
             // ── Sección "Hoy" — destacada, más grande ──
             if (eventosHoy.length === 0) {
-              hoyWrap.innerHTML = `<div class="sin-eventos">No tenés eventos programados para hoy.</div>`;
+              hoyWrap.innerHTML = `<div class="sin-eventos">No tienes eventos programados para hoy.</div>`;
             } else {
               hoyWrap.innerHTML = eventosHoy.map(e => {
                 const enVivo = esEnVivo(e, true);
@@ -1401,12 +1699,20 @@
               eventosWrap.innerHTML = eventosFuturos.map(e => {
                 const fechaTexto = e._fecha.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
                 const lugarTexto = e.lugar || (e.tipo === "reunion" && e.esVirtual ? "Virtual" : "");
+                // La fecha como bloque de calendario (dia de semana + numero),
+                // con el color del tipo de evento en el dia. Antes era un
+                // puntito de 7px y la fecha diluida en el texto gris.
+                const diaSemana = e._fecha.toLocaleDateString("es-PA", { weekday: "short" }).replace(".", "");
+                const diaNum = e._fecha.getDate();
                 return `
                   <div class="evento-item">
-                    <span class="evt-punto" style="background:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}"></span>
+                    <div class="evt-cal">
+                      <span class="evt-cal-dia" style="color:${COLOR_TIPO[e.tipo] || "var(--gris-medio)"}">${escaparHtml(diaSemana)}</span>
+                      <span class="evt-cal-num">${diaNum}</span>
+                    </div>
                     <div class="evt-info">
                       <div class="evt-nombre">${escaparHtml(e.nombre || "Sin nombre")}</div>
-                      <div class="evt-fecha">${escaparHtml(fechaTexto)}${lugarTexto ? " · " + escaparHtml(lugarTexto) : ""}</div>
+                      <div class="evt-fecha">${lugarTexto ? escaparHtml(lugarTexto) : escaparHtml(fechaTexto)}</div>
                     </div>
                   </div>`;
               }).join("");
@@ -1519,7 +1825,14 @@
 
         const dropdown = document.createElement("div");
         dropdown.className = "tab-dropdown";
-        dropdown.innerHTML = cat.modulos
+        // Optica del cristal en orden de pintado: dos muestras del fondo
+        // desplazadas con el tono rotado en direcciones opuestas (la
+        // refraccion cromatica) y la escarcha densa encima que las funde.
+        // Ver el bloque CSS "Optica del cristal" para la fisica.
+        dropdown.innerHTML = `<div class="td-lente" aria-hidden="true"></div>` +
+          `<div class="td-ab td-ab--calida" aria-hidden="true"></div>` +
+          `<div class="td-ab td-ab--fria" aria-hidden="true"></div>` +
+          `<div class="td-frost" aria-hidden="true"></div>` + cat.modulos
           .map(m => `<a href="${versionarRutaUI(m.href)}" class="modulo-btn"><span class="label">${m.label}</span></a>`)
           .join("");
         wrap.appendChild(dropdown);

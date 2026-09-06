@@ -4,50 +4,61 @@
    =========================== */
 
 :root {
-  /* Paleta principal */
+  /* Paleta principal — el verde es IDENTIDAD, no fondo: vive en el topbar,
+     la accion principal y los acentos de marca. Cuanto menos aparece, mas
+     pesa cada aparicion. */
   --verde:          #00722e;
   --verde-oscuro:   #045223;
   --verde-claro:    #39b54a;
   --topbar-verde:   #033f1b;
 
   /* Derivados para profundidad */
-  --verde-fondo:    #e8f5ec;
+  --verde-fondo:    #e9f6ee;
   --verde-hover:    #005f26;
   --verde-sombra:   rgba(0, 114, 46, 0.15);
 
-  /* Neutros */
-  --gris-texto:     #1a2e1e;
-  --gris-suave:     #f4f7f5;
-  --gris-borde:     #d0dbd2;
-  --gris-medio:     #8a9e8d;
+  /* Neutros — grises PUROS. Los anteriores estaban teñidos de verde
+     (#f4f7f5, #8a9e8d...) y contaminaban todo el lienzo; el verde debe
+     venir de los elementos de marca, no del fondo. */
+  --gris-texto:     #1d1d1f;
+  --gris-suave:     #f5f5f7;
+  --gris-borde:     #e3e3e6;
+  --gris-medio:     #86868b;
   --blanco:         #ffffff;
 
-  /* Semánticos */
-  --rojo:           #c0392b;
-  --rojo-fondo:     #fdedec;
-  --amarillo:       #d4850a;
-  --amarillo-fondo: #fef9e7;
+  /* Semánticos — el rojo se reserva para emergencias reales; el trabajo
+     pendiente ("44 por revisar") es ambar. */
+  --rojo:           #d0342c;
+  --rojo-fondo:     #fdf0ef;
+  --amarillo:       #c47f17;
+  --amarillo-fondo: #fdf6e9;
   --azul-info:      #2471a3;
-  
 
-  /* Sombras */
-  --sombra-sm:      0 2px 8px rgba(0,0,0,0.07);
-  --sombra-md:      0 4px 16px rgba(0,0,0,0.10);
-  --sombra-verde:   0 4px 16px rgba(0, 114, 46, 0.18);
+  /* Sombras — difusas, de radio amplio y opacidad baja: profundidad por
+     capas, no por manchones. */
+  --sombra-sm:      0 1px 2px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.05);
+  --sombra-md:      0 2px 4px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.08);
+  --sombra-verde:   0 4px 20px rgba(0, 114, 46, 0.16);
   --sombra-eurus:   rgba(0, 6, 114, 0.18);
-
 
   /* Bordes */
   --radio:          12px;
   --radio-sm:       8px;
   --radio-lg:       16px;
 
-  --fuente: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Voz display: numeros grandes, titulos y marca. Tecnica y con caracter —
+     la voz de un congreso de computacion. El cuerpo sigue en Inter. */
+  --fuente-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
 
-  /* Animaciones */
+  /* Animaciones — cortas e interrumpibles. Mas de 400ms se siente lento
+     aunque se vea bonito. Solo transform/opacity: lo demas repinta. */
   --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-tap:        0.09s;   /* respuesta al presionar: inmediata */
+  --dur-control:    0.22s;   /* hover, foco, toggles */
+  --dur-vista:      0.32s;   /* cambios de vista y overlays */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -203,6 +214,10 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 
 /* ---- TOPBAR ---- */
 .topbar {
+  /* Vidrio institucional: verde translucido + blur con saturacion. Al hacer
+     scroll, el contenido pasa POR DETRAS difuminado — la señal "premium" mas
+     barata que existe: un backdrop-filter en un elemento sticky. El color
+     solido queda de respaldo para navegadores sin soporte. */
   background: var(--topbar-verde) !important;
   color: var(--blanco);
   padding: 10px 20px;
@@ -217,6 +232,15 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   min-width: 0;
   box-shadow: none;
   animation: topbarReveal 0.38s var(--ease-out) both;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .topbar {
+    background: rgba(3, 63, 27, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    /* Hilo de luz inferior: el borde del cristal. */
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
+  }
 }
 
 .topbar::before,
@@ -235,6 +259,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   opacity: 1; /* logo a opacidad completa, sin atenuar */
 }
 .topbar h1 {
+  font-family: var(--fuente-display);
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -724,6 +749,38 @@ tr:hover td { background: var(--verde-fondo); }
   .btn-volver { width: 36px; height: 36px; min-width: 36px; flex-basis: 36px; }
 }
 
+/* ════════════════════════════════════
+   TRANSICIONES ENTRE PÁGINAS
+   ════════════════════════════════════
+   View Transitions entre documentos: el navegador fotografia la pagina que
+   sale y la que entra y las cruza — se acaba el parpadeo blanco entre clics.
+   Navegadores sin soporte navegan como siempre, sin fallback que mantener. */
+@view-transition { navigation: auto; }
+
+/* El topbar existe en todas las paginas con el mismo nombre: el navegador lo
+   trata como EL MISMO elemento y lo deja quieto mientras el contenido de
+   abajo transiciona. Es lo que separa "una web" de "una app". */
+.topbar { view-transition-name: topbar; }
+
+::view-transition-old(root) {
+  animation: vtSalida 0.18s var(--ease-in-out) both;
+}
+::view-transition-new(root) {
+  animation: vtEntrada 0.26s var(--ease-out) both;
+}
+@keyframes vtSalida {
+  to { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes vtEntrada {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* Con la transicion de documento ya no hace falta el slide-up de llegada:
+   los dos juntos duplican el movimiento y delatan la costura. */
+@supports (view-transition-name: root) {
+  .anim-page-in { animation: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
   *, *::before, *::after {
@@ -732,6 +789,11 @@ tr:hover td { background: var(--verde-fondo); }
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+  /* Las transiciones de vista tambien: a quien marca esta preferencia le
+     pueden provocar mareo. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }
 
 @media (hover: none) and (pointer: coarse) {

@@ -1,14 +1,14 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-06T04:19:08.286193+00:00**
+- Generado: **2026-09-06T05:44:31.231145+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `60d319d5cb4b360f…`
+- Huella del proyecto: `640ff71891a83469…`
 - Archivos analizados: **161**
 - Relaciones internas tipadas: **484**
-- Símbolos detectados: **3529**
-- Llamadas detectadas: **7909**
-- IDs DOM definidos: **794**
-- Paquetes externos usados: **23**
+- Símbolos detectados: **3537**
+- Llamadas detectadas: **8114**
+- IDs DOM definidos: **795**
+- Paquetes externos usados: **26**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **14**
 - Archivos huerfanos: **65**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**9,016 tokens** · leer primero
-- `GraphCompleto.json` — ~**47,163 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**87,471 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.7%** frente al profundo
+- `GraphCompacto.json` — ~**9,474 tokens** · leer primero
+- `GraphCompleto.json` — ~**48,735 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**89,139 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.4%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -36,19 +36,19 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 - `js/core/auth.js` — riesgo 250.3 (conexiones: 124, 235 lineas)
 - `js/core/seguridad.js` — riesgo 100.4 (conexiones: 50, 40 lineas)
-- `panel/dashboard.html` — riesgo 96.2 (conexiones: 40, 1618 lineas)
+- `panel/dashboard.html` — riesgo 99.3 (conexiones: 40, 1931 lineas)
 - `js/modulos/voluntarios.js` — riesgo 70.2 (conexiones: 20, 2866 lineas)
-- `css/styles.css` — riesgo 67.7 (conexiones: 30, 774 lineas)
+- `css/styles.css` — riesgo 68.4 (conexiones: 30, 836 lineas)
 - `js/core/firebase-config.js` — riesgo 66.3 (conexiones: 33, 35 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 885 lineas)
+- `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 891 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
 - `js/core/operaciones.js` — riesgo 52.5 (conexiones: 25, 249 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
 - `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 37.5 (conexiones: 14, 947 lineas)
-- `panel/modulos/finanzas/bitacora.html` — riesgo 31.8 (conexiones: 11, 984 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 37.5 (conexiones: 14, 953 lineas)
+- `panel/modulos/finanzas/bitacora.html` — riesgo 31.9 (conexiones: 11, 990 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -354,6 +354,9 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 4 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
+- `https://fonts.googleapis.com` — usado en 36 archivo(s)
+- `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap` — usado en 36 archivo(s)
+- `https://fonts.gstatic.com` — usado en 36 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 5 archivo(s)
