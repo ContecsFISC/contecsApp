@@ -14,6 +14,10 @@
 
   /* Derivados para profundidad */
   --verde-fondo:    #e9f6ee;
+  /* Usados por dashboard (hover de modulos y eventos tipo reunion); estaban
+     referenciados sin definir desde antes del rework — var() vacia. */
+  --verde-apagado:    #4e8c63;
+  --verde-apagado-bg: rgba(255,255,255,0.14);
   --verde-hover:    #005f26;
   --verde-sombra:   rgba(0, 114, 46, 0.15);
 
@@ -228,7 +232,10 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   position: sticky;
   top: 0;
   z-index: 100;
-  isolation: isolate;
+  /* Sin isolation:isolate — sticky+z-index ya crean el contexto de apilado,
+     y por spec isolation+backdrop-filter formarian una frontera de backdrop
+     que impediria a las capas de vidrio del menu muestrear la pagina
+     (Chromium lo tolera; otros motores no tienen por que). */
   min-width: 0;
   box-shadow: none;
   animation: topbarReveal 0.38s var(--ease-out) both;
@@ -777,7 +784,11 @@ tr:hover td { background: var(--verde-fondo); }
 
 /* Con la transicion de documento ya no hace falta el slide-up de llegada:
    los dos juntos duplican el movimiento y delatan la costura. */
-@supports (view-transition-name: root) {
+/* view-transition-class llego junto a las transiciones ENTRE documentos;
+   view-transition-name existe desde las de documento unico. Con el gate viejo,
+   un navegador con la API vieja pero sin cross-document se quedaba sin
+   NINGUNA animacion de entrada. */
+@supports (view-transition-class: none) {
   .anim-page-in { animation: none; }
 }
 

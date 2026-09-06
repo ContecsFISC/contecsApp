@@ -125,7 +125,10 @@
       border-radius: var(--radio);
       padding: 16px;
       box-shadow: var(--sombra-sm);
-      animation: cardCascade 0.45s var(--ease-spring) both;
+      /* backwards, no both: con both el ultimo keyframe deja el transform
+         CLAVADO al terminar y la elevacion de hover (transition sobre
+         transform) nunca se ve — la animacion gana sobre la transicion. */
+      animation: cardCascade 0.45s var(--ease-spring) backwards;
     }
     .widget-card:nth-child(1) { animation-delay: 0.10s; }
     .widget-card:nth-child(2) { animation-delay: 0.16s; }
@@ -1727,7 +1730,7 @@
       }
 
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
-      const UI_VERSION = "20260817.3";
+      const UI_VERSION = "20260906.1";
       const versionarRutaUI = ruta => `${ruta}${ruta.includes("?") ? "&" : "?"}v=${UI_VERSION}`;
       const CATEGORIAS = [
         {
