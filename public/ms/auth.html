@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -63,7 +63,7 @@
       display: none;
     }
     .alerta.show { display: block; }
-    .alerta-error { background: #fdedec; color: #d0342c; border-left: 4px solid #d0342c; }
+    .alerta-error { background: #fdf0ef; color: #d0342c; border-left: 4px solid #d0342c; }
     .btn-volver {
       display: inline-block;
       margin-top: 20px;
@@ -87,10 +87,10 @@
     /* Transicion entre documentos: debe existir en AMBAS paginas del viaje.
        Las paginas del panel la heredan de styles.css; esta es independiente. */
     @view-transition { navigation: auto; }
-    ::view-transition-old(root) { animation: vtSalidaSolo 0.18s ease-in-out both; }
+    ::view-transition-old(root) { animation: vtSalidaSolo 0.18s cubic-bezier(0.4,0,0.2,1) both; }
     ::view-transition-new(root) { animation: vtEntradaSolo 0.26s cubic-bezier(0.25,0.46,0.45,0.94) both; }
     @keyframes vtSalidaSolo { to { opacity: 0; transform: translateY(-6px); } }
-    @keyframes vtEntradaSolo { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes vtEntradaSolo { from { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) {
       ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
     }

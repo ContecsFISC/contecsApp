@@ -1184,7 +1184,7 @@ function renderTablaGiras() {
         ? `<span style="display:block;width:100%;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
         : "",
       g.colaboracion
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#f4f7f5;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#f5f5f7;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
         : "",
       numParticipantes
         ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
@@ -1208,7 +1208,7 @@ function renderTablaGiras() {
            </span>`
         : "",
       numNotificados
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#e8f5ec;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#e9f6ee;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
              ${numNotificados} notificado${numNotificados === 1 ? "" : "s"}
            </span>`

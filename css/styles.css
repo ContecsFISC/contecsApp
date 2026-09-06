@@ -140,17 +140,6 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 }
 
 /* Aparición corta y vertical: el encabezado se siente anclado, no deslizado. */
-@keyframes topbarReveal {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -8px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 /* Entrada en cascada para cards */
 @keyframes cardCascade {
   from {
@@ -238,7 +227,6 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
      (Chromium lo tolera; otros motores no tienen por que). */
   min-width: 0;
   box-shadow: none;
-  animation: topbarReveal 0.38s var(--ease-out) both;
 }
 @supports (backdrop-filter: blur(1px)) {
   .topbar {
@@ -773,25 +761,21 @@ tr:hover td { background: var(--verde-fondo); }
   animation: vtSalida 0.18s var(--ease-in-out) both;
 }
 ::view-transition-new(root) {
-  animation: vtEntrada 0.26s var(--ease-out) both;
+  /* Solo fade: el movimiento de entrada lo pone .anim-page-in, que asi
+     funciona igual en navegaciones con transicion, en recargas y en
+     navegadores sin la API — sin gates de @supports que acierten ventanas
+     de soporte disjuntas. */
+  animation: vtEntrada 0.24s var(--ease-out) both;
 }
 @keyframes vtSalida {
   to { opacity: 0; transform: translateY(-6px); }
 }
 @keyframes vtEntrada {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; }
 }
 
 /* Con la transicion de documento ya no hace falta el slide-up de llegada:
    los dos juntos duplican el movimiento y delatan la costura. */
-/* view-transition-class llego junto a las transiciones ENTRE documentos;
-   view-transition-name existe desde las de documento unico. Con el gate viejo,
-   un navegador con la API vieja pero sin cross-document se quedaba sin
-   NINGUNA animacion de entrada. */
-@supports (view-transition-class: none) {
-  .anim-page-in { animation: none; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
   *, *::before, *::after {
