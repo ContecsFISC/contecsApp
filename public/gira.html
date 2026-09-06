@@ -228,6 +228,21 @@
 
  .footer { text-align: center; padding: 20px 16px 40px; font-size: 12px; color: var(--gris-medio); }
  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+  <style>
+    /* Transicion entre documentos: debe existir en AMBAS paginas del viaje.
+       Las paginas del panel la heredan de styles.css; esta es independiente. */
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: vtSalidaSolo 0.18s ease-in-out both; }
+    ::view-transition-new(root) { animation: vtEntradaSolo 0.26s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+    @keyframes vtSalidaSolo { to { opacity: 0; transform: translateY(-6px); } }
+    @keyframes vtEntradaSolo { from { opacity: 0; transform: translateY(10px); } }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+    }
+  </style>
 </head>
 <body>
 
