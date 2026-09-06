@@ -1,5 +1,6 @@
 const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
-const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {onDocumentUpdated, onDocumentDeleted} =
+  require("firebase-functions/v2/firestore");
 const {onInit} = require("firebase-functions/v2/core");
 const {defineSecret} = require("firebase-functions/params");
 const {initializeApp} = require("firebase-admin/app");
@@ -9,6 +10,12 @@ const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
 const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
+const {
+  generarDocId,
+  idBloqueoParticipante,
+  errorDuplicado,
+  locksQueBloquean,
+} = require("./identidad");
 const {
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
@@ -130,25 +137,21 @@ const ORIGENES_SSO_PERMITIDOS = new Set([
 ]);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-function generarDocId(cedula, correo) {
-  const ced = String(cedula || "").trim();
-  const mail = String(correo || "").trim().toLowerCase();
-  if (ced) return `c_${ced.replace(/[^a-zA-Z0-9]/g, "_")}`;
-  if (mail) return `e_${mail.replace(/[^a-zA-Z0-9]/g, "_")}`;
-  return null;
-}
-
 function generarToken() {
   return crypto.randomBytes(24).toString("hex");
 }
 
-function idBloqueoParticipante(tipo, valor) {
-  const hash = crypto.createHash("sha256")
-      .update(String(valor || "").trim().toLowerCase())
-      .digest("hex");
-  return `${tipo}_${hash}`;
-}
-
+// Un documento-lock de `identificadores_participantes` solo significa "esta
+// identidad ya está tomada" mientras el participante al que apunta siga
+// existiendo. Si alguien borró al participante (por ejemplo un registro de
+// prueba, desde la Consola), el lock quedaba huérfano y bloqueaba esa cédula y
+// ese correo PARA SIEMPRE, sin que nadie pudiera averiguar por qué: la
+// colección es `read, write: if false`, invisible desde la app y desde el panel.
+//
+// Por eso el lock ya no se toma como prueba por sí solo — se comprueba que el
+// participante referenciado exista de verdad. Si no existe, el lock está muerto
+// y se sobrescribe. Esto repara también los huérfanos que ya estuvieran ahí,
+// sin tener que limpiarlos a mano.
 async function crearParticipantesUnicos(registros) {
   const entradas = registros.map((registro) => ({
     ...registro,
@@ -158,12 +161,19 @@ async function crearParticipantesUnicos(registros) {
       db.collection("identificadores_participantes")
           .doc(idBloqueoParticipante("cedula", registro.cedula)) : null,
   }));
-  const refs = entradas.flatMap((entrada) => [
-    entrada.docRef,
-    entrada.correoRef,
-    ...(entrada.cedulaRef ? [entrada.cedulaRef] : []),
+
+  // Cada lock recuerda a qué campo y valor corresponde, para poder decir
+  // exactamente cuál chocó en vez de un "cédula o correo" ambiguo.
+  const locks = entradas.flatMap((entrada) => [
+    {ref: entrada.correoRef, campo: "correo", valor: entrada.correo},
+    ...(entrada.cedulaRef ?
+      [{ref: entrada.cedulaRef, campo: "cedula", valor: entrada.cedula}] : []),
   ]);
-  const rutas = refs.map((ref) => ref.path);
+
+  const rutas = [
+    ...entradas.map((entrada) => entrada.docRef.path),
+    ...locks.map((lock) => lock.ref.path),
+  ];
   if (new Set(rutas).size !== rutas.length) {
     throw new HttpsError(
         "already-exists",
@@ -172,13 +182,60 @@ async function crearParticipantesUnicos(registros) {
   }
 
   await db.runTransaction(async (tx) => {
-    const existentes = await tx.getAll(...refs);
-    if (existentes.some((snap) => snap.exists)) {
-      throw new HttpsError(
-          "already-exists",
-          "Ya existe una inscripción con una de estas cédulas o correos.",
-      );
+    // ── Lectura 1: los documentos de participante ──────────────────────────
+    const docSnaps = await tx.getAll(...entradas.map((e) => e.docRef));
+    const ocupado = docSnaps.findIndex((snap) => snap.exists);
+    if (ocupado !== -1) {
+      const entrada = entradas[ocupado];
+      // generarDocId deriva el id de la cédula si la hay, y del correo si no.
+      throw entrada.cedula ?
+        errorDuplicado("cedula", entrada.cedula) :
+        errorDuplicado("correo", entrada.correo);
     }
+
+    // ── Lectura 2: los locks de esas identidades ───────────────────────────
+    const lockSnaps = await tx.getAll(...locks.map((l) => l.ref));
+    const ocupados = [];
+    lockSnaps.forEach((snap, i) => {
+      if (snap.exists) {
+        ocupados.push({
+          lock: locks[i],
+          participanteId: snap.data()?.participanteId || null,
+        });
+      }
+    });
+
+    // ── Lectura 3: ¿siguen vivos los participantes que apuntan esos locks? ──
+    // Se indexa por id de documento, no por posición, para que no dependa del
+    // orden en que Firestore devuelva los snapshots.
+    const idsVivos = new Set();
+    const idsReferenciados = [
+      ...new Set(ocupados.map((o) => o.participanteId).filter(Boolean)),
+    ];
+    if (idsReferenciados.length) {
+      const objetivoSnaps = await tx.getAll(
+          ...idsReferenciados.map((id) => db.collection("participantes").doc(id)),
+      );
+      objetivoSnaps.forEach((snap) => {
+        if (snap.exists) idsVivos.add(snap.id);
+      });
+    }
+
+    const bloqueantes = locksQueBloquean(ocupados, idsVivos);
+    if (bloqueantes.length) {
+      const {lock} = bloqueantes[0];
+      throw errorDuplicado(lock.campo, lock.valor);
+    }
+
+    ocupados.forEach((o) => console.warn(
+        "crearParticipantesUnicos: lock huérfano reutilizado —",
+        o.lock.ref.path,
+        o.participanteId ?
+          `apuntaba a participantes/${o.participanteId} (ya borrado)` :
+          "sin participanteId",
+    ));
+
+    // ── Escrituras ─────────────────────────────────────────────────────────
     entradas.forEach((entrada) => {
       const bloqueo = {
         participanteId: entrada.docRef.id,
@@ -743,12 +800,21 @@ exports.registrarParticipante = onCall(
         }
         // Consulta también la colección histórica: los registros creados antes
         // de los bloqueos de identidad todavía no poseen un documento-lock.
-        const comprobacionesHistoricas = await Promise.all(
-            identidades.map((item) => db.collection("participantes")
-                .where("correo", "==", item.correo).limit(1).get()),
-        );
-        if (comprobacionesHistoricas.some((snap) => !snap.empty)) {
-          throw new HttpsError("already-exists", "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa");
+        // Se consultan los DOS campos: antes solo se miraba el correo, así que
+        // un registro antiguo con la misma cédula y otro correo pasaba como si
+        // fuera nuevo, y a la inversa el error culpaba a la cédula cuando en
+        // realidad había chocado el correo.
+        const consultas = identidades.flatMap((item) => [
+          {campo: "correo", valor: item.correo, promesa: db.collection("participantes")
+              .where("correo", "==", item.correo).limit(1).get()},
+          ...(item.cedula ? [{campo: "cedula", valor: item.cedula, promesa: db.collection("participantes")
+              .where("cedula", "==", item.cedula).limit(1).get()}] : []),
+        ]);
+        const resultados = await Promise.all(consultas.map((c) => c.promesa));
+        const choque = resultados.findIndex((snap) => !snap.empty);
+        if (choque !== -1) {
+          const {campo, valor} = consultas[choque];
+          throw errorDuplicado(campo, valor);
         }
 
         const codigos = await generarCodigos(identidades.length);
@@ -1482,6 +1548,47 @@ exports.notificarPagoAprobado = onDocumentUpdated(
           console.error("Error en aprobación en lote colegio:", e.message);
         }
       }
+    },
+);
+
+// ─── TRIGGER: liberar la identidad al borrar un participante ─────────────────
+// Los documentos de `identificadores_participantes` son los que impiden dos
+// inscripciones con la misma cédula o el mismo correo. Antes se creaban y no
+// se borraban nunca: al eliminar un participante (por ejemplo un registro de
+// prueba, desde la Consola) su cédula y su correo quedaban bloqueados para
+// siempre, y nadie podía averiguar por qué — esa colección es
+// `read, write: if false`, invisible desde la app y desde el panel.
+//
+// Este trigger libera la identidad cuando el participante desaparece. Solo
+// borra el lock si sigue apuntando a ESE participante, para no pisar uno que
+// otra inscripción ya haya reclamado legítimamente.
+exports.liberarIdentidadParticipante = onDocumentDeleted(
+    {document: "participantes/{docId}", region: "us-central1"},
+    async (event) => {
+      const borrado = event.data?.data();
+      if (!borrado) return;
+      const docId = event.params.docId;
+
+      const candidatos = [
+        borrado.correo ? idBloqueoParticipante("correo", borrado.correo) : null,
+        borrado.cedula ? idBloqueoParticipante("cedula", borrado.cedula) : null,
+      ].filter(Boolean);
+      if (!candidatos.length) return;
+
+      const liberados = [];
+      await Promise.allSettled(candidatos.map(async (lockId) => {
+        const ref = db.collection("identificadores_participantes").doc(lockId);
+        await db.runTransaction(async (tx) => {
+          const snap = await tx.get(ref);
+          if (!snap.exists) return;
+          if (snap.data()?.participanteId !== docId) return; // ya es de otro
+          tx.delete(ref);
+          liberados.push(lockId);
+        });
+      }));
+
+      console.log("liberarIdentidadParticipante:", docId,
+          "locks liberados:", liberados.length);
     },
 );
 

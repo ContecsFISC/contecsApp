@@ -6,9 +6,13 @@ import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/
 
 const functions = getFunctions(app, "us-central1");
 
+// Ojo: "already-exists" e "invalid-argument" NO se traducen aquí a propósito.
+// El servidor devuelve un mensaje que dice exactamente qué campo chocó ("ya
+// existe una inscripción con el correo X") o qué validación falló ("el campo
+// cedula es demasiado largo"). Antes se aplastaban los dos en un texto
+// genérico que decía "esta cédula o correo", y eso mandaba a buscar el
+// duplicado en el campo equivocado.
 const ERRORES_REGISTRO = {
-  "already-exists":   "Ya existe una inscripción con esta cédula o correo. Si crees que es un error, contacta al staff en congresofisc@utp.ac.pa",
-  "invalid-argument": "Revisa los datos del formulario e intenta de nuevo.",
   "internal":         "Error del servidor. Intenta de nuevo en unos segundos.",
   "unavailable":      "Sin conexión. Verifica tu internet e intenta de nuevo.",
 };
