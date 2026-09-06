@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-06T03:33:41.935630+00:00",
-  "project_fingerprint": "c4b1c3f608d4e0bc04cd63b6f3d8be80b9fa450184057a5853db2b6a3ff9c461",
+  "generated_at": "2026-09-06T04:19:08.286193+00:00",
+  "project_fingerprint": "60d319d5cb4b360f0a45a5dde573ab6cf00dcfdbfea122df147bb043e539b09b",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 159,
-    "total_edges": 482,
+    "total_files": 161,
+    "total_edges": 484,
     "total_orphans": 65,
     "total_cycles": 0,
     "total_external_packages": 23,
     "total_firestore_collections": 27,
     "total_cloud_functions": 14,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3461,
-    "total_function_calls": 7795,
-    "total_dom_ids": 792,
+    "total_symbols": 3529,
+    "total_function_calls": 7909,
+    "total_dom_ids": 794,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,12 +39,8 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "1510205a4bb3fedf9428fa1634ba72cec5d17bbe",
+    "head": "4b6435fde6d731af9cfc84ede5e2fce4555a6d53",
     "changed_files": [
-      {
-        "file": "functions/identidad.js",
-        "status": " M"
-      },
       {
         "file": "functions/index.js",
         "status": " M"
@@ -58,27 +54,27 @@
         "status": " M"
       },
       {
-        "file": "functions/test/correos-nosel.test.js",
-        "status": " D"
+        "file": "functions/templates/correo-no-seleccionado-gira.html",
+        "status": " M"
       },
       {
         "file": "js/modulos/voluntarios.js",
         "status": " M"
       },
       {
-        "file": "package.json",
+        "file": "panel/modulos/voluntariado/giras.html",
         "status": " M"
       },
       {
-        "file": "functions/test/correos.test.mjs",
+        "file": "functions/giras.js",
         "status": "??"
       },
       {
-        "file": "js/core/correos.js",
+        "file": "functions/test/giras.test.js",
         "status": "??"
       }
     ],
-    "changed_count": 9
+    "changed_count": 8
   },
   "domains": [
     {
@@ -157,18 +153,18 @@
     },
     {
       "name": "functions",
-      "file_count": 15,
+      "file_count": 17,
       "key_files": [
         "functions/index.js",
         "functions/test/correos.test.mjs",
         "functions/identidad.js",
         "functions/operaciones-qr.js",
         "functions/operaciones-financieras.js",
+        "functions/giras.js",
         "functions/test/operaciones-qr.integration.js",
         "functions/plantillas.js",
-        "functions/test/identidad.test.js",
-        "functions/test/id-bloqueo.js",
-        "functions/qr-participante.js"
+        "functions/test/giras.test.js",
+        "functions/test/identidad.test.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -193,7 +189,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 5.7,
+      "average_risk": 5.6,
       "diagnostics": 0
     },
     {
@@ -339,10 +335,10 @@
     },
     {
       "label": "js/modulos/voluntarios.js",
-      "risk_score": 68.1,
+      "risk_score": 70.2,
       "degree": 20,
       "in_cycle": false,
-      "loc": 2660
+      "loc": 2866
     },
     {
       "label": "css/styles.css",
@@ -503,6 +499,16 @@
       ]
     },
     {
+      "file": "functions/giras.js",
+      "risk": 4.4,
+      "relations": 2,
+      "purpose": "Lógica de motivos de aviso de una gira, aparte de index.js para poder probarla sin cargar las Cloud Functions (ver test/giras.test.js). Un error aquí no rompe nada visiblemente: si",
+      "exports": [
+        "motivoDeEntrada",
+        "motivosCrudosDeGira"
+      ]
+    },
+    {
       "file": "functions/identidad.js",
       "risk": 8.8,
       "relations": 4,
@@ -519,8 +525,8 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 27.0,
-      "relations": 5,
+      "risk": 29.4,
+      "relations": 6,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -544,6 +550,7 @@
         "usuarios"
       ],
       "key_neighbors": [
+        "functions/giras.js",
         "functions/identidad.js",
         "functions/operaciones-financieras.js",
         "functions/operaciones-qr.js",
@@ -598,7 +605,7 @@
     },
     {
       "file": "functions/plantillas.js",
-      "risk": 3.4,
+      "risk": 3.5,
       "relations": 1,
       "exports": [
         "aplicarPlantilla",
@@ -639,6 +646,12 @@
       "risk": 11.1,
       "relations": 5,
       "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras. Es la entrada más frágil de esa pantalla: la escribe una persona a mano, pegando de un chat o de una hoj"
+    },
+    {
+      "file": "functions/test/giras.test.js",
+      "risk": 3.1,
+      "relations": 1,
+      "purpose": "Prueba del emparejamiento persona -> motivo en el aviso de no seleccionados. Es la parte donde un fallo no se nota: no rompe nada, simplemente le llega a alguien el motivo de otra "
     },
     {
       "file": "functions/test/id-bloqueo.js",
@@ -1307,7 +1320,7 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 68.1,
+      "risk": 70.2,
       "relations": 20,
       "collections": [
         "actividades_ventas",
@@ -1609,7 +1622,7 @@
     },
     {
       "file": "panel/modulos/voluntariado/giras.html",
-      "risk": 22.5,
+      "risk": 23.1,
       "relations": 9,
       "key_neighbors": [
         "css/styles.css",
@@ -1892,7 +1905,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 267,
+      "line": 270,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -1902,5 +1915,5 @@
       }
     }
   ],
-  "estimated_tokens": 8876
+  "estimated_tokens": 9016
 }

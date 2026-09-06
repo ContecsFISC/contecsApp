@@ -97,21 +97,24 @@ let solicitudesActividad = [];
 let participantesGiraCache = [];
 let participantesGiraCargados = false;
 let participantesGiraSeleccionados = []; // [{id, nombre, cedula, codigo, categoria}]
-// Segunda lista, independiente: quienes NO van a la gira (no cupieron, no
-// fueron seleccionados o no tienen el pago aprobado). No participan en el
-// check-in; solo reciben el correo de aviso que redacta el equipo de Giras.
-let participantesNoSeleccionados = [];
 // El mismo sheet sirve para las dos listas. Esto dice a cuál está apuntando.
 let destinoSeleccionGira = "participantes"; // "participantes" | "noSeleccionados"
 
-function listaDestinoGira() {
+// Los ids ya elegidos en la lista a la que apunta el sheet. La de no
+// seleccionados mezcla participantes inscritos y correos sueltos; aquí solo
+// cuentan los primeros, que son los que el selector puede marcar.
+function idsDestinoGira() {
   return destinoSeleccionGira === "noSeleccionados" ?
-    participantesNoSeleccionados : participantesGiraSeleccionados;
+    new Set(noSeleccionados.filter(p => p.id).map(p => p.id)) :
+    new Set(participantesGiraSeleccionados.map(p => p.id));
 }
-function fijarListaDestinoGira(lista) {
-  if (destinoSeleccionGira === "noSeleccionados") participantesNoSeleccionados = lista;
-  else participantesGiraSeleccionados = lista;
+
+function conteoDestinoGira() {
+  return destinoSeleccionGira === "noSeleccionados" ?
+    noSeleccionados.filter(p => p.id).length :
+    participantesGiraSeleccionados.length;
 }
+
 const CATEGORIA_LABELS_GIRA = {
   estudiante_utp: "Est. UTP", estudiante_externo: "Est. Externo",
   academico_utp: "Académico UTP", academico_externo: "Académico Externo",
@@ -1164,9 +1167,17 @@ function renderTablaGiras() {
     const numNotificados   = (g.notificados   || []).length;
     const numNotifNoSel    = (g.notificadosNoSeleccionados || []).length;
     // El correo solo puede salir si hay a quién y hay qué decir.
-    const listoParaAvisar  = noSeleccionados.length > 0 &&
-      !!String(g.motivoNoSeleccionados || "").trim() &&
-      !!String(g.mensajeNoSeleccionados || "").trim();
+    // Compatibilidad: las giras guardadas con el formato viejo traen un motivo
+    // suelto en vez de `motivosAviso`.
+    const motivosGira = (Array.isArray(g.motivosAviso) && g.motivosAviso.length) ?
+      g.motivosAviso :
+      (String(g.motivoNoSeleccionados || "").trim() ?
+        [{id: "principal", titulo: g.motivoNoSeleccionados, mensaje: g.mensajeNoSeleccionados}] : []);
+    const idsMotivo = new Set(motivosGira.map(m => m.id));
+    const conMotivo = noSeleccionados.filter(p =>
+      idsMotivo.has(p.motivoId) || (!p.motivoId && motivosGira.length === 1));
+    const sinMotivo = noSeleccionados.length - conMotivo.length;
+    const listoParaAvisar = conMotivo.length > 0;
 
     const metaBadges = [
       g.descripcion
@@ -1184,6 +1195,11 @@ function renderTablaGiras() {
       noSeleccionados.length
         ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fdf3e6;color:#8e4b10;padding:3px 8px;border-radius:8px;">
              ${noSeleccionados.length} NO SELECCIONADO${noSeleccionados.length === 1 ? "" : "S"}
+           </span>`
+        : "",
+      sinMotivo
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fdecea;color:#a93226;padding:3px 8px;border-radius:8px;">
+             ${sinMotivo} sin motivo asignado
            </span>`
         : "",
       numNotifNoSel
@@ -1246,13 +1262,18 @@ function renderTablaGiras() {
             <span class="gp-nombre">${h(p.nombre || "(sin nombre)")}${p.codigo ? ` <span class="gp-codigo">${h(p.codigo)}</span>` : ""}</span>
             <span class="gp-estado incluido">Va a la gira${p.aprobado ? "" : " · sin pago aprobado"}</span>
           </div>`).join("")}
-          ${noSeleccionados.map(p => `
+          ${noSeleccionados.map(p => {
+            const m = motivosGira.find(x => x.id === p.motivoId) ||
+              (!p.motivoId && motivosGira.length === 1 ? motivosGira[0] : null);
+            return `
           <div class="gp-item">
             <span class="gp-nombre">${h(p.nombre || p.correo || "(sin nombre)")}${
               p.codigo ? ` <span class="gp-codigo">${h(p.codigo)}</span>` :
-              p.correo && p.nombre ? ` <span class="gp-codigo">${h(p.correo)}</span>` : ""}</span>
-            <span class="gp-estado no-incluido">NO SELECCIONADO${p.id ? "" : " · no inscrito"}</span>
-          </div>`).join("")}
+              p.correo && p.nombre ? ` <span class="gp-codigo">${h(p.correo)}</span>` : ""}${
+              p.id ? "" : ` <span class="gp-codigo">no inscrito</span>`}</span>
+            <span class="gp-estado ${m ? "no-incluido" : "sin-motivo-badge"}">${
+              m ? h(m.titulo || "Sin título") : "SIN MOTIVO ASIGNADO"}</span>
+          </div>`;}).join("")}
         </div>
       </div>` : ""}
 
@@ -1270,10 +1291,10 @@ function renderTablaGiras() {
         <button class="btn-fila notificar-no" onclick="notificarNoSeleccionados('${escaparAtributo(g.id)}')" id="btn-notificar-no-${escaparAtributo(g.id)}"
           ${listoParaAvisar ? "" : "disabled"}
           title="${listoParaAvisar ?
-            "Enviar el correo que escribiste a los no seleccionados" :
-            "Edita la gira: añade no seleccionados, escribe el motivo y el mensaje, y guarda"}">
+            `Enviar a ${conMotivo.length} persona(s) el correo de su motivo` :
+            "Edita la gira: añade no seleccionados, define motivos y asígnaselos, y guarda"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Notificar no seleccionados${noSeleccionados.length ? ` (${noSeleccionados.length})` : ""}
+          Notificar no seleccionados${conMotivo.length ? ` (${conMotivo.length})` : ""}
         </button>
         <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
@@ -1383,7 +1404,7 @@ function actualizarContadorParticipantesGira() {
   const contador = el("sheet-part-contador");
   if (!contador) return;
   const total = participantesGiraFiltrados.length;
-  const sel   = listaDestinoGira().length;
+  const sel   = conteoDestinoGira();
   const mostrando = total > participantesGiraVisibles
     ? `${participantesGiraVisibles} de ${total}`
     : String(total);
@@ -1394,7 +1415,7 @@ function actualizarContadorParticipantesGira() {
 function pintarLoteParticipantesGira() {
   const lista = el("lista-participantes-gira");
   if (!lista) return;
-  const idsSeleccionados = new Set(listaDestinoGira().map(p => p.id));
+  const idsSeleccionados = idsDestinoGira();
   const siguiente = participantesGiraFiltrados.slice(
     participantesGiraVisibles,
     participantesGiraVisibles + LOTE_PARTICIPANTES,
@@ -1446,7 +1467,7 @@ function actualizarFilaParticipanteGira(id) {
   const fila = el("lista-participantes-gira")
     ?.querySelector(`.part-item[data-id="${CSS.escape(id)}"]`);
   if (!fila) return;
-  const seleccionado = listaDestinoGira().some(p => p.id === id);
+  const seleccionado = idsDestinoGira().has(id);
   fila.classList.toggle("selected", seleccionado);
   const check = fila.querySelector(".part-item-check");
   if (check) {
@@ -1457,18 +1478,35 @@ function actualizarFilaParticipanteGira(id) {
 }
 
 function toggleParticipanteGira(id) {
-  const lista = listaDestinoGira();
-  if (lista.some(p => p.id === id)) {
-    fijarListaDestinoGira(lista.filter(p => p.id !== id));
+  const yaEsta = idsDestinoGira().has(id);
+  if (destinoSeleccionGira === "noSeleccionados") {
+    if (yaEsta) {
+      noSeleccionados = noSeleccionados.filter(p => p.id !== id);
+    } else {
+      const p = participantesGiraCache.find(x => x.id === id);
+      // Con un solo motivo definido se asigna solo: es el caso comun.
+      if (p) noSeleccionados.push({
+        origen: "participante",
+        id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
+        pagoAprobado: p.pagoAprobado === true,
+        motivoId: motivosAviso.length === 1 ? motivosAviso[0].id : "",
+        nota: "",
+      });
+    }
+    renderNoSeleccionados();
+    renderMotivos();
   } else {
-    const p = participantesGiraCache.find(x => x.id === id);
-    if (p) fijarListaDestinoGira([...lista, p]);
+    if (yaEsta) {
+      participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
+    } else {
+      const p = participantesGiraCache.find(x => x.id === id);
+      if (p) participantesGiraSeleccionados.push(p);
+    }
+    renderChipsParticipantesGira();
+    avisarParticipantesEnAmbasListas();
   }
   actualizarFilaParticipanteGira(id);
   actualizarContadorParticipantesGira();
-  renderChipsParticipantesGira();
-  renderChipsNoSeleccionados();
-  avisarParticipantesEnAmbasListas();
 }
 
 function renderChipsParticipantesGira() {
@@ -1493,40 +1531,265 @@ function renderChipsParticipantesGira() {
   }).join("");
 }
 
-// ── Correos sueltos ─────────────────────────────────────────────────────────
-// Gente que aplico a la gira sin estar inscrita en el congreso: no tiene
-// documento en /participantes, asi que no aparece en el selector. Se guardan en
-// la misma lista `noSeleccionados`, pero sin `id` y con `origen: "externo"`.
-// El parseo vive en js/core/correos.js para poder probarlo de verdad.
-let correosNoSeleccionados = []; // [{correo, nombre}]
+// ── NO SELECCIONADOS: motivos + personas ────────────────────────────────────
+// El texto del correo se escribe una vez por MOTIVO, no por persona: con 30
+// personas sin cupo, escribirlo 30 veces no es viable. Cada persona apunta a un
+// motivo y, si su caso lo necesita, lleva ademas una nota individual.
+//
+// Dos clases de entrada conviven en la misma lista:
+//   - participante inscrito -> tiene `id` (documento en /participantes)
+//   - correo suelto         -> tiene `correo` (aplico sin estar inscrito)
+let motivosAviso = [];              // [{id, titulo, mensaje}]
+let noSeleccionados = [];           // [{id|correo, nombre, codigo, motivoId, nota}]
+let marcadosLote = new Set();       // claves marcadas para asignacion en lote
 
-function renderChipsCorreosNoSeleccionados() {
-  const cont = el("gira-correos-chips");
-  if (!cont) return;
-  cont.innerHTML = correosNoSeleccionados.map(c => `
-    <span class="chip-correo" data-correo="${escaparAtributo(c.correo)}">
-      ${c.nombre ? `${h(c.nombre)} · ` : ""}${h(c.correo)}
-      <button type="button" title="Quitar" data-quitar-correo="${escaparAtributo(c.correo)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
-    </span>`).join("");
+let contadorMotivo = 0;
+function nuevoIdMotivo() {
+  contadorMotivo += 1;
+  return `m${Date.now().toString(36)}${contadorMotivo}`;
 }
 
-// Vuelca lo que haya en el campo de texto a la lista de chips. Devuelve cuantos
-// entraron, para que "Guardar gira" pueda avisar si habia texto sin procesar.
+// Identifica una entrada sin ambiguedad: por id si es participante, por correo
+// si es suelto. Debe coincidir con claveNoSeleccionado en functions/index.js.
+function claveNoSel(e) {
+  if (e?.id) return e.id;
+  const c = String(e?.correo || "").trim().toLowerCase();
+  return c ? `correo:${c}` : null;
+}
+
+function esAprobadoNoSel(e) {
+  return e?.pagoAprobado === true;
+}
+
+// ── Motivos ─────────────────────────────────────────────────────────────────
+function renderMotivos() {
+  const cont = el("gira-motivos-lista");
+  if (!cont) return;
+  if (!motivosAviso.length) {
+    cont.innerHTML = `<div class="nota-no-sel">Todavía no hay motivos. Añade al menos uno para poder avisar.</div>`;
+  } else {
+    cont.innerHTML = motivosAviso.map((m, i) => {
+      const usados = noSeleccionados.filter(p => p.motivoId === m.id).length;
+      return `
+      <div class="motivo-card" data-motivo="${escaparAtributo(m.id)}">
+        <div class="motivo-card-top">
+          <input type="text" maxlength="120" data-campo="titulo" data-motivo="${escaparAtributo(m.id)}"
+                 placeholder="Motivo ${i + 1} — ej. Cupo lleno" value="${escaparAtributo(m.titulo || "")}"/>
+          <button type="button" class="motivo-borrar" data-borrar-motivo="${escaparAtributo(m.id)}" title="Eliminar motivo">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <textarea rows="4" maxlength="4000" data-campo="mensaje" data-motivo="${escaparAtributo(m.id)}"
+                  placeholder="Texto del correo para este motivo. Deja una línea en blanco entre párrafos.">${h(m.mensaje || "")}</textarea>
+        <div class="motivo-meta">${usados} persona${usados === 1 ? "" : "s"} con este motivo${(m.mensaje || "").length ? ` · ${(m.mensaje || "").length}/4000` : ""}</div>
+      </div>`;
+    }).join("");
+  }
+  renderSelectoresMotivo();
+}
+
+el("gira-motivos-lista")?.addEventListener("input", (ev) => {
+  const campo = ev.target.dataset?.campo;
+  const id = ev.target.dataset?.motivo;
+  if (!campo || !id) return;
+  const m = motivosAviso.find(x => x.id === id);
+  if (!m) return;
+  m[campo] = ev.target.value;
+  // Solo se refresca el contador de caracteres: repintar entero aqui haria
+  // perder el foco y la posicion del cursor mientras se escribe.
+  const meta = ev.target.closest(".motivo-card")?.querySelector(".motivo-meta");
+  if (meta && campo === "mensaje") {
+    const usados = noSeleccionados.filter(p => p.motivoId === id).length;
+    meta.textContent = `${usados} persona${usados === 1 ? "" : "s"} con este motivo` +
+      (m.mensaje.length ? ` · ${m.mensaje.length}/4000` : "");
+  }
+  if (campo === "titulo") renderSelectoresMotivo();
+});
+
+el("gira-motivos-lista")?.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-borrar-motivo]");
+  if (!btn) return;
+  const id = btn.dataset.borrarMotivo;
+  const usados = noSeleccionados.filter(p => p.motivoId === id).length;
+  if (usados && !confirm(
+    `${usados} persona(s) tienen este motivo asignado. Si lo eliminas se quedan sin motivo y no recibirán correo hasta que les asignes otro.\n\n¿Eliminar de todos modos?`
+  )) return;
+  motivosAviso = motivosAviso.filter(m => m.id !== id);
+  noSeleccionados.forEach(p => { if (p.motivoId === id) p.motivoId = ""; });
+  renderMotivos();
+  renderNoSeleccionados();
+});
+
+el("btn-agregar-motivo")?.addEventListener("click", () => {
+  motivosAviso.push({ id: nuevoIdMotivo(), titulo: "", mensaje: "" });
+  renderMotivos();
+  el("gira-motivos-lista")?.querySelector(".motivo-card:last-child input")?.focus();
+});
+
+function opcionesMotivo(seleccionado) {
+  const vacia = `<option value="">— Sin motivo —</option>`;
+  return vacia + motivosAviso.map((m, i) =>
+    `<option value="${escaparAtributo(m.id)}"${m.id === seleccionado ? " selected" : ""}>${h(m.titulo || `Motivo ${i + 1}`)}</option>`
+  ).join("");
+}
+
+// Repinta los desplegables sin tocar el resto de la fila (nota, marcado).
+function renderSelectoresMotivo() {
+  el("gira-nosel-lista")?.querySelectorAll("select[data-motivo-de]").forEach(sel => {
+    const actual = sel.value;
+    sel.innerHTML = opcionesMotivo(actual);
+    sel.classList.toggle("sin-motivo", !sel.value);
+  });
+  const lote = el("gira-lote-motivo");
+  if (lote) lote.innerHTML = opcionesMotivo(lote.value);
+}
+
+// ── Personas ────────────────────────────────────────────────────────────────
+function renderNoSeleccionados() {
+  const cont  = el("gira-nosel-lista");
+  const vacio = el("gira-nosel-vacio");
+  if (!cont) return;
+
+  if (vacio) vacio.style.display = noSeleccionados.length ? "none" : "block";
+  cont.innerHTML = noSeleccionados.map(p => {
+    const clave = claveNoSel(p);
+    const quien = p.id ?
+      `<strong>${h(p.nombre || "(sin nombre)")}</strong> <span>${h(p.codigo || "")}${esAprobadoNoSel(p) ? "" : " · pago sin aprobar"}</span>` :
+      `<strong>${h(p.nombre || p.correo)}</strong> <span>${p.nombre ? h(p.correo) + " · " : ""}no inscrito</span>`;
+    return `
+    <div class="nosel-fila" data-clave="${escaparAtributo(clave)}">
+      <input type="checkbox" data-marcar="${escaparAtributo(clave)}"${marcadosLote.has(clave) ? " checked" : ""} title="Marcar para asignar en lote"/>
+      <div class="nosel-quien">${quien}</div>
+      <select data-motivo-de="${escaparAtributo(clave)}" class="${p.motivoId ? "" : "sin-motivo"}">${opcionesMotivo(p.motivoId)}</select>
+      <input type="text" class="nosel-nota" maxlength="1000" data-nota-de="${escaparAtributo(clave)}"
+             placeholder="Nota para esta persona (opcional)" value="${escaparAtributo(p.nota || "")}"/>
+      <button type="button" class="nosel-quitar" data-quitar-nosel="${escaparAtributo(clave)}" title="Quitar">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>`;
+  }).join("");
+
+  actualizarBarraLote();
+  avisarParticipantesEnAmbasListas();
+}
+
+function actualizarBarraLote() {
+  const barra = el("gira-barra-lote");
+  const conteo = el("gira-lote-conteo");
+  if (!barra) return;
+  // Solo se marcan los que estan en pantalla; los demas se olvidan.
+  const clavesVivas = new Set(noSeleccionados.map(claveNoSel));
+  marcadosLote = new Set([...marcadosLote].filter(c => clavesVivas.has(c)));
+  barra.classList.toggle("visible", marcadosLote.size > 0);
+  if (conteo) conteo.textContent = `${marcadosLote.size} marcado${marcadosLote.size === 1 ? "" : "s"}`;
+}
+
+el("gira-nosel-lista")?.addEventListener("change", (ev) => {
+  const t = ev.target;
+  if (t.dataset?.motivoDe) {
+    const p = noSeleccionados.find(x => claveNoSel(x) === t.dataset.motivoDe);
+    if (p) p.motivoId = t.value;
+    t.classList.toggle("sin-motivo", !t.value);
+    renderMotivos();
+    return;
+  }
+  if (t.dataset?.marcar) {
+    if (t.checked) marcadosLote.add(t.dataset.marcar);
+    else marcadosLote.delete(t.dataset.marcar);
+    actualizarBarraLote();
+  }
+});
+
+el("gira-nosel-lista")?.addEventListener("input", (ev) => {
+  const clave = ev.target.dataset?.notaDe;
+  if (!clave) return;
+  const p = noSeleccionados.find(x => claveNoSel(x) === clave);
+  if (p) p.nota = ev.target.value;
+});
+
+el("gira-nosel-lista")?.addEventListener("click", (ev) => {
+  const btn = ev.target.closest("[data-quitar-nosel]");
+  if (!btn) return;
+  const clave = btn.dataset.quitarNosel;
+  noSeleccionados = noSeleccionados.filter(p => claveNoSel(p) !== clave);
+  marcadosLote.delete(clave);
+  renderNoSeleccionados();
+  renderMotivos();
+  renderListaParticipantesGiraSiAbierta();
+});
+
+el("btn-asignar-lote")?.addEventListener("click", () => {
+  const motivoId = el("gira-lote-motivo").value;
+  let n = 0;
+  noSeleccionados.forEach(p => {
+    if (marcadosLote.has(claveNoSel(p))) { p.motivoId = motivoId; n += 1; }
+  });
+  marcadosLote.clear();
+  renderNoSeleccionados();
+  renderMotivos();
+  mostrarAlerta("success", `Motivo asignado a ${n} persona${n === 1 ? "" : "s"}.`);
+});
+
+// Si el selector de participantes esta abierto, refresca su estado visual.
+function renderListaParticipantesGiraSiAbierta() {
+  if (el("sheet-part")?.classList.contains("show")) renderListaParticipantesGira();
+}
+
+// Las dos listas son excluyentes: quien va a la gira no puede estar tambien
+// entre los que reciben el correo de "no fuiste seleccionado". Se avisa en vez
+// de impedirlo, para que el staff decida en cual dejarlo.
+function avisarParticipantesEnAmbasListas() {
+  const aviso = el("gira-aviso-ambas");
+  if (!aviso) return;
+  const enGira = new Set(participantesGiraSeleccionados.map(p => p.id));
+  // Los correos sueltos tambien se cruzan: pegar la lista completa de
+  // solicitantes suele incluir a gente que SI fue seleccionada. Solo se puede
+  // comparar contra el correo institucional, que es el unico que trae
+  // listarParticipantesParaGiras.
+  const correosEnGira = new Set(
+    participantesGiraSeleccionados
+      .map(p => String(p.correoInstitucional || "").trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const repetidos = noSeleccionados.filter(p =>
+    (p.id && enGira.has(p.id)) ||
+    (!p.id && correosEnGira.has(String(p.correo || "").toLowerCase()))
+  );
+  if (!repetidos.length) {
+    aviso.classList.remove("visible");
+    aviso.textContent = "";
+    return;
+  }
+  aviso.classList.add("visible");
+  aviso.textContent =
+    `${repetidos.length === 1 ? "Esta persona está" : `Estas ${repetidos.length} personas están`} ` +
+    `en las dos listas: ${repetidos.map(p => p.nombre || p.correo || p.id).join(", ")}. ` +
+    `Recibirá${repetidos.length === 1 ? "" : "n"} los dos correos. Quítal${repetidos.length === 1 ? "a" : "as"} de una.`;
+}
+
+// ── Correos sueltos ─────────────────────────────────────────────────────────
+// Gente que aplico a la gira sin estar inscrita en el congreso: no tiene
+// documento en /participantes, asi que no aparece en el selector. El parseo
+// vive en js/core/correos.js para poder probarlo de verdad.
 function absorberCorreosEscritos({silencioso = false} = {}) {
   const campo = el("gira-nosel-correos");
   const error = el("gira-correos-error");
   if (!campo || !campo.value.trim()) return { validos: 0, invalidos: 0 };
 
-  const { validos, invalidos, repetidos } = parsearListaCorreos(
-    campo.value, correosNoSeleccionados.map(c => c.correo),
-  );
-  correosNoSeleccionados = [...correosNoSeleccionados, ...validos];
+  const yaHay = noSeleccionados.filter(p => !p.id).map(p => p.correo);
+  const { validos, invalidos, repetidos } = parsearListaCorreos(campo.value, yaHay);
+  // Si solo hay un motivo, se asigna solo: es el caso comun.
+  const motivoPorDefecto = motivosAviso.length === 1 ? motivosAviso[0].id : "";
+  validos.forEach(c => noSeleccionados.push({
+    origen: "externo", correo: c.correo, nombre: c.nombre,
+    motivoId: motivoPorDefecto, nota: "",
+  }));
 
   // Lo que no se pudo interpretar se queda en el campo para poder corregirlo,
   // en vez de desaparecer sin explicacion.
   campo.value = invalidos.join("\n");
-  renderChipsCorreosNoSeleccionados();
-  avisarParticipantesEnAmbasListas();
+  renderNoSeleccionados();
+  renderMotivos();
 
   if (error) {
     if (invalidos.length) {
@@ -1547,94 +1810,6 @@ function absorberCorreosEscritos({silencioso = false} = {}) {
 
 el("btn-agregar-correos-nosel")?.addEventListener("click", () => absorberCorreosEscritos());
 
-el("gira-correos-chips")?.addEventListener("click", (ev) => {
-  const btn = ev.target.closest("[data-quitar-correo]");
-  if (!btn) return;
-  correosNoSeleccionados = correosNoSeleccionados.filter(c => c.correo !== btn.dataset.quitarCorreo);
-  renderChipsCorreosNoSeleccionados();
-  avisarParticipantesEnAmbasListas();
-});
-
-function renderChipsNoSeleccionados() {
-  const cont  = el("gira-nosel-chips");
-  const vacio = el("gira-nosel-vacio");
-  if (!cont) return;
-  // El aviso de "no hay nadie" mira las dos clases de entrada: una gira con
-  // solo correos sueltos tiene lista, aunque no tenga participantes inscritos.
-  const hayAlguien = participantesNoSeleccionados.length + correosNoSeleccionados.length > 0;
-  if (vacio) vacio.style.display = hayAlguien ? "none" : "block";
-  if (participantesNoSeleccionados.length === 0) {
-    cont.innerHTML = "";
-    return;
-  }
-  cont.innerHTML = participantesNoSeleccionados.map(p => `
-    <span class="chip-nosel" data-id="${escaparAtributo(p.id)}">
-      ${h(p.nombre || "(sin nombre)")}
-      <button type="button" title="Quitar" data-quitar-nosel="${escaparAtributo(p.id)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
-    </span>`).join("");
-}
-
-// Las dos listas son excluyentes: quien va a la gira no puede estar tambien
-// entre los que reciben el correo de "no fuiste seleccionado". Se avisa en vez
-// de impedirlo, para que el staff decida en cual dejarlo.
-function avisarParticipantesEnAmbasListas() {
-  const aviso = el("gira-aviso-ambas");
-  if (!aviso) return;
-  const enGira = new Set(participantesGiraSeleccionados.map(p => p.id));
-  // Los correos sueltos tambien se cruzan: pegar la lista completa de
-  // solicitantes suele incluir a gente que SI fue seleccionada, y esa recibiria
-  // los dos correos. Solo se puede comparar contra el correo institucional, que
-  // es el unico que trae listarParticipantesParaGiras.
-  const correosEnGira = new Set(
-    participantesGiraSeleccionados
-      .map(p => String(p.correoInstitucional || "").trim().toLowerCase())
-      .filter(Boolean)
-  );
-  const repetidos = [
-    ...participantesNoSeleccionados.filter(p => enGira.has(p.id)),
-    ...correosNoSeleccionados.filter(c => correosEnGira.has(c.correo)),
-  ];
-  if (!repetidos.length) {
-    aviso.classList.remove("visible");
-    aviso.textContent = "";
-    return;
-  }
-  aviso.classList.add("visible");
-  aviso.textContent =
-    `${repetidos.length === 1 ? "Esta persona está" : `Estas ${repetidos.length} personas están`} ` +
-    `en las dos listas: ${repetidos.map(p => p.nombre || p.correo || p.id).join(", ")}. ` +
-    `Recibirá${repetidos.length === 1 ? "" : "n"} los dos correos. Quítal${repetidos.length === 1 ? "a" : "as"} de una.`;
-}
-
-el("gira-nosel-chips")?.addEventListener("click", (ev) => {
-  const btn = ev.target.closest("[data-quitar-nosel]");
-  if (!btn) return;
-  const id = btn.dataset.quitarNosel;
-  participantesNoSeleccionados = participantesNoSeleccionados.filter(p => p.id !== id);
-  renderChipsNoSeleccionados();
-  if (destinoSeleccionGira === "noSeleccionados") actualizarFilaParticipanteGira(id);
-  actualizarContadorParticipantesGira();
-  avisarParticipantesEnAmbasListas();
-});
-
-// Contador del cuerpo del correo, para que se note el limite de 4000.
-el("gira-nosel-mensaje")?.addEventListener("input", () => {
-  const cont = el("gira-nosel-contador");
-  const largo = el("gira-nosel-mensaje").value.length;
-  if (cont) cont.textContent = largo ? ` · ${largo}/4000` : "";
-});
-
-// Un unico listener delegado para los chips, colgado una sola vez.
-el("gira-participantes-chips")?.addEventListener("click", (ev) => {
-  const btn = ev.target.closest("[data-quitar]");
-  if (!btn) return;
-  const id = btn.dataset.quitar;
-  participantesGiraSeleccionados = participantesGiraSeleccionados.filter(p => p.id !== id);
-  renderChipsParticipantesGira();
-  if (destinoSeleccionGira === "participantes") actualizarFilaParticipanteGira(id);
-  actualizarContadorParticipantesGira();
-  avisarParticipantesEnAmbasListas();
-});
 
 function abrirSheetParticipantesGira() {
   el("overlay-part")?.classList.add("show");
@@ -1757,20 +1932,22 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
     // Lista aparte: no van a la gira, solo reciben el correo de aviso. El
     // motivo y el mensaje se guardan con la gira para que la Cloud Function los
     // lea del documento y no de lo que mande el navegador.
-    noSeleccionados: [
-      ...participantesNoSeleccionados.map(p => ({
-        origen: "participante",
-        id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
-        pagoAprobado: estaAprobadoParaGira(p),
-      })),
-      // Sin `id`: no tienen documento en /participantes. La Cloud Function los
-      // distingue por eso y les escribe directo al correo.
-      ...correosNoSeleccionados.map(c => ({
-        origen: "externo", correo: c.correo, nombre: c.nombre || "",
-      })),
-    ],
-    motivoNoSeleccionados:  el("gira-nosel-motivo").value.trim(),
-    mensajeNoSeleccionados: el("gira-nosel-mensaje").value.trim(),
+    // Motivos y personas viajan juntos: la Cloud Function busca el motivo de
+    // cada quien por `motivoId` y le manda ese texto, mas su nota si la tiene.
+    motivosAviso: motivosAviso
+      .filter(m => String(m.titulo || "").trim() && String(m.mensaje || "").trim())
+      .map(m => ({ id: m.id, titulo: m.titulo.trim(), mensaje: m.mensaje.trim() })),
+    noSeleccionados: noSeleccionados.map(p => (p.id ? {
+      origen: "participante",
+      id: p.id, nombre: p.nombre || "", codigo: p.codigo || "", cedula: p.cedula || "",
+      pagoAprobado: p.pagoAprobado === true,
+      motivoId: p.motivoId || "", nota: String(p.nota || "").trim(),
+    } : {
+      // Sin `id`: no tiene documento en /participantes. La Cloud Function lo
+      // distingue por eso y le escribe directo al correo.
+      origen: "externo", correo: p.correo, nombre: p.nombre || "",
+      motivoId: p.motivoId || "", nota: String(p.nota || "").trim(),
+    })),
     activo: true, actualizadoEn: serverTimestamp(),
   };
   el("btn-guardar-gira").disabled = true;
@@ -1800,18 +1977,16 @@ function limpiarFormGira() {
   el("gira-cupo").value = "";
   el("gira-coord-nombre").value = el("gira-coord-telefono").value = el("gira-coord-correo").value = "";
   el("gira-coord-tipo").value = "";
-  el("gira-nosel-motivo").value = el("gira-nosel-mensaje").value = "";
-  el("gira-nosel-contador").textContent = "";
   editandoGiraId = null;
   participantesGiraSeleccionados = [];
-  participantesNoSeleccionados = [];
-  correosNoSeleccionados = [];
+  motivosAviso = [];
+  noSeleccionados = [];
+  marcadosLote.clear();
   el("gira-nosel-correos").value = "";
   el("gira-correos-error").classList.remove("visible");
   renderChipsParticipantesGira();
-  renderChipsNoSeleccionados();
-  renderChipsCorreosNoSeleccionados();
-  avisarParticipantesEnAmbasListas();
+  renderMotivos();
+  renderNoSeleccionados();
   el("form-gira-titulo").textContent = "Crear nueva gira";
   el("btn-cancelar-gira").style.display = "none";
 }
@@ -1843,23 +2018,33 @@ window.editarGira = function(id) {
     const vivo = participantesGiraCache.find(x => x.id === p.id);
     return { ...p, pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true };
   });
-  const noSelGuardados = g.noSeleccionados || [];
-  participantesNoSeleccionados = noSelGuardados.filter(p => p.id).map(p => {
-    const vivo = participantesGiraCache.find(x => x.id === p.id);
-    return { ...p, pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true };
+  // Formato nuevo: motivos con id. Las giras guardadas antes traian un unico
+  // motivo/mensaje suelto — se convierte aqui en un motivo con id "principal",
+  // al que van a parar las entradas que no tengan `motivoId`.
+  motivosAviso = Array.isArray(g.motivosAviso) && g.motivosAviso.length ?
+    g.motivosAviso.map(m => ({ id: m.id, titulo: m.titulo || "", mensaje: m.mensaje || "" })) :
+    (String(g.motivoNoSeleccionados || "").trim() ? [{
+      id: "principal",
+      titulo: g.motivoNoSeleccionados || "",
+      mensaje: g.mensajeNoSeleccionados || "",
+    }] : []);
+  const motivoUnico = motivosAviso.length === 1 ? motivosAviso[0].id : "";
+
+  noSeleccionados = (g.noSeleccionados || []).map(p => {
+    const vivo = p.id ? participantesGiraCache.find(x => x.id === p.id) : null;
+    return {
+      ...p,
+      motivoId: p.motivoId || motivoUnico,
+      nota: p.nota || "",
+      pagoAprobado: vivo ? vivo.pagoAprobado : p.pagoAprobado === true,
+    };
   });
-  correosNoSeleccionados = noSelGuardados
-    .filter(p => !p.id && p.correo)
-    .map(p => ({ correo: p.correo, nombre: p.nombre || "" }));
+  marcadosLote.clear();
   el("gira-nosel-correos").value = "";
   el("gira-correos-error").classList.remove("visible");
-  renderChipsCorreosNoSeleccionados();
-  el("gira-nosel-motivo").value  = g.motivoNoSeleccionados  || "";
-  el("gira-nosel-mensaje").value = g.mensajeNoSeleccionados || "";
-  el("gira-nosel-mensaje").dispatchEvent(new Event("input"));
   renderChipsParticipantesGira();
-  renderChipsNoSeleccionados();
-  avisarParticipantesEnAmbasListas();
+  renderMotivos();
+  renderNoSeleccionados();
   el("form-gira-titulo").textContent = "Editar gira";
   el("btn-cancelar-gira").style.display = "inline-flex";
   activarTab("tab-giras");
@@ -1909,29 +2094,50 @@ window.notificarGira = async function(id) {
 // no seleccionados. El motivo y el mensaje viajan en el documento de la gira,
 // no en la llamada: la Cloud Function los lee de ahí, así que lo que sale por
 // correo es exactamente lo que quedó guardado y revisado en el panel.
+// Envía a cada persona de la lista el correo del motivo que le asignaron, más
+// su nota individual si la tiene. Motivos y textos viajan en el documento de la
+// gira: la Cloud Function los lee de ahí, así que lo que sale por correo es
+// exactamente lo que quedó guardado y revisado en el panel.
 window.notificarNoSeleccionados = async function(id) {
   const btn = el(`btn-notificar-no-${id}`);
   if (!btn) return;
   const gira = giras.find(g => g.id === id);
   const lista = Array.isArray(gira?.noSeleccionados) ? gira.noSeleccionados : [];
-  const motivo = String(gira?.motivoNoSeleccionados || "").trim();
-  const mensaje = String(gira?.mensajeNoSeleccionados || "").trim();
+  const motivos = (Array.isArray(gira?.motivosAviso) && gira.motivosAviso.length) ?
+    gira.motivosAviso :
+    (String(gira?.motivoNoSeleccionados || "").trim() ?
+      [{id: "principal", titulo: gira.motivoNoSeleccionados, mensaje: gira.mensajeNoSeleccionados}] : []);
 
   if (!lista.length) {
     mostrarAlerta("warning", "Esta gira no tiene nadie en la lista de no seleccionados.");
     return;
   }
-  if (!motivo || !mensaje) {
-    mostrarAlerta("warning", "Falta el motivo o el mensaje del correo. Edita la gira y complétalos.");
+  if (!motivos.length) {
+    mostrarAlerta("warning", "Esta gira no tiene motivos de aviso. Edita la gira y define al menos uno.");
     return;
   }
 
-  const uno = lista.length === 1;
+  const idsMotivo = new Set(motivos.map(m => m.id));
+  const conMotivo = lista.filter(p => idsMotivo.has(p.motivoId) || (!p.motivoId && motivos.length === 1));
+  const sinMotivo = lista.length - conMotivo.length;
+  if (!conMotivo.length) {
+    mostrarAlerta("warning", "Nadie tiene un motivo asignado. Edita la gira y asígnaselos.");
+    return;
+  }
+
+  // Cuántos por motivo, para que el staff vea qué va a salir antes de mandar.
+  const porMotivo = motivos
+    .map(m => {
+      const n = conMotivo.filter(p => p.motivoId === m.id || (!p.motivoId && motivos.length === 1)).length;
+      return n ? `  · ${m.titulo || "(sin título)"}: ${n}` : null;
+    })
+    .filter(Boolean).join("\n");
+
   if (!confirm(
-    `Se enviará el correo a ${uno ? "1 participante" : `hasta ${lista.length} participantes`} ` +
-    `de la lista de no seleccionados de "${gira?.nombre || "esta gira"}".\n\n` +
-    `Motivo: ${motivo}\n\n` +
-    `${mensaje.slice(0, 300)}${mensaje.length > 300 ? "..." : ""}\n\n` +
+    `Se enviará el correo a hasta ${conMotivo.length} persona(s) de "${gira?.nombre || "esta gira"}",` +
+    ` cada una con el texto de su motivo:\n\n` +
+    `${porMotivo}\n\n` +
+    (sinMotivo ? `${sinMotivo} sin motivo asignado NO recibirá nada.\n` : "") +
     `Se omite a quienes ya fueron avisados. ¿Enviar?`
   )) return;
 
@@ -2631,8 +2837,8 @@ el("btn-confirmar-grupo")?.addEventListener("click", async () => {
 // Ahora cada carga se pide solo si la pagina anfitriona tiene el DOM que la
 // consume. Cada bandera lista los IDs que realmente dependen de esos datos.
 renderChipsParticipantesGira();
-renderChipsNoSeleccionados();
-renderChipsCorreosNoSeleccionados();
+renderMotivos();
+renderNoSeleccionados();
 
 const necesitaActividades  = !!(el("tabla-actividades-body") || el("filtro-actividad") || el("asig-evento"));
 const necesitaVoluntarios  = !!(el("tabla-voluntarios-body") || el("asig-voluntario"));

@@ -112,13 +112,26 @@ function textoAParrafosHtml(texto) {
 function cargarCorreoNoSeleccionadoGira(vars) {
   const raw = leer("correo-no-seleccionado-gira.html");
   const meta = parseMeta(raw);
-  const {mensaje, nombre, ...resto} = vars || {};
+  const {mensaje, nombre, nota, ...resto} = vars || {};
   const varsHtml = Object.fromEntries(
       Object.entries(resto).map(([key, value]) => [key, escaparHtml(value)]),
   );
   varsHtml.mensaje_html = textoAParrafosHtml(mensaje);
   // Los avisos a correos sueltos (gente que aplico sin estar inscrita) pueden
   // no traer nombre. En ese caso el saludo va sin el, en vez de un "Hola ,".
+  // Nota individual: solo aparece si esa persona tiene una. Se construye el
+  // bloque entero aqui para que, cuando no la haya, no quede un recuadro vacio
+  // en el correo.
+  const notaLimpia = String(nota || "").trim();
+  varsHtml.nota_html = notaLimpia ? [
+    "<tr><td style=\"background:#ffffff;padding:4px 28px 8px;\">",
+    "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"",
+    " style=\"background:#fdfaf0;border-left:3px solid #856404;border-radius:8px;\">",
+    "<tr><td style=\"padding:14px 18px;\">",
+    textoAParrafosHtml(notaLimpia).replace(/margin:0 0 14px;/g, "margin:0 0 8px;"),
+    "</td></tr></table></td></tr>",
+  ].join("") : "";
+
   const limpio = String(nombre || "").trim();
   varsHtml.saludo_html = limpio ?
     `Hola <strong>${escaparHtml(limpio)}</strong>,` :
