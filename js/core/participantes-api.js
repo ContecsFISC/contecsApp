@@ -106,10 +106,13 @@ const ERRORES_NOTIFICAR_GIRA = {
 
 // Envía el correo de notificación (punto 3 del plan de GIRAS) solo a los
 // participantes de la gira que todavía no fueron notificados.
-export async function notificarParticipantesGira(giraId) {
+// `forzar: true` vuelve a escribirle también a quien ya figura como notificado.
+// Sirve cuando la gira cambió de hora o de lugar después del primer envío, y
+// cuando un correo se dio por enviado pero nunca llegó.
+export async function notificarParticipantesGira(giraId, {forzar = false} = {}) {
   try {
     const fn = httpsCallable(functions, "notificarParticipantesGira");
-    const result = await fn({giraId});
+    const result = await fn({giraId, forzar});
     return result.data;
   } catch (error) {
     const msg = ERRORES_NOTIFICAR_GIRA[error.code] || error.message || "Error inesperado al notificar la gira.";
@@ -131,10 +134,10 @@ const ERRORES_NOTIFICAR_NO_SELECCIONADOS = {
 // tienen el pago aprobado). El motivo y el cuerpo del correo los escribe el
 // equipo de Giras en el formulario y viajan en el documento de la gira, no en
 // esta llamada. El correo no lleva credenciales ni enlace a la gira.
-export async function notificarNoSeleccionadosGira(giraId) {
+export async function notificarNoSeleccionadosGira(giraId, {forzar = false} = {}) {
   try {
     const fn = httpsCallable(functions, "notificarNoSeleccionadosGira");
-    const result = await fn({giraId});
+    const result = await fn({giraId, forzar});
     return result.data;
   } catch (error) {
     const msg = ERRORES_NOTIFICAR_NO_SELECCIONADOS[error.code] || error.message || "Error inesperado al avisar a los participantes.";

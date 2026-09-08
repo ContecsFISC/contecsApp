@@ -1296,6 +1296,18 @@ function renderTablaGiras() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Notificar no seleccionados${conMotivo.length ? ` (${conMotivo.length})` : ""}
         </button>
+        ${(g.notificados || []).length ? `
+        <button class="btn-fila notificar" onclick="reenviarGira('${escaparAtributo(g.id)}')"
+          title="Volver a enviar el correo a TODOS los participantes, incluidos los ya notificados">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+          Reenviar
+        </button>` : ""}
+        ${(g.notificadosNoSeleccionados || []).length && listoParaAvisar ? `
+        <button class="btn-fila notificar-no" onclick="reenviarNoSeleccionados('${escaparAtributo(g.id)}')"
+          title="Volver a enviar el aviso a TODOS los no seleccionados, incluidos los ya avisados">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+          Reenviar aviso
+        </button>` : ""}
         <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
           ${g.activo ? "Desactivar" : "Activar"}
@@ -2069,15 +2081,42 @@ window.eliminarGira = async function(id) {
   } catch (e) { mostrarAlerta("error", "Error: " + e.message); }
 };
 
-window.notificarGira = async function(id) {
+// Arma el texto que ve el staff cuando algún correo no salió. El motivo lo
+// devuelve la Cloud Function por destinatario: sin esto solo se veía "2 no se
+// pudo(ieron) enviar" y no había manera de saber si era un correo mal escrito,
+// la plantilla desactivada o Brevo rechazando al remitente.
+function detalleErroresEnvio(resultado) {
+  const errores = Array.isArray(resultado?.errores) ? resultado.errores : [];
+  if (!errores.length) return "";
+  const primeros = errores.slice(0, 5)
+    .map(e => `  · ${e.destinatario}: ${e.motivo}`).join("\n");
+  const resto = errores.length > 5 ? `\n  … y ${errores.length - 5} más (revisa los logs)` : "";
+  return `\n\nNo salieron:\n${primeros}${resto}`;
+}
+
+// `forzar` reenvía también a quien ya estaba marcado como notificado. Se usa
+// cuando la gira cambió después del primer envío o cuando el correo nunca llegó.
+window.notificarGira = async function(id, forzar = false) {
   const btn = el(`btn-notificar-${id}`);
   if (!btn) return;
+  const gira = giras.find(g => g.id === id);
+  const total = (gira?.participantes || []).length;
+
+  if (forzar && !confirm(
+    `Se reenviará el correo a los ${total} participante(s) de "${gira?.nombre || "esta gira"}",` +
+    ` incluidos los que ya fueron notificados antes. ¿Continuar?`
+  )) return;
+
   const textoOriginal = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "Notificando...";
+  btn.textContent = forzar ? "Reenviando..." : "Notificando...";
   try {
-    const resultado = await notificarParticipantesGira(id);
-    mostrarAlerta(resultado.enviados > 0 ? "success" : "warning", resultado.mensaje);
+    const resultado = await notificarParticipantesGira(id, { forzar });
+    const detalle = detalleErroresEnvio(resultado);
+    mostrarAlerta(
+      resultado.fallidos > 0 ? "error" : (resultado.enviados > 0 ? "success" : "warning"),
+      resultado.mensaje + detalle,
+    );
     await cargarGiras();
   } catch (e) {
     mostrarAlerta("error", "Error al notificar: " + e.message);
@@ -2085,6 +2124,8 @@ window.notificarGira = async function(id) {
     btn.textContent = textoOriginal;
   }
 };
+
+window.reenviarGira = function(id) { return window.notificarGira(id, true); };
 
 // Aviso a quienes quedaron fuera por pago sin aprobar. El correo no lleva
 // credenciales ni enlace a la gira a proposito: no fueron incluidos, asi que no
@@ -2098,7 +2139,7 @@ window.notificarGira = async function(id) {
 // su nota individual si la tiene. Motivos y textos viajan en el documento de la
 // gira: la Cloud Function los lee de ahí, así que lo que sale por correo es
 // exactamente lo que quedó guardado y revisado en el panel.
-window.notificarNoSeleccionados = async function(id) {
+window.notificarNoSeleccionados = async function(id, forzar = false) {
   const btn = el(`btn-notificar-no-${id}`);
   if (!btn) return;
   const gira = giras.find(g => g.id === id);
@@ -2138,15 +2179,21 @@ window.notificarNoSeleccionados = async function(id) {
     ` cada una con el texto de su motivo:\n\n` +
     `${porMotivo}\n\n` +
     (sinMotivo ? `${sinMotivo} sin motivo asignado NO recibirá nada.\n` : "") +
-    `Se omite a quienes ya fueron avisados. ¿Enviar?`
+    (forzar ?
+      `Se reenviará TAMBIÉN a quienes ya fueron avisados. ¿Enviar?` :
+      `Se omite a quienes ya fueron avisados. ¿Enviar?`)
   )) return;
 
   const contenidoOriginal = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = "Enviando...";
+  btn.textContent = forzar ? "Reenviando..." : "Enviando...";
   try {
-    const resultado = await notificarNoSeleccionadosGira(id);
-    mostrarAlerta(resultado.enviados > 0 ? "success" : "warning", resultado.mensaje);
+    const resultado = await notificarNoSeleccionadosGira(id, { forzar });
+    const detalle = detalleErroresEnvio(resultado);
+    mostrarAlerta(
+      resultado.fallidos > 0 ? "error" : (resultado.enviados > 0 ? "success" : "warning"),
+      resultado.mensaje + detalle,
+    );
     await cargarGiras();
   } catch (e) {
     mostrarAlerta("error", "Error al notificar: " + e.message);
@@ -2154,6 +2201,8 @@ window.notificarNoSeleccionados = async function(id) {
     btn.innerHTML = contenidoOriginal;
   }
 };
+
+window.reenviarNoSeleccionados = function(id) { return window.notificarNoSeleccionados(id, true); };
 
 el("btn-cancelar-gira")?.addEventListener("click", limpiarFormGira);
 
