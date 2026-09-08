@@ -504,7 +504,12 @@ function brevoRequestOnce(payload) {
           }
           return;
         }
-        reject(new Error(`Brevo ${res.statusCode}: ${data}`));
+        const error = new Error(`Brevo ${res.statusCode}: ${data}`);
+        // El código y el Retry-After se guardan aparte del mensaje: brevoRequest
+        // decide si reintentar mirando esto, no parseando el texto.
+        error.statusCode = res.statusCode;
+        error.retryAfter = Number(res.headers["retry-after"]) || null;
+        reject(error);
       });
     });
     req.on("timeout", () => {
@@ -517,16 +522,86 @@ function brevoRequestOnce(payload) {
   });
 }
 
+// Cuántas veces se reintenta un envío que Brevo rechazó por causas pasajeras.
+const BREVO_MAX_INTENTOS = 4;
+
+// 429 = límite de velocidad de Brevo. Es EL caso que rompía las notificaciones
+// de gira: se disparaban todos los correos a la vez, Brevo cortaba la mayoría
+// con 429, y como antes solo se reintentaba en 5xx, esos correos se daban por
+// perdidos sin que nadie se enterara. Ahora se reintenta con espera creciente,
+// respetando el Retry-After que manda el propio Brevo cuando viene.
+function esErrorPasajeroBrevo(e) {
+  if (e?.statusCode === 429) return true;
+  if (e?.statusCode >= 500) return true;
+  return /timeout|ECONNRESET|ETIMEDOUT|EAI_AGAIN|socket hang up/i.test(e?.message || "");
+}
+
 async function brevoRequest(payload) {
-  try {
-    return await brevoRequestOnce(payload);
-  } catch (e) {
-    if (/Brevo 5\d\d/.test(e.message)) {
-      await new Promise((r) => setTimeout(r, 2000));
-      return brevoRequestOnce(payload);
+  let ultimoError;
+  for (let intento = 1; intento <= BREVO_MAX_INTENTOS; intento++) {
+    try {
+      return await brevoRequestOnce(payload);
+    } catch (e) {
+      ultimoError = e;
+      if (!esErrorPasajeroBrevo(e) || intento === BREVO_MAX_INTENTOS) throw e;
+      const esperaBase = e.retryAfter ? e.retryAfter * 1000 : 1000 * (2 ** (intento - 1));
+      // Un poco de aleatoriedad para que varios envíos que chocaron a la vez no
+      // vuelvan todos exactamente en el mismo instante.
+      const espera = Math.min(esperaBase + Math.random() * 400, 20000);
+      await new Promise((r) => setTimeout(r, espera));
     }
-    throw e;
   }
+  throw ultimoError;
+}
+
+// Ejecuta `tarea` sobre cada elemento con un tope de tareas simultáneas.
+// Devuelve lo mismo que Promise.allSettled, en el orden de entrada.
+//
+// Existe porque Promise.allSettled(lista.map(...)) abre TODAS las conexiones a
+// la vez: con una gira de 40 personas eso son 40 peticiones simultáneas a
+// Brevo, que responde 429 a casi todas.
+async function enLotes(items, limite, tarea) {
+  const resultados = new Array(items.length);
+  let siguiente = 0;
+  const trabajadores = Array.from(
+      {length: Math.min(limite, items.length)},
+      async () => {
+        while (siguiente < items.length) {
+          const i = siguiente++;
+          try {
+            resultados[i] = {status: "fulfilled", value: await tarea(items[i], i)};
+          } catch (e) {
+            resultados[i] = {status: "rejected", reason: e};
+          }
+        }
+      },
+  );
+  await Promise.all(trabajadores);
+  return resultados;
+}
+
+// Cuántos correos de gira se mandan a la vez. Conservador a propósito: el
+// cuello de botella es Brevo, no la función.
+const ENVIOS_SIMULTANEOS = 4;
+
+// Resume el resultado de un lote de envíos para el log y para el panel: cuántos
+// salieron, cuántos fallaron y POR QUÉ falló cada uno. Antes solo se contaba el
+// total de fallidos y el motivo real se perdía, así que un correo mal escrito y
+// una API key vencida se veían exactamente igual desde el panel.
+function resumirEnvios(resultados, etiquetar) {
+  const enviados = [];
+  const errores = [];
+  resultados.forEach((r, i) => {
+    if (r.status === "fulfilled") {
+      enviados.push(r.value);
+      return;
+    }
+    errores.push({
+      destinatario: etiquetar(i),
+      motivo: String(r.reason?.message || r.reason || "error desconocido").slice(0, 300),
+    });
+  });
+  return {enviados, errores};
 }
 
 // Punto único de envío transaccional. `to` es un participante {email, name};
@@ -1130,6 +1205,14 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
   if (!codigo || !token || !correo) {
     throw new Error("Participante sin codigo, token o correo");
   }
+  // Misma barrera que en el aviso a no seleccionados. Sin esto, una direccion
+  // con basura pegada ("<ana@x.com", "ana@gmail.com.") llegaba tal cual a Brevo,
+  // que la rechazaba con un 400; el panel solo decia "1 no se pudo enviar" y no
+  // habia forma de saber cual de la lista era.
+  const correoLimpio = String(correo).trim().toLowerCase();
+  if (!esCorreoValido(correoLimpio)) {
+    throw new Error(`Correo no valido: ${correoLimpio || "(vacio)"}`);
+  }
 
   // Encargado de la gira, en una sola línea (nombre + rol + teléfono si hay).
   // Se arma como texto plano (no HTML) porque la plantilla lo inserta con
@@ -1161,7 +1244,10 @@ async function enviarCorreoNotificacionGira({giraId, gira, participante}) {
 
   const brevoResp = await enviarCorreoTransaccional({
     sender: CORREO_REMITENTE,
-    to: [{email: correo, name: nombre}],
+    // `name` solo si hay nombre: Brevo rechaza con 400 un destinatario cuyo
+    // name viene como cadena vacía. Es el mismo cuidado que ya tenía el aviso
+    // a no seleccionados y que aquí faltaba.
+    to: [nombre ? {email: correoLimpio, name: nombre} : {email: correoLimpio}],
     subject: plantilla.subject,
     htmlContent: plantilla.htmlContent,
     textContent: plantilla.textContent,
@@ -1250,14 +1336,24 @@ exports.notificarParticipantesGira = onCall(
           return {enviados: 0, omitidos: 0, mensaje: "Esta gira todavía no tiene participantes seleccionados."};
         }
 
+        // `forzar` reenvía a TODA la lista, incluidos los ya notificados. Hace
+        // falta cuando la gira cambió de hora o de lugar despues del primer
+        // envio, y cuando un correo se dio por enviado pero nunca llego: sin
+        // esto el boton respondia "todos ya fueron notificados" y no habia
+        // ninguna forma de volver a intentarlo desde el panel.
+        const forzar = request.data?.forzar === true;
         const yaNotificados = new Set(gira.notificados || []);
-        const pendientes = participantesGira.filter((p) => p?.id && !yaNotificados.has(p.id));
+        const pendientes = participantesGira.filter(
+            (p) => p?.id && (forzar || !yaNotificados.has(p.id)));
 
         if (pendientes.length === 0) {
           return {
             enviados: 0,
+            fallidos: 0,
+            errores: [],
             omitidos: participantesGira.length,
-            mensaje: "Todos los participantes de esta gira ya fueron notificados.",
+            mensaje: "Todos los participantes de esta gira ya fueron notificados. " +
+              "Usa \"reenviar\" si necesitas volver a mandarles el correo.",
           };
         }
 
@@ -1268,20 +1364,26 @@ exports.notificarParticipantesGira = onCall(
         // contradiria a marcarCheckpointGira, que permite el check-in sin pago
         // aprobado a proposito, y dejaria a esa persona sin recibir ningun
         // correo de los dos.
-        const resultados = await Promise.allSettled(pendientes.map(async (p) => {
+        //
+        // enLotes y no Promise.allSettled: mandar los 40 correos de una gira a
+        // la vez hacia que Brevo respondiera 429 a casi todos y se perdieran.
+        const resultados = await enLotes(pendientes, ENVIOS_SIMULTANEOS, async (p) => {
           const participanteSnap = await db.collection("participantes").doc(p.id).get();
           if (!participanteSnap.exists) throw new Error(`Participante ${p.id} ya no existe`);
           const resultado = await enviarCorreoNotificacionGira({
             giraId, gira, participante: participanteSnap.data(),
           });
-          if (resultado.omitido) throw new Error("plantilla_desactivada");
+          if (resultado.omitido) {
+            throw new Error("La plantilla correo-notificacion-gira.html está desactivada (activo: false)");
+          }
           return p.id;
-        }));
+        });
 
-        const enviadosIds = resultados
-            .filter((r) => r.status === "fulfilled")
-            .map((r) => r.value);
-        const fallidos = resultados.filter((r) => r.status === "rejected").length;
+        const {enviados: enviadosIds, errores} = resumirEnvios(
+            resultados,
+            (i) => pendientes[i]?.nombre || pendientes[i]?.codigo || pendientes[i]?.id || "(sin nombre)",
+        );
+        const fallidos = errores.length;
 
         if (enviadosIds.length > 0) {
           await giraRef.update({
@@ -1290,16 +1392,24 @@ exports.notificarParticipantesGira = onCall(
           });
         }
 
+        // El motivo de cada fallo se escribe en el log: es la única forma de
+        // distinguir un correo mal escrito de una API key vencida o de un
+        // remitente sin verificar en Brevo. Antes solo se contaba el total.
         console.log("notificarParticipantesGira:", giraId,
-            "enviados:", enviadosIds.length, "fallidos:", fallidos);
+            "enviados:", enviadosIds.length, "fallidos:", fallidos,
+            "forzado:", forzar);
+        errores.forEach((err) => {
+          console.error("notificarParticipantesGira: fallo", giraId, err.destinatario, "→", err.motivo);
+        });
 
         return {
           enviados: enviadosIds.length,
           fallidos,
+          errores,
           omitidos: participantesGira.length - pendientes.length,
           mensaje: fallidos > 0 ?
-            `Se notificó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.` :
-            `Se notificó a ${enviadosIds.length} participante(s) nuevo(s).`,
+            `Se notificó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar.` :
+            `Se notificó a ${enviadosIds.length} participante(s).`,
         };
       } catch (e) {
         if (e instanceof HttpsError) throw e;
@@ -1384,16 +1494,23 @@ exports.notificarNoSeleccionadosGira = onCall(
           };
         }
 
+        // Igual que en notificarParticipantesGira: `forzar` permite volver a
+        // escribirle a quien ya figura como avisado, para cuando el correo se
+        // dio por enviado y nunca llegó.
+        const forzar = request.data?.forzar === true;
         const yaAvisados = new Set(gira.notificadosNoSeleccionados || []);
         const pendientes = lista.filter((p) => {
           const clave = claveNoSeleccionado(p);
-          return clave && !yaAvisados.has(clave);
+          return clave && (forzar || !yaAvisados.has(clave));
         });
         if (pendientes.length === 0) {
           return {
             enviados: 0,
+            fallidos: 0,
+            errores: [],
             omitidos: lista.length,
-            mensaje: "Ya se avisó a todos los no seleccionados de esta gira.",
+            mensaje: "Ya se avisó a todos los no seleccionados de esta gira. " +
+              "Usa \"reenviar\" si necesitas volver a mandarles el correo.",
           };
         }
 
@@ -1402,7 +1519,10 @@ exports.notificarNoSeleccionadosGira = onCall(
         const sinMotivo = pendientes.filter((p) => !motivoDeEntrada(p, motivos));
         const enviables = pendientes.filter((p) => motivoDeEntrada(p, motivos));
 
-        const resultados = await Promise.allSettled(enviables.map(async (p) => {
+        // enLotes y no Promise.allSettled: ver el comentario en
+        // notificarParticipantesGira. Mandarlos todos a la vez provocaba 429 de
+        // Brevo y los correos se perdían sin dejar rastro.
+        const resultados = await enLotes(enviables, ENVIOS_SIMULTANEOS, async (p) => {
           const motivo = motivoDeEntrada(p, motivos);
           let destinatario;
           if (p.id) {
@@ -1432,14 +1552,17 @@ exports.notificarNoSeleccionadosGira = onCall(
             mensaje: motivo.mensaje,
             nota: validarTextoLibre(p.nota, "nota", {max: 1000}),
           });
-          if (resultado.omitido) throw new Error("plantilla_desactivada");
+          if (resultado.omitido) {
+            throw new Error("La plantilla correo-no-seleccionado-gira.html está desactivada (activo: false)");
+          }
           return claveNoSeleccionado(p);
-        }));
+        });
 
-        const enviadosIds = resultados
-            .filter((r) => r.status === "fulfilled")
-            .map((r) => r.value);
-        const fallidos = resultados.filter((r) => r.status === "rejected").length;
+        const {enviados: enviadosIds, errores} = resumirEnvios(
+            resultados,
+            (i) => enviables[i]?.nombre || enviables[i]?.correo || enviables[i]?.id || "(sin nombre)",
+        );
+        const fallidos = errores.length;
 
         if (enviadosIds.length > 0) {
           await giraRef.update({
@@ -1450,7 +1573,10 @@ exports.notificarNoSeleccionadosGira = onCall(
 
         console.log("notificarNoSeleccionadosGira:", giraId,
             "enviados:", enviadosIds.length, "fallidos:", fallidos,
-            "sin motivo:", sinMotivo.length);
+            "sin motivo:", sinMotivo.length, "forzado:", forzar);
+        errores.forEach((err) => {
+          console.error("notificarNoSeleccionadosGira: fallo", giraId, err.destinatario, "→", err.motivo);
+        });
 
         const avisoSinMotivo = sinMotivo.length ?
           ` ${sinMotivo.length} no se envió(aron) por no tener un motivo asignado.` : "";
@@ -1458,10 +1584,11 @@ exports.notificarNoSeleccionadosGira = onCall(
         return {
           enviados: enviadosIds.length,
           fallidos,
+          errores,
           sinMotivo: sinMotivo.length,
           omitidos: lista.length - pendientes.length,
           mensaje: fallidos > 0 ?
-            `Se avisó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar — intenta de nuevo más tarde.${avisoSinMotivo}` :
+            `Se avisó a ${enviadosIds.length} participante(s). ${fallidos} no se pudo(ieron) enviar.${avisoSinMotivo}` :
             `Se avisó a ${enviadosIds.length} participante(s) no seleccionado(s).${avisoSinMotivo}`,
         };
       } catch (e) {
