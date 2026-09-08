@@ -650,7 +650,9 @@ async function enviarCorreoPagoAprobado({docId, participante}) {
 
   const brevoResp = await enviarCorreoTransaccional({
     sender: CORREO_REMITENTE,
-    to: [{email: correo, name: nombre}],
+    // Mismo cuidado que en los correos de gira: Brevo rechaza con 400 un
+    // destinatario cuyo `name` viene vacío.
+    to: [nombre ? {email: correo, name: nombre} : {email: correo}],
     subject: plantilla.subject,
     htmlContent: plantilla.htmlContent,
     textContent: plantilla.textContent,

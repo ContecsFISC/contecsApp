@@ -1,28 +1,11 @@
 {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "name": "contecs-app",
+  "description": "Aplicación web y configuración de CONTECS",
   "scripts": {
-    "lint": "eslint .",
-    "test:qr": "firebase emulators:exec --only firestore \"node test/operaciones-qr.integration.js\"",
-    "serve": "firebase emulators:start --only functions",
-    "shell": "firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "diag:correo": "node test/diagnostico-correo.js",
-    "test": "node test/identidad.test.js && node test/giras.test.js && node test/correos.test.mjs"
+    "lint": "npm --prefix functions run lint",
+    "emulators": "firebase emulators:start",
+    "deploy": "firebase deploy --only functions,hosting,firestore,storage"
   },
-  "engines": {
-    "node": "22"
-  },
-  "main": "index.js",
-  "dependencies": {
-    "firebase-admin": "^14.2.0",
-    "firebase-functions": "^7.3.2"
-  },
-  "devDependencies": {
-    "eslint": "^8.15.0",
-    "eslint-config-google": "^0.14.0"
-  },
-  "private": true
+  "private": true,
+  "type": "module"
 }

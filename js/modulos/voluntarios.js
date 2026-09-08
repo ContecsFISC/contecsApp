@@ -177,11 +177,63 @@ function mostrarAlerta(tipo, msg, duracion = 5000) {
   };
   const c = colores[tipo] || colores.success;
   const toast = document.createElement("div");
-  toast.style.cssText = `background:${c.bg};color:${c.color};border-left:4px solid ${c.border};border-radius:8px;padding:12px 16px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,0.15);opacity:1;transition:opacity 0.3s;`;
+  // white-space:pre-line para que los mensajes de varias líneas (el detalle de
+  // los correos que no salieron, por ejemplo) se lean como una lista y no como
+  // un párrafo pegado.
+  toast.style.cssText = `background:${c.bg};color:${c.color};border-left:4px solid ${c.border};border-radius:8px;padding:12px 16px;font-size:13px;font-weight:500;white-space:pre-line;box-shadow:0 4px 16px rgba(0,0,0,0.15);opacity:1;transition:opacity 0.3s;`;
   toast.textContent = msg;
   contenedor.appendChild(toast);
   if (duracion > 0) {
     setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 320); }, duracion);
+  }
+}
+
+// ─── LECTURA DE FIRESTORE CON ERRORES VISIBLES ───────────────────────────────
+// Todas las cargas de este panel hacían `catch { lista = []; }`. El resultado
+// era que un fallo de red se veía EXACTAMENTE igual que una colección vacía:
+// la pantalla decía "sin registros" y los botones que dependen de esos datos
+// salían deshabilitados. El caso real que lo destapó fue un bloqueador de
+// anuncios cortando firestore.googleapis.com (ERR_BLOCKED_BY_CLIENT): las giras
+// seguían en la base de datos, pero el panel las pintaba sin participantes y
+// "Notificar" no se activaba nunca.
+
+function pistaDeErrorDeRed(e) {
+  const texto = `${e?.code || ""} ${e?.message || ""}`.toLowerCase();
+  if (/unavailable|failed to fetch|network|blocked|offline|deadline/.test(texto)) {
+    return " Suele ser un bloqueador de anuncios o una extensión de privacidad " +
+      "cortando firestore.googleapis.com. Prueba en una ventana de incógnito o " +
+      "permite ese dominio, y revisa tu conexión.";
+  }
+  if (/permission-denied/.test(texto)) {
+    return " Tu usuario no tiene permiso de lectura sobre esos datos.";
+  }
+  return "";
+}
+
+// Cuando Firestore está bloqueado fallan TODAS las cargas a la vez. Sin este
+// tope saldrían seis alertas idénticas al abrir el panel.
+let ultimoAvisoDeCarga = 0;
+function avisarFalloDeCarga(etiqueta, e) {
+  console.error(`No se pudo cargar ${etiqueta}:`, e);
+  const ahora = Date.now();
+  if (ahora - ultimoAvisoDeCarga < 4000) return;
+  ultimoAvisoDeCarga = ahora;
+  mostrarAlerta("error",
+    `No se pudieron cargar ${etiqueta}: ${e?.message || e}.${pistaDeErrorDeRed(e)}\n` +
+    `Lo que veas vacío está así por el error, no porque no haya datos — ` +
+    `no borres ni vuelvas a crear nada hasta resolverlo.`,
+    12000);
+}
+
+// Devuelve [] si falla, pero avisando. Los llamadores siguen tratando el
+// resultado como una lista normal.
+async function leerDocs(consulta, etiqueta) {
+  try {
+    const snap = await getDocs(consulta);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    avisarFalloDeCarga(etiqueta, e);
+    return [];
   }
 }
 
@@ -255,12 +307,9 @@ aplicarPermisosTab();
 // ════════════════════════════════════════════════════════════
 
 async function cargarActividades() {
-  try {
-    const snap = await getDocs(query(collection(db, "actividades_voluntarios"), orderBy("creadoEn", "desc")));
-    actividades = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch {
-    actividades = [];
-  }
+  actividades = await leerDocs(
+    query(collection(db, "actividades_voluntarios"), orderBy("creadoEn", "desc")),
+    "las actividades");
   renderTablaActividades();
   renderSelectorActividades();
   renderFiltroActividades();
@@ -431,12 +480,8 @@ el("btn-cancelar-actividad")?.addEventListener("click", limpiarFormActividad);
 
 // ─── AUTOCOMPLETE: SOLICITUDES DE ACTIVIDAD ───────────────────────────────────
 async function cargarSolicitudesAutocomplete() {
-  try {
-    const snap = await getDocs(collection(db, "solicitudes_actividad"));
-    solicitudesActividad = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch {
-    solicitudesActividad = [];
-  }
+  solicitudesActividad = await leerDocs(
+    collection(db, "solicitudes_actividad"), "las solicitudes de actividad");
 }
 
 (function iniciarAutocompleteSolicitud() {
@@ -659,12 +704,9 @@ el("modal-preview-close")?.addEventListener("click", () => el("modal-preview").c
 async function cargarVoluntarios() {
   const spVol = el("voluntarios-spinner");
   if (spVol) spVol.style.display = "flex";
-  try {
-    const snap = await getDocs(query(collection(db, "voluntarios"), orderBy("creadoEn", "desc")));
-    voluntarios = snap.docs.map(d => ({ id: d.id, ...d.data(), _docId: d.id }));
-  } catch {
-    voluntarios = [];
-  }
+  voluntarios = (await leerDocs(
+    query(collection(db, "voluntarios"), orderBy("creadoEn", "desc")),
+    "los voluntarios")).map(v => ({ ...v, _docId: v.id }));
   if (spVol) spVol.style.display = "none";
   renderVoluntarios();
   actualizarStats();
@@ -1022,16 +1064,12 @@ async function cargarAsistencias() {
   const spAsist = el("asistencias-spinner");
   if (spAsist) spAsist.style.display = "flex";
 
-  try {
-    let q = actividadId
-      ? query(collection(db, "asistencias_voluntarios"), where("actividadId", "==", actividadId), orderBy("creadoEn", "desc"))
-      : query(collection(db, "asistencias_voluntarios"), orderBy("creadoEn", "desc"));
-    const snap = await getDocs(q);
-    asistenciasCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (turnoId) asistenciasCache = asistenciasCache.filter(a => a.turnoId === turnoId);
-  } catch {
-    asistenciasCache = [];
-  }
+  const consulta = actividadId
+    ? query(collection(db, "asistencias_voluntarios"), where("actividadId", "==", actividadId), orderBy("creadoEn", "desc"))
+    : query(collection(db, "asistencias_voluntarios"), orderBy("creadoEn", "desc"));
+  asistenciasCache = await leerDocs(consulta, "las asistencias");
+  if (turnoId) asistenciasCache = asistenciasCache.filter(a => a.turnoId === turnoId);
+
   renderTablaAsistencias(asistenciasCache);
   if (spAsist) spAsist.style.display = "none";
 }
@@ -1125,10 +1163,9 @@ function activarTab(tabId) {
 // ════════════════════════════════════════════════════════════
 
 async function cargarGiras() {
-  try {
-    const snap = await getDocs(query(collection(db, "giras_voluntarios"), orderBy("creadoEn", "desc")));
-    giras = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch { giras = []; }
+  giras = await leerDocs(
+    query(collection(db, "giras_voluntarios"), orderBy("creadoEn", "desc")),
+    "las giras");
   renderTablaGiras();
 }
 
@@ -1283,10 +1320,12 @@ function renderTablaGiras() {
           Editar
         </button>
         <button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
-          ${(g.participantes || []).length ? "" : "disabled"}
-          title="Notificar participantes por correo">
+          ${numParticipantes ? "" : "disabled"}
+          title="${numParticipantes ?
+            `Enviar el correo de la gira a ${numParticipantes} participante(s)` :
+            "Deshabilitado: esta gira no tiene participantes guardados. Edítala, selecciónalos y guarda. Si sabes que sí los tenía, revisa que un bloqueador no esté cortando Firestore."}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          Notificar
+          Notificar${numParticipantes ? ` (${numParticipantes})` : ""}
         </button>
         <button class="btn-fila notificar-no" onclick="notificarNoSeleccionados('${escaparAtributo(g.id)}')" id="btn-notificar-no-${escaparAtributo(g.id)}"
           ${listoParaAvisar ? "" : "disabled"}
@@ -1965,17 +2004,44 @@ el("btn-guardar-gira")?.addEventListener("click", async () => {
   el("btn-guardar-gira").disabled = true;
   el("btn-guardar-gira").textContent = "Guardando...";
   try {
+    // Con la red cortada (bloqueador, wifi caído) el SDK de Firestore encola la
+    // escritura y la promesa se queda pendiente para siempre: el botón se
+    // quedaba en "Guardando..." sin decir nada y el staff creía que había
+    // guardado. El tope corta esa espera y avisa.
+    const conTope = (promesa) => Promise.race([
+      promesa,
+      new Promise((_, rechazar) => setTimeout(
+        () => rechazar(new Error("La escritura no respondió en 20 s")), 20000)),
+    ]);
+
     if (editandoGiraId) {
-      await updateDoc(doc(db, "giras_voluntarios", editandoGiraId), data);
+      // Se limpia de `notificados` a quien ya no está en la lista. Si no, al
+      // sacar a alguien y volver a añadirlo más tarde su id seguía marcado como
+      // notificado y nunca recibía el correo de la nueva selección.
+      const idsActuales = new Set(data.participantes.map(p => p.id));
+      const clavesActuales = new Set(data.noSeleccionados
+        .map(p => p.id || (p.correo ? `correo:${String(p.correo).toLowerCase()}` : null))
+        .filter(Boolean));
+      const giraPrevia = giras.find(g => g.id === editandoGiraId) || {};
+      data.notificados = (giraPrevia.notificados || []).filter(id => idsActuales.has(id));
+      data.notificadosNoSeleccionados =
+        (giraPrevia.notificadosNoSeleccionados || []).filter(c => clavesActuales.has(c));
+
+      await conTope(updateDoc(doc(db, "giras_voluntarios", editandoGiraId), data));
       mostrarAlerta("success", "Gira actualizada.");
     } else {
       data.creadoEn = serverTimestamp(); data.creadoPor = auth.currentUser?.uid || "";
       data.turnos   = [];
-      await addDoc(collection(db, "giras_voluntarios"), data);
+      await conTope(addDoc(collection(db, "giras_voluntarios"), data));
       mostrarAlerta("success", "Gira creada correctamente.");
     }
     limpiarFormGira(); await cargarGiras();
-  } catch (e) { mostrarAlerta("error", "Error al guardar: " + e.message); }
+  } catch (e) {
+    mostrarAlerta("error",
+      `Error al guardar: ${e.message}.${pistaDeErrorDeRed(e)}\n` +
+      `NO se limpió el formulario: corrige el problema y vuelve a pulsar Guardar.`,
+      12000);
+  }
   el("btn-guardar-gira").disabled = false;
   el("btn-guardar-gira").textContent = "Guardar gira";
 });
@@ -2211,10 +2277,9 @@ el("btn-cancelar-gira")?.addEventListener("click", limpiarFormGira);
 // ════════════════════════════════════════════════════════════
 
 async function cargarVentas() {
-  try {
-    const snap = await getDocs(query(collection(db, "actividades_ventas"), orderBy("creadoEn", "desc")));
-    ventas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch { ventas = []; }
+  ventas = await leerDocs(
+    query(collection(db, "actividades_ventas"), orderBy("creadoEn", "desc")),
+    "las actividades de venta");
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2224,10 +2289,9 @@ async function cargarVentas() {
 async function cargarAsignaciones() {
   const spAsig = el("asignaciones-spinner");
   if (spAsig) spAsig.style.display = "flex";
-  try {
-    const snap = await getDocs(query(collection(db, "asignaciones_voluntarios"), orderBy("creadoEn", "desc")));
-    asignaciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch { asignaciones = []; }
+  asignaciones = await leerDocs(
+    query(collection(db, "asignaciones_voluntarios"), orderBy("creadoEn", "desc")),
+    "las asignaciones");
   if (spAsig) spAsig.style.display = "none";
   renderTablaAsignaciones();
   actualizarStatsAsignaciones();
