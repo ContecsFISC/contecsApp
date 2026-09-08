@@ -71,14 +71,22 @@ function cargarCorreoPagoAprobado(vars) {
 function cargarCorreoNotificacionGira(vars) {
   const raw = leer("correo-notificacion-gira.html");
   const meta = parseMeta(raw);
+  const {nombre, ...resto} = vars || {};
   const varsHtml = Object.fromEntries(
-      Object.entries(vars || {}).map(([key, value]) => [key, escaparHtml(value)]),
+      Object.entries(resto).map(([key, value]) => [key, escaparHtml(value)]),
   );
+  // Igual que en el aviso a no seleccionados: si el participante no tiene
+  // nombre guardado, el correo decía literalmente "Hola ,". El saludo se arma
+  // aqui para que en ese caso quede solo "Hola,".
+  const limpio = String(nombre || "").trim();
+  varsHtml.saludo_html = limpio ?
+    `Hola <strong>${escaparHtml(limpio)}</strong>,` :
+    "Hola,";
   const htmlContent = aplicarPlantilla(raw, varsHtml);
 
   return {
     activo: meta.activo,
-    subject: aplicarPlantilla(meta.subject, vars),
+    subject: aplicarPlantilla(meta.subject, resto),
     htmlContent,
     textContent: htmlATexto(htmlContent),
   };
