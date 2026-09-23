@@ -46,6 +46,13 @@ export const PERMISOS = {
   aprobar_gastos:    ["junta_principal","ceo"],
   exportar_datos:    ["junta_principal","ceo"],
   gestionar_usuarios:   ["junta_principal","ceo"],
+  // Solo CEO: borrar cuentas y el buscador/filtro por rol del módulo Usuarios.
+  // "eliminar_usuarios" debe reflejar ROLES_ELIMINAR_USUARIOS en functions/eliminaciones.js.
+  eliminar_usuarios:    ["ceo"],
+  filtrar_usuarios:     ["ceo"],
+  // Debe reflejar ROLES_ELIMINAR_PARTICIPANTES en functions/eliminaciones.js.
+  eliminar_participantes: ["ceo", "junta_principal"],
+  exportar_participantes: ["ceo", "junta_principal"],
   gestionar_inscripciones: ["ceo", "staff_contecs"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],

@@ -77,7 +77,36 @@
  margin-bottom: 12px;
  }
  .contador strong { color: #00722e; }
- 
+
+ .busqueda-bar {
+ display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+ }
+ .busqueda-bar input, .busqueda-bar select {
+ padding: 8px 12px;
+ border: 1.5px solid #e3e3e6;
+ border-radius: 8px;
+ font-size: 13px;
+ font-family: inherit;
+ color: #1d1d1f;
+ background: #fff;
+ }
+ .busqueda-bar[hidden] { display: none; }
+ .busqueda-bar input { flex: 1; min-width: 200px; }
+ .busqueda-bar input:focus, .busqueda-bar select:focus { outline: none; border-color: #00722e; }
+ .btn-eliminar-usuario {
+ flex-shrink: 0;
+ width: 36px; height: 36px;
+ display: inline-flex; align-items: center; justify-content: center;
+ border-radius: 8px;
+ border: 1.5px solid var(--rojo-fondo, #fdecea);
+ background: var(--rojo-fondo, #fdecea);
+ color: var(--rojo, #c0392b);
+ cursor: pointer;
+ transition: background 0.15s, color 0.15s;
+ }
+ .btn-eliminar-usuario:hover { background: var(--rojo, #c0392b); color: #fff; }
+ .btn-eliminar-usuario:disabled { opacity: 0.4; cursor: not-allowed; }
+
  .btn-volver {
  display: inline-flex;
  align-items: center;
@@ -105,6 +134,9 @@
    .usuario-card.con-rol { border-top-color:var(--verde-claro); }
    .usuario-card.sin-rol { border-top-color:var(--amarillo); }
    .rol-select { grid-column:1 / -1; width:100%; min-height:42px; font-size:16px; }
+   .btn-eliminar-usuario { grid-column:1 / -1; width:100%; height:40px; gap:6px; }
+   .btn-eliminar-usuario::after { content:"Eliminar usuario"; font-size:13px; font-weight:600; }
+   .busqueda-bar input, .busqueda-bar select { flex:1 1 100%; min-width:0; font-size:16px; min-height:42px; }
    .guardando { grid-column:1 / -1; }
    .filtros { flex-wrap:nowrap; overflow-x:auto; padding-bottom:5px; scrollbar-width:none; }
    .filtros::-webkit-scrollbar { display:none; }
@@ -132,6 +164,13 @@
  <button class="filtro-btn activo" data-filtro="todos">Todos</button>
  <button class="filtro-btn" data-filtro="sin_rol">Sin rol</button>
  <button class="filtro-btn" data-filtro="con_rol"> Con rol</button>
+ </div>
+
+ <div class="busqueda-bar" id="busqueda-bar" hidden>
+ <input type="search" id="inp-buscar-usuario" placeholder="Buscar por nombre o correo..." autocomplete="off"/>
+ <select id="fil-rol-usuario" aria-label="Filtrar por rol">
+ <option value="">Todos los roles</option>
+ </select>
  </div>
 
  <div class="contador" id="contador">Cargando...</div>

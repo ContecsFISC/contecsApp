@@ -74,6 +74,28 @@ export async function enviarCorreoQrParticipante(docId, { forzarReenvio = false 
   }
 }
 
+const ERRORES_ELIMINAR_PARTICIPANTE = {
+  "unauthenticated":   "Debes iniciar sesión.",
+  "permission-denied": "No tienes permiso para eliminar participantes.",
+  "not-found":         "El participante ya no existe.",
+  "internal":          "No se pudo eliminar el participante. Intenta de nuevo.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Borrado definitivo: documento, comprobante en Storage, asistencias,
+// inscripciones a talleres, listas de giras y bloqueos de identidad.
+// Ver functions/eliminaciones.js.
+export async function eliminarParticipante(docId, { incluirEstudiantes = false } = {}) {
+  try {
+    const fn = httpsCallable(functions, "eliminarParticipante");
+    const result = await fn({ docId, incluirEstudiantes });
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_ELIMINAR_PARTICIPANTE[error.code] || error.message || "Error al eliminar el participante.";
+    throw new Error(msg);
+  }
+}
+
 const ERRORES_LISTAR_PARTICIPANTES_GIRAS = {
   "unauthenticated":   "Debes iniciar sesión para ver los participantes.",
   "permission-denied": "No tienes permiso para ver la lista de participantes.",
