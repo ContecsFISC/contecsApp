@@ -583,6 +583,7 @@ function renderTabla() {
  }
 
  const canAprobar = tienePermiso(rol, "aprobar_pagos");
+ const canEliminar = tienePermiso(rol, "eliminar_participantes");
 
  el("tabla-body").innerHTML = participanteFiltrado.map((p, i) => {
  const fecha = p.fechaRegistro?.toDate?.()
@@ -611,6 +612,7 @@ function renderTabla() {
  <div class="acciones-cel">
  <button class="btn-accion btn-ver-perfil" data-perfil-id="${escaparAtributo(p.id)}">Ver</button>
  ${btnAprobar}
+ ${canEliminar ? `<button class="btn-accion btn-rechazar" data-eliminar-id="${escaparAtributo(p.id)}">Eliminar</button>` : ""}
  </div>
  </td>
  </tr>`;
@@ -618,6 +620,24 @@ function renderTabla() {
 
  el("tabla-body").querySelectorAll("[data-perfil-id]").forEach(btn => {
    btn.addEventListener("click", () => window._abrirPerfil(btn.dataset.perfilId));
+ });
+
+ // Un tutor con estudiantes se elimina desde su perfil, donde está la casilla
+ // para decidir si el grupo se borra con él.
+ el("tabla-body").querySelectorAll("[data-eliminar-id]").forEach(btn => {
+   btn.addEventListener("click", () => {
+     const p = todosParticipantes.find(x => x.id === btn.dataset.eliminarId);
+     if (!p) return;
+     const tieneGrupo = p.categoria === "colegio" && p.codigo &&
+       todosParticipantes.some(x => x.tutorCodigo === p.codigo);
+     if (tieneGrupo) {
+       window._abrirPerfil(p.id);
+       setTimeout(() => document.querySelector(".zona-eliminar")?.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+       return;
+     }
+     participanteSeleccionado = p;
+     window._eliminar();
+   });
  });
 }
 
