@@ -45,6 +45,11 @@ const {
   ejecutarOperacionFinanciera,
 } = require("./operaciones-financieras");
 const {ejecutarOperacionQr, marcarCheckpointGira} = require("./operaciones-qr");
+const {
+  eliminarParticipante,
+  eliminarUsuario,
+  liberarLocksParticipante,
+} = require("./eliminaciones");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 // La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
@@ -1782,26 +1787,38 @@ exports.liberarIdentidadParticipante = onDocumentDeleted(
       if (!borrado) return;
       const docId = event.params.docId;
 
-      const candidatos = [
-        borrado.correo ? idBloqueoParticipante("correo", borrado.correo) : null,
-        borrado.cedula ? idBloqueoParticipante("cedula", borrado.cedula) : null,
-      ].filter(Boolean);
-      if (!candidatos.length) return;
-
-      const liberados = [];
-      await Promise.allSettled(candidatos.map(async (lockId) => {
-        const ref = db.collection("identificadores_participantes").doc(lockId);
-        await db.runTransaction(async (tx) => {
-          const snap = await tx.get(ref);
-          if (!snap.exists) return;
-          if (snap.data()?.participanteId !== docId) return; // ya es de otro
-          tx.delete(ref);
-          liberados.push(lockId);
-        });
-      }));
+      const liberados = await liberarLocksParticipante(docId, borrado);
 
       console.log("liberarIdentidadParticipante:", docId,
           "locks liberados:", liberados.length);
+    },
+);
+
+// ─── CALLABLES: borrados definitivos desde el panel ─────────────────────────
+// Ver functions/eliminaciones.js para qué se limpia en cada caso.
+exports.eliminarParticipante = onCall(
+    {region: "us-central1", maxInstances: 5, timeoutSeconds: 300},
+    async (request) => {
+      try {
+        return await eliminarParticipante(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("eliminarParticipante:", e);
+        throw new HttpsError("internal", "No se pudo eliminar el participante. Intenta de nuevo.");
+      }
+    },
+);
+
+exports.eliminarUsuario = onCall(
+    {region: "us-central1", maxInstances: 5},
+    async (request) => {
+      try {
+        return await eliminarUsuario(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("eliminarUsuario:", e);
+        throw new HttpsError("internal", "No se pudo eliminar el usuario. Intenta de nuevo.");
+      }
     },
 );
 

@@ -9,6 +9,7 @@
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
+ <script src="../../../js/libs/exceljs.min.js" defer></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -306,6 +307,17 @@
  .btn-aprobar-grande:disabled,
  .btn-rechazar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
 
+ .zona-eliminar {
+ margin-top: 20px;
+ padding-top: 16px;
+ border-top: 1.5px dashed var(--gris-borde);
+ }
+ .zona-eliminar-txt { font-size: 12px; color: var(--gris-medio); margin-bottom: 10px; line-height: 1.45; }
+ .zona-eliminar label { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--gris-texto); margin-bottom: 10px; cursor: pointer; }
+ .btn-eliminar-grande { width: 100%; background: #fff; color: var(--rojo); border: 1.5px solid var(--rojo); }
+ .btn-eliminar-grande:hover { background: var(--rojo); color: #fff; }
+ .btn-eliminar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
+
  .notas-area {
  width: 100%;
  padding: 10px 12px;
@@ -427,7 +439,7 @@
  <div class="tabla-header">
  <div class="tabla-header-titulo" id="tabla-titulo">Cargando...</div>
  <div style="display:flex;gap:8px;">
- <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;">Exportar CSV</button>
+ <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;display:none;">Exportar Excel</button>
  </div>
  </div>
  <div class="tabla-overflow">
@@ -470,8 +482,8 @@
 
 <script type="module">
 import { tienePermiso } from "../../../js/core/permisos.js";
-import { enviarCorreoQrParticipante } from "../../../js/core/participantes-api.js";
-import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../../../js/core/seguridad.js";
+import { enviarCorreoQrParticipante, eliminarParticipante } from "../../../js/core/participantes-api.js";
+import { escaparAtributo, escaparHtml } from "../../../js/core/seguridad.js";
 import {
  collection, getDocs, doc, updateDoc, getDoc,
  query, orderBy, serverTimestamp
@@ -754,7 +766,24 @@ function renderSheet(p) {
  <div style="margin-top:10px;text-align:center;font-size:12px;font-weight:700;color:var(--gris-medio);">
  ${tienePermiso(rol, "ver_participantes") ? "Límite de 4 reenvíos alcanzado" : ""}
  </div>`}` : ""}
+
+ ${tienePermiso(rol, "eliminar_participantes") ? (() => {
+ const esTutor = p.categoria === "colegio" && !!p.codigo;
+ const nEst = esTutor ? todosParticipantes.filter(x => x.tutorCodigo === p.codigo).length : 0;
+ return `
+ <div class="zona-eliminar">
+ <div class="zona-eliminar-txt">
+ Eliminar borra de forma definitiva sus datos, su comprobante de pago, sus asistencias e inscripciones a talleres y su lugar en las giras. No se puede deshacer.
+ </div>
+ ${nEst ? `
+ <label><input type="checkbox" id="chk-eliminar-estudiantes" checked/>
+ <span>Eliminar también a los ${nEst} estudiante${nEst !== 1 ? "s" : ""} de este grupo</span></label>` : ""}
+ <button class="btn-grande btn-eliminar-grande" id="btn-eliminar-sh" type="button">Eliminar participante</button>
+ </div>`;
+ })() : ""}
  `;
+
+ el("btn-eliminar-sh")?.addEventListener("click", () => window._eliminar());
 
  el("bs-body").querySelectorAll("[data-comprobante-ruta]").forEach(btn => {
    btn.addEventListener("click", () => window._verComprobante(encodeURIComponent(btn.dataset.comprobanteRuta)));
@@ -921,29 +950,199 @@ window._rechazar = async function() {
  }
 };
 
-// ── EXPORTAR CSV ──────────────────────────────────────────────────────────
-el("btn-exportar").addEventListener("click", () => {
- const cols = ["Código","Nombre","Cédula","Correo","Correo Institucional","Teléfono","Categoría","Carrera","Año","Método","Estado pago","Institución","Fecha"];
- const rows = participanteFiltrado.map(p => [
- p.codigo, p.nombreCompleto || `${p.nombre} ${p.apellido}`,
- p.cedula, p.correo,
- p.camposExtra?.["correo-inst"] || p.camposExtra?.correoInst || "",
- p.telefono,
- CATEGORIA_LABELS[p.categoria] || p.categoria,
- p.camposExtra?.carrera || "",
- p.camposExtra?.anio || "",
- p.pago?.metodo, p.pago?.estado,
- p.institucion || p.colegio || "",
- p.fechaRegistro?.toDate?.()?.toLocaleDateString("es-PA") || ""
- ].map(v => `"${neutralizarFormulaHoja(v).replace(/"/g,'""')}"`).join(","));
+// ── ELIMINAR ──────────────────────────────────────────────────────────────
+window._eliminar = async function() {
+ if (!participanteSeleccionado || !tienePermiso(rol, "eliminar_participantes")) return;
+ const p = participanteSeleccionado;
+ const nombre = p.nombreCompleto || `${p.nombre || ""} ${p.apellido || ""}`.trim() || p.codigo || p.id;
+ const incluirEstudiantes = !!document.getElementById("chk-eliminar-estudiantes")?.checked;
+ const nEst = incluirEstudiantes ? todosParticipantes.filter(x => x.tutorCodigo === p.codigo).length : 0;
 
- const csv = [cols.join(","), ...rows].join("\n");
- const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+ const ok = confirm(
+ `¿Eliminar definitivamente a ${nombre} (${p.codigo || "sin código"})?\n\n` +
+ (nEst ? `También se eliminarán los ${nEst} estudiantes de su grupo.\n\n` : "") +
+ "Se borrarán sus datos, su comprobante de pago, sus asistencias, sus inscripciones a talleres y su lugar en las giras.\n\n" +
+ "Esta acción NO se puede deshacer."
+ );
+ if (!ok) return;
+
+ const btn = document.getElementById("btn-eliminar-sh");
+ if (btn) { btn.disabled = true; btn.textContent = "Eliminando..."; }
+ try {
+ const res = await eliminarParticipante(p.id, { incluirEstudiantes });
+ cerrarSheet();
+ alert(res?.participantesEliminados > 1
+ ? `Se eliminaron ${res.participantesEliminados} participantes y todos sus datos relacionados.`
+ : "Participante eliminado junto con todos sus datos relacionados.");
+ await cargar();
+ } catch (err) {
+ alert("Error al eliminar: " + err.message);
+ if (btn) { btn.disabled = false; btn.textContent = "Eliminar participante"; }
+ }
+};
+
+// ── EXPORTAR EXCEL ────────────────────────────────────────────────────────
+// Una fila por participante con TODO lo que pide registro.html (identidad,
+// campos de su categoría, tutor/colegio y pago), más el seguimiento interno.
+// El token de acceso no se exporta: es la clave de la credencial.
+const CAMPOS_EXTRA_EXCEL = [
+ ["correo-inst", "Correo institucional", 30],
+ ["centro", "Centro regional", 30],
+ ["facultad", "Facultad / unidad", 34],
+ ["carrera", "Carrera", 26],
+ ["anio", "Año que cursa", 12],
+ ["universidad", "Universidad / institución", 30],
+ ["rol", "Rol que desempeña", 16],
+ ["departamento", "Departamento / área", 26],
+ ["empresa", "Empresa u organización", 26],
+ ["cargo", "Cargo", 22],
+ ["area", "Área de trabajo", 24],
+ ["titulo-paper", "Título del paper", 40],
+ ["modalidad", "Modalidad de presentación", 20],
+ ["coautores", "Coautores", 34],
+ ["como", "¿Cómo nos conoció?", 20],
+ ["ocupacion", "Ocupación", 24],
+ ["grado", "Grado (colegio)", 14],
+ ["bachiller", "Bachiller (colegio)", 30],
+];
+const ESTADO_PAGO_TXT = {
+ aprobado: "Aprobado",
+ comprobante_enviado: "Comprobante en revisión",
+ pendiente_efectivo: "Pendiente (efectivo)",
+ rechazado: "Rechazado",
+};
+
+const aFecha = v => v?.toDate?.() || null;
+
+async function nombresDeUsuarios() {
+ try {
+ const snap = await getDocs(collection(fireDb, "usuarios"));
+ return new Map(snap.docs.map(d => [d.id, d.data().nombre || d.data().email || d.id]));
+ } catch {
+ return new Map();
+ }
+}
+
+el("btn-exportar").addEventListener("click", async () => {
+ if (!tienePermiso(rol, "exportar_participantes")) return;
+ if (typeof ExcelJS === "undefined") {
+ alert("La librería de Excel aún no terminó de cargar. Intenta de nuevo en unos segundos.");
+ return;
+ }
+ const btn = el("btn-exportar");
+ btn.disabled = true;
+ btn.textContent = "Generando...";
+ try {
+ const usuarios = await nombresDeUsuarios();
+ const lista = participanteFiltrado;
+
+ // Cualquier campo extra que no esté en la lista conocida también sale,
+ // para no perder datos si registro.html agrega preguntas nuevas.
+ const conocidos = new Set(CAMPOS_EXTRA_EXCEL.map(([k]) => k).concat("correoInst"));
+ const extrasNuevos = [...new Set(lista.flatMap(p => Object.keys(p.camposExtra || {})))]
+ .filter(k => !conocidos.has(k)).sort();
+
+ const columnas = [
+ { header: "Código", key: "codigo", width: 18 },
+ { header: "Nombre", key: "nombre", width: 18 },
+ { header: "Apellido", key: "apellido", width: 18 },
+ { header: "Cédula / Pasaporte", key: "cedula", width: 18 },
+ { header: "Correo", key: "correo", width: 32 },
+ { header: "Teléfono", key: "telefono", width: 14 },
+ { header: "Categoría", key: "categoria", width: 20 },
+ ...CAMPOS_EXTRA_EXCEL.map(([k, header, width]) => ({ header, key: `ex_${k}`, width })),
+ ...extrasNuevos.map(k => ({ header: k, key: `ex_${k}`, width: 20 })),
+ { header: "Colegio", key: "colegio", width: 26 },
+ { header: "Tutor — nombre", key: "tutorNombre", width: 18 },
+ { header: "Tutor — apellido", key: "tutorApellido", width: 18 },
+ { header: "Tutor — correo", key: "tutorCorreo", width: 30 },
+ { header: "Tutor — teléfono", key: "tutorTelefono", width: 14 },
+ { header: "Código del tutor", key: "tutorCodigo", width: 18 },
+ { header: "Estudiantes del grupo", key: "numEstudiantes", width: 12 },
+ { header: "Método de pago", key: "metodo", width: 14 },
+ { header: "Monto (B/.)", key: "monto", width: 11 },
+ { header: "Estado del pago", key: "estadoPago", width: 22 },
+ { header: "Comprobante adjunto", key: "comprobante", width: 12 },
+ { header: "Aprobado / revisado por", key: "aprobadoPor", width: 24 },
+ { header: "Fecha de revisión", key: "aprobadoEn", width: 18 },
+ { header: "Notas internas", key: "notas", width: 30 },
+ { header: "Estado del registro", key: "estadoRegistro", width: 14 },
+ { header: "Asistencias", key: "asistencias", width: 11 },
+ { header: "Fecha de registro", key: "fechaRegistro", width: 18 },
+ ];
+
+ const wb = new ExcelJS.Workbook();
+ wb.creator = "CONTECS";
+ wb.created = new Date();
+ const ws = wb.addWorksheet("Participantes", { views: [{ state: "frozen", xSplit: 3, ySplit: 1 }] });
+ ws.columns = columnas;
+
+ lista.forEach(p => {
+ const ex = p.camposExtra || {};
+ const fila = {
+ codigo: p.codigo || "",
+ nombre: p.nombre || "",
+ apellido: p.apellido || "",
+ cedula: p.cedula || "",
+ correo: p.correo || "",
+ telefono: p.telefono || "",
+ categoria: p.categoria === "colegio_estudiante" ? "Colegio (estudiante)"
+ : p.categoria === "colegio" ? "Colegio (tutor)"
+ : (p.categoriaNombre || CATEGORIA_LABELS[p.categoria] || p.categoria || ""),
+ colegio: p.colegio || p.tutor?.colegio || "",
+ tutorNombre: p.tutor?.nombre || "",
+ tutorApellido: p.tutor?.apellido || "",
+ tutorCorreo: p.tutor?.correo || "",
+ tutorTelefono: p.tutor?.telefono || "",
+ tutorCodigo: p.tutorCodigo || "",
+ numEstudiantes: p.categoria === "colegio" ? (Array.isArray(p.estudiantes) ? p.estudiantes.length : 0) : null,
+ metodo: p.pago?.metodo === "transferencia" ? "Transferencia" : p.pago?.metodo === "efectivo" ? "Efectivo" : (p.pago?.metodo || ""),
+ monto: typeof p.pago?.monto === "number" ? p.pago.monto : null,
+ estadoPago: ESTADO_PAGO_TXT[p.pago?.estado] || p.pago?.estado || "",
+ comprobante: p.pago?.comprobanteRuta ? "Sí" : "No",
+ aprobadoPor: p.pago?.aprobadoPor ? (usuarios.get(p.pago.aprobadoPor) || p.pago.aprobadoPor) : "",
+ aprobadoEn: aFecha(p.pago?.aprobadoEn),
+ notas: p.pago?.notas || "",
+ estadoRegistro: p.estadoRegistro || "",
+ asistencias: Number(p.totalAsistencias) || Object.keys(p.asistencias || {}).length,
+ fechaRegistro: aFecha(p.fechaRegistro),
+ };
+ CAMPOS_EXTRA_EXCEL.forEach(([k]) => {
+ fila[`ex_${k}`] = (k === "correo-inst" ? (ex[k] || ex.correoInst) : ex[k]) || "";
+ });
+ extrasNuevos.forEach(k => { fila[`ex_${k}`] = ex[k] ?? ""; });
+ ws.addRow(fila);
+ });
+
+ const cabecera = ws.getRow(1);
+ cabecera.font = { bold: true, color: { argb: "FFFFFFFF" } };
+ cabecera.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF00722E" } };
+ cabecera.alignment = { vertical: "middle", wrapText: true };
+ cabecera.height = 32;
+ ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columnas.length } };
+ ["aprobadoEn", "fechaRegistro"].forEach(k => { ws.getColumn(k).numFmt = "dd/mm/yyyy hh:mm"; });
+ ws.getColumn("monto").numFmt = "#,##0.00";
+
+ const buffer = await wb.xlsx.writeBuffer();
+ const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+ const url = URL.createObjectURL(blob);
  const a = document.createElement("a");
- a.href = URL.createObjectURL(blob);
- a.download = `CONTECS_participantes_${new Date().toISOString().split("T")[0]}.csv`;
+ a.href = url;
+ a.download = `CONTECS_participantes_${new Date().toISOString().split("T")[0]}.xlsx`;
+ document.body.appendChild(a);
  a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+ } catch (err) {
+ console.error(err);
+ alert("No se pudo generar el Excel: " + err.message);
+ } finally {
+ btn.disabled = false;
+ btn.textContent = "Exportar Excel";
+ }
 });
+
+if (tienePermiso(rol, "exportar_participantes")) el("btn-exportar").style.display = "";
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();
