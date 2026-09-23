@@ -318,6 +318,51 @@
  .btn-eliminar-grande:hover { background: var(--rojo); color: #fff; }
  .btn-eliminar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
 
+ /* ── MODAL CONFIRMAR ELIMINACIÓN ── */
+ .modal-eliminar-fondo {
+ position: fixed; inset: 0;
+ background: rgba(0,0,0,0.55);
+ backdrop-filter: blur(3px);
+ z-index: 500;
+ display: flex; align-items: center; justify-content: center;
+ padding: 16px;
+ }
+ .modal-eliminar-fondo[hidden] { display: none; }
+ .modal-eliminar {
+ background: #fff;
+ border-radius: var(--radio);
+ box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+ width: 100%; max-width: 460px;
+ padding: 22px 20px 18px;
+ border-top: 4px solid var(--rojo);
+ animation: cardIn 0.25s both;
+ }
+ .modal-eliminar h2 { font-size: 18px; font-weight: 800; color: var(--rojo); margin: 0 0 10px; }
+ .me-quien { font-size: 14px; font-weight: 700; color: var(--gris-texto); margin-bottom: 8px; }
+ .me-txt { font-size: 13px; color: var(--gris-medio); line-height: 1.5; margin-bottom: 14px; }
+ .me-grupo { font-size: 13px; font-weight: 700; color: var(--rojo); background: var(--rojo-fondo); border-radius: var(--radio-sm); padding: 8px 10px; margin-bottom: 14px; }
+ .me-instruccion { font-size: 13px; color: var(--gris-texto); margin-bottom: 6px; }
+ .me-frase {
+ display: block;
+ font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700;
+ background: var(--gris-suave); border: 1px solid var(--gris-borde);
+ border-radius: var(--radio-sm); padding: 8px 10px; margin-bottom: 10px;
+ word-break: break-all; user-select: none; -webkit-user-select: none;
+ }
+ .me-input {
+ width: 100%; box-sizing: border-box;
+ padding: 10px 12px;
+ border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ font-size: 14px; font-family: 'Courier New', monospace;
+ outline: none;
+ }
+ .me-input:focus { border-color: var(--rojo); }
+ .me-input.ok { border-color: var(--verde); }
+ .me-acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+ .me-cancelar { background: var(--gris-suave); color: var(--gris-texto); }
+ .me-confirmar { background: var(--rojo); color: #fff; }
+ .me-confirmar:disabled { opacity: 0.35; cursor: not-allowed; }
+
  .notas-area {
  width: 100%;
  padding: 10px 12px;
@@ -463,6 +508,23 @@
  </div>
  </div>
 
+</div>
+
+<!-- MODAL CONFIRMAR ELIMINACIÓN -->
+<div class="modal-eliminar-fondo" id="modal-eliminar" hidden>
+ <div class="modal-eliminar" role="dialog" aria-modal="true" aria-labelledby="me-titulo">
+ <h2 id="me-titulo">¿Deseas eliminar participante?</h2>
+ <div class="me-quien" id="me-quien"></div>
+ <div class="me-txt">Se borrarán de forma definitiva sus datos, su comprobante de pago, sus asistencias, sus inscripciones a talleres y su lugar en las giras. <strong>Esta acción no se puede deshacer.</strong></div>
+ <div class="me-grupo" id="me-grupo" hidden></div>
+ <div class="me-instruccion">Para confirmar, escribe exactamente:</div>
+ <code class="me-frase" id="me-frase"></code>
+ <input type="text" class="me-input" id="me-input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Frase de confirmación"/>
+ <div class="me-acciones">
+ <button type="button" class="btn-grande me-cancelar" id="me-cancelar">Cancelar</button>
+ <button type="button" class="btn-grande me-confirmar" id="me-confirmar" disabled>Eliminar</button>
+ </div>
+ </div>
 </div>
 
 <!-- OVERLAY -->
@@ -971,6 +1033,78 @@ window._rechazar = async function() {
 };
 
 // ── ELIMINAR ──────────────────────────────────────────────────────────────
+// "María José Pérez" -> "maria_jose_perez": sin tildes ni espacios, para que
+// la frase se pueda escribir con cualquier teclado.
+function aSlug(texto) {
+ return String(texto || "")
+ .normalize("NFD").replace(/[̀-ͯ]/g, "")
+ .toLowerCase()
+ .replace(/[^a-z0-9]+/g, "_")
+ .replace(/^_+|_+$/g, "");
+}
+
+function fraseEliminacion(p) {
+ const base = [p.nombre, p.apellido].filter(Boolean).join(" ") || p.nombreCompleto || p.codigo || p.id;
+ return `eliminar_participante_${aSlug(base)}`;
+}
+
+// Modal que solo habilita "Eliminar" cuando se escribe la frase exacta.
+// No se puede pegar: la idea es que nadie borre a alguien por error.
+function confirmarEliminacion(p, nombre, nEst) {
+ const modal = el("modal-eliminar");
+ const input = el("me-input");
+ const btnOk = el("me-confirmar");
+ const btnNo = el("me-cancelar");
+ const frase = fraseEliminacion(p);
+
+ el("me-quien").textContent = `${nombre} · ${p.codigo || "sin código"}`;
+ el("me-frase").textContent = frase;
+ el("me-grupo").hidden = !nEst;
+ el("me-grupo").textContent = nEst
+ ? `También se eliminarán los ${nEst} estudiante${nEst !== 1 ? "s" : ""} de su grupo.` : "";
+ input.value = "";
+ input.classList.remove("ok");
+ btnOk.disabled = true;
+ modal.hidden = false;
+ setTimeout(() => input.focus(), 50);
+
+ return new Promise(resolve => {
+ const coincide = () => input.value.trim().toLowerCase() === frase;
+ const alEscribir = () => {
+ btnOk.disabled = !coincide();
+ input.classList.toggle("ok", coincide());
+ };
+ const bloquearPegado = e => e.preventDefault();
+ const alTecla = e => {
+ if (e.key === "Escape") terminar(false);
+ if (e.key === "Enter" && coincide()) terminar(true);
+ };
+ const alFondo = e => { if (e.target === modal) terminar(false); };
+ const siOk = () => { if (coincide()) terminar(true); };
+ const siNo = () => terminar(false);
+
+ function terminar(valor) {
+ modal.hidden = true;
+ input.removeEventListener("input", alEscribir);
+ input.removeEventListener("paste", bloquearPegado);
+ input.removeEventListener("drop", bloquearPegado);
+ input.removeEventListener("keydown", alTecla);
+ modal.removeEventListener("click", alFondo);
+ btnOk.removeEventListener("click", siOk);
+ btnNo.removeEventListener("click", siNo);
+ resolve(valor);
+ }
+
+ input.addEventListener("input", alEscribir);
+ input.addEventListener("paste", bloquearPegado);
+ input.addEventListener("drop", bloquearPegado);
+ input.addEventListener("keydown", alTecla);
+ modal.addEventListener("click", alFondo);
+ btnOk.addEventListener("click", siOk);
+ btnNo.addEventListener("click", siNo);
+ });
+}
+
 window._eliminar = async function() {
  if (!participanteSeleccionado || !tienePermiso(rol, "eliminar_participantes")) return;
  const p = participanteSeleccionado;
@@ -978,12 +1112,7 @@ window._eliminar = async function() {
  const incluirEstudiantes = !!document.getElementById("chk-eliminar-estudiantes")?.checked;
  const nEst = incluirEstudiantes ? todosParticipantes.filter(x => x.tutorCodigo === p.codigo).length : 0;
 
- const ok = confirm(
- `¿Eliminar definitivamente a ${nombre} (${p.codigo || "sin código"})?\n\n` +
- (nEst ? `También se eliminarán los ${nEst} estudiantes de su grupo.\n\n` : "") +
- "Se borrarán sus datos, su comprobante de pago, sus asistencias, sus inscripciones a talleres y su lugar en las giras.\n\n" +
- "Esta acción NO se puede deshacer."
- );
+ const ok = await confirmarEliminacion(p, nombre, nEst);
  if (!ok) return;
 
  const btn = document.getElementById("btn-eliminar-sh");
