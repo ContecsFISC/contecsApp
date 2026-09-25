@@ -1,8 +1,8 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-25T15:25:41.780139+00:00**
+- Generado: **2026-09-25T15:29:58.578217+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `4b0b342804a3d9c7…`
+- Huella del proyecto: `1309facb446a1916…`
 - Archivos analizados: **166**
 - Relaciones internas tipadas: **490**
 - Símbolos detectados: **3766**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**9,365 tokens** · leer primero
-- `GraphCompleto.json` — ~**49,175 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**91,143 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**9,366 tokens** · leer primero
+- `GraphCompleto.json` — ~**49,176 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**91,144 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.7%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -48,7 +48,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 43.0 (conexiones: 15, 1301 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
 - `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
-- `functions/index.js` — riesgo 32.9 (conexiones: 7, 1889 lineas)
+- `functions/index.js` — riesgo 32.9 (conexiones: 7, 1888 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 

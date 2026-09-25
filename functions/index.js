@@ -68,7 +68,6 @@ const CATEGORIAS_REGISTRO = Object.freeze({
   academico_utp: {nombre: "Académico UTP", precio: 20},
   academico_externo: {nombre: "Académico Externo", precio: 30},
   profesional: {nombre: "Profesional", precio: 30},
-  autor: {nombre: "Autor de Resumen", precio: 35},
   otros: {nombre: "Otros", precio: 20},
   colegio: {nombre: "Colegio", precio: 6},
 });
