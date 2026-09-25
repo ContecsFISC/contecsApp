@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-09-23T16:38:19.834563+00:00**
+- Generado: **2026-09-25T15:25:41.780139+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `73ced3a7e9ffea2b…`
+- Huella del proyecto: `4b0b342804a3d9c7…`
 - Archivos analizados: **166**
 - Relaciones internas tipadas: **490**
-- Símbolos detectados: **3746**
-- Llamadas detectadas: **8461**
-- IDs DOM definidos: **798**
+- Símbolos detectados: **3766**
+- Llamadas detectadas: **8496**
+- IDs DOM definidos: **806**
 - Paquetes externos usados: **27**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **16**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**9,450 tokens** · leer primero
-- `GraphCompleto.json` — ~**49,260 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**90,809 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.6%** frente al profundo
+- `GraphCompacto.json` — ~**9,365 tokens** · leer primero
+- `GraphCompleto.json` — ~**49,175 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**91,143 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.7%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -45,8 +45,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
 - `js/core/operaciones.js` — riesgo 52.5 (conexiones: 25, 249 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 43.0 (conexiones: 15, 1301 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 41.5 (conexiones: 15, 1152 lineas)
 - `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
 - `functions/index.js` — riesgo 32.9 (conexiones: 7, 1889 lineas)
 
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
