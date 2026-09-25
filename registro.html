@@ -164,6 +164,11 @@
  }
  .cat-card.seleccionada .cat-label { color: var(--verde-oscuro); }
  .cat-card.seleccionada .cat-precio { color: var(--verde); }
+ .cat-card:last-child {
+ grid-column: 1 / -1; display: flex; align-items: center; justify-content: center;
+ gap: 12px; min-height: 78px;
+ }
+ .cat-card:last-child .cat-precio { margin-top: 0; }
 
  /* ═══ COLEGIO ═══ */
  .colegio-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -360,7 +365,11 @@
  .footer { text-align: center; padding: 24px 20px; font-size: 12px; color: var(--gris-medio); line-height: 1.7; }
 
  @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } .categoria-grid { grid-template-columns: 1fr 1fr; } .hero h1 { font-size: 26px; } }
- @media (max-width: 360px) { .categoria-grid { grid-template-columns: 1fr; } }
+ @media (max-width: 360px) {
+ .categoria-grid { grid-template-columns: 1fr; }
+ .cat-card:last-child { grid-column: auto; flex-direction: column; gap: 0; }
+ .cat-card:last-child .cat-precio { margin-top: 5px; }
+ }
 
  @media (prefers-reduced-motion: reduce) {
  *, *::before, *::after {
@@ -547,7 +556,6 @@ const CATEGORIAS = [
  { id: "academico_utp", label: "Academico UTP", precio: 20 },
  { id: "academico_externo", label: "Academico Externo", precio: 30 },
  { id: "profesional", label: "Profesional", precio: 30 },
- { id: "autor", label: "Autor de Resumen", precio: 35 },
  { id: "otros", label: "Otros", precio: 20 },
  { id: "colegio", label: "Colegio", precio: PRECIO_COLEGIO }, // base tutor
 ];
@@ -664,18 +672,6 @@ const FORMULARIOS = {
  ${fg('Empresa u organización', true, inp('ex-empresa', 'text', 'Ej: Mi Empresa S.A.'))}
  ${fg('Cargo o posición', false, inp('ex-cargo', 'text', 'Ej: Desarrollador de Software'))}
  ${fg('Área de trabajo', false, sel('ex-area', ['Desarrollo de software','Redes y telecomunicaciones','Ciberseguridad','Gestion de TI','Inteligencia Artificial / Data','Otra'], 'Selecciona (opcional)'))}
- </div>`,
-
- autor: () => `
- <div class="card">
- <div class="card-title">Autor de Resumen — Datos de inscripción</div>
- ${CAMPOS_IDENTIDAD()}
- ${fg('Correo del autor principal', true, inp('ex-correo-inst', 'email', 'Debe coincidir con el correo enviado a CMT'))}
- ${fg('Título del paper o trabajo', true, inp('ex-titulo-paper', 'text', 'Titulo completo del trabajo'))}
- ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad Tecnologica de Panama'))}
- ${fg('Modalidad de presentación', true, sel('ex-modalidad', ['Presentacion oral', 'Poster']))}
- ${fg('Coautores', false, `<textarea id="ex-coautores" placeholder="Nombres de coautores separados por coma"></textarea>`)}
- <p style="font-size:12px;color:var(--gris-medio);">Envía tu trabajo en: <a href="https://cmt3.research.microsoft.com/CONTECS2026" target="_blank" style="color:var(--azul-info);">cmt3.research.microsoft.com/CONTECS2026</a></p>
  </div>`,
 
  otros: () => `
@@ -871,8 +867,7 @@ function recogerEstudiantes() {
 function recogerCamposExtra() {
  const ids = ['ex-correo-inst','ex-centro','ex-facultad','ex-carrera','ex-anio',
  'ex-universidad','ex-rol','ex-departamento','ex-empresa','ex-cargo',
- 'ex-area','ex-titulo-paper','ex-modalidad','ex-coautores',
- 'ex-como','ex-ocupacion'];
+ 'ex-area','ex-como','ex-ocupacion'];
  const datos = {};
  ids.forEach(id => { const e = el(id); if (e) datos[id.replace('ex-', '')] = e.value.trim(); });
  return datos;
@@ -902,7 +897,6 @@ function validarPaso2() {
  academico_utp: ['ex-correo-inst','ex-centro','ex-facultad','ex-rol'],
  academico_externo: ['ex-universidad','ex-correo-inst','ex-rol'],
  profesional: ['ex-empresa'],
- autor: ['ex-correo-inst','ex-titulo-paper','ex-universidad','ex-modalidad'],
  otros: ['ex-como','ex-ocupacion'],
  colegio: ['inp-colegio'],
  };
