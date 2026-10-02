@@ -19,7 +19,8 @@ const vm = require("vm");
 
 // Se extraen del propio index.js para que la prueba no valide una copia que
 // pueda quedar desfasada del código que corre en producción.
-const FUENTE = fs.readFileSync(path.join(__dirname, "..", "index.js"), "utf8");
+// En Windows, git (core.autocrlf) deja index.js con CRLF y el patrón espera LF.
+const FUENTE = fs.readFileSync(path.join(__dirname, "..", "index.js"), "utf8").replace(/\r\n/g, "\n");
 
 function extraer(nombre) {
   const patron = new RegExp(

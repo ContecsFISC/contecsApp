@@ -12,9 +12,7 @@ const https = require("https");
 const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
 const {
   generarDocId,
-  idBloqueoParticipante,
   errorDuplicado,
-  locksQueBloquean,
   esCorreoValido,
 } = require("./identidad");
 const {motivoDeEntrada, motivosCrudosDeGira} = require("./giras");
@@ -50,6 +48,13 @@ const {
   eliminarUsuario,
   liberarLocksParticipante,
 } = require("./eliminaciones");
+const {
+  CATEGORIAS_REGISTRO,
+  generarToken,
+  generarCodigos,
+  crearParticipantesUnicos,
+} = require("./registro");
+const {importarParticipantes} = require("./importaciones");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 // La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
@@ -61,16 +66,6 @@ const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac
 const MAX_REENVIOS_CORREO_QR = 4;
 const MAX_REGISTROS_POR_HORA_IP = 25;
 const MAX_ESTUDIANTES_COLEGIO = 60;
-
-const CATEGORIAS_REGISTRO = Object.freeze({
-  estudiante_utp: {nombre: "Estudiante UTP", precio: 10},
-  estudiante_externo: {nombre: "Estudiante Externo", precio: 20},
-  academico_utp: {nombre: "Académico UTP", precio: 20},
-  academico_externo: {nombre: "Académico Externo", precio: 30},
-  profesional: {nombre: "Profesional", precio: 30},
-  otros: {nombre: "Otros", precio: 20},
-  colegio: {nombre: "Colegio", precio: 6},
-});
 
 const TIPOS_COMPROBANTE = new Set(["application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp"]);
 const LIMITE_COMPROBANTE = 10 * 1024 * 1024;
@@ -143,135 +138,6 @@ const ORIGENES_SSO_PERMITIDOS = new Set([
 ]);
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-function generarToken() {
-  return crypto.randomBytes(24).toString("hex");
-}
-
-// Un documento-lock de `identificadores_participantes` solo significa "esta
-// identidad ya está tomada" mientras el participante al que apunta siga
-// existiendo. Si alguien borró al participante (por ejemplo un registro de
-// prueba, desde la Consola), el lock quedaba huérfano y bloqueaba esa cédula y
-// ese correo PARA SIEMPRE, sin que nadie pudiera averiguar por qué: la
-// colección es `read, write: if false`, invisible desde la app y desde el panel.
-//
-// Por eso el lock ya no se toma como prueba por sí solo — se comprueba que el
-// participante referenciado exista de verdad. Si no existe, el lock está muerto
-// y se sobrescribe. Esto repara también los huérfanos que ya estuvieran ahí,
-// sin tener que limpiarlos a mano.
-async function crearParticipantesUnicos(registros) {
-  const entradas = registros.map((registro) => ({
-    ...registro,
-    correoRef: db.collection("identificadores_participantes")
-        .doc(idBloqueoParticipante("correo", registro.correo)),
-    cedulaRef: registro.cedula ?
-      db.collection("identificadores_participantes")
-          .doc(idBloqueoParticipante("cedula", registro.cedula)) : null,
-  }));
-
-  // Cada lock recuerda a qué campo y valor corresponde, para poder decir
-  // exactamente cuál chocó en vez de un "cédula o correo" ambiguo.
-  const locks = entradas.flatMap((entrada) => [
-    {ref: entrada.correoRef, campo: "correo", valor: entrada.correo},
-    ...(entrada.cedulaRef ?
-      [{ref: entrada.cedulaRef, campo: "cedula", valor: entrada.cedula}] : []),
-  ]);
-
-  const rutas = [
-    ...entradas.map((entrada) => entrada.docRef.path),
-    ...locks.map((lock) => lock.ref.path),
-  ];
-  if (new Set(rutas).size !== rutas.length) {
-    throw new HttpsError(
-        "already-exists",
-        "El grupo contiene cédulas o correos repetidos.",
-    );
-  }
-
-  await db.runTransaction(async (tx) => {
-    // ── Lectura 1: los documentos de participante ──────────────────────────
-    const docSnaps = await tx.getAll(...entradas.map((e) => e.docRef));
-    const ocupado = docSnaps.findIndex((snap) => snap.exists);
-    if (ocupado !== -1) {
-      const entrada = entradas[ocupado];
-      // generarDocId deriva el id de la cédula si la hay, y del correo si no.
-      throw entrada.cedula ?
-        errorDuplicado("cedula", entrada.cedula) :
-        errorDuplicado("correo", entrada.correo);
-    }
-
-    // ── Lectura 2: los locks de esas identidades ───────────────────────────
-    const lockSnaps = await tx.getAll(...locks.map((l) => l.ref));
-    const ocupados = [];
-    lockSnaps.forEach((snap, i) => {
-      if (snap.exists) {
-        ocupados.push({
-          lock: locks[i],
-          participanteId: snap.data()?.participanteId || null,
-        });
-      }
-    });
-
-    // ── Lectura 3: ¿siguen vivos los participantes que apuntan esos locks? ──
-    // Se indexa por id de documento, no por posición, para que no dependa del
-    // orden en que Firestore devuelva los snapshots.
-    const idsVivos = new Set();
-    const idsReferenciados = [
-      ...new Set(ocupados.map((o) => o.participanteId).filter(Boolean)),
-    ];
-    if (idsReferenciados.length) {
-      const objetivoSnaps = await tx.getAll(
-          ...idsReferenciados.map((id) => db.collection("participantes").doc(id)),
-      );
-      objetivoSnaps.forEach((snap) => {
-        if (snap.exists) idsVivos.add(snap.id);
-      });
-    }
-
-    const bloqueantes = locksQueBloquean(ocupados, idsVivos);
-    if (bloqueantes.length) {
-      const {lock} = bloqueantes[0];
-      throw errorDuplicado(lock.campo, lock.valor);
-    }
-
-    ocupados.forEach((o) => console.warn(
-        "crearParticipantesUnicos: lock huérfano reutilizado —",
-        o.lock.ref.path,
-        o.participanteId ?
-          `apuntaba a participantes/${o.participanteId} (ya borrado)` :
-          "sin participanteId",
-    ));
-
-    // ── Escrituras ─────────────────────────────────────────────────────────
-    entradas.forEach((entrada) => {
-      const bloqueo = {
-        participanteId: entrada.docRef.id,
-        creadoEn: FieldValue.serverTimestamp(),
-      };
-      tx.set(entrada.docRef, entrada.participante);
-      tx.set(entrada.correoRef, bloqueo);
-      if (entrada.cedulaRef) tx.set(entrada.cedulaRef, bloqueo);
-    });
-  });
-}
-
-async function generarCodigos(cantidad) {
-  const counterRef = db.doc("contadores/inscripciones2026");
-  const inicio = await db.runTransaction(async (tx) => {
-    const snap = await tx.get(counterRef);
-    const snapData = snap.data();
-    const current = snapData ? (snapData.valor || 0) : 0;
-    const next = current + cantidad;
-    tx.set(counterRef, {
-      valor: next,
-      actualizadoEn: FieldValue.serverTimestamp(),
-    }, {merge: true});
-    return current + 1;
-  });
-  return Array.from({length: cantidad}, (_, indice) =>
-    `CTCS-2026-${String(inicio + indice).padStart(5, "0")}`,
-  );
-}
-
 function validarCorreo(correo) {
   return typeof correo === "string" && correo.includes("@") && correo.length <= 254;
 }
@@ -1817,6 +1683,22 @@ exports.eliminarUsuario = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("eliminarUsuario:", e);
         throw new HttpsError("internal", "No se pudo eliminar el usuario. Intenta de nuevo.");
+      }
+    },
+);
+
+// ─── CALLABLE: importar participantes desde la lista de un profesor ─────────
+// Ver functions/importaciones.js. Cada fila queda como una inscripción de
+// registro.html con el pago pendiente; las filas con problemas se informan.
+exports.importarParticipantes = onCall(
+    {region: "us-central1", maxInstances: 5, timeoutSeconds: 300},
+    async (request) => {
+      try {
+        return await importarParticipantes(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("importarParticipantes:", e);
+        throw new HttpsError("internal", "No se pudo completar la importación. Intenta de nuevo.");
       }
     },
 );

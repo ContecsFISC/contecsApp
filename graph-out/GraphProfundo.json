@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-25T15:29:58.578217+00:00",
-  "project_fingerprint": "1309facb446a19169822e91fc587c428d984d460c380bad3a10e5585a3f8be1c",
+  "generated_at": "2026-10-02T02:39:02.062916+00:00",
+  "project_fingerprint": "327a5ee3640935919c1e44898e01fc382aaa1033fb2a179ebe2dfc893d388351",
   "project": "contecsApp",
   "root": ".",
   "view": "deep",
   "stats": {
-    "total_files": 166,
-    "total_edges": 490,
+    "total_files": 173,
+    "total_edges": 529,
     "total_orphans": 67,
     "total_cycles": 0,
     "total_external_packages": 27,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 16,
+    "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3766,
-    "total_function_calls": 8496,
-    "total_dom_ids": 806,
+    "total_symbols": 4181,
+    "total_function_calls": 9245,
+    "total_dom_ids": 863,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -63,6 +63,13 @@
       "degree": 40,
       "in": 25,
       "out": 15,
+      "exports": []
+    },
+    {
+      "label": "panel/modulos/congreso/modulos_participantes.html",
+      "degree": 39,
+      "in": 0,
+      "out": 39,
       "exports": []
     },
     {
@@ -163,6 +170,30 @@
       "exports": []
     },
     {
+      "label": "js/modulos/credenciales.js",
+      "degree": 18,
+      "in": 15,
+      "out": 3,
+      "exports": [
+        "LIMITES",
+        "TAMANOS",
+        "categoriaDe",
+        "descargarBlob",
+        "dibujarCredencial",
+        "generarPdf",
+        "generarPng",
+        "generarZip",
+        "imprimirPdf",
+        "limpiarImpresion",
+        "nombreArchivo",
+        "nombreDe",
+        "nombreLote",
+        "textoQr",
+        "tieneCredencial",
+        "validarTamano"
+      ]
+    },
+    {
       "label": "js/modulos/compras2.js",
       "degree": 17,
       "in": 1,
@@ -170,16 +201,9 @@
       "exports": []
     },
     {
-      "label": "js/modulos/compras.js",
-      "degree": 16,
-      "in": 1,
-      "out": 15,
-      "exports": []
-    },
-    {
       "label": "js/core/participantes-api.js",
-      "degree": 15,
-      "in": 14,
+      "degree": 16,
+      "in": 15,
       "out": 1,
       "exports": [
         "accederGiraParticipante",
@@ -187,24 +211,12 @@
         "archivoABase64",
         "eliminarParticipante",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
         "notificarNoSeleccionadosGira",
         "notificarParticipantesGira",
         "registrarParticipante"
-      ]
-    },
-    {
-      "label": "js/core/permisos.js",
-      "degree": 15,
-      "in": 15,
-      "out": 0,
-      "exports": [
-        "PERMISOS",
-        "ROLES",
-        "infoRol",
-        "permisosDeRol",
-        "tienePermiso"
       ]
     }
   ],
@@ -215,6 +227,13 @@
       "degree": 124,
       "in_cycle": false,
       "loc": 235
+    },
+    {
+      "label": "panel/modulos/congreso/modulos_participantes.html",
+      "risk_score": 100.5,
+      "degree": 39,
+      "in_cycle": false,
+      "loc": 2252
     },
     {
       "label": "panel/dashboard.html",
@@ -287,11 +306,11 @@
       "loc": 785
     },
     {
-      "label": "panel/modulos/congreso/modulos_participantes.html",
-      "risk_score": 43.0,
-      "degree": 15,
+      "label": "js/modulos/credenciales.js",
+      "risk_score": 42.9,
+      "degree": 18,
       "in_cycle": false,
-      "loc": 1301
+      "loc": 687
     },
     {
       "label": "js/modulos/compras2.js",
@@ -306,13 +325,6 @@
       "degree": 16,
       "in_cycle": false,
       "loc": 550
-    },
-    {
-      "label": "functions/index.js",
-      "risk_score": 32.9,
-      "degree": 7,
-      "in_cycle": false,
-      "loc": 1888
     }
   ],
   "orphans": [
@@ -388,10 +400,13 @@
   "external_packages": {
     "crypto": [
       "functions/identidad.js",
-      "functions/index.js"
+      "functions/index.js",
+      "functions/registro.js"
     ],
     "firebase-admin/app": [
       "functions/index.js",
+      "functions/test/importaciones.integration.js",
+      "functions/test/importaciones.test.js",
       "functions/test/operaciones-qr.integration.js"
     ],
     "firebase-admin/auth": [
@@ -400,9 +415,12 @@
     ],
     "firebase-admin/firestore": [
       "functions/eliminaciones.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js",
+      "functions/registro.js",
+      "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js"
     ],
     "firebase-admin/storage": [
@@ -421,9 +439,11 @@
     "firebase-functions/v2/https": [
       "functions/eliminaciones.js",
       "functions/identidad.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
-      "functions/operaciones-qr.js"
+      "functions/operaciones-qr.js",
+      "functions/registro.js"
     ],
     "fs": [
       "functions/plantillas.js",
@@ -629,6 +649,8 @@
       "functions/test/envios.test.js",
       "functions/test/giras.test.js",
       "functions/test/identidad.test.js",
+      "functions/test/importaciones.integration.js",
+      "functions/test/importaciones.test.js",
       "functions/test/operaciones-qr.integration.js",
       "functions/test/plantillas.test.js"
     ],
@@ -723,7 +745,8 @@
     ],
     "identificadores_participantes": [
       "functions/eliminaciones.js",
-      "functions/index.js"
+      "functions/registro.js",
+      "functions/test/importaciones.integration.js"
     ],
     "informes_actividad": [
       "js/modulos/informeActividad.js"
@@ -757,8 +780,11 @@
     ],
     "participantes": [
       "functions/eliminaciones.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-qr.js",
+      "functions/registro.js",
+      "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
@@ -792,9 +818,11 @@
     ],
     "usuarios": [
       "functions/eliminaciones.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js",
+      "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "index.html",
       "js/core/auth.js",
@@ -1461,21 +1489,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 587
+        "line": 977
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "participantes",
-        "line": 955
+        "line": 1345
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "participantes",
-        "line": 1016
+        "line": 1406
       }
     ],
     "productos": [
@@ -1784,7 +1812,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "usuarios",
-        "line": 1168
+        "line": 1558
       }
     ],
     "ventas": [
@@ -2426,6 +2454,7 @@
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
@@ -2461,6 +2490,9 @@
     "enviarCorreoQrParticipante": [
       "js/core/participantes-api.js"
     ],
+    "importarParticipantes": [
+      "js/core/participantes-api.js"
+    ],
     "listarParticipantesParaGiras": [
       "js/core/participantes-api.js"
     ],
@@ -2484,17 +2516,17 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
+      "usado_en": "js/modulos/voluntarios.js"
+    },
+    {
+      "variable": "window.XLSX",
+      "define_en": "js/libs/xlsx.full.min.js",
       "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
       "usado_en": "js/modulos/inscripciones.js"
-    },
-    {
-      "variable": "window.XLSX",
-      "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/voluntarios.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -2531,7 +2563,7 @@
       "folder": ".claude",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 68,
+      "size_bytes": 73,
       "loc": 6,
       "exports": [],
       "purpose": "",
@@ -2605,7 +2637,7 @@
       "folder": "css",
       "ext": ".css",
       "kind": "source",
-      "size_bytes": 25583,
+      "size_bytes": 26413,
       "loc": 831,
       "exports": [],
       "purpose": "",
@@ -2624,7 +2656,7 @@
       "folder": "docs",
       "ext": ".md",
       "kind": "source",
-      "size_bytes": 7779,
+      "size_bytes": 7975,
       "loc": 197,
       "exports": [],
       "purpose": "",
@@ -2802,7 +2834,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 12274,
+      "size_bytes": 11976,
       "loc": 299,
       "exports": [
         "eliminarParticipante",
@@ -2834,7 +2866,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 1688,
+      "size_bytes": 1728,
       "loc": 41,
       "exports": [
         "motivoDeEntrada",
@@ -2856,7 +2888,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 3488,
+      "size_bytes": 3572,
       "loc": 85,
       "exports": [
         "CORREO_SOPORTE",
@@ -2870,12 +2902,41 @@
       "purpose": "Identidad de participantes: cómo se deriva el id de un documento, cómo se derivan los documentos-lock de `identificadores_participantes` y cuándo un lock bloquea de verdad un regis",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 5,
+      "in_degree": 8,
       "out_degree": 0,
+      "degree": 8,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 16.9
+    },
+    {
+      "id": "functions/importaciones.js",
+      "label": "functions/importaciones.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 11777,
+      "loc": 304,
+      "exports": [
+        "CATEGORIAS_IMPORTABLES",
+        "MAX_FILAS_POR_LLAMADA",
+        "ROLES_IMPORTAR_PARTICIPANTES",
+        "importarParticipantes",
+        "normalizarFila",
+        "separarRepetidas"
+      ],
+      "purpose": "Importación de participantes desde la lista (Excel o CSV) que manda un profesor con sus estudiantes. Cada fila queda igual que si la persona se hubiera inscrito en registro.html — ",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "participantes",
+        "usuarios"
+      ],
+      "in_degree": 3,
+      "out_degree": 2,
       "degree": 5,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 10.8
+      "risk_score": 13.0
     },
     {
       "id": "functions/index.js",
@@ -2883,8 +2944,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 81498,
-      "loc": 1888,
+      "size_bytes": 76595,
+      "loc": 1770,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -2893,6 +2954,7 @@
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
@@ -2908,17 +2970,16 @@
       "firestore_collections": [
         "asistencias_giras",
         "giras_voluntarios",
-        "identificadores_participantes",
         "limites_registro",
         "participantes",
         "usuarios"
       ],
       "in_degree": 0,
-      "out_degree": 7,
-      "degree": 7,
+      "out_degree": 9,
+      "degree": 9,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 32.9
+      "risk_score": 35.7
     },
     {
       "id": "functions/operaciones-financieras.js",
@@ -2956,7 +3017,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 17826,
+      "size_bytes": 17925,
       "loc": 475,
       "exports": [
         "ejecutarOperacionQr",
@@ -2990,8 +3051,8 @@
       "folder": "functions",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 914,
-      "loc": 29,
+      "size_bytes": 1086,
+      "loc": 30,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3009,7 +3070,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5751,
+      "size_bytes": 5913,
       "loc": 163,
       "exports": [
         "aplicarPlantilla",
@@ -3052,12 +3113,39 @@
       "risk_score": 2.2
     },
     {
+      "id": "functions/registro.js",
+      "label": "functions/registro.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 6859,
+      "loc": 172,
+      "exports": [
+        "CATEGORIAS_REGISTRO",
+        "crearParticipantesUnicos",
+        "generarCodigos",
+        "generarToken"
+      ],
+      "purpose": "Piezas de la inscripción que comparten registrarParticipante (registro.html) e importarParticipantes (listas de profesores, desde el panel): categorías y precios, el token de acces",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "identificadores_participantes",
+        "participantes"
+      ],
+      "in_degree": 2,
+      "out_degree": 1,
+      "degree": 3,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 7.7
+    },
+    {
       "id": "functions/templates/correo-no-seleccionado-gira.html",
       "label": "functions/templates/correo-no-seleccionado-gira.html",
       "folder": "functions",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6577,
+      "size_bytes": 6728,
       "loc": 152,
       "exports": [],
       "purpose": "",
@@ -3076,7 +3164,7 @@
       "folder": "functions",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9707,
+      "size_bytes": 9913,
       "loc": 207,
       "exports": [],
       "purpose": "",
@@ -3114,7 +3202,7 @@
       "folder": "functions",
       "ext": ".mjs",
       "kind": "source",
-      "size_bytes": 4396,
+      "size_bytes": 4508,
       "loc": 113,
       "exports": [],
       "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras. Es la entrada más frágil de esa pantalla: la escribe una persona a mano, pegando de un chat o de una hoj",
@@ -3133,7 +3221,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 8258,
+      "size_bytes": 8487,
       "loc": 230,
       "exports": [],
       "purpose": "Diagnóstico del envío de correo, aparte de las Cloud Functions. Existe porque desde el panel los tres fallos más comunes se ven exactamente igual (\"no se pudo enviar\"), pero se arr",
@@ -3152,8 +3240,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 6034,
-      "loc": 164,
+      "size_bytes": 6303,
+      "loc": 165,
       "exports": [],
       "purpose": "Prueba de las dos piezas que hacen que los correos de gira lleguen de verdad. El fallo que arreglan no se veía: se mandaban los 40 correos de una gira a la vez, Brevo cortaba la ma",
       "minified_or_vendor": false,
@@ -3171,7 +3259,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 4319,
+      "size_bytes": 4433,
       "loc": 115,
       "exports": [],
       "purpose": "Prueba del emparejamiento persona -> motivo en el aviso de no seleccionados. Es la parte donde un fallo no se nota: no rompe nada, simplemente le llega a alguien el motivo de otra ",
@@ -3190,7 +3278,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2274,
+      "size_bytes": 2331,
       "loc": 58,
       "exports": [],
       "purpose": "Calcula el ID del documento-lock de identidad que usa registrarParticipante. La colección `identificadores_participantes` es `read, write: if false` en firestore.rules: no se puede",
@@ -3209,7 +3297,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2736,
+      "size_bytes": 2811,
       "loc": 76,
       "exports": [],
       "purpose": "Prueba de la decisión que hace crearParticipantesUnicos sobre los documentos de `identificadores_participantes`. Es la parte delicada del arreglo: un lock solo debe bloquear un reg",
@@ -3221,6 +3309,48 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 2.8
+    },
+    {
+      "id": "functions/test/importaciones.integration.js",
+      "label": "functions/test/importaciones.integration.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 7404,
+      "loc": 140,
+      "exports": [],
+      "purpose": "importarParticipantes contra el emulador de Firestore: permisos, secuencia de códigos, documento resultante, locks de identidad y filas omitidas. npm run test:importar   (desde fun",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "identificadores_participantes",
+        "participantes",
+        "usuarios"
+      ],
+      "in_degree": 0,
+      "out_degree": 2,
+      "degree": 2,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 5.4
+    },
+    {
+      "id": "functions/test/importaciones.test.js",
+      "label": "functions/test/importaciones.test.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 3644,
+      "loc": 102,
+      "exports": [],
+      "purpose": "Reglas por fila de la importación de listas de profesores: qué se exige, qué se limpia y cómo se detectan las filas repetidas dentro del lote. No necesita emulador: normalizarFila ",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 1,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 3.0
     },
     {
       "id": "functions/test/operaciones-qr.integration.js",
@@ -3255,7 +3385,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5378,
+      "size_bytes": 5523,
       "loc": 146,
       "exports": [],
       "purpose": "Prueba del render de las plantillas de correo. Lo que se comprueba aquí no rompe nada ruidosamente: el correo sale igual, solo que mal. Los dos casos que ya habían mordido en produ",
@@ -4228,7 +4358,7 @@
       "folder": "(raiz)",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9486,
+      "size_bytes": 9738,
       "loc": 253,
       "exports": [],
       "purpose": "",
@@ -4281,7 +4411,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2627,
+      "size_bytes": 2689,
       "loc": 63,
       "exports": [
         "RE_CORREO",
@@ -4292,12 +4422,12 @@
       "purpose": "Lectura de direcciones de correo escritas a mano. Vive aparte para que se pueda probar con el código real en vez de una copia (functions/test/correos.test.mjs). El equivalente del ",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 6,
+      "in_degree": 8,
       "out_degree": 0,
-      "degree": 6,
+      "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 12.6
+      "risk_score": 16.6
     },
     {
       "id": "js/core/firebase-config.js",
@@ -4351,6 +4481,27 @@
       "risk_score": 56.9
     },
     {
+      "id": "js/core/librerias.js",
+      "label": "js/core/librerias.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 989,
+      "loc": 25,
+      "exports": [
+        "cargarLibreria"
+      ],
+      "purpose": "============================================= CONTECS — Carga diferida de librerías de js/libs ============================================= Las librerías pesadas (jsPDF, JSZip, Sh",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 4,
+      "out_degree": 0,
+      "degree": 4,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 8.2
+    },
+    {
       "id": "js/core/operaciones.js",
       "label": "js/core/operaciones.js",
       "folder": "js",
@@ -4388,14 +4539,15 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 9805,
-      "loc": 214,
+      "size_bytes": 11059,
+      "loc": 237,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "archivoABase64",
         "eliminarParticipante",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
         "notificarNoSeleccionadosGira",
@@ -4405,12 +4557,12 @@
       "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 14,
+      "in_degree": 15,
       "out_degree": 1,
-      "degree": 15,
+      "degree": 16,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 32.1
+      "risk_score": 34.4
     },
     {
       "id": "js/core/permisos.js",
@@ -4418,8 +4570,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 4754,
-      "loc": 87,
+      "size_bytes": 5102,
+      "loc": 92,
       "exports": [
         "PERMISOS",
         "ROLES",
@@ -4479,12 +4631,12 @@
       "purpose": "Configuración del SSO institucional UTP y URLs públicas de la app.",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 0,
-      "degree": 2,
+      "degree": 3,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 4.1
+      "risk_score": 6.1
     },
     {
       "id": "js/libs/exceljs.min.js",
@@ -4768,6 +4920,42 @@
       "risk_score": 42.2
     },
     {
+      "id": "js/modulos/credenciales.js",
+      "label": "js/modulos/credenciales.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 26157,
+      "loc": 687,
+      "exports": [
+        "LIMITES",
+        "TAMANOS",
+        "categoriaDe",
+        "descargarBlob",
+        "dibujarCredencial",
+        "generarPdf",
+        "generarPng",
+        "generarZip",
+        "imprimirPdf",
+        "limpiarImpresion",
+        "nombreArchivo",
+        "nombreDe",
+        "nombreLote",
+        "textoQr",
+        "tieneCredencial",
+        "validarTamano"
+      ],
+      "purpose": "============================================= CONTECS — Credenciales imprimibles ============================================= Un mismo dibujo en canvas alimenta la vista previa, e",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 15,
+      "out_degree": 3,
+      "degree": 18,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 42.9
+    },
+    {
       "id": "js/modulos/detalleFondo.js",
       "label": "js/modulos/detalleFondo.js",
       "folder": "js",
@@ -4812,6 +5000,39 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 29.7
+    },
+    {
+      "id": "js/modulos/importar-participantes.js",
+      "label": "js/modulos/importar-participantes.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 14716,
+      "loc": 290,
+      "exports": [
+        "CAMPOS",
+        "CAMPOS_COMUNES",
+        "CATEGORIAS_IMPORTABLES",
+        "FILAS_POR_LLAMADA",
+        "armarFilas",
+        "descargarPlantilla",
+        "descargarResultado",
+        "detectarColumnas",
+        "detectarEncabezado",
+        "filaParaServidor",
+        "leerArchivo",
+        "revisarFilas",
+        "separarNombreCompleto"
+      ],
+      "purpose": "============================================= CONTECS — Importar participantes desde una lista ============================================= Lee el Excel o CSV que manda un profeso",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 8,
+      "out_degree": 4,
+      "degree": 12,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 26.9
     },
     {
       "id": "js/modulos/informeActividad.js",
@@ -4894,7 +5115,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 9278,
+      "size_bytes": 9503,
       "loc": 226,
       "exports": [],
       "purpose": "",
@@ -5109,7 +5330,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 7254,
+      "size_bytes": 7096,
       "loc": 159,
       "exports": [],
       "purpose": "",
@@ -5152,7 +5373,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 138100,
+      "size_bytes": 141078,
       "loc": 2979,
       "exports": [],
       "purpose": "",
@@ -5215,7 +5436,7 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 318,
+      "size_bytes": 329,
       "loc": 12,
       "exports": [],
       "purpose": "",
@@ -5234,7 +5455,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 87104,
+      "size_bytes": 89038,
       "loc": 1935,
       "exports": [],
       "purpose": "",
@@ -5262,7 +5483,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9456,
+      "size_bytes": 9709,
       "loc": 254,
       "exports": [],
       "purpose": "",
@@ -5283,7 +5504,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6641,
+      "size_bytes": 6800,
       "loc": 160,
       "exports": [],
       "purpose": "",
@@ -5302,7 +5523,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 2104,
+      "size_bytes": 2156,
       "loc": 53,
       "exports": [],
       "purpose": "",
@@ -5321,7 +5542,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5737,
+      "size_bytes": 5847,
       "loc": 111,
       "exports": [],
       "purpose": "",
@@ -5340,7 +5561,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3483,
+      "size_bytes": 3560,
       "loc": 78,
       "exports": [],
       "purpose": "",
@@ -5359,7 +5580,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3502,
+      "size_bytes": 3601,
       "loc": 100,
       "exports": [],
       "purpose": "",
@@ -5397,7 +5618,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 28182,
+      "size_bytes": 28706,
       "loc": 525,
       "exports": [],
       "purpose": "",
@@ -5416,7 +5637,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9134,
+      "size_bytes": 9302,
       "loc": 169,
       "exports": [],
       "purpose": "",
@@ -5435,8 +5656,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 53027,
-      "loc": 1301,
+      "size_bytes": 100285,
+      "loc": 2252,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5445,11 +5666,11 @@
         "usuarios"
       ],
       "in_degree": 0,
-      "out_degree": 15,
-      "degree": 15,
+      "out_degree": 39,
+      "degree": 39,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 43.0
+      "risk_score": 100.5
     },
     {
       "id": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -5457,7 +5678,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8857,
+      "size_bytes": 9082,
       "loc": 226,
       "exports": [],
       "purpose": "",
@@ -5476,7 +5697,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 33538,
+      "size_bytes": 34527,
       "loc": 990,
       "exports": [],
       "purpose": "",
@@ -5503,7 +5724,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6612,
+      "size_bytes": 6815,
       "loc": 204,
       "exports": [],
       "purpose": "",
@@ -5522,7 +5743,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12383,
+      "size_bytes": 12792,
       "loc": 410,
       "exports": [],
       "purpose": "",
@@ -5541,7 +5762,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6829,
+      "size_bytes": 7049,
       "loc": 221,
       "exports": [],
       "purpose": "",
@@ -5560,7 +5781,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 4037,
+      "size_bytes": 4155,
       "loc": 119,
       "exports": [],
       "purpose": "",
@@ -5579,7 +5800,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3405,
+      "size_bytes": 3485,
       "loc": 81,
       "exports": [],
       "purpose": "",
@@ -5598,7 +5819,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5625,
+      "size_bytes": 5737,
       "loc": 113,
       "exports": [],
       "purpose": "",
@@ -5617,7 +5838,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12439,
+      "size_bytes": 12710,
       "loc": 272,
       "exports": [],
       "purpose": "",
@@ -5636,7 +5857,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11534,
+      "size_bytes": 11754,
       "loc": 221,
       "exports": [],
       "purpose": "",
@@ -5655,7 +5876,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 33112,
+      "size_bytes": 34002,
       "loc": 891,
       "exports": [],
       "purpose": "",
@@ -5674,7 +5895,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 13471,
+      "size_bytes": 13892,
       "loc": 422,
       "exports": [],
       "purpose": "",
@@ -5695,7 +5916,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 7478,
+      "size_bytes": 7644,
       "loc": 167,
       "exports": [],
       "purpose": "",
@@ -5714,7 +5935,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8198,
+      "size_bytes": 8352,
       "loc": 155,
       "exports": [],
       "purpose": "",
@@ -5733,7 +5954,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 24262,
+      "size_bytes": 24779,
       "loc": 518,
       "exports": [],
       "purpose": "",
@@ -5752,7 +5973,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11981,
+      "size_bytes": 12266,
       "loc": 286,
       "exports": [],
       "purpose": "",
@@ -5771,7 +5992,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8137,
+      "size_bytes": 8320,
       "loc": 184,
       "exports": [],
       "purpose": "",
@@ -5790,7 +6011,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9524,
+      "size_bytes": 9722,
       "loc": 199,
       "exports": [],
       "purpose": "",
@@ -5809,7 +6030,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 20492,
+      "size_bytes": 20915,
       "loc": 424,
       "exports": [],
       "purpose": "",
@@ -5828,7 +6049,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 24605,
+      "size_bytes": 25066,
       "loc": 462,
       "exports": [],
       "purpose": "",
@@ -5847,7 +6068,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 17853,
+      "size_bytes": 18345,
       "loc": 493,
       "exports": [],
       "purpose": "",
@@ -5866,7 +6087,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6586,
+      "size_bytes": 6771,
       "loc": 186,
       "exports": [],
       "purpose": "",
@@ -5885,7 +6106,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 25226,
+      "size_bytes": 25924,
       "loc": 699,
       "exports": [],
       "purpose": "",
@@ -5904,7 +6125,7 @@
       "folder": "(raiz)",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 59225,
+      "size_bytes": 60362,
       "loc": 1138,
       "exports": [],
       "purpose": "",
@@ -5923,7 +6144,7 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 518,
+      "size_bytes": 501,
       "loc": 18,
       "exports": [],
       "purpose": "",
@@ -5950,6 +6171,28 @@
       }
     },
     {
+      "source": "functions/importaciones.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 16,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/importaciones.js",
+      "target": "functions/registro.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 22,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
       "source": "functions/index.js",
       "target": "functions/qr-participante.js",
       "type": "imports",
@@ -5965,7 +6208,7 @@
       "target": "functions/identidad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 19,
+      "line": 17,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5976,7 +6219,7 @@
       "target": "functions/giras.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 20,
+      "line": 18,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5987,7 +6230,7 @@
       "target": "functions/plantillas.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 25,
+      "line": 23,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -5998,7 +6241,7 @@
       "target": "functions/operaciones-financieras.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 46,
+      "line": 44,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -6009,7 +6252,7 @@
       "target": "functions/operaciones-qr.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 47,
+      "line": 45,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -6020,7 +6263,40 @@
       "target": "functions/eliminaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 52,
+      "line": 50,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
+      "target": "functions/registro.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 56,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
+      "target": "functions/importaciones.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 57,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/registro.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 17,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -6091,6 +6367,39 @@
     {
       "source": "functions/test/identidad.test.js",
       "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/importaciones.integration.js",
+      "target": "functions/importaciones.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/importaciones.integration.js",
+      "target": "functions/identidad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/importaciones.test.js",
+      "target": "functions/importaciones.js",
       "type": "imports",
       "provenance": "extracted",
       "line": 14,
@@ -6615,6 +6924,32 @@
       }
     },
     {
+      "source": "js/modulos/credenciales.js",
+      "target": "js/core/sso-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbols": [
+          "URL_BASE_PERFIL"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/credenciales.js",
+      "target": "js/core/librerias.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbols": [
+          "cargarLibreria"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/detalleFondo.js",
       "target": "js/core/auth.js",
       "type": "imports",
@@ -6748,6 +7083,32 @@
       "detail": {
         "symbols": [
           "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/importar-participantes.js",
+      "target": "js/core/correos.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbols": [
+          "esCorreoValido"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/importar-participantes.js",
+      "target": "js/core/librerias.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbols": [
+          "cargarLibreria"
         ],
         "dynamic": false
       }
@@ -7928,7 +8289,7 @@
       "target": "js/core/permisos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 546,
+      "line": 928,
       "detail": {
         "symbols": [
           "tienePermiso"
@@ -7941,11 +8302,12 @@
       "target": "js/core/participantes-api.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 547,
+      "line": 929,
       "detail": {
         "symbols": [
           "enviarCorreoQrParticipante",
-          "eliminarParticipante"
+          "eliminarParticipante",
+          "importarParticipantes"
         ],
         "dynamic": false
       }
@@ -7955,7 +8317,7 @@
       "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 548,
+      "line": 930,
       "detail": {
         "symbols": [
           "escaparAtributo",
@@ -7966,10 +8328,61 @@
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbols": [
+          "TAMANOS",
+          "textoQr",
+          "tieneCredencial",
+          "nombreDe",
+          "categoriaDe",
+          "validarTamano",
+          "dibujarCredencial",
+          "generarPdf",
+          "generarPng",
+          "generarZip",
+          "nombreArchivo",
+          "nombreLote",
+          "descargarBlob",
+          "imprimirPdf",
+          "limpiarImpresion"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbols": [
+          "CATEGORIAS_IMPORTABLES",
+          "CAMPOS",
+          "CAMPOS_COMUNES",
+          "FILAS_POR_LLAMADA",
+          "leerArchivo",
+          "detectarEncabezado",
+          "detectarColumnas",
+          "armarFilas",
+          "revisarFilas",
+          "filaParaServidor",
+          "descargarPlantilla",
+          "descargarResultado"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 554,
+      "line": 944,
       "detail": {
         "symbols": [
           "db",
@@ -8004,7 +8417,7 @@
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 431
+      "line": 667
     },
     {
       "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -9101,16 +9514,6 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "parsearListaCorreos"
-      }
-    },
-    {
-      "source": "functions/test/correos.test.mjs",
-      "target": "js/core/correos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
         "symbol": "parsearEntradaCorreo"
       }
     },
@@ -9122,6 +9525,16 @@
       "line": 11,
       "detail": {
         "symbol": "esCorreoValido"
+      }
+    },
+    {
+      "source": "functions/test/correos.test.mjs",
+      "target": "js/core/correos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "parsearListaCorreos"
       }
     },
     {
@@ -9161,6 +9574,16 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
+        "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/iconos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
         "symbol": "nombreIconoCombo"
       }
     },
@@ -9176,12 +9599,12 @@
     },
     {
       "source": "js/modulos/actividadVentas.js",
-      "target": "js/core/iconos.js",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 7,
+      "line": 8,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -9195,16 +9618,6 @@
       }
     },
     {
-      "source": "js/modulos/actividadVentas.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 8,
-      "detail": {
-        "symbol": "neutralizarFormulaHoja"
-      }
-    },
-    {
       "source": "js/modulos/agendarReunion.js",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -9212,16 +9625,6 @@
       "line": 5,
       "detail": {
         "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/agendarReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
-        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -9242,6 +9645,16 @@
       "line": 7,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -9271,7 +9684,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeVerReunion"
+        "symbol": "usuarioPuedeGestionarMinuta"
       }
     },
     {
@@ -9281,7 +9694,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeGestionarMinuta"
+        "symbol": "usuarioPuedeVerReunion"
       }
     },
     {
@@ -9341,7 +9754,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9351,17 +9764,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9372,6 +9775,16 @@
       "line": 2,
       "detail": {
         "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -9401,7 +9814,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -9411,7 +9824,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -9431,7 +9844,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9441,7 +9854,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9501,7 +9914,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -9511,7 +9924,17 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
+      }
+    },
+    {
+      "source": "js/modulos/credenciales.js",
+      "target": "js/core/librerias.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "cargarLibreria"
       }
     },
     {
@@ -9581,6 +10004,16 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -9592,16 +10025,6 @@
       "line": 1,
       "detail": {
         "symbol": "usuarioTienePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9621,7 +10044,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "registrarMovimientoFondo"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -9631,7 +10054,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "resumenItemPrincipal"
+        "symbol": "registrarMovimientoFondo"
       }
     },
     {
@@ -9642,6 +10065,26 @@
       "line": 4,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/importar-participantes.js",
+      "target": "js/core/correos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "esCorreoValido"
+      }
+    },
+    {
+      "source": "js/modulos/importar-participantes.js",
+      "target": "js/core/librerias.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "cargarLibreria"
       }
     },
     {
@@ -9671,7 +10114,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -9681,7 +10124,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -9871,7 +10314,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -9881,7 +10324,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -9892,16 +10335,6 @@
       "line": 2,
       "detail": {
         "symbol": "tienePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -9922,6 +10355,16 @@
       "line": 3,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -9981,7 +10424,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -9991,7 +10434,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -10011,16 +10454,6 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVenta"
-      }
-    },
-    {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
         "symbol": "formatearMoneda"
       }
     },
@@ -10031,7 +10464,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVentaConMerma"
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -10042,6 +10475,16 @@
       "line": 6,
       "detail": {
         "symbol": "esperarAuthListo"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "registrarVentaConMerma"
       }
     },
     {
@@ -10081,7 +10524,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "listarParticipantesParaGiras"
+        "symbol": "notificarParticipantesGira"
       }
     },
     {
@@ -10091,7 +10534,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarParticipantesGira"
+        "symbol": "listarParticipantesParaGiras"
       }
     },
     {
@@ -10111,7 +10554,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -10121,17 +10564,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/voluntarios.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 15,
-      "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -10145,13 +10578,23 @@
       }
     },
     {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 15,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
       "source": "panel/dashboard.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 1027,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -10171,7 +10614,7 @@
       "provenance": "extracted",
       "line": 1027,
       "detail": {
-        "symbol": "esperarSesionLista"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10399,7 +10842,7 @@
       "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 546,
+      "line": 928,
       "detail": {
         "symbol": "tienePermiso"
       }
@@ -10409,9 +10852,9 @@
       "target": "js/core/participantes-api.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 547,
+      "line": 929,
       "detail": {
-        "symbol": "eliminarParticipante"
+        "symbol": "enviarCorreoQrParticipante"
       }
     },
     {
@@ -10419,9 +10862,19 @@
       "target": "js/core/participantes-api.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 547,
+      "line": 929,
       "detail": {
-        "symbol": "enviarCorreoQrParticipante"
+        "symbol": "importarParticipantes"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/participantes-api.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 929,
+      "detail": {
+        "symbol": "eliminarParticipante"
       }
     },
     {
@@ -10429,9 +10882,219 @@
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 548,
+      "line": 930,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "tieneCredencial"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "generarPdf"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "categoriaDe"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "dibujarCredencial"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "textoQr"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "nombreDe"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "validarTamano"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "nombreArchivo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "nombreLote"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "imprimirPdf"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "generarPng"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "generarZip"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "descargarBlob"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 931,
+      "detail": {
+        "symbol": "limpiarImpresion"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "armarFilas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "descargarResultado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "detectarColumnas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "detectarEncabezado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "descargarPlantilla"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "revisarFilas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 935,
+      "detail": {
+        "symbol": "leerArchivo"
       }
     },
     {
@@ -10601,7 +11264,7 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "editarProducto"
+        "symbol": "editarCategoria"
       }
     },
     {
@@ -10612,6 +11275,56 @@
       "line": 462,
       "detail": {
         "symbol": "crearProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "escucharProductosPorCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "editarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "desactivarProducto"
       }
     },
     {
@@ -10641,56 +11354,6 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "escucharProductosPorCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "desactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
         "symbol": "escucharCategorias"
       }
     },
@@ -10701,7 +11364,7 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "estadoStock"
+        "symbol": "eliminarCategoria"
       }
     },
     {
@@ -10741,7 +11404,7 @@
       "provenance": "extracted",
       "line": 250,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -10751,7 +11414,7 @@
       "provenance": "extracted",
       "line": 250,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -10998,14 +11661,62 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "0a9598c4e7fda1e74dc2f4f412ee8430a4c4689f",
+    "head": "db4a3013fd6e1a571a9977b8261a224a708730d0",
     "changed_files": [
       {
         "file": "functions/index.js",
         "status": " M"
+      },
+      {
+        "file": "functions/package.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/envios.test.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/participantes-api.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/permisos.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/modulos_participantes.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/importaciones.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/registro.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/importaciones.integration.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/importaciones.test.js",
+        "status": "??"
+      },
+      {
+        "file": "js/core/librerias.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/credenciales.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/importar-participantes.js",
+        "status": "??"
       }
     ],
-    "changed_count": 1
+    "changed_count": 13
   },
   "ai_usage": {
     "read_last": true,
@@ -11089,150 +11800,198 @@
         ]
       }
     },
+    "functions/importaciones.js": {
+      "architectural_calls": {
+        "buscarYaInscritos": [
+          139,
+          2
+        ],
+        "clave": [
+          114,
+          6
+        ],
+        "crearDesdeFila": [
+          190,
+          2
+        ],
+        "enGrupos": [
+          131,
+          3
+        ],
+        "esCorreoValido": [
+          98,
+          1
+        ],
+        "importarParticipantes": [
+          236,
+          1
+        ],
+        "leerLote": [
+          164,
+          2
+        ],
+        "limpiar": [
+          75,
+          3
+        ],
+        "normalizarCamposExtra": [
+          70,
+          3
+        ],
+        "normalizarFila": [
+          85,
+          2
+        ],
+        "problemaDeTexto": [
+          58,
+          4
+        ],
+        "separarRepetidas": [
+          109,
+          2
+        ],
+        "validarRol": [
+          153,
+          2
+        ]
+      }
+    },
     "functions/index.js": {
       "architectural_calls": {
         "aplicarLimiteRegistro": [
-          416,
+          282,
           2
         ],
         "brevoRequest": [
-          543,
+          409,
           2
         ],
         "brevoRequestOnce": [
-          484,
+          350,
           2
         ],
         "claveNoSeleccionado": [
-          1277,
+          1143,
           3
         ],
         "consultarUsuarioSSO": [
-          308,
-          2
-        ],
-        "crearParticipantesUnicos": [
-          161,
+          174,
           2
         ],
         "eliminarParticipante": [
-          1802,
+          1668,
           1
         ],
         "enLotes": [
-          567,
+          433,
           3
         ],
         "enviarCorreoNoSeleccionadoGira": [
-          1283,
+          1149,
           2
         ],
         "enviarCorreoNotificacionGira": [
-          1205,
+          1071,
           2
         ],
         "enviarCorreoPagoAprobado": [
-          630,
+          496,
           2
         ],
         "enviarCorreoTransaccional": [
-          613,
+          479,
           4
         ],
         "esCorreoValido": [
-          1219,
+          1085,
           2
         ],
         "esErrorPasajeroBrevo": [
-          537,
+          403,
           2
         ],
         "esTokenSSOValido": [
-          279,
+          145,
           2
         ],
         "extraerEmailSSO": [
-          283,
+          149,
           2
         ],
         "extraerNombreSSO": [
-          299,
+          165,
           2
         ],
         "formatearFechaGira": [
-          1183,
+          1049,
           4
         ],
         "formatearHoraGira": [
-          1197,
+          1063,
           3
         ],
-        "generarCodigos": [
-          257,
-          2
-        ],
-        "generarToken": [
-          146,
-          3
+        "importarParticipantes": [
+          1697,
+          1
         ],
         "marcarCheckpointGira": [
-          127,
+          122,
           1
         ],
         "motivosDeGira": [
-          1440,
+          1306,
           2
         ],
         "normalizarCamposExtra": [
-          373,
+          239,
           2
         ],
         "normalizarEstudiantes": [
-          401,
+          267,
           2
         ],
         "normalizarTutor": [
-          388,
+          254,
           2
         ],
         "origenPermitidoParaSSO": [
-          321,
+          187,
           2
         ],
         "procesarCorreoQrAprobado": [
-          668,
+          534,
           4
         ],
         "resumirEnvios": [
-          595,
+          461,
           3
         ],
         "sanitizarParticipante": [
-          459,
+          325,
           2
         ],
         "subirComprobante": [
-          441,
+          307,
           2
         ],
         "validarCorreo": [
-          275,
+          141,
           4
         ],
         "validarDocId": [
-          365,
+          231,
           3
         ],
         "validarTexto": [
-          327,
+          193,
           22
         ],
         "validarTextoLibre": [
-          347,
+          213,
           5
         ],
         "verificarStaffCorreo": [
-          618,
+          484,
           2
         ]
       }
@@ -11437,6 +12196,22 @@
         ]
       }
     },
+    "functions/registro.js": {
+      "architectural_calls": {
+        "crearParticipantesUnicos": [
+          50,
+          1
+        ],
+        "generarCodigos": [
+          148,
+          1
+        ],
+        "generarToken": [
+          31,
+          1
+        ]
+      }
+    },
     "functions/test/correos.test.mjs": {
       "architectural_calls": {
         "esCorreoValido": [
@@ -11496,19 +12271,19 @@
     "functions/test/envios.test.js": {
       "architectural_calls": {
         "errorConEstado": [
-          58,
+          59,
           5
         ],
         "extraer": [
-          24,
+          25,
           4
         ],
         "main": [
-          54,
+          55,
           2
         ],
         "prueba": [
-          45,
+          46,
           15
         ]
       }
@@ -11542,6 +12317,42 @@
         "prueba": [
           22,
           7
+        ]
+      }
+    },
+    "functions/test/importaciones.integration.js": {
+      "architectural_calls": {
+        "importarParticipantes": [
+          50,
+          6
+        ],
+        "lockExiste": [
+          33,
+          6
+        ],
+        "lote": [
+          50,
+          6
+        ],
+        "main": [
+          39,
+          2
+        ],
+        "rechazaCon": [
+          26,
+          4
+        ],
+        "request": [
+          50,
+          6
+        ]
+      }
+    },
+    "functions/test/importaciones.test.js": {
+      "architectural_calls": {
+        "prueba": [
+          17,
+          12
         ]
       }
     },
@@ -11821,6 +12632,14 @@
         ]
       }
     },
+    "js/core/librerias.js": {
+      "architectural_calls": {
+        "cargarLibreria": [
+          11,
+          1
+        ]
+      }
+    },
     "js/core/operaciones.js": {
       "architectural_calls": {
         "aNumero": [
@@ -11888,7 +12707,7 @@
     "js/core/participantes-api.js": {
       "architectural_calls": {
         "accederGiraParticipante": [
-          179,
+          202,
           1
         ],
         "accederParticipante": [
@@ -11907,20 +12726,24 @@
           66,
           1
         ],
-        "listarParticipantesParaGiras": [
+        "importarParticipantes": [
           110,
           1
         ],
+        "listarParticipantesParaGiras": [
+          133,
+          1
+        ],
         "marcarCheckpointGira": [
-          204,
+          227,
           1
         ],
         "notificarNoSeleccionadosGira": [
-          159,
+          182,
           1
         ],
         "notificarParticipantesGira": [
-          134,
+          157,
           1
         ],
         "registrarParticipante": [
@@ -11932,15 +12755,15 @@
     "js/core/permisos.js": {
       "architectural_calls": {
         "infoRol": [
-          84,
+          89,
           1
         ],
         "permisosDeRol": [
-          79,
+          84,
           1
         ],
         "tienePermiso": [
-          72,
+          77,
           2
         ]
       }
@@ -13211,6 +14034,170 @@
         ]
       }
     },
+    "js/modulos/credenciales.js": {
+      "architectural_calls": {
+        "ajustarTexto": [
+          167,
+          8
+        ],
+        "anchoEspaciado": [
+          183,
+          5
+        ],
+        "bytesPng": [
+          541,
+          2
+        ],
+        "cargarFuentes": [
+          120,
+          2
+        ],
+        "cargarImagen": [
+          109,
+          2
+        ],
+        "cargarLibreria": [
+          133,
+          3
+        ],
+        "categoriaDe": [
+          79,
+          2
+        ],
+        "ceder": [
+          586,
+          2
+        ],
+        "crc32": [
+          550,
+          2
+        ],
+        "descargarBlob": [
+          528,
+          1
+        ],
+        "dibujarCabecera": [
+          259,
+          2
+        ],
+        "dibujarCredencial": [
+          490,
+          3
+        ],
+        "dibujarCuerpo": [
+          407,
+          2
+        ],
+        "dibujarPie": [
+          308,
+          2
+        ],
+        "dibujarQr": [
+          214,
+          2
+        ],
+        "dibujarRed": [
+          240,
+          2
+        ],
+        "fuente": [
+          170,
+          12
+        ],
+        "generarPdf": [
+          620,
+          2
+        ],
+        "generarPng": [
+          603,
+          2
+        ],
+        "generarZip": [
+          638,
+          1
+        ],
+        "guiaDeCorte": [
+          607,
+          2
+        ],
+        "imprimirPdf": [
+          662,
+          1
+        ],
+        "institucionDe": [
+          83,
+          2
+        ],
+        "limpiarImpresion": [
+          655,
+          2
+        ],
+        "medirCuerpo": [
+          337,
+          2
+        ],
+        "nombreArchivo": [
+          517,
+          2
+        ],
+        "nombreDe": [
+          74,
+          3
+        ],
+        "nombreLote": [
+          521,
+          1
+        ],
+        "partirLineas": [
+          142,
+          3
+        ],
+        "pngConDpi": [
+          563,
+          2
+        ],
+        "prepararRecursos": [
+          130,
+          2
+        ],
+        "recorrer": [
+          594,
+          3
+        ],
+        "recortar": [
+          158,
+          2
+        ],
+        "rectRedondeado": [
+          200,
+          5
+        ],
+        "rutaRaiz": [
+          132,
+          1
+        ],
+        "slug": [
+          509,
+          2
+        ],
+        "textoEspaciado": [
+          188,
+          4
+        ],
+        "textoQr": [
+          65,
+          2
+        ],
+        "tieneCredencial": [
+          70,
+          1
+        ],
+        "validarTamano": [
+          94,
+          1
+        ]
+      }
+    },
     "js/modulos/detalleFondo.js": {
       "architectural_calls": {
         "$": [
@@ -13458,6 +14445,86 @@
       "events_listened": {
         "submit": [
           168
+        ]
+      }
+    },
+    "js/modulos/importar-participantes.js": {
+      "architectural_calls": {
+        "ajustar": [
+          193,
+          3
+        ],
+        "armarFilas": [
+          179,
+          1
+        ],
+        "cargarLibreria": [
+          123,
+          3
+        ],
+        "clave": [
+          234,
+          1
+        ],
+        "descargarPlantilla": [
+          261,
+          1
+        ],
+        "descargarResultado": [
+          271,
+          1
+        ],
+        "destinoDe": [
+          77,
+          2
+        ],
+        "detectarColumnas": [
+          84,
+          2
+        ],
+        "detectarEncabezado": [
+          97,
+          1
+        ],
+        "esCorreoValido": [
+          228,
+          1
+        ],
+        "filaParaServidor": [
+          251,
+          1
+        ],
+        "leerArchivo": [
+          122,
+          1
+        ],
+        "nombrePropio": [
+          144,
+          2
+        ],
+        "normalizar": [
+          78,
+          1
+        ],
+        "revisarFilas": [
+          220,
+          1
+        ],
+        "separarNombreCompleto": [
+          155,
+          2
+        ],
+        "textoDeCsv": [
+          111,
+          2
+        ],
+        "tiene": [
+          190,
+          2
+        ],
+        "valor": [
+          188,
+          8
         ]
       }
     },
@@ -18902,444 +19969,1283 @@
     "panel/modulos/congreso/modulos_participantes.html": {
       "architectural_calls": {
         "aFecha": [
-          1253,
+          1644,
           2
         ],
         "aSlug": [
-          1038,
+          1428,
           2
+        ],
+        "abrirCredenciales": [
+          1799,
+          1
+        ],
+        "abrirImportar": [
+          1963,
+          1
+        ],
+        "actualizarBotonImp": [
+          2091,
+          4
+        ],
+        "actualizarResumenCred": [
+          1730,
+          6
         ],
         "actualizarStats": [
-          589,
+          979,
           4
         ],
-        "aplicarFiltros": [
-          590,
-          4
-        ],
-        "cargar": [
-          586,
-          5
-        ],
-        "coincide": [
-          1074,
-          4
-        ],
-        "confirmarEliminacion": [
-          1053,
+        "agruparCred": [
+          1739,
           2
         ],
+        "alProgresar": [
+          1832,
+          1
+        ],
+        "aplicarFiltros": [
+          980,
+          4
+        ],
+        "armarFilas": [
+          2045,
+          1
+        ],
+        "avance": [
+          2124,
+          2
+        ],
+        "cargar": [
+          976,
+          6
+        ],
+        "categoriaDe": [
+          1725,
+          2
+        ],
+        "cerrarCredenciales": [
+          1815,
+          4
+        ],
+        "cerrarImportar": [
+          1970,
+          4
+        ],
+        "coincide": [
+          1464,
+          4
+        ],
+        "conQr": [
+          1779,
+          1
+        ],
+        "confirmarEliminacion": [
+          1443,
+          2
+        ],
+        "descargarBlob": [
+          1860,
+          4
+        ],
+        "descargarPlantilla": [
+          2213,
+          1
+        ],
+        "descargarResultado": [
+          2184,
+          1
+        ],
+        "detectarColumnas": [
+          2015,
+          1
+        ],
+        "detectarEncabezado": [
+          2002,
+          1
+        ],
+        "dibujarCredencial": [
+          1787,
+          1
+        ],
+        "ejecutarTareaCred": [
+          1822,
+          3
+        ],
         "el": [
-          598,
-          34
+          988,
+          147
+        ],
+        "elegirArchivoImp": [
+          1980,
+          3
         ],
         "eliminarParticipante": [
-          1121,
+          1511,
           1
         ],
         "enviarCorreoQrParticipante": [
-          971,
+          1361,
           2
         ],
         "escaparAtributo": [
-          658,
-          5
+          1048,
+          8
+        ],
+        "filasAImportar": [
+          2095,
+          2
+        ],
+        "filtrarCred": [
+          1704,
+          2
+        ],
+        "formatoCred": [
+          1755,
+          2
         ],
         "fraseEliminacion": [
-          1046,
+          1436,
           2
+        ],
+        "generarPdf": [
+          1859,
+          3
+        ],
+        "generarPng": [
+          1859,
+          1
+        ],
+        "generarZip": [
+          1864,
+          1
         ],
         "guardRoute": [
           15,
           1
         ],
+        "importarLista": [
+          2103,
+          1
+        ],
+        "importarParticipantes": [
+          2129,
+          1
+        ],
+        "imprimirPdf": [
+          1876,
+          1
+        ],
+        "inscritosImp": [
+          2036,
+          2
+        ],
+        "leerArchivo": [
+          1984,
+          1
+        ],
+        "leerTamanoCred": [
+          1763,
+          3
+        ],
+        "limpiarImpresion": [
+          1818,
+          1
+        ],
+        "mapa": [
+          2040,
+          1
+        ],
+        "mostrarPrecioImp": [
+          1966,
+          2
+        ],
+        "nombre": [
+          2180,
+          1
+        ],
+        "nombreArchivo": [
+          1860,
+          1
+        ],
+        "nombreDe": [
+          1692,
+          4
+        ],
+        "nombreLote": [
+          1862,
+          3
+        ],
         "nombresDeUsuarios": [
-          1166,
+          1556,
+          2
+        ],
+        "pasoImp": [
+          1947,
+          4
+        ],
+        "prepararColumnasImp": [
+          2008,
+          3
+        ],
+        "prepararHojaImp": [
+          1990,
+          3
+        ],
+        "reiniciarImp": [
+          1955,
+          2
+        ],
+        "renderColumnasImp": [
+          2016,
+          3
+        ],
+        "renderFilasImp": [
+          2050,
+          2
+        ],
+        "renderListaCred": [
+          1716,
+          5
+        ],
+        "renderPreviewCred": [
+          1776,
+          7
+        ],
+        "renderResultadoImp": [
+          2146,
           2
         ],
         "renderSheet": [
-          710,
+          1100,
           2
         ],
         "renderTabla": [
-          623,
+          1013,
           2
         ],
         "requirePermiso": [
           16,
           1
         ],
+        "revisarFilas": [
+          2049,
+          1
+        ],
+        "revisarImp": [
+          2017,
+          3
+        ],
+        "seleccionadosCred": [
+          1700,
+          5
+        ],
         "terminar": [
-          1079,
+          1469,
           6
         ],
+        "textoQr": [
+          1272,
+          1
+        ],
+        "textoResumenCred": [
+          1733,
+          2
+        ],
+        "tieneCredencial": [
+          1701,
+          3
+        ],
         "tienePermiso": [
-          647,
-          9
+          1037,
+          16
+        ],
+        "validarTamano": [
+          1769,
+          1
         ]
       },
       "html": {
         "ids": {
           "bottom-sheet": [
-            534
+            916
           ],
           "bs-body": [
-            540
+            922
           ],
           "bs-titulo": [
-            537
+            919
+          ],
+          "btn-credenciales": [
+            724
           ],
           "btn-exportar": [
-            487
+            723
+          ],
+          "btn-importar": [
+            725
           ],
           "fil-categoria": [
-            466
+            702
           ],
           "fil-estado": [
-            459
+            695
           ],
           "fil-metodo": [
-            475
+            711
           ],
           "inp-buscar": [
-            458
+            694
+          ],
+          "mc-agrupar": [
+            812
+          ],
+          "mc-alto": [
+            801
+          ],
+          "mc-ancho": [
+            800
+          ],
+          "mc-barra": [
+            819
+          ],
+          "mc-buscar": [
+            780
+          ],
+          "mc-cancelar": [
+            828
+          ],
+          "mc-categoria": [
+            782
+          ],
+          "mc-cerrar": [
+            776
+          ],
+          "mc-contador": [
+            787
+          ],
+          "mc-controles": [
+            778
+          ],
+          "mc-descargar": [
+            829
+          ],
+          "mc-error-tamano": [
+            803
+          ],
+          "mc-imprimir": [
+            830
+          ],
+          "mc-items": [
+            789
+          ],
+          "mc-limpiar": [
+            787
+          ],
+          "mc-no-aprobados": [
+            783
+          ],
+          "mc-personalizado": [
+            799
+          ],
+          "mc-preview": [
+            793
+          ],
+          "mc-preview-txt": [
+            794
+          ],
+          "mc-progreso": [
+            818
+          ],
+          "mc-progreso-txt": [
+            820
+          ],
+          "mc-resumen": [
+            817
+          ],
+          "mc-tamano": [
+            798
+          ],
+          "mc-titulo": [
+            773
+          ],
+          "mc-todos": [
+            786
+          ],
+          "mc-todos-txt": [
+            786
           ],
           "me-cancelar": [
-            524
+            762
           ],
           "me-confirmar": [
-            525
+            763
           ],
           "me-frase": [
-            521
+            759
           ],
           "me-grupo": [
-            519
+            757
           ],
           "me-input": [
-            522
+            760
           ],
           "me-quien": [
-            517
+            755
           ],
           "me-titulo": [
-            516
+            754
+          ],
+          "mi-archivo": [
+            848
+          ],
+          "mi-archivo-nombre": [
+            859
+          ],
+          "mi-barra": [
+            897
+          ],
+          "mi-cambiar": [
+            859
+          ],
+          "mi-cancelar": [
+            906
+          ],
+          "mi-categoria": [
+            870
+          ],
+          "mi-cerrar": [
+            843
+          ],
+          "mi-columnas": [
+            884
+          ],
+          "mi-comunes": [
+            880
+          ],
+          "mi-drop": [
+            847
+          ],
+          "mi-encabezado": [
+            866
+          ],
+          "mi-error-archivo": [
+            854
+          ],
+          "mi-filas": [
+            893
+          ],
+          "mi-hoja": [
+            862
+          ],
+          "mi-hoja-wrap": [
+            860
+          ],
+          "mi-importar": [
+            907
+          ],
+          "mi-mayusculas": [
+            886
+          ],
+          "mi-paso-archivo": [
+            846
+          ],
+          "mi-paso-resultado": [
+            903
+          ],
+          "mi-paso-revision": [
+            857
+          ],
+          "mi-plantilla": [
+            853
+          ],
+          "mi-precio": [
+            871
+          ],
+          "mi-progreso": [
+            896
+          ],
+          "mi-progreso-txt": [
+            898
+          ],
+          "mi-referencia": [
+            875
+          ],
+          "mi-resumen": [
+            889
+          ],
+          "mi-titulo": [
+            840
+          ],
+          "modal-cred": [
+            769
           ],
           "modal-eliminar": [
-            514
+            752
+          ],
+          "modal-imp": [
+            836
           ],
           "overlay": [
-            531
+            913
           ],
           "stat-aprobados": [
-            443
+            679
           ],
           "stat-comprobantes": [
-            451
+            687
           ],
           "stat-pendientes": [
-            447
+            683
           ],
           "stat-total": [
-            439
+            675
           ],
           "stats-grid": [
-            437
+            673
           ],
           "tabla-body": [
-            504
+            742
           ],
           "tabla-titulo": [
-            485
+            721
           ]
         },
         "inline_handlers": {
           "click": [
-            531,
-            538
+            913,
+            920
           ]
         }
       },
       "dom": {
         "ids": {
           "bottom-sheet": [
-            712,
-            716
+            1102,
+            1106
           ],
           "bs-body": [
-            745,
-            870
+            1135,
+            1262
           ],
           "bs-titulo": [
-            743
+            1133
           ],
           "btn-aprobar-sh": [
-            933,
-            942,
-            983,
-            1013,
-            1030
+            1323,
+            1332,
+            1373,
+            1403,
+            1420
+          ],
+          "btn-credenciales": [
+            1886,
+            1935
           ],
           "btn-eliminar-sh": [
-            868,
-            1118
+            1260,
+            1508
           ],
           "btn-exportar": [
-            1175,
-            1181,
-            1294
+            1565,
+            1571,
+            1686
+          ],
+          "btn-importar": [
+            2190,
+            2245
           ],
           "btn-rechazar-sh": [
-            934,
-            943,
-            984,
-            1014,
-            1031
+            1324,
+            1333,
+            1374,
+            1404,
+            1421
           ],
           "btn-reenviar-qr": [
-            991
+            1381
           ],
           "chk-eliminar-estudiantes": [
-            1112
+            1502
           ],
           "fil-categoria": [
-            608
+            998
           ],
           "fil-estado": [
-            607
+            997
           ],
           "fil-metodo": [
-            609
+            999
           ],
           "img-preview-efectivo": [
-            898
+            1288
           ],
           "inp-buscar": [
-            606
+            996
           ],
           "input-foto-efectivo": [
-            919
+            1309
           ],
           "label-foto-texto": [
-            896
+            1286
+          ],
+          "mc-agrupar": [
+            1756
+          ],
+          "mc-alto": [
+            1767
+          ],
+          "mc-ancho": [
+            1767
+          ],
+          "mc-barra": [
+            1829,
+            1846
+          ],
+          "mc-buscar": [
+            1705,
+            1807,
+            1812,
+            1897
+          ],
+          "mc-cancelar": [
+            1826,
+            1844,
+            1888
+          ],
+          "mc-categoria": [
+            1706,
+            1802,
+            1803,
+            1806,
+            1898
+          ],
+          "mc-cerrar": [
+            1887
+          ],
+          "mc-contador": [
+            1753
+          ],
+          "mc-controles": [
+            1825,
+            1843
+          ],
+          "mc-descargar": [
+            1759,
+            1851
+          ],
+          "mc-error-tamano": [
+            1770,
+            1771
+          ],
+          "mc-imprimir": [
+            1760,
+            1869
+          ],
+          "mc-items": [
+            1718,
+            1907,
+            1913
+          ],
+          "mc-limpiar": [
+            1754,
+            1924
+          ],
+          "mc-no-aprobados": [
+            1707,
+            1899
+          ],
+          "mc-personalizado": [
+            1765
+          ],
+          "mc-preview": [
+            1780
+          ],
+          "mc-preview-txt": [
+            1783,
+            1792
+          ],
+          "mc-progreso": [
+            1827,
+            1845
+          ],
+          "mc-progreso-txt": [
+            1830
+          ],
+          "mc-resumen": [
+            1757
+          ],
+          "mc-tamano": [
+            1696,
+            1764,
+            1768,
+            1930
+          ],
+          "mc-todos": [
+            1748,
+            1918
+          ],
+          "mc-todos-txt": [
+            1752
           ],
           "me-cancelar": [
-            1057
+            1447
           ],
           "me-confirmar": [
-            1056
+            1446
           ],
           "me-frase": [
-            1061
+            1451
           ],
           "me-grupo": [
-            1062,
-            1063
+            1452,
+            1453
           ],
           "me-input": [
-            1055
+            1445
           ],
           "me-quien": [
-            1060
+            1450
+          ],
+          "mi-archivo": [
+            1958,
+            2201
+          ],
+          "mi-archivo-nombre": [
+            1987
+          ],
+          "mi-barra": [
+            2121,
+            2143
+          ],
+          "mi-cambiar": [
+            2215
+          ],
+          "mi-cancelar": [
+            1952,
+            2118,
+            2192
+          ],
+          "mi-categoria": [
+            1942,
+            1976,
+            2107,
+            2235
+          ],
+          "mi-cerrar": [
+            2191
+          ],
+          "mi-columnas": [
+            2026,
+            2033,
+            2225
+          ],
+          "mi-comunes": [
+            1944,
+            2110
+          ],
+          "mi-descargar-resultado": [
+            2183
+          ],
+          "mi-drop": [
+            2202
+          ],
+          "mi-encabezado": [
+            2003,
+            2007,
+            2220
+          ],
+          "mi-error-archivo": [
+            1959,
+            1982,
+            1994,
+            1995
+          ],
+          "mi-filas": [
+            2075,
+            2236
+          ],
+          "mi-hoja": [
+            1989,
+            2216
+          ],
+          "mi-hoja-wrap": [
+            1988
+          ],
+          "mi-importar": [
+            1951,
+            2096,
+            2097,
+            2200
+          ],
+          "mi-mayusculas": [
+            2046,
+            2234
+          ],
+          "mi-otra": [
+            2187
+          ],
+          "mi-paso-archivo": [
+            1948
+          ],
+          "mi-paso-resultado": [
+            1950,
+            2166
+          ],
+          "mi-paso-revision": [
+            1949,
+            2116,
+            2141
+          ],
+          "mi-plantilla": [
+            2212
+          ],
+          "mi-precio": [
+            1977
+          ],
+          "mi-progreso": [
+            2117,
+            2142
+          ],
+          "mi-progreso-txt": [
+            2122
+          ],
+          "mi-referencia": [
+            2108
+          ],
+          "mi-resumen": [
+            2068
+          ],
+          "modal-cred": [
+            1811,
+            1817,
+            1892,
+            1894
           ],
           "modal-eliminar": [
-            1054
+            1444
+          ],
+          "modal-imp": [
+            1967,
+            1972,
+            2196,
+            2198
           ],
           "notas-pago": [
-            910,
-            1011
+            1300,
+            1401
           ],
           "overlay": [
-            711,
-            717
+            1101,
+            1107
           ],
           "preview-foto-efectivo": [
-            897
+            1287
           ],
           "qr-sheet-canvas": [
-            876
+            1268
           ],
           "stat-aprobados": [
-            599
+            989
           ],
           "stat-comprobantes": [
-            601
+            991
           ],
           "stat-pendientes": [
-            600
+            990
           ],
           "stat-total": [
-            598
+            988
           ],
           "tabla-body": [
-            637,
-            650,
-            683,
-            689
+            1027,
+            1040,
+            1073,
+            1079
           ],
           "tabla-titulo": [
-            634
+            1024
           ]
         },
         "selectors": {
+          ".mc-item.activo": [
+            1913
+          ],
           ".zona-eliminar": [
-            697
+            1087
           ],
           "[data-comprobante-ruta]": [
-            870
+            1262
+          ],
+          "[data-comun]": [
+            2110
           ],
           "[data-eliminar-id]": [
-            689
+            1079
           ],
           "[data-perfil-id]": [
-            683
+            1073
+          ],
+          "select": [
+            2033
           ]
         },
         "generated_ids": {
           "bottom-sheet": [
-            534
+            916
           ],
           "bs-body": [
-            540
+            922
           ],
           "bs-titulo": [
-            537
+            919
           ],
           "btn-aprobar-sh": [
-            827
+            1219
+          ],
+          "btn-credenciales": [
+            724
           ],
           "btn-eliminar-sh": [
-            863
+            1255
           ],
           "btn-exportar": [
-            487
+            723
+          ],
+          "btn-importar": [
+            725
           ],
           "btn-rechazar-sh": [
-            830
+            1222
           ],
           "btn-reenviar-qr": [
-            841
+            1233
           ],
           "chk-eliminar-estudiantes": [
-            861
+            1253
           ],
           "fil-categoria": [
-            466
+            702
           ],
           "fil-estado": [
-            459
+            695
           ],
           "fil-metodo": [
-            475
+            711
           ],
           "img-preview-efectivo": [
-            806
+            1198
           ],
           "inp-buscar": [
-            458
+            694
           ],
           "input-foto-efectivo": [
-            802
+            1194
           ],
           "label-foto-efectivo": [
-            797
+            1189
           ],
           "label-foto-texto": [
+            1193
+          ],
+          "mc-agrupar": [
+            812
+          ],
+          "mc-alto": [
             801
           ],
+          "mc-ancho": [
+            800
+          ],
+          "mc-barra": [
+            819
+          ],
+          "mc-buscar": [
+            780
+          ],
+          "mc-cancelar": [
+            828
+          ],
+          "mc-categoria": [
+            782
+          ],
+          "mc-cerrar": [
+            776
+          ],
+          "mc-contador": [
+            787
+          ],
+          "mc-controles": [
+            778
+          ],
+          "mc-descargar": [
+            829
+          ],
+          "mc-error-tamano": [
+            803
+          ],
+          "mc-imprimir": [
+            830
+          ],
+          "mc-items": [
+            789
+          ],
+          "mc-limpiar": [
+            787
+          ],
+          "mc-no-aprobados": [
+            783
+          ],
+          "mc-personalizado": [
+            799
+          ],
+          "mc-preview": [
+            793
+          ],
+          "mc-preview-txt": [
+            794
+          ],
+          "mc-progreso": [
+            818
+          ],
+          "mc-progreso-txt": [
+            820
+          ],
+          "mc-resumen": [
+            817
+          ],
+          "mc-tamano": [
+            798
+          ],
+          "mc-titulo": [
+            773
+          ],
+          "mc-todos": [
+            786
+          ],
+          "mc-todos-txt": [
+            786
+          ],
           "me-cancelar": [
-            524
+            762
           ],
           "me-confirmar": [
-            525
+            763
           ],
           "me-frase": [
-            521
+            759
           ],
           "me-grupo": [
-            519
+            757
           ],
           "me-input": [
-            522
+            760
           ],
           "me-quien": [
-            517
+            755
           ],
           "me-titulo": [
-            516
+            754
+          ],
+          "mi-archivo": [
+            848
+          ],
+          "mi-archivo-nombre": [
+            859
+          ],
+          "mi-barra": [
+            897
+          ],
+          "mi-cambiar": [
+            859
+          ],
+          "mi-cancelar": [
+            906
+          ],
+          "mi-categoria": [
+            870
+          ],
+          "mi-cerrar": [
+            843
+          ],
+          "mi-columnas": [
+            884
+          ],
+          "mi-comunes": [
+            880
+          ],
+          "mi-descargar-resultado": [
+            2174
+          ],
+          "mi-drop": [
+            847
+          ],
+          "mi-encabezado": [
+            866
+          ],
+          "mi-error-archivo": [
+            854
+          ],
+          "mi-filas": [
+            893
+          ],
+          "mi-hoja": [
+            862
+          ],
+          "mi-hoja-wrap": [
+            860
+          ],
+          "mi-importar": [
+            907
+          ],
+          "mi-mayusculas": [
+            886
+          ],
+          "mi-otra": [
+            2175
+          ],
+          "mi-paso-archivo": [
+            846
+          ],
+          "mi-paso-resultado": [
+            903
+          ],
+          "mi-paso-revision": [
+            857
+          ],
+          "mi-plantilla": [
+            853
+          ],
+          "mi-precio": [
+            871
+          ],
+          "mi-progreso": [
+            896
+          ],
+          "mi-progreso-txt": [
+            898
+          ],
+          "mi-referencia": [
+            875
+          ],
+          "mi-resumen": [
+            889
+          ],
+          "mi-titulo": [
+            840
+          ],
+          "modal-cred": [
+            769
           ],
           "modal-eliminar": [
-            514
+            752
+          ],
+          "modal-imp": [
+            836
           ],
           "notas-pago": [
-            824
+            1216
           ],
           "overlay": [
-            531
+            913
           ],
           "preview-foto-efectivo": [
-            805
+            1197
           ],
           "qr-sheet-canvas": [
-            770
+            1162
           ],
           "stat-aprobados": [
-            443
+            679
           ],
           "stat-comprobantes": [
-            451
+            687
           ],
           "stat-pendientes": [
-            447
+            683
           ],
           "stat-total": [
-            439
+            675
           ],
           "stats-grid": [
-            437
+            673
           ],
           "tabla-body": [
-            504
+            742
           ],
           "tabla-titulo": [
-            485
+            721
           ]
         }
       },
       "storage_keys": {
         "rol": [
-          562
+          952
         ],
         "uid": [
-          563
+          953
         ]
       },
       "events_listened": {
         "change": [
-          628
+          1018,
+          1898,
+          1899,
+          1907,
+          1918,
+          1930,
+          1933,
+          2201,
+          2216,
+          2220,
+          2225,
+          2234,
+          2235,
+          2236
         ],
         "click": [
-          684,
-          690,
-          868,
-          871,
-          1102,
-          1103,
-          1104,
-          1175
+          1074,
+          1080,
+          1260,
+          1263,
+          1492,
+          1493,
+          1494,
+          1565,
+          1851,
+          1869,
+          1886,
+          1887,
+          1888,
+          1892,
+          1924,
+          2183,
+          2187,
+          2190,
+          2191,
+          2192,
+          2196,
+          2200,
+          2212,
+          2215
         ],
         "drop": [
-          1100
+          1490,
+          2211
         ],
         "input": [
-          627,
-          1098
+          1017,
+          1488,
+          1897,
+          1931
         ],
         "keydown": [
-          1101
+          1491,
+          1893,
+          2197
         ],
         "paste": [
-          1099
+          1489
         ]
       }
     },
@@ -24443,12 +26349,44 @@
           false
         ]
       ],
+      "CAMPOS": [
+        [
+          "js/modulos/importar-participantes.js",
+          30,
+          "variable",
+          true
+        ]
+      ],
+      "CAMPOS_COMUNES": [
+        [
+          "js/modulos/importar-participantes.js",
+          49,
+          "variable",
+          true
+        ]
+      ],
       "CAMPOS_IDENTIDAD": [
         [
           "registro.html",
           601,
           "function",
           false
+        ]
+      ],
+      "CATEGORIAS_IMPORTABLES": [
+        [
+          "js/modulos/importar-participantes.js",
+          16,
+          "variable",
+          true
+        ]
+      ],
+      "FILAS_POR_LLAMADA": [
+        [
+          "js/modulos/importar-participantes.js",
+          26,
+          "variable",
+          true
         ]
       ],
       "ICONOS": [
@@ -24479,6 +26417,14 @@
         [
           "js/modulos/catalogo.js",
           20,
+          "variable",
+          true
+        ]
+      ],
+      "LIMITES": [
+        [
+          "js/modulos/credenciales.js",
+          28,
           "variable",
           true
         ]
@@ -24523,6 +26469,14 @@
           true
         ]
       ],
+      "TAMANOS": [
+        [
+          "js/modulos/credenciales.js",
+          15,
+          "variable",
+          true
+        ]
+      ],
       "TODOS_ICONOS": [
         [
           "js/modulos/catalogo.js",
@@ -24556,7 +26510,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1164,
+          1554,
           "function",
           false
         ]
@@ -24572,7 +26526,7 @@
       "aSlug": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1038,
+          1428,
           "function",
           false
         ]
@@ -24581,6 +26535,22 @@
         [
           "panel/modulos/logistica/catalogo.html",
           861,
+          "function",
+          false
+        ]
+      ],
+      "abrirCredenciales": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1799,
+          "function",
+          false
+        ]
+      ],
+      "abrirImportar": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1963,
           "function",
           false
         ]
@@ -24674,7 +26644,7 @@
       "accederGiraParticipante": [
         [
           "js/core/participantes-api.js",
-          179,
+          202,
           "function",
           true
         ]
@@ -24721,6 +26691,14 @@
         [
           "js/modulos/voluntarios.js",
           1727,
+          "function",
+          false
+        ]
+      ],
+      "actualizarBotonImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2094,
           "function",
           false
         ]
@@ -24833,6 +26811,14 @@
           false
         ]
       ],
+      "actualizarResumenCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1744,
+          "function",
+          false
+        ]
+      ],
       "actualizarSesionActiva": [
         [
           "js/modulos/lecturaQRGiras.js",
@@ -24856,7 +26842,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          593,
+          983,
           "function",
           false
         ],
@@ -24979,6 +26965,22 @@
           false
         ]
       ],
+      "agruparCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1694,
+          "function",
+          false
+        ]
+      ],
+      "ajustar": [
+        [
+          "js/modulos/importar-participantes.js",
+          180,
+          "function",
+          false
+        ]
+      ],
       "ajustarStock": [
         [
           "js/core/operaciones.js",
@@ -24987,10 +26989,26 @@
           true
         ]
       ],
+      "ajustarTexto": [
+        [
+          "js/modulos/credenciales.js",
+          167,
+          "function",
+          false
+        ]
+      ],
+      "alCambiarTamano": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1929,
+          "function",
+          false
+        ]
+      ],
       "alEscribir": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1073,
+          1463,
           "function",
           false
         ]
@@ -24998,7 +27016,15 @@
       "alFondo": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1082,
+          1472,
+          "function",
+          false
+        ]
+      ],
+      "alProgresar": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1828,
           "function",
           false
         ]
@@ -25006,7 +27032,7 @@
       "alTecla": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1078,
+          1468,
           "function",
           false
         ]
@@ -25039,6 +27065,14 @@
           true
         ]
       ],
+      "anchoEspaciado": [
+        [
+          "js/modulos/credenciales.js",
+          183,
+          "function",
+          false
+        ]
+      ],
       "aplicarAnchos": [
         [
           "js/modulos/reporteFinancieroExcel.js",
@@ -25056,7 +27090,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          605,
+          995,
           "function",
           false
         ]
@@ -25064,7 +27098,7 @@
       "aplicarLimiteRegistro": [
         [
           "functions/index.js",
-          416,
+          282,
           "function",
           false
         ]
@@ -25105,6 +27139,14 @@
         [
           "js/core/participantes-api.js",
           27,
+          "function",
+          true
+        ]
+      ],
+      "armarFilas": [
+        [
+          "js/modulos/importar-participantes.js",
+          179,
           "function",
           true
         ]
@@ -25165,6 +27207,14 @@
           false
         ]
       ],
+      "avance": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2120,
+          "function",
+          false
+        ]
+      ],
       "avisarFalloDeCarga": [
         [
           "js/modulos/voluntarios.js",
@@ -25192,7 +27242,7 @@
       "bloquearPegado": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1077,
+          1467,
           "function",
           false
         ]
@@ -25232,7 +27282,7 @@
       "brevoRequest": [
         [
           "functions/index.js",
-          543,
+          409,
           "function",
           false
         ]
@@ -25240,7 +27290,7 @@
       "brevoRequestOnce": [
         [
           "functions/index.js",
-          484,
+          350,
           "function",
           false
         ]
@@ -25257,6 +27307,22 @@
         [
           "functions/operaciones-qr.js",
           279,
+          "function",
+          false
+        ]
+      ],
+      "buscarYaInscritos": [
+        [
+          "functions/importaciones.js",
+          139,
+          "function",
+          false
+        ]
+      ],
+      "bytesPng": [
+        [
+          "js/modulos/credenciales.js",
+          541,
           "function",
           false
         ]
@@ -25386,7 +27452,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          586,
+          976,
           "function",
           false
         ]
@@ -25527,6 +27593,14 @@
           false
         ]
       ],
+      "cargarFuentes": [
+        [
+          "js/modulos/credenciales.js",
+          120,
+          "function",
+          false
+        ]
+      ],
       "cargarFuentesAutocompleteInforme": [
         [
           "js/modulos/informeActividad.js",
@@ -25551,6 +27625,12 @@
       ],
       "cargarImagen": [
         [
+          "js/modulos/credenciales.js",
+          109,
+          "function",
+          false
+        ],
+        [
           "js/modulos/voluntarios.js",
           885,
           "function",
@@ -25571,6 +27651,14 @@
           424,
           "function",
           false
+        ]
+      ],
+      "cargarLibreria": [
+        [
+          "js/core/librerias.js",
+          11,
+          "function",
+          true
         ]
       ],
       "cargarNumeroInforme": [
@@ -25699,10 +27787,42 @@
           false
         ]
       ],
+      "categoriaDe": [
+        [
+          "js/modulos/credenciales.js",
+          79,
+          "function",
+          true
+        ]
+      ],
+      "ceder": [
+        [
+          "js/modulos/credenciales.js",
+          586,
+          "function",
+          false
+        ]
+      ],
       "celda": [
         [
           "js/modulos/informeActividad.js",
           172,
+          "function",
+          false
+        ]
+      ],
+      "cerrarCredenciales": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1815,
+          "function",
+          false
+        ]
+      ],
+      "cerrarImportar": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1970,
           "function",
           false
         ]
@@ -25809,6 +27929,20 @@
           false
         ]
       ],
+      "clave": [
+        [
+          "functions/importaciones.js",
+          54,
+          "function",
+          false
+        ],
+        [
+          "js/modulos/importar-participantes.js",
+          214,
+          "function",
+          false
+        ]
+      ],
       "claveNoSel": [
         [
           "js/modulos/voluntarios.js",
@@ -25820,7 +27954,7 @@
       "claveNoSeleccionado": [
         [
           "functions/index.js",
-          1277,
+          1143,
           "function",
           false
         ]
@@ -25828,7 +27962,7 @@
       "coincide": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1072,
+          1462,
           "function",
           false
         ]
@@ -25853,6 +27987,14 @@
         [
           "js/modulos/ventaRapida.js",
           87,
+          "function",
+          false
+        ]
+      ],
+      "conQr": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1778,
           "function",
           false
         ]
@@ -25884,7 +28026,7 @@
       "confirmarEliminacion": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1053,
+          1443,
           "function",
           false
         ]
@@ -25924,7 +28066,7 @@
       "consultarUsuarioSSO": [
         [
           "functions/index.js",
-          308,
+          174,
           "function",
           false
         ]
@@ -25945,6 +28087,14 @@
           false
         ]
       ],
+      "crc32": [
+        [
+          "js/modulos/credenciales.js",
+          550,
+          "function",
+          false
+        ]
+      ],
       "crearCategoria": [
         [
           "js/modulos/catalogo.js",
@@ -25953,10 +28103,18 @@
           true
         ]
       ],
+      "crearDesdeFila": [
+        [
+          "functions/importaciones.js",
+          190,
+          "function",
+          false
+        ]
+      ],
       "crearParticipantesUnicos": [
         [
-          "functions/index.js",
-          161,
+          "functions/registro.js",
+          50,
           "function",
           false
         ]
@@ -26025,6 +28183,30 @@
           true
         ]
       ],
+      "descargarBlob": [
+        [
+          "js/modulos/credenciales.js",
+          528,
+          "function",
+          true
+        ]
+      ],
+      "descargarPlantilla": [
+        [
+          "js/modulos/importar-participantes.js",
+          261,
+          "function",
+          true
+        ]
+      ],
+      "descargarResultado": [
+        [
+          "js/modulos/importar-participantes.js",
+          271,
+          "function",
+          true
+        ]
+      ],
       "descripcionErrorStorage": [
         [
           "js/core/operaciones.js",
@@ -26037,6 +28219,14 @@
         [
           "js/modulos/detalleFondo.js",
           187,
+          "function",
+          false
+        ]
+      ],
+      "destinoDe": [
+        [
+          "js/modulos/importar-participantes.js",
+          77,
           "function",
           false
         ]
@@ -26065,6 +28255,22 @@
           false
         ]
       ],
+      "detectarColumnas": [
+        [
+          "js/modulos/importar-participantes.js",
+          84,
+          "function",
+          true
+        ]
+      ],
+      "detectarEncabezado": [
+        [
+          "js/modulos/importar-participantes.js",
+          97,
+          "function",
+          true
+        ]
+      ],
       "detenerScanner": [
         [
           "js/modulos/lecturaQR.js",
@@ -26073,10 +28279,58 @@
           false
         ]
       ],
+      "dibujarCabecera": [
+        [
+          "js/modulos/credenciales.js",
+          259,
+          "function",
+          false
+        ]
+      ],
       "dibujarCarnet": [
         [
           "js/modulos/voluntarios.js",
           910,
+          "function",
+          false
+        ]
+      ],
+      "dibujarCredencial": [
+        [
+          "js/modulos/credenciales.js",
+          490,
+          "function",
+          true
+        ]
+      ],
+      "dibujarCuerpo": [
+        [
+          "js/modulos/credenciales.js",
+          407,
+          "function",
+          false
+        ]
+      ],
+      "dibujarPie": [
+        [
+          "js/modulos/credenciales.js",
+          308,
+          "function",
+          false
+        ]
+      ],
+      "dibujarQr": [
+        [
+          "js/modulos/credenciales.js",
+          214,
+          "function",
+          false
+        ]
+      ],
+      "dibujarRed": [
+        [
+          "js/modulos/credenciales.js",
+          240,
           "function",
           false
         ]
@@ -26157,6 +28411,14 @@
         [
           "functions/operaciones-qr.js",
           464,
+          "function",
+          false
+        ]
+      ],
+      "ejecutarTareaCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1822,
           "function",
           false
         ]
@@ -26244,7 +28506,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          560,
+          950,
           "function",
           false
         ],
@@ -26263,6 +28525,14 @@
         [
           "registro.html",
           721,
+          "function",
+          false
+        ]
+      ],
+      "elegirArchivoImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1980,
           "function",
           false
         ]
@@ -26311,10 +28581,18 @@
           false
         ]
       ],
+      "enGrupos": [
+        [
+          "functions/importaciones.js",
+          131,
+          "function",
+          false
+        ]
+      ],
       "enLotes": [
         [
           "functions/index.js",
-          567,
+          433,
           "function",
           false
         ]
@@ -26344,7 +28622,7 @@
       "enviarCorreoNoSeleccionadoGira": [
         [
           "functions/index.js",
-          1283,
+          1149,
           "function",
           false
         ]
@@ -26352,7 +28630,7 @@
       "enviarCorreoNotificacionGira": [
         [
           "functions/index.js",
-          1205,
+          1071,
           "function",
           false
         ]
@@ -26360,7 +28638,7 @@
       "enviarCorreoPagoAprobado": [
         [
           "functions/index.js",
-          630,
+          496,
           "function",
           false
         ]
@@ -26376,7 +28654,7 @@
       "enviarCorreoTransaccional": [
         [
           "functions/index.js",
-          613,
+          479,
           "function",
           false
         ]
@@ -26400,7 +28678,7 @@
       "errorConEstado": [
         [
           "functions/test/envios.test.js",
-          51,
+          52,
           "function",
           false
         ]
@@ -26462,7 +28740,7 @@
       "esErrorPasajeroBrevo": [
         [
           "functions/index.js",
-          537,
+          403,
           "function",
           false
         ]
@@ -26486,7 +28764,7 @@
       "esTokenSSOValido": [
         [
           "functions/index.js",
-          279,
+          145,
           "function",
           false
         ]
@@ -26664,7 +28942,7 @@
       "extraer": [
         [
           "functions/test/envios.test.js",
-          24,
+          25,
           "function",
           false
         ]
@@ -26686,7 +28964,7 @@
       "extraerEmailSSO": [
         [
           "functions/index.js",
-          283,
+          149,
           "function",
           false
         ]
@@ -26694,7 +28972,7 @@
       "extraerNombreSSO": [
         [
           "functions/index.js",
-          299,
+          165,
           "function",
           false
         ]
@@ -26793,6 +29071,14 @@
           false
         ]
       ],
+      "filaParaServidor": [
+        [
+          "js/modulos/importar-participantes.js",
+          251,
+          "function",
+          true
+        ]
+      ],
       "filaParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
@@ -26801,10 +29087,26 @@
           false
         ]
       ],
+      "filasAImportar": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2059,
+          "function",
+          false
+        ]
+      ],
       "filasSegurasHoja": [
         [
           "js/modulos/voluntarios.js",
           55,
+          "function",
+          false
+        ]
+      ],
+      "filtrarCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1704,
           "function",
           false
         ]
@@ -26998,7 +29300,7 @@
       "formatearFechaGira": [
         [
           "functions/index.js",
-          1183,
+          1049,
           "function",
           false
         ]
@@ -27006,7 +29308,7 @@
       "formatearHoraGira": [
         [
           "functions/index.js",
-          1197,
+          1063,
           "function",
           false
         ]
@@ -27023,6 +29325,14 @@
         [
           "js/modulos/actividadVentas.js",
           32,
+          "function",
+          false
+        ]
+      ],
+      "formatoCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1693,
           "function",
           false
         ]
@@ -27052,15 +29362,23 @@
       "fraseEliminacion": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1046,
+          1436,
+          "function",
+          false
+        ]
+      ],
+      "fuente": [
+        [
+          "js/modulos/credenciales.js",
+          140,
           "function",
           false
         ]
       ],
       "generarCodigos": [
         [
-          "functions/index.js",
-          257,
+          "functions/registro.js",
+          148,
           "function",
           false
         ]
@@ -27097,6 +29415,22 @@
           false
         ]
       ],
+      "generarPdf": [
+        [
+          "js/modulos/credenciales.js",
+          620,
+          "function",
+          true
+        ]
+      ],
+      "generarPng": [
+        [
+          "js/modulos/credenciales.js",
+          603,
+          "function",
+          true
+        ]
+      ],
       "generarQR": [
         [
           "public/gira.html",
@@ -27131,10 +29465,18 @@
       ],
       "generarToken": [
         [
-          "functions/index.js",
-          146,
+          "functions/registro.js",
+          31,
           "function",
           false
+        ]
+      ],
+      "generarZip": [
+        [
+          "js/modulos/credenciales.js",
+          638,
+          "function",
+          true
         ]
       ],
       "get": [
@@ -27235,6 +29577,14 @@
         [
           "js/modulos/compras2.js",
           684,
+          "function",
+          false
+        ]
+      ],
+      "guiaDeCorte": [
+        [
+          "js/modulos/credenciales.js",
+          607,
           "function",
           false
         ]
@@ -27437,6 +29787,36 @@
           false
         ]
       ],
+      "importarLista": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2103,
+          "function",
+          false
+        ]
+      ],
+      "importarParticipantes": [
+        [
+          "functions/importaciones.js",
+          236,
+          "function",
+          false
+        ],
+        [
+          "js/core/participantes-api.js",
+          110,
+          "function",
+          true
+        ]
+      ],
+      "imprimirPdf": [
+        [
+          "js/modulos/credenciales.js",
+          662,
+          "function",
+          true
+        ]
+      ],
       "incorporar": [
         [
           "js/modulos/inscripciones.js",
@@ -27464,7 +29844,7 @@
       "infoRol": [
         [
           "js/core/permisos.js",
-          84,
+          89,
           "function",
           true
         ]
@@ -27575,10 +29955,26 @@
           false
         ]
       ],
+      "inscritosImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2036,
+          "function",
+          false
+        ]
+      ],
       "insertarNombre": [
         [
           "js/modulos/informeActividad.js",
           484,
+          "function",
+          false
+        ]
+      ],
+      "institucionDe": [
+        [
+          "js/modulos/credenciales.js",
+          83,
           "function",
           false
         ]
@@ -27619,6 +30015,14 @@
           false
         ]
       ],
+      "leerArchivo": [
+        [
+          "js/modulos/importar-participantes.js",
+          122,
+          "function",
+          true
+        ]
+      ],
       "leerColeccion": [
         [
           "js/modulos/calendario.js",
@@ -27651,6 +30055,14 @@
           false
         ]
       ],
+      "leerLote": [
+        [
+          "functions/importaciones.js",
+          164,
+          "function",
+          false
+        ]
+      ],
       "leerMapeo": [
         [
           "js/modulos/inscripciones.js",
@@ -27667,10 +30079,26 @@
           false
         ]
       ],
+      "leerTamanoCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1763,
+          "function",
+          false
+        ]
+      ],
       "liberarLocksParticipante": [
         [
           "functions/eliminaciones.js",
           58,
+          "function",
+          false
+        ]
+      ],
+      "limpiar": [
+        [
+          "functions/importaciones.js",
+          51,
           "function",
           false
         ]
@@ -27763,6 +30191,14 @@
           false
         ]
       ],
+      "limpiarImpresion": [
+        [
+          "js/modulos/credenciales.js",
+          655,
+          "function",
+          true
+        ]
+      ],
       "limpiarNombreArchivo": [
         [
           "js/core/operaciones.js",
@@ -27820,7 +30256,7 @@
       "listarParticipantesParaGiras": [
         [
           "js/core/participantes-api.js",
-          110,
+          133,
           "function",
           true
         ]
@@ -27837,6 +30273,14 @@
         [
           "functions/test/identidad.test.js",
           16,
+          "function",
+          false
+        ]
+      ],
+      "lockExiste": [
+        [
+          "functions/test/importaciones.integration.js",
+          33,
           "function",
           false
         ]
@@ -27865,6 +30309,14 @@
           true
         ]
       ],
+      "lote": [
+        [
+          "functions/test/importaciones.integration.js",
+          17,
+          "function",
+          false
+        ]
+      ],
       "main": [
         [
           "functions/test/diagnostico-correo.js",
@@ -27874,7 +30326,13 @@
         ],
         [
           "functions/test/envios.test.js",
-          54,
+          55,
+          "function",
+          false
+        ],
+        [
+          "functions/test/importaciones.integration.js",
+          39,
           "function",
           false
         ],
@@ -27929,6 +30387,12 @@
           12,
           "function",
           false
+        ],
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2037,
+          "function",
+          false
         ]
       ],
       "marcarCampoRequerido": [
@@ -27948,9 +30412,17 @@
         ],
         [
           "js/core/participantes-api.js",
-          204,
+          227,
           "function",
           true
+        ]
+      ],
+      "medirCuerpo": [
+        [
+          "js/modulos/credenciales.js",
+          337,
+          "function",
+          false
         ]
       ],
       "metodoPagoValido": [
@@ -28163,6 +30635,14 @@
           false
         ]
       ],
+      "mostrarPrecioImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1975,
+          "function",
+          false
+        ]
+      ],
       "mostrarResultado": [
         [
           "js/modulos/lecturaQRVoluntarios.js",
@@ -28198,7 +30678,7 @@
       "motivosDeGira": [
         [
           "functions/index.js",
-          1440,
+          1306,
           "function",
           false
         ]
@@ -28219,6 +30699,22 @@
           true
         ]
       ],
+      "nombre": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2154,
+          "function",
+          false
+        ]
+      ],
+      "nombreArchivo": [
+        [
+          "js/modulos/credenciales.js",
+          517,
+          "function",
+          true
+        ]
+      ],
       "nombreCompletoVol": [
         [
           "js/modulos/voluntarios.js",
@@ -28227,10 +30723,26 @@
           false
         ]
       ],
+      "nombreDe": [
+        [
+          "js/modulos/credenciales.js",
+          74,
+          "function",
+          true
+        ]
+      ],
       "nombreIconoCombo": [
         [
           "js/core/iconos.js",
           39,
+          "function",
+          true
+        ]
+      ],
+      "nombreLote": [
+        [
+          "js/modulos/credenciales.js",
+          521,
           "function",
           true
         ]
@@ -28251,6 +30763,14 @@
           false
         ]
       ],
+      "nombrePropio": [
+        [
+          "js/modulos/importar-participantes.js",
+          144,
+          "function",
+          false
+        ]
+      ],
       "nombreVol": [
         [
           "js/modulos/reportes_estadisticaCont.js",
@@ -28262,12 +30782,18 @@
       "nombresDeUsuarios": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1166,
+          1556,
           "function",
           false
         ]
       ],
       "normalizar": [
+        [
+          "js/modulos/importar-participantes.js",
+          53,
+          "function",
+          false
+        ],
         [
           "js/modulos/usuarios.js",
           41,
@@ -28277,8 +30803,14 @@
       ],
       "normalizarCamposExtra": [
         [
+          "functions/importaciones.js",
+          70,
+          "function",
+          false
+        ],
+        [
           "functions/index.js",
-          373,
+          239,
           "function",
           false
         ]
@@ -28286,7 +30818,15 @@
       "normalizarEstudiantes": [
         [
           "functions/index.js",
-          401,
+          267,
+          "function",
+          false
+        ]
+      ],
+      "normalizarFila": [
+        [
+          "functions/importaciones.js",
+          85,
           "function",
           false
         ]
@@ -28324,7 +30864,7 @@
       "normalizarTutor": [
         [
           "functions/index.js",
-          388,
+          254,
           "function",
           false
         ]
@@ -28332,7 +30872,7 @@
       "notificarNoSeleccionadosGira": [
         [
           "js/core/participantes-api.js",
-          159,
+          182,
           "function",
           true
         ]
@@ -28340,7 +30880,7 @@
       "notificarParticipantesGira": [
         [
           "js/core/participantes-api.js",
-          134,
+          157,
           "function",
           true
         ]
@@ -28528,7 +31068,7 @@
       "origenPermitidoParaSSO": [
         [
           "functions/index.js",
-          321,
+          187,
           "function",
           false
         ]
@@ -28617,6 +31157,22 @@
           false
         ]
       ],
+      "partirLineas": [
+        [
+          "js/modulos/credenciales.js",
+          142,
+          "function",
+          false
+        ]
+      ],
+      "pasoImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1947,
+          "function",
+          false
+        ]
+      ],
       "pausarScanner": [
         [
           "js/modulos/lecturaQR.js",
@@ -28628,7 +31184,7 @@
       "permisosDeRol": [
         [
           "js/core/permisos.js",
-          79,
+          84,
           "function",
           true
         ]
@@ -28645,6 +31201,14 @@
         [
           "js/modulos/voluntarios.js",
           200,
+          "function",
+          false
+        ]
+      ],
+      "pngConDpi": [
+        [
+          "js/modulos/credenciales.js",
+          563,
           "function",
           false
         ]
@@ -28677,6 +31241,22 @@
         [
           "js/modulos/calendario.js",
           51,
+          "function",
+          false
+        ]
+      ],
+      "porFila": [
+        [
+          "functions/importaciones.js",
+          291,
+          "function",
+          false
+        ]
+      ],
+      "porNombre": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1692,
           "function",
           false
         ]
@@ -28761,6 +31341,14 @@
           false
         ]
       ],
+      "prepararColumnasImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2011,
+          "function",
+          false
+        ]
+      ],
       "prepararDatos": [
         [
           "functions/test/operaciones-qr.integration.js",
@@ -28769,10 +31357,26 @@
           false
         ]
       ],
+      "prepararHojaImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1999,
+          "function",
+          false
+        ]
+      ],
       "prepararParticipanteGira": [
         [
           "js/modulos/voluntarios.js",
           1382,
+          "function",
+          false
+        ]
+      ],
+      "prepararRecursos": [
+        [
+          "js/modulos/credenciales.js",
+          130,
           "function",
           false
         ]
@@ -28797,6 +31401,14 @@
         [
           "functions/test/operaciones-qr.integration.js",
           141,
+          "function",
+          false
+        ]
+      ],
+      "problemaDeTexto": [
+        [
+          "functions/importaciones.js",
+          58,
           "function",
           false
         ]
@@ -28826,7 +31438,7 @@
       "procesarCorreoQrAprobado": [
         [
           "functions/index.js",
-          668,
+          534,
           "function",
           false
         ]
@@ -28856,7 +31468,7 @@
         ],
         [
           "functions/test/envios.test.js",
-          45,
+          46,
           "function",
           false
         ],
@@ -28869,6 +31481,12 @@
         [
           "functions/test/identidad.test.js",
           22,
+          "function",
+          false
+        ],
+        [
+          "functions/test/importaciones.test.js",
+          17,
           "function",
           false
         ],
@@ -28951,6 +31569,12 @@
       ],
       "rechazaCon": [
         [
+          "functions/test/importaciones.integration.js",
+          26,
+          "function",
+          false
+        ],
+        [
           "functions/test/operaciones-qr.integration.js",
           22,
           "function",
@@ -28983,6 +31607,30 @@
         [
           "registro.html",
           851,
+          "function",
+          false
+        ]
+      ],
+      "recorrer": [
+        [
+          "js/modulos/credenciales.js",
+          594,
+          "function",
+          false
+        ]
+      ],
+      "recortar": [
+        [
+          "js/modulos/credenciales.js",
+          158,
+          "function",
+          false
+        ]
+      ],
+      "rectRedondeado": [
+        [
+          "js/modulos/credenciales.js",
+          200,
           "function",
           false
         ]
@@ -29065,6 +31713,14 @@
           230,
           "function",
           true
+        ]
+      ],
+      "reiniciarImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1955,
+          "function",
+          false
         ]
       ],
       "render": [
@@ -29193,6 +31849,14 @@
           false
         ]
       ],
+      "renderColumnasImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2020,
+          "function",
+          false
+        ]
+      ],
       "renderComboItemsTemp": [
         [
           "js/modulos/actividadVentas.js",
@@ -29241,6 +31905,14 @@
         [
           "js/modulos/ventaRapida.js",
           647,
+          "function",
+          false
+        ]
+      ],
+      "renderFilasImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2061,
           "function",
           false
         ]
@@ -29305,6 +31977,14 @@
         [
           "js/modulos/detalleFondo.js",
           134,
+          "function",
+          false
+        ]
+      ],
+      "renderListaCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1716,
           "function",
           false
         ]
@@ -29433,6 +32113,14 @@
           false
         ]
       ],
+      "renderPreviewCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1776,
+          "function",
+          false
+        ]
+      ],
       "renderPreviewFactura": [
         [
           "js/modulos/compras.js",
@@ -29481,6 +32169,14 @@
         [
           "js/modulos/actividadVentas.js",
           127,
+          "function",
+          false
+        ]
+      ],
+      "renderResultadoImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2151,
           "function",
           false
         ]
@@ -29536,7 +32232,7 @@
       "renderSheet": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          732,
+          1122,
           "function",
           false
         ]
@@ -29570,7 +32266,7 @@
         ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          632,
+          1022,
           "function",
           false
         ]
@@ -29703,6 +32399,12 @@
       ],
       "request": [
         [
+          "functions/test/importaciones.integration.js",
+          16,
+          "function",
+          false
+        ],
+        [
           "functions/test/operaciones-qr.integration.js",
           11,
           "function",
@@ -29784,7 +32486,7 @@
       "resumirEnvios": [
         [
           "functions/index.js",
-          595,
+          461,
           "function",
           false
         ]
@@ -29801,6 +32503,22 @@
         [
           "functions/test/diagnostico-correo.js",
           78,
+          "function",
+          false
+        ]
+      ],
+      "revisarFilas": [
+        [
+          "js/modulos/importar-participantes.js",
+          220,
+          "function",
+          true
+        ]
+      ],
+      "revisarImp": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          2043,
           "function",
           false
         ]
@@ -29845,10 +32563,18 @@
           true
         ]
       ],
+      "rutaRaiz": [
+        [
+          "js/modulos/credenciales.js",
+          108,
+          "function",
+          false
+        ]
+      ],
       "sanitizarParticipante": [
         [
           "functions/index.js",
-          459,
+          325,
           "function",
           false
         ]
@@ -29873,6 +32599,14 @@
         [
           "registro.html",
           597,
+          "function",
+          false
+        ]
+      ],
+      "seleccionadosCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1700,
           "function",
           false
         ]
@@ -29923,6 +32657,22 @@
           false
         ]
       ],
+      "separarNombreCompleto": [
+        [
+          "js/modulos/importar-participantes.js",
+          155,
+          "function",
+          true
+        ]
+      ],
+      "separarRepetidas": [
+        [
+          "functions/importaciones.js",
+          109,
+          "function",
+          false
+        ]
+      ],
       "set": [
         [
           "js/modulos/reportes_estadisticaCont.js",
@@ -29934,7 +32684,7 @@
       "siNo": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1084,
+          1474,
           "function",
           false
         ]
@@ -29942,7 +32692,7 @@
       "siOk": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1083,
+          1473,
           "function",
           false
         ]
@@ -29951,6 +32701,14 @@
         [
           "functions/test/plantillas.test.js",
           37,
+          "function",
+          false
+        ]
+      ],
+      "slug": [
+        [
+          "js/modulos/credenciales.js",
+          509,
           "function",
           false
         ]
@@ -29996,7 +32754,7 @@
       "subirComprobante": [
         [
           "functions/index.js",
-          441,
+          307,
           "function",
           false
         ]
@@ -30054,7 +32812,7 @@
       "terminar": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
-          1086,
+          1476,
           "function",
           false
         ]
@@ -30075,10 +32833,58 @@
           false
         ]
       ],
+      "textoDeCsv": [
+        [
+          "js/modulos/importar-participantes.js",
+          111,
+          "function",
+          false
+        ]
+      ],
+      "textoEspaciado": [
+        [
+          "js/modulos/credenciales.js",
+          188,
+          "function",
+          false
+        ]
+      ],
+      "textoQr": [
+        [
+          "js/modulos/credenciales.js",
+          65,
+          "function",
+          true
+        ]
+      ],
+      "textoResumenCred": [
+        [
+          "panel/modulos/congreso/modulos_participantes.html",
+          1733,
+          "function",
+          false
+        ]
+      ],
+      "tiene": [
+        [
+          "js/modulos/importar-participantes.js",
+          181,
+          "function",
+          false
+        ]
+      ],
+      "tieneCredencial": [
+        [
+          "js/modulos/credenciales.js",
+          70,
+          "function",
+          true
+        ]
+      ],
       "tienePermiso": [
         [
           "js/core/permisos.js",
-          72,
+          77,
           "function",
           true
         ]
@@ -30342,7 +33148,7 @@
       "validarCorreo": [
         [
           "functions/index.js",
-          275,
+          141,
           "function",
           false
         ]
@@ -30350,7 +33156,7 @@
       "validarDocId": [
         [
           "functions/index.js",
-          365,
+          231,
           "function",
           false
         ]
@@ -30409,12 +33215,26 @@
           36,
           "function",
           false
+        ],
+        [
+          "functions/importaciones.js",
+          153,
+          "function",
+          false
+        ]
+      ],
+      "validarTamano": [
+        [
+          "js/modulos/credenciales.js",
+          94,
+          "function",
+          true
         ]
       ],
       "validarTexto": [
         [
           "functions/index.js",
-          327,
+          193,
           "function",
           false
         ]
@@ -30422,7 +33242,15 @@
       "validarTextoLibre": [
         [
           "functions/index.js",
-          347,
+          213,
+          "function",
+          false
+        ]
+      ],
+      "valor": [
+        [
+          "js/modulos/importar-participantes.js",
+          184,
           "function",
           false
         ]
@@ -30454,7 +33282,7 @@
       "verificarStaffCorreo": [
         [
           "functions/index.js",
-          618,
+          484,
           "function",
           false
         ]
@@ -30513,21 +33341,25 @@
       "086e4c244298bcdee811fcdbe1343779c20b4d3f1b406d8c8ffd5a7c23d5acc4": "functions/eliminaciones.js",
       "a31beb45d499b44a3f9a34b6ec3f368132f05d23e378a44cf3351c290d1d373b": "functions/giras.js",
       "3ad06f6552c7b841d6df4fe89eb6a0391eced9e956d9554c64ce4d313164162d": "functions/identidad.js",
-      "6b8135c0dd7a44ab5c7f230347ca1f4a9e338b4846ca17e70a0fdcee2911339a": "functions/index.js",
+      "7ffd4290a3758748aca0555b2eb88a306a44eed6505ec92f7b48ab152638df12": "functions/importaciones.js",
+      "9064bfd02be88475145397041ab1cfc080de16d5afef60cd739cfe74f983fdbc": "functions/index.js",
       "5a974bba25ebb095be2f4b84e438c6601542afe626e4ab2d457d5fa5148d793a": "functions/operaciones-financieras.js",
       "3b590cd9c27faafaf9360aed1ddf63c982ca6cc368e68b1fda086aee12b135c4": "functions/operaciones-qr.js",
-      "00c3c588b468c29909eab2bf50872788382bf7f672521eadd8a151b60eec94d8": "functions/package.json",
+      "62c72f38fb32d935abe803dbc6f44feb4cac0c15e3146916d477595b9ca295e1": "functions/package.json",
       "d0ce5b6bc7f8c819437685f4be6960d733fe887237975b019a77914285b52dc4": "functions/plantillas.js",
       "7a168c5376688df324fed4f11ceff481c83040eda8f951fbaf0968180be9c78f": "functions/qr-participante.js",
+      "02d2ed19d0cfd89ce3a692b08e0eb1d6490b7188d306eae6b1265bdd8d5fb203": "functions/registro.js",
       "7c35fd7def2a958dcd3ea8ee5b38b81704c1cc32e202b42382a95c9019c57e70": "functions/templates/correo-no-seleccionado-gira.html",
       "03a823997c06f371fed6d8fb9f66d8767b1648938897120d5132e1f89be131aa": "functions/templates/correo-notificacion-gira.html",
       "20c28b0b9b3428ac0c7b77da95f4f31d898e5f10053dd1265c1e33900d3ed7d8": "functions/templates/correo-pago-aprobado.html",
       "0258fdc0d7ad6cda242e79eb28a7485b454f69678a841f65712fb05c1a4f261e": "functions/test/correos.test.mjs",
       "b008003bcfdbd77841badbc67d9a99d83080b465660b1a783b33cc5b2766573f": "functions/test/diagnostico-correo.js",
-      "657ebb5a45b57abc118e8f26e27f5313e08ef7ae31f62ee1421a6402f44d0583": "functions/test/envios.test.js",
+      "4431be38693ec1c4cb977e2ff4a7d15ec5d5eae6eaf4abd96e19ec7e33ef2d00": "functions/test/envios.test.js",
       "1da16d23c20ed9e09f8e793d10ab32c951e8433c26f12cfe14ba34e283fd0ec9": "functions/test/giras.test.js",
       "75a6db2cdeac1ab14e1cd13978578a5cbd80440cbfac028c7f77d934eed3adc4": "functions/test/id-bloqueo.js",
       "b43c1a65830eb1d3e947e7a09f3e0cf30f262884fc01424557e67929cfc70eba": "functions/test/identidad.test.js",
+      "8db84b934564f0da83b156e9161c694cc221d18e026553a8532d975770b2b28b": "functions/test/importaciones.integration.js",
+      "c73fd1b771c4d42230b114a8b268837950afcdf28e8f07106faa81886823bebf": "functions/test/importaciones.test.js",
       "4eda1cfc49aeb72ed036d3e3f186481ffcc04f214bce465580b03e235b4b4029": "functions/test/operaciones-qr.integration.js",
       "3abe0a05bc36dc2f1bcf87d93722db3650aadd2b2c57d13b7307e1a7d1f27479": "functions/test/plantillas.test.js",
       "821d8ef13d0858f42afa13fdbe7fcb401a7f68616264278b4910258ee84c3c0d": "icons/bebida-lata.svg",
@@ -30587,9 +33419,10 @@
       "698fbe1bf7e4eb9e5c0b7637f6b8f0c7a675f6b051b7a10375d8cfeb5da3f8a5": "js/core/correos.js",
       "ff7e423db65f5b54bb436b3ad7297d20e4ba7335c7c7bd47fb1772792ae1d671": "js/core/firebase-config.js",
       "95bc12ba9870da179532627cbf58e3f342166ffbdd1fd6d29f06e3c7c6fc4d2c": "js/core/iconos.js",
+      "c74746b311d7d6a5109c3d7986a13d7e4788c6a777f0f66e6953a718ec546adf": "js/core/librerias.js",
       "24283793bdd8b5c08b5ddbf11cb71eb28033c03faa817cff354ba2e4a031c156": "js/core/operaciones.js",
-      "a6edb21bade804a620b91edd1637471f4fb3397644b5206cbd707c6710f4fcdf": "js/core/participantes-api.js",
-      "18a87bcda24c67f5f71061c66b1d69276754a59e80e3963920c29ada8a564e3c": "js/core/permisos.js",
+      "b26d7f6eb3bc6a1fd23ef96841d761a675d8e13303864058eaaa78be263c9680": "js/core/participantes-api.js",
+      "4a8c33b4e83becb193d461c809c5b195e3b577b1aa8010db2db00810a251f2e8": "js/core/permisos.js",
       "8d555eb48164965e94cd7f02c743684fd8b1be53d5564157c9acf618256e6129": "js/core/seguridad.js",
       "5d2c5044c8785a230f0f2077bcdef5b13d9dd92cce94039a1b45ca90e8cc6f19": "js/core/sso-config.js",
       "7e49da68588e250dbb8bba190d2caa8ab3787cc0284bda1d8b2f805c4df742c9": "js/libs/exceljs.min.js",
@@ -30605,8 +33438,10 @@
       "39d10f47727d83793a29209713fb6d23436468c4ec5e6746fd49466e88b39d91": "js/modulos/catalogo.js",
       "e52d3061e22bb18f4a6eb46d3770e9b51d593248f1dbf6d2317f7b24f91fa787": "js/modulos/compras.js",
       "c9d10a4302f67c5f92a40af1e09d0dbfe729e4982ccf76869052e7c5104ad08a": "js/modulos/compras2.js",
+      "485e7d4cac6c37a57a797d756eb60bd3c1e99ae2b07f10d55a03f44ace695cb0": "js/modulos/credenciales.js",
       "52b487badee1900f691036821866ef5225dab41976f4b60285eb4ac4d271080a": "js/modulos/detalleFondo.js",
       "79d9d32480de85c5d4328388aeb4540e6870f691fb155d1e0503dcb4688aaf44": "js/modulos/fondo.js",
+      "04ef867008d722a15cdb988147c5dcc6dcb0e41df45ce79459a2dd861d3bfcf7": "js/modulos/importar-participantes.js",
       "bfd467cfbd4c8d1755b9fb5a299cb017fbef1af79b84772a90e868f523bdc911": "js/modulos/informeActividad.js",
       "bd6ebd19785ea8830c679c9251fb58012718a3b9bc133535f5c7aa8c2853a335": "js/modulos/inscripciones.js",
       "4c15893e8519f2b0068daa2edccb897aff2167bf3bb59a34ee3f01e91522b2fb": "js/modulos/lecturaQR.js",
@@ -30635,7 +33470,7 @@
       "f497459f9d1c621ab19f8cd7bfd25aac949669e75430a8ecf730836bd560add1": "panel/modulos/admin/usuarios.html",
       "26a3c78f564a255f615e9d1f843fb7a6f07678478a29f3a255f551012415f46a": "panel/modulos/congreso/inscripciones.html",
       "dee6bf046ced5b729e788a81c78a619566800c37ef80644a59e854cabfe85d71": "panel/modulos/congreso/lecturaQR.html",
-      "2855d7fbef4a8136e3da36e1f9850685705fee594240348da18c72809ad1ca90": "panel/modulos/congreso/modulos_participantes.html",
+      "2378bf104c3eceadd1d5632f1f616310eae8af74f2927a3c7a6d6c19becaa840": "panel/modulos/congreso/modulos_participantes.html",
       "3fbcac891aa4c75648f1b04ee0e9600d2f42cc9a07f2db6046850b4dd5cf313a": "panel/modulos/congreso/reportes_estadisticaCont.html",
       "b65c69b5dec2457bbdd2383e11b3c5eb1b32aaca76a1a3dda638b3736f2cce1d": "panel/modulos/finanzas/bitacora.html",
       "6b23f8dcfb0dad1bdc0b4afd485c7d556cffc7dc64ed1f8590a2cdadd85e52ec": "panel/modulos/finanzas/compras.html",
@@ -30664,10 +33499,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 3766,
-    "architectural_symbols_retained": 796,
-    "calls_detected": 8496,
-    "architectural_calls_retained": 4412,
+    "symbols_detected": 4181,
+    "architectural_symbols_retained": 914,
+    "calls_detected": 9245,
+    "architectural_calls_retained": 4872,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -30701,5 +33536,5 @@
       "change"
     ]
   },
-  "estimated_tokens": 91144
+  "estimated_tokens": 99040
 }
