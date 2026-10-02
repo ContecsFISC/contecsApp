@@ -53,6 +53,11 @@ export const PERMISOS = {
   // Debe reflejar ROLES_ELIMINAR_PARTICIPANTES en functions/eliminaciones.js.
   eliminar_participantes: ["ceo", "junta_principal"],
   exportar_participantes: ["ceo", "junta_principal"],
+  // Las credenciales llevan el QR con el token de acceso de cada participante
+  // (la clave de su perfil), por eso van con los mismos roles que exportar.
+  imprimir_credenciales:  ["ceo", "junta_principal"],
+  // Debe reflejar ROLES_IMPORTAR_PARTICIPANTES en functions/importaciones.js.
+  importar_participantes: ["ceo", "junta_principal"],
   gestionar_inscripciones: ["ceo", "staff_contecs"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],

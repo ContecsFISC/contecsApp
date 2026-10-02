@@ -96,6 +96,29 @@ export async function eliminarParticipante(docId, { incluirEstudiantes = false }
   }
 }
 
+const ERRORES_IMPORTAR_PARTICIPANTES = {
+  "unauthenticated":   "Debes iniciar sesión.",
+  "permission-denied": "No tienes permiso para importar participantes.",
+  "deadline-exceeded": "La importación tardó demasiado. Revisa la tabla antes de reintentar: parte de la lista pudo quedar guardada.",
+  "internal":          "No se pudo completar la importación. Intenta de nuevo.",
+  "unavailable":       "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Inscribe un bloque de filas de la lista de un profesor (máximo 100 por
+// llamada) con el pago pendiente. Devuelve {creados, omitidos}; las filas con
+// problemas no tumban al resto. Ver functions/importaciones.js.
+export async function importarParticipantes({categoria, referencia, loteId, camposComunes, filas}) {
+  try {
+    // Un bloque de 100 filas puede tardar más que los 70 s por defecto.
+    const fn = httpsCallable(functions, "importarParticipantes", {timeout: 300000});
+    const result = await fn({categoria, referencia, loteId, camposComunes, filas});
+    return result.data;
+  } catch (error) {
+    const msg = ERRORES_IMPORTAR_PARTICIPANTES[error.code] || error.message || "Error al importar participantes.";
+    throw new Error(msg);
+  }
+}
+
 const ERRORES_LISTAR_PARTICIPANTES_GIRAS = {
   "unauthenticated":   "Debes iniciar sesión para ver los participantes.",
   "permission-denied": "No tienes permiso para ver la lista de participantes.",

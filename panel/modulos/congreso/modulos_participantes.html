@@ -106,6 +106,8 @@
  flex-wrap: wrap;
  }
  .tabla-header-titulo { font-size: 15px; font-weight: 700; color: var(--verde-oscuro); }
+ .tabla-acciones { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+ .tabla-acciones .btn { width: auto; min-height: 40px; padding: 8px 14px; font-size: 13px; white-space: nowrap; }
  .tabla-overflow { overflow-x: auto; }
  table { width: 100%; border-collapse: collapse; }
  th {
@@ -363,6 +365,240 @@
  .me-confirmar { background: var(--rojo); color: #fff; }
  .me-confirmar:disabled { opacity: 0.35; cursor: not-allowed; }
 
+ /* ── MODAL CREDENCIALES ── */
+ .modal-amplio-fondo {
+ position: fixed; inset: 0;
+ background: rgba(0,0,0,0.55);
+ backdrop-filter: blur(3px);
+ z-index: 400;
+ display: flex; align-items: center; justify-content: center;
+ padding: 16px;
+ }
+ .modal-amplio-fondo[hidden] { display: none; }
+ .modal-amplio {
+ background: #fff;
+ border-radius: var(--radio-lg);
+ box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+ width: 100%; max-width: 1060px;
+ height: min(780px, calc(100dvh - 32px));
+ display: flex; flex-direction: column;
+ overflow: hidden;
+ border-top: 4px solid var(--verde);
+ animation: cardIn 0.25s both;
+ }
+ .ma-header {
+ padding: 16px 20px 14px;
+ border-bottom: 1.5px solid var(--gris-borde);
+ display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+ }
+ .ma-header h2 { font-size: 18px; font-weight: 800; color: var(--verde-oscuro); margin: 0; }
+ .ma-sub { font-size: 12px; color: var(--gris-medio); margin-top: 3px; }
+ .mc-body {
+ flex: 1; min-height: 0; min-width: 0;
+ display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+ border: 0; padding: 0; margin: 0;
+ }
+ .mc-lista {
+ display: flex; flex-direction: column; gap: 10px;
+ min-height: 0; padding: 16px 20px;
+ border-right: 1.5px solid var(--gris-borde);
+ }
+ .mc-opciones {
+ display: flex; flex-direction: column; gap: 14px;
+ min-height: 0; overflow-y: auto;
+ padding: 16px 20px;
+ background: var(--gris-suave);
+ }
+ .ma-input, .ma-select {
+ width: 100%; box-sizing: border-box;
+ padding: 9px 12px;
+ border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ font-size: 14px; font-family: var(--fuente); color: var(--gris-texto);
+ background: #fff; outline: none;
+ }
+ .ma-input:focus, .ma-select:focus { border-color: var(--verde); }
+ .mc-filtros { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+ .mc-filtros .ma-select { flex: 1 1 180px; width: auto; font-size: 13px; }
+ .ma-check { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--gris-texto); cursor: pointer; }
+ .ma-check input, .mc-item input { width: 17px; height: 17px; accent-color: var(--verde); flex-shrink: 0; margin: 0; }
+ .mc-barra-sel {
+ display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+ padding: 8px 12px;
+ background: var(--verde-fondo); border-radius: var(--radio-sm);
+ }
+ .mc-barra-sel .ma-check { font-weight: 700; color: var(--verde-oscuro); }
+ .mc-contador { font-size: 12px; font-weight: 700; color: var(--verde-oscuro); }
+ .ma-link { background: none; border: none; padding: 0; margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--rojo); cursor: pointer; font-family: var(--fuente); }
+ .ma-link:disabled { color: var(--gris-medio); cursor: default; }
+ .mc-items {
+ list-style: none; margin: 0; padding: 0;
+ flex: 1; min-height: 0; overflow-y: auto;
+ border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ }
+ .mc-item {
+ display: flex; align-items: center; gap: 10px;
+ padding: 9px 12px;
+ border-bottom: 1px solid var(--gris-borde);
+ cursor: pointer;
+ }
+ .mc-items li:last-child .mc-item { border-bottom: none; }
+ .mc-item:hover { background: var(--gris-suave); }
+ .mc-item.activo { background: var(--verde-fondo); box-shadow: inset 3px 0 0 var(--verde); }
+ .mc-item.inactivo { opacity: 0.55; cursor: not-allowed; }
+ .mc-item-txt { flex: 1; min-width: 0; }
+ .mc-item-txt strong { display: block; font-size: 13px; color: var(--gris-texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .mc-item-txt small { display: block; font-size: 11px; color: var(--gris-medio); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .mc-vacio { padding: 32px 16px; text-align: center; font-size: 13px; color: var(--gris-medio); }
+ .mc-preview {
+ display: flex; flex-direction: column; align-items: center; gap: 8px;
+ padding: 14px;
+ background: #fff; border-radius: var(--radio); box-shadow: var(--sombra-sm);
+ }
+ .mc-preview-lienzo { display: flex; align-items: center; justify-content: center; min-height: 300px; width: 100%; }
+ .mc-preview-lienzo canvas { display: block; max-width: 100%; max-height: 330px; width: auto; height: auto; border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.16); }
+ .mc-preview-vacio { font-size: 13px; color: var(--gris-medio); text-align: center; padding: 0 12px; }
+ .mc-preview-txt { font-size: 11px; color: var(--gris-medio); text-align: center; }
+ .ma-campo { display: flex; flex-direction: column; gap: 6px; }
+ .ma-label { font-size: 11px; font-weight: 700; color: var(--gris-medio); text-transform: uppercase; letter-spacing: 0.4px; }
+ .mc-personalizado { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+ .mc-personalizado[hidden] { display: none; }
+ .mc-personalizado label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--gris-texto); font-weight: 600; }
+ .ma-error { font-size: 12px; font-weight: 600; color: var(--rojo); background: var(--rojo-fondo); border-radius: var(--radio-sm); padding: 8px 10px; }
+ .ma-seg {
+ display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+ padding: 3px;
+ background: #fff; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ }
+ .ma-seg label { position: relative; }
+ .ma-seg input { position: absolute; opacity: 0; pointer-events: none; }
+ .ma-seg span { display: block; text-align: center; padding: 8px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--gris-medio); cursor: pointer; transition: background 0.15s, color 0.15s; }
+ .ma-seg input:checked + span { background: var(--verde); color: #fff; }
+ .ma-seg input:focus-visible + span { outline: 2px solid var(--verde-claro); outline-offset: 1px; }
+ .ma-campo[hidden] { display: none; }
+ .ma-opcion {
+ display: flex; gap: 10px; align-items: flex-start;
+ padding: 10px 12px;
+ background: #fff; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ cursor: pointer;
+ }
+ .ma-opcion:has(input:checked) { border-color: var(--verde); background: var(--verde-fondo); }
+ .ma-opcion input { margin: 2px 0 0; accent-color: var(--verde); }
+ .ma-opcion strong { display: block; font-size: 13px; color: var(--gris-texto); }
+ .ma-opcion small { display: block; font-size: 12px; color: var(--gris-medio); margin-top: 2px; }
+ .ma-resumen { font-size: 13px; font-weight: 600; color: var(--verde-oscuro); }
+ .ma-ayuda { font-size: 12px; color: var(--gris-medio); line-height: 1.5; border-top: 1px dashed var(--gris-borde); padding-top: 12px; }
+ .ma-ayuda strong { color: var(--gris-texto); }
+ .ma-progreso { display: flex; flex-direction: column; gap: 6px; }
+ .ma-progreso[hidden] { display: none; }
+ .ma-barra { height: 8px; background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid var(--gris-borde); }
+ .ma-barra span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde), var(--verde-claro)); transition: width 0.2s; }
+ .ma-progreso-txt { font-size: 12px; font-weight: 600; color: var(--gris-texto); }
+ .ma-footer {
+ display: flex; justify-content: flex-end; gap: 10px;
+ padding: 14px 20px;
+ border-top: 1.5px solid var(--gris-borde);
+ }
+ .ma-footer .btn-grande { min-width: 130px; }
+ .mc-descargar { background: #fff; color: var(--verde-oscuro); border: 1.5px solid var(--verde); }
+ .mc-descargar:disabled, .mc-imprimir:disabled { opacity: 0.4; cursor: not-allowed; }
+ @media(max-width:760px) {
+   .modal-amplio-fondo { padding: 0; }
+   .modal-amplio { height: 100dvh; max-width: none; border-radius: 0; }
+   .mc-body { display: block; overflow-y: auto; }
+   .mc-lista { border-right: none; border-bottom: 1.5px solid var(--gris-borde); }
+   .mc-items { flex: none; max-height: 45dvh; }
+   .mc-opciones { overflow: visible; }
+   .ma-footer { padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); }
+   .ma-footer .btn-grande { flex: 1; min-width: 0; }
+ }
+
+ /* ── MODAL IMPORTAR PARTICIPANTES ── */
+ .mi-paso {
+ flex: 1; min-height: 0; overflow-y: auto;
+ display: flex; flex-direction: column; gap: 14px;
+ padding: 24px 20px;
+ }
+ .mi-paso[hidden], .ma-footer .btn-grande[hidden] { display: none; }
+ .mi-drop {
+ position: relative;
+ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+ min-height: 260px; padding: 24px;
+ text-align: center; color: var(--verde-oscuro);
+ background: var(--verde-fondo);
+ border: 2px dashed var(--verde-claro); border-radius: var(--radio);
+ cursor: pointer;
+ transition: background 0.2s, border-color 0.2s;
+ }
+ .mi-drop:hover, .mi-drop.encima { background: #dcefe3; border-color: var(--verde); }
+ .mi-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+ .mi-drop svg { width: 40px; height: 40px; }
+ .mi-drop strong { font-size: 15px; }
+ .mi-drop small { font-size: 12px; color: var(--gris-medio); max-width: 480px; line-height: 1.5; }
+ .mi-plantilla { font-size: 13px; color: var(--gris-medio); text-align: center; }
+ .mi-plantilla .ma-link { color: var(--verde-oscuro); }
+ .mi-revision {
+ flex: 1; min-height: 0; min-width: 0;
+ display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+ border: 0; padding: 0; margin: 0;
+ }
+ .mi-revision[hidden] { display: none; }
+ .mi-config {
+ display: flex; flex-direction: column; gap: 12px;
+ min-height: 0; overflow-y: auto;
+ padding: 16px 20px;
+ background: var(--gris-suave);
+ border-right: 1.5px solid var(--gris-borde);
+ }
+ .mi-vista { display: flex; flex-direction: column; gap: 10px; min-height: 0; min-width: 0; padding: 16px 20px; }
+ .mi-archivo-info { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+ .mi-archivo-info strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gris-texto); }
+ .mi-archivo-info .ma-link { color: var(--verde-oscuro); flex-shrink: 0; }
+ .mi-nota { font-size: 12px; color: var(--gris-medio); line-height: 1.4; }
+ .mi-comunes { background: #fff; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); padding: 10px 12px; }
+ .mi-comunes summary { font-size: 13px; font-weight: 700; color: var(--verde-oscuro); cursor: pointer; }
+ .mi-comunes-grid { display: grid; gap: 8px; margin-top: 10px; }
+ .mi-comunes-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--gris-texto); }
+ .mi-columnas { display: flex; flex-direction: column; gap: 6px; }
+ .mi-columna {
+ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center;
+ padding: 6px 8px;
+ background: #fff; border: 1px solid var(--gris-borde); border-radius: var(--radio-sm);
+ }
+ .mi-columna-txt { min-width: 0; }
+ .mi-columna-txt strong { display: block; font-size: 12px; color: var(--gris-texto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .mi-columna-txt small { display: block; font-size: 11px; color: var(--gris-medio); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .mi-columna .ma-select { padding: 6px 8px; font-size: 12px; }
+ .mi-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+ .mi-chip { font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 20px; }
+ .mi-chip.ok { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .mi-chip.aviso { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .mi-chip.error { background: var(--rojo-fondo); color: var(--rojo); }
+ .mi-tabla-wrap { flex: 1; min-height: 0; overflow: auto; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); }
+ .mi-tabla th { position: sticky; top: 0; z-index: 1; padding: 8px 10px; }
+ .mi-tabla td { padding: 8px 10px; font-size: 12px; }
+ .mi-tabla tr.error td { background: #fff8f7; color: var(--gris-medio); }
+ .mi-tabla tr.excluida td { opacity: 0.45; }
+ .mi-tabla input { width: 16px; height: 16px; accent-color: var(--verde); }
+ .mi-notas { font-size: 11px; color: var(--gris-medio); min-width: 180px; }
+ .mi-tabla tr.error .mi-notas { color: var(--rojo); }
+ .mi-codigo { font-family: 'Courier New', monospace; font-weight: 700; color: var(--verde-oscuro); }
+ .mi-motivo { font-weight: 600; color: var(--amarillo); }
+ .mi-sin { color: var(--gris-medio); }
+ .mi-res-numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+ .mi-res-num { background: var(--verde-fondo); border-radius: var(--radio); padding: 16px; text-align: center; }
+ .mi-res-num strong { display: block; font-size: 30px; font-weight: 800; color: var(--verde-oscuro); line-height: 1.1; }
+ .mi-res-num span { font-size: 12px; font-weight: 600; color: var(--gris-medio); }
+ .mi-res-num.omitidos { background: var(--amarillo-fondo); }
+ .mi-res-num.omitidos strong { color: var(--amarillo); }
+ .mi-res-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+ .mi-res-acciones .btn { width: auto; padding: 8px 14px; font-size: 13px; }
+ @media(max-width:760px) {
+   .mi-revision { display: block; overflow-y: auto; }
+   .mi-config { border-right: none; border-bottom: 1.5px solid var(--gris-borde); }
+   .mi-tabla-wrap { flex: none; max-height: 50dvh; }
+   .mi-paso { padding: 16px 14px; }
+ }
+
  .notas-area {
  width: 100%;
  padding: 10px 12px;
@@ -483,8 +719,10 @@
  <div class="tabla-wrap">
  <div class="tabla-header">
  <div class="tabla-header-titulo" id="tabla-titulo">Cargando...</div>
- <div style="display:flex;gap:8px;">
- <button class="btn btn-outline" id="btn-exportar" style="padding:8px 14px;font-size:13px;display:none;">Exportar Excel</button>
+ <div class="tabla-acciones">
+ <button class="btn btn-outline" id="btn-exportar" style="display:none;">Exportar Excel</button>
+ <button class="btn btn-outline" id="btn-credenciales" style="display:none;">Imprimir credenciales</button>
+ <button class="btn btn-outline" id="btn-importar" style="display:none;">Importar participantes</button>
  </div>
  </div>
  <div class="tabla-overflow">
@@ -527,6 +765,150 @@
  </div>
 </div>
 
+<!-- MODAL CREDENCIALES -->
+<div class="modal-amplio-fondo" id="modal-cred" hidden>
+ <div class="modal-amplio" role="dialog" aria-modal="true" aria-labelledby="mc-titulo">
+ <div class="ma-header">
+ <div>
+ <h2 id="mc-titulo">Imprimir credenciales</h2>
+ <div class="ma-sub">Elige a quién, el tamaño de la etiqueta y el formato.</div>
+ </div>
+ <button class="bs-cerrar" type="button" id="mc-cerrar" aria-label="Cerrar">&times;</button>
+ </div>
+ <fieldset class="mc-body" id="mc-controles">
+ <section class="mc-lista" aria-label="Participantes">
+ <input type="text" class="ma-input" id="mc-buscar" placeholder="Buscar por nombre, cédula o código..." autocomplete="off"/>
+ <div class="mc-filtros">
+ <select class="ma-select" id="mc-categoria" aria-label="Categoría"></select>
+ <label class="ma-check"><input type="checkbox" id="mc-no-aprobados"/> Incluir pagos no aprobados</label>
+ </div>
+ <div class="mc-barra-sel">
+ <label class="ma-check"><input type="checkbox" id="mc-todos"/> <span id="mc-todos-txt">Seleccionar todos</span></label>
+ <span><span class="mc-contador" id="mc-contador">0 seleccionados</span><button type="button" class="ma-link" id="mc-limpiar">Quitar selección</button></span>
+ </div>
+ <ul class="mc-items" id="mc-items"></ul>
+ </section>
+ <section class="mc-opciones" aria-label="Opciones">
+ <div class="mc-preview">
+ <div class="mc-preview-lienzo" id="mc-preview"></div>
+ <div class="mc-preview-txt" id="mc-preview-txt"></div>
+ </div>
+ <div class="ma-campo">
+ <label class="ma-label" for="mc-tamano">Tamaño de la etiqueta</label>
+ <select class="ma-select" id="mc-tamano"></select>
+ <div class="mc-personalizado" id="mc-personalizado" hidden>
+ <label>Ancho (mm)<input type="number" class="ma-input" id="mc-ancho" min="25.4" max="108" step="0.1" value="101.6"/></label>
+ <label>Alto (mm)<input type="number" class="ma-input" id="mc-alto" min="32" max="300" step="0.1" value="152.4"/></label>
+ </div>
+ <div class="ma-error" id="mc-error-tamano" hidden></div>
+ </div>
+ <div class="ma-campo">
+ <span class="ma-label">Formato de descarga</span>
+ <div class="ma-seg" role="radiogroup" aria-label="Formato de descarga">
+ <label><input type="radio" name="mc-formato" value="pdf" checked/><span>PDF</span></label>
+ <label><input type="radio" name="mc-formato" value="png"/><span>PNG</span></label>
+ </div>
+ </div>
+ <div class="ma-campo" id="mc-agrupar" hidden>
+ <span class="ma-label">Varias credenciales en PDF</span>
+ <label class="ma-opcion"><input type="radio" name="mc-agrupar" value="uno" checked/><span><strong>Un solo PDF</strong><small>Una credencial por hoja, listo para imprimir en lote.</small></span></label>
+ <label class="ma-opcion"><input type="radio" name="mc-agrupar" value="zip"/><span><strong>Un PDF por participante</strong><small>Archivos separados dentro de un ZIP.</small></span></label>
+ </div>
+ <div class="ma-resumen" id="mc-resumen"></div>
+ <div class="ma-progreso" id="mc-progreso" hidden>
+ <div class="ma-barra"><span id="mc-barra"></span></div>
+ <span class="ma-progreso-txt" id="mc-progreso-txt"></span>
+ </div>
+ <div class="ma-ayuda">
+ <strong>Imprimir</strong> abre el diálogo de impresión de tu equipo, donde eliges la impresora (por ejemplo la Epson CW-C4000). Usa el mismo tamaño de papel que la etiqueta, márgenes <strong>Ninguno</strong> y escala <strong>100 %</strong>.
+ </div>
+ </section>
+ </fieldset>
+ <div class="ma-footer">
+ <button type="button" class="btn-grande me-cancelar" id="mc-cancelar">Cerrar</button>
+ <button type="button" class="btn-grande mc-descargar" id="mc-descargar" disabled>Descargar</button>
+ <button type="button" class="btn-grande btn-aprobar-grande mc-imprimir" id="mc-imprimir" disabled>Imprimir</button>
+ </div>
+ </div>
+</div>
+
+<!-- MODAL IMPORTAR PARTICIPANTES -->
+<div class="modal-amplio-fondo" id="modal-imp" hidden>
+ <div class="modal-amplio" role="dialog" aria-modal="true" aria-labelledby="mi-titulo">
+ <div class="ma-header">
+ <div>
+ <h2 id="mi-titulo">Importar participantes</h2>
+ <div class="ma-sub">Sube la lista que envió el profesor. Cada persona queda inscrita como en el registro, con el pago <strong>pendiente</strong>.</div>
+ </div>
+ <button class="bs-cerrar" type="button" id="mi-cerrar" aria-label="Cerrar">&times;</button>
+ </div>
+
+ <div class="mi-paso" id="mi-paso-archivo">
+ <label class="mi-drop" id="mi-drop">
+ <input type="file" id="mi-archivo" accept=".xlsx,.xls,.csv"/>
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+ <strong>Arrastra aquí el Excel o CSV, o haz clic para elegirlo</strong>
+ <small>Se reconoce sola la fila de títulos (Nombre, Cédula, Correo…). No hace falta que estén todas las columnas: basta el nombre y la cédula o el correo.</small>
+ </label>
+ <div class="mi-plantilla">¿El profesor no tiene un formato? <button type="button" class="ma-link" id="mi-plantilla">Descargar plantilla de Excel</button></div>
+ <div class="ma-error" id="mi-error-archivo" hidden></div>
+ </div>
+
+ <fieldset class="mi-revision" id="mi-paso-revision" hidden>
+ <section class="mi-config" aria-label="Configuración del lote">
+ <div class="mi-archivo-info"><strong id="mi-archivo-nombre"></strong><button type="button" class="ma-link" id="mi-cambiar">Cambiar archivo</button></div>
+ <div class="ma-campo" id="mi-hoja-wrap" hidden>
+ <label class="ma-label" for="mi-hoja">Hoja</label>
+ <select class="ma-select" id="mi-hoja"></select>
+ </div>
+ <div class="ma-campo">
+ <label class="ma-label" for="mi-encabezado">Fila de títulos</label>
+ <select class="ma-select" id="mi-encabezado"></select>
+ </div>
+ <div class="ma-campo">
+ <label class="ma-label" for="mi-categoria">Categoría del grupo</label>
+ <select class="ma-select" id="mi-categoria"></select>
+ <span class="mi-nota" id="mi-precio"></span>
+ </div>
+ <div class="ma-campo">
+ <label class="ma-label" for="mi-referencia">Profesor o grupo (referencia)</label>
+ <input type="text" class="ma-input" id="mi-referencia" maxlength="200" placeholder="Ej: Prof. Rivera — Redes I"/>
+ </div>
+ <details class="mi-comunes">
+ <summary>Datos comunes del grupo (opcional)</summary>
+ <div class="mi-nota" style="margin-top:6px;">Se usan cuando la fila no trae ese dato.</div>
+ <div class="mi-comunes-grid" id="mi-comunes"></div>
+ </details>
+ <div class="ma-campo">
+ <span class="ma-label">Qué trae cada columna</span>
+ <div class="mi-columnas" id="mi-columnas"></div>
+ </div>
+ <label class="ma-check"><input type="checkbox" id="mi-mayusculas" checked/> Corregir nombres escritos en MAYÚSCULAS</label>
+ </section>
+ <section class="mi-vista" aria-label="Vista previa">
+ <div id="mi-resumen"></div>
+ <div class="mi-tabla-wrap">
+ <table class="mi-tabla">
+ <thead><tr><th></th><th>Fila</th><th>Estado</th><th>Nombre</th><th>Apellido</th><th>Cédula</th><th>Correo</th><th>Teléfono</th><th>Notas</th></tr></thead>
+ <tbody id="mi-filas"></tbody>
+ </table>
+ </div>
+ <div class="ma-progreso" id="mi-progreso" hidden>
+ <div class="ma-barra"><span id="mi-barra"></span></div>
+ <span class="ma-progreso-txt" id="mi-progreso-txt"></span>
+ </div>
+ </section>
+ </fieldset>
+
+ <div class="mi-paso" id="mi-paso-resultado" hidden></div>
+
+ <div class="ma-footer">
+ <button type="button" class="btn-grande me-cancelar" id="mi-cancelar">Cerrar</button>
+ <button type="button" class="btn-grande btn-aprobar-grande" id="mi-importar" hidden disabled>Importar</button>
+ </div>
+ </div>
+</div>
+
 <!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="cerrarSheet()"></div>
 
@@ -544,8 +926,16 @@
 
 <script type="module">
 import { tienePermiso } from "../../../js/core/permisos.js";
-import { enviarCorreoQrParticipante, eliminarParticipante } from "../../../js/core/participantes-api.js";
+import { enviarCorreoQrParticipante, eliminarParticipante, importarParticipantes } from "../../../js/core/participantes-api.js";
 import { escaparAtributo, escaparHtml } from "../../../js/core/seguridad.js";
+import {
+ TAMANOS, textoQr, tieneCredencial, nombreDe, categoriaDe, validarTamano, dibujarCredencial,
+ generarPdf, generarPng, generarZip, nombreArchivo, nombreLote, descargarBlob, imprimirPdf, limpiarImpresion,
+} from "../../../js/modulos/credenciales.js";
+import {
+ CATEGORIAS_IMPORTABLES, CAMPOS, CAMPOS_COMUNES, FILAS_POR_LLAMADA, leerArchivo, detectarEncabezado,
+ detectarColumnas, armarFilas, revisarFilas, filaParaServidor, descargarPlantilla, descargarResultado,
+} from "../../../js/modulos/importar-participantes.js";
 import {
  collection, getDocs, doc, updateDoc, getDoc,
  query, orderBy, serverTimestamp
@@ -762,6 +1152,8 @@ function renderSheet(p) {
  </div>` : ""}
  <div class="dato-item"><div class="di-label">Fecha registro</div><div class="di-valor" style="font-size:12px;">${fecha}</div></div>
  <div class="dato-item"><div class="di-label">Estado general</div><div class="di-valor">${h(p.estadoRegistro || "activo")}</div></div>
+ ${p.importacion ? `
+ <div class="dato-item" style="grid-column:1/-1;"><div class="di-label">Origen</div><div class="di-valor" style="font-size:13px;">Importado de una lista${p.importacion.referencia ? ` · ${h(p.importacion.referencia)}` : ""}</div></div>` : ""}
  </div>
 
  <!-- QR MINI -->
@@ -876,10 +1268,8 @@ function renderSheet(p) {
  const qrDiv = document.getElementById("qr-sheet-canvas");
  if (qrDiv) {
  // QR codifica la URL completa para que cualquier cámara abra la credencial
- const URL_BASE_PERFIL = "https://contecsfisc.github.io/contecsApp/public/perfil.html";
- const qrUrl = `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
  new QRCode(qrDiv, {
- text: qrUrl,
+ text: textoQr(p),
  width: 168, height: 168,
  colorDark: "#062b16", colorLight: "#ffffff",
  correctLevel: QRCode.CorrectLevel.M,
@@ -1216,6 +1606,7 @@ el("btn-exportar").addEventListener("click", async () => {
  { header: "Fecha de revisión", key: "aprobadoEn", width: 18 },
  { header: "Notas internas", key: "notas", width: 30 },
  { header: "Estado del registro", key: "estadoRegistro", width: 14 },
+ { header: "Origen del registro", key: "origen", width: 30 },
  { header: "Asistencias", key: "asistencias", width: 11 },
  { header: "Fecha de registro", key: "fechaRegistro", width: 18 },
  ];
@@ -1253,6 +1644,7 @@ el("btn-exportar").addEventListener("click", async () => {
  aprobadoEn: aFecha(p.pago?.aprobadoEn),
  notas: p.pago?.notas || "",
  estadoRegistro: p.estadoRegistro || "",
+ origen: p.importacion ? `Importado${p.importacion.referencia ? ` — ${p.importacion.referencia}` : ""}` : "Registro web",
  asistencias: Number(p.totalAsistencias) || Object.keys(p.asistencias || {}).length,
  fechaRegistro: aFecha(p.fechaRegistro),
  };
@@ -1292,6 +1684,565 @@ el("btn-exportar").addEventListener("click", async () => {
 });
 
 if (tienePermiso(rol, "exportar_participantes")) el("btn-exportar").style.display = "";
+
+// ── IMPRIMIR CREDENCIALES ─────────────────────────────────────────────────
+// El dibujo y la exportación viven en js/modulos/credenciales.js; aquí solo
+// está el modal. La selección se conserva entre aperturas.
+const cred = { seleccion: new Set(), visibles: [], previewId: null, tamano: TAMANOS["4x6"], tarea: null };
+const porNombre = (a, b) => nombreDe(a).localeCompare(nombreDe(b), "es", { sensitivity: "base" });
+const formatoCred = () => document.querySelector('input[name="mc-formato"]:checked').value;
+const agruparCred = () => document.querySelector('input[name="mc-agrupar"]:checked').value;
+
+el("mc-tamano").innerHTML = Object.entries(TAMANOS)
+ .map(([clave, t]) => `<option value="${clave}">${h(t.nombre)}</option>`).join("")
+ + `<option value="personalizado">Personalizado (mm)</option>`;
+
+function seleccionadosCred() {
+ return todosParticipantes.filter(p => cred.seleccion.has(p.id) && tieneCredencial(p)).sort(porNombre);
+}
+
+function filtrarCred() {
+ const busq = el("mc-buscar").value.toLowerCase().trim();
+ const cat = el("mc-categoria").value;
+ const conPendientes = el("mc-no-aprobados").checked;
+ return todosParticipantes.filter(p =>
+ (conPendientes || p.pago?.estado === "aprobado") &&
+ (!cat || p.categoria === cat) &&
+ (!busq || [p.nombreCompleto, p.nombre, p.apellido, p.cedula, p.codigo, p.correo]
+ .some(v => String(v || "").toLowerCase().includes(busq)))
+ ).sort(porNombre);
+}
+
+function renderListaCred() {
+ cred.visibles = filtrarCred();
+ el("mc-items").innerHTML = cred.visibles.length
+ ? cred.visibles.map(p => {
+ const ok = tieneCredencial(p);
+ const marca = !ok ? `<span class="badge badge-rechazado">Sin QR</span>`
+ : p.pago?.estado !== "aprobado" ? `<span class="badge badge-pendiente">Pago pendiente</span>` : "";
+ return `<li><label class="mc-item${ok ? "" : " inactivo"}${p.id === cred.previewId ? " activo" : ""}">
+ <input type="checkbox" value="${escaparAtributo(p.id)}" ${cred.seleccion.has(p.id) ? "checked" : ""} ${ok ? "" : "disabled"}/>
+ <span class="mc-item-txt"><strong>${h(nombreDe(p))}</strong><small>${h(p.codigo || "Sin código")} · ${h(categoriaDe(p))}</small></span>
+ ${marca}
+ </label></li>`;
+ }).join("")
+ : `<li class="mc-vacio">No hay participantes con ese filtro.</li>`;
+ actualizarResumenCred();
+}
+
+function textoResumenCred(n, formato) {
+ if (!n) return "Selecciona al menos un participante.";
+ if (formato === "png") {
+ return n === 1 ? "Se descargará 1 imagen PNG a 300 ppp." : `Se descargará un ZIP con ${n} imágenes PNG, una por participante.`;
+ }
+ if (n === 1) return "Se descargará 1 PDF.";
+ return agruparCred() === "uno"
+ ? `Se descargará 1 PDF de ${n} páginas, una credencial por hoja.`
+ : `Se descargará un ZIP con ${n} PDF, uno por participante.`;
+}
+
+function actualizarResumenCred() {
+ const n = seleccionadosCred().length;
+ const elegibles = cred.visibles.filter(tieneCredencial);
+ const marcados = elegibles.filter(p => cred.seleccion.has(p.id)).length;
+ const todos = el("mc-todos");
+ todos.checked = elegibles.length > 0 && marcados === elegibles.length;
+ todos.indeterminate = marcados > 0 && marcados < elegibles.length;
+ todos.disabled = !elegibles.length;
+ el("mc-todos-txt").textContent = `Seleccionar todos (${elegibles.length})`;
+ el("mc-contador").textContent = `${n} seleccionado${n !== 1 ? "s" : ""}`;
+ el("mc-limpiar").disabled = !n;
+ const formato = formatoCred();
+ el("mc-agrupar").hidden = !(formato === "pdf" && n > 1);
+ el("mc-resumen").textContent = textoResumenCred(n, formato);
+ const bloqueado = !n || !cred.tamano || !!cred.tarea;
+ el("mc-descargar").disabled = bloqueado;
+ el("mc-imprimir").disabled = bloqueado;
+}
+
+function leerTamanoCred() {
+ const personal = el("mc-tamano").value === "personalizado";
+ el("mc-personalizado").hidden = !personal;
+ const tamano = personal
+ ? { ancho: parseFloat(el("mc-ancho").value), alto: parseFloat(el("mc-alto").value) }
+ : TAMANOS[el("mc-tamano").value];
+ const error = personal ? validarTamano(tamano) : null;
+ el("mc-error-tamano").hidden = !error;
+ el("mc-error-tamano").textContent = error || "";
+ cred.tamano = error ? null : tamano;
+}
+
+let secuenciaPreview = 0;
+async function renderPreviewCred() {
+ const secuencia = ++secuenciaPreview;
+ const conQr = id => todosParticipantes.find(p => p.id === id && tieneCredencial(p));
+ const p = conQr(cred.previewId) || seleccionadosCred()[0] || cred.visibles.find(tieneCredencial);
+ const caja = el("mc-preview");
+ if (!p || !cred.tamano) {
+ caja.innerHTML = `<div class="mc-preview-vacio">${p ? "Corrige el tamaño para ver la vista previa." : "Selecciona un participante para ver su credencial."}</div>`;
+ el("mc-preview-txt").textContent = "";
+ return;
+ }
+ try {
+ const lienzo = await dibujarCredencial(p, cred.tamano, { dpi: 150 });
+ if (secuencia !== secuenciaPreview) return;
+ lienzo.setAttribute("role", "img");
+ lienzo.setAttribute("aria-label", `Vista previa de la credencial de ${nombreDe(p)}`);
+ caja.replaceChildren(lienzo);
+ el("mc-preview-txt").textContent = `Vista previa · ${nombreDe(p)} · ${cred.tamano.ancho} × ${cred.tamano.alto} mm`;
+ } catch (err) {
+ console.error(err);
+ caja.innerHTML = `<div class="mc-preview-vacio">No se pudo dibujar la vista previa.</div>`;
+ }
+}
+
+function abrirCredenciales() {
+ if (!tienePermiso(rol, "imprimir_credenciales")) return;
+ const categorias = new Map(todosParticipantes.filter(p => p.categoria).map(p => [p.categoria, categoriaDe(p)]));
+ const actual = el("mc-categoria").value;
+ el("mc-categoria").innerHTML = `<option value="">Todas las categorías</option>` +
+ [...categorias].sort((a, b) => a[1].localeCompare(b[1], "es"))
+ .map(([valor, texto]) => `<option value="${escaparAtributo(valor)}">${h(texto)}</option>`).join("");
+ el("mc-categoria").value = categorias.has(actual) ? actual : "";
+ el("mc-buscar").value = "";
+ leerTamanoCred();
+ renderListaCred();
+ renderPreviewCred();
+ el("modal-cred").hidden = false;
+ setTimeout(() => el("mc-buscar").focus(), 50);
+}
+
+function cerrarCredenciales() {
+ if (cred.tarea) return; // mientras genera, solo se sale con "Cancelar"
+ el("modal-cred").hidden = true;
+ limpiarImpresion();
+}
+
+// Bloquea el modal, muestra el avance y deja cancelar entre credencial y credencial.
+async function ejecutarTareaCred(total, etiqueta, trabajo) {
+ const tarea = { cancelado: false };
+ cred.tarea = tarea;
+ el("mc-controles").disabled = true;
+ el("mc-cancelar").textContent = "Cancelar";
+ el("mc-progreso").hidden = false;
+ const alProgresar = hechos => {
+ el("mc-barra").style.width = `${Math.round(hechos / total * 100)}%`;
+ el("mc-progreso-txt").textContent = `${etiqueta} ${hechos} de ${total}…`;
+ };
+ alProgresar(0);
+ actualizarResumenCred();
+ try {
+ await trabajo({ alProgresar, cancelado: () => tarea.cancelado });
+ } catch (err) {
+ if (err?.name !== "AbortError") {
+ console.error(err);
+ alert("No se pudieron generar las credenciales: " + err.message);
+ }
+ } finally {
+ cred.tarea = null;
+ el("mc-controles").disabled = false;
+ el("mc-cancelar").textContent = "Cerrar";
+ el("mc-progreso").hidden = true;
+ el("mc-barra").style.width = "0%";
+ actualizarResumenCred();
+ }
+}
+
+el("mc-descargar").addEventListener("click", () => {
+ const lista = seleccionadosCred();
+ const tamano = cred.tamano;
+ if (!lista.length || !tamano || !tienePermiso(rol, "imprimir_credenciales")) return;
+ const formato = formatoCred();
+ const juntos = formato === "pdf" && agruparCred() === "uno";
+ ejecutarTareaCred(lista.length, "Generando", async control => {
+ if (lista.length === 1) {
+ const blob = formato === "png" ? await generarPng(lista[0], tamano) : await generarPdf(lista, tamano, control);
+ descargarBlob(blob, nombreArchivo(lista[0], formato));
+ } else if (juntos) {
+ descargarBlob(await generarPdf(lista, tamano, control), nombreLote("pdf"));
+ } else {
+ descargarBlob(await generarZip(lista, tamano, formato, control), nombreLote("zip", formato));
+ }
+ });
+});
+
+el("mc-imprimir").addEventListener("click", () => {
+ const lista = seleccionadosCred();
+ const tamano = cred.tamano;
+ if (!lista.length || !tamano || !tienePermiso(rol, "imprimir_credenciales")) return;
+ ejecutarTareaCred(lista.length, "Preparando", async control => {
+ const pdf = await generarPdf(lista, tamano, control);
+ try {
+ await imprimirPdf(pdf);
+ } catch (err) {
+ // Algunos navegadores (Safari) no dejan imprimir un PDF dentro de un iframe.
+ console.warn(err);
+ descargarBlob(pdf, nombreLote("pdf"));
+ alert("Este navegador no permitió abrir el diálogo de impresión directamente. Se descargó el PDF: ábrelo e imprímelo desde tu visor de PDF.");
+ }
+ });
+});
+
+el("btn-credenciales").addEventListener("click", abrirCredenciales);
+el("mc-cerrar").addEventListener("click", cerrarCredenciales);
+el("mc-cancelar").addEventListener("click", () => {
+ if (cred.tarea) cred.tarea.cancelado = true;
+ else cerrarCredenciales();
+});
+el("modal-cred").addEventListener("click", e => { if (e.target === el("modal-cred")) cerrarCredenciales(); });
+document.addEventListener("keydown", e => {
+ if (e.key === "Escape" && !el("modal-cred").hidden) cerrarCredenciales();
+});
+
+el("mc-buscar").addEventListener("input", renderListaCred);
+el("mc-categoria").addEventListener("change", renderListaCred);
+el("mc-no-aprobados").addEventListener("change", e => {
+ // Al ocultar los pendientes también salen de la selección: nada se imprime sin verse en la lista.
+ if (!e.target.checked) {
+ todosParticipantes.forEach(p => { if (p.pago?.estado !== "aprobado") cred.seleccion.delete(p.id); });
+ }
+ renderListaCred();
+ renderPreviewCred();
+});
+el("mc-items").addEventListener("change", e => {
+ const chk = e.target;
+ if (chk.type !== "checkbox") return;
+ if (chk.checked) cred.seleccion.add(chk.value);
+ else cred.seleccion.delete(chk.value);
+ cred.previewId = chk.value;
+ el("mc-items").querySelectorAll(".mc-item.activo").forEach(x => x.classList.remove("activo"));
+ chk.closest(".mc-item").classList.add("activo");
+ actualizarResumenCred();
+ renderPreviewCred();
+});
+el("mc-todos").addEventListener("change", e => {
+ cred.visibles.filter(tieneCredencial)
+ .forEach(p => e.target.checked ? cred.seleccion.add(p.id) : cred.seleccion.delete(p.id));
+ renderListaCred();
+ renderPreviewCred();
+});
+el("mc-limpiar").addEventListener("click", () => {
+ cred.seleccion.clear();
+ renderListaCred();
+ renderPreviewCred();
+});
+const alCambiarTamano = () => { leerTamanoCred(); actualizarResumenCred(); renderPreviewCred(); };
+el("mc-tamano").addEventListener("change", alCambiarTamano);
+["mc-ancho", "mc-alto"].forEach(id => el(id).addEventListener("input", alCambiarTamano));
+document.querySelectorAll('input[name="mc-formato"], input[name="mc-agrupar"]')
+ .forEach(r => r.addEventListener("change", actualizarResumenCred));
+
+if (tienePermiso(rol, "imprimir_credenciales")) el("btn-credenciales").style.display = "";
+
+// ── IMPORTAR PARTICIPANTES ────────────────────────────────────────────────
+// Leer el archivo y revisar las filas vive en js/modulos/importar-participantes.js;
+// la inscripción la hace la Cloud Function importarParticipantes.
+const imp = { hojas: [], hoja: 0, encabezado: 0, columnas: [], filas: [], excluidas: new Set(), resultado: null, tarea: null };
+
+el("mi-categoria").innerHTML = CATEGORIAS_IMPORTABLES
+ .map(c => `<option value="${c.clave}">${h(c.nombre)}</option>`).join("");
+el("mi-comunes").innerHTML = CAMPOS_COMUNES
+ .map(c => `<label>${h(c.etiqueta)}<input type="text" class="ma-input" data-comun="${c.clave}" maxlength="200"/></label>`).join("");
+
+function pasoImp(paso) {
+ el("mi-paso-archivo").hidden = paso !== "archivo";
+ el("mi-paso-revision").hidden = paso !== "revision";
+ el("mi-paso-resultado").hidden = paso !== "resultado";
+ el("mi-importar").hidden = paso !== "revision";
+ el("mi-cancelar").textContent = paso === "resultado" ? "Listo" : "Cerrar";
+}
+
+function reiniciarImp() {
+ Object.assign(imp, { hojas: [], hoja: 0, encabezado: 0, columnas: [], filas: [], resultado: null });
+ imp.excluidas.clear();
+ el("mi-archivo").value = "";
+ el("mi-error-archivo").hidden = true;
+ pasoImp("archivo");
+}
+
+function abrirImportar() {
+ if (!tienePermiso(rol, "importar_participantes")) return;
+ reiniciarImp();
+ mostrarPrecioImp();
+ el("modal-imp").hidden = false;
+}
+
+function cerrarImportar() {
+ if (imp.tarea) return; // mientras importa, solo se sale con "Cancelar"
+ el("modal-imp").hidden = true;
+}
+
+function mostrarPrecioImp() {
+ const cat = CATEGORIAS_IMPORTABLES.find(c => c.clave === el("mi-categoria").value);
+ el("mi-precio").textContent = cat ? `Cada persona queda con B/. ${cat.precio.toFixed(2)} pendientes de pago (efectivo).` : "";
+}
+
+async function elegirArchivoImp(archivo) {
+ if (!archivo) return;
+ el("mi-error-archivo").hidden = true;
+ try {
+ const hojas = await leerArchivo(archivo);
+ if (!hojas.length) throw new Error("no tiene datos");
+ Object.assign(imp, { hojas, hoja: 0 });
+ el("mi-archivo-nombre").textContent = archivo.name;
+ el("mi-hoja-wrap").hidden = hojas.length < 2;
+ el("mi-hoja").innerHTML = hojas.map((hoja, i) => `<option value="${i}">${h(hoja.nombre)}</option>`).join("");
+ prepararHojaImp();
+ pasoImp("revision");
+ } catch (err) {
+ console.error(err);
+ el("mi-error-archivo").textContent = `No se pudo leer "${archivo.name}": ${err.message}. Usa un Excel (.xlsx, .xls) o un CSV.`;
+ el("mi-error-archivo").hidden = false;
+ }
+}
+
+function prepararHojaImp() {
+ const filas = imp.hojas[imp.hoja].filas;
+ imp.excluidas.clear();
+ imp.encabezado = detectarEncabezado(filas);
+ el("mi-encabezado").innerHTML = filas.slice(0, 10).map((fila, i) => {
+ const muestra = fila.filter(Boolean).slice(0, 3).join(" · ").slice(0, 60);
+ return `<option value="${i}">Fila ${imp.hojas[imp.hoja].primeraFila + i}${muestra ? `: ${h(muestra)}` : ""}</option>`;
+ }).join("");
+ el("mi-encabezado").value = String(imp.encabezado);
+ prepararColumnasImp();
+}
+
+function prepararColumnasImp() {
+ const filas = imp.hojas[imp.hoja].filas;
+ const encabezados = filas[imp.encabezado] || [];
+ const ancho = Math.max(encabezados.length, ...filas.slice(imp.encabezado + 1, imp.encabezado + 51).map(f => f.length));
+ imp.columnas = detectarColumnas(Array.from({ length: ancho }, (_, i) => encabezados[i] || ""));
+ renderColumnasImp();
+ revisarImp();
+}
+
+function renderColumnasImp() {
+ const filas = imp.hojas[imp.hoja].filas;
+ const encabezados = filas[imp.encabezado] || [];
+ const ejemplo = filas.slice(imp.encabezado + 1).find(f => f.some(Boolean)) || [];
+ const opciones = `<option value="">— No importar —</option>` +
+ CAMPOS.map(c => `<option value="${c.clave}">${h(c.etiqueta)}</option>`).join("");
+ el("mi-columnas").innerHTML = imp.columnas.map((_, i) => {
+ const titulo = encabezados[i] || `Columna ${i + 1}`;
+ return `<div class="mi-columna">
+ <div class="mi-columna-txt"><strong>${h(titulo)}</strong><small>${h(ejemplo[i] || "—")}</small></div>
+ <select class="ma-select" data-columna="${i}" aria-label="${escaparAtributo(`Dato de la columna ${titulo}`)}">${opciones}</select>
+ </div>`;
+ }).join("");
+ el("mi-columnas").querySelectorAll("select").forEach(sel => { sel.value = imp.columnas[sel.dataset.columna]; });
+}
+
+function inscritosImp() {
+ const mapa = campo => new Map(todosParticipantes
+ .filter(p => p[campo])
+ .map(p => [String(p[campo]).trim().toLowerCase(), p.codigo || p.id]));
+ return { cedula: mapa("cedula"), correo: mapa("correo") };
+}
+
+function revisarImp() {
+ const hoja = imp.hojas[imp.hoja];
+ const filas = armarFilas(hoja.filas, imp.encabezado, imp.columnas, {
+ corregirMayusculas: el("mi-mayusculas").checked,
+ primeraFila: hoja.primeraFila,
+ });
+ imp.filas = revisarFilas(filas, inscritosImp());
+ renderFilasImp();
+}
+
+const ESTADO_IMP = {
+ ok: `<span class="badge badge-aprobado">Lista</span>`,
+ aviso: `<span class="badge badge-pendiente">Aviso</span>`,
+ error: `<span class="badge badge-rechazado">Error</span>`,
+};
+
+const filasAImportar = () => imp.filas.filter(f => f.estado !== "error" && !imp.excluidas.has(f.fila));
+
+function renderFilasImp() {
+ const cuenta = { ok: 0, aviso: 0, error: 0 };
+ imp.filas.forEach(f => { cuenta[f.estado] += 1; });
+ const faltan = [
+ !imp.columnas.some(c => c === "nombre" || c === "nombreCompleto") && "el nombre",
+ !imp.columnas.some(c => c === "cedula" || c === "correo") && "la cédula o el correo",
+ ].filter(Boolean);
+ el("mi-resumen").innerHTML = `
+ <div class="mi-chips">
+ <span class="mi-chip ok">${cuenta.ok} lista${cuenta.ok !== 1 ? "s" : ""}</span>
+ <span class="mi-chip aviso">${cuenta.aviso} con avisos (se importan)</span>
+ <span class="mi-chip error">${cuenta.error} con errores (no se importan)</span>
+ </div>
+ ${faltan.length ? `<div class="ma-error" style="margin-top:8px;">Elige en "Qué trae cada columna" cuál trae ${faltan.join(" y cuál ")}.</div>` : ""}`;
+ el("mi-filas").innerHTML = imp.filas.length
+ ? imp.filas.map(f => {
+ const excluida = imp.excluidas.has(f.fila);
+ return `<tr class="${f.estado === "error" ? "error" : ""}${excluida ? " excluida" : ""}">
+ <td><input type="checkbox" data-fila="${f.fila}" ${f.estado === "error" ? "disabled" : excluida ? "" : "checked"} aria-label="Importar fila ${f.fila}"/></td>
+ <td>${f.fila}</td>
+ <td>${ESTADO_IMP[f.estado]}</td>
+ <td>${h(f.nombre || "—")}</td>
+ <td>${h(f.apellido || "—")}</td>
+ <td style="font-family:'Courier New',monospace;white-space:nowrap;">${h(f.cedula || "—")}</td>
+ <td style="white-space:nowrap;">${h(f.correo || "—")}</td>
+ <td style="white-space:nowrap;">${h(f.telefono || "—")}</td>
+ <td class="mi-notas">${h(f.notas.join(" · "))}</td>
+ </tr>`;
+ }).join("")
+ : `<tr><td colspan="9"><div class="empty-state"><div class="es-txt">No hay filas de datos debajo de la fila de títulos.</div></div></td></tr>`;
+ actualizarBotonImp();
+}
+
+function actualizarBotonImp() {
+ const n = filasAImportar().length;
+ el("mi-importar").disabled = !n || !!imp.tarea;
+ el("mi-importar").textContent = `Importar ${n} participante${n !== 1 ? "s" : ""}`;
+}
+
+// Se envía en bloques; si uno falla, lo que ya entró queda guardado y el
+// resto se informa. Reimportar el mismo archivo es seguro: el servidor omite
+// a quien ya esté inscrito.
+async function importarLista() {
+ const filas = filasAImportar();
+ if (!filas.length || imp.tarea || !tienePermiso(rol, "importar_participantes")) return;
+ const lote = {
+ categoria: el("mi-categoria").value,
+ referencia: el("mi-referencia").value.trim(),
+ loteId: `imp_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+ camposComunes: Object.fromEntries([...el("mi-comunes").querySelectorAll("[data-comun]")]
+ .map(input => [input.dataset.comun, input.value.trim()])
+ .filter(([, valor]) => valor)),
+ };
+ const resultado = { creados: [], omitidos: [], sinEnviar: [], error: null };
+ imp.tarea = { cancelado: false };
+ el("mi-paso-revision").disabled = true;
+ el("mi-progreso").hidden = false;
+ el("mi-cancelar").textContent = "Cancelar";
+ actualizarBotonImp();
+ const avance = hechas => {
+ el("mi-barra").style.width = `${Math.round(hechas / filas.length * 100)}%`;
+ el("mi-progreso-txt").textContent = `Importando ${hechas} de ${filas.length}…`;
+ };
+ avance(0);
+ let enviadas = 0;
+ try {
+ while (enviadas < filas.length && !imp.tarea.cancelado) {
+ const bloque = filas.slice(enviadas, enviadas + FILAS_POR_LLAMADA);
+ const r = await importarParticipantes({ ...lote, filas: bloque.map(filaParaServidor) });
+ resultado.creados.push(...r.creados);
+ resultado.omitidos.push(...r.omitidos);
+ enviadas += bloque.length;
+ avance(enviadas);
+ }
+ } catch (err) {
+ console.error(err);
+ resultado.error = err.message;
+ } finally {
+ resultado.sinEnviar = filas.slice(enviadas);
+ imp.tarea = null;
+ el("mi-paso-revision").disabled = false;
+ el("mi-progreso").hidden = true;
+ el("mi-barra").style.width = "0%";
+ }
+ imp.resultado = resultado;
+ renderResultadoImp();
+ pasoImp("resultado");
+ if (resultado.creados.length) cargar();
+}
+
+function renderResultadoImp() {
+ const { creados, omitidos, sinEnviar, error } = imp.resultado;
+ const porFila = new Map(imp.filas.map(f => [f.fila, f]));
+ const nombre = fila => {
+ const f = porFila.get(fila);
+ return f ? [f.nombre, f.apellido].filter(Boolean).join(" ") : "—";
+ };
+ const filas = [
+ ...creados.map(c => ({ fila: c.fila, html: `<span class="mi-codigo">${h(c.codigo)}</span>` })),
+ ...omitidos.map(o => ({ fila: o.fila, html: `<span class="mi-motivo">${h(o.motivo)}</span>` })),
+ ...sinEnviar.map(f => ({ fila: f.fila, html: `<span class="mi-sin">No se envió</span>` })),
+ ].sort((a, b) => a.fila - b.fila);
+ const aviso = error
+ ? `Se detuvo la importación: ${error} Puedes volver a importar el mismo archivo; quien ya entró se omitirá como "ya inscrito".`
+ : sinEnviar.length ? `Cancelaste la importación: ${sinEnviar.length} fila${sinEnviar.length !== 1 ? "s" : ""} no se enviaron.` : "";
+ el("mi-paso-resultado").innerHTML = `
+ <div class="mi-res-numeros">
+ <div class="mi-res-num"><strong>${creados.length}</strong><span>inscritos con pago pendiente</span></div>
+ <div class="mi-res-num omitidos"><strong>${omitidos.length}</strong><span>omitidos</span></div>
+ ${sinEnviar.length ? `<div class="mi-res-num omitidos"><strong>${sinEnviar.length}</strong><span>sin enviar</span></div>` : ""}
+ </div>
+ ${aviso ? `<div class="ma-error">${h(aviso)}</div>` : ""}
+ <div class="mi-res-acciones">
+ <button type="button" class="btn btn-outline" id="mi-descargar-resultado">Descargar resultado (Excel)</button>
+ <button type="button" class="btn btn-outline" id="mi-otra">Importar otra lista</button>
+ </div>
+ <div class="mi-tabla-wrap">
+ <table class="mi-tabla">
+ <thead><tr><th>Fila</th><th>Nombre</th><th>Resultado</th></tr></thead>
+ <tbody>${filas.map(r => `<tr><td>${r.fila}</td><td>${h(nombre(r.fila))}</td><td>${r.html}</td></tr>`).join("")}</tbody>
+ </table>
+ </div>`;
+ el("mi-descargar-resultado").addEventListener("click", () => {
+ descargarResultado(imp.filas, imp.resultado)
+ .catch(err => alert("No se pudo generar el Excel: " + err.message));
+ });
+ el("mi-otra").addEventListener("click", reiniciarImp);
+}
+
+el("btn-importar").addEventListener("click", abrirImportar);
+el("mi-cerrar").addEventListener("click", cerrarImportar);
+el("mi-cancelar").addEventListener("click", () => {
+ if (imp.tarea) imp.tarea.cancelado = true;
+ else cerrarImportar();
+});
+el("modal-imp").addEventListener("click", e => { if (e.target === el("modal-imp")) cerrarImportar(); });
+document.addEventListener("keydown", e => {
+ if (e.key === "Escape" && !el("modal-imp").hidden) cerrarImportar();
+});
+el("mi-importar").addEventListener("click", importarLista);
+el("mi-archivo").addEventListener("change", e => elegirArchivoImp(e.target.files[0]));
+const zonaImp = el("mi-drop");
+["dragenter", "dragover"].forEach(tipo => zonaImp.addEventListener(tipo, e => {
+ e.preventDefault();
+ zonaImp.classList.add("encima");
+}));
+["dragleave", "drop"].forEach(tipo => zonaImp.addEventListener(tipo, e => {
+ e.preventDefault();
+ zonaImp.classList.remove("encima");
+}));
+zonaImp.addEventListener("drop", e => elegirArchivoImp(e.dataTransfer.files[0]));
+el("mi-plantilla").addEventListener("click", () => {
+ descargarPlantilla().catch(err => alert("No se pudo generar la plantilla: " + err.message));
+});
+el("mi-cambiar").addEventListener("click", reiniciarImp);
+el("mi-hoja").addEventListener("change", e => {
+ imp.hoja = Number(e.target.value);
+ prepararHojaImp();
+});
+el("mi-encabezado").addEventListener("change", e => {
+ imp.encabezado = Number(e.target.value);
+ imp.excluidas.clear();
+ prepararColumnasImp();
+});
+el("mi-columnas").addEventListener("change", e => {
+ const i = Number(e.target.dataset.columna);
+ const destino = e.target.value;
+ // Cada dato sale de una sola columna: elegirlo aquí lo quita de la anterior.
+ if (destino) imp.columnas = imp.columnas.map((d, j) => (j !== i && d === destino ? "" : d));
+ imp.columnas[i] = destino;
+ renderColumnasImp();
+ revisarImp();
+});
+el("mi-mayusculas").addEventListener("change", revisarImp);
+el("mi-categoria").addEventListener("change", mostrarPrecioImp);
+el("mi-filas").addEventListener("change", e => {
+ const fila = Number(e.target.dataset.fila);
+ if (!fila) return;
+ if (e.target.checked) imp.excluidas.delete(fila);
+ else imp.excluidas.add(fila);
+ e.target.closest("tr").classList.toggle("excluida", !e.target.checked);
+ actualizarBotonImp();
+});
+
+if (tienePermiso(rol, "importar_participantes")) el("btn-importar").style.display = "";
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();

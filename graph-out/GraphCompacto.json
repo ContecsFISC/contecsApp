@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-09-25T15:29:58.578217+00:00",
-  "project_fingerprint": "1309facb446a19169822e91fc587c428d984d460c380bad3a10e5585a3f8be1c",
+  "generated_at": "2026-10-02T02:39:02.062916+00:00",
+  "project_fingerprint": "327a5ee3640935919c1e44898e01fc382aaa1033fb2a179ebe2dfc893d388351",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 166,
-    "total_edges": 490,
+    "total_files": 173,
+    "total_edges": 529,
     "total_orphans": 67,
     "total_cycles": 0,
     "total_external_packages": 27,
     "total_firestore_collections": 27,
-    "total_cloud_functions": 16,
+    "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 3766,
-    "total_function_calls": 8496,
-    "total_dom_ids": 806,
+    "total_symbols": 4181,
+    "total_function_calls": 9245,
+    "total_dom_ids": 863,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,14 +39,62 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "0a9598c4e7fda1e74dc2f4f412ee8430a4c4689f",
+    "head": "db4a3013fd6e1a571a9977b8261a224a708730d0",
     "changed_files": [
       {
         "file": "functions/index.js",
         "status": " M"
+      },
+      {
+        "file": "functions/package.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/envios.test.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/participantes-api.js",
+        "status": " M"
+      },
+      {
+        "file": "js/core/permisos.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/modulos_participantes.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/importaciones.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/registro.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/importaciones.integration.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/importaciones.test.js",
+        "status": "??"
+      },
+      {
+        "file": "js/core/librerias.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/credenciales.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/importar-participantes.js",
+        "status": "??"
       }
     ],
-    "changed_count": 1
+    "changed_count": 13
   },
   "domains": [
     {
@@ -126,18 +174,18 @@
     },
     {
       "name": "functions",
-      "file_count": 21,
+      "file_count": 25,
       "key_files": [
         "functions/index.js",
-        "functions/test/correos.test.mjs",
         "functions/identidad.js",
+        "functions/importaciones.js",
+        "functions/test/correos.test.mjs",
         "functions/operaciones-qr.js",
         "functions/operaciones-financieras.js",
+        "functions/registro.js",
         "functions/plantillas.js",
         "functions/eliminaciones.js",
-        "functions/giras.js",
-        "functions/test/diagnostico-correo.js",
-        "functions/test/operaciones-qr.integration.js"
+        "functions/test/importaciones.integration.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -162,7 +210,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 5.8,
+      "average_risk": 6.4,
       "diagnostics": 0
     },
     {
@@ -196,7 +244,7 @@
     },
     {
       "name": "js",
-      "file_count": 39,
+      "file_count": 42,
       "key_files": [
         "js/core/auth.js",
         "js/core/seguridad.js",
@@ -206,8 +254,8 @@
         "js/core/iconos.js",
         "js/core/operaciones.js",
         "js/modulos/ventaRapida.js",
-        "js/modulos/compras2.js",
-        "js/modulos/compras.js"
+        "js/modulos/credenciales.js",
+        "js/modulos/compras2.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -234,16 +282,16 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.6,
+      "average_risk": 32.3,
       "diagnostics": 1
     },
     {
       "name": "panel",
       "file_count": 31,
       "key_files": [
+        "panel/modulos/congreso/modulos_participantes.html",
         "panel/dashboard.html",
         "panel/modulos/logistica/catalogo.html",
-        "panel/modulos/congreso/modulos_participantes.html",
         "panel/modulos/finanzas/bitacora.html",
         "panel/modulos/voluntariado/voluntarios.html",
         "panel/modulos/congreso/inscripciones.html",
@@ -268,7 +316,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 23.6,
+      "average_risk": 25.5,
       "diagnostics": 0
     },
     {
@@ -291,6 +339,13 @@
       "degree": 124,
       "in_cycle": false,
       "loc": 235
+    },
+    {
+      "label": "panel/modulos/congreso/modulos_participantes.html",
+      "risk_score": 100.5,
+      "degree": 39,
+      "in_cycle": false,
+      "loc": 2252
     },
     {
       "label": "panel/dashboard.html",
@@ -363,11 +418,11 @@
       "loc": 785
     },
     {
-      "label": "panel/modulos/congreso/modulos_participantes.html",
-      "risk_score": 43.0,
-      "degree": 15,
+      "label": "js/modulos/credenciales.js",
+      "risk_score": 42.9,
+      "degree": 18,
       "in_cycle": false,
-      "loc": 1301
+      "loc": 687
     },
     {
       "label": "js/modulos/compras2.js",
@@ -382,13 +437,6 @@
       "degree": 16,
       "in_cycle": false,
       "loc": 550
-    },
-    {
-      "label": "functions/index.js",
-      "risk_score": 32.9,
-      "degree": 7,
-      "in_cycle": false,
-      "loc": 1888
     }
   ],
   "files": [
@@ -509,8 +557,8 @@
     },
     {
       "file": "functions/identidad.js",
-      "risk": 10.8,
-      "relations": 5,
+      "risk": 16.9,
+      "relations": 8,
       "purpose": "Identidad de participantes: cómo se deriva el id de un documento, cómo se derivan los documentos-lock de `identificadores_participantes` y cuándo un lock bloquea de verdad un regis",
       "exports": [
         "CORREO_SOPORTE",
@@ -523,9 +571,27 @@
       ]
     },
     {
+      "file": "functions/importaciones.js",
+      "risk": 13.0,
+      "relations": 5,
+      "purpose": "Importación de participantes desde la lista (Excel o CSV) que manda un profesor con sus estudiantes. Cada fila queda igual que si la persona se hubiera inscrito en registro.html — ",
+      "exports": [
+        "CATEGORIAS_IMPORTABLES",
+        "MAX_FILAS_POR_LLAMADA",
+        "ROLES_IMPORTAR_PARTICIPANTES",
+        "importarParticipantes",
+        "normalizarFila",
+        "separarRepetidas"
+      ],
+      "collections": [
+        "participantes",
+        "usuarios"
+      ]
+    },
+    {
       "file": "functions/index.js",
-      "risk": 32.9,
-      "relations": 7,
+      "risk": 35.7,
+      "relations": 9,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
@@ -534,16 +600,15 @@
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
-        "notificarNoSeleccionadosGira",
-        "notificarPagoAprobado"
+        "notificarNoSeleccionadosGira"
       ],
       "collections": [
         "asistencias_giras",
         "giras_voluntarios",
-        "identificadores_participantes",
         "limites_registro",
         "participantes",
         "usuarios"
@@ -552,10 +617,12 @@
         "functions/eliminaciones.js",
         "functions/giras.js",
         "functions/identidad.js",
+        "functions/importaciones.js",
         "functions/operaciones-financieras.js",
         "functions/operaciones-qr.js",
         "functions/plantillas.js",
-        "functions/qr-participante.js"
+        "functions/qr-participante.js",
+        "functions/registro.js"
       ]
     },
     {
@@ -627,6 +694,22 @@
       ]
     },
     {
+      "file": "functions/registro.js",
+      "risk": 7.7,
+      "relations": 3,
+      "purpose": "Piezas de la inscripción que comparten registrarParticipante (registro.html) e importarParticipantes (listas de profesores, desde el panel): categorías y precios, el token de acces",
+      "exports": [
+        "CATEGORIAS_REGISTRO",
+        "crearParticipantesUnicos",
+        "generarCodigos",
+        "generarToken"
+      ],
+      "collections": [
+        "identificadores_participantes",
+        "participantes"
+      ]
+    },
+    {
       "file": "functions/templates/correo-no-seleccionado-gira.html",
       "risk": 1.5,
       "relations": 0
@@ -676,6 +759,23 @@
       "risk": 2.8,
       "relations": 1,
       "purpose": "Prueba de la decisión que hace crearParticipantesUnicos sobre los documentos de `identificadores_participantes`. Es la parte delicada del arreglo: un lock solo debe bloquear un reg"
+    },
+    {
+      "file": "functions/test/importaciones.integration.js",
+      "risk": 5.4,
+      "relations": 2,
+      "purpose": "importarParticipantes contra el emulador de Firestore: permisos, secuencia de códigos, documento resultante, locks de identidad y filas omitidas. npm run test:importar   (desde fun",
+      "collections": [
+        "identificadores_participantes",
+        "participantes",
+        "usuarios"
+      ]
+    },
+    {
+      "file": "functions/test/importaciones.test.js",
+      "risk": 3.0,
+      "relations": 1,
+      "purpose": "Reglas por fila de la importación de listas de profesores: qué se exige, qué se limpia y cómo se detectan las filas repetidas dentro del lote. No necesita emulador: normalizarFila "
     },
     {
       "file": "functions/test/operaciones-qr.integration.js",
@@ -771,8 +871,8 @@
     },
     {
       "file": "js/core/correos.js",
-      "risk": 12.6,
-      "relations": 6,
+      "risk": 16.6,
+      "relations": 8,
       "purpose": "Lectura de direcciones de correo escritas a mano. Vive aparte para que se pueda probar con el código real en vez de una copia (functions/test/correos.test.mjs). El equivalente del ",
       "exports": [
         "RE_CORREO",
@@ -836,6 +936,15 @@
       ]
     },
     {
+      "file": "js/core/librerias.js",
+      "risk": 8.2,
+      "relations": 4,
+      "purpose": "============================================= CONTECS — Carga diferida de librerías de js/libs ============================================= Las librerías pesadas (jsPDF, JSZip, Sh",
+      "exports": [
+        "cargarLibreria"
+      ]
+    },
+    {
       "file": "js/core/operaciones.js",
       "risk": 52.5,
       "relations": 25,
@@ -867,8 +976,8 @@
     },
     {
       "file": "js/core/participantes-api.js",
-      "risk": 32.1,
-      "relations": 15,
+      "risk": 34.4,
+      "relations": 16,
       "purpose": "js/core/participantes-api.js SDK de Firebase (httpsCallable) — maneja CORS automáticamente.",
       "exports": [
         "accederGiraParticipante",
@@ -876,6 +985,7 @@
         "archivoABase64",
         "eliminarParticipante",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
         "notificarNoSeleccionadosGira",
@@ -944,8 +1054,8 @@
     },
     {
       "file": "js/core/sso-config.js",
-      "risk": 4.1,
-      "relations": 2,
+      "risk": 6.1,
+      "relations": 3,
       "purpose": "Configuración del SSO institucional UTP y URLs públicas de la app.",
       "exports": [
         "SSO_LOGIN_URL",
@@ -1109,6 +1219,31 @@
       ]
     },
     {
+      "file": "js/modulos/credenciales.js",
+      "risk": 42.9,
+      "relations": 18,
+      "purpose": "============================================= CONTECS — Credenciales imprimibles ============================================= Un mismo dibujo en canvas alimenta la vista previa, e",
+      "exports": [
+        "LIMITES",
+        "TAMANOS",
+        "categoriaDe",
+        "descargarBlob",
+        "dibujarCredencial",
+        "generarPdf",
+        "generarPng",
+        "generarZip",
+        "imprimirPdf",
+        "limpiarImpresion",
+        "nombreArchivo",
+        "nombreDe"
+      ],
+      "key_neighbors": [
+        "js/core/librerias.js",
+        "js/core/sso-config.js",
+        "panel/modulos/congreso/modulos_participantes.html"
+      ]
+    },
+    {
       "file": "js/modulos/detalleFondo.js",
       "risk": 24.5,
       "relations": 11,
@@ -1142,6 +1277,31 @@
         "js/core/operaciones.js",
         "js/core/seguridad.js",
         "panel/modulos/finanzas/fondos.html"
+      ]
+    },
+    {
+      "file": "js/modulos/importar-participantes.js",
+      "risk": 26.9,
+      "relations": 12,
+      "purpose": "============================================= CONTECS — Importar participantes desde una lista ============================================= Lee el Excel o CSV que manda un profeso",
+      "exports": [
+        "CAMPOS",
+        "CAMPOS_COMUNES",
+        "CATEGORIAS_IMPORTABLES",
+        "FILAS_POR_LLAMADA",
+        "armarFilas",
+        "descargarPlantilla",
+        "descargarResultado",
+        "detectarColumnas",
+        "detectarEncabezado",
+        "filaParaServidor",
+        "leerArchivo",
+        "revisarFilas"
+      ],
+      "key_neighbors": [
+        "js/core/correos.js",
+        "js/core/librerias.js",
+        "panel/modulos/congreso/modulos_participantes.html"
       ]
     },
     {
@@ -1487,8 +1647,8 @@
     },
     {
       "file": "panel/modulos/congreso/modulos_participantes.html",
-      "risk": 43.0,
-      "relations": 15,
+      "risk": 100.5,
+      "relations": 39,
       "collections": [
         "participantes",
         "usuarios"
@@ -1502,6 +1662,8 @@
         "js/core/seguridad.js",
         "js/libs/exceljs.min.js",
         "js/libs/qrcode.min.js",
+        "js/modulos/credenciales.js",
+        "js/modulos/importar-participantes.js",
         "panel/dashboard.html"
       ]
     },
@@ -1807,7 +1969,8 @@
     ],
     "identificadores_participantes": [
       "functions/eliminaciones.js",
-      "functions/index.js"
+      "functions/registro.js",
+      "functions/test/importaciones.integration.js"
     ],
     "informes_actividad": [
       "js/modulos/informeActividad.js"
@@ -1841,8 +2004,11 @@
     ],
     "participantes": [
       "functions/eliminaciones.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-qr.js",
+      "functions/registro.js",
+      "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
@@ -1876,9 +2042,11 @@
     ],
     "usuarios": [
       "functions/eliminaciones.js",
+      "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js",
+      "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "index.html",
       "js/core/auth.js",
@@ -1918,6 +2086,7 @@
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
+        "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
         "marcarCheckpointGira",
@@ -1947,5 +2116,5 @@
       }
     }
   ],
-  "estimated_tokens": 9366
+  "estimated_tokens": 10354
 }
