@@ -5,23 +5,36 @@
 // impresión, para que lo que se ve en pantalla sea lo que sale en la etiqueta.
 //
 // Las medidas parten de la Epson ColorWorks CW-C4000: acepta papel de 1" a
-// 4.4" de ancho e imprime hasta 4.25", así que la etiqueta base es de 4" de
-// ancho (4 × 6 in). Todo el diseño se mide en "u" = 1 % del ancho, de modo que
-// escala igual en cualquier tamaño vertical.
+// 4.4" de ancho e imprime hasta 4.25", así que la etiqueta es de 4" de ancho.
+// Todo el diseño se mide en "u" = 1 % del ancho, de modo que escala igual en
+// cualquier tamaño vertical.
+//
+// La credencial oficial es doblada: la impresora saca una tira de 4 × 10 in
+// que se dobla a la mitad y queda con dos caras de 4 × 5 in. En `TAMANOS`,
+// ancho y alto son siempre los de una cara; `doblez` duplica el alto impreso.
 
 import { URL_BASE_PERFIL } from "../core/sso-config.js";
 import { cargarLibreria } from "../core/librerias.js";
 
 export const TAMANOS = {
-  "4x6": { nombre: "4 × 6 in · 101.6 × 152.4 mm (recomendado)", ancho: 101.6, alto: 152.4 },
-  "4x5": { nombre: "4 × 5 in · 101.6 × 127 mm", ancho: 101.6, alto: 127 },
-  "3x4": { nombre: "3 × 4 in · 76.2 × 101.6 mm", ancho: 76.2, alto: 101.6 },
+  doblada: {
+    nombre: "4 × 10 in doblada · frente y reverso de 4 × 5 in (recomendado)",
+    ancho: 101.6, alto: 127, doblez: true,
+  },
   carta: {
-    nombre: "4 × 6 in sobre hoja Carta (impresora común)",
-    ancho: 101.6, alto: 152.4,
+    nombre: "4 × 10 in doblada sobre hoja Carta (impresora común)",
+    ancho: 101.6, alto: 127, doblez: true,
     hoja: { ancho: 215.9, alto: 279.4 },
   },
+  "4x6": { nombre: "4 × 6 in · 101.6 × 152.4 mm, una cara", ancho: 101.6, alto: 152.4 },
+  "4x5": { nombre: "4 × 5 in · 101.6 × 127 mm, una cara", ancho: 101.6, alto: 127 },
+  "3x4": { nombre: "3 × 4 in · 76.2 × 101.6 mm, una cara", ancho: 76.2, alto: 101.6 },
 };
+
+// Lo que sale de la impresora: una cara o, si es doblada, las dos una sobre otra.
+export function medidaImpresa(tamano) {
+  return { ancho: tamano.ancho, alto: tamano.doblez ? tamano.alto * 2 : tamano.alto };
+}
 
 // Ancho: lo que admite la CW-C4000. Proporción: por debajo de 1.25 el diseño
 // vertical ya no deja sitio suficiente para un QR legible.
@@ -487,7 +500,7 @@ function dibujarCuerpo(ctx, p, { W, u, arriba, abajo }) {
   m.sub.lineas.forEach((linea, i) => ctx.fillText(linea, cx, y + m.lhSub * (i + 0.5)));
 }
 
-export async function dibujarCredencial(p, tamano, { dpi = DPI } = {}) {
+async function dibujarCara(p, tamano, dpi) {
   const { logo } = await prepararRecursos();
   const W = Math.round(tamano.ancho / 25.4 * dpi);
   const H = Math.round(tamano.alto / 25.4 * dpi);
@@ -503,6 +516,40 @@ export async function dibujarCredencial(p, tamano, { dpi = DPI } = {}) {
   const altoPie = dibujarPie(ctx, W, H, u);
   dibujarCuerpo(ctx, p, { W, u, arriba, abajo: H - altoPie });
   return canvas;
+}
+
+// Frente arriba y reverso abajo girado 180°: al doblar por la mitad y voltear
+// la credencial (como gira colgada del cordón), el reverso queda derecho. Los
+// pies verdes de las dos caras se juntan en el doblez, así que si el doblez
+// queda un poco corrido no se nota. Las dos caras llevan nombre y QR para que
+// se pueda escanear por cualquier lado.
+function dibujarDoblada(cara) {
+  const W = cara.width;
+  const H = cara.height;
+  const hoja = document.createElement("canvas");
+  hoja.width = W;
+  hoja.height = H * 2;
+  const ctx = hoja.getContext("2d");
+  ctx.drawImage(cara, 0, 0);
+  ctx.save();
+  ctx.translate(W, H * 2);
+  ctx.rotate(Math.PI);
+  ctx.drawImage(cara, 0, 0);
+  ctx.restore();
+
+  // Marcas cortas en los bordes que indican dónde doblar.
+  const u = W / 100;
+  const largo = 5 * u;
+  const grosor = Math.max(1, 0.3 * u);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, H - grosor / 2, largo, grosor);
+  ctx.fillRect(W - largo, H - grosor / 2, largo, grosor);
+  return hoja;
+}
+
+export async function dibujarCredencial(p, tamano, { dpi = DPI } = {}) {
+  const cara = await dibujarCara(p, tamano, dpi);
+  return tamano.doblez ? dibujarDoblada(cara) : cara;
 }
 
 // ── SALIDAS ────────────────────────────────────────────────────────────────
@@ -604,33 +651,38 @@ export async function generarPng(p, tamano) {
   return pngConDpi(bytesPng(await dibujarCredencial(p, tamano)), DPI);
 }
 
-function guiaDeCorte(pdf, x, y, tamano) {
+function guiaDeCorte(pdf, x, y, medida, doblez) {
   pdf.setDrawColor(160, 160, 160);
   pdf.setLineWidth(0.2);
   pdf.setLineDashPattern([2, 1.5], 0);
-  pdf.rect(x, y, tamano.ancho, tamano.alto);
+  pdf.rect(x, y, medida.ancho, medida.alto);
   pdf.setLineDashPattern([], 0);
   pdf.setFontSize(8);
   pdf.setTextColor(140, 140, 140);
-  pdf.text("Recorta por la línea punteada", x + tamano.ancho / 2, y + tamano.alto + 6, { align: "center" });
+  const aviso = doblez
+    ? "Recorta por la línea punteada y dobla por las marcas blancas del centro"
+    : "Recorta por la línea punteada";
+  pdf.text(aviso, x + medida.ancho / 2, y + medida.alto + 5, { align: "center" });
 }
 
-// Una credencial por página. El tamaño de página es el de la etiqueta (o la
-// hoja Carta con la credencial centrada), así la impresora no tiene que escalar.
+// Una credencial por página. El tamaño de página es el de lo que se imprime
+// (o la hoja Carta con la credencial centrada), así la impresora no tiene que
+// escalar.
 export async function generarPdf(lista, tamano, control = {}) {
   const { jsPDF } = await cargarLibreria("jspdf", "jspdf.umd.min.js");
-  const hoja = tamano.hoja || tamano;
+  const medida = medidaImpresa(tamano);
+  const hoja = tamano.hoja || medida;
   const formato = [hoja.ancho, hoja.alto];
   const pdf = new jsPDF({ unit: "mm", format: formato, orientation: "portrait", compress: true });
   pdf.setProperties({ title: `Credenciales ${EVENTO}`, creator: "CONTECS" });
   if (typeof pdf.viewerPreferences === "function") pdf.viewerPreferences({ PrintScaling: "None" });
-  const x = (hoja.ancho - tamano.ancho) / 2;
-  const y = (hoja.alto - tamano.alto) / 2;
+  const x = (hoja.ancho - medida.ancho) / 2;
+  const y = (hoja.alto - medida.alto) / 2;
   await recorrer(lista, control, async (p, i) => {
     if (i > 0) pdf.addPage(formato, "portrait");
     const canvas = await dibujarCredencial(p, tamano);
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, tamano.ancho, tamano.alto, `cred${i}`);
-    if (tamano.hoja) guiaDeCorte(pdf, x, y, tamano);
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, medida.ancho, medida.alto, `cred${i}`);
+    if (tamano.hoja) guiaDeCorte(pdf, x, y, medida, tamano.doblez);
   });
   return pdf.output("blob");
 }
