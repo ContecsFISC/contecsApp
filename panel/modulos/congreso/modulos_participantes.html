@@ -456,6 +456,7 @@
  }
  .mc-preview-lienzo { display: flex; align-items: center; justify-content: center; min-height: 300px; width: 100%; }
  .mc-preview-lienzo canvas { display: block; max-width: 100%; max-height: 330px; width: auto; height: auto; border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.16); }
+ .mc-preview-lienzo.doblada canvas { max-height: 440px; }
  .mc-preview-vacio { font-size: 13px; color: var(--gris-medio); text-align: center; padding: 0 12px; }
  .mc-preview-txt { font-size: 11px; color: var(--gris-medio); text-align: center; }
  .ma-campo { display: flex; flex-direction: column; gap: 6px; }
@@ -820,7 +821,7 @@
  <span class="ma-progreso-txt" id="mc-progreso-txt"></span>
  </div>
  <div class="ma-ayuda">
- <strong>Imprimir</strong> abre el diálogo de impresión de tu equipo, donde eliges la impresora (por ejemplo la Epson CW-C4000). Usa el mismo tamaño de papel que la etiqueta, márgenes <strong>Ninguno</strong> y escala <strong>100 %</strong>.
+ <strong>Imprimir</strong> abre el diálogo de impresión de tu equipo, donde eliges la impresora (por ejemplo la Epson CW-C4000). Usa el mismo tamaño de papel que la etiqueta (4 × 10 in en la doblada), márgenes <strong>Ninguno</strong> y escala <strong>100 %</strong>. La doblada se dobla por las marcas blancas del centro; el reverso sale de cabeza a propósito para que quede derecho al doblar.
  </div>
  </section>
  </fieldset>
@@ -929,7 +930,7 @@ import { tienePermiso } from "../../../js/core/permisos.js";
 import { enviarCorreoQrParticipante, eliminarParticipante, importarParticipantes } from "../../../js/core/participantes-api.js";
 import { escaparAtributo, escaparHtml } from "../../../js/core/seguridad.js";
 import {
- TAMANOS, textoQr, tieneCredencial, nombreDe, categoriaDe, validarTamano, dibujarCredencial,
+ TAMANOS, medidaImpresa, textoQr, tieneCredencial, nombreDe, categoriaDe, validarTamano, dibujarCredencial,
  generarPdf, generarPng, generarZip, nombreArchivo, nombreLote, descargarBlob, imprimirPdf, limpiarImpresion,
 } from "../../../js/modulos/credenciales.js";
 import {
@@ -1688,7 +1689,7 @@ if (tienePermiso(rol, "exportar_participantes")) el("btn-exportar").style.displa
 // ── IMPRIMIR CREDENCIALES ─────────────────────────────────────────────────
 // El dibujo y la exportación viven en js/modulos/credenciales.js; aquí solo
 // está el modal. La selección se conserva entre aperturas.
-const cred = { seleccion: new Set(), visibles: [], previewId: null, tamano: TAMANOS["4x6"], tarea: null };
+const cred = { seleccion: new Set(), visibles: [], previewId: null, tamano: TAMANOS.doblada, tarea: null };
 const porNombre = (a, b) => nombreDe(a).localeCompare(nombreDe(b), "es", { sensitivity: "base" });
 const formatoCred = () => document.querySelector('input[name="mc-formato"]:checked').value;
 const agruparCred = () => document.querySelector('input[name="mc-agrupar"]:checked').value;
@@ -1788,8 +1789,11 @@ async function renderPreviewCred() {
  if (secuencia !== secuenciaPreview) return;
  lienzo.setAttribute("role", "img");
  lienzo.setAttribute("aria-label", `Vista previa de la credencial de ${nombreDe(p)}`);
+ caja.classList.toggle("doblada", !!cred.tamano.doblez);
  caja.replaceChildren(lienzo);
- el("mc-preview-txt").textContent = `Vista previa · ${nombreDe(p)} · ${cred.tamano.ancho} × ${cred.tamano.alto} mm`;
+ const { ancho, alto } = medidaImpresa(cred.tamano);
+ el("mc-preview-txt").textContent = `Vista previa · ${nombreDe(p)} · ${ancho} × ${alto} mm` +
+ (cred.tamano.doblez ? ` · se dobla en dos caras de ${cred.tamano.ancho} × ${cred.tamano.alto} mm` : "");
  } catch (err) {
  console.error(err);
  caja.innerHTML = `<div class="mc-preview-vacio">No se pudo dibujar la vista previa.</div>`;
