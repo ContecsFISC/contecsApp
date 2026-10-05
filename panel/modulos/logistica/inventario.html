@@ -188,6 +188,68 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+
+ /* ── VACIAR INVENTARIO (solo CEO) ── */
+ .acciones-inv {
+ display: flex;
+ justify-content: flex-end;
+ margin-bottom: 14px;
+ }
+ .acciones-inv[hidden] { display: none; }
+ .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+ .vaciar-codigo {
+ font-family: monospace;
+ font-weight: 700;
+ background: var(--gris-suave);
+ padding: 1px 6px;
+ border-radius: 6px;
+ user-select: all;
+ }
+
+ /* ── MODAL ── */
+ .modal-overlay {
+ position: fixed; inset: 0;
+ background: rgba(0,0,0,0.45);
+ display: flex; align-items: flex-end; justify-content: center;
+ z-index: 200;
+ opacity: 0; pointer-events: none;
+ transition: opacity 0.25s var(--ease-in-out);
+ }
+ .modal-overlay.show { opacity: 1; pointer-events: all; }
+ .modal {
+ background: #fff;
+ border-radius: 20px 20px 0 0;
+ padding: 24px 20px 28px;
+ width: 100%;
+ max-width: 520px;
+ transform: translateY(100%);
+ transition: transform 0.38s cubic-bezier(0.34, 1.28, 0.64, 1);
+ max-height: 90vh;
+ overflow-y: auto;
+ min-width: 0;
+ overscroll-behavior: contain;
+ }
+ .modal-overlay.show .modal { transform: translateY(0); }
+ .modal-titulo {
+ font-size: 16px;
+ font-weight: 700;
+ color: var(--rojo);
+ margin-bottom: 16px;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ }
+ .btn-cerrar-modal {
+ background: var(--gris-suave);
+ border: none;
+ border-radius: 50%;
+ width: 32px; height: 32px;
+ cursor: pointer;
+ display: flex; align-items: center; justify-content: center;
+ transition: background 0.2s, transform 0.15s var(--ease-spring);
+ }
+ .btn-cerrar-modal:hover { background: var(--gris-borde); }
+ .btn-cerrar-modal:active { transform: scale(0.88); }
  @media(max-width:600px) {
    .alertas-bar { gap:7px; margin-bottom:14px; }
    .alerta-stat { min-width:0; padding:12px 5px; border-radius:14px; }
@@ -230,6 +292,12 @@
  </div>
  </div>
 
+ <!-- Vaciar inventario: se muestra solo al rol CEO -->
+ <div class="alerta" id="vaciar-resultado"></div>
+ <div class="acciones-inv" id="acciones-inv" hidden>
+ <button class="btn btn-danger btn-sm" id="btn-vaciar">Vaciar</button>
+ </div>
+
  <!-- Buscador -->
  <div class="buscador-wrap">
  <span class="icono-buscar"></span>
@@ -245,11 +313,38 @@
  <div class="timestamp" id="timestamp"></div>
  </div>
 
+ <!-- ══ MODAL VACIAR INVENTARIO ══ -->
+ <div class="modal-overlay" id="modal-vaciar">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-vaciar-titulo">
+ <div class="modal-titulo">
+ <span id="modal-vaciar-titulo"><img src="../../../img/iconos/advertencia.svg" class="icono-svg" alt=""/> Vaciar inventario</span>
+ <button class="btn-cerrar-modal" id="cerrar-modal-vaciar" title="Cerrar"><img src="../../../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
+ </div>
+ <p style="font-size:14px;color:var(--gris-texto);margin-bottom:10px;">
+ Todos los productos quedarán con stock <strong>0</strong>.
+ </p>
+ <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
+ No se registrará merma ni se modificarán el fondo, las ventas ni las compras.
+ Esta acción no se puede deshacer.
+ </p>
+ <div class="alerta alerta-error" id="vaciar-error"></div>
+ <div class="form-group">
+ <label for="vaciar-confirm-input">Para confirmar, escribe <span class="vaciar-codigo">vaciar_inventario</span></label>
+ <input type="text" id="vaciar-confirm-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+ </div>
+ <div style="display:flex;gap:10px;">
+ <button class="btn btn-danger" id="btn-vaciar-ok" disabled>Vaciar inventario</button>
+ <button class="btn btn-outline" id="btn-vaciar-cancel">Cancelar</button>
+ </div>
+ </div>
+ </div>
+
  <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, getUsuarioActual } from "../../../js/core/auth.js";
  import { escucharCategorias, getIconoHTML, estadoStock } from "../../../js/modulos/catalogo.js";
  import { db } from "../../../js/core/firebase-config.js";
  import { escaparHtml } from "../../../js/core/seguridad.js";
+ import { vaciarInventario } from "../../../js/core/operaciones.js";
  import {
  collection, query, where, onSnapshot
  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -415,6 +510,75 @@
  document.getElementById("buscador").addEventListener("input", (e) => {
  terminoBusqueda = e.target.value;
  renderInventario();
+ });
+
+ // ── VACIAR INVENTARIO (solo CEO) ─────────────────────────────────────────
+ // Ocultar el botón es solo comodidad: la Cloud Function vuelve a exigir
+ // rol CEO y el texto de confirmación antes de tocar el stock.
+ const CONFIRMACION_VACIAR = "vaciar_inventario";
+ const modalVaciar = document.getElementById("modal-vaciar");
+ const inputVaciar = document.getElementById("vaciar-confirm-input");
+ const btnVaciarOk = document.getElementById("btn-vaciar-ok");
+ const errorVaciar = document.getElementById("vaciar-error");
+ const resultadoVaciar = document.getElementById("vaciar-resultado");
+ let vaciando = false;
+
+ if (getUsuarioActual().rol === "ceo") {
+ document.getElementById("acciones-inv").hidden = false;
+ }
+
+ function abrirModalVaciar() {
+ inputVaciar.value = "";
+ btnVaciarOk.disabled = true;
+ btnVaciarOk.textContent = "Vaciar inventario";
+ errorVaciar.classList.remove("show");
+ modalVaciar.classList.add("show");
+ setTimeout(() => inputVaciar.focus(), 150);
+ }
+
+ function cerrarModalVaciar() {
+ if (vaciando) return;
+ modalVaciar.classList.remove("show");
+ }
+
+ document.getElementById("btn-vaciar").addEventListener("click", abrirModalVaciar);
+ document.getElementById("btn-vaciar-cancel").addEventListener("click", cerrarModalVaciar);
+ document.getElementById("cerrar-modal-vaciar").addEventListener("click", cerrarModalVaciar);
+ modalVaciar.addEventListener("click", (e) => {
+ if (e.target === modalVaciar) cerrarModalVaciar();
+ });
+ document.addEventListener("keydown", (e) => {
+ if (e.key === "Escape" && modalVaciar.classList.contains("show")) cerrarModalVaciar();
+ });
+
+ inputVaciar.addEventListener("input", () => {
+ btnVaciarOk.disabled = vaciando || inputVaciar.value.trim() !== CONFIRMACION_VACIAR;
+ });
+ inputVaciar.addEventListener("keydown", (e) => {
+ if (e.key === "Enter" && !btnVaciarOk.disabled) btnVaciarOk.click();
+ });
+
+ btnVaciarOk.addEventListener("click", async () => {
+ if (vaciando || inputVaciar.value.trim() !== CONFIRMACION_VACIAR) return;
+ vaciando = true;
+ btnVaciarOk.disabled = true;
+ btnVaciarOk.textContent = "Vaciando...";
+ errorVaciar.classList.remove("show");
+ try {
+ const { productosVaciados = 0 } = await vaciarInventario({ confirmacion: CONFIRMACION_VACIAR });
+ vaciando = false;
+ cerrarModalVaciar();
+ resultadoVaciar.textContent = productosVaciados > 0
+ ? `Inventario vaciado: ${productosVaciados} producto${productosVaciados === 1 ? "" : "s"} quedaron en 0.`
+ : "El inventario ya estaba en 0.";
+ resultadoVaciar.className = "alerta alerta-success show";
+ } catch (error) {
+ vaciando = false;
+ errorVaciar.textContent = error.message || "No se pudo vaciar el inventario.";
+ errorVaciar.classList.add("show");
+ btnVaciarOk.textContent = "Vaciar inventario";
+ btnVaciarOk.disabled = inputVaciar.value.trim() !== CONFIRMACION_VACIAR;
+ }
  });
  </script>
 </body>

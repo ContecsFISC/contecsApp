@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T03:37:52.913362+00:00",
-  "project_fingerprint": "233096264d5c352f24ff9a3bd70fb82db2a4b86e1cbeeefd89e975bd221e903c",
+  "generated_at": "2026-10-09T03:37:55.624730+00:00",
+  "project_fingerprint": "f8cb74185d3b945e41012dc3024cd6042ac061dc570c76887b87c12f237400b6",
   "project": "t",
   "view": "compact",
   "ai_usage": {
@@ -22,16 +22,16 @@
   },
   "stats": {
     "total_files": 173,
-    "total_edges": 530,
+    "total_edges": 535,
     "total_orphans": 67,
     "total_cycles": 0,
     "total_external_packages": 27,
     "total_firestore_collections": 27,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 4194,
-    "total_function_calls": 9253,
-    "total_dom_ids": 863,
+    "total_symbols": 4221,
+    "total_function_calls": 9287,
+    "total_dom_ids": 873,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -124,8 +124,8 @@
         "functions/identidad.js",
         "functions/importaciones.js",
         "functions/test/correos.test.mjs",
-        "functions/operaciones-qr.js",
         "functions/operaciones-financieras.js",
+        "functions/operaciones-qr.js",
         "functions/registro.js",
         "functions/plantillas.js",
         "functions/eliminaciones.js",
@@ -226,7 +226,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.4,
+      "average_risk": 32.5,
       "diagnostics": 1
     },
     {
@@ -236,11 +236,11 @@
         "panel/modulos/congreso/modulos_participantes.html",
         "panel/dashboard.html",
         "panel/modulos/logistica/catalogo.html",
+        "panel/modulos/logistica/inventario.html",
         "panel/modulos/finanzas/bitacora.html",
         "panel/modulos/voluntariado/voluntarios.html",
         "panel/modulos/congreso/inscripciones.html",
         "panel/modulos/admin/minutas.html",
-        "panel/modulos/logistica/inventario.html",
         "panel/modulos/voluntariado/actividades.html",
         "panel/modulos/voluntariado/giras.html"
       ],
@@ -260,7 +260,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 25.5,
+      "average_risk": 25.9,
       "diagnostics": 0
     },
     {
@@ -279,8 +279,8 @@
   "critical_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 250.3,
-      "degree": 124,
+      "risk_score": 252.3,
+      "degree": 125,
       "in_cycle": false,
       "loc": 235
     },
@@ -349,10 +349,10 @@
     },
     {
       "label": "js/core/operaciones.js",
-      "risk_score": 52.5,
-      "degree": 25,
+      "risk_score": 56.5,
+      "degree": 27,
       "in_cycle": false,
-      "loc": 249
+      "loc": 255
     },
     {
       "label": "js/modulos/ventaRapida.js",
@@ -376,11 +376,11 @@
       "loc": 822
     },
     {
-      "label": "js/modulos/compras.js",
-      "risk_score": 37.5,
+      "label": "panel/modulos/logistica/inventario.html",
+      "risk_score": 37.9,
       "degree": 16,
       "in_cycle": false,
-      "loc": 550
+      "loc": 586
     }
   ],
   "files": [
@@ -571,7 +571,7 @@
     },
     {
       "file": "functions/operaciones-financieras.js",
-      "risk": 8.6,
+      "risk": 9.3,
       "relations": 1,
       "exports": [
         "ejecutarOperacionFinanciera"
@@ -743,8 +743,8 @@
     },
     {
       "file": "img/iconos/advertencia.svg",
-      "risk": 6.0,
-      "relations": 3
+      "risk": 8.0,
+      "relations": 4
     },
     {
       "file": "img/iconos/carrito.svg",
@@ -753,8 +753,8 @@
     },
     {
       "file": "img/iconos/cerrar.svg",
-      "risk": 8.0,
-      "relations": 4
+      "risk": 10.0,
+      "relations": 5
     },
     {
       "file": "img/iconos/editar.svg",
@@ -781,8 +781,8 @@
     },
     {
       "file": "js/core/auth.js",
-      "risk": 250.3,
-      "relations": 124,
+      "risk": 252.3,
+      "relations": 125,
       "exports": [
         "cargarUsuario",
         "cerrarSesion",
@@ -890,8 +890,8 @@
     },
     {
       "file": "js/core/operaciones.js",
-      "risk": 52.5,
-      "relations": 25,
+      "risk": 56.5,
+      "relations": 27,
       "exports": [
         "ajustarStock",
         "esperarAuthListo",
@@ -902,7 +902,8 @@
         "registrarVenta",
         "registrarVentaConMerma",
         "resumenItemPrincipal",
-        "subirFacturaAStorage"
+        "subirFacturaAStorage",
+        "vaciarInventario"
       ],
       "collections": [
         "compras"
@@ -915,7 +916,8 @@
         "js/modulos/fondo.js",
         "js/modulos/ventaRapida.js",
         "panel/dashboard.html",
-        "panel/modulos/finanzas/bitacora.html"
+        "panel/modulos/finanzas/bitacora.html",
+        "panel/modulos/logistica/inventario.html"
       ]
     },
     {
@@ -1703,15 +1705,18 @@
     },
     {
       "file": "panel/modulos/logistica/inventario.html",
-      "risk": 26.2,
-      "relations": 11,
+      "risk": 37.9,
+      "relations": 16,
       "collections": [
         "productos"
       ],
       "key_neighbors": [
         "css/styles.css",
+        "img/iconos/advertencia.svg",
+        "img/iconos/cerrar.svg",
         "js/core/auth.js",
         "js/core/firebase-config.js",
+        "js/core/operaciones.js",
         "js/core/seguridad.js",
         "js/modulos/catalogo.js",
         "panel/dashboard.html"
@@ -2060,5 +2065,5 @@
       }
     }
   ],
-  "estimated_tokens": 10155
+  "estimated_tokens": 10194
 }

@@ -1,13 +1,13 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:37:52.913362+00:00**
+- Generado: **2026-10-09T03:37:55.624730+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `233096264d5c352f…`
+- Huella del proyecto: `f8cb74185d3b945e…`
 - Archivos analizados: **173**
-- Relaciones internas tipadas: **530**
-- Símbolos detectados: **4194**
-- Llamadas detectadas: **9253**
-- IDs DOM definidos: **863**
+- Relaciones internas tipadas: **535**
+- Símbolos detectados: **4221**
+- Llamadas detectadas: **9287**
+- IDs DOM definidos: **873**
 - Paquetes externos usados: **27**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **17**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**10,155 tokens** · leer primero
-- `GraphCompleto.json` — ~**52,546 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**98,978 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.7%** frente al profundo
+- `GraphCompacto.json` — ~**10,194 tokens** · leer primero
+- `GraphCompleto.json` — ~**52,782 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**99,527 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -34,7 +34,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 250.3 (conexiones: 124, 235 lineas)
+- `js/core/auth.js` — riesgo 252.3 (conexiones: 125, 235 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 102.6 (conexiones: 40, 2256 lineas)
 - `panel/dashboard.html` — riesgo 99.3 (conexiones: 40, 1935 lineas)
 - `js/core/seguridad.js` — riesgo 98.4 (conexiones: 49, 40 lineas)
@@ -44,15 +44,15 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `panel/modulos/logistica/catalogo.html` — riesgo 60.9 (conexiones: 26, 891 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
 - `js/core/iconos.js` — riesgo 56.9 (conexiones: 28, 88 lineas)
-- `js/core/operaciones.js` — riesgo 52.5 (conexiones: 25, 249 lineas)
+- `js/core/operaciones.js` — riesgo 56.5 (conexiones: 27, 255 lineas)
 - `js/modulos/ventaRapida.js` — riesgo 45.9 (conexiones: 19, 785 lineas)
 - `js/modulos/credenciales.js` — riesgo 45.4 (conexiones: 19, 739 lineas)
 - `js/modulos/compras2.js` — riesgo 42.2 (conexiones: 17, 822 lineas)
-- `js/modulos/compras.js` — riesgo 37.5 (conexiones: 16, 550 lineas)
+- `panel/modulos/logistica/inventario.html` — riesgo 37.9 (conexiones: 16, 586 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 124 | exporta: cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle, loginConSSO
+- `js/core/auth.js` — grado 125 | exporta: cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle, loginConSSO
 - `js/core/seguridad.js` — grado 49 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/dashboard.html` — grado 40 | exporta: (sin exports detectados)
 - `panel/modulos/congreso/modulos_participantes.html` — grado 40 | exporta: (sin exports detectados)
@@ -60,8 +60,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `css/styles.css` — grado 30 | exporta: (sin exports detectados)
 - `js/modulos/catalogo.js` — grado 29 | exporta: ICONOS, ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, crearCategoria, crearProducto, desactivarProducto, editarCategoria
 - `js/core/iconos.js` — grado 28 | exporta: ICONOS_DISPONIBLES, estrellasImg, iconoComboImg, iconoImg, nombreIconoCombo, rutaIcono
+- `js/core/operaciones.js` — grado 27 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
 - `panel/modulos/logistica/catalogo.html` — grado 26 | exporta: (sin exports detectados)
-- `js/core/operaciones.js` — grado 25 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
 - `js/modulos/voluntarios.js` — grado 20 | exporta: (sin exports detectados)
 - `js/modulos/credenciales.js` — grado 19 | exporta: LIMITES, TAMANOS, categoriaDe, descargarBlob, dibujarCredencial, generarPdf, generarPng, generarZip
 - `js/modulos/ventaRapida.js` — grado 19 | exporta: (sin exports detectados)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -340,12 +340,12 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 212
-- `imports`: 175
+- `calls_imported_symbol`: 214
+- `imports`: 176
 - `navigates_to`: 57
 - `loads_script`: 37
 - `loads_stylesheet`: 30
-- `loads_asset`: 19
+- `loads_asset`: 21
 
 ## Paquetes/SDKs externos
 

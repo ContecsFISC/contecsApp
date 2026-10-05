@@ -15,6 +15,11 @@ const ROLES_INVENTARIO = new Set([
   "ceo", "junta_principal", "junta", "ventas", "logistica",
 ]);
 const ROLES_FONDOS = new Set(["ceo", "junta_principal", "finanzas"]);
+const ROLES_VACIAR_INVENTARIO = new Set(["ceo"]);
+const CONFIRMACION_VACIAR_INVENTARIO = "vaciar_inventario";
+// Productos por transacción al vaciar: cada uno genera 2 escrituras
+// (producto + movimiento), así cada lote queda holgado dentro del límite.
+const LOTE_VACIAR_INVENTARIO = 200;
 const METODOS_PAGO = new Set([
   "efectivo", "yappy", "transferencia", "tarjeta", "otro",
 ]);
@@ -589,6 +594,68 @@ async function ejecutarAjuste(request) {
   });
 }
 
+// Deja el stock de todos los productos en 0 sin tocar la contabilidad: no
+// crea mermas, ventas ni movimientos de fondo, y no registra costos ni
+// utilidades. Solo deja un movimiento de inventario por producto con el
+// stock anterior, para que el vaciado quede auditado en la bitácora.
+async function ejecutarVaciarInventario(request) {
+  const actor = await obtenerActor(request, ROLES_VACIAR_INVENTARIO);
+  if (request.data?.confirmacion !== CONFIRMACION_VACIAR_INVENTARIO) {
+    throw new HttpsError(
+        "invalid-argument",
+        `Escribe "${CONFIRMACION_VACIAR_INVENTARIO}" para confirmar.`,
+    );
+  }
+
+  const snap = await db.collection("productos").get();
+  const refs = snap.docs
+      .filter((doc) => numero(doc.data().stock) !== 0)
+      .map((doc) => doc.ref);
+
+  let productosVaciados = 0;
+  let unidadesRetiradas = 0;
+  for (let i = 0; i < refs.length; i += LOTE_VACIAR_INVENTARIO) {
+    const lote = refs.slice(i, i + LOTE_VACIAR_INVENTARIO);
+    const resultado = await db.runTransaction(async (tx) => {
+      // Releer dentro de la transacción: si entre la consulta y este punto
+      // se registró una venta o compra, se usa el stock real del momento.
+      const snaps = await tx.getAll(...lote);
+      let productos = 0;
+      let unidades = 0;
+      snaps.forEach((productoSnap) => {
+        if (!productoSnap.exists) return;
+        const antes = numero(productoSnap.data().stock);
+        if (antes === 0) return;
+        tx.update(productoSnap.ref, {
+          stock: 0,
+          actualizadoEn: FieldValue.serverTimestamp(),
+        });
+        const movimientoRef = nuevoMovimientoInventario();
+        tx.set(movimientoRef, {
+          tipo: antes > 0 ? "salida" : "entrada",
+          origen: "vaciado",
+          productoId: productoSnap.id,
+          nombre: nombreProducto(productoSnap.data()),
+          cantidad: Math.abs(antes),
+          antes,
+          despues: 0,
+          motivo: "Vaciado de inventario (sin merma ni efecto contable)",
+          referenciaId: movimientoRef.id,
+          usuarioId: actor.id,
+          creadoEn: FieldValue.serverTimestamp(),
+        });
+        productos += 1;
+        unidades += Math.abs(antes);
+      });
+      return {productos, unidades};
+    });
+    productosVaciados += resultado.productos;
+    unidadesRetiradas += resultado.unidades;
+  }
+
+  return {productosVaciados, unidadesRetiradas};
+}
+
 async function ejecutarMerma(request) {
   const solicitud = {...request, data: {
     ...(request.data || {}),
@@ -648,6 +715,7 @@ async function ejecutarOperacionFinanciera(request) {
     case "venta_merma": return ejecutarVenta(request, true);
     case "compra": return ejecutarCompra(request);
     case "ajuste_stock": return ejecutarAjuste(request);
+    case "vaciar_inventario": return ejecutarVaciarInventario(request);
     case "merma": return ejecutarMerma(request);
     case "movimiento_fondo": return ejecutarMovimientoFondo(request);
     default:

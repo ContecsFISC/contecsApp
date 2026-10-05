@@ -207,6 +207,12 @@ export async function ajustarStock({productoId, cantidad, tipo, motivo = ""}) {
   });
 }
 
+// Solo CEO. Deja todo el stock en 0 sin mermas ni movimientos de fondo;
+// el servidor vuelve a validar el rol y el texto de confirmación.
+export async function vaciarInventario({confirmacion}) {
+  return llamarOperacion("vaciar_inventario", {confirmacion});
+}
+
 export async function registrarMerma({items, motivo = ""}) {
   return llamarOperacion("merma", {items, motivo});
 }
