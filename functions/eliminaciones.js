@@ -243,6 +243,11 @@ async function eliminarParticipante(request) {
     }
   }
 
+  // El RFID anclado desde POSPER vuelve a quedar libre para otra persona.
+  const rfidSnaps = await Promise.all(ids.map((id) =>
+    db.collection("rfid_participantes").where("participanteId", "==", id).get()));
+  await borrarEnLotes(rfidSnaps.flatMap((s) => s.docs.map((d) => d.ref)));
+
   await borrarEnLotes(snaps.map((s) => s.ref));
   // El trigger liberarIdentidadParticipante hace lo mismo en segundo plano;
   // hacerlo aquí deja la cédula y el correo libres en cuanto responde la

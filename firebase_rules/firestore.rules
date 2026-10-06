@@ -94,9 +94,14 @@ service cloud.firestore {
       allow create: if false;
       allow update: if canAprobarPagosParticipantes()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-          'asistencias', 'totalAsistencias'
+          'asistencias', 'totalAsistencias', 'rfid'
         ]);
       allow delete: if hasRol(["ceo","junta_principal"]);
+    }
+
+    // RFID anclado desde POSPER — solo Admin SDK (ejecutarOperacionQr)
+    match /rfid_participantes/{id} {
+      allow read, write: if false;
     }
 
     // Contador secuencial — solo Admin SDK (Cloud Functions)

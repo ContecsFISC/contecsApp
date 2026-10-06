@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Randomizer</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("gestionar_inscripciones");
+ </script>
+ <style>
+ .container { max-width: 1100px; }
+ .btn-primary {
+ background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
+ box-shadow: 0 4px 12px var(--verde-sombra);
+ }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .card-title { color: var(--verde-oscuro); }
+
+ .barra { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+ .barra .form-groupE { flex: 1; min-width: 220px; margin: 0; }
+ .barra .btn { width: auto; }
+ #btn-batir { min-width: 170px; font-size: 17px; font-weight: 800; letter-spacing: 1px; }
+ .conteo { font-size: 13px; color: var(--gris-medio); margin-top: 10px; }
+ .conteo strong { color: var(--verde-oscuro); }
+
+ .ganadores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+ .ganador { position: relative; border-radius: var(--radio-lg); padding: 20px 16px 18px; color: #fff; text-align: center; background: linear-gradient(160deg, var(--topbar-verde) 0%, var(--verde) 100%); box-shadow: var(--sombra-verde); min-height: 150px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+ .ganador.listo { animation: revelar var(--dur-vista) var(--ease-spring); }
+ @keyframes revelar { from { transform: scale(0.9); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+ .ganador-pos { position: absolute; top: 10px; left: 12px; font-family: var(--fuente-display); font-size: 13px; font-weight: 700; opacity: 0.8; }
+ .ganador-nombre { font-family: var(--fuente-display); font-size: 21px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+ .ganador-dato { font-size: 13px; opacity: 0.9; overflow-wrap: anywhere; }
+ .ganador-rfid { display: inline-block; margin: 4px auto 0; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.18); font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+
+ .rfid { font-family: ui-monospace, Consolas, monospace; color: var(--azul-info); font-weight: 600; white-space: nowrap; }
+ tr.es-ganador td { background: var(--verde-fondo); font-weight: 600; }
+ #tabla-rfid td { font-size: 13px; }
+
+ @media (max-width: 760px) {
+   .ganadores { grid-template-columns: minmax(0, 1fr); }
+   .barra .btn { width: 100%; }
+   #tabla-rfid td { white-space: nowrap; }
+ }
+ @media (prefers-reduced-motion: reduce) {
+   .ganador.listo { animation: none; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>CONTECS — Randomizer</h1>
+ <a href="inscripciones.html" class="btn-volver" title="Volver a eventos" aria-label="Volver a eventos"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container anim-page-in">
+
+ <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+ <div class="card" style="border: 2px solid var(--verde-claro);">
+ <div class="card-title">Participantes con RFID anclado</div>
+ <div class="barra">
+ <div class="form-groupE">
+ <label for="sel-evento">Evento</label>
+ <select id="sel-evento"><option value="">Todos los eventos</option></select>
+ </div>
+ <button class="btn btn-outline" id="btn-ver-todos" type="button" style="display:none;">Ver todos</button>
+ <button class="btn btn-primary" id="btn-batir" type="button" disabled>BATIR</button>
+ </div>
+ <div class="conteo" id="conteo">Cargando participantes...</div>
+ </div>
+
+ <div id="ganadores" class="ganadores" style="display:none;" aria-live="polite"></div>
+
+ <div class="card">
+ <div class="card-title" id="titulo-tabla">Todos los participantes con RFID</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th>#</th><th>Nombre</th><th>Cédula</th><th>Correo</th><th>Institución</th><th>Código</th><th>RFID</th><th>Anclado</th>
+ </tr></thead>
+ <tbody id="tabla-rfid"><tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+
+</div>
+
+<script type="module" src="../../../js/modulos/randomizer.js"></script>
+</body>
+</html>

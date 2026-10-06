@@ -4,6 +4,7 @@ const {
   FieldValue,
   Timestamp,
 } = require("firebase-admin/firestore");
+const {idLockRfid, normalizarRfid, serialRfid} = require("./rfid");
 
 const db = getFirestore();
 const ROLES_CONGRESO = new Set([
@@ -461,10 +462,80 @@ async function marcarCheckpointGira(request) {
   });
 }
 
+// ─── RFID: ancla el QR "RFID" a un participante (POSPER / lector EA530) ─────
+// El lock en `rfid_participantes` impide que el mismo RFID quede en dos
+// personas. Si el participante ya tenía otro RFID, el anterior se libera.
+async function anclarRfid(request) {
+  const actorId = await validarActor(request, ROLES_CONGRESO);
+  const data = request.data || {};
+  const participanteId = idValido(data.participanteId, "participante");
+  const eventoId = idValido(data.eventoId, "evento");
+  const lectura = normalizarRfid(data.rfid);
+  if (!lectura.ok) throw new HttpsError("invalid-argument", lectura.motivo);
+  const completo = lectura.completo;
+  const serial = serialRfid(completo);
+  const lockId = idLockRfid(completo);
+
+  const participanteRef = db.collection("participantes").doc(participanteId);
+  const lockRef = db.collection("rfid_participantes").doc(lockId);
+
+  return db.runTransaction(async (tx) => {
+    const [participanteSnap, lockSnap] = await tx.getAll(participanteRef, lockRef);
+    if (!participanteSnap.exists) {
+      throw new HttpsError("not-found", "Participante no encontrado.");
+    }
+    const participante = participanteSnap.data();
+    if (participante.pago?.estado !== "aprobado") {
+      throw new HttpsError(
+          "failed-precondition",
+          "El participante todavía no tiene el pago aprobado.",
+      );
+    }
+    if (lockSnap.exists && lockSnap.data()?.participanteId !== participanteId) {
+      const otro = lockSnap.data()?.participanteNombre || "otro participante";
+      throw new HttpsError(
+          "already-exists",
+          `Ese RFID ya está anclado a ${otro}.`,
+      );
+    }
+
+    const anterior = participante.rfid?.lockId;
+    if (anterior && anterior !== lockId) {
+      tx.delete(db.collection("rfid_participantes").doc(anterior));
+    }
+    tx.set(lockRef, {
+      participanteId,
+      participanteNombre: nombreParticipante(participante),
+      serial,
+      eventoId,
+      ancladoEn: FieldValue.serverTimestamp(),
+      ancladoPor: actorId,
+    });
+    tx.update(participanteRef, {
+      rfid: {
+        serial,
+        completo,
+        lockId,
+        eventoId,
+        ancladoEn: FieldValue.serverTimestamp(),
+        ancladoPor: actorId,
+      },
+      actualizadoEn: FieldValue.serverTimestamp(),
+    });
+    return {
+      ok: true,
+      serial,
+      reemplazado: Boolean(anterior && anterior !== lockId),
+      participanteNombre: nombreParticipante(participante),
+    };
+  });
+}
+
 async function ejecutarOperacionQr(request) {
   switch (request.data?.tipo) {
     case "asistencia_participante": return asistenciaParticipante(request);
     case "inscripcion_taller": return inscripcionTaller(request);
+    case "anclar_rfid": return anclarRfid(request);
     case "asistencia_voluntario": return asistenciaVoluntario(request);
     default:
       throw new HttpsError("invalid-argument", "Operación QR no reconocida.");

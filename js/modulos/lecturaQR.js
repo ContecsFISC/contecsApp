@@ -8,6 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { iconoImg } from "../core/iconos.js";
 import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
+import { extraerCredencialQr } from "../core/credencial-qr.js";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
@@ -267,34 +268,6 @@ function reanudarScanner(actualizarEstado = true) {
     scanner.resume();
     if (actualizarEstado) estadoScanner("Buscando un código QR...", "activo");
   }
-}
-
-function extraerCredencialQr(rawQR) {
-  const texto = String(rawQR || "").trim();
-  if (!texto) throw new Error("El QR está vacío.");
-
-  try {
-    const url = new URL(texto);
-    const codigo = url.searchParams.get("c")?.trim().toUpperCase();
-    const token = url.searchParams.get("t")?.trim();
-    if (codigo && token) return { tipo: "participante", codigo, token };
-  } catch (_) {
-    // Continuar con formatos sin URL.
-  }
-
-  try {
-    const datos = JSON.parse(texto);
-    const codigo = String(datos.codigo || "").trim().toUpperCase();
-    const token = String(datos.token || "").trim();
-    if (codigo && token) return { tipo: "participante", codigo, token };
-  } catch (_) {
-    // Continuar con el ID legacy.
-  }
-
-  if (/^[A-Za-z0-9_-]{1,200}$/.test(texto)) {
-    return { tipo: "legacy", id: texto };
-  }
-  throw new Error("El contenido no corresponde a una credencial CONTECS válida.");
 }
 
 async function buscarParticipanteQr(credencial) {

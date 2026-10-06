@@ -157,12 +157,53 @@ async function probarUltimoCupoConcurrente() {
   assert.equal(cpSnap.data().cuposDisponibles, 0);
 }
 
+// POSPER: el RFID queda en el participante, el mismo RFID no puede quedar en
+// dos personas y anclar otro reemplaza (y libera) el anterior.
+async function probarAnclarRfid() {
+  const base = {tipo: "anclar_rfid", eventoId: "evento-prueba"};
+  const rfidA = "e2:80:11:60:60:00:02:0a:3b:4c:3f:1a";
+  const rfidB = "E2801160600002FFFFFF9999";
+
+  const r1 = await ejecutarOperacionQr(request({
+    ...base, participanteId: "participante-uno", rfid: rfidA,
+  }));
+  assert.equal(r1.serial, "E280...3F1A");
+  assert.equal(r1.reemplazado, false);
+  const p1 = await db.collection("participantes").doc("participante-uno").get();
+  assert.equal(p1.data().rfid.serial, "E280...3F1A");
+  assert.equal(p1.data().rfid.eventoId, "evento-prueba");
+  const lockA = p1.data().rfid.lockId;
+
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...base, participanteId: "concurrente-uno", rfid: "E28011606000020A3B4C3F1A",
+  })), "already-exists");
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...base, participanteId: "pago-pendiente", rfid: rfidB,
+  })), "failed-precondition");
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...base, participanteId: "participante-uno", rfid: "https://x.test/?c=A&t=B",
+  })), "invalid-argument");
+
+  const r2 = await ejecutarOperacionQr(request({
+    ...base, participanteId: "participante-uno", rfid: rfidB,
+  }));
+  assert.equal(r2.reemplazado, true);
+  const viejo = await db.collection("rfid_participantes").doc(lockA).get();
+  assert.equal(viejo.exists, false);
+  // El RFID liberado ya lo puede usar otra persona.
+  const r3 = await ejecutarOperacionQr(request({
+    ...base, participanteId: "concurrente-uno", rfid: rfidA,
+  }));
+  assert.equal(r3.serial, "E280...3F1A");
+}
+
 async function main() {
   await prepararDatos();
   await probarEntradaGeneral();
   await probarTallerConAsistencia();
   await probarUltimoCupoConcurrente();
-  console.log("Integración QR: 13 comprobaciones críticas superadas.");
+  await probarAnclarRfid();
+  console.log("Integración QR: 23 comprobaciones críticas superadas.");
 }
 
 main().catch((error) => {

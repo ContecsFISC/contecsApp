@@ -5,9 +5,9 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T03:37:55.624730+00:00",
-  "project_fingerprint": "f8cb74185d3b945e41012dc3024cd6042ac061dc570c76887b87c12f237400b6",
-  "project": "t",
+  "generated_at": "2026-10-06T15:53:49.175432+00:00",
+  "project_fingerprint": "befd164276528ef707d68fd1aecfdc8d60315d63be10639099c4de265b3ac3b4",
+  "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
     "read_first": true,
@@ -21,24 +21,84 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 173,
-    "total_edges": 535,
+    "total_files": 180,
+    "total_edges": 559,
     "total_orphans": 67,
     "total_cycles": 0,
     "total_external_packages": 27,
-    "total_firestore_collections": 27,
+    "total_firestore_collections": 28,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 4221,
-    "total_function_calls": 9287,
-    "total_dom_ids": 873,
+    "total_symbols": 4382,
+    "total_function_calls": 9704,
+    "total_dom_ids": 917,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
   },
   "git": {
-    "available": false,
-    "changed_files": []
+    "available": true,
+    "branch": "main",
+    "head": "d049b9988d757235669cdbe93812b9dfae96c48d",
+    "changed_files": [
+      {
+        "file": "firebase_rules/firestore.rules",
+        "status": " M"
+      },
+      {
+        "file": "functions/eliminaciones.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/operaciones-qr.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/package.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/operaciones-qr.integration.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/lecturaQR.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/inscripciones.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/rfid.js",
+        "status": "??"
+      },
+      {
+        "file": "functions/test/rfid.test.js",
+        "status": "??"
+      },
+      {
+        "file": "js/core/credencial-qr.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/posper.js",
+        "status": "??"
+      },
+      {
+        "file": "js/modulos/randomizer.js",
+        "status": "??"
+      },
+      {
+        "file": "panel/modulos/congreso/posper.html",
+        "status": "??"
+      },
+      {
+        "file": "panel/modulos/congreso/randomizer.html",
+        "status": "??"
+      }
+    ],
+    "changed_count": 14
   },
   "domains": [
     {
@@ -88,7 +148,7 @@
         "css/styles.css"
       ],
       "collections": [],
-      "average_risk": 68.3,
+      "average_risk": 72.3,
       "diagnostics": 0
     },
     {
@@ -118,14 +178,14 @@
     },
     {
       "name": "functions",
-      "file_count": 25,
+      "file_count": 27,
       "key_files": [
         "functions/index.js",
         "functions/identidad.js",
         "functions/importaciones.js",
+        "functions/operaciones-qr.js",
         "functions/test/correos.test.mjs",
         "functions/operaciones-financieras.js",
-        "functions/operaciones-qr.js",
         "functions/registro.js",
         "functions/plantillas.js",
         "functions/eliminaciones.js",
@@ -150,11 +210,12 @@
         "movimientos_inventario",
         "participantes",
         "productos",
+        "rfid_participantes",
         "usuarios",
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 6.4,
+      "average_risk": 6.3,
       "diagnostics": 0
     },
     {
@@ -188,7 +249,7 @@
     },
     {
       "name": "js",
-      "file_count": 42,
+      "file_count": 45,
       "key_files": [
         "js/core/auth.js",
         "js/core/seguridad.js",
@@ -226,20 +287,20 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 32.5,
+      "average_risk": 31.6,
       "diagnostics": 1
     },
     {
       "name": "panel",
-      "file_count": 31,
+      "file_count": 33,
       "key_files": [
         "panel/modulos/congreso/modulos_participantes.html",
         "panel/dashboard.html",
         "panel/modulos/logistica/catalogo.html",
         "panel/modulos/logistica/inventario.html",
+        "panel/modulos/congreso/inscripciones.html",
         "panel/modulos/finanzas/bitacora.html",
         "panel/modulos/voluntariado/voluntarios.html",
-        "panel/modulos/congreso/inscripciones.html",
         "panel/modulos/admin/minutas.html",
         "panel/modulos/voluntariado/actividades.html",
         "panel/modulos/voluntariado/giras.html"
@@ -260,7 +321,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 25.9,
+      "average_risk": 25.5,
       "diagnostics": 0
     },
     {
@@ -279,8 +340,8 @@
   "critical_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 252.3,
-      "degree": 125,
+      "risk_score": 264.4,
+      "degree": 131,
       "in_cycle": false,
       "loc": 235
     },
@@ -292,6 +353,13 @@
       "loc": 2256
     },
     {
+      "label": "js/core/seguridad.js",
+      "risk_score": 102.4,
+      "degree": 51,
+      "in_cycle": false,
+      "loc": 40
+    },
+    {
       "label": "panel/dashboard.html",
       "risk_score": 99.3,
       "degree": 40,
@@ -299,11 +367,11 @@
       "loc": 1935
     },
     {
-      "label": "js/core/seguridad.js",
-      "risk_score": 98.4,
-      "degree": 49,
+      "label": "css/styles.css",
+      "risk_score": 72.3,
+      "degree": 32,
       "in_cycle": false,
-      "loc": 40
+      "loc": 831
     },
     {
       "label": "js/modulos/voluntarios.js",
@@ -313,16 +381,9 @@
       "loc": 2979
     },
     {
-      "label": "css/styles.css",
-      "risk_score": 68.3,
-      "degree": 30,
-      "in_cycle": false,
-      "loc": 831
-    },
-    {
       "label": "js/core/firebase-config.js",
-      "risk_score": 66.3,
-      "degree": 33,
+      "risk_score": 70.3,
+      "degree": 35,
       "in_cycle": false,
       "loc": 35
     },
@@ -396,8 +457,8 @@
     },
     {
       "file": "css/styles.css",
-      "risk": 68.3,
-      "relations": 30,
+      "risk": 72.3,
+      "relations": 32,
       "key_neighbors": [
         "panel/dashboard.html",
         "panel/modulos/admin/agendarReunion.html",
@@ -409,8 +470,8 @@
         "panel/modulos/congreso/inscripciones.html",
         "panel/modulos/congreso/lecturaQR.html",
         "panel/modulos/congreso/modulos_participantes.html",
-        "panel/modulos/congreso/reportes_estadisticaCont.html",
-        "panel/modulos/finanzas/bitacora.html"
+        "panel/modulos/congreso/posper.html",
+        "panel/modulos/congreso/randomizer.html"
       ]
     },
     {
@@ -450,7 +511,7 @@
     },
     {
       "file": "firebase_rules/firestore.rules",
-      "risk": 3.0,
+      "risk": 3.1,
       "relations": 0,
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────"
     },
@@ -486,6 +547,7 @@
         "identificadores_participantes",
         "inscripciones_checkpoint",
         "participantes",
+        "rfid_participantes",
         "usuarios"
       ]
     },
@@ -589,8 +651,8 @@
     },
     {
       "file": "functions/operaciones-qr.js",
-      "risk": 8.8,
-      "relations": 2,
+      "risk": 11.5,
+      "relations": 3,
       "exports": [
         "ejecutarOperacionQr",
         "marcarCheckpointGira"
@@ -605,6 +667,7 @@
         "giras_voluntarios",
         "inscripciones_checkpoint",
         "participantes",
+        "rfid_participantes",
         "usuarios",
         "voluntarios"
       ]
@@ -651,6 +714,19 @@
       "collections": [
         "identificadores_participantes",
         "participantes"
+      ]
+    },
+    {
+      "file": "functions/rfid.js",
+      "risk": 4.6,
+      "relations": 2,
+      "purpose": "Lectura del QR \"RFID\" que se ancla a un participante desde POSPER (lector EA530). Ese QR trae un texto hexadecimal largo; al participante se le muestra un serial corto (primeros + ",
+      "exports": [
+        "RFID_PREFIJO",
+        "RFID_SUFIJO",
+        "idLockRfid",
+        "normalizarRfid",
+        "serialRfid"
       ]
     },
     {
@@ -723,7 +799,7 @@
     },
     {
       "file": "functions/test/operaciones-qr.integration.js",
-      "risk": 3.7,
+      "risk": 4.1,
       "relations": 1,
       "collections": [
         "asistencias_congreso",
@@ -732,6 +808,7 @@
         "inscripciones",
         "inscripciones_checkpoint",
         "participantes",
+        "rfid_participantes",
         "usuarios"
       ]
     },
@@ -740,6 +817,12 @@
       "risk": 3.5,
       "relations": 1,
       "purpose": "Prueba del render de las plantillas de correo. Lo que se comprueba aquí no rompe nada ruidosamente: el correo sale igual, solo que mal. Los dos casos que ya habían mordido en produ"
+    },
+    {
+      "file": "functions/test/rfid.test.js",
+      "risk": 2.7,
+      "relations": 1,
+      "purpose": "Lectura del QR \"RFID\" que POSPER ancla a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en el MISMO lo"
     },
     {
       "file": "img/iconos/advertencia.svg",
@@ -781,8 +864,8 @@
     },
     {
       "file": "js/core/auth.js",
-      "risk": 252.3,
-      "relations": 125,
+      "risk": 264.4,
+      "relations": 131,
       "exports": [
         "cargarUsuario",
         "cerrarSesion",
@@ -826,9 +909,18 @@
       ]
     },
     {
+      "file": "js/core/credencial-qr.js",
+      "risk": 8.3,
+      "relations": 4,
+      "purpose": "Lectura del texto de una credencial CONTECS (el QR de perfil.html o el impreso). La comparten la lectura por cámara (lecturaQR.js) y el lector físico EA530 (posper.js), para que am",
+      "exports": [
+        "extraerCredencialQr"
+      ]
+    },
+    {
       "file": "js/core/firebase-config.js",
-      "risk": 66.3,
-      "relations": 33,
+      "risk": 70.3,
+      "relations": 35,
       "exports": [
         "analytics",
         "app",
@@ -973,8 +1065,8 @@
     },
     {
       "file": "js/core/seguridad.js",
-      "risk": 98.4,
-      "relations": 49,
+      "risk": 102.4,
+      "relations": 51,
       "purpose": "Utilidades pequeñas y sin dependencias para tratar datos externos antes de insertarlos en HTML, atributos o archivos que abrirá una hoja de cálculo.",
       "exports": [
         "escaparAtributo",
@@ -1282,14 +1374,21 @@
     },
     {
       "file": "js/modulos/lecturaQR.js",
-      "risk": 18.0,
-      "relations": 6,
+      "risk": 21.7,
+      "relations": 8,
       "collections": [
         "checkpoints",
         "eventos",
         "inscripciones",
         "inscripciones_checkpoint",
         "participantes"
+      ],
+      "key_neighbors": [
+        "js/core/credencial-qr.js",
+        "js/core/firebase-config.js",
+        "js/core/iconos.js",
+        "js/core/seguridad.js",
+        "panel/modulos/congreso/lecturaQR.html"
       ]
     },
     {
@@ -1333,6 +1432,27 @@
       "relations": 8,
       "collections": [
         "reuniones"
+      ]
+    },
+    {
+      "file": "js/modulos/posper.js",
+      "risk": 15.3,
+      "relations": 5,
+      "purpose": "============================================= CONTECS — POSPER (lector físico EA530) ============================================= El EA530 trae un lector de QR que se dispara con ",
+      "collections": [
+        "checkpoints",
+        "eventos",
+        "participantes"
+      ]
+    },
+    {
+      "file": "js/modulos/randomizer.js",
+      "risk": 7.9,
+      "relations": 3,
+      "purpose": "============================================= CONTECS — Randomizer ============================================= Lista en vivo a los participantes que ya tienen un RFID anclado des",
+      "collections": [
+        "eventos",
+        "participantes"
       ]
     },
     {
@@ -1572,8 +1692,8 @@
     },
     {
       "file": "panel/modulos/congreso/inscripciones.html",
-      "risk": 29.2,
-      "relations": 12,
+      "risk": 37.3,
+      "relations": 16,
       "key_neighbors": [
         "css/styles.css",
         "js/core/auth.js",
@@ -1583,7 +1703,9 @@
         "js/libs/xlsx.full.min.js",
         "js/modulos/inscripciones.js",
         "panel/dashboard.html",
-        "panel/modulos/congreso/lecturaQR.html"
+        "panel/modulos/congreso/lecturaQR.html",
+        "panel/modulos/congreso/posper.html",
+        "panel/modulos/congreso/randomizer.html"
       ]
     },
     {
@@ -1612,6 +1734,16 @@
         "js/modulos/importar-participantes.js",
         "panel/dashboard.html"
       ]
+    },
+    {
+      "file": "panel/modulos/congreso/posper.html",
+      "risk": 16.0,
+      "relations": 7
+    },
+    {
+      "file": "panel/modulos/congreso/randomizer.html",
+      "risk": 15.0,
+      "relations": 7
     },
     {
       "file": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -1881,6 +2013,7 @@
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
+      "js/modulos/posper.js",
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html"
     ],
@@ -1896,6 +2029,8 @@
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
+      "js/modulos/posper.js",
+      "js/modulos/randomizer.js",
       "panel/dashboard.html"
     ],
     "fondos": [
@@ -1961,6 +2096,8 @@
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
+      "js/modulos/posper.js",
+      "js/modulos/randomizer.js",
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html",
       "panel/modulos/congreso/modulos_participantes.html"
@@ -1983,6 +2120,11 @@
       "js/modulos/minutaReunion.js",
       "js/modulos/minutas.js",
       "panel/dashboard.html"
+    ],
+    "rfid_participantes": [
+      "functions/eliminaciones.js",
+      "functions/operaciones-qr.js",
+      "functions/test/operaciones-qr.integration.js"
     ],
     "solicitudes_actividad": [
       "js/modulos/informeActividad.js",
@@ -2065,5 +2207,5 @@
       }
     }
   ],
-  "estimated_tokens": 10194
+  "estimated_tokens": 10955
 }

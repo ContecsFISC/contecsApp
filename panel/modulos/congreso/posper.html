@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <meta name="mobile-web-app-capable" content="yes"/>
+ <meta name="apple-mobile-web-app-capable" content="yes"/>
+ <title>CONTECS — POSPER</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("gestionar_inscripciones");
+ </script>
+ <style>
+ .container { max-width: 560px; }
+
+ .btn-primary {
+ background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
+ box-shadow: 0 4px 12px var(--verde-sombra);
+ }
+ .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
+ .card-title { color: var(--verde-oscuro); }
+
+ /* Campo que recibe lo que "teclea" el lector del EA530. Tiene que poder
+    recibir foco, así que no puede ir con display:none. */
+ #captura { position: fixed; top: 0; left: -9999px; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; }
+
+ .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--verde-oscuro); font-weight: 600; }
+ .config-resumen span { min-width: 0; overflow-wrap: anywhere; }
+
+ .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: linear-gradient(160deg, var(--topbar-verde) 0%, var(--verde) 100%); box-shadow: var(--sombra-verde); transition: background var(--dur-vista) var(--ease-out); user-select: none; }
+ .escenario.rfid { background: linear-gradient(160deg, #0b2f5c 0%, var(--azul-info) 100%); }
+ .escenario.ok { background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); }
+ .escenario.error { background: linear-gradient(160deg, #6e1712 0%, var(--rojo) 100%); }
+ .escenario.inactivo { background: linear-gradient(160deg, #3a3a3c 0%, #636366 100%); }
+ .escenario-icono { width: 86px; height: 86px; border-radius: 22px; border: 3px solid rgba(255,255,255,0.85); display: grid; place-items: center; }
+ .escenario.esperando .escenario-icono { animation: pulso 1.6s var(--ease-in-out) infinite; }
+ @keyframes pulso { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.75; } }
+ .escenario-titulo { font-family: var(--fuente-display); font-size: clamp(28px, 9vw, 44px); font-weight: 700; letter-spacing: 0.5px; line-height: 1.1; }
+ .escenario-sub { font-size: 15px; opacity: 0.92; max-width: 420px; line-height: 1.45; overflow-wrap: anywhere; }
+ .escenario-acciones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+ .escenario-acciones .btn { width: auto; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.5); color: #fff; }
+
+ .resultado { margin-top: 16px; background: #fff; border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
+ .resultado-nombre { font-size: 19px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 6px; overflow-wrap: anywhere; }
+ .resultado-fila { font-size: 13px; color: var(--gris-medio); margin-bottom: 3px; overflow-wrap: anywhere; }
+ .resultado-fila strong { color: var(--gris-texto); }
+ .chip { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin: 8px 6px 0 0; }
+ .chip-ok { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .chip-aviso { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .chip-rfid { background: #e8f1fa; color: var(--azul-info); font-family: ui-monospace, Consolas, monospace; }
+
+ .pp-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.55); }
+ .pp-modal.abierto { display: flex; }
+ .pp-modal-caja { width: 100%; max-width: 380px; background: #fff; border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); animation: modalIn var(--dur-vista) var(--ease-spring); }
+ @keyframes modalIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+ .pp-modal-titulo { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 8px; }
+ .pp-modal-texto { font-size: 14px; color: var(--gris-medio); line-height: 1.45; margin-bottom: 20px; overflow-wrap: anywhere; }
+ .pp-modal-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+ .pp-modal-botones .btn { min-height: 64px; font-size: 22px; font-weight: 800; }
+ .btn-no { background: var(--gris-suave); color: var(--gris-texto); border: 2px solid var(--gris-borde); }
+
+ .diag { font-size: 13px; }
+ .diag summary { cursor: pointer; font-weight: 700; color: var(--verde-oscuro); padding: 2px 0; }
+ .diag-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 6px 12px; margin-top: 12px; }
+ .diag-grid dt { color: var(--gris-medio); }
+ .diag-grid dd { margin: 0; color: var(--gris-texto); font-weight: 600; overflow-wrap: anywhere; }
+ .diag-sub { margin-top: 14px; font-weight: 700; color: var(--verde-oscuro); }
+ .diag-crudo { margin-top: 6px; padding: 8px 10px; background: var(--gris-suave); border-radius: var(--radio-sm); font-family: ui-monospace, Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; min-height: 34px; }
+ .diag-badge { display: inline-block; margin-top: 10px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+ .diag-badge.si { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .diag-badge.no { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .diag-ayuda { margin-top: 10px; font-size: 12px; color: var(--gris-medio); line-height: 1.5; }
+
+ #log-posper td { font-size: 12px; }
+ @media (max-width: 600px) {
+   .escenario { min-height: 52vh; }
+   #log-posper td { white-space: nowrap; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>CONTECS — POSPER</h1>
+ <a href="inscripciones.html" class="btn-volver" title="Volver a eventos" aria-label="Volver a eventos"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<input id="captura" type="text" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Entrada del lector"/>
+
+<div class="container anim-page-in">
+
+ <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+ <!-- CONFIGURACIÓN -->
+ <div class="card" id="config-card" style="border: 2px solid var(--verde-claro);">
+ <div id="config-form">
+ <div class="card-title">Dónde se está escaneando</div>
+ <div class="form-groupE">
+ <label for="sel-evento">Evento</label>
+ <select id="sel-evento"><option value="">— Selecciona un evento —</option></select>
+ </div>
+ <div class="form-groupE" style="margin-bottom:0;">
+ <label for="sel-checkpoint">Checkpoint donde se marca la asistencia</label>
+ <select id="sel-checkpoint" disabled><option value="">— Primero elige el evento —</option></select>
+ </div>
+ </div>
+ <div id="config-resumen" class="config-resumen" style="display:none;">
+ <span id="config-texto"></span>
+ <button class="btn btn-outline btn-sm" id="btn-cambiar-config" type="button">Cambiar</button>
+ </div>
+ </div>
+
+ <!-- PANTALLA PRINCIPAL -->
+ <div id="escenario" class="escenario inactivo" role="status" aria-live="polite">
+ <div class="escenario-icono" aria-hidden="true">
+ <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+ </div>
+ <div class="escenario-titulo" id="escenario-titulo">Configura la sesión</div>
+ <div class="escenario-sub" id="escenario-sub">Elige el evento y el checkpoint para empezar a escanear.</div>
+ <div class="escenario-acciones">
+ <button class="btn btn-sm" id="btn-cancelar-rfid" type="button" style="display:none;">Cancelar RFID</button>
+ </div>
+ </div>
+
+ <!-- ÚLTIMO PARTICIPANTE -->
+ <div id="resultado" class="resultado" style="display:none;">
+ <div class="resultado-nombre" id="res-nombre"></div>
+ <div class="resultado-fila">Código: <strong id="res-codigo"></strong></div>
+ <div class="resultado-fila">Cédula: <strong id="res-cedula"></strong></div>
+ <div class="resultado-fila">Institución: <strong id="res-universidad"></strong></div>
+ <div id="res-chips"></div>
+ </div>
+
+ <!-- REGISTROS DE LA SESIÓN -->
+ <div class="card" style="margin-top:20px;border: 2px solid var(--verde-claro);">
+ <div class="card-title">Registros de esta sesión</div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr><th>Nombre</th><th>Asistencia</th><th>RFID</th><th>Hora</th></tr></thead>
+ <tbody id="log-posper"><tr><td colspan="4" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+
+ <!-- DISPOSITIVO Y LECTOR -->
+ <div class="card" style="margin-top:20px;">
+ <details class="diag" id="diag">
+ <summary>Dispositivo y lector</summary>
+ <span id="diag-ea530" class="diag-badge no">Detectando dispositivo...</span>
+ <dl class="diag-grid" id="diag-hardware"></dl>
+
+ <div class="diag-sub">Disparador del lector</div>
+ <dl class="diag-grid">
+ <dt>Captura</dt><dd id="diag-metodo">Sin lecturas aún</dd>
+ <dt>Caracteres</dt><dd id="diag-longitud">—</dd>
+ <dt>Duración de la ráfaga</dt><dd id="diag-duracion">—</dd>
+ <dt>Terminador</dt><dd id="diag-terminador">—</dd>
+ <dt>Teclas especiales</dt><dd id="diag-teclas">—</dd>
+ <dt>Campo de captura</dt><dd id="diag-foco">—</dd>
+ </dl>
+ <div class="diag-sub">Último texto leído</div>
+ <div class="diag-crudo" id="diag-crudo"></div>
+ <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+ <button class="btn btn-outline btn-sm" id="btn-probar" type="button">Probar lector (sin registrar)</button>
+ </div>
+ <p class="diag-ayuda">
+ La página lee el lector como si fuera un teclado. En el EA530, en la app de ajustes del escáner, deja la salida en
+ <strong>emulación de teclado</strong> (no "broadcast"/intent) y el sufijo en <strong>Enter</strong>. Si no hay sufijo, la página
+ toma la lectura cuando el lector deja de escribir.
+ </p>
+ </details>
+ </div>
+
+</div>
+
+<!-- ¿CAPTAR RFID? -->
+<div class="pp-modal" id="modal-rfid" role="dialog" aria-modal="true" aria-labelledby="modal-rfid-titulo">
+ <div class="pp-modal-caja">
+ <div class="pp-modal-titulo" id="modal-rfid-titulo">¿CAPTAR RFID?</div>
+ <div class="pp-modal-texto" id="modal-rfid-texto"></div>
+ <div class="pp-modal-botones">
+ <button class="btn btn-no" id="btn-rfid-no" type="button">NO</button>
+ <button class="btn btn-primary" id="btn-rfid-si" type="button">SÍ</button>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/posper.js"></script>
+</body>
+</html>
