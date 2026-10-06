@@ -1,12 +1,12 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:38:04.496566+00:00**
+- Generado: **2026-10-09T03:38:07.250502+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `552c16b9bf6be482…`
+- Huella del proyecto: `f6a0f004c5e3851f…`
 - Archivos analizados: **173**
 - Relaciones internas tipadas: **535**
 - Símbolos detectados: **4261**
-- Llamadas detectadas: **9396**
+- Llamadas detectadas: **9397**
 - IDs DOM definidos: **879**
 - Paquetes externos usados: **27**
 - Colecciones de Firestore detectadas: **27**

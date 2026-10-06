@@ -38,12 +38,12 @@ let ultimoValorLector = "";
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
 const LECTOR_PAUSA_MS = 300;
-const MSG_LECTOR_LISTO = "Lector listo: presiona el gatillo de escaneo.";
+const MSG_LECTOR_LISTO = "Lector listo: toca el campo del lector y presiona el gatillo.";
 // Con ?diag=1 en la URL se muestra lo que la página recibe del lector.
 const DIAGNOSTICO_LECTOR = new URLSearchParams(location.search).has("diag");
-const VERSION_LECTOR = "2026-10-06.3";
+const VERSION_LECTOR = "2026-10-06.4";
 const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
-const AYUDA_LECTOR = "Apunta el lector del EA530 al QR y presiona el gatillo; luego confirma la asistencia. Si al escanear no aparece texto en el campo, activa la salida por teclado en Scan2Key.";
+const AYUDA_LECTOR = "Toca el campo del lector (se abre el teclado), apunta al QR y presiona el gatillo; luego confirma la asistencia.";
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -416,8 +416,9 @@ el("btn-detener").addEventListener("click", detenerScanner);
 
 // ─── Lector del dispositivo (Unitech EA530 u otro lector en modo teclado) ─────
 // El lector integrado "teclea" el contenido del QR en el campo enfocado
-// (Scan2Key en modo teclado), normalmente terminado en Enter. El campo usa
-// inputmode="none" para que no se abra el teclado en pantalla.
+// (Scan2Key en modo teclado), normalmente terminado en Enter. El campo NO usa
+// inputmode="none": en el EA530 el texto del gatillo entra por el teclado del
+// sistema y, con el teclado oculto, la lectura no llega a la página.
 function esCampoEditable(nodo) {
   if (!nodo || nodo === el("lector-input")) return false;
   return nodo.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(nodo.tagName);
