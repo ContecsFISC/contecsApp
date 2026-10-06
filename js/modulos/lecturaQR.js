@@ -34,14 +34,15 @@ let lectorActivo     = false; // lector del dispositivo (EA530) escuchando
 let temporizadorLector = null;
 let vigilanteLector  = null;  // revisa el campo por si el texto llega sin eventos
 let ultimoValorLector = "";
+let componiendoLector = false; // el teclado del equipo aún está escribiendo
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
-const LECTOR_PAUSA_MS = 300;
+const LECTOR_PAUSA_MS = 600;
 const MSG_LECTOR_LISTO = "Lector listo: toca el campo del lector y presiona el gatillo.";
 // Con ?diag=1 en la URL se muestra lo que la página recibe del lector.
 const DIAGNOSTICO_LECTOR = new URLSearchParams(location.search).has("diag");
-const VERSION_LECTOR = "2026-10-06.4";
+const VERSION_LECTOR = "2026-10-06.5";
 const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
 const AYUDA_LECTOR = "Toca el campo del lector (se abre el teclado), apunta al QR y presiona el gatillo; luego confirma la asistencia.";
 
@@ -295,7 +296,9 @@ function reanudarScanner(actualizarEstado = true) {
 }
 
 function extraerCredencialQr(rawQR) {
-  const texto = String(rawQR || "").trim();
+  // Una credencial nunca lleva espacios: se quitan los que pueda meter el
+  // teclado del equipo al recibir la lectura (autoespaciado tras "." o "?").
+  const texto = String(rawQR || "").replace(/\s+/g, "");
   if (!texto) throw new Error("El QR está vacío.");
 
   try {
@@ -332,7 +335,8 @@ function extraerCredencialQr(rawQR) {
 }
 
 function parametroEnTexto(texto, nombre) {
-  const coincidencia = texto.match(new RegExp(`[?&]${nombre}=([^&#\\s]+)`));
+  // Sin distinguir mayúsculas: el teclado puede poner "?C=" tras el "?".
+  const coincidencia = texto.match(new RegExp(`[?&]${nombre}=([^&#\\s]+)`, "i"));
   if (!coincidencia) return "";
   try {
     return decodeURIComponent(coincidencia[1]).trim();
@@ -350,7 +354,9 @@ async function buscarParticipanteQr(credencial) {
     if (snap.empty) throw new Error(`QR no reconocido: no hay participante con el código ${credencial.codigo}.`);
     const d = snap.docs[0];
     const participante = { id: d.id, ...d.data() };
-    if (String(participante.token || "") !== credencial.token) {
+    // El token es hexadecimal (functions/registro.js): mayúsculas y minúsculas
+    // son el mismo valor, así que se compara sin distinguirlas.
+    if (String(participante.token || "").toLowerCase() !== credencial.token.toLowerCase()) {
       throw new Error("QR inválido: el token no coincide.");
     }
     return { participante, esNuevoFormato: true };
@@ -489,6 +495,7 @@ function finalizarLecturaLector() {
   const texto = input.value.trim();
   input.value = "";
   ultimoValorLector = "";
+  componiendoLector = false;
   if (texto) diagLector(`lectura completa (${texto.length} car.): ${texto.slice(0, 70)}`);
   recibirLecturaLector(texto);
 }
@@ -497,7 +504,7 @@ function finalizarLecturaLector() {
 // disparar eventos de teclado ni "input": si el valor quedó quieto, se procesa.
 function revisarCampoLector() {
   const valor = el("lector-input").value;
-  if (valor.trim() && valor === ultimoValorLector && !temporizadorLector) {
+  if (valor.trim() && valor === ultimoValorLector && !temporizadorLector && !componiendoLector) {
     diagLector("texto detectado en el campo sin eventos de teclado");
     finalizarLecturaLector();
     return;
@@ -516,10 +523,22 @@ el("lector-input").addEventListener("keydown", e => {
 
 function programarFinLectura() {
   clearTimeout(temporizadorLector);
-  temporizadorLector = setTimeout(finalizarLecturaLector, LECTOR_PAUSA_MS);
+  // Mientras el teclado compone texto se espera más para no cortar la lectura.
+  const pausa = componiendoLector ? LECTOR_PAUSA_MS * 3 : LECTOR_PAUSA_MS;
+  temporizadorLector = setTimeout(finalizarLecturaLector, pausa);
 }
 
 el("lector-input").addEventListener("input", programarFinLectura);
+
+el("lector-input").addEventListener("compositionstart", () => {
+  componiendoLector = true;
+  diagLector("el teclado empezó a componer texto");
+});
+
+el("lector-input").addEventListener("compositionend", () => {
+  componiendoLector = false;
+  programarFinLectura();
+});
 
 el("lector-input").addEventListener("focus", () => {
   el("lector-panel").classList.remove("sin-foco");
