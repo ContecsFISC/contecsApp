@@ -25,9 +25,16 @@
  .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
  .card-title { color: var(--verde-oscuro); }
 
- /* Campo que recibe lo que "teclea" el lector del EA530. Tiene que poder
-    recibir foco, así que no puede ir con display:none. */
- #captura { position: fixed; top: 0; left: -9999px; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; }
+ /* Campo que recibe lo que "teclea" el lector del EA530. Va visible y con
+    teclado: en el EA530 la lectura entra por el teclado del sistema y, con el
+    teclado oculto (inputmode="none"), no llega a la página. */
+ .captura-wrap { width: 100%; max-width: 420px; }
+ #captura { width: 100%; padding: 12px 14px; border-radius: var(--radio-sm); border: 2px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.12); color: #fff; font-size: 15px; font-family: var(--fuente); text-align: center; }
+ #captura::placeholder { color: rgba(255,255,255,0.75); }
+ #captura:focus { outline: none; border-color: #fff; background: rgba(255,255,255,0.2); }
+ .captura-aviso { display: none; margin-top: 6px; font-size: 12px; font-weight: 700; color: #ffe08a; }
+ .captura-wrap.sin-foco .captura-aviso { display: block; }
+ .escenario.inactivo .captura-wrap { display: none; }
 
  .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--verde-oscuro); font-weight: 600; }
  .config-resumen span { min-width: 0; overflow-wrap: anywhere; }
@@ -90,8 +97,6 @@
  <a href="inscripciones.html" class="btn-volver" title="Volver a eventos" aria-label="Volver a eventos"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
-<input id="captura" type="text" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Entrada del lector"/>
-
 <div class="container anim-page-in">
 
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
@@ -122,6 +127,10 @@
  </div>
  <div class="escenario-titulo" id="escenario-titulo">Configura la sesión</div>
  <div class="escenario-sub" id="escenario-sub">Elige el evento y el checkpoint para empezar a escanear.</div>
+ <div class="captura-wrap" id="captura-wrap">
+ <input id="captura" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Toca aquí y presiona el gatillo" aria-label="Entrada del lector"/>
+ <div class="captura-aviso">Toca el campo para reactivar el lector.</div>
+ </div>
  <div class="escenario-acciones">
  <button class="btn btn-sm" id="btn-cancelar-rfid" type="button" style="display:none;">Cancelar RFID</button>
  </div>
@@ -170,8 +179,9 @@
  </div>
  <p class="diag-ayuda">
  La página lee el lector como si fuera un teclado. En el EA530, en la app de ajustes del escáner, deja la salida en
- <strong>emulación de teclado</strong> (no "broadcast"/intent) y el sufijo en <strong>Enter</strong>. Si no hay sufijo, la página
- toma la lectura cuando el lector deja de escribir.
+ <strong>teclado</strong> (no "broadcast"/intent ni portapapeles) y el sufijo en <strong>Enter</strong>. Si no hay sufijo, la página
+ toma la lectura cuando el lector deja de escribir. Prueba rápida: abre cualquier campo de texto en otra app y dispara;
+ si ahí tampoco aparece el texto, el problema es la configuración del lector, no la página.
  </p>
  </details>
  </div>

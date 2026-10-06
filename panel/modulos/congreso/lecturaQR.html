@@ -71,6 +71,15 @@
  .lector-sin-foco { display:none; margin-top:8px; font-size:12px; font-weight:600; color:#856404; }
  .lector-panel.sin-foco { border-color:#e0a800; background:#fff8e1; }
  .lector-panel.sin-foco .lector-sin-foco { display:block; }
+ .rfid-pantalla { display:none; scroll-margin-top:84px; margin-bottom:12px; padding:22px 16px; border-radius:var(--radio); background:#101914; color:#fff; text-align:center; box-shadow:0 0 0 3px var(--verde-claro) inset; }
+ .rfid-pantalla.activa { display:block; }
+ .rfid-pantalla-titulo { font-family:var(--fuente-display); font-size:clamp(26px,8vw,38px); font-weight:700; letter-spacing:1px; line-height:1.1; animation:rfidPulso 1.6s ease-in-out infinite; }
+ .rfid-pantalla-nombre { margin-top:8px; font-size:15px; font-weight:600; color:#b9f6ca; overflow-wrap:anywhere; }
+ .rfid-pantalla-estado { margin-top:6px; font-size:13px; opacity:0.85; overflow-wrap:anywhere; }
+ .rfid-pantalla.error { box-shadow:0 0 0 3px var(--rojo) inset; }
+ .rfid-pantalla.error .rfid-pantalla-estado { color:#ffb4ab; opacity:1; }
+ @keyframes rfidPulso { 0%,100% { opacity:1; } 50% { opacity:0.55; } }
+ @media (prefers-reduced-motion: reduce) { .rfid-pantalla-titulo { animation:none; } }
  .lector-diag { margin-top:10px; padding:10px 12px; background:#101914; color:#b9f6ca; font-size:11px; line-height:1.5; border-radius:var(--radio-sm); white-space:pre-wrap; word-break:break-all; max-height:240px; overflow:auto; }
  @media(max-width:600px) {
    .cp-grid { grid-template-columns:minmax(0,1fr); }
@@ -114,6 +123,11 @@
  <!-- CÁMARA / LECTOR DEL DISPOSITIVO -->
  <div class="card" style="border-left: 2px solid var(--verde-claro);">
  <div class="card-title">Escanear credencial del participante</div>
+ <div class="rfid-pantalla" id="rfid-pantalla" role="status" aria-live="assertive">
+ <div class="rfid-pantalla-titulo">ESCANEAR RFID</div>
+ <div class="rfid-pantalla-nombre" id="rfid-nombre"></div>
+ <div class="rfid-pantalla-estado" id="rfid-estado">Escanea el RFID (QR, código de barras o lo que sea) para anclarlo a este participante.</div>
+ </div>
  <div class="scanner-overlay" id="camara-wrap">
  <div id="reader"></div>
  </div>

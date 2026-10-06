@@ -3,8 +3,8 @@
 // =============================================
 // El EA530 trae un lector de QR que se dispara con un botón y "teclea" lo
 // que lee en el campo que tenga el foco (emulación de teclado). Esta página
-// mantiene un campo oculto con foco permanente, junta lo que escribe el
-// lector y lo procesa:
+// mantiene un campo visible con foco permanente (con teclado: sin él la
+// lectura no llega en el EA530), junta lo que escribe el lector y lo procesa:
 //
 //   1. QR de credencial -> marca la asistencia en el checkpoint elegido
 //      (misma operación del servidor que lecturaQR.js con cámara).
@@ -34,7 +34,7 @@ const ejecutarOperacionQr = httpsCallable(
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 const CLAVE_CONFIG = "posper.config";
 // Sin sufijo Enter, la lectura se da por terminada tras este silencio.
-const SILENCIO_FIN_MS = 250;
+const SILENCIO_FIN_MS = 600;
 const LONGITUD_MAX_LECTURA = 2048;
 
 // config | qr | procesando | pregunta | rfid | anclando | prueba
@@ -84,7 +84,7 @@ function esperarRfid() {
 
 // ─── Captura del lector (emulación de teclado) ──────────────────────────────
 const captura = el("captura");
-const lectura = { inicio: 0, metodo: "teclado", timer: null };
+const lectura = { inicio: 0, metodo: "teclado", timer: null, componiendo: false, ultimoValor: "" };
 const teclasEspeciales = [];
 
 function enfocarCaptura() {
@@ -93,10 +93,16 @@ function enfocarCaptura() {
   captura.focus({ preventScroll: true });
 }
 
-captura.addEventListener("focus", () => { el("diag-foco").textContent = "Activo (listo para leer)"; });
+captura.addEventListener("focus", () => {
+  el("diag-foco").textContent = "Activo (listo para leer)";
+  el("captura-wrap").classList.remove("sin-foco");
+});
 captura.addEventListener("blur", () => {
   el("diag-foco").textContent = "Sin foco";
-  setTimeout(enfocarCaptura, 60);
+  setTimeout(() => {
+    enfocarCaptura();
+    el("captura-wrap").classList.toggle("sin-foco", document.activeElement !== captura);
+  }, 60);
 });
 
 captura.addEventListener("keydown", e => {
@@ -111,13 +117,35 @@ captura.addEventListener("keydown", e => {
 
 captura.addEventListener("paste", () => { lectura.metodo = "pegado"; });
 
+function programarFin() {
+  clearTimeout(lectura.timer);
+  // Mientras el teclado del equipo compone texto se espera más para no cortar.
+  const pausa = lectura.componiendo ? SILENCIO_FIN_MS * 3 : SILENCIO_FIN_MS;
+  lectura.timer = setTimeout(() => terminarLectura("ninguno (pausa)"), pausa);
+}
+
 captura.addEventListener("input", () => {
   if (!lectura.inicio) lectura.inicio = performance.now();
   // Algunos lectores entregan el texto completo en un solo evento y sin
   // Enter: se da por terminado cuando deja de llegar texto.
-  clearTimeout(lectura.timer);
-  lectura.timer = setTimeout(() => terminarLectura("ninguno (pausa)"), SILENCIO_FIN_MS);
+  programarFin();
 });
+captura.addEventListener("compositionstart", () => { lectura.componiendo = true; });
+captura.addEventListener("compositionend", () => {
+  lectura.componiendo = false;
+  programarFin();
+});
+
+// Algunos servicios de escaneo de Android escriben en el campo sin disparar
+// eventos: si el valor quedó quieto entre dos revisiones, se procesa.
+setInterval(() => {
+  const valor = captura.value;
+  if (valor.trim() && valor === lectura.ultimoValor && !lectura.componiendo) {
+    lectura.metodo = "texto sin eventos";
+    terminarLectura("ninguno (sin eventos)");
+  }
+  lectura.ultimoValor = captura.value;
+}, SILENCIO_FIN_MS);
 
 // El gatillo de algunos equipos llega como una tecla propia; se anota para
 // poder diagnosticar la configuración del lector.
@@ -143,9 +171,12 @@ function terminarLectura(terminador) {
   captura.value = "";
   lectura.inicio = 0;
   lectura.metodo = "teclado";
+  lectura.ultimoValor = "";
+  lectura.componiendo = false;
   if (!texto) return;
 
-  el("diag-metodo").textContent = metodo === "pegado" ? "Pegado" : "Emulación de teclado";
+  el("diag-metodo").textContent = metodo === "pegado" ? "Pegado"
+    : metodo === "texto sin eventos" ? "Texto escrito sin eventos" : "Emulación de teclado";
   el("diag-longitud").textContent = String(texto.length);
   el("diag-duracion").textContent = `${duracion} ms`;
   el("diag-terminador").textContent = terminador;

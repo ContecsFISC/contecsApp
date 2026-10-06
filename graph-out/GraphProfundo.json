@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-06T16:00:27.898558+00:00",
-  "project_fingerprint": "b5e35e61b8050bd19ce38ad1c95f1090572197e58c357df166b6c6b238a24bc4",
+  "generated_at": "2026-10-06T16:14:41.094313+00:00",
+  "project_fingerprint": "daa3bcb654e951d21b809a8c9d6bafd96ffc0466a9da333c82f164972cbeed55",
   "project": "contecsApp",
   "root": ".",
   "view": "deep",
@@ -19,9 +19,9 @@
     "total_firestore_collections": 28,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 4424,
-    "total_function_calls": 9818,
-    "total_dom_ids": 923,
+    "total_symbols": 4442,
+    "total_function_calls": 9880,
+    "total_dom_ids": 927,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -1126,35 +1126,35 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 81
+        "line": 83
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 638
+        "line": 652
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 86
+        "line": 88
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 392
+        "line": 423
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 393
+        "line": 424
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1249,14 +1249,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 60
+        "line": 62
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 366
+        "line": 397
       },
       {
         "file": "js/modulos/randomizer.js",
@@ -1392,7 +1392,7 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 316
+        "line": 320
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1429,21 +1429,21 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 653
+        "line": 667
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 654
+        "line": 668
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 655
+        "line": 669
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1512,14 +1512,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 301
+        "line": 305
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 178
+        "line": 209
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -2588,12 +2588,12 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/actividadVentas.js"
+      "usado_en": "js/modulos/inscripciones.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/inscripciones.js"
+      "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -3214,8 +3214,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2056,
-      "loc": 64,
+      "size_bytes": 2690,
+      "loc": 71,
       "exports": [
         "RFID_PREFIJO",
         "RFID_SUFIJO",
@@ -3223,7 +3223,7 @@
         "normalizarRfid",
         "serialRfid"
       ],
-      "purpose": "Lectura del QR \"RFID\" que se ancla a un participante desde POSPER (lector EA530). Ese QR trae un texto hexadecimal largo; al participante se le muestra un serial corto (primeros + ",
+      "purpose": "Lectura del \"RFID\" que se ancla a un participante (POSPER y Lectura QR con el lector EA530). Es lo que traiga la siguiente lectura tras la credencial: normalmente un QR con un text",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 2,
@@ -3231,7 +3231,7 @@
       "degree": 2,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 4.6
+      "risk_score": 4.7
     },
     {
       "id": "functions/templates/correo-no-seleccionado-gira.html",
@@ -3499,10 +3499,10 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2363,
-      "loc": 70,
+      "size_bytes": 2940,
+      "loc": 82,
       "exports": [],
-      "purpose": "Lectura del QR \"RFID\" que POSPER ancla a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en el MISMO lo",
+      "purpose": "Lectura del \"RFID\" que POSPER y Lectura QR anclan a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en ",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 0,
@@ -3510,7 +3510,7 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.7
+      "risk_score": 2.8
     },
     {
       "id": "icons/bebida-lata.svg",
@@ -5227,8 +5227,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 33088,
-      "loc": 824,
+      "size_bytes": 37300,
+      "loc": 932,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5244,7 +5244,7 @@
       "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 24.2
+      "risk_score": 25.3
     },
     {
       "id": "js/modulos/lecturaQRGiras.js",
@@ -5339,8 +5339,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 20867,
-      "loc": 528,
+      "size_bytes": 22063,
+      "loc": 559,
       "exports": [],
       "purpose": "============================================= CONTECS — POSPER (lector físico EA530) ============================================= El EA530 trae un lector de QR que se dispara con ",
       "minified_or_vendor": false,
@@ -5354,7 +5354,7 @@
       "degree": 5,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.3
+      "risk_score": 15.6
     },
     {
       "id": "js/modulos/randomizer.js",
@@ -5819,8 +5819,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11076,
-      "loc": 186,
+      "size_bytes": 12213,
+      "loc": 200,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5830,7 +5830,7 @@
       "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 17.9
+      "risk_score": 18.0
     },
     {
       "id": "panel/modulos/congreso/modulos_participantes.html",
@@ -5860,8 +5860,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11674,
-      "loc": 196,
+      "size_bytes": 12638,
+      "loc": 206,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5871,7 +5871,7 @@
       "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 16.0
+      "risk_score": 16.1
     },
     {
       "id": "panel/modulos/congreso/randomizer.html",
@@ -6666,7 +6666,7 @@
       "target": "functions/rfid.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 10,
+      "line": 11,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -8596,14 +8596,14 @@
       "target": "panel/modulos/congreso/inscripciones.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 92
+      "line": 101
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/modulos/lecturaQR.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 183
+      "line": 197
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
@@ -8781,14 +8781,14 @@
       "target": "panel/modulos/congreso/inscripciones.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 90
+      "line": 97
     },
     {
       "source": "panel/modulos/congreso/posper.html",
       "target": "js/modulos/posper.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 193
+      "line": 203
     },
     {
       "source": "panel/modulos/congreso/randomizer.html",
@@ -9948,7 +9948,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "parsearListaCorreos"
+        "symbol": "esCorreoValido"
       }
     },
     {
@@ -9958,7 +9958,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "esCorreoValido"
+        "symbol": "parsearListaCorreos"
       }
     },
     {
@@ -10008,7 +10008,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -10018,7 +10018,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -10038,7 +10038,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -10048,7 +10048,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -10059,16 +10059,6 @@
       "line": 5,
       "detail": {
         "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/agendarReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
-        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -10089,6 +10079,16 @@
       "line": 7,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -10118,7 +10118,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeGestionarMinuta"
+        "symbol": "usuarioPuedeVerReunion"
       }
     },
     {
@@ -10128,7 +10128,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeVerReunion"
+        "symbol": "usuarioPuedeGestionarMinuta"
       }
     },
     {
@@ -10148,7 +10148,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -10158,7 +10158,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -10188,7 +10188,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10198,17 +10198,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10223,12 +10213,32 @@
     },
     {
       "source": "js/modulos/compras.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 3,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10249,16 +10259,6 @@
       "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10278,7 +10278,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10288,7 +10288,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10298,7 +10298,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "crearProducto"
       }
     },
     {
@@ -10318,7 +10318,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "crearProducto"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -10329,6 +10329,16 @@
       "line": 3,
       "detail": {
         "symbol": "iconoImg"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10349,16 +10359,6 @@
       "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10398,7 +10398,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -10408,7 +10408,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "resumenItemPrincipal"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -10428,6 +10428,16 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
         "symbol": "usuarioTienePermiso"
       }
     },
@@ -10438,7 +10448,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10453,12 +10463,12 @@
     },
     {
       "source": "js/modulos/fondo.js",
-      "target": "js/core/auth.js",
+      "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1,
+      "line": 3,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -10479,16 +10489,6 @@
       "line": 3,
       "detail": {
         "symbol": "registrarMovimientoFondo"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "resumenItemPrincipal"
       }
     },
     {
@@ -10548,7 +10548,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -10558,7 +10558,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -10658,16 +10658,6 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "urlHttpSegura"
-      }
-    },
-    {
-      "source": "js/modulos/minutaReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
         "symbol": "escaparHtml"
       }
     },
@@ -10679,6 +10669,16 @@
       "line": 7,
       "detail": {
         "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -10768,7 +10768,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10778,7 +10778,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10798,16 +10798,6 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "urlImagenSegura"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
         "symbol": "escaparHtml"
       }
     },
@@ -10818,17 +10808,17 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlImagenSegura"
       }
     },
     {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/auth.js",
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1,
+      "line": 3,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -10848,7 +10838,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -10859,6 +10849,16 @@
       "line": 1,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10878,7 +10878,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -10888,7 +10888,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -10908,7 +10908,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "formatearMoneda"
+        "symbol": "registrarVentaConMerma"
       }
     },
     {
@@ -10928,7 +10928,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVenta"
+        "symbol": "formatearMoneda"
       }
     },
     {
@@ -10938,7 +10938,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVentaConMerma"
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -10968,16 +10968,6 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarParticipantesGira"
-      }
-    },
-    {
-      "source": "js/modulos/voluntarios.js",
-      "target": "js/core/participantes-api.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 8,
-      "detail": {
         "symbol": "listarParticipantesParaGiras"
       }
     },
@@ -10989,6 +10979,16 @@
       "line": 8,
       "detail": {
         "symbol": "notificarNoSeleccionadosGira"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/participantes-api.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 8,
+      "detail": {
+        "symbol": "notificarParticipantesGira"
       }
     },
     {
@@ -11028,7 +11028,7 @@
       "provenance": "extracted",
       "line": 15,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -11038,7 +11038,7 @@
       "provenance": "extracted",
       "line": 15,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -11308,6 +11308,16 @@
       "provenance": "extracted",
       "line": 930,
       "detail": {
+        "symbol": "importarParticipantes"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/participantes-api.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 930,
+      "detail": {
         "symbol": "enviarCorreoQrParticipante"
       }
     },
@@ -11319,16 +11329,6 @@
       "line": 930,
       "detail": {
         "symbol": "eliminarParticipante"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/core/participantes-api.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 930,
-      "detail": {
-        "symbol": "importarParticipantes"
       }
     },
     {
@@ -11348,37 +11348,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "nombreDe"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "limpiarImpresion"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "generarPdf"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "categoriaDe"
+        "symbol": "dibujarCredencial"
       }
     },
     {
@@ -11398,7 +11368,27 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "dibujarCredencial"
+        "symbol": "nombreArchivo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "categoriaDe"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "generarPdf"
       }
     },
     {
@@ -11418,7 +11408,57 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "generarZip"
+        "symbol": "limpiarImpresion"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "tieneCredencial"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "medidaImpresa"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "textoQr"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "nombreDe"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "imprimirPdf"
       }
     },
     {
@@ -11448,47 +11488,47 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "imprimirPdf"
+        "symbol": "generarZip"
       }
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
+      "target": "js/modulos/importar-participantes.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 932,
+      "line": 936,
       "detail": {
-        "symbol": "textoQr"
+        "symbol": "descargarPlantilla"
       }
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
+      "target": "js/modulos/importar-participantes.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 932,
+      "line": 936,
       "detail": {
-        "symbol": "nombreArchivo"
+        "symbol": "descargarResultado"
       }
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
+      "target": "js/modulos/importar-participantes.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 932,
+      "line": 936,
       "detail": {
-        "symbol": "medidaImpresa"
+        "symbol": "revisarFilas"
       }
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
+      "target": "js/modulos/importar-participantes.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 932,
+      "line": 936,
       "detail": {
-        "symbol": "tieneCredencial"
+        "symbol": "armarFilas"
       }
     },
     {
@@ -11518,47 +11558,7 @@
       "provenance": "extracted",
       "line": 936,
       "detail": {
-        "symbol": "armarFilas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
         "symbol": "leerArchivo"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "descargarPlantilla"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "revisarFilas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "descargarResultado"
       }
     },
     {
@@ -11658,7 +11658,7 @@
       "provenance": "extracted",
       "line": 334,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -11668,7 +11668,7 @@
       "provenance": "extracted",
       "line": 334,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -11768,77 +11768,7 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "desactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "reactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "editarProducto"
+        "symbol": "editarCategoria"
       }
     },
     {
@@ -11858,6 +11788,46 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
         "symbol": "crearProducto"
       }
     },
@@ -11868,7 +11838,37 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "editarCategoria"
+        "symbol": "reactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "desactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "editarProducto"
       }
     },
     {
@@ -11898,7 +11898,7 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11908,7 +11908,17 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 344,
+      "detail": {
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -11929,16 +11939,6 @@
       "line": 344,
       "detail": {
         "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 344,
-      "detail": {
-        "symbol": "getIconoHTML"
       }
     },
     {
@@ -12185,26 +12185,38 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "7796b1cece449fa6a70b0938813e3bbb9ed9f0cd",
+    "head": "29129de541abff6b454898ed765b8d3a2b63c256",
     "changed_files": [
       {
         "file": ".firebase/hosting..cache",
         "status": " M"
       },
       {
-        "file": "js/core/credencial-qr.js",
+        "file": "functions/rfid.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/rfid.test.js",
         "status": " M"
       },
       {
         "file": "js/modulos/lecturaQR.js",
-        "status": "UU"
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/posper.js",
+        "status": " M"
       },
       {
         "file": "panel/modulos/congreso/lecturaQR.html",
-        "status": "M "
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/posper.html",
+        "status": " M"
       }
     ],
-    "changed_count": 4
+    "changed_count": 7
   },
   "ai_usage": {
     "read_last": true,
@@ -12711,15 +12723,15 @@
     "functions/rfid.js": {
       "architectural_calls": {
         "idLockRfid": [
-          53,
+          60,
           1
         ],
         "normalizarRfid": [
-          18,
+          23,
           1
         ],
         "serialRfid": [
-          47,
+          52,
           1
         ]
       }
@@ -12923,8 +12935,8 @@
     "functions/test/rfid.test.js": {
       "architectural_calls": {
         "prueba": [
-          13,
-          9
+          14,
+          11
         ]
       }
     },
@@ -15976,362 +15988,390 @@
     "js/modulos/lecturaQR.js": {
       "architectural_calls": {
         "activarLector": [
-          163,
+          167,
           4
         ],
         "activarLectorAutomatico": [
-          512,
+          526,
           3
         ],
         "alerta": [
-          51,
+          53,
           15
         ],
+        "bloquearSesion": [
+          708,
+          5
+        ],
         "buscarParticipanteQr": [
-          299,
+          303,
           2
         ],
+        "cancelarEsperaRfid": [
+          108,
+          4
+        ],
         "cargarEventos": [
-          59,
+          61,
           2
         ],
         "cerrarResultado": [
-          736,
+          725,
           3
         ],
-        "confirmarAsistencia": [
-          704,
-          2
-        ],
-        "confirmarInscripcionTaller": [
-          702,
-          2
-        ],
         "crearScanner": [
-          182,
+          186,
           2
         ],
         "desactivarLector": [
-          103,
+          105,
           4
         ],
         "destino": [
-          578,
+          592,
           4
         ],
         "detenerScanner": [
-          102,
+          104,
           4
         ],
         "diagLector": [
-          450,
+          464,
           9
         ],
         "el": [
-          52,
-          100
+          54,
+          106
         ],
         "elegirCamaraTrasera": [
-          195,
+          199,
           2
         ],
         "enfocarLector": [
-          161,
-          7
+          165,
+          8
         ],
         "esCampoEditable": [
-          379,
+          389,
           4
         ],
         "escaparAtributo": [
-          127,
+          130,
           1
         ],
         "estadoInternoScanner": [
-          102,
+          104,
           10
         ],
+        "estadoRfid": [
+          776,
+          6
+        ],
         "estadoScanner": [
-          160,
-          17
+          164,
+          21
         ],
         "extraerCredencialQr": [
-          337,
-          1
-        ],
-        "finalizarLecturaLector": [
-          442,
-          4
-        ],
-        "iconoImg": [
-          121,
-          1
-        ],
-        "iniciarScanner": [
-          207,
-          1
-        ],
-        "limpiarSeleccionSesion": [
-          73,
-          2
-        ],
-        "mostrarInfoAsistencia": [
-          347,
-          2
-        ],
-        "mostrarInfoTaller": [
           346,
           2
         ],
+        "finalizarLecturaLector": [
+          456,
+          4
+        ],
+        "guardarAsistencia": [
+          713,
+          3
+        ],
+        "iconoImg": [
+          124,
+          1
+        ],
+        "iniciarEsperaRfid": [
+          361,
+          2
+        ],
+        "iniciarScanner": [
+          211,
+          1
+        ],
+        "limpiarSeleccionSesion": [
+          75,
+          2
+        ],
+        "mostrarInfoAsistencia": [
+          356,
+          2
+        ],
+        "mostrarInfoTaller": [
+          355,
+          2
+        ],
         "onScanFallo": [
-          263,
+          267,
           1
         ],
         "pausarScanner": [
-          288,
+          292,
           2
         ],
         "procesarQrDetectado": [
-          242,
+          246,
           3
         ],
         "programarFinLectura": [
-          475,
+          489,
           4
         ],
         "reanudarScanner": [
-          292,
-          3
+          296,
+          4
         ],
         "recibirLecturaLector": [
-          425,
+          435,
           2
         ],
+        "recibirRfid": [
+          333,
+          3
+        ],
         "renderCheckpoints": [
-          95,
+          97,
           3
         ],
         "renderLog": [
-          730,
+          764,
           3
         ],
         "revisarCampoLector": [
-          456,
+          470,
           1
         ]
       },
       "dom": {
         "ids": {
           "alerta": [
-            52
+            54
           ],
           "btn-cancelar-scan": [
-            779
+            886
           ],
           "btn-confirmar-asistencia": [
-            605,
-            609,
-            612,
-            667,
-            671,
-            675,
-            678,
+            619,
+            623,
+            626,
+            681,
             685,
-            697,
-            698,
-            785,
-            786
+            689,
+            692,
+            699,
+            709,
+            710,
+            798,
+            832,
+            893,
+            894
           ],
           "btn-detener": [
-            249,
-            283,
-            372
+            253,
+            287,
+            382
           ],
           "btn-iniciar": [
-            217,
-            280,
-            281,
-            282,
-            371
+            221,
+            284,
+            285,
+            286,
+            381
           ],
           "btn-lector": [
-            403,
-            420,
-            556
+            413,
+            430,
+            570
           ],
           "camara-aviso": [
-            211,
-            251,
-            257,
-            401
+            215,
+            255,
+            261,
+            411
           ],
           "camara-wrap": [
-            400,
-            419
+            410,
+            429
           ],
           "cp-grid": [
-            113,
-            696,
-            709
+            116,
+            731
           ],
           "cp-section": [
-            78,
-            96
+            80,
+            98
           ],
           "cp-seleccionado": [
-            109,
-            155,
-            760
+            112,
+            159,
+            753
           ],
           "lector-diag": [
-            570,
-            575
+            584,
+            589
           ],
           "lector-input": [
-            380,
-            386,
+            390,
             396,
-            415,
-            416,
-            445,
-            457,
-            466,
-            469,
-            482,
-            484,
-            489,
-            494,
-            500,
-            504,
-            523,
-            546
+            406,
+            425,
+            426,
+            459,
+            471,
+            480,
+            483,
+            496,
+            498,
+            503,
+            508,
+            514,
+            518,
+            537,
+            560
           ],
           "lector-panel": [
-            402,
-            417,
-            418,
-            495,
-            504,
-            508
+            412,
+            427,
+            428,
+            509,
+            518,
+            522
           ],
           "log-recientes": [
-            797
+            905
           ],
           "reader": [
-            250,
-            284
+            254,
+            288
           ],
           "res-asistencias-actuales": [
-            619,
-            679
+            633,
+            693
           ],
           "res-carrera": [
-            595,
-            635
+            609,
+            649
           ],
           "res-cedula": [
-            593,
-            633
+            607,
+            647
           ],
           "res-correo": [
-            592,
-            632
+            606,
+            646
           ],
           "res-cupos-display": [
-            644
+            658
           ],
           "res-cupos-wrap": [
-            108,
-            596,
-            643,
-            784
+            111,
+            610,
+            657,
+            892
           ],
           "res-estado-badge": [
-            600,
-            648
+            614,
+            662
           ],
           "res-nombre": [
-            591,
-            631
+            605,
+            645
           ],
           "res-universidad": [
-            594,
-            634
+            608,
+            648
           ],
           "resultado-box": [
-            107,
-            142,
-            623,
-            624,
-            680,
-            681,
-            783
+            110,
+            146,
+            637,
+            638,
+            694,
+            695,
+            891
+          ],
+          "rfid-estado": [
+            777
+          ],
+          "rfid-nombre": [
+            793
+          ],
+          "rfid-pantalla": [
+            773,
+            778,
+            797,
+            808
           ],
           "scanner-ayuda": [
-            404,
-            421
+            414,
+            431
           ],
           "scanner-estado": [
-            169
+            173
           ],
           "sel-evento-qr": [
-            61,
-            71,
-            74,
-            695,
-            708
+            63,
+            73,
+            76,
+            730
           ]
         },
         "selectors": {
           ".cp-card": [
-            131,
-            143
+            134,
+            147
           ]
         }
       },
       "events_listened": {
         "blur": [
-          500
+          514
         ],
         "change": [
-          71
+          73
         ],
         "click": [
-          132,
-          371,
-          372,
-          508,
-          556,
-          685,
-          779
+          135,
+          381,
+          382,
+          522,
+          570,
+          699,
+          886
         ],
         "compositionend": [
-          489
+          503
         ],
         "compositionstart": [
-          484
+          498
         ],
         "focus": [
-          494
+          508
         ],
         "focusin": [
-          586
+          600
         ],
         "input": [
-          482,
-          580
+          496,
+          594
         ],
         "keydown": [
-          466,
-          522,
-          577
+          480,
+          536,
+          591
         ],
         "pagehide": [
-          817
+          925
         ],
         "paste": [
-          545,
-          583
+          559,
+          597
         ]
       }
     },
@@ -16824,11 +16864,11 @@
     "js/modulos/posper.js": {
       "architectural_calls": {
         "actualizarLogRfid": [
-          312,
+          343,
           2
         ],
         "agregarLog": [
-          226,
+          257,
           2
         ],
         "alerta": [
@@ -16836,36 +16876,36 @@
           12
         ],
         "anotarTeclaEspecial": [
-          109,
+          115,
           3
         ],
         "buscarParticipante": [
-          177,
+          208,
           2
         ],
         "cargarEventos": [
-          365,
+          396,
           2
         ],
         "cerrarPregunta": [
-          270,
+          301,
           4
         ],
         "el": [
           51,
-          50
+          52
         ],
         "elegirCheckpoint": [
-          415,
+          446,
           2
         ],
         "elegirEvento": [
-          377,
+          408,
           3
         ],
         "enfocarCaptura": [
           74,
-          8
+          9
         ],
         "esperarQr": [
           68,
@@ -16876,31 +16916,31 @@
           3
         ],
         "extraerCredencialQr": [
-          202,
+          233,
           2
         ],
         "guardarConfig": [
-          357,
+          388,
           2
         ],
         "irAConfig": [
-          385,
+          416,
           4
         ],
         "leerConfigGuardada": [
-          353,
+          384,
           2
         ],
         "leerDispositivo": [
-          468,
+          499,
           2
         ],
         "mostrarChipRfid": [
-          249,
+          280,
           3
         ],
         "mostrarParticipante": [
-          225,
+          256,
           2
         ],
         "nombreDe": [
@@ -16912,31 +16952,35 @@
           9
         ],
         "preguntarRfid": [
-          228,
+          259,
           2
         ],
         "procesarCredencial": [
-          159,
+          190,
           2
         ],
         "procesarLectura": [
-          154,
+          185,
           2
         ],
         "procesarRfid": [
-          160,
+          191,
           2
         ],
+        "programarFin": [
+          120,
+          3
+        ],
         "renderLog": [
-          334,
+          365,
           3
         ],
         "terminarLectura": [
-          106,
-          3
+          112,
+          4
         ],
         "volverDePrueba": [
-          164,
+          195,
           3
         ]
       },
@@ -16946,164 +16990,174 @@
             51
           ],
           "btn-cambiar-config": [
-            443
+            474
           ],
           "btn-cancelar-rfid": [
             71,
             79,
-            284,
-            433
+            315,
+            464
           ],
           "btn-probar": [
-            163,
-            448,
-            456,
-            462
+            194,
+            479,
+            487,
+            493
           ],
           "btn-rfid-no": [
-            274
+            305
           ],
           "btn-rfid-si": [
-            279
+            310
           ],
           "captura": [
             86
           ],
+          "captura-wrap": [
+            98,
+            104
+          ],
           "config-form": [
-            424,
-            434
+            455,
+            465
           ],
           "config-resumen": [
-            425,
-            435
+            456,
+            466
           ],
           "config-texto": [
-            423
+            454
           ],
           "diag-crudo": [
-            152
+            183
           ],
           "diag-duracion": [
-            150
+            181
           ],
           "diag-ea530": [
-            503
+            534
           ],
           "diag-foco": [
-            96,
-            98
+            97,
+            101
           ],
           "diag-hardware": [
-            500
+            531
           ],
           "diag-longitud": [
-            149
+            180
           ],
           "diag-metodo": [
-            148
+            178
           ],
           "diag-teclas": [
-            135
+            163
           ],
           "diag-terminador": [
-            151
+            182
           ],
           "escenario": [
             59
           ],
           "escenario-sub": [
             61,
-            320
+            351
           ],
           "escenario-titulo": [
             60
           ],
           "log-posper": [
-            344
+            375
           ],
           "modal-rfid": [
-            264,
-            271
+            295,
+            302
           ],
           "modal-rfid-texto": [
-            261
+            292
           ],
           "res-cedula": [
-            241
+            272
           ],
           "res-chips": [
-            248,
-            254,
-            255
+            279,
+            285,
+            286
           ],
           "res-codigo": [
-            240
+            271
           ],
           "res-nombre": [
-            239
+            270
           ],
           "res-universidad": [
-            242
+            273
           ],
           "resultado": [
-            250
+            281
           ],
           "sel-checkpoint": [
-            386,
-            420,
-            442
+            417,
+            451,
+            473
           ],
           "sel-evento": [
-            367,
-            383,
-            439
+            398,
+            414,
+            470
           ]
         },
         "selectors": {
           ".chip-rfid": [
-            254
+            285
           ]
         }
       },
       "events_listened": {
         "blur": [
-          97
+          100
         ],
         "change": [
-          439,
-          442
+          470,
+          473
         ],
         "click": [
-          274,
-          279,
-          284,
-          443,
-          448
+          305,
+          310,
+          315,
+          474,
+          479
+        ],
+        "compositionend": [
+          134
+        ],
+        "compositionstart": [
+          133
         ],
         "focus": [
           96
         ],
         "input": [
-          114
+          127
         ],
         "keydown": [
-          102,
-          124
+          108,
+          152
         ],
         "offline": [
-          511
+          542
         ],
         "online": [
-          510
+          541
         ],
         "paste": [
-          112
+          118
         ],
         "pointerup": [
-          514
+          545
         ],
         "visibilitychange": [
-          517
+          548
         ]
       }
     },
@@ -20882,188 +20936,206 @@
       "html": {
         "ids": {
           "alerta": [
-            97
+            106
           ],
           "btn-cancelar-scan": [
-            161
+            175
           ],
           "btn-confirmar-asistencia": [
-            160
+            174
           ],
           "btn-detener": [
-            129
-          ],
-          "btn-iniciar": [
-            126
-          ],
-          "btn-lector": [
-            130
-          ],
-          "camara-aviso": [
-            137
-          ],
-          "camara-wrap": [
-            117
-          ],
-          "cp-grid": [
-            109
-          ],
-          "cp-section": [
-            107
-          ],
-          "cp-seleccionado": [
-            111
-          ],
-          "info-participante": [
-            144
-          ],
-          "lector-diag": [
-            136
-          ],
-          "lector-input": [
-            122
-          ],
-          "lector-panel": [
-            120
-          ],
-          "log-recientes": [
-            176
-          ],
-          "reader": [
-            118
-          ],
-          "res-asistencias-actuales": [
-            158
-          ],
-          "res-carrera": [
-            149
-          ],
-          "res-cedula": [
-            147
-          ],
-          "res-correo": [
-            146
-          ],
-          "res-cupos-display": [
-            153
-          ],
-          "res-cupos-wrap": [
-            151
-          ],
-          "res-estado-badge": [
-            156
-          ],
-          "res-nombre": [
-            145
-          ],
-          "res-universidad": [
-            148
-          ],
-          "resultado-box": [
             143
           ],
-          "scanner-ayuda": [
-            133
+          "btn-iniciar": [
+            140
           ],
-          "scanner-estado": [
+          "btn-lector": [
+            144
+          ],
+          "camara-aviso": [
+            151
+          ],
+          "camara-wrap": [
+            131
+          ],
+          "cp-grid": [
+            118
+          ],
+          "cp-section": [
+            116
+          ],
+          "cp-seleccionado": [
+            120
+          ],
+          "info-participante": [
+            158
+          ],
+          "lector-diag": [
+            150
+          ],
+          "lector-input": [
+            136
+          ],
+          "lector-panel": [
+            134
+          ],
+          "log-recientes": [
+            190
+          ],
+          "reader": [
             132
           ],
+          "res-asistencias-actuales": [
+            172
+          ],
+          "res-carrera": [
+            163
+          ],
+          "res-cedula": [
+            161
+          ],
+          "res-correo": [
+            160
+          ],
+          "res-cupos-display": [
+            167
+          ],
+          "res-cupos-wrap": [
+            165
+          ],
+          "res-estado-badge": [
+            170
+          ],
+          "res-nombre": [
+            159
+          ],
+          "res-universidad": [
+            162
+          ],
+          "resultado-box": [
+            157
+          ],
+          "rfid-estado": [
+            129
+          ],
+          "rfid-nombre": [
+            128
+          ],
+          "rfid-pantalla": [
+            126
+          ],
+          "scanner-ayuda": [
+            147
+          ],
+          "scanner-estado": [
+            146
+          ],
           "sel-evento-qr": [
-            105
+            114
           ]
         }
       },
       "dom": {
         "generated_ids": {
           "alerta": [
-            97
+            106
           ],
           "btn-cancelar-scan": [
-            161
+            175
           ],
           "btn-confirmar-asistencia": [
-            160
+            174
           ],
           "btn-detener": [
-            129
-          ],
-          "btn-iniciar": [
-            126
-          ],
-          "btn-lector": [
-            130
-          ],
-          "camara-aviso": [
-            137
-          ],
-          "camara-wrap": [
-            117
-          ],
-          "cp-grid": [
-            109
-          ],
-          "cp-section": [
-            107
-          ],
-          "cp-seleccionado": [
-            111
-          ],
-          "info-participante": [
-            144
-          ],
-          "lector-diag": [
-            136
-          ],
-          "lector-input": [
-            122
-          ],
-          "lector-panel": [
-            120
-          ],
-          "log-recientes": [
-            176
-          ],
-          "reader": [
-            118
-          ],
-          "res-asistencias-actuales": [
-            158
-          ],
-          "res-carrera": [
-            149
-          ],
-          "res-cedula": [
-            147
-          ],
-          "res-correo": [
-            146
-          ],
-          "res-cupos-display": [
-            153
-          ],
-          "res-cupos-wrap": [
-            151
-          ],
-          "res-estado-badge": [
-            156
-          ],
-          "res-nombre": [
-            145
-          ],
-          "res-universidad": [
-            148
-          ],
-          "resultado-box": [
             143
           ],
-          "scanner-ayuda": [
-            133
+          "btn-iniciar": [
+            140
           ],
-          "scanner-estado": [
+          "btn-lector": [
+            144
+          ],
+          "camara-aviso": [
+            151
+          ],
+          "camara-wrap": [
+            131
+          ],
+          "cp-grid": [
+            118
+          ],
+          "cp-section": [
+            116
+          ],
+          "cp-seleccionado": [
+            120
+          ],
+          "info-participante": [
+            158
+          ],
+          "lector-diag": [
+            150
+          ],
+          "lector-input": [
+            136
+          ],
+          "lector-panel": [
+            134
+          ],
+          "log-recientes": [
+            190
+          ],
+          "reader": [
             132
           ],
+          "res-asistencias-actuales": [
+            172
+          ],
+          "res-carrera": [
+            163
+          ],
+          "res-cedula": [
+            161
+          ],
+          "res-correo": [
+            160
+          ],
+          "res-cupos-display": [
+            167
+          ],
+          "res-cupos-wrap": [
+            165
+          ],
+          "res-estado-badge": [
+            170
+          ],
+          "res-nombre": [
+            159
+          ],
+          "res-universidad": [
+            162
+          ],
+          "resultado-box": [
+            157
+          ],
+          "rfid-estado": [
+            129
+          ],
+          "rfid-nombre": [
+            128
+          ],
+          "rfid-pantalla": [
+            126
+          ],
+          "scanner-ayuda": [
+            147
+          ],
+          "scanner-estado": [
+            146
+          ],
           "sel-evento-qr": [
-            105
+            114
           ]
         }
       }
@@ -22369,224 +22441,230 @@
       "html": {
         "ids": {
           "alerta": [
-            97
+            102
           ],
           "btn-cambiar-config": [
-            114
-          ],
-          "btn-cancelar-rfid": [
-            126
-          ],
-          "btn-probar": [
-            169
-          ],
-          "btn-rfid-no": [
-            187
-          ],
-          "btn-rfid-si": [
-            188
-          ],
-          "captura": [
-            93
-          ],
-          "config-card": [
-            100
-          ],
-          "config-form": [
-            101
-          ],
-          "config-resumen": [
-            112
-          ],
-          "config-texto": [
-            113
-          ],
-          "diag": [
-            152
-          ],
-          "diag-crudo": [
-            167
-          ],
-          "diag-duracion": [
-            161
-          ],
-          "diag-ea530": [
-            154
-          ],
-          "diag-foco": [
-            164
-          ],
-          "diag-hardware": [
-            155
-          ],
-          "diag-longitud": [
-            160
-          ],
-          "diag-metodo": [
-            159
-          ],
-          "diag-teclas": [
-            163
-          ],
-          "diag-terminador": [
-            162
-          ],
-          "escenario": [
             119
           ],
-          "escenario-sub": [
-            124
-          ],
-          "escenario-titulo": [
-            123
-          ],
-          "log-posper": [
-            145
-          ],
-          "modal-rfid": [
-            182
-          ],
-          "modal-rfid-texto": [
-            185
-          ],
-          "modal-rfid-titulo": [
-            184
-          ],
-          "res-cedula": [
-            134
-          ],
-          "res-chips": [
-            136
-          ],
-          "res-codigo": [
-            133
-          ],
-          "res-nombre": [
-            132
-          ],
-          "res-universidad": [
+          "btn-cancelar-rfid": [
             135
           ],
-          "resultado": [
+          "btn-probar": [
+            178
+          ],
+          "btn-rfid-no": [
+            197
+          ],
+          "btn-rfid-si": [
+            198
+          ],
+          "captura": [
             131
           ],
+          "captura-wrap": [
+            130
+          ],
+          "config-card": [
+            105
+          ],
+          "config-form": [
+            106
+          ],
+          "config-resumen": [
+            117
+          ],
+          "config-texto": [
+            118
+          ],
+          "diag": [
+            161
+          ],
+          "diag-crudo": [
+            176
+          ],
+          "diag-duracion": [
+            170
+          ],
+          "diag-ea530": [
+            163
+          ],
+          "diag-foco": [
+            173
+          ],
+          "diag-hardware": [
+            164
+          ],
+          "diag-longitud": [
+            169
+          ],
+          "diag-metodo": [
+            168
+          ],
+          "diag-teclas": [
+            172
+          ],
+          "diag-terminador": [
+            171
+          ],
+          "escenario": [
+            124
+          ],
+          "escenario-sub": [
+            129
+          ],
+          "escenario-titulo": [
+            128
+          ],
+          "log-posper": [
+            154
+          ],
+          "modal-rfid": [
+            192
+          ],
+          "modal-rfid-texto": [
+            195
+          ],
+          "modal-rfid-titulo": [
+            194
+          ],
+          "res-cedula": [
+            143
+          ],
+          "res-chips": [
+            145
+          ],
+          "res-codigo": [
+            142
+          ],
+          "res-nombre": [
+            141
+          ],
+          "res-universidad": [
+            144
+          ],
+          "resultado": [
+            140
+          ],
           "sel-checkpoint": [
-            109
+            114
           ],
           "sel-evento": [
-            105
+            110
           ]
         }
       },
       "dom": {
         "generated_ids": {
           "alerta": [
-            96
-          ],
-          "btn-cambiar-config": [
-            113
-          ],
-          "btn-cancelar-rfid": [
-            125
-          ],
-          "btn-probar": [
-            168
-          ],
-          "btn-rfid-no": [
-            186
-          ],
-          "btn-rfid-si": [
-            187
-          ],
-          "captura": [
-            92
-          ],
-          "config-card": [
-            99
-          ],
-          "config-form": [
             100
           ],
-          "config-resumen": [
-            111
+          "btn-cambiar-config": [
+            117
           ],
-          "config-texto": [
-            112
-          ],
-          "diag": [
-            151
-          ],
-          "diag-crudo": [
-            166
-          ],
-          "diag-duracion": [
-            160
-          ],
-          "diag-ea530": [
-            153
-          ],
-          "diag-foco": [
-            163
-          ],
-          "diag-hardware": [
-            154
-          ],
-          "diag-longitud": [
-            159
-          ],
-          "diag-metodo": [
-            158
-          ],
-          "diag-teclas": [
-            162
-          ],
-          "diag-terminador": [
-            161
-          ],
-          "escenario": [
-            118
-          ],
-          "escenario-sub": [
-            123
-          ],
-          "escenario-titulo": [
-            122
-          ],
-          "log-posper": [
-            144
-          ],
-          "modal-rfid": [
-            181
-          ],
-          "modal-rfid-texto": [
-            184
-          ],
-          "modal-rfid-titulo": [
-            183
-          ],
-          "res-cedula": [
+          "btn-cancelar-rfid": [
             133
           ],
+          "btn-probar": [
+            176
+          ],
+          "btn-rfid-no": [
+            195
+          ],
+          "btn-rfid-si": [
+            196
+          ],
+          "captura": [
+            129
+          ],
+          "captura-wrap": [
+            128
+          ],
+          "config-card": [
+            103
+          ],
+          "config-form": [
+            104
+          ],
+          "config-resumen": [
+            115
+          ],
+          "config-texto": [
+            116
+          ],
+          "diag": [
+            159
+          ],
+          "diag-crudo": [
+            174
+          ],
+          "diag-duracion": [
+            168
+          ],
+          "diag-ea530": [
+            161
+          ],
+          "diag-foco": [
+            171
+          ],
+          "diag-hardware": [
+            162
+          ],
+          "diag-longitud": [
+            167
+          ],
+          "diag-metodo": [
+            166
+          ],
+          "diag-teclas": [
+            170
+          ],
+          "diag-terminador": [
+            169
+          ],
+          "escenario": [
+            122
+          ],
+          "escenario-sub": [
+            127
+          ],
+          "escenario-titulo": [
+            126
+          ],
+          "log-posper": [
+            152
+          ],
+          "modal-rfid": [
+            190
+          ],
+          "modal-rfid-texto": [
+            193
+          ],
+          "modal-rfid-titulo": [
+            192
+          ],
+          "res-cedula": [
+            141
+          ],
           "res-chips": [
-            135
+            143
           ],
           "res-codigo": [
-            132
+            140
           ],
           "res-nombre": [
-            131
+            139
           ],
           "res-universidad": [
-            134
+            142
           ],
           "resultado": [
-            130
+            138
           ],
           "sel-checkpoint": [
-            108
+            112
           ],
           "sel-evento": [
-            104
+            108
           ]
         }
       }
@@ -28201,7 +28279,7 @@
       "activarLector": [
         [
           "js/modulos/lecturaQR.js",
-          390,
+          400,
           "function",
           false
         ]
@@ -28209,7 +28287,7 @@
       "activarLectorAutomatico": [
         [
           "js/modulos/lecturaQR.js",
-          512,
+          526,
           "function",
           false
         ]
@@ -28317,7 +28395,7 @@
       "actualizarLogRfid": [
         [
           "js/modulos/posper.js",
-          337,
+          368,
           "function",
           false
         ]
@@ -28499,7 +28577,7 @@
         ],
         [
           "js/modulos/posper.js",
-          325,
+          356,
           "function",
           false
         ]
@@ -28611,7 +28689,7 @@
       "alerta": [
         [
           "js/modulos/lecturaQR.js",
-          51,
+          53,
           "function",
           false
         ],
@@ -28667,7 +28745,7 @@
       "anotarTeclaEspecial": [
         [
           "js/modulos/posper.js",
-          130,
+          158,
           "function",
           false
         ]
@@ -28846,6 +28924,14 @@
           false
         ]
       ],
+      "bloquearSesion": [
+        [
+          "js/modulos/lecturaQR.js",
+          728,
+          "function",
+          false
+        ]
+      ],
       "bordeFino": [
         [
           "js/modulos/reporteFinancieroExcel.js",
@@ -28897,7 +28983,7 @@
       "buscarParticipante": [
         [
           "js/modulos/posper.js",
-          177,
+          208,
           "function",
           false
         ]
@@ -28905,7 +28991,7 @@
       "buscarParticipanteQr": [
         [
           "js/modulos/lecturaQR.js",
-          299,
+          303,
           "function",
           false
         ]
@@ -28996,6 +29082,14 @@
         [
           "js/modulos/compras2.js",
           185,
+          "function",
+          false
+        ]
+      ],
+      "cancelarEsperaRfid": [
+        [
+          "js/modulos/lecturaQR.js",
+          771,
           "function",
           false
         ]
@@ -29187,13 +29281,13 @@
         ],
         [
           "js/modulos/lecturaQR.js",
-          59,
+          61,
           "function",
           false
         ],
         [
           "js/modulos/posper.js",
-          365,
+          396,
           "function",
           false
         ],
@@ -29479,7 +29573,7 @@
       "cerrarPregunta": [
         [
           "js/modulos/posper.js",
-          270,
+          301,
           "function",
           false
         ]
@@ -29487,7 +29581,7 @@
       "cerrarResultado": [
         [
           "js/modulos/lecturaQR.js",
-          781,
+          888,
           "function",
           false
         ],
@@ -29650,26 +29744,10 @@
           false
         ]
       ],
-      "confirmarAsistencia": [
-        [
-          "js/modulos/lecturaQR.js",
-          713,
-          "function",
-          false
-        ]
-      ],
       "confirmarEliminacion": [
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1444,
-          "function",
-          false
-        ]
-      ],
-      "confirmarInscripcionTaller": [
-        [
-          "js/modulos/lecturaQR.js",
-          739,
           "function",
           false
         ]
@@ -29765,7 +29843,7 @@
       "crearScanner": [
         [
           "js/modulos/lecturaQR.js",
-          182,
+          186,
           "function",
           false
         ]
@@ -29813,7 +29891,7 @@
       "desactivarLector": [
         [
           "js/modulos/lecturaQR.js",
-          409,
+          419,
           "function",
           false
         ]
@@ -29869,7 +29947,7 @@
       "destino": [
         [
           "js/modulos/lecturaQR.js",
-          574,
+          588,
           "function",
           false
         ]
@@ -29925,7 +30003,7 @@
       "detenerScanner": [
         [
           "js/modulos/lecturaQR.js",
-          269,
+          273,
           "function",
           false
         ]
@@ -29933,7 +30011,7 @@
       "diagLector": [
         [
           "js/modulos/lecturaQR.js",
-          566,
+          580,
           "function",
           false
         ]
@@ -30243,7 +30321,7 @@
       "elegirCamaraTrasera": [
         [
           "js/modulos/lecturaQR.js",
-          195,
+          199,
           "function",
           false
         ]
@@ -30251,7 +30329,7 @@
       "elegirCheckpoint": [
         [
           "js/modulos/posper.js",
-          419,
+          450,
           "function",
           false
         ]
@@ -30259,7 +30337,7 @@
       "elegirEvento": [
         [
           "js/modulos/posper.js",
-          381,
+          412,
           "function",
           false
         ]
@@ -30327,7 +30405,7 @@
       "enfocarLector": [
         [
           "js/modulos/lecturaQR.js",
-          384,
+          394,
           "function",
           false
         ]
@@ -30437,7 +30515,7 @@
       "esCampoEditable": [
         [
           "js/modulos/lecturaQR.js",
-          379,
+          389,
           "function",
           false
         ]
@@ -30621,7 +30699,15 @@
       "estadoInternoScanner": [
         [
           "js/modulos/lecturaQR.js",
-          174,
+          178,
+          "function",
+          false
+        ]
+      ],
+      "estadoRfid": [
+        [
+          "js/modulos/lecturaQR.js",
+          776,
           "function",
           false
         ]
@@ -30629,7 +30715,7 @@
       "estadoScanner": [
         [
           "js/modulos/lecturaQR.js",
-          168,
+          172,
           "function",
           false
         ]
@@ -30903,7 +30989,7 @@
       "finalizarLecturaLector": [
         [
           "js/modulos/lecturaQR.js",
-          442,
+          456,
           "function",
           false
         ]
@@ -31348,10 +31434,18 @@
           false
         ]
       ],
+      "guardarAsistencia": [
+        [
+          "js/modulos/lecturaQR.js",
+          736,
+          "function",
+          false
+        ]
+      ],
       "guardarConfig": [
         [
           "js/modulos/posper.js",
-          357,
+          388,
           "function",
           false
         ]
@@ -31567,7 +31661,7 @@
       "idLockRfid": [
         [
           "functions/rfid.js",
-          53,
+          60,
           "function",
           false
         ]
@@ -31688,10 +31782,18 @@
           false
         ]
       ],
+      "iniciarEsperaRfid": [
+        [
+          "js/modulos/lecturaQR.js",
+          781,
+          "function",
+          false
+        ]
+      ],
       "iniciarScanner": [
         [
           "js/modulos/lecturaQR.js",
-          207,
+          211,
           "function",
           false
         ]
@@ -31789,7 +31891,7 @@
       "irAConfig": [
         [
           "js/modulos/posper.js",
-          430,
+          461,
           "function",
           false
         ]
@@ -31849,7 +31951,7 @@
       "leerConfigGuardada": [
         [
           "js/modulos/posper.js",
-          353,
+          384,
           "function",
           false
         ]
@@ -31865,7 +31967,7 @@
       "leerDispositivo": [
         [
           "js/modulos/posper.js",
-          468,
+          499,
           "function",
           false
         ]
@@ -32063,7 +32165,7 @@
       "limpiarSeleccionSesion": [
         [
           "js/modulos/lecturaQR.js",
-          99,
+          101,
           "function",
           false
         ]
@@ -32409,7 +32511,7 @@
       "mostrarChipRfid": [
         [
           "js/modulos/posper.js",
-          253,
+          284,
           "function",
           false
         ]
@@ -32461,7 +32563,7 @@
       "mostrarInfoAsistencia": [
         [
           "js/modulos/lecturaQR.js",
-          590,
+          604,
           "function",
           false
         ]
@@ -32469,7 +32571,7 @@
       "mostrarInfoTaller": [
         [
           "js/modulos/lecturaQR.js",
-          628,
+          642,
           "function",
           false
         ]
@@ -32485,7 +32587,7 @@
       "mostrarParticipante": [
         [
           "js/modulos/posper.js",
-          238,
+          269,
           "function",
           false
         ]
@@ -32731,7 +32833,7 @@
       "normalizarRfid": [
         [
           "functions/rfid.js",
-          18,
+          23,
           "function",
           false
         ]
@@ -32911,7 +33013,7 @@
       "onScanFallo": [
         [
           "js/modulos/lecturaQR.js",
-          263,
+          267,
           "function",
           false
         ]
@@ -33067,7 +33169,7 @@
       "pausarScanner": [
         [
           "js/modulos/lecturaQR.js",
-          288,
+          292,
           "function",
           false
         ]
@@ -33235,7 +33337,7 @@
       "preguntarRfid": [
         [
           "js/modulos/posper.js",
-          259,
+          290,
           "function",
           false
         ]
@@ -33353,7 +33455,7 @@
       "procesarCredencial": [
         [
           "js/modulos/posper.js",
-          195,
+          226,
           "function",
           false
         ]
@@ -33369,7 +33471,7 @@
       "procesarLectura": [
         [
           "js/modulos/posper.js",
-          157,
+          188,
           "function",
           false
         ]
@@ -33377,7 +33479,7 @@
       "procesarQrDetectado": [
         [
           "js/modulos/lecturaQR.js",
-          326,
+          330,
           "function",
           false
         ]
@@ -33385,7 +33487,15 @@
       "procesarRfid": [
         [
           "js/modulos/posper.js",
-          287,
+          318,
+          "function",
+          false
+        ]
+      ],
+      "programarFin": [
+        [
+          "js/modulos/posper.js",
+          120,
           "function",
           false
         ]
@@ -33393,7 +33503,7 @@
       "programarFinLectura": [
         [
           "js/modulos/lecturaQR.js",
-          475,
+          489,
           "function",
           false
         ]
@@ -33437,7 +33547,7 @@
         ],
         [
           "functions/test/rfid.test.js",
-          13,
+          14,
           "function",
           false
         ]
@@ -33491,7 +33601,7 @@
       "reanudarScanner": [
         [
           "js/modulos/lecturaQR.js",
-          292,
+          296,
           "function",
           false
         ]
@@ -33529,7 +33639,15 @@
       "recibirLecturaLector": [
         [
           "js/modulos/lecturaQR.js",
-          425,
+          435,
+          "function",
+          false
+        ]
+      ],
+      "recibirRfid": [
+        [
+          "js/modulos/lecturaQR.js",
+          811,
           "function",
           false
         ]
@@ -33795,7 +33913,7 @@
       "renderCheckpoints": [
         [
           "js/modulos/lecturaQR.js",
-          112,
+          115,
           "function",
           false
         ]
@@ -33975,7 +34093,7 @@
       "renderLog": [
         [
           "js/modulos/lecturaQR.js",
-          796,
+          904,
           "function",
           false
         ],
@@ -33993,7 +34111,7 @@
         ],
         [
           "js/modulos/posper.js",
-          343,
+          374,
           "function",
           false
         ]
@@ -34481,7 +34599,7 @@
       "revisarCampoLector": [
         [
           "js/modulos/lecturaQR.js",
-          456,
+          470,
           "function",
           false
         ]
@@ -34663,7 +34781,7 @@
       "serialRfid": [
         [
           "functions/rfid.js",
-          47,
+          52,
           "function",
           false
         ]
@@ -34823,7 +34941,7 @@
       "terminarLectura": [
         [
           "js/modulos/posper.js",
-          138,
+          166,
           "function",
           false
         ]
@@ -35317,7 +35435,7 @@
       "volverDePrueba": [
         [
           "js/modulos/posper.js",
-          461,
+          492,
           "function",
           false
         ]
@@ -35376,7 +35494,7 @@
       "d0ce5b6bc7f8c819437685f4be6960d733fe887237975b019a77914285b52dc4": "functions/plantillas.js",
       "7a168c5376688df324fed4f11ceff481c83040eda8f951fbaf0968180be9c78f": "functions/qr-participante.js",
       "02d2ed19d0cfd89ce3a692b08e0eb1d6490b7188d306eae6b1265bdd8d5fb203": "functions/registro.js",
-      "8beeff4c9b9ff7923cf25a111290fd951db9648d9fef851c9e20b3f2128e0e7c": "functions/rfid.js",
+      "5639f6b226773d9db11796338fd4b6165fdcaf94adb22f1a8e392a0293e61dba": "functions/rfid.js",
       "7c35fd7def2a958dcd3ea8ee5b38b81704c1cc32e202b42382a95c9019c57e70": "functions/templates/correo-no-seleccionado-gira.html",
       "03a823997c06f371fed6d8fb9f66d8767b1648938897120d5132e1f89be131aa": "functions/templates/correo-notificacion-gira.html",
       "20c28b0b9b3428ac0c7b77da95f4f31d898e5f10053dd1265c1e33900d3ed7d8": "functions/templates/correo-pago-aprobado.html",
@@ -35390,7 +35508,7 @@
       "c73fd1b771c4d42230b114a8b268837950afcdf28e8f07106faa81886823bebf": "functions/test/importaciones.test.js",
       "82f6f41d00e72cda05c0e738983c68254aff6f14f580633165bd1eb1b3a1f0c7": "functions/test/operaciones-qr.integration.js",
       "3abe0a05bc36dc2f1bcf87d93722db3650aadd2b2c57d13b7307e1a7d1f27479": "functions/test/plantillas.test.js",
-      "6cbe3c14b213023647f1521ccc3cdf43c35ff1dc9b19eeb9f1d36438241fe9d0": "functions/test/rfid.test.js",
+      "d4b2602f173d967b4e37851a34170dd5cc0157813d3ef062b6be837f02b5d914": "functions/test/rfid.test.js",
       "821d8ef13d0858f42afa13fdbe7fcb401a7f68616264278b4910258ee84c3c0d": "icons/bebida-lata.svg",
       "b58eb6742fedcb51d697ceef36b02911206443f810bb6f2977c533221d8e73be": "img/iconos/advertencia.svg",
       "dd6a6b072a4cf53dd152c2f5e35e5dcbdae51c3ca128de0d4d7ccc8ca14f514f": "img/iconos/agua.svg",
@@ -35474,12 +35592,12 @@
       "04ef867008d722a15cdb988147c5dcc6dcb0e41df45ce79459a2dd861d3bfcf7": "js/modulos/importar-participantes.js",
       "bfd467cfbd4c8d1755b9fb5a299cb017fbef1af79b84772a90e868f523bdc911": "js/modulos/informeActividad.js",
       "bd6ebd19785ea8830c679c9251fb58012718a3b9bc133535f5c7aa8c2853a335": "js/modulos/inscripciones.js",
-      "31da9cb9c4c16b87b2a79e17aaa300ef842f24670e4047c61b77d40730cbc4a7": "js/modulos/lecturaQR.js",
+      "ec18bf1338af16a3e0a557e9180a1a4720bacf54b3e4d890f512274f5ccd3806": "js/modulos/lecturaQR.js",
       "e65289c54346cab0ca29047d16bd2f3befe58ca82a0e95dd69a0b69642fefccb": "js/modulos/lecturaQRGiras.js",
       "de76f37ac758a72fda34bef1e0a3665dd1c819391b3fea5b77b83f3644d90574": "js/modulos/lecturaQRVoluntarios.js",
       "645498278a5d6ff339f9682672d445c8278e25613da988ce599b1d433aa145a3": "js/modulos/minutaReunion.js",
       "cee458a762ad45383c21b6c0840ce113d33331c7faedd49f78e23ab617ac11c5": "js/modulos/minutas.js",
-      "50999bb290349afc994a931d380a01640834e093324a0a739801d920c7b5009a": "js/modulos/posper.js",
+      "fd09d474b97284e4f807b39fd1c6533d97fe5f0001f3b7f73d8c38683fc7bf86": "js/modulos/posper.js",
       "5600514f5dc01f3c4022c9675df02f72f3220c9ee4d02ca6ce855de51fcdceee": "js/modulos/randomizer.js",
       "3bcf2f1cdc3d468080640b951cf589f25ecc84417cc16e4931675efe63286041": "js/modulos/reporteFinancieroExcel.js",
       "a920c2f98f4c902573aca181e69dd80fb4d08ad97b135b9013787b008c08deaf": "js/modulos/reportes_estadisticaCont.js",
@@ -35501,9 +35619,9 @@
       "88da584bc0654dda93e95914ea536545f36a69eb7e2b23c0066ced9457f836b8": "panel/modulos/admin/secretaria.html",
       "f497459f9d1c621ab19f8cd7bfd25aac949669e75430a8ecf730836bd560add1": "panel/modulos/admin/usuarios.html",
       "66a80e2d6fe70f91f73114913a897e474138b8a6f2e3b0670c00a8db17dea50d": "panel/modulos/congreso/inscripciones.html",
-      "5b37eaf04714d063279cac3bcdf0ddbaca1bc98dc29128f767f9f9a4912971b3": "panel/modulos/congreso/lecturaQR.html",
+      "303294ad8980b4d6b6f224d1fc435d236d25104bbdf2207efea5ae35eaedac16": "panel/modulos/congreso/lecturaQR.html",
       "62c4df23292c6f662d39aab2897ca150e0cf3cbaafc90049a7f0388aab999add": "panel/modulos/congreso/modulos_participantes.html",
-      "ae13b2c4b44482d6e11b14de7aa9c0bdb6b72683dbae406e2f759eb2429cf920": "panel/modulos/congreso/posper.html",
+      "fa96262d03387136e3c45b1321edf9ee9b8016e9778070ede950bf3beebca2f2": "panel/modulos/congreso/posper.html",
       "204076710b22febf27da5fd60e4d6dcf9572171178f0e8956b995722e5492f74": "panel/modulos/congreso/randomizer.html",
       "3fbcac891aa4c75648f1b04ee0e9600d2f42cc9a07f2db6046850b4dd5cf313a": "panel/modulos/congreso/reportes_estadisticaCont.html",
       "6b03e7627f9626c341b63a27f494ccf6536246132871c9679b3c3b4b694232c2": "panel/modulos/finanzas/bitacora.html",
@@ -35533,10 +35651,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 4424,
-    "architectural_symbols_retained": 980,
-    "calls_detected": 9818,
-    "architectural_calls_retained": 5230,
+    "symbols_detected": 4442,
+    "architectural_symbols_retained": 985,
+    "calls_detected": 9880,
+    "architectural_calls_retained": 5271,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -35577,5 +35695,5 @@
       "change"
     ]
   },
-  "estimated_tokens": 104316
+  "estimated_tokens": 104543
 }

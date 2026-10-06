@@ -36,6 +36,8 @@ let temporizadorLector = null;
 let vigilanteLector  = null;  // revisa el campo por si el texto llega sin eventos
 let ultimoValorLector = "";
 let componiendoLector = false; // el teclado del equipo aún está escribiendo
+let rfidPendiente    = null;  // participante reconocido que espera su RFID
+let capturandoRfid   = false;
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
@@ -103,6 +105,7 @@ async function limpiarSeleccionSesion() {
   if (lectorActivo) desactivarLector();
   checkpointSel = null;
   participanteSel = null;
+  cancelarEsperaRfid();
   modoTaller = false;
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
@@ -139,6 +142,7 @@ window.seleccionarCP = async function(card) {
   procesandoQR = false;
   if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
   participanteSel = null;
+  cancelarEsperaRfid();
   el("resultado-box").style.display = "none";
   document.querySelectorAll(".cp-card").forEach(c => c.classList.remove("selected"));
   card.classList.add("selected");
@@ -324,6 +328,11 @@ async function buscarParticipanteQr(credencial) {
 
 // origen: "camara" (html5-qrcode) o "lector" (lector del dispositivo en modo teclado).
 async function procesarQrDetectado(rawQR, origen = "camara") {
+  // Con un participante esperando su RFID, lo siguiente que lea la cámara es el RFID.
+  if (rfidPendiente && origen === "camara") {
+    void recibirRfid(rawQR, origen);
+    return;
+  }
   const desdeLector = origen === "lector";
   if (procesandoQR || participanteSel || !(desdeLector ? lectorActivo : escaneando)) return;
   const tokenActual = ++tokenProcesamiento;
@@ -349,6 +358,7 @@ async function procesarQrDetectado(rawQR, origen = "camara") {
     if (tokenActual !== tokenProcesamiento) return;
 
     estadoScanner("Credencial reconocida.", "activo");
+    iniciarEsperaRfid(rawQR);
   } catch (e) {
     if (tokenActual !== tokenProcesamiento) return;
     console.error("Error procesando QR:", e);
@@ -430,6 +440,10 @@ function recibirLecturaLector(texto) {
   }
   if (procesandoQR) {
     alerta("error", "Espera: se está validando la credencial anterior.");
+    return;
+  }
+  if (rfidPendiente) {
+    void recibirRfid(texto, "lector");
     return;
   }
   if (participanteSel) {
@@ -683,7 +697,7 @@ async function mostrarInfoTaller(p, tokenActual) {
 
 // ─── Confirmar (asistencia o inscripción taller) ──────────────────────────────
 el("btn-confirmar-asistencia").addEventListener("click", async () => {
-  if (!participanteSel || !checkpointSel || guardandoRegistro) return;
+  if (!participanteSel || !checkpointSel || guardandoRegistro || capturandoRfid) return;
   const contexto = {
     participante: participanteSel,
     checkpoint: checkpointSel,
@@ -691,95 +705,189 @@ el("btn-confirmar-asistencia").addEventListener("click", async () => {
     modoTaller,
   };
   if (!contexto.eventoId) return;
-  guardandoRegistro = true;
-  el("sel-evento-qr").disabled = true;
-  el("cp-grid").style.pointerEvents = "none";
+  bloquearSesion(true);
   el("btn-confirmar-asistencia").disabled = true;
   el("btn-confirmar-asistencia").textContent = "Guardando...";
 
   try {
-    if (contexto.modoTaller) {
-      await confirmarInscripcionTaller(contexto);
-    } else {
-      await confirmarAsistencia(contexto);
-    }
+    await guardarAsistencia(contexto);
+    const nombre = contexto.participante.nombreCompleto || contexto.participante.nombre;
+    alerta("success", contexto.modoTaller
+      ? `Asistencia y cupo confirmados: ${nombre}`
+      : `Asistencia confirmada: ${nombre}`);
+  } catch (e) {
+    alerta("error", contexto.modoTaller
+      ? e.message || "Error al inscribir en taller."
+      : "Error al guardar asistencia: " + e.message);
   } finally {
-    guardandoRegistro = false;
-    el("sel-evento-qr").disabled = false;
-    el("cp-grid").style.pointerEvents = "";
+    bloquearSesion(false);
   }
+  cerrarResultado();
 });
 
-async function confirmarAsistencia({ participante, checkpoint, eventoId }) {
-  const coleccion = participante.esNuevoFormato ? "participantes" : "inscripciones";
-  try {
-    await ejecutarOperacionQr({
-      tipo: "asistencia_participante",
-      participanteId: participante.id,
-      checkpointId: checkpoint.id,
-      coleccion,
-      eventoId,
-    });
-
-    logSesion.unshift({
-      nombre:     participante.nombreCompleto || participante.nombre,
-      checkpoint: checkpoint.nombre,
-      hora:       new Date().toLocaleTimeString("es-PA"),
-      tipo:       "asistencia",
-    });
-    renderLog();
-    alerta("success", `Asistencia confirmada: ${participante.nombreCompleto || participante.nombre}`);
-  } catch (e) {
-    alerta("error", "Error al guardar asistencia: " + e.message);
-  }
-
-  cerrarResultado();
+function bloquearSesion(bloquear) {
+  guardandoRegistro = bloquear;
+  el("sel-evento-qr").disabled = bloquear;
+  el("cp-grid").style.pointerEvents = bloquear ? "none" : "";
 }
 
-async function confirmarInscripcionTaller({ participante, checkpoint, eventoId }) {
-  try {
-    const respuesta = await ejecutarOperacionQr({
-      tipo: "inscripcion_taller",
-      participanteId: participante.id,
-      checkpointId: checkpoint.id,
-      coleccion: participante.esNuevoFormato ? "participantes" : "inscripciones",
-      eventoId,
-    });
-    const disponibles = respuesta.data.cuposDisponibles;
+// Marca la asistencia (o asistencia + cupo en talleres) y la anota en el log.
+// Lanza el error del servidor: quien llama decide cómo mostrarlo.
+async function guardarAsistencia({ participante, checkpoint, eventoId, modoTaller: conCupos }) {
+  const coleccion = participante.esNuevoFormato ? "participantes" : "inscripciones";
+  const respuesta = await ejecutarOperacionQr({
+    tipo: conCupos ? "inscripcion_taller" : "asistencia_participante",
+    participanteId: participante.id,
+    checkpointId: checkpoint.id,
+    coleccion,
+    eventoId,
+  });
 
+  if (conCupos) {
+    const disponibles = respuesta.data.cuposDisponibles;
     // Actualizar local para siguiente escaneo
     const cpLocal = checkpointsSesion.find(c => c.id === checkpoint.id);
     if (cpLocal) cpLocal.cuposDisponibles = disponibles;
     if (checkpointSel?.id === checkpoint.id) {
       checkpointSel = { ...checkpointSel, cuposDisponibles: disponibles };
-    }
-
-    // Actualizar el label del checkpoint seleccionado
-    if (checkpointSel?.id === checkpoint.id) {
-      const label = `Checkpoint activo: ${checkpoint.nombre} · ${disponibles} cupos disponibles`;
-      el("cp-seleccionado").textContent = label;
+      el("cp-seleccionado").textContent = `Checkpoint activo: ${checkpoint.nombre} · ${disponibles} cupos disponibles`;
     }
     renderCheckpoints();
-
-    logSesion.unshift({
-      nombre:     participante.nombreCompleto || participante.nombre,
-      checkpoint: checkpoint.nombre,
-      hora:       new Date().toLocaleTimeString("es-PA"),
-      tipo:       "taller",
-    });
-    renderLog();
-    alerta("success", `Asistencia y cupo confirmados: ${participante.nombreCompleto || participante.nombre}`);
-  } catch (e) {
-    alerta("error", e.message || "Error al inscribir en taller.");
   }
 
-  cerrarResultado();
+  logSesion.unshift({
+    nombre:     participante.nombreCompleto || participante.nombre,
+    checkpoint: checkpoint.nombre,
+    hora:       new Date().toLocaleTimeString("es-PA"),
+    tipo:       conCupos ? "taller" : "asistencia",
+  });
+  renderLog();
+}
+
+// ─── RFID: lo siguiente que se escanee tras la credencial ─────────────────────
+// Sea QR, código de barras o lo que sea, se ancla al participante reconocido
+// (ejecutarOperacionQr / anclar_rfid). Si la asistencia no estaba marcada, se
+// marca en el mismo paso; "Confirmar sin RFID" sigue disponible.
+function cancelarEsperaRfid() {
+  rfidPendiente = null;
+  el("rfid-pantalla").classList.remove("activa", "error");
+}
+
+function estadoRfid(texto, error = false) {
+  el("rfid-estado").textContent = texto;
+  el("rfid-pantalla").classList.toggle("error", error);
+}
+
+function iniciarEsperaRfid(credencialCruda) {
+  if (!participanteSel || !checkpointSel || !eventoActivo) return;
+  rfidPendiente = {
+    credencialCruda: String(credencialCruda || "").trim(),
+    asistenciaHecha: false,
+    contexto: {
+      participante: participanteSel,
+      checkpoint: checkpointSel,
+      eventoId: eventoActivo.id,
+      modoTaller,
+    },
+  };
+  el("rfid-nombre").textContent = participanteSel.nombreCompleto || participanteSel.nombre || "";
+  estadoRfid(participanteSel.rfid?.serial
+    ? `Ya tiene el RFID ${participanteSel.rfid.serial}: si escaneas otro, lo reemplaza.`
+    : "Escanea el RFID (QR, código de barras o lo que sea) para anclarlo a este participante.");
+  el("rfid-pantalla").classList.add("activa");
+  const btn = el("btn-confirmar-asistencia");
+  if (!btn.disabled) btn.textContent = modoTaller ? "Confirmar sin RFID (con cupo)" : "Confirmar sin RFID";
+
+  if (escaneando) {
+    reanudarScanner(false);
+    estadoScanner("Apunta la cámara al RFID.", "activo");
+  } else if (lectorActivo) {
+    estadoScanner("Presiona el gatillo sobre el RFID.", "activo");
+    enfocarLector();
+  }
+  el("rfid-pantalla").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function recibirRfid(texto, origen) {
+  const pendiente = rfidPendiente;
+  const lectura = String(texto || "").trim();
+  if (!pendiente || !lectura || capturandoRfid || guardandoRegistro) return;
+  // La cámara sigue viendo la credencial recién leída: eso no es el RFID.
+  if (lectura === pendiente.credencialCruda) {
+    if (origen === "lector") estadoRfid("Eso es la misma credencial. Escanea el RFID.", true);
+    return;
+  }
+  try {
+    if (extraerCredencialQr(lectura).tipo === "participante") {
+      estadoRfid("Eso es una credencial de participante, no un RFID.", true);
+      return;
+    }
+  } catch (_) {
+    // No es una credencial: es el RFID.
+  }
+
+  const { contexto } = pendiente;
+  const participante = contexto.participante;
+  const nombre = participante.nombreCompleto || participante.nombre || "el participante";
+  const btn = el("btn-confirmar-asistencia");
+  const podiaMarcar = !btn.disabled && !pendiente.asistenciaHecha;
+  capturandoRfid = true;
+  bloquearSesion(true);
+  btn.disabled = true;
+  estadoRfid("Guardando RFID...");
+  estadoScanner("RFID leído. Guardando...", "activo");
+
+  let anclado = false;
+  try {
+    if (!participante.esNuevoFormato) {
+      throw new Error("Las credenciales antiguas no admiten RFID.");
+    }
+    if (podiaMarcar) {
+      try {
+        await guardarAsistencia(contexto);
+      } catch (e) {
+        if (e.code !== "functions/already-exists") throw e;
+      }
+      pendiente.asistenciaHecha = true;
+    }
+    const { data } = await ejecutarOperacionQr({
+      tipo: "anclar_rfid",
+      participanteId: participante.id,
+      eventoId: contexto.eventoId,
+      rfid: lectura,
+    });
+    anclado = true;
+    logSesion.unshift({
+      nombre,
+      checkpoint: `RFID ${data.serial}`,
+      hora: new Date().toLocaleTimeString("es-PA"),
+      tipo: "rfid",
+    });
+    renderLog();
+    alerta("success", `${podiaMarcar ? "Asistencia confirmada y " : ""}RFID ${data.serial} anclado a ${nombre}.`);
+  } catch (e) {
+    console.error("Error anclando RFID:", e);
+    const msg = e.message || "No se pudo anclar el RFID.";
+    alerta("error", msg);
+    estadoRfid(`${msg} Escanea de nuevo o cancela.`, true);
+    estadoScanner(escaneando ? "Apunta la cámara al RFID." : "Presiona el gatillo sobre el RFID.", "activo");
+    if (pendiente.asistenciaHecha) {
+      btn.textContent = "Asistencia ya confirmada";
+    } else {
+      btn.disabled = !podiaMarcar;
+    }
+  } finally {
+    capturandoRfid = false;
+    bloquearSesion(false);
+  }
+  if (anclado) cerrarResultado();
 }
 
 el("btn-cancelar-scan").addEventListener("click", cerrarResultado);
 
 function cerrarResultado() {
   participanteSel = null;
+  cancelarEsperaRfid();
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;

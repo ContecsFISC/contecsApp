@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-06T16:00:27.898558+00:00",
-  "project_fingerprint": "b5e35e61b8050bd19ce38ad1c95f1090572197e58c357df166b6c6b238a24bc4",
+  "generated_at": "2026-10-06T16:14:41.094313+00:00",
+  "project_fingerprint": "daa3bcb654e951d21b809a8c9d6bafd96ffc0466a9da333c82f164972cbeed55",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -29,9 +29,9 @@
     "total_firestore_collections": 28,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 4424,
-    "total_function_calls": 9818,
-    "total_dom_ids": 923,
+    "total_symbols": 4442,
+    "total_function_calls": 9880,
+    "total_dom_ids": 927,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,26 +39,38 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "7796b1cece449fa6a70b0938813e3bbb9ed9f0cd",
+    "head": "29129de541abff6b454898ed765b8d3a2b63c256",
     "changed_files": [
       {
         "file": ".firebase/hosting..cache",
         "status": " M"
       },
       {
-        "file": "js/core/credencial-qr.js",
+        "file": "functions/rfid.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/rfid.test.js",
         "status": " M"
       },
       {
         "file": "js/modulos/lecturaQR.js",
-        "status": "UU"
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/posper.js",
+        "status": " M"
       },
       {
         "file": "panel/modulos/congreso/lecturaQR.html",
-        "status": "M "
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/posper.html",
+        "status": " M"
       }
     ],
-    "changed_count": 4
+    "changed_count": 7
   },
   "domains": [
     {
@@ -678,9 +690,9 @@
     },
     {
       "file": "functions/rfid.js",
-      "risk": 4.6,
+      "risk": 4.7,
       "relations": 2,
-      "purpose": "Lectura del QR \"RFID\" que se ancla a un participante desde POSPER (lector EA530). Ese QR trae un texto hexadecimal largo; al participante se le muestra un serial corto (primeros + ",
+      "purpose": "Lectura del \"RFID\" que se ancla a un participante (POSPER y Lectura QR con el lector EA530). Es lo que traiga la siguiente lectura tras la credencial: normalmente un QR con un text",
       "exports": [
         "RFID_PREFIJO",
         "RFID_SUFIJO",
@@ -780,9 +792,9 @@
     },
     {
       "file": "functions/test/rfid.test.js",
-      "risk": 2.7,
+      "risk": 2.8,
       "relations": 1,
-      "purpose": "Lectura del QR \"RFID\" que POSPER ancla a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en el MISMO lo"
+      "purpose": "Lectura del \"RFID\" que POSPER y Lectura QR anclan a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en "
     },
     {
       "file": "img/iconos/advertencia.svg",
@@ -1334,7 +1346,7 @@
     },
     {
       "file": "js/modulos/lecturaQR.js",
-      "risk": 24.2,
+      "risk": 25.3,
       "relations": 8,
       "collections": [
         "checkpoints",
@@ -1396,7 +1408,7 @@
     },
     {
       "file": "js/modulos/posper.js",
-      "risk": 15.3,
+      "risk": 15.6,
       "relations": 5,
       "purpose": "============================================= CONTECS — POSPER (lector físico EA530) ============================================= El EA530 trae un lector de QR que se dispara con ",
       "collections": [
@@ -1670,7 +1682,7 @@
     },
     {
       "file": "panel/modulos/congreso/lecturaQR.html",
-      "risk": 17.9,
+      "risk": 18.0,
       "relations": 8
     },
     {
@@ -1697,7 +1709,7 @@
     },
     {
       "file": "panel/modulos/congreso/posper.html",
-      "risk": 16.0,
+      "risk": 16.1,
       "relations": 7
     },
     {
@@ -2167,5 +2179,5 @@
       }
     }
   ],
-  "estimated_tokens": 10818
+  "estimated_tokens": 10856
 }
