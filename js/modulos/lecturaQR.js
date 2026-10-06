@@ -31,8 +31,21 @@ let logSesion        = [];
 let secuenciaCargaEvento = 0;
 let tokenProcesamiento = 0;
 let guardandoRegistro = false;
+let lectorActivo     = false; // lector del dispositivo (EA530) escuchando
+let temporizadorLector = null;
+let vigilanteLector  = null;  // revisa el campo por si el texto llega sin eventos
+let ultimoValorLector = "";
+let componiendoLector = false; // el teclado del equipo aún está escribiendo
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
+// Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
+const LECTOR_PAUSA_MS = 600;
+const MSG_LECTOR_LISTO = "Lector listo: toca el campo del lector y presiona el gatillo.";
+// Con ?diag=1 en la URL se muestra lo que la página recibe del lector.
+const DIAGNOSTICO_LECTOR = new URLSearchParams(location.search).has("diag");
+const VERSION_LECTOR = "2026-10-06.5";
+const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
+const AYUDA_LECTOR = "Toca el campo del lector (se abre el teclado), apunta al QR y presiona el gatillo; luego confirma la asistencia.";
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -85,7 +98,9 @@ el("sel-evento-qr").addEventListener("change", async () => {
 
 async function limpiarSeleccionSesion() {
   tokenProcesamiento++;
+  procesandoQR = false;
   if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+  if (lectorActivo) desactivarLector();
   checkpointSel = null;
   participanteSel = null;
   modoTaller = false;
@@ -121,6 +136,7 @@ function renderCheckpoints() {
 window.seleccionarCP = async function(card) {
   if (guardandoRegistro || card.classList.contains("ya-marcado")) return;
   tokenProcesamiento++;
+  procesandoQR = false;
   if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
   participanteSel = null;
   el("resultado-box").style.display = "none";
@@ -137,6 +153,15 @@ window.seleccionarCP = async function(card) {
   if (horario) label += ` · ${horario}`;
   if (modoTaller) label += ` · ${checkpointSel.cuposDisponibles ?? checkpointSel.cupos} cupos disponibles`;
   el("cp-seleccionado").textContent = label;
+
+  // Al elegir checkpoint el lector queda listo y con el foco en su campo, para
+  // que el gatillo del EA530 funcione sin más pasos; "Abrir cámara" cambia de modo.
+  if (lectorActivo) {
+    estadoScanner(MSG_LECTOR_LISTO, "activo");
+    enfocarLector();
+  } else {
+    void activarLector();
+  }
 };
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
@@ -187,6 +212,7 @@ async function iniciarScanner() {
     estadoScanner("Este navegador no permite utilizar la cámara.", "error");
     return;
   }
+  if (lectorActivo) desactivarLector();
 
   const btn = el("btn-iniciar");
   btn.disabled = true;
@@ -276,10 +302,12 @@ async function buscarParticipanteQr(credencial) {
       collection(db, "participantes"),
       where("codigo", "==", credencial.codigo),
     ));
-    if (snap.empty) throw new Error("QR no reconocido. Participante no encontrado.");
+    if (snap.empty) throw new Error(`QR no reconocido: no hay participante con el código ${credencial.codigo}.`);
     const d = snap.docs[0];
     const participante = { id: d.id, ...d.data() };
-    if (String(participante.token || "") !== credencial.token) {
+    // El token es hexadecimal (functions/registro.js): mayúsculas y minúsculas
+    // son el mismo valor, así que se compara sin distinguirlas.
+    if (String(participante.token || "").toLowerCase() !== credencial.token.toLowerCase()) {
       throw new Error("QR inválido: el token no coincide.");
     }
     return { participante, esNuevoFormato: true };
@@ -294,14 +322,16 @@ async function buscarParticipanteQr(credencial) {
   return { participante, esNuevoFormato: false };
 }
 
-async function procesarQrDetectado(rawQR) {
-  if (procesandoQR || !escaneando) return;
+// origen: "camara" (html5-qrcode) o "lector" (lector del dispositivo en modo teclado).
+async function procesarQrDetectado(rawQR, origen = "camara") {
+  const desdeLector = origen === "lector";
+  if (procesandoQR || participanteSel || !(desdeLector ? lectorActivo : escaneando)) return;
   const tokenActual = ++tokenProcesamiento;
   const eventoIdActual = eventoActivo?.id;
   const checkpointIdActual = checkpointSel?.id;
   procesandoQR = true;
   pausarScanner();
-  estadoScanner("QR detectado. Validando credencial...", "activo");
+  estadoScanner(desdeLector ? "Código leído. Validando credencial..." : "QR detectado. Validando credencial...", "activo");
 
   try {
     const credencial = extraerCredencialQr(rawQR);
@@ -326,8 +356,11 @@ async function procesarQrDetectado(rawQR) {
     estadoScanner(e.message || "No se pudo procesar el código QR.", "error");
     reanudarScanner(false);
     setTimeout(() => {
-      if (escaneando && !procesandoQR && estadoInternoScanner() === 2) {
+      if (procesandoQR || participanteSel) return;
+      if (escaneando && estadoInternoScanner() === 2) {
         estadoScanner("Buscando un código QR...", "activo");
+      } else if (lectorActivo) {
+        estadoScanner(MSG_LECTOR_LISTO, "activo");
       }
     }, 5000);
   } finally {
@@ -337,6 +370,221 @@ async function procesarQrDetectado(rawQR) {
 
 el("btn-iniciar").addEventListener("click", iniciarScanner);
 el("btn-detener").addEventListener("click", detenerScanner);
+
+// ─── Lector del dispositivo (Unitech EA530 u otro lector en modo teclado) ─────
+// El lector integrado "teclea" el contenido del QR en el campo enfocado
+// (Scan2Key en modo teclado), normalmente terminado en Enter. El campo NO usa
+// inputmode="none": en el EA530 el texto del gatillo entra por el teclado del
+// sistema y, con el teclado oculto, la lectura no llega a la página.
+function esCampoEditable(nodo) {
+  if (!nodo || nodo === el("lector-input")) return false;
+  return nodo.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(nodo.tagName);
+}
+
+function enfocarLector() {
+  if (!lectorActivo) return;
+  const input = el("lector-input");
+  if (document.activeElement !== input) input.focus({ preventScroll: true });
+}
+
+async function activarLector() {
+  if (!eventoActivo)  { alerta("error", "Selecciona un evento."); return; }
+  if (!checkpointSel) { alerta("error", "Selecciona un checkpoint."); return; }
+  if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+
+  lectorActivo = true;
+  el("lector-input").value = "";
+  ultimoValorLector = "";
+  clearInterval(vigilanteLector);
+  vigilanteLector = setInterval(revisarCampoLector, LECTOR_PAUSA_MS);
+  el("camara-wrap").style.display = "none";
+  el("camara-aviso").style.display = "none";
+  el("lector-panel").style.display = "block";
+  el("btn-lector").textContent = "Detener lector";
+  el("scanner-ayuda").textContent = AYUDA_LECTOR;
+  estadoScanner(participanteSel ? "Confirma o cancela el registro en pantalla." : MSG_LECTOR_LISTO, "activo");
+  enfocarLector();
+}
+
+function desactivarLector() {
+  clearTimeout(temporizadorLector);
+  temporizadorLector = null;
+  clearInterval(vigilanteLector);
+  vigilanteLector = null;
+  lectorActivo = false;
+  el("lector-input").value = "";
+  el("lector-input").blur();
+  el("lector-panel").style.display = "none";
+  el("lector-panel").classList.remove("sin-foco");
+  el("camara-wrap").style.display = "";
+  el("btn-lector").textContent = "Usar lector EA530";
+  el("scanner-ayuda").textContent = AYUDA_CAMARA;
+  estadoScanner("Lector detenido");
+}
+
+function recibirLecturaLector(texto) {
+  if (!lectorActivo || !texto) return;
+  if (!eventoActivo || !checkpointSel) {
+    alerta("error", "Selecciona un evento y un checkpoint antes de escanear.");
+    return;
+  }
+  if (procesandoQR) {
+    alerta("error", "Espera: se está validando la credencial anterior.");
+    return;
+  }
+  if (participanteSel) {
+    alerta("error", "Confirma o cancela el registro en pantalla antes de escanear otra credencial.");
+    return;
+  }
+  void procesarQrDetectado(texto, "lector");
+}
+
+function finalizarLecturaLector() {
+  clearTimeout(temporizadorLector);
+  temporizadorLector = null;
+  const input = el("lector-input");
+  const texto = input.value.trim();
+  input.value = "";
+  ultimoValorLector = "";
+  componiendoLector = false;
+  if (texto) diagLector(`lectura completa (${texto.length} car.): ${texto.slice(0, 70)}`);
+  recibirLecturaLector(texto);
+}
+
+// Algunos servicios de escaneo de Android escriben el texto en el campo sin
+// disparar eventos de teclado ni "input": si el valor quedó quieto, se procesa.
+function revisarCampoLector() {
+  const valor = el("lector-input").value;
+  if (valor.trim() && valor === ultimoValorLector && !temporizadorLector && !componiendoLector) {
+    diagLector("texto detectado en el campo sin eventos de teclado");
+    finalizarLecturaLector();
+    return;
+  }
+  ultimoValorLector = valor;
+}
+
+el("lector-input").addEventListener("keydown", e => {
+  const esEnter = e.key === "Enter" || e.keyCode === 13;
+  // Algunos lectores terminan con Tab; sin contenido, Tab navega normalmente.
+  const esTabFinal = e.key === "Tab" && el("lector-input").value.trim() !== "";
+  if (!esEnter && !esTabFinal) return;
+  e.preventDefault();
+  finalizarLecturaLector();
+});
+
+function programarFinLectura() {
+  clearTimeout(temporizadorLector);
+  // Mientras el teclado compone texto se espera más para no cortar la lectura.
+  const pausa = componiendoLector ? LECTOR_PAUSA_MS * 3 : LECTOR_PAUSA_MS;
+  temporizadorLector = setTimeout(finalizarLecturaLector, pausa);
+}
+
+el("lector-input").addEventListener("input", programarFinLectura);
+
+el("lector-input").addEventListener("compositionstart", () => {
+  componiendoLector = true;
+  diagLector("el teclado empezó a componer texto");
+});
+
+el("lector-input").addEventListener("compositionend", () => {
+  componiendoLector = false;
+  programarFinLectura();
+});
+
+el("lector-input").addEventListener("focus", () => {
+  el("lector-panel").classList.remove("sin-foco");
+});
+
+// Mantener el foco en el campo del lector mientras está activo (tocar botones o
+// checkpoints lo quita); no se lo roba a otro campo, como el selector de evento.
+el("lector-input").addEventListener("blur", () => {
+  setTimeout(() => {
+    if (!lectorActivo) return;
+    if (!esCampoEditable(document.activeElement)) enfocarLector();
+    el("lector-panel").classList.toggle("sin-foco", document.activeElement !== el("lector-input"));
+  }, 0);
+});
+
+el("lector-panel").addEventListener("click", enfocarLector);
+
+// Si se presiona el gatillo sin haber tocado "Usar lector EA530", el modo lector
+// se activa solo (con evento y checkpoint elegidos y la cámara apagada).
+function activarLectorAutomatico() {
+  if (lectorActivo) return true;
+  if (!eventoActivo || !checkpointSel || guardandoRegistro) return false;
+  if (escaneando || estadoInternoScanner() === 3) return false;
+  void activarLector(); // sin cámara activa no hay await: queda activo al instante
+  return lectorActivo;
+}
+
+// Respaldo: si el foco no está en el campo (o el equipo no lo devuelve), las
+// teclas que envía el lector se acumulan igual en él y el Enter final la procesa.
+document.addEventListener("keydown", e => {
+  const input = el("lector-input");
+  if (e.target === input || esCampoEditable(e.target)) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!lectorActivo) {
+    const imprimible = (e.key || "").length === 1 && e.key !== " ";
+    if (!imprimible || !activarLectorAutomatico()) return;
+  }
+  const enLectura = input.value.trim() !== "";
+  if (e.key === "Enter" || e.keyCode === 13 || e.key === "Tab") {
+    if (!enLectura) return;
+    e.preventDefault();
+    finalizarLecturaLector();
+    return;
+  }
+  if ((e.key || "").length !== 1 || (e.key === " " && !enLectura)) return;
+  e.preventDefault();
+  input.value += e.key;
+  enfocarLector();
+  programarFinLectura();
+});
+
+// Lectores configurados para "pegar" (portapapeles) en lugar de teclear.
+document.addEventListener("paste", e => {
+  const input = el("lector-input");
+  if (e.target === input || esCampoEditable(e.target)) return;
+  const texto = e.clipboardData?.getData("text") || "";
+  if (!texto.trim() || !activarLectorAutomatico()) return;
+  e.preventDefault();
+  input.value += texto;
+  enfocarLector();
+  programarFinLectura();
+});
+
+el("btn-lector").addEventListener("click", () => {
+  if (lectorActivo) desactivarLector();
+  else void activarLector();
+});
+
+// ─── Diagnóstico del lector (?diag=1) ─────────────────────────────────────────
+// Lista los últimos eventos que llegan (teclas, texto insertado, pegado, foco)
+// para saber cómo entrega los datos el servicio de escaneo del equipo.
+const lineasDiag = [];
+
+function diagLector(texto) {
+  if (!DIAGNOSTICO_LECTOR) return;
+  lineasDiag.unshift(`${new Date().toLocaleTimeString("es-PA")}  ${texto}`);
+  lineasDiag.length = Math.min(lineasDiag.length, 15);
+  el("lector-diag").textContent = lineasDiag.join("\n");
+}
+
+if (DIAGNOSTICO_LECTOR) {
+  const destino = t => (t?.id ? `#${t.id}` : String(t?.tagName || "?").toLowerCase());
+  el("lector-diag").hidden = false;
+  diagLector(`Diagnóstico activo · versión ${VERSION_LECTOR}`);
+  document.addEventListener("keydown", e => {
+    diagLector(`keydown key="${e.key}" keyCode=${e.keyCode} en ${destino(e.target)}`);
+  }, true);
+  document.addEventListener("input", e => {
+    diagLector(`input ${e.inputType || ""} (${(e.data || "").length} car.) en ${destino(e.target)} · campo con ${e.target.value?.length ?? 0} car.`);
+  }, true);
+  document.addEventListener("paste", e => {
+    diagLector(`paste (${(e.clipboardData?.getData("text") || "").length} car.) en ${destino(e.target)}`);
+  }, true);
+  document.addEventListener("focusin", e => diagLector(`foco en ${destino(e.target)}`), true);
+}
 
 // ─── Modo Asistencia (checkpoints normales) ───────────────────────────────────
 function mostrarInfoAsistencia(p) {
@@ -536,7 +784,12 @@ function cerrarResultado() {
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;
   el("btn-confirmar-asistencia").textContent = modoTaller ? "Confirmar asistencia y cupo" : "Confirmar asistencia";
-  if (escaneando) reanudarScanner();
+  if (escaneando) {
+    reanudarScanner();
+  } else if (lectorActivo) {
+    estadoScanner(MSG_LECTOR_LISTO, "activo");
+    enfocarLector();
+  }
 }
 
 // ─── Log ─────────────────────────────────────────────────────────────────────

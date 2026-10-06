@@ -62,6 +62,16 @@
  .scanner-estado { margin-top:10px; min-height:20px; text-align:center; font-size:12px; font-weight:600; color:var(--gris-medio); }
  .scanner-estado.activo { color:var(--verde-oscuro); }
  .scanner-estado.error { color:var(--rojo); }
+
+ /* Lector del dispositivo (Unitech EA530 u otro lector en modo teclado) */
+ .lector-panel { padding:14px; border-radius:var(--radio); background:var(--verde-fondo); border:2px dashed var(--verde-claro); cursor:pointer; }
+ .lector-panel label { display:block; font-size:13px; font-weight:700; color:var(--verde-oscuro); margin-bottom:6px; }
+ .lector-panel input { width:100%; padding:12px 14px; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); font-size:15px; font-family:var(--fuente); background:#fff; color:var(--gris-texto); }
+ .lector-panel input:focus { outline:none; border-color:var(--verde); box-shadow:0 0 0 4px rgba(0,114,46,0.12); }
+ .lector-sin-foco { display:none; margin-top:8px; font-size:12px; font-weight:600; color:#856404; }
+ .lector-panel.sin-foco { border-color:#e0a800; background:#fff8e1; }
+ .lector-panel.sin-foco .lector-sin-foco { display:block; }
+ .lector-diag { margin-top:10px; padding:10px 12px; background:#101914; color:#b9f6ca; font-size:11px; line-height:1.5; border-radius:var(--radio-sm); white-space:pre-wrap; word-break:break-all; max-height:240px; overflow:auto; }
  @media(max-width:600px) {
    .cp-grid { grid-template-columns:minmax(0,1fr); }
    .cp-card { min-height:54px; display:flex; flex-direction:column; justify-content:center; }
@@ -101,22 +111,29 @@
  <div id="cp-seleccionado" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
  </div>
 
- <!-- CÁMARA -->
+ <!-- CÁMARA / LECTOR DEL DISPOSITIVO -->
  <div class="card" style="border-left: 2px solid var(--verde-claro);">
  <div class="card-title">Escanear credencial del participante</div>
- <div class="scanner-overlay">
+ <div class="scanner-overlay" id="camara-wrap">
  <div id="reader"></div>
+ </div>
+ <div class="lector-panel" id="lector-panel" style="display:none;">
+ <label for="lector-input">Lector del dispositivo</label>
+ <input type="url" inputmode="url" id="lector-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Toca aquí y presiona el gatillo..."/>
+ <div class="lector-sin-foco">Toca aquí para reactivar el lector.</div>
  </div>
  <div style="margin-top:12px;display:flex;gap:8px;">
  <button class="btn btn-primary" id="btn-iniciar" style="flex:1">
    Abrir cámara
  </button>
  <button class="btn btn-outline btn-sm" id="btn-detener" style="width:auto;display:none">Detener</button>
+ <button class="btn btn-outline" id="btn-lector" style="flex:1">Usar lector EA530</button>
  </div>
  <div id="scanner-estado" class="scanner-estado" role="status" aria-live="polite">Cámara detenida</div>
- <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
+ <p id="scanner-ayuda" style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera al QR del participante
  </p>
+ <pre id="lector-diag" class="lector-diag" hidden></pre>
  <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
@@ -163,6 +180,6 @@
 
 </div>
 
-<script type="module" src="../../../js/modulos/lecturaQR.js"></script>
+<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261006.5"></script>
 </body>
 </html>
