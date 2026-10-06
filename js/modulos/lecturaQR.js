@@ -30,8 +30,15 @@ let logSesion        = [];
 let secuenciaCargaEvento = 0;
 let tokenProcesamiento = 0;
 let guardandoRegistro = false;
+let lectorActivo     = false; // lector del dispositivo (EA530) escuchando
+let temporizadorLector = null;
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
+// Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
+const LECTOR_PAUSA_MS = 300;
+const MSG_LECTOR_LISTO = "Lector listo: presiona el gatillo de escaneo.";
+const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
+const AYUDA_LECTOR = "Apunta el lector del EA530 al QR y presiona el gatillo. Luego confirma la asistencia.";
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -84,7 +91,9 @@ el("sel-evento-qr").addEventListener("change", async () => {
 
 async function limpiarSeleccionSesion() {
   tokenProcesamiento++;
+  procesandoQR = false;
   if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+  if (lectorActivo) desactivarLector();
   checkpointSel = null;
   participanteSel = null;
   modoTaller = false;
@@ -120,6 +129,7 @@ function renderCheckpoints() {
 window.seleccionarCP = async function(card) {
   if (guardandoRegistro || card.classList.contains("ya-marcado")) return;
   tokenProcesamiento++;
+  procesandoQR = false;
   if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
   participanteSel = null;
   el("resultado-box").style.display = "none";
@@ -136,6 +146,12 @@ window.seleccionarCP = async function(card) {
   if (horario) label += ` · ${horario}`;
   if (modoTaller) label += ` · ${checkpointSel.cuposDisponibles ?? checkpointSel.cupos} cupos disponibles`;
   el("cp-seleccionado").textContent = label;
+
+  // El lector sigue activo al cambiar de checkpoint; las lecturas usan el nuevo.
+  if (lectorActivo) {
+    estadoScanner(MSG_LECTOR_LISTO, "activo");
+    enfocarLector();
+  }
 };
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
@@ -186,6 +202,7 @@ async function iniciarScanner() {
     estadoScanner("Este navegador no permite utilizar la cámara.", "error");
     return;
   }
+  if (lectorActivo) desactivarLector();
 
   const btn = el("btn-iniciar");
   btn.disabled = true;
@@ -321,14 +338,16 @@ async function buscarParticipanteQr(credencial) {
   return { participante, esNuevoFormato: false };
 }
 
-async function procesarQrDetectado(rawQR) {
-  if (procesandoQR || !escaneando) return;
+// origen: "camara" (html5-qrcode) o "lector" (lector del dispositivo en modo teclado).
+async function procesarQrDetectado(rawQR, origen = "camara") {
+  const desdeLector = origen === "lector";
+  if (procesandoQR || participanteSel || !(desdeLector ? lectorActivo : escaneando)) return;
   const tokenActual = ++tokenProcesamiento;
   const eventoIdActual = eventoActivo?.id;
   const checkpointIdActual = checkpointSel?.id;
   procesandoQR = true;
   pausarScanner();
-  estadoScanner("QR detectado. Validando credencial...", "activo");
+  estadoScanner(desdeLector ? "Código leído. Validando credencial..." : "QR detectado. Validando credencial...", "activo");
 
   try {
     const credencial = extraerCredencialQr(rawQR);
@@ -353,8 +372,11 @@ async function procesarQrDetectado(rawQR) {
     estadoScanner(e.message || "No se pudo procesar el código QR.", "error");
     reanudarScanner(false);
     setTimeout(() => {
-      if (escaneando && !procesandoQR && estadoInternoScanner() === 2) {
+      if (procesandoQR || participanteSel) return;
+      if (escaneando && estadoInternoScanner() === 2) {
         estadoScanner("Buscando un código QR...", "activo");
+      } else if (lectorActivo) {
+        estadoScanner(MSG_LECTOR_LISTO, "activo");
       }
     }, 5000);
   } finally {
@@ -364,6 +386,120 @@ async function procesarQrDetectado(rawQR) {
 
 el("btn-iniciar").addEventListener("click", iniciarScanner);
 el("btn-detener").addEventListener("click", detenerScanner);
+
+// ─── Lector del dispositivo (Unitech EA530 u otro lector en modo teclado) ─────
+// El lector integrado "teclea" el contenido del QR en el campo enfocado
+// (Scan2Key en modo teclado), normalmente terminado en Enter. El campo usa
+// inputmode="none" para que no se abra el teclado en pantalla.
+function esCampoEditable(nodo) {
+  if (!nodo || nodo === el("lector-input")) return false;
+  return nodo.isContentEditable || ["INPUT", "SELECT", "TEXTAREA"].includes(nodo.tagName);
+}
+
+function enfocarLector() {
+  if (!lectorActivo) return;
+  const input = el("lector-input");
+  if (document.activeElement !== input) input.focus({ preventScroll: true });
+}
+
+async function activarLector() {
+  if (!eventoActivo)  { alerta("error", "Selecciona un evento."); return; }
+  if (!checkpointSel) { alerta("error", "Selecciona un checkpoint."); return; }
+  if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+
+  lectorActivo = true;
+  el("lector-input").value = "";
+  el("camara-wrap").style.display = "none";
+  el("camara-aviso").style.display = "none";
+  el("lector-panel").style.display = "block";
+  el("btn-lector").textContent = "Detener lector";
+  el("scanner-ayuda").textContent = AYUDA_LECTOR;
+  estadoScanner(participanteSel ? "Confirma o cancela el registro en pantalla." : MSG_LECTOR_LISTO, "activo");
+  enfocarLector();
+}
+
+function desactivarLector() {
+  clearTimeout(temporizadorLector);
+  temporizadorLector = null;
+  lectorActivo = false;
+  el("lector-input").value = "";
+  el("lector-input").blur();
+  el("lector-panel").style.display = "none";
+  el("lector-panel").classList.remove("sin-foco");
+  el("camara-wrap").style.display = "";
+  el("btn-lector").textContent = "Usar lector EA530";
+  el("scanner-ayuda").textContent = AYUDA_CAMARA;
+  estadoScanner("Lector detenido");
+}
+
+function recibirLecturaLector(texto) {
+  if (!lectorActivo || !texto) return;
+  if (!eventoActivo || !checkpointSel) {
+    alerta("error", "Selecciona un evento y un checkpoint antes de escanear.");
+    return;
+  }
+  if (procesandoQR) {
+    alerta("error", "Espera: se está validando la credencial anterior.");
+    return;
+  }
+  if (participanteSel) {
+    alerta("error", "Confirma o cancela el registro en pantalla antes de escanear otra credencial.");
+    return;
+  }
+  void procesarQrDetectado(texto, "lector");
+}
+
+function finalizarLecturaLector() {
+  clearTimeout(temporizadorLector);
+  temporizadorLector = null;
+  const input = el("lector-input");
+  const texto = input.value.trim();
+  input.value = "";
+  recibirLecturaLector(texto);
+}
+
+el("lector-input").addEventListener("keydown", e => {
+  const esEnter = e.key === "Enter" || e.keyCode === 13;
+  // Algunos lectores terminan con Tab; sin contenido, Tab navega normalmente.
+  const esTabFinal = e.key === "Tab" && el("lector-input").value.trim() !== "";
+  if (!esEnter && !esTabFinal) return;
+  e.preventDefault();
+  finalizarLecturaLector();
+});
+
+el("lector-input").addEventListener("input", () => {
+  clearTimeout(temporizadorLector);
+  temporizadorLector = setTimeout(finalizarLecturaLector, LECTOR_PAUSA_MS);
+});
+
+el("lector-input").addEventListener("focus", () => {
+  el("lector-panel").classList.remove("sin-foco");
+});
+
+// Mantener el foco en el campo del lector mientras está activo (tocar botones o
+// checkpoints lo quita); no se lo roba a otro campo, como el selector de evento.
+el("lector-input").addEventListener("blur", () => {
+  setTimeout(() => {
+    if (!lectorActivo) return;
+    if (!esCampoEditable(document.activeElement)) enfocarLector();
+    el("lector-panel").classList.toggle("sin-foco", document.activeElement !== el("lector-input"));
+  }, 0);
+});
+
+el("lector-panel").addEventListener("click", enfocarLector);
+
+// Respaldo: si el foco quedó en otro elemento, el primer carácter del lector lo
+// devuelve al campo para que el resto de la lectura caiga ahí.
+document.addEventListener("keydown", e => {
+  if (!lectorActivo || e.target === el("lector-input") || esCampoEditable(e.target)) return;
+  if (e.ctrlKey || e.metaKey || e.altKey || (e.key || "").length !== 1 || e.key === " ") return;
+  enfocarLector();
+});
+
+el("btn-lector").addEventListener("click", () => {
+  if (lectorActivo) desactivarLector();
+  else void activarLector();
+});
 
 // ─── Modo Asistencia (checkpoints normales) ───────────────────────────────────
 function mostrarInfoAsistencia(p) {
@@ -563,7 +699,12 @@ function cerrarResultado() {
   el("res-cupos-wrap").style.display = "none";
   el("btn-confirmar-asistencia").disabled = false;
   el("btn-confirmar-asistencia").textContent = modoTaller ? "Confirmar asistencia y cupo" : "Confirmar asistencia";
-  if (escaneando) reanudarScanner();
+  if (escaneando) {
+    reanudarScanner();
+  } else if (lectorActivo) {
+    estadoScanner(MSG_LECTOR_LISTO, "activo");
+    enfocarLector();
+  }
 }
 
 // ─── Log ─────────────────────────────────────────────────────────────────────
