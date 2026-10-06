@@ -38,7 +38,7 @@ const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 const LECTOR_PAUSA_MS = 300;
 const MSG_LECTOR_LISTO = "Lector listo: presiona el gatillo de escaneo.";
 const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
-const AYUDA_LECTOR = "Apunta el lector del EA530 al QR y presiona el gatillo. Luego confirma la asistencia.";
+const AYUDA_LECTOR = "Apunta el lector del EA530 al QR y presiona el gatillo; luego confirma la asistencia. Si al escanear no aparece texto en el campo, activa la salida por teclado en Scan2Key.";
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -299,8 +299,15 @@ function extraerCredencialQr(rawQR) {
     // Continuar con formatos sin URL.
   }
 
+  // URL de perfil.html con caracteres extra antes o después (prefijos/sufijos
+  // que puede agregar un lector físico): se buscan ?c= y &t= dentro del texto.
+  const codigoTexto = parametroEnTexto(texto, "c").toUpperCase();
+  const tokenTexto = parametroEnTexto(texto, "t");
+  if (codigoTexto && tokenTexto) return { tipo: "participante", codigo: codigoTexto, token: tokenTexto };
+
   try {
-    const datos = JSON.parse(texto);
+    const inicio = texto.indexOf("{");
+    const datos = JSON.parse(inicio >= 0 ? texto.slice(inicio, texto.lastIndexOf("}") + 1) : texto);
     const codigo = String(datos.codigo || "").trim().toUpperCase();
     const token = String(datos.token || "").trim();
     if (codigo && token) return { tipo: "participante", codigo, token };
@@ -311,7 +318,19 @@ function extraerCredencialQr(rawQR) {
   if (/^[A-Za-z0-9_-]{1,200}$/.test(texto)) {
     return { tipo: "legacy", id: texto };
   }
-  throw new Error("El contenido no corresponde a una credencial CONTECS válida.");
+  // Se muestra lo recibido para detectar lecturas incompletas o con caracteres cambiados.
+  const muestra = texto.length > 120 ? `${texto.slice(0, 120)}…` : texto;
+  throw new Error(`El contenido no corresponde a una credencial CONTECS válida. Se leyó: "${muestra}"`);
+}
+
+function parametroEnTexto(texto, nombre) {
+  const coincidencia = texto.match(new RegExp(`[?&]${nombre}=([^&#\\s]+)`));
+  if (!coincidencia) return "";
+  try {
+    return decodeURIComponent(coincidencia[1]).trim();
+  } catch (_) {
+    return coincidencia[1].trim();
+  }
 }
 
 async function buscarParticipanteQr(credencial) {
@@ -320,7 +339,7 @@ async function buscarParticipanteQr(credencial) {
       collection(db, "participantes"),
       where("codigo", "==", credencial.codigo),
     ));
-    if (snap.empty) throw new Error("QR no reconocido. Participante no encontrado.");
+    if (snap.empty) throw new Error(`QR no reconocido: no hay participante con el código ${credencial.codigo}.`);
     const d = snap.docs[0];
     const participante = { id: d.id, ...d.data() };
     if (String(participante.token || "") !== credencial.token) {
@@ -467,10 +486,12 @@ el("lector-input").addEventListener("keydown", e => {
   finalizarLecturaLector();
 });
 
-el("lector-input").addEventListener("input", () => {
+function programarFinLectura() {
   clearTimeout(temporizadorLector);
   temporizadorLector = setTimeout(finalizarLecturaLector, LECTOR_PAUSA_MS);
-});
+}
+
+el("lector-input").addEventListener("input", programarFinLectura);
 
 el("lector-input").addEventListener("focus", () => {
   el("lector-panel").classList.remove("sin-foco");
@@ -488,12 +509,50 @@ el("lector-input").addEventListener("blur", () => {
 
 el("lector-panel").addEventListener("click", enfocarLector);
 
-// Respaldo: si el foco quedó en otro elemento, el primer carácter del lector lo
-// devuelve al campo para que el resto de la lectura caiga ahí.
+// Si se presiona el gatillo sin haber tocado "Usar lector EA530", el modo lector
+// se activa solo (con evento y checkpoint elegidos y la cámara apagada).
+function activarLectorAutomatico() {
+  if (lectorActivo) return true;
+  if (!eventoActivo || !checkpointSel || guardandoRegistro) return false;
+  if (escaneando || estadoInternoScanner() === 3) return false;
+  void activarLector(); // sin cámara activa no hay await: queda activo al instante
+  return lectorActivo;
+}
+
+// Respaldo: si el foco no está en el campo (o el equipo no lo devuelve), las
+// teclas que envía el lector se acumulan igual en él y el Enter final la procesa.
 document.addEventListener("keydown", e => {
-  if (!lectorActivo || e.target === el("lector-input") || esCampoEditable(e.target)) return;
-  if (e.ctrlKey || e.metaKey || e.altKey || (e.key || "").length !== 1 || e.key === " ") return;
+  const input = el("lector-input");
+  if (e.target === input || esCampoEditable(e.target)) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!lectorActivo) {
+    const imprimible = (e.key || "").length === 1 && e.key !== " ";
+    if (!imprimible || !activarLectorAutomatico()) return;
+  }
+  const enLectura = input.value.trim() !== "";
+  if (e.key === "Enter" || e.keyCode === 13 || e.key === "Tab") {
+    if (!enLectura) return;
+    e.preventDefault();
+    finalizarLecturaLector();
+    return;
+  }
+  if ((e.key || "").length !== 1 || (e.key === " " && !enLectura)) return;
+  e.preventDefault();
+  input.value += e.key;
   enfocarLector();
+  programarFinLectura();
+});
+
+// Lectores configurados para "pegar" (portapapeles) en lugar de teclear.
+document.addEventListener("paste", e => {
+  const input = el("lector-input");
+  if (e.target === input || esCampoEditable(e.target)) return;
+  const texto = e.clipboardData?.getData("text") || "";
+  if (!texto.trim() || !activarLectorAutomatico()) return;
+  e.preventDefault();
+  input.value += texto;
+  enfocarLector();
+  programarFinLectura();
 });
 
 el("btn-lector").addEventListener("click", () => {
