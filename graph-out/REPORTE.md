@@ -1,13 +1,13 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:38:01.770025+00:00**
+- Generado: **2026-10-09T03:38:04.496566+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `e7ab27224d6e504d…`
+- Huella del proyecto: `552c16b9bf6be482…`
 - Archivos analizados: **173**
 - Relaciones internas tipadas: **535**
-- Símbolos detectados: **4252**
-- Llamadas detectadas: **9370**
-- IDs DOM definidos: **878**
+- Símbolos detectados: **4261**
+- Llamadas detectadas: **9396**
+- IDs DOM definidos: **879**
 - Paquetes externos usados: **27**
 - Colecciones de Firestore detectadas: **27**
 - Cloud Functions detectadas: **17**
@@ -21,7 +21,7 @@
 
 - `GraphCompacto.json` — ~**10,227 tokens** · leer primero
 - `GraphCompleto.json` — ~**52,783 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**99,876 tokens** · evidencia exhaustiva
+- `GraphProfundo.json` — ~**99,969 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad

@@ -32,11 +32,16 @@ let tokenProcesamiento = 0;
 let guardandoRegistro = false;
 let lectorActivo     = false; // lector del dispositivo (EA530) escuchando
 let temporizadorLector = null;
+let vigilanteLector  = null;  // revisa el campo por si el texto llega sin eventos
+let ultimoValorLector = "";
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // Si el lector no envía Enter al final, la lectura se procesa tras esta pausa.
 const LECTOR_PAUSA_MS = 300;
 const MSG_LECTOR_LISTO = "Lector listo: presiona el gatillo de escaneo.";
+// Con ?diag=1 en la URL se muestra lo que la página recibe del lector.
+const DIAGNOSTICO_LECTOR = new URLSearchParams(location.search).has("diag");
+const VERSION_LECTOR = "2026-10-06.3";
 const AYUDA_CAMARA = "Apunta la cámara trasera al QR del participante";
 const AYUDA_LECTOR = "Apunta el lector del EA530 al QR y presiona el gatillo; luego confirma la asistencia. Si al escanear no aparece texto en el campo, activa la salida por teclado en Scan2Key.";
 
@@ -147,10 +152,13 @@ window.seleccionarCP = async function(card) {
   if (modoTaller) label += ` · ${checkpointSel.cuposDisponibles ?? checkpointSel.cupos} cupos disponibles`;
   el("cp-seleccionado").textContent = label;
 
-  // El lector sigue activo al cambiar de checkpoint; las lecturas usan el nuevo.
+  // Al elegir checkpoint el lector queda listo y con el foco en su campo, para
+  // que el gatillo del EA530 funcione sin más pasos; "Abrir cámara" cambia de modo.
   if (lectorActivo) {
     estadoScanner(MSG_LECTOR_LISTO, "activo");
     enfocarLector();
+  } else {
+    void activarLector();
   }
 };
 
@@ -428,6 +436,9 @@ async function activarLector() {
 
   lectorActivo = true;
   el("lector-input").value = "";
+  ultimoValorLector = "";
+  clearInterval(vigilanteLector);
+  vigilanteLector = setInterval(revisarCampoLector, LECTOR_PAUSA_MS);
   el("camara-wrap").style.display = "none";
   el("camara-aviso").style.display = "none";
   el("lector-panel").style.display = "block";
@@ -440,6 +451,8 @@ async function activarLector() {
 function desactivarLector() {
   clearTimeout(temporizadorLector);
   temporizadorLector = null;
+  clearInterval(vigilanteLector);
+  vigilanteLector = null;
   lectorActivo = false;
   el("lector-input").value = "";
   el("lector-input").blur();
@@ -474,7 +487,21 @@ function finalizarLecturaLector() {
   const input = el("lector-input");
   const texto = input.value.trim();
   input.value = "";
+  ultimoValorLector = "";
+  if (texto) diagLector(`lectura completa (${texto.length} car.): ${texto.slice(0, 70)}`);
   recibirLecturaLector(texto);
+}
+
+// Algunos servicios de escaneo de Android escriben el texto en el campo sin
+// disparar eventos de teclado ni "input": si el valor quedó quieto, se procesa.
+function revisarCampoLector() {
+  const valor = el("lector-input").value;
+  if (valor.trim() && valor === ultimoValorLector && !temporizadorLector) {
+    diagLector("texto detectado en el campo sin eventos de teclado");
+    finalizarLecturaLector();
+    return;
+  }
+  ultimoValorLector = valor;
 }
 
 el("lector-input").addEventListener("keydown", e => {
@@ -559,6 +586,34 @@ el("btn-lector").addEventListener("click", () => {
   if (lectorActivo) desactivarLector();
   else void activarLector();
 });
+
+// ─── Diagnóstico del lector (?diag=1) ─────────────────────────────────────────
+// Lista los últimos eventos que llegan (teclas, texto insertado, pegado, foco)
+// para saber cómo entrega los datos el servicio de escaneo del equipo.
+const lineasDiag = [];
+
+function diagLector(texto) {
+  if (!DIAGNOSTICO_LECTOR) return;
+  lineasDiag.unshift(`${new Date().toLocaleTimeString("es-PA")}  ${texto}`);
+  lineasDiag.length = Math.min(lineasDiag.length, 15);
+  el("lector-diag").textContent = lineasDiag.join("\n");
+}
+
+if (DIAGNOSTICO_LECTOR) {
+  const destino = t => (t?.id ? `#${t.id}` : String(t?.tagName || "?").toLowerCase());
+  el("lector-diag").hidden = false;
+  diagLector(`Diagnóstico activo · versión ${VERSION_LECTOR}`);
+  document.addEventListener("keydown", e => {
+    diagLector(`keydown key="${e.key}" keyCode=${e.keyCode} en ${destino(e.target)}`);
+  }, true);
+  document.addEventListener("input", e => {
+    diagLector(`input ${e.inputType || ""} (${(e.data || "").length} car.) en ${destino(e.target)} · campo con ${e.target.value?.length ?? 0} car.`);
+  }, true);
+  document.addEventListener("paste", e => {
+    diagLector(`paste (${(e.clipboardData?.getData("text") || "").length} car.) en ${destino(e.target)}`);
+  }, true);
+  document.addEventListener("focusin", e => diagLector(`foco en ${destino(e.target)}`), true);
+}
 
 // ─── Modo Asistencia (checkpoints normales) ───────────────────────────────────
 function mostrarInfoAsistencia(p) {
