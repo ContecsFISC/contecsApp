@@ -19,7 +19,13 @@ export const ROLES = {
   comunicaciones: { label: "Líder de Comunicaciones",color: "#B7950B" },
   staff_contecs:  { label: "Staff CONTECS",          color: "#00722e" },
   miembro:        { label: "Miembro General",        color: "#717D7E" },
+  // Patrocinador del congreso: solo ve su pestaña (POSPER, Randomizer y
+  // Sorteo en vivo). Fuera de "acceso_posper" no tiene ningún permiso.
+  posper:         { label: "POSPER · Patrocinador",  color: "#0b2f5c" },
 };
+
+// Roles externos: no reciben permisos "para todos" como Ventas.
+const ROLES_EXTERNOS = ["staff_contecs", "posper"];
 
 // Permisos por módulo
 // Cada permiso lista los roles que tienen acceso
@@ -32,9 +38,17 @@ export const PERMISOS = {
   registrar_compras: ["junta_principal", "junta", "finanzas", "ventas","ceo","logistica"],
 
   // Acceso al botón "Ventas" del dashboard para TODOS los roles, EXCEPTO
-  // Staff CONTECS (su función es congreso/escaneo, no ventas ni finanzas).
+  // Staff CONTECS (su función es congreso/escaneo, no ventas ni finanzas) y
+  // el patrocinador POSPER.
   // Quien tenga "registrar_ventas" entra a ventas2.html; el resto va a ventaRapida.html.
-  acceso_venta_rapida: Object.keys(ROLES).filter(r => r !== "staff_contecs"),
+  acceso_venta_rapida: Object.keys(ROLES).filter(r => !ROLES_EXTERNOS.includes(r)),
+
+  // Pestaña POSPER del dashboard: posper.html, randomizer.html y
+  // randomizerint.html. Debe reflejar ROLES_POSPER en functions/operaciones-qr.js.
+  acceso_posper: ["ceo", "posper"],
+  // Quitar un RFID asignado por error (botón "Liberar" del Randomizer).
+  // Debe reflejar ROLES_LIBERAR_RFID en functions/operaciones-qr.js.
+  liberar_rfid: ["ceo"],
 
   ver_fondos:        ["junta_principal", "finanzas","ceo"],
   editar_fondos:     ["junta_principal", "finanzas","ceo"],

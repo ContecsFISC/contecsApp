@@ -3,19 +3,38 @@
 // =============================================
 // Lista en vivo a los participantes que ya tienen un RFID anclado desde
 // POSPER (campo `rfid` del participante, que solo escribe el servidor) y,
-// al tocar BATIR, elige 3 al azar.
+// al tocar BATIR, elige al azar la cantidad de ganadores indicada (por
+// defecto 3; si hay menos participantes con RFID, salen todos los que haya).
+// La versión para proyectar es randomizerint.js.
 
-import { db } from "../core/firebase-config.js";
+import { app, db } from "../core/firebase-config.js";
 import {
   collection, getDocs, onSnapshot, orderBy, query, where,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { escaparHtml } from "../core/seguridad.js";
+import {
+  getFunctions,
+  httpsCallable,
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
+import { esperarSesionLista, usuarioTienePermiso } from "../core/auth.js";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
+const ejecutarOperacionQr = httpsCallable(
+  getFunctions(app, "us-central1"),
+  "ejecutarOperacionQr",
+);
+// Solo el CEO ve el botón "Liberar" (RFID asignado por error).
+let puedeLiberar = false;
 
-const CANTIDAD_GANADORES = 3;
+const CANTIDAD_DEFECTO = 3;
 const DURACION_BATIDO_MS = 2200;
+
+// Lo que pide el operador, acotado a los participantes que hay.
+function cantidadGanadores() {
+  const pedida = Math.floor(Number(el("cantidad").value)) || CANTIDAD_DEFECTO;
+  return Math.max(1, Math.min(pedida, participantes.length));
+}
 
 let participantes = [];
 let ganadores = [];
@@ -69,10 +88,8 @@ function render() {
   el("conteo").innerHTML = n
     ? `<strong>${n}</strong> participante${n === 1 ? "" : "s"} con RFID anclado.`
     : "Todavía nadie tiene un RFID anclado. Se anclan desde POSPER.";
-  el("btn-batir").disabled = batiendo || n < CANTIDAD_GANADORES;
-  el("btn-batir").title = n < CANTIDAD_GANADORES
-    ? `Se necesitan al menos ${CANTIDAD_GANADORES} participantes con RFID.`
-    : "";
+  el("btn-batir").disabled = batiendo || n === 0;
+  el("btn-batir").title = n === 0 ? "Todavía no hay participantes con RFID." : "";
   if (!batiendo) renderGanadores();
   renderTabla();
 }
@@ -93,9 +110,32 @@ function renderTabla() {
         <td>${h(p.codigo || "—")}</td>
         <td class="rfid">${h(p.rfid.serial)}</td>
         <td>${h(fechaAnclado(p))}</td>
+        ${puedeLiberar ? `<td><button class="btn btn-outline btn-sm btn-liberar" type="button" data-liberar="${escaparAtributo(p.id)}" title="Quitar este RFID (asignado por error)">Liberar</button></td>` : ""}
       </tr>`).join("")
-    : `<tr><td colspan="8" style="text-align:center;color:var(--gris-medio)">Sin participantes con RFID</td></tr>`;
+    : `<tr><td colspan="${puedeLiberar ? 9 : 8}" style="text-align:center;color:var(--gris-medio)">Sin participantes con RFID</td></tr>`;
 }
+
+// ─── Liberar un RFID asignado por error (solo CEO) ──────────────────────────
+// El participante sale de la lista en vivo y puede recibir otro RFID desde
+// POSPER; ese RFID queda libre para otra persona.
+el("tabla-rfid").addEventListener("click", async e => {
+  const btn = e.target.closest("[data-liberar]");
+  if (!btn || !puedeLiberar || batiendo) return;
+  const p = participantes.find(x => x.id === btn.dataset.liberar);
+  if (!p) return;
+  if (!confirm(`¿Liberar el RFID ${p.rfid.serial} de ${nombreDe(p)}?\n\nDejará de participar en el sorteo hasta que se le ancle un RFID de nuevo desde POSPER.`)) return;
+  btn.disabled = true;
+  btn.textContent = "Liberando...";
+  try {
+    const { data } = await ejecutarOperacionQr({ tipo: "liberar_rfid", participanteId: p.id });
+    alerta("success", `RFID ${data.serial || ""} liberado de ${data.participanteNombre || nombreDe(p)}.`);
+  } catch (err) {
+    console.error("Randomizer: liberar RFID:", err);
+    alerta("error", err.message || "No se pudo liberar el RFID.");
+    btn.disabled = false;
+    btn.textContent = "Liberar";
+  }
+});
 
 function tarjeta(p, i, listo) {
   return `<div class="ganador${listo ? " listo" : ""}">
@@ -132,25 +172,28 @@ function elegir(lista, cantidad) {
 }
 
 el("btn-batir").addEventListener("click", () => {
-  if (batiendo || participantes.length < CANTIDAD_GANADORES) return;
+  if (batiendo || !participantes.length) return;
   batiendo = true;
   ganadores = [];
   el("btn-batir").disabled = true;
   el("btn-batir").textContent = "BATIENDO...";
   renderTabla();
 
+  const cantidad = cantidadGanadores();
   const caja = el("ganadores");
   caja.style.display = "grid";
   const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const inicio = performance.now();
 
   const girar = () => {
-    if (!reducido && performance.now() - inicio < DURACION_BATIDO_MS) {
-      caja.innerHTML = elegir(participantes, CANTIDAD_GANADORES).map((p, i) => tarjeta(p, i, false)).join("");
+    // La lista puede cambiar en vivo mientras se bate (alguien recibe su RFID).
+    const n = Math.min(cantidad, participantes.length);
+    if (!reducido && n && performance.now() - inicio < DURACION_BATIDO_MS) {
+      caja.innerHTML = elegir(participantes, n).map((p, i) => tarjeta(p, i, false)).join("");
       setTimeout(girar, 90);
       return;
     }
-    ganadores = elegir(participantes, CANTIDAD_GANADORES);
+    ganadores = elegir(participantes, n);
     batiendo = false;
     el("btn-batir").textContent = "BATIR DE NUEVO";
     render();
@@ -184,4 +227,10 @@ async function cargarEventos() {
 
 cargarEventos().catch(e => console.error("Randomizer: eventos:", e));
 escuchar("");
+esperarSesionLista().then(() => {
+  puedeLiberar = usuarioTienePermiso("liberar_rfid");
+  if (!puedeLiberar) return;
+  el("th-acciones").hidden = false;
+  renderTabla();
+});
 window.addEventListener("pagehide", () => cancelarEscucha?.());

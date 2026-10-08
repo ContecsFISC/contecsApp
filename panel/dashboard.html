@@ -351,6 +351,51 @@
     .sin-rol-card h3 { font-size: 17px; color: var(--gris-texto); margin-bottom: 8px; }
     .sin-rol-card p  { font-size: 14px; color: var(--gris-medio); line-height: 1.5; }
 
+    /* ══════════ POSPER — patrocinador ══════════
+       Su inicio es solo esta bienvenida y sus tres módulos: nada de
+       balances, agenda ni próximos días. */
+    .posper-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      padding: clamp(24px, 4vw, 40px);
+      color: #fff;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(0,166,81,0.45), transparent 45%),
+        linear-gradient(135deg, #0b2f5c 0%, #123f78 55%, #0a5c3a 100%);
+      box-shadow: 0 18px 40px rgba(11,47,92,0.28);
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+    }
+    .posper-hero::after {
+      content: "";
+      position: absolute;
+      right: -60px; bottom: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      border: 28px solid rgba(255,255,255,0.06);
+    }
+    .posper-kicker { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
+    .posper-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 5vw, 46px); font-weight: 700; line-height: 1.05; margin: 8px 0 10px; }
+    .posper-sub { font-size: 15px; line-height: 1.55; max-width: 560px; opacity: 0.92; }
+    .posper-sello { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+    .posper-modulos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
+    .posper-modulo {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 20px; border-radius: 18px; text-decoration: none;
+      background: #fff; color: var(--gris-texto);
+      border: 1px solid var(--gris-borde);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s;
+      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+    }
+    .posper-modulo:hover { transform: translateY(-3px); border-color: #2f80ed; box-shadow: 0 14px 30px rgba(11,47,92,0.16); }
+    .posper-modulo:active { transform: scale(0.98); }
+    .posper-modulo-icono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #0b2f5c, #2f80ed); margin-bottom: 6px; }
+    .posper-modulo:nth-child(2) .posper-modulo-icono { background: linear-gradient(135deg, #0a5c3a, #00a651); }
+    .posper-modulo:nth-child(3) .posper-modulo-icono { background: linear-gradient(135deg, #8a5a00, #f5b700); }
+    .posper-modulo-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #0b2f5c; }
+    .posper-modulo-texto { font-size: 13px; line-height: 1.45; color: var(--gris-medio); }
+
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
     }
@@ -474,8 +519,11 @@
       .desktop-dashboard-header,
       .desktop-dashboard-content { display: none; }
       body.dashboard-sin-rol .desktop-dashboard-header,
-      body.dashboard-sin-rol .desktop-dashboard-content { display: block; }
-      body.dashboard-sin-rol .mobile-dashboard { display: none; }
+      body.dashboard-sin-rol .desktop-dashboard-content,
+      body.dashboard-posper .desktop-dashboard-header,
+      body.dashboard-posper .desktop-dashboard-content { display: block; }
+      body.dashboard-sin-rol .mobile-dashboard,
+      body.dashboard-posper .mobile-dashboard { display: none; }
 
       .mobile-dashboard {
         display: block;
@@ -1489,9 +1537,42 @@
 
     } else {
 
+      // El patrocinador solo ve su bienvenida y su pestaña: sin resumen móvil,
+      // widgets ni agenda (de todos modos no tiene esos permisos).
+      const esPosper = rol === "posper";
+      if (esPosper) {
+        document.body.classList.add("dashboard-posper");
+        document.querySelector(".subtitulo-espacio").textContent = "Patrocinador oficial de CONTECS 2026";
+        const icono = trazo => `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${trazo}</svg>`;
+        contenido.innerHTML = `
+          <section class="posper-hero">
+            <div class="posper-kicker">CONTECS 2026</div>
+            <h2 class="posper-titulo">¡Bienvenidos, POSPER!</h2>
+            <p class="posper-sub">Gracias por patrocinar los lectores del congreso y por acompañar a los estudiantes de la FISC en esta edición. Desde aquí registran la entrada a las actividades, entregan los RFID y realizan el gran sorteo.</p>
+            <span class="posper-sello">Patrocinador oficial · CONTECS 2026</span>
+          </section>
+          <div class="posper-modulos">
+            <a class="posper-modulo" href="modulos/congreso/posper.html">
+              <span class="posper-modulo-icono">${icono('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>')}</span>
+              <span class="posper-modulo-titulo">Lector POSPER</span>
+              <span class="posper-modulo-texto">Escanea la credencial con el EA530, marca la entrada al checkpoint en curso y ancla el RFID de cada estudiante.</span>
+            </a>
+            <a class="posper-modulo" href="modulos/congreso/randomizer.html">
+              <span class="posper-modulo-icono">${icono('<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>')}</span>
+              <span class="posper-modulo-titulo">Randomizer</span>
+              <span class="posper-modulo-texto">Lista en vivo de los participantes con RFID y sorteo rápido de ganadores.</span>
+            </a>
+            <a class="posper-modulo" href="modulos/congreso/randomizerint.html">
+              <span class="posper-modulo-icono">${icono('<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>')}</span>
+              <span class="posper-modulo-titulo">Sorteo en vivo</span>
+              <span class="posper-modulo-texto">Pantalla para proyectar: el carrete de RFID gira, frena y revela a cada ganador.</span>
+            </a>
+          </div>`;
+      }
+
       let dashboardMovilCargado = false;
       const iniciarDashboardMovil = () => {
-        if (dashboardMovilCargado) return;
+        if (dashboardMovilCargado || esPosper) return;
         dashboardMovilCargado = true;
         cargarDashboardMovil().catch(error => {
           document.getElementById("mobile-event-hero").classList.remove("mobile-dashboard-skeleton");
@@ -1512,7 +1593,7 @@
 
       // El dashboard clásico se conserva intacto para laptop. En teléfono se
       // evita cargar sus consultas duplicadas porque ya existe el resumen móvil.
-      if (!mediaDashboardMovil.matches) {
+      if (!mediaDashboardMovil.matches && !esPosper) {
         // ══════════ ZONA B — Widgets de resumen según rol ══════════
         const widgetsDef = [
         {
@@ -1740,6 +1821,15 @@
             { label: "Participantes",       href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
             { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
             { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
+          ],
+        },
+        {
+          // Patrocinador: fuera de Gestión de Eventos, solo POSPER y CEO.
+          id: "posper", label: "POSPER",
+          modulos: [
+            { label: "Lector POSPER",  href: "modulos/congreso/posper.html",        permiso: "acceso_posper" },
+            { label: "Randomizer",     href: "modulos/congreso/randomizer.html",    permiso: "acceso_posper" },
+            { label: "Sorteo en vivo", href: "modulos/congreso/randomizerint.html", permiso: "acceso_posper" },
           ],
         },
         {

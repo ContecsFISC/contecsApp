@@ -43,6 +43,14 @@ service cloud.firestore {
       ]);
     }
 
+    // Patrocinador POSPER ("acceso_posper" en js/core/permisos.js). No es
+    // staff: solo lee lo que necesitan posper.html y los randomizer
+    // (participantes, eventos y checkpoints). Todo lo que escribe pasa por
+    // ejecutarOperacionQr.
+    function isPosper() {
+      return hasRol(['posper']);
+    }
+
     // Debe reflejar exactamente "aprobar_pagos" en js/core/permisos.js.
     // Ver la lista no implica poder aprobar/rechazar un pago — coordinador
     // queda fuera de este segundo permiso a propósito.
@@ -90,7 +98,7 @@ service cloud.firestore {
     // El alta y el acceso público se realizan exclusivamente mediante Cloud
     // Functions (Admin SDK). Nunca se expone la colección completa al browser.
     match /participantes/{docId} {
-      allow read: if canVerParticipantes();
+      allow read: if canVerParticipantes() || isPosper();
       allow create: if false;
       allow update: if canAprobarPagosParticipantes()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
@@ -201,7 +209,7 @@ service cloud.firestore {
 
     // ── Eventos e inscripciones internas ─────────────────────────────────────
     match /eventos/{id} {
-      allow read: if isStaff();
+      allow read: if isStaff() || isPosper();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
@@ -216,7 +224,7 @@ service cloud.firestore {
 
     // Checkpoints detallados del programa (colección separada)
     match /checkpoints/{id} {
-      allow read: if isStaff();
+      allow read: if isStaff() || isPosper();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 

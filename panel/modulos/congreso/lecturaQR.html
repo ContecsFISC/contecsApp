@@ -63,24 +63,8 @@
  .scanner-estado.activo { color:var(--verde-oscuro); }
  .scanner-estado.error { color:var(--rojo); }
 
- /* Lector del dispositivo (Unitech EA530 u otro lector en modo teclado) */
- .lector-panel { padding:14px; border-radius:var(--radio); background:var(--verde-fondo); border:2px dashed var(--verde-claro); cursor:pointer; }
- .lector-panel label { display:block; font-size:13px; font-weight:700; color:var(--verde-oscuro); margin-bottom:6px; }
- .lector-panel input { width:100%; padding:12px 14px; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); font-size:15px; font-family:var(--fuente); background:#fff; color:var(--gris-texto); }
- .lector-panel input:focus { outline:none; border-color:var(--verde); box-shadow:0 0 0 4px rgba(0,114,46,0.12); }
- .lector-sin-foco { display:none; margin-top:8px; font-size:12px; font-weight:600; color:#856404; }
- .lector-panel.sin-foco { border-color:#e0a800; background:#fff8e1; }
- .lector-panel.sin-foco .lector-sin-foco { display:block; }
- .rfid-pantalla { display:none; scroll-margin-top:84px; margin-bottom:12px; padding:22px 16px; border-radius:var(--radio); background:#101914; color:#fff; text-align:center; box-shadow:0 0 0 3px var(--verde-claro) inset; }
- .rfid-pantalla.activa { display:block; }
- .rfid-pantalla-titulo { font-family:var(--fuente-display); font-size:clamp(26px,8vw,38px); font-weight:700; letter-spacing:1px; line-height:1.1; animation:rfidPulso 1.6s ease-in-out infinite; }
- .rfid-pantalla-nombre { margin-top:8px; font-size:15px; font-weight:600; color:#b9f6ca; overflow-wrap:anywhere; }
- .rfid-pantalla-estado { margin-top:6px; font-size:13px; opacity:0.85; overflow-wrap:anywhere; }
- .rfid-pantalla.error { box-shadow:0 0 0 3px var(--rojo) inset; }
- .rfid-pantalla.error .rfid-pantalla-estado { color:#ffb4ab; opacity:1; }
- @keyframes rfidPulso { 0%,100% { opacity:1; } 50% { opacity:0.55; } }
- @media (prefers-reduced-motion: reduce) { .rfid-pantalla-titulo { animation:none; } }
- .lector-diag { margin-top:10px; padding:10px 12px; background:#101914; color:#b9f6ca; font-size:11px; line-height:1.5; border-radius:var(--radio-sm); white-space:pre-wrap; word-break:break-all; max-height:240px; overflow:auto; }
+ .ceo-todos { display:none; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--gris-medio); }
+ .ceo-todos input { width:auto; }
  @media(max-width:600px) {
    .cp-grid { grid-template-columns:minmax(0,1fr); }
    .cp-card { min-height:54px; display:flex; flex-direction:column; justify-content:center; }
@@ -108,7 +92,7 @@
  <!-- SELECTOR EVENTO Y CHECKPOINT -->
  <div class="card" style="border: 2px solid var(--verde-claro);">
  <div class="card-title">Configuración de sesión</div>
- <p style="font-size:12px;color:var(--gris-medio);margin:0 0 12px;line-height:1.5;">Selecciona exactamente dónde estás trabajando. Para registrar la entrada general, usa un checkpoint de tipo <strong>Congreso / control de acceso</strong>.</p>
+ <p style="font-size:12px;color:var(--gris-medio);margin:0 0 12px;line-height:1.5;">Selecciona exactamente dónde estás trabajando. Solo aparecen los checkpoints de hoy que están en curso (hora de Panamá). Cada lectura registra la <strong>entrada</strong>; para la entrada general usa un checkpoint de tipo <strong>Congreso / control de acceso</strong>.</p>
  <div class="form-groupE">
  <label>Evento</label>
  <select id="sel-evento-qr"><option value="">— Selecciona un evento —</option></select>
@@ -116,38 +100,27 @@
  <div class="form-groupE" id="cp-section" style="display:none;">
  <label>Checkpoint / punto de control</label>
  <div class="cp-grid" id="cp-grid"></div>
+ <label class="ceo-todos" id="ceo-todos"><input type="checkbox" id="chk-todos"/> Ver todos los checkpoints del evento (solo CEO, para pruebas)</label>
  </div>
  <div id="cp-seleccionado" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
  </div>
 
- <!-- CÁMARA / LECTOR DEL DISPOSITIVO -->
+ <!-- CÁMARA -->
  <div class="card" style="border-left: 2px solid var(--verde-claro);">
  <div class="card-title">Escanear credencial del participante</div>
- <div class="rfid-pantalla" id="rfid-pantalla" role="status" aria-live="assertive">
- <div class="rfid-pantalla-titulo">ESCANEAR RFID</div>
- <div class="rfid-pantalla-nombre" id="rfid-nombre"></div>
- <div class="rfid-pantalla-estado" id="rfid-estado">Escanea el RFID (QR, código de barras o lo que sea) para anclarlo a este participante.</div>
- </div>
  <div class="scanner-overlay" id="camara-wrap">
  <div id="reader"></div>
- </div>
- <div class="lector-panel" id="lector-panel" style="display:none;">
- <label for="lector-input">Lector del dispositivo</label>
- <input type="url" inputmode="url" id="lector-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Toca aquí y presiona el gatillo..."/>
- <div class="lector-sin-foco">Toca aquí para reactivar el lector.</div>
  </div>
  <div style="margin-top:12px;display:flex;gap:8px;">
  <button class="btn btn-primary" id="btn-iniciar" style="flex:1">
    Abrir cámara
  </button>
  <button class="btn btn-outline btn-sm" id="btn-detener" style="width:auto;display:none">Detener</button>
- <button class="btn btn-outline" id="btn-lector" style="flex:1">Usar lector EA530</button>
  </div>
  <div id="scanner-estado" class="scanner-estado" role="status" aria-live="polite">Cámara detenida</div>
- <p id="scanner-ayuda" style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
+ <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera al QR del participante
  </p>
- <pre id="lector-diag" class="lector-diag" hidden></pre>
  <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
@@ -171,7 +144,7 @@
  </div>
  <div id="res-asistencias-actuales" style="margin-top:10px;font-size:13px;color:var(--gris-medio);"></div>
  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
- <button class="btn btn-primary" id="btn-confirmar-asistencia" style="flex:1"> Confirmar asistencia</button>
+ <button class="btn btn-primary" id="btn-confirmar-asistencia" style="flex:1">Confirmar entrada</button>
  <button class="btn btn-outline btn-sm" id="btn-cancelar-scan" style="width:auto">Cancelar</button>
  </div>
  </div>
@@ -194,6 +167,6 @@
 
 </div>
 
-<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261006.5"></script>
+<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261008.1"></script>
 </body>
 </html>

@@ -6,12 +6,16 @@
 // mantiene un campo visible con foco permanente (con teclado: sin él la
 // lectura no llega en el EA530), junta lo que escribe el lector y lo procesa:
 //
-//   1. QR de credencial -> marca la asistencia en el checkpoint elegido
-//      (misma operación del servidor que lecturaQR.js con cámara).
+//   1. QR de credencial -> marca la ENTRADA en el checkpoint elegido (misma
+//      operación del servidor que lecturaQR.js con cámara). Si ya estaba
+//      marcada, se conserva la primera.
 //   2. "¿CAPTAR RFID?" -> SÍ: el siguiente QR leído es el RFID y se ancla al
 //      participante (ejecutarOperacionQr / anclar_rfid). NO: vuelve al paso 1.
+//      Quien ya tiene RFID se queda con ese: no se pregunta de nuevo.
 //
-// El Randomizer lista solo a quienes quedaron con RFID anclado.
+// Solo se ofrecen los checkpoints programados para hoy y a esta hora (hora
+// de Panamá, js/core/permanencia.js). El Randomizer lista solo a quienes
+// quedaron con RFID anclado.
 
 import { app, db } from "../core/firebase-config.js";
 import {
@@ -23,6 +27,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { escaparHtml } from "../core/seguridad.js";
 import { extraerCredencialQr } from "../core/credencial-qr.js";
+import { esperarSesionLista, getUsuarioActual } from "../core/auth.js";
+import {
+  enPanama, estaOperativo, checkpointsParaEscanear, proximoCheckpointHoy,
+} from "../core/permanencia.js";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
@@ -40,8 +48,13 @@ const LONGITUD_MAX_LECTURA = 2048;
 // config | qr | procesando | pregunta | rfid | anclando | prueba
 let estado = "config";
 let eventoActivo = null;
-let checkpoints = [];
+let checkpoints = [];        // todos los del evento
+let checkpointsHoy = [];     // los que se pueden escanear ahora
 let checkpointSel = null;
+// Solo el CEO puede ver todos los checkpoints del evento (para probar fuera
+// del horario del congreso). Se lee cada vez: la sesión puede terminar de
+// cargarse después de este módulo.
+const esCeo = () => getUsuarioActual().rol === "ceo";
 let participanteActual = null;
 let logSesion = [];
 let secuenciaEvento = 0;
@@ -254,8 +267,16 @@ async function procesarCredencial(texto) {
 
     participanteActual = participante;
     mostrarParticipante(participante, asistencia);
-    agregarLog(participante, asistencia === "nueva" ? "Marcada" : "Ya estaba", participante.rfid?.serial || "—");
-    pantalla("ok", asistencia === "nueva" ? "ASISTENCIA MARCADA" : "YA REGISTRADO", nombreDe(participante));
+    agregarLog(participante, asistencia === "nueva" ? "Entrada" : "Ya estaba", participante.rfid?.serial || "—");
+    pantalla("ok", asistencia === "nueva" ? "ENTRADA MARCADA" : "YA REGISTRADO", nombreDe(participante));
+    // Un RFID por persona: quien ya tiene uno no vuelve a pasar por la pregunta.
+    if (participante.rfid?.serial) {
+      estado = "procesando";
+      setTimeout(() => {
+        if (estado === "procesando") esperarQr(`${nombreDe(participante)} ya tiene el RFID ${participante.rfid.serial}.`);
+      }, 1800);
+      return;
+    }
     preguntarRfid(participante);
   } catch (e) {
     console.error("POSPER credencial:", e);
@@ -273,8 +294,8 @@ function mostrarParticipante(p, asistencia) {
   el("res-universidad").textContent = p.universidad || p.institucion || "—";
   const chips = [
     asistencia === "nueva"
-      ? `<span class="chip chip-ok">Asistencia marcada: ${h(checkpointSel.nombre || "")}</span>`
-      : `<span class="chip chip-aviso">Ya tenía asistencia en ${h(checkpointSel.nombre || "")}</span>`,
+      ? `<span class="chip chip-ok">Entrada marcada: ${h(checkpointSel.nombre || "")}</span>`
+      : `<span class="chip chip-aviso">Ya tenía entrada en ${h(checkpointSel.nombre || "")} (se conserva la primera)</span>`,
   ];
   el("res-chips").innerHTML = chips.join("");
   if (p.rfid?.serial) mostrarChipRfid(p.rfid.serial);
@@ -289,9 +310,7 @@ function mostrarChipRfid(serial) {
 // ─── Paso 2: ¿CAPTAR RFID? ──────────────────────────────────────────────────
 function preguntarRfid(p) {
   estado = "pregunta";
-  el("modal-rfid-texto").textContent = p.rfid?.serial
-    ? `${nombreDe(p)} ya tiene el RFID ${p.rfid.serial}. Si captas otro, lo reemplaza.`
-    : `¿Anclar un RFID a ${nombreDe(p)}?`;
+  el("modal-rfid-texto").textContent = `¿Anclar un RFID a ${nombreDe(p)}?`;
   el("modal-rfid").classList.add("abierto");
   // El foco se queda en el campo de captura: si el lector dispara con el
   // aviso abierto, su Enter no debe "pulsar" SÍ por accidente.
@@ -341,12 +360,19 @@ async function procesarRfid(texto) {
     participante.rfid = { serial: data.serial };
     mostrarChipRfid(data.serial);
     actualizarLogRfid(participante.id, data.serial);
-    alerta("success", `RFID ${data.serial} anclado a ${nombreDe(participante)}${data.reemplazado ? " (reemplazó al anterior)" : ""}.`);
+    alerta("success", data.yaAnclado
+      ? `${nombreDe(participante)} ya tenía ese RFID (${data.serial}).`
+      : `RFID ${data.serial} anclado a ${nombreDe(participante)}.`);
     esperarQr(`Último RFID: ${data.serial} → ${nombreDe(participante)}`);
   } catch (e) {
     console.error("POSPER RFID:", e);
     const msg = e.message || "No se pudo anclar el RFID.";
     alerta("error", msg);
+    // Si la persona ya tenía otro RFID no hay nada que reintentar.
+    if (e.code === "functions/already-exists" && /ya tiene el RFID/.test(msg)) {
+      esperarQr(msg);
+      return;
+    }
     esperarRfid();
     el("escenario-sub").textContent = `${msg} Intenta de nuevo o cancela.`;
   }
@@ -396,16 +422,63 @@ function guardarConfig() {
 async function cargarEventos() {
   const snap = await getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")));
   const sel = el("sel-evento");
-  snap.docs.forEach(d => {
+  // Cancelados y desactivados no se ofrecen.
+  const eventos = snap.docs.filter(d => estaOperativo(d.data()));
+  eventos.forEach(d => {
     const opt = document.createElement("option");
     opt.value = d.id;
     opt.textContent = d.data().nombre || d.id;
     sel.appendChild(opt);
   });
   const guardada = leerConfigGuardada();
-  if (guardada.eventoId && snap.docs.some(d => d.id === guardada.eventoId)) {
+  if (guardada.eventoId && eventos.some(d => d.id === guardada.eventoId)) {
     sel.value = guardada.eventoId;
     await elegirEvento(guardada.checkpointId);
+  } else if (eventos.length === 1) {
+    sel.value = eventos[0].id;
+    await elegirEvento();
+  }
+}
+
+function etiquetaCheckpoint(cp) {
+  const horario = cp.horaInicio && cp.horaFin ? `${cp.horaInicio}–${cp.horaFin}` : "";
+  return [cp.nombre || "Sin nombre", cp.tipo ? cp.tipo.toUpperCase() : "", horario, esCeo() && el("chk-todos").checked ? cp.dia : ""]
+    .filter(Boolean).join(" · ");
+}
+
+// Llena el selector con los checkpoints que se pueden escanear ahora (hora de
+// Panamá). Se vuelve a llamar cada minuto: así aparecen los que abren y se
+// quitan los que terminan.
+function renderCheckpoints(checkpointPreferido = "") {
+  const selCp = el("sel-checkpoint");
+  const todos = esCeo() && el("chk-todos").checked;
+  const ahora = enPanama();
+  checkpointsHoy = (todos ? checkpoints.filter(estaOperativo) : checkpointsParaEscanear(checkpoints, ahora))
+    .sort((a, b) => `${a.dia || ""}${a.horaInicio || ""}`.localeCompare(`${b.dia || ""}${b.horaInicio || ""}`));
+
+  const proximo = proximoCheckpointHoy(checkpoints, ahora);
+  el("cp-aviso").textContent = checkpointsHoy.length
+    ? (todos ? "Mostrando todos los checkpoints del evento (modo prueba)." : "Checkpoints en curso hoy (hora de Panamá).")
+    : proximo
+      ? `No hay checkpoints en curso. El próximo es "${proximo.nombre || "Checkpoint"}" a las ${proximo.horaInicio}: aparecerá 30 minutos antes.`
+      : "No hay checkpoints programados para este momento de hoy.";
+
+  const previo = checkpointPreferido || selCp.value;
+  if (!checkpointsHoy.length) {
+    selCp.innerHTML = `<option value="">Sin checkpoints en este momento</option>`;
+    selCp.disabled = true;
+  } else {
+    selCp.innerHTML = `<option value="">— Selecciona un checkpoint —</option>` +
+      checkpointsHoy.map(cp => `<option value="${h(cp.id)}">${h(etiquetaCheckpoint(cp))}</option>`).join("");
+    selCp.disabled = false;
+    if (previo && checkpointsHoy.some(c => c.id === previo)) selCp.value = previo;
+  }
+
+  // El checkpoint en uso terminó: se avisa y se vuelve a la configuración.
+  if (checkpointSel && !checkpointsHoy.some(c => c.id === checkpointSel.id) && estado === "qr") {
+    alerta("aviso", `"${checkpointSel.nombre || "El checkpoint"}" ya terminó. Elige otro.`);
+    checkpointSel = null;
+    irAConfig();
   }
 }
 
@@ -417,7 +490,8 @@ async function elegirEvento(checkpointPreferido = "") {
   const selCp = el("sel-checkpoint");
   selCp.innerHTML = `<option value="">— Selecciona un checkpoint —</option>`;
   selCp.disabled = true;
-  if (!id) { eventoActivo = null; return; }
+  el("cp-aviso").textContent = "";
+  if (!id) { eventoActivo = null; checkpoints = []; return; }
 
   const [evSnap, cpSnap] = await Promise.all([
     getDoc(doc(db, "eventos", id)),
@@ -425,30 +499,18 @@ async function elegirEvento(checkpointPreferido = "") {
   ]);
   if (secuencia !== secuenciaEvento || !evSnap.exists()) return;
   eventoActivo = { id, ...evSnap.data() };
-  checkpoints = cpSnap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
-    .sort((a, b) => `${a.dia || ""}${a.horaInicio || ""}`.localeCompare(`${b.dia || ""}${b.horaInicio || ""}`));
+  checkpoints = cpSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   if (!checkpoints.length) {
     selCp.innerHTML = `<option value="">Este evento no tiene checkpoints</option>`;
     return;
   }
-  checkpoints.forEach(cp => {
-    const opt = document.createElement("option");
-    opt.value = cp.id;
-    opt.textContent = [cp.nombre || "Sin nombre", cp.tipo ? cp.tipo.toUpperCase() : "", cp.dia || ""]
-      .filter(Boolean).join(" · ");
-    selCp.appendChild(opt);
-  });
-  selCp.disabled = false;
-  if (checkpointPreferido && checkpoints.some(c => c.id === checkpointPreferido)) {
-    selCp.value = checkpointPreferido;
-    elegirCheckpoint();
-  }
+  renderCheckpoints(checkpointPreferido);
+  if (el("sel-checkpoint").value) elegirCheckpoint();
 }
 
 function elegirCheckpoint() {
-  checkpointSel = checkpoints.find(c => c.id === el("sel-checkpoint").value) || null;
+  checkpointSel = checkpointsHoy.find(c => c.id === el("sel-checkpoint").value) || null;
   if (!checkpointSel || !eventoActivo) { irAConfig(); return; }
   guardarConfig();
   el("config-texto").textContent = `${eventoActivo.nombre || "Evento"} · ${checkpointSel.nombre || "Checkpoint"}`;
@@ -472,6 +534,8 @@ el("sel-evento").addEventListener("change", () => {
 });
 el("sel-checkpoint").addEventListener("change", elegirCheckpoint);
 el("btn-cambiar-config").addEventListener("click", irAConfig);
+el("chk-todos").addEventListener("change", () => renderCheckpoints());
+setInterval(() => { if (checkpoints.length) renderCheckpoints(); }, 60000);
 
 // ─── Prueba del lector ──────────────────────────────────────────────────────
 let estadoAntesDePrueba = "config";
@@ -550,6 +614,10 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ─── Init ───────────────────────────────────────────────────────────────────
+// El modo "todos los checkpoints" es solo para que el CEO pruebe.
+esperarSesionLista().then(() => {
+  if (esCeo()) el("ceo-todos").style.display = "flex";
+});
 leerDispositivo();
 cargarEventos().catch(e => {
   console.error("POSPER: error cargando eventos:", e);

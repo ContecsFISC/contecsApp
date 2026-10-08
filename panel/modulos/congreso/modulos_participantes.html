@@ -1702,16 +1702,23 @@ function seleccionadosCred() {
  return todosParticipantes.filter(p => cred.seleccion.has(p.id) && tieneCredencial(p)).sort(porNombre);
 }
 
+// Los seleccionados van arriba, en el orden en que se marcaron (el Set lo
+// conserva); el resto sigue por nombre.
 function filtrarCred() {
  const busq = el("mc-buscar").value.toLowerCase().trim();
  const cat = el("mc-categoria").value;
  const conPendientes = el("mc-no-aprobados").checked;
+ const orden = new Map([...cred.seleccion].map((id, i) => [id, i]));
  return todosParticipantes.filter(p =>
  (conPendientes || p.pago?.estado === "aprobado") &&
  (!cat || p.categoria === cat) &&
  (!busq || [p.nombreCompleto, p.nombre, p.apellido, p.cedula, p.codigo, p.correo]
  .some(v => String(v || "").toLowerCase().includes(busq)))
- ).sort(porNombre);
+ ).sort((a, b) => {
+ const ia = orden.get(a.id) ?? Infinity;
+ const ib = orden.get(b.id) ?? Infinity;
+ return ia !== ib ? ia - ib : porNombre(a, b);
+ });
 }
 
 function renderListaCred() {
@@ -1914,9 +1921,9 @@ el("mc-items").addEventListener("change", e => {
  if (chk.checked) cred.seleccion.add(chk.value);
  else cred.seleccion.delete(chk.value);
  cred.previewId = chk.value;
- el("mc-items").querySelectorAll(".mc-item.activo").forEach(x => x.classList.remove("activo"));
- chk.closest(".mc-item").classList.add("activo");
- actualizarResumenCred();
+ // Se vuelve a pintar para que lo marcado suba con los demás seleccionados.
+ renderListaCred();
+ el("mc-items").querySelector(`input[value="${CSS.escape(chk.value)}"]`)?.focus({ preventScroll: true });
  renderPreviewCred();
 });
 el("mc-todos").addEventListener("change", e => {

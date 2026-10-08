@@ -6,6 +6,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { iconoImg } from "../core/iconos.js";
 import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../core/seguridad.js";
+import {
+  PERMANENCIA_MINIMA_DEFECTO, estaCancelado, evaluarPermanencia, contarValidas,
+} from "../core/permanencia.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
@@ -203,6 +206,82 @@ function renderSelectorEventos(eventos) {
   if (prevVal) sel.value = prevVal;
 }
 
+// ─── Estado: activo / desactivado / cancelado ───────────────────────────────
+// Desactivar es temporal (deja de aparecer en Lectura QR y POSPER y el
+// servidor no acepta entradas). Cancelar marca que no se realizará; ambos se
+// pueden revertir. Los documentos antiguos no tienen estos campos y cuentan
+// como activos.
+function badgeEstado(item) {
+  if (estaCancelado(item)) return ` <span class="estado-item estado-cancelado">Cancelado</span>`;
+  if (item.activo === false) return ` <span class="estado-item estado-inactivo">Desactivado</span>`;
+  return "";
+}
+
+function botonesEstado(item, tipo) {
+  const id = escaparAtributo(item.id);
+  const cancelado = estaCancelado(item);
+  const inactivo = item.activo === false;
+  const btnActivo = cancelado ? "" : `<button class="btn btn-outline btn-sm btn-estado" onclick="window._alternarActivo('${tipo}','${id}')" style="width:auto" title="${inactivo ? "Activar" : "Desactivar"}" aria-label="${inactivo ? "Activar" : "Desactivar"}">${iconoImg(inactivo ? "activar" : "desactivar")}</button>`;
+  const btnCancelar = `<button class="btn btn-outline btn-sm btn-estado" onclick="window._alternarCancelado('${tipo}','${id}')" style="width:auto" title="${cancelado ? "Restaurar" : "Cancelar"}" aria-label="${cancelado ? "Restaurar" : "Cancelar"}">${iconoImg(cancelado ? "activar" : "cancelar")}</button>`;
+  return btnActivo + btnCancelar;
+}
+
+const COLECCION_ESTADO = { evento: "eventos", checkpoint: "checkpoints" };
+
+// Con el modal de checkpoints abierto, el aviso global queda tapado.
+const avisoEstado = (tipo, clase, msg) =>
+  (tipo === "checkpoint" && el("modal-checkpoints").style.display === "flex" ? mostrarAlertaCp : mostrarAlerta)(clase, msg);
+
+async function refrescarTrasEstado(tipo, id, cambios) {
+  if (tipo === "evento") {
+    if (eventoActivo?.id === id) eventoActivo = { ...eventoActivo, ...cambios };
+    await cargarEventos();
+  } else if (eventoActivo) {
+    await cargarCheckpointsEvento(eventoActivo.id);
+  }
+}
+
+window._alternarActivo = async (tipo, id) => {
+  const coleccion = COLECCION_ESTADO[tipo];
+  if (!coleccion) return;
+  try {
+    const snap = await getDoc(doc(db, coleccion, id));
+    if (!snap.exists()) return;
+    const activar = snap.data().activo === false;
+    const nombre = snap.data().nombre || (tipo === "evento" ? "este evento" : "este checkpoint");
+    if (!activar && !confirm(`¿Desactivar "${nombre}"? No aparecerá en Lectura QR ni en POSPER hasta que lo actives de nuevo.`)) return;
+    const cambios = { activo: activar, actualizadoEn: serverTimestamp() };
+    await updateDoc(doc(db, coleccion, id), cambios);
+    await refrescarTrasEstado(tipo, id, { activo: activar });
+    avisoEstado(tipo, "success", `"${nombre}" ${activar ? "activado" : "desactivado"}.`);
+  } catch (e) {
+    avisoEstado(tipo, "error", "No se pudo cambiar el estado: " + e.message);
+  }
+};
+
+window._alternarCancelado = async (tipo, id) => {
+  const coleccion = COLECCION_ESTADO[tipo];
+  if (!coleccion) return;
+  try {
+    const snap = await getDoc(doc(db, coleccion, id));
+    if (!snap.exists()) return;
+    const cancelar = !estaCancelado(snap.data());
+    const nombre = snap.data().nombre || (tipo === "evento" ? "este evento" : "este checkpoint");
+    const pregunta = cancelar
+      ? `¿Cancelar "${nombre}"? No se podrán registrar entradas. Las asistencias ya registradas se conservan.`
+      : `¿Restaurar "${nombre}"? Volverá a estar disponible para registrar entradas.`;
+    if (!confirm(pregunta)) return;
+    const cambios = cancelar
+      ? { estado: "cancelado", canceladoEn: serverTimestamp(), actualizadoEn: serverTimestamp() }
+      : { estado: "programado", actualizadoEn: serverTimestamp() };
+    await updateDoc(doc(db, coleccion, id), cambios);
+    await refrescarTrasEstado(tipo, id, { estado: cambios.estado });
+    avisoEstado(tipo, "success", `"${nombre}" ${cancelar ? "cancelado" : "restaurado"}.`);
+  } catch (e) {
+    avisoEstado(tipo, "error", "No se pudo cambiar el estado: " + e.message);
+  }
+};
+
 function renderTablaEventos(eventos) {
   const tb = el("tabla-eventos-body");
   if (!eventos.length) {
@@ -213,13 +292,14 @@ function renderTablaEventos(eventos) {
     const diasLabel = ev.diasEvento?.length
       ? `${ev.diasEvento.length} día${ev.diasEvento.length > 1 ? "s" : ""}`
       : `${fmtFecha(ev.fechaInicio)} – ${fmtFecha(ev.fechaFin)}`;
-    return `<tr>
-      <td><strong>${h(ev.nombre)}</strong></td>
+    return `<tr class="${estaCancelado(ev) ? "fila-cancelada" : ev.activo === false ? "fila-inactiva" : ""}">
+      <td><strong>${h(ev.nombre)}</strong>${badgeEstado(ev)}</td>
       <td style="font-size:12px;">${diasLabel}</td>
       <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
       <td style="white-space:nowrap;">
-        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${escaparAtributo(ev.id)}')" style="width:auto;margin-right:4px" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
+        <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
+        ${botonesEstado(ev, "evento")}
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>
       </td>
     </tr>`;
   }).join("");
@@ -230,12 +310,18 @@ el("btn-guardar-evento").addEventListener("click", async () => {
   const fechaIni = el("ev-fecha-inicio").value;
   const fechaFin = el("ev-fecha-fin").value;
   const minCert  = parseInt(el("ev-min-cert").value) || 1;
+  const permanencia = parseInt(el("ev-permanencia").value);
 
   if (!nombre)   { mostrarAlerta("error", "El nombre del evento es obligatorio."); return; }
   if (!fechaIni) { mostrarAlerta("error", "La fecha de inicio es obligatoria."); return; }
   if (!fechaFin) { mostrarAlerta("error", "La fecha de fin es obligatoria."); return; }
+  if (!Number.isFinite(permanencia) || permanencia < 1 || permanencia > 100) {
+    mostrarAlerta("error", "La permanencia mínima debe estar entre 1 y 100 %."); return;
+  }
 
   const diasEvento = leerDiasEvento();
+  // `activo` y `estado` se cambian con los botones de la tabla: editar el
+  // evento no debe reactivarlo.
   const datos = {
     nombre,
     descripcion: el("ev-descripcion").value.trim(),
@@ -243,7 +329,7 @@ el("btn-guardar-evento").addEventListener("click", async () => {
     fechaFin:    new Date(fechaFin + "T23:59:59"),
     diasEvento,
     checkpointsMinCertificado: minCert,
-    activo: true,
+    permanenciaMinima: permanencia,
     actualizadoEn: serverTimestamp(),
   };
 
@@ -259,6 +345,7 @@ el("btn-guardar-evento").addEventListener("click", async () => {
       }
       editandoEventoId = null;
     } else {
+      datos.activo    = true;
       datos.creadoEn  = serverTimestamp();
       datos.creadoPor = auth.currentUser?.uid || "";
       const nuevoEvento = await addDoc(collection(db, "eventos"), datos);
@@ -286,6 +373,7 @@ function limpiarFormEvento() {
   el("ev-fecha-inicio").value = "";
   el("ev-fecha-fin").value    = "";
   el("ev-min-cert").value     = "3";
+  el("ev-permanencia").value  = String(PERMANENCIA_MINIMA_DEFECTO);
   el("dias-evento-section").style.display = "none";
   el("dias-evento-lista").innerHTML = "";
   el("form-evento-titulo").textContent    = "Crear nuevo evento";
@@ -307,6 +395,7 @@ window._editarEvento = async id => {
   el("ev-fecha-inicio").value = iniStr;
   el("ev-fecha-fin").value    = finStr;
   el("ev-min-cert").value     = ev.checkpointsMinCertificado || 1;
+  el("ev-permanencia").value  = ev.permanenciaMinima || PERMANENCIA_MINIMA_DEFECTO;
 
   // Render días con horas guardadas
   if (iniStr && finStr) {
@@ -521,18 +610,7 @@ function renderVistaCheckpoints() {
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
-    return `<div class="checkpoint-list-item">
-      <div class="checkpoint-list-info">
-        <div style="font-weight:700;">${h(cp.nombre)} <span class="cp-tipo-badge ${tipoCls}">${h(TIPO_LABELS[cp.tipo] || cp.tipo)}</span></div>
-        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${h(cp.titulo)}</div>` : ""}
-        <div style="font-size:12px;color:var(--gris-medio)">${fmtFechaCorta(cp.dia)} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
-        ${cuposStr}
-      </div>
-      <div class="checkpoint-list-actions">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm"  onclick="window._eliminarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
-      </div>
-    </div>`;
+    return itemCheckpoint(cp, fmtFechaCorta(cp.dia), hora, tipoCls, cuposStr);
   }).join("");
 
   texto.textContent    = `${count} checkpoint${count > 1 ? "s" : ""} · Mínimo para certificado: ${Math.ceil(count * 0.6)}`;
@@ -553,19 +631,27 @@ function renderTablaCheckpoints() {
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
       ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
       : "";
-    return `<div class="checkpoint-list-item">
-      <div class="checkpoint-list-info">
-        <div style="font-weight:700;">${h(cp.nombre)} <span class="cp-tipo-badge ${tipoCls}">${h(TIPO_LABELS[cp.tipo] || cp.tipo)}</span></div>
-        ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${h(cp.titulo)}</div>` : ""}
-        <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
-        ${cuposStr}
-      </div>
-      <div class="checkpoint-list-actions">
-        <button class="btn btn-outline btn-sm" onclick="window._editarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Editar">${iconoImg("editar")}</button>
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${escaparAtributo(cp.id)}')" style="width:auto" title="Eliminar">${iconoImg("eliminar")}</button>
-      </div>
-    </div>`;
+    return itemCheckpoint(cp, diaLabel, hora, tipoCls, cuposStr);
   }).join("");
+}
+
+// Fila de checkpoint compartida por la vista del evento y el modal.
+function itemCheckpoint(cp, diaLabel, hora, tipoCls, cuposStr) {
+  const id = escaparAtributo(cp.id);
+  const cls = estaCancelado(cp) ? " fila-cancelada" : cp.activo === false ? " fila-inactiva" : "";
+  return `<div class="checkpoint-list-item${cls}">
+    <div class="checkpoint-list-info">
+      <div style="font-weight:700;">${h(cp.nombre)} <span class="cp-tipo-badge ${tipoCls}">${h(TIPO_LABELS[cp.tipo] || cp.tipo)}</span>${badgeEstado(cp)}</div>
+      ${cp.titulo ? `<div style="font-size:12px;color:var(--gris-medio)">${h(cp.titulo)}</div>` : ""}
+      <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
+      ${cuposStr}
+    </div>
+    <div class="checkpoint-list-actions">
+      <button class="btn btn-outline btn-sm" onclick="window._editarCp('${id}')" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
+      ${botonesEstado(cp, "checkpoint")}
+      <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${id}')" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>
+    </div>
+  </div>`;
 }
 
 // Modal de checkpoints
@@ -1311,10 +1397,36 @@ function construirResumenAsistencia() {
     fila.totalAsistencias = Object.keys(fila.asistencias).length;
   });
 
+  // Solo se registran entradas: la permanencia en cada checkpoint va de su
+  // entrada a la siguiente (o al fin del checkpoint). Las que no alcanzan el
+  // porcentaje mínimo no cuentan para el certificado.
+  const porcentajeMinimo = eventoActivo?.permanenciaMinima || PERMANENCIA_MINIMA_DEFECTO;
+  resumen.forEach(fila => {
+    fila.permanencia = evaluarPermanencia(
+      Object.entries(fila.asistencias).map(([checkpointId, a]) => ({ checkpointId, marcadoEn: a?.marcadoEn })),
+      checkpointsEvento,
+      { porcentajeMinimo },
+    );
+    fila.totalValidas = contarValidas(fila.permanencia);
+  });
+
   return [...resumen.values()].sort((a, b) =>
     String(a.nombreCompleto || a.nombre || "").localeCompare(
       String(b.nombreCompleto || b.nombre || ""), "es",
     ));
+}
+
+function tituloPermanencia(r, marcadoEn) {
+  const hora = fmtHora(marcadoEn);
+  if (!r?.medible) return `Entrada ${hora}`;
+  return `Entrada ${hora} · ${r.minutos} de ${r.duracion} min (mínimo ${r.requeridos})` +
+    (r.cerradaPor === "siguiente" ? " · salió al entrar a otro checkpoint" : "");
+}
+
+function fmtHora(ts) {
+  if (!ts) return "—";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString("es-PA", { timeZone: "America/Panama", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function renderAsistencia() {
@@ -1341,14 +1453,21 @@ function renderAsistencia() {
   }
   el("asistencia-tbody").innerHTML = participantesEvento.map(p => {
     const asis  = p.asistencias || {};
-    const total = Object.keys(asis).length;
-    const celdas = cps.map(cp => asis[cp.id]
-      ? `<td class="asistio" title="${fmtFecha(asis[cp.id].marcadoEn)}">Sí</td>`
-      : `<td class="no-asistio">—</td>`).join("");
+    const total = p.totalValidas ?? Object.keys(asis).length;
+    const registradas = Object.keys(asis).length;
+    const celdas = cps.map(cp => {
+      if (!asis[cp.id]) return `<td class="no-asistio">—</td>`;
+      const r = p.permanencia?.[cp.id];
+      const titulo = escaparAtributo(tituloPermanencia(r, asis[cp.id].marcadoEn));
+      return r && !r.valida
+        ? `<td class="asistio-parcial" title="${titulo}">Parcial</td>`
+        : `<td class="asistio" title="${titulo}">Sí</td>`;
+    }).join("");
     const cert = total >= minCert
         ? `<td style="color:var(--verde-claro);font-weight:700;">Sí</td>`
       : `<td style="color:var(--gris-medio);">—</td>`;
-    return `<tr><td>${h(p.nombreCompleto || p.nombre || "—")}</td>${celdas}<td style="text-align:center;font-weight:700;">${total}</td>${cert}</tr>`;
+    const totalTxt = registradas > total ? `${total} <span style="font-weight:400;color:var(--gris-medio);font-size:11px;">de ${registradas}</span>` : String(total);
+    return `<tr><td>${h(p.nombreCompleto || p.nombre || "—")}</td>${celdas}<td style="text-align:center;font-weight:700;">${totalTxt}</td>${cert}</tr>`;
   }).join("");
 }
 
@@ -1406,7 +1525,7 @@ function renderCertificados() {
   if (!eventoActivo) return;
   const minCert    = eventoActivo.checkpointsMinCertificado || 1;
   const elegibles  = construirResumenAsistencia()
-    .filter(p => (p.totalAsistencias || 0) >= minCert);
+    .filter(p => (p.totalValidas || 0) >= minCert);
   const exponentes = checkpointsEvento.filter(cp => cp.exponente || cp.ponenteId);
 
   el("cert-elegibles").textContent  = elegibles.length;
@@ -1421,7 +1540,7 @@ function renderCertificados() {
   tb.innerHTML = elegibles.map(p => {
     const fullP  = participantesGlobal.find(g => g.cedula === p.cedula) || p;
     const origen = origenParticipante(fullP);
-    const asis   = Object.keys(p.asistencias || {}).length;
+    const asis   = p.totalValidas || 0;
     return `<tr>
       <td><strong>${h(p.nombreCompleto || p.nombre || "—")}</strong></td>
       <td>${h(p.cedula || "—")}</td>
@@ -1668,7 +1787,7 @@ el("btn-export-excel-participantes").addEventListener("click", () => {
 
   const minCert   = eventoActivo.checkpointsMinCertificado || 1;
   const elegibles = construirResumenAsistencia()
-    .filter(p => (p.totalAsistencias || 0) >= minCert);
+    .filter(p => (p.totalValidas || 0) >= minCert);
   if (!elegibles.length) { mostrarAlerta("aviso", "No hay participantes elegibles."); return; }
 
   // Total de horas del evento

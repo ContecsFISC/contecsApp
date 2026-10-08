@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-06T16:14:41.094313+00:00",
-  "project_fingerprint": "daa3bcb654e951d21b809a8c9d6bafd96ffc0466a9da333c82f164972cbeed55",
-  "project": "contecsApp",
+  "generated_at": "2026-10-09T03:35:38.716735+00:00",
+  "project_fingerprint": "745383793b342033eaeddf5be0447213b279a71b54863488fe4bd15242fbcf74",
+  "project": "t",
   "root": ".",
   "view": "complete",
   "stats": {
-    "total_files": 180,
-    "total_edges": 559,
-    "total_orphans": 67,
+    "total_files": 187,
+    "total_edges": 597,
+    "total_orphans": 70,
     "total_cycles": 0,
     "total_external_packages": 27,
     "total_firestore_collections": 28,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 4442,
-    "total_function_calls": 9880,
-    "total_dom_ids": 927,
+    "total_symbols": 4613,
+    "total_function_calls": 10246,
+    "total_dom_ids": 942,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -29,8 +29,8 @@
   "god_nodes": [
     {
       "label": "js/core/auth.js",
-      "degree": 131,
-      "in": 127,
+      "degree": 143,
+      "in": 139,
       "out": 4,
       "exports": [
         "cargarUsuario",
@@ -47,8 +47,8 @@
     },
     {
       "label": "js/core/seguridad.js",
-      "degree": 51,
-      "in": 51,
+      "degree": 53,
+      "in": 53,
       "out": 0,
       "exports": [
         "escaparAtributo",
@@ -60,8 +60,8 @@
     },
     {
       "label": "panel/dashboard.html",
-      "degree": 40,
-      "in": 25,
+      "degree": 43,
+      "in": 28,
       "out": 15,
       "exports": []
     },
@@ -74,8 +74,8 @@
     },
     {
       "label": "js/core/firebase-config.js",
-      "degree": 35,
-      "in": 35,
+      "degree": 36,
+      "in": 36,
       "out": 0,
       "exports": [
         "analytics",
@@ -87,8 +87,8 @@
     },
     {
       "label": "css/styles.css",
-      "degree": 32,
-      "in": 32,
+      "degree": 33,
+      "in": 33,
       "out": 0,
       "exports": []
     },
@@ -157,6 +157,25 @@
       "exports": []
     },
     {
+      "label": "js/core/permanencia.js",
+      "degree": 21,
+      "in": 21,
+      "out": 0,
+      "exports": [
+        "MARGEN_APERTURA_MIN",
+        "PERMANENCIA_MINIMA_DEFECTO",
+        "checkpointsParaEscanear",
+        "contarValidas",
+        "enPanama",
+        "estaCancelado",
+        "estaOperativo",
+        "evaluarPermanencia",
+        "minutosDeHora",
+        "msPanama",
+        "proximoCheckpointHoy"
+      ]
+    },
+    {
       "label": "js/modulos/voluntarios.js",
       "degree": 20,
       "in": 3,
@@ -201,62 +220,50 @@
       "in": 1,
       "out": 16,
       "exports": []
-    },
-    {
-      "label": "js/core/participantes-api.js",
-      "degree": 16,
-      "in": 15,
-      "out": 1,
-      "exports": [
-        "accederGiraParticipante",
-        "accederParticipante",
-        "archivoABase64",
-        "eliminarParticipante",
-        "enviarCorreoQrParticipante",
-        "importarParticipantes",
-        "listarParticipantesParaGiras",
-        "marcarCheckpointGira",
-        "notificarNoSeleccionadosGira",
-        "notificarParticipantesGira",
-        "registrarParticipante"
-      ]
     }
   ],
   "top_risk_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 264.4,
-      "degree": 131,
+      "risk_score": 288.4,
+      "degree": 143,
       "in_cycle": false,
       "loc": 235
+    },
+    {
+      "label": "js/core/seguridad.js",
+      "risk_score": 106.4,
+      "degree": 53,
+      "in_cycle": false,
+      "loc": 40
+    },
+    {
+      "label": "panel/dashboard.html",
+      "risk_score": 106.2,
+      "degree": 43,
+      "in_cycle": false,
+      "loc": 2025
     },
     {
       "label": "panel/modulos/congreso/modulos_participantes.html",
       "risk_score": 102.6,
       "degree": 40,
       "in_cycle": false,
-      "loc": 2256
-    },
-    {
-      "label": "js/core/seguridad.js",
-      "risk_score": 102.4,
-      "degree": 51,
-      "in_cycle": false,
-      "loc": 40
-    },
-    {
-      "label": "panel/dashboard.html",
-      "risk_score": 99.3,
-      "degree": 40,
-      "in_cycle": false,
-      "loc": 1935
+      "loc": 2263
     },
     {
       "label": "css/styles.css",
-      "risk_score": 72.3,
-      "degree": 32,
+      "risk_score": 74.3,
+      "degree": 33,
       "in_cycle": false,
       "loc": 831
+    },
+    {
+      "label": "js/core/firebase-config.js",
+      "risk_score": 72.3,
+      "degree": 36,
+      "in_cycle": false,
+      "loc": 35
     },
     {
       "label": "js/modulos/voluntarios.js",
@@ -264,13 +271,6 @@
       "degree": 20,
       "in_cycle": false,
       "loc": 2979
-    },
-    {
-      "label": "js/core/firebase-config.js",
-      "risk_score": 70.3,
-      "degree": 35,
-      "in_cycle": false,
-      "loc": 35
     },
     {
       "label": "panel/modulos/logistica/catalogo.html",
@@ -309,10 +309,17 @@
     },
     {
       "label": "js/modulos/credenciales.js",
-      "risk_score": 45.4,
+      "risk_score": 45.5,
       "degree": 19,
       "in_cycle": false,
-      "loc": 739
+      "loc": 747
+    },
+    {
+      "label": "js/core/permanencia.js",
+      "risk_score": 43.5,
+      "degree": 21,
+      "in_cycle": false,
+      "loc": 153
     },
     {
       "label": "js/modulos/compras2.js",
@@ -320,13 +327,6 @@
       "degree": 17,
       "in_cycle": false,
       "loc": 822
-    },
-    {
-      "label": "panel/modulos/logistica/inventario.html",
-      "risk_score": 37.9,
-      "degree": 16,
-      "in_cycle": false,
-      "loc": 586
     }
   ],
   "orphans": [
@@ -349,10 +349,12 @@
     "functions/templates/correo-pago-aprobado.html",
     "functions/test/envios.test.js",
     "icons/bebida-lata.svg",
+    "img/iconos/activar.svg",
     "img/iconos/agua.svg",
     "img/iconos/bubble_tea.svg",
     "img/iconos/cafe.svg",
     "img/iconos/caja.svg",
+    "img/iconos/cancelar.svg",
     "img/iconos/cat_bebidas.svg",
     "img/iconos/cat_comida.svg",
     "img/iconos/cat_dulces.svg",
@@ -363,6 +365,7 @@
     "img/iconos/combo.svg",
     "img/iconos/combo_hamburguesa_soda.svg",
     "img/iconos/combo_pizza_soda.svg",
+    "img/iconos/desactivar.svg",
     "img/iconos/donut.svg",
     "img/iconos/dulce.svg",
     "img/iconos/dulce_alt.svg",
@@ -489,6 +492,7 @@
       "panel/modulos/congreso/modulos_participantes.html",
       "panel/modulos/congreso/posper.html",
       "panel/modulos/congreso/randomizer.html",
+      "panel/modulos/congreso/randomizerint.html",
       "panel/modulos/congreso/reportes_estadisticaCont.html",
       "panel/modulos/finanzas/bitacora.html",
       "panel/modulos/finanzas/compras.html",
@@ -529,6 +533,7 @@
       "panel/modulos/congreso/modulos_participantes.html",
       "panel/modulos/congreso/posper.html",
       "panel/modulos/congreso/randomizer.html",
+      "panel/modulos/congreso/randomizerint.html",
       "panel/modulos/congreso/reportes_estadisticaCont.html",
       "panel/modulos/finanzas/bitacora.html",
       "panel/modulos/finanzas/compras.html",
@@ -569,6 +574,7 @@
       "panel/modulos/congreso/modulos_participantes.html",
       "panel/modulos/congreso/posper.html",
       "panel/modulos/congreso/randomizer.html",
+      "panel/modulos/congreso/randomizerint.html",
       "panel/modulos/congreso/reportes_estadisticaCont.html",
       "panel/modulos/finanzas/bitacora.html",
       "panel/modulos/finanzas/compras.html",
@@ -629,6 +635,7 @@
       "js/modulos/minutas.js",
       "js/modulos/posper.js",
       "js/modulos/randomizer.js",
+      "js/modulos/randomizerint.js",
       "js/modulos/reporteFinancieroExcel.js",
       "js/modulos/reportes_estadisticaCont.js",
       "js/modulos/reportes_financieros.js",
@@ -648,6 +655,7 @@
       "js/modulos/lecturaQR.js",
       "js/modulos/lecturaQRVoluntarios.js",
       "js/modulos/posper.js",
+      "js/modulos/randomizer.js",
       "js/modulos/usuarios.js",
       "panel/modulos/congreso/modulos_participantes.html"
     ],
@@ -664,6 +672,7 @@
       "functions/test/importaciones.integration.js",
       "functions/test/importaciones.test.js",
       "functions/test/operaciones-qr.integration.js",
+      "functions/test/permanencia.test.mjs",
       "functions/test/plantillas.test.js",
       "functions/test/rfid.test.js"
     ],
@@ -739,6 +748,7 @@
       "js/modulos/lecturaQR.js",
       "js/modulos/posper.js",
       "js/modulos/randomizer.js",
+      "js/modulos/randomizerint.js",
       "panel/dashboard.html"
     ],
     "fondos": [
@@ -806,6 +816,7 @@
       "js/modulos/lecturaQR.js",
       "js/modulos/posper.js",
       "js/modulos/randomizer.js",
+      "js/modulos/randomizerint.js",
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html",
       "panel/modulos/congreso/modulos_participantes.html"
@@ -831,8 +842,7 @@
     ],
     "rfid_participantes": [
       "functions/eliminaciones.js",
-      "functions/operaciones-qr.js",
-      "functions/test/operaciones-qr.integration.js"
+      "functions/operaciones-qr.js"
     ],
     "solicitudes_actividad": [
       "js/modulos/informeActividad.js",
@@ -1013,21 +1023,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "asistencias_congreso",
-        "line": 346
+        "line": 435
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "asistencias_congreso",
-        "line": 417
+        "line": 506
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "asistencias_congreso",
-        "line": 873
+        "line": 959
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1043,7 +1053,7 @@
         "operation": "runTransaction",
         "kind": "transaction",
         "collection": "asistencias_giras",
-        "line": 426
+        "line": 452
       }
     ],
     "asistencias_voluntarios": [
@@ -1098,63 +1108,63 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 345
+        "line": 434
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 438
+        "line": 527
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "checkpoints",
-        "line": 796
+        "line": 882
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "checkpoints",
-        "line": 881
+        "line": 967
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 83
+        "line": 86
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 652
+        "line": 436
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 88
+        "line": 90
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 423
+        "line": 497
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 424
+        "line": 498
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1168,7 +1178,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 1324
+        "line": 1370
       }
     ],
     "compras": [
@@ -1207,70 +1217,77 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 297
+        "line": 385
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 388
+        "line": 477
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 187
+        "line": 190
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "eventos",
-        "line": 264
+        "line": 351
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "setDoc",
         "kind": "write",
         "collection": "eventos",
-        "line": 255
+        "line": 341
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "eventos",
-        "line": 353
+        "line": 442
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 62
+        "line": 58
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 397
+        "line": 423
       },
       {
         "file": "js/modulos/randomizer.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 176
+        "line": 219
+      },
+      {
+        "file": "js/modulos/randomizerint.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "eventos",
+        "line": 330
       },
       {
         "file": "panel/dashboard.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 1316
+        "line": 1362
       }
     ],
     "fondos": [
@@ -1279,7 +1296,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "fondos",
-        "line": 1462
+        "line": 1541
       }
     ],
     "fondos_entrada": [
@@ -1385,14 +1402,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 411
+        "line": 500
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 320
+        "line": 333
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1408,42 +1425,42 @@
         "operation": "runTransaction",
         "kind": "transaction",
         "collection": "inscripciones_checkpoint",
-        "line": 185
+        "line": 211
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 426
+        "line": 515
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 874
+        "line": 960
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 667
+        "line": 451
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 668
+        "line": 452
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 669
+        "line": 453
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1491,35 +1508,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1055
+        "line": 1141
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1104
+        "line": 1190
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "setDoc",
         "kind": "write",
         "collection": "participantes",
-        "line": 1073
+        "line": 1159
       },
       {
         "file": "js/modulos/lecturaQR.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 305
+        "line": 318
       },
       {
         "file": "js/modulos/posper.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 209
+        "line": 222
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1533,14 +1550,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1335
+        "line": 1381
       },
       {
         "file": "panel/dashboard.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1498
+        "line": 1577
       },
       {
         "file": "panel/modulos/congreso/modulos_participantes.html",
@@ -1675,14 +1692,14 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "productos",
-        "line": 1338
+        "line": 1384
       },
       {
         "file": "panel/dashboard.html",
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "productos",
-        "line": 1477
+        "line": 1556
       },
       {
         "file": "panel/modulos/finanzas/bitacora.html",
@@ -1747,14 +1764,23 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "reuniones",
-        "line": 1574
+        "line": 1653
       },
       {
         "file": "panel/dashboard.html",
         "operation": "getDocs",
         "kind": "read",
         "collection": "reuniones",
-        "line": 1578
+        "line": 1657
+      }
+    ],
+    "rfid_participantes": [
+      {
+        "file": "functions/operaciones-qr.js",
+        "operation": "runTransaction",
+        "kind": "transaction",
+        "collection": "rfid_participantes",
+        "line": 583
       }
     ],
     "solicitudes_actividad": [
@@ -1856,7 +1882,7 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "usuarios",
-        "line": 1415
+        "line": 1461
       },
       {
         "file": "panel/index.html",
@@ -1958,7 +1984,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 1518
+        "line": 1597
       }
     ]
   },
@@ -2000,497 +2026,497 @@
         "collection": "usuarios",
         "operations": "read",
         "condition": "signedIn() && ( request.auth.uid == uid || hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'finanzas']) )",
-        "line": 57,
+        "line": 65,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "create",
         "condition": "signedIn() && request.auth.uid == uid && request.resource.data.keys().hasAll(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.keys().hasOnly(['nombre', 'email', 'foto', 'rol', 'creadoEn']) && request.resource.data.ro",
-        "line": 61,
+        "line": 69,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "usuarios",
         "operations": "update",
         "condition": "signedIn() && ( (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys() .hasOnly(['nombre', 'foto', 'actualizadoEn']) && request.resource.data.rol == resource.data.rol && request.resource.data.email == resource.",
-        "line": 74,
+        "line": 82,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "read",
-        "condition": "canVerParticipantes()",
-        "line": 93,
+        "condition": "canVerParticipantes() || isPosper()",
+        "line": 101,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "create",
         "condition": "false",
-        "line": 94,
+        "line": 102,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "update",
         "condition": "canAprobarPagosParticipantes() && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias', 'rfid' ])",
-        "line": 95,
+        "line": 103,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "participantes",
         "operations": "delete",
         "condition": "hasRol([\"ceo\",\"junta_principal\"])",
-        "line": 99,
+        "line": 107,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "rfid_participantes",
         "operations": "read, write",
         "condition": "false",
-        "line": 104,
+        "line": 112,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "contadores",
         "operations": "read, write",
         "condition": "false",
-        "line": 109,
+        "line": 117,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "identificadores_participantes",
         "operations": "read, write",
         "condition": "false",
-        "line": 114,
+        "line": 122,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "limites_registro",
         "operations": "read, write",
         "condition": "false",
-        "line": 118,
+        "line": 126,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 123,
+        "line": 131,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "create",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.keys().hasOnly([ 'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId', 'stock', 'activo', 'creadoEn' ]) && request.resource.data.nombre",
-        "line": 124,
+        "line": 132,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activo' ])",
-        "line": 138,
+        "line": 146,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "delete",
         "condition": "false",
-        "line": 142,
+        "line": 150,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 146,
+        "line": 154,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 147,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "ventas",
-        "operations": "read",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 152,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "ventas",
-        "operations": "create",
-        "condition": "false",
         "line": 155,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
-        "operations": "update, delete",
-        "condition": "false",
-        "line": 156,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "compras",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
         "line": 160,
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "ventas",
+        "operations": "create",
+        "condition": "false",
+        "line": 163,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "ventas",
+        "operations": "update, delete",
+        "condition": "false",
+        "line": 164,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "compras",
+        "operations": "read",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
+        "line": 168,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "compras",
         "operations": "create",
         "condition": "false",
-        "line": 161,
+        "line": 169,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'factura', 'facturaEstado', 'facturaError', 'actualizadoEn' ]) && request.resource.data.fac",
-        "line": 165,
+        "line": 173,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "delete",
         "condition": "false",
-        "line": 172,
+        "line": 180,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 176,
+        "line": 184,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "create",
         "condition": "false",
-        "line": 177,
+        "line": 185,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "update, delete",
         "condition": "false",
-        "line": 178,
+        "line": 186,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
-        "operations": "read",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 183,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "fondos",
-        "operations": "create, delete",
-        "condition": "false",
-        "line": 184,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "fondos",
-        "operations": "update",
-        "condition": "false",
-        "line": 187,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "fondos_entrada",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
         "line": 191,
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "fondos",
+        "operations": "create, delete",
+        "condition": "false",
+        "line": 192,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "fondos",
+        "operations": "update",
+        "condition": "false",
+        "line": 195,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "fondos_entrada",
+        "operations": "read",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas'])",
+        "line": 199,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "fondos_entrada",
         "operations": "create",
         "condition": "false",
-        "line": 192,
+        "line": 200,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "update, delete",
         "condition": "false",
-        "line": 193,
+        "line": 201,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])",
-        "line": 197,
+        "line": 205,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "create",
         "condition": "false",
-        "line": 198,
+        "line": 206,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "update, delete",
         "condition": "false",
-        "line": 199,
+        "line": 207,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "read",
-        "condition": "isStaff()",
-        "line": 204,
+        "condition": "isStaff() || isPosper()",
+        "line": 212,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 205,
+        "line": 213,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 209,
+        "line": 217,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "create, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 210,
+        "line": 218,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
-        "line": 211,
+        "line": 219,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "read",
-        "condition": "isStaff()",
-        "line": 219,
+        "condition": "isStaff() || isPosper()",
+        "line": 227,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 220,
+        "line": 228,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 225,
+        "line": 233,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 226,
+        "line": 234,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_congreso",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 231,
+        "line": 239,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_congreso",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 232,
+        "line": 240,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 240,
+        "line": 248,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades'])",
-        "line": 241,
+        "line": 249,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
-        "operations": "read",
-        "condition": "isStaff()",
-        "line": 245,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "giras_voluntarios",
-        "operations": "write",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])",
-        "line": 246,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "asistencias_giras",
         "operations": "read",
         "condition": "isStaff()",
         "line": 253,
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "giras_voluntarios",
+        "operations": "write",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])",
+        "line": 254,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "asistencias_giras",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 261,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "asistencias_giras",
         "operations": "write",
         "condition": "false",
-        "line": 254,
+        "line": 262,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 258,
+        "line": 266,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 259,
+        "line": 267,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 263,
+        "line": 271,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "create",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && request.resource.data.totalHoras == 0",
-        "line": 264,
+        "line": 272,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "update",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras'])",
-        "line": 266,
+        "line": 274,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 268,
+        "line": 276,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 272,
+        "line": 280,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "write",
         "condition": "false",
-        "line": 273,
+        "line": 281,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 278,
+        "line": 286,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 279,
+        "line": 287,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 284,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "solicitudes_actividad",
-        "operations": "create",
-        "condition": "isStaff()",
-        "line": 285,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "solicitudes_actividad",
-        "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
-        "line": 286,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "informes_actividad",
-        "operations": "read",
-        "condition": "isStaff()",
-        "line": 290,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "informes_actividad",
-        "operations": "create",
-        "condition": "isStaff()",
-        "line": 291,
-        "file": "firebase_rules/firestore.rules"
-      },
-      {
-        "collection": "informes_actividad",
-        "operations": "update, delete",
-        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
         "line": 292,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "solicitudes_actividad",
+        "operations": "create",
+        "condition": "isStaff()",
+        "line": 293,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "solicitudes_actividad",
+        "operations": "update, delete",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
+        "line": 294,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "informes_actividad",
+        "operations": "read",
+        "condition": "isStaff()",
+        "line": 298,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "informes_actividad",
+        "operations": "create",
+        "condition": "isStaff()",
+        "line": 299,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "informes_actividad",
+        "operations": "update, delete",
+        "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])",
+        "line": 300,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 297,
+        "line": 305,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "create, update, delete",
         "condition": "hasRol(['ceo', 'secretario'])",
-        "line": 298,
+        "line": 306,
         "file": "firebase_rules/firestore.rules"
       },
       {
@@ -2546,7 +2572,8 @@
     "ejecutarOperacionQr": [
       "js/modulos/lecturaQR.js",
       "js/modulos/lecturaQRVoluntarios.js",
-      "js/modulos/posper.js"
+      "js/modulos/posper.js",
+      "js/modulos/randomizer.js"
     ],
     "eliminarParticipante": [
       "js/core/participantes-api.js"
@@ -2583,17 +2610,17 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
+      "usado_en": "js/modulos/actividadVentas.js"
+    },
+    {
+      "variable": "window.XLSX",
+      "define_en": "js/libs/xlsx.full.min.js",
       "usado_en": "js/modulos/voluntarios.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
       "usado_en": "js/modulos/inscripciones.js"
-    },
-    {
-      "variable": "window.XLSX",
-      "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -2630,7 +2657,7 @@
       "folder": ".claude",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 68,
+      "size_bytes": 73,
       "loc": 6,
       "exports": [],
       "purpose": "",
@@ -2704,18 +2731,18 @@
       "folder": "css",
       "ext": ".css",
       "kind": "source",
-      "size_bytes": 25583,
+      "size_bytes": 26413,
       "loc": 831,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 32,
+      "in_degree": 33,
       "out_degree": 0,
-      "degree": 32,
+      "degree": 33,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 72.3
+      "risk_score": 74.3
     },
     {
       "id": "docs/arreglo-giras-correos.md",
@@ -2723,7 +2750,7 @@
       "folder": "docs",
       "ext": ".md",
       "kind": "source",
-      "size_bytes": 7779,
+      "size_bytes": 7975,
       "loc": 197,
       "exports": [],
       "purpose": "",
@@ -2841,8 +2868,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 13483,
-      "loc": 307,
+      "size_bytes": 14153,
+      "loc": 315,
       "exports": [],
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────",
       "minified_or_vendor": false,
@@ -2934,7 +2961,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 1688,
+      "size_bytes": 1728,
       "loc": 41,
       "exports": [
         "motivoDeEntrada",
@@ -2956,7 +2983,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 3488,
+      "size_bytes": 3572,
       "loc": 85,
       "exports": [
         "CORREO_SOPORTE",
@@ -3085,8 +3112,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 20594,
-      "loc": 546,
+      "size_bytes": 23962,
+      "loc": 629,
       "exports": [
         "ejecutarOperacionQr",
         "marcarCheckpointGira"
@@ -3112,7 +3139,7 @@
       "degree": 3,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 11.5
+      "risk_score": 12.3
     },
     {
       "id": "functions/package.json",
@@ -3120,7 +3147,7 @@
       "folder": "functions",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 1083,
+      "size_bytes": 1146,
       "loc": 30,
       "exports": [],
       "purpose": "",
@@ -3139,7 +3166,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5751,
+      "size_bytes": 5913,
       "loc": 163,
       "exports": [
         "aplicarPlantilla",
@@ -3214,7 +3241,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2690,
+      "size_bytes": 2748,
       "loc": 71,
       "exports": [
         "RFID_PREFIJO",
@@ -3223,7 +3250,7 @@
         "normalizarRfid",
         "serialRfid"
       ],
-      "purpose": "Lectura del \"RFID\" que se ancla a un participante (POSPER y Lectura QR con el lector EA530). Es lo que traiga la siguiente lectura tras la credencial: normalmente un QR con un text",
+      "purpose": "Lectura del \"RFID\" que se ancla a un participante (POSPER, con el lector EA530). Es lo que traiga la siguiente lectura tras la credencial: normalmente un QR con un texto hexadecima",
       "minified_or_vendor": false,
       "firestore_collections": [],
       "in_degree": 2,
@@ -3239,7 +3266,7 @@
       "folder": "functions",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6577,
+      "size_bytes": 6728,
       "loc": 152,
       "exports": [],
       "purpose": "",
@@ -3258,7 +3285,7 @@
       "folder": "functions",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9707,
+      "size_bytes": 9913,
       "loc": 207,
       "exports": [],
       "purpose": "",
@@ -3296,7 +3323,7 @@
       "folder": "functions",
       "ext": ".mjs",
       "kind": "source",
-      "size_bytes": 4396,
+      "size_bytes": 4508,
       "loc": 113,
       "exports": [],
       "purpose": "Prueba del parseo de \"correos de personas no inscritas\" del panel de Giras. Es la entrada más frágil de esa pantalla: la escribe una persona a mano, pegando de un chat o de una hoj",
@@ -3315,7 +3342,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 8258,
+      "size_bytes": 8487,
       "loc": 230,
       "exports": [],
       "purpose": "Diagnóstico del envío de correo, aparte de las Cloud Functions. Existe porque desde el panel los tres fallos más comunes se ven exactamente igual (\"no se pudo enviar\"), pero se arr",
@@ -3353,7 +3380,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 4319,
+      "size_bytes": 4433,
       "loc": 115,
       "exports": [],
       "purpose": "Prueba del emparejamiento persona -> motivo en el aviso de no seleccionados. Es la parte donde un fallo no se nota: no rompe nada, simplemente le llega a alguien el motivo de otra ",
@@ -3372,7 +3399,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2274,
+      "size_bytes": 2331,
       "loc": 58,
       "exports": [],
       "purpose": "Calcula el ID del documento-lock de identidad que usa registrarParticipante. La colección `identificadores_participantes` es `read, write: if false` en firestore.rules: no se puede",
@@ -3391,7 +3418,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2736,
+      "size_bytes": 2811,
       "loc": 76,
       "exports": [],
       "purpose": "Prueba de la decisión que hace crearParticipantesUnicos sobre los documentos de `identificadores_participantes`. Es la parte delicada del arreglo: un lock solo debe bloquear un reg",
@@ -3452,8 +3479,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 7649,
-      "loc": 213,
+      "size_bytes": 11154,
+      "loc": 292,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3464,7 +3491,6 @@
         "inscripciones",
         "inscripciones_checkpoint",
         "participantes",
-        "rfid_participantes",
         "usuarios"
       ],
       "in_degree": 0,
@@ -3472,7 +3498,26 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 4.1
+      "risk_score": 4.9
+    },
+    {
+      "id": "functions/test/permanencia.test.mjs",
+      "label": "functions/test/permanencia.test.mjs",
+      "folder": "functions",
+      "ext": ".mjs",
+      "kind": "source",
+      "size_bytes": 6638,
+      "loc": 181,
+      "exports": [],
+      "purpose": "Prueba de la permanencia por checkpoint (Lectura QR y POSPER solo marcan entradas). Lo que se protege aquí no falla ruidosamente: si el cálculo se equivoca, un estudiante que saltó",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "degree": 7,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 15.8
     },
     {
       "id": "functions/test/plantillas.test.js",
@@ -3480,7 +3525,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5378,
+      "size_bytes": 5523,
       "loc": 146,
       "exports": [],
       "purpose": "Prueba del render de las plantillas de correo. Lo que se comprueba aquí no rompe nada ruidosamente: el correo sale igual, solo que mal. Los dos casos que ya habían mordido en produ",
@@ -3499,7 +3544,7 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2940,
+      "size_bytes": 3021,
       "loc": 82,
       "exports": [],
       "purpose": "Lectura del \"RFID\" que POSPER y Lectura QR anclan a un participante. Lo delicado es que dos lecturas del mismo RFID (con o sin separadores, en minúsculas o mayúsculas) terminen en ",
@@ -3519,6 +3564,24 @@
       "ext": ".svg",
       "kind": "asset",
       "size_bytes": 290,
+      "loc": 0,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 0.0
+    },
+    {
+      "id": "img/iconos/activar.svg",
+      "label": "img/iconos/activar.svg",
+      "folder": "img",
+      "ext": ".svg",
+      "kind": "asset",
+      "size_bytes": 232,
       "loc": 0,
       "exports": [],
       "purpose": "",
@@ -3609,6 +3672,24 @@
       "ext": ".svg",
       "kind": "asset",
       "size_bytes": 4492,
+      "loc": 0,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 0.0
+    },
+    {
+      "id": "img/iconos/cancelar.svg",
+      "label": "img/iconos/cancelar.svg",
+      "folder": "img",
+      "ext": ".svg",
+      "kind": "asset",
+      "size_bytes": 230,
       "loc": 0,
       "exports": [],
       "purpose": "",
@@ -3825,6 +3906,24 @@
       "ext": ".svg",
       "kind": "asset",
       "size_bytes": 12533,
+      "loc": 0,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "in_degree": 0,
+      "out_degree": 0,
+      "degree": 0,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 0.0
+    },
+    {
+      "id": "img/iconos/desactivar.svg",
+      "label": "img/iconos/desactivar.svg",
+      "folder": "img",
+      "ext": ".svg",
+      "kind": "asset",
+      "size_bytes": 240,
       "loc": 0,
       "exports": [],
       "purpose": "",
@@ -4472,7 +4571,7 @@
       "folder": "(raiz)",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9486,
+      "size_bytes": 9738,
       "loc": 253,
       "exports": [],
       "purpose": "",
@@ -4512,12 +4611,12 @@
       "firestore_collections": [
         "usuarios"
       ],
-      "in_degree": 127,
+      "in_degree": 139,
       "out_degree": 4,
-      "degree": 131,
+      "degree": 143,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 264.4
+      "risk_score": 288.4
     },
     {
       "id": "js/core/correos.js",
@@ -4525,7 +4624,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2627,
+      "size_bytes": 2689,
       "loc": 63,
       "exports": [
         "RE_CORREO",
@@ -4549,7 +4648,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 2333,
+      "size_bytes": 2386,
       "loc": 54,
       "exports": [
         "extraerCredencialQr"
@@ -4582,12 +4681,12 @@
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 35,
+      "in_degree": 36,
       "out_degree": 0,
-      "degree": 35,
+      "degree": 36,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 70.3
+      "risk_score": 72.3
     },
     {
       "id": "js/core/iconos.js",
@@ -4595,7 +4694,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 3916,
+      "size_bytes": 3953,
       "loc": 88,
       "exports": [
         "ICONOS_DISPONIBLES",
@@ -4701,13 +4800,44 @@
       "risk_score": 34.4
     },
     {
+      "id": "js/core/permanencia.js",
+      "label": "js/core/permanencia.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 6957,
+      "loc": 153,
+      "exports": [
+        "MARGEN_APERTURA_MIN",
+        "PERMANENCIA_MINIMA_DEFECTO",
+        "checkpointsParaEscanear",
+        "contarValidas",
+        "enPanama",
+        "estaCancelado",
+        "estaOperativo",
+        "evaluarPermanencia",
+        "minutosDeHora",
+        "msPanama",
+        "proximoCheckpointHoy"
+      ],
+      "purpose": "============================================= CONTECS — Hora de Panamá, checkpoints escaneables y permanencia ============================================= Lectura QR y POSPER solo",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 21,
+      "out_degree": 0,
+      "degree": 21,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 43.5
+    },
+    {
       "id": "js/core/permisos.js",
       "label": "js/core/permisos.js",
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 5102,
-      "loc": 92,
+      "size_bytes": 5848,
+      "loc": 106,
       "exports": [
         "PERMISOS",
         "ROLES",
@@ -4723,7 +4853,7 @@
       "degree": 15,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 30.9
+      "risk_score": 31.1
     },
     {
       "id": "js/core/seguridad.js",
@@ -4743,12 +4873,12 @@
       "purpose": "Utilidades pequeñas y sin dependencias para tratar datos externos antes de insertarlos en HTML, atributos o archivos que abrirá una hoja de cálculo.",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 51,
+      "in_degree": 53,
       "out_degree": 0,
-      "degree": 51,
+      "degree": 53,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 102.4
+      "risk_score": 106.4
     },
     {
       "id": "js/core/sso-config.js",
@@ -5061,8 +5191,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 28849,
-      "loc": 739,
+      "size_bytes": 29283,
+      "loc": 747,
       "exports": [
         "LIMITES",
         "TAMANOS",
@@ -5090,7 +5220,7 @@
       "degree": 19,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 45.4
+      "risk_score": 45.5
     },
     {
       "id": "js/modulos/detalleFondo.js",
@@ -5201,8 +5331,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 75989,
-      "loc": 1717,
+      "size_bytes": 82087,
+      "loc": 1836,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5215,11 +5345,11 @@
         "participantes"
       ],
       "in_degree": 1,
-      "out_degree": 6,
-      "degree": 7,
+      "out_degree": 10,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 31.2
+      "risk_score": 40.4
     },
     {
       "id": "js/modulos/lecturaQR.js",
@@ -5227,8 +5357,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 37300,
-      "loc": 932,
+      "size_bytes": 25618,
+      "loc": 596,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5240,11 +5370,11 @@
         "participantes"
       ],
       "in_degree": 1,
-      "out_degree": 7,
-      "degree": 8,
+      "out_degree": 15,
+      "degree": 16,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 25.3
+      "risk_score": 38.0
     },
     {
       "id": "js/modulos/lecturaQRGiras.js",
@@ -5252,7 +5382,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 9278,
+      "size_bytes": 9503,
       "loc": 226,
       "exports": [],
       "purpose": "",
@@ -5339,8 +5469,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 22063,
-      "loc": 559,
+      "size_bytes": 26201,
+      "loc": 627,
       "exports": [],
       "purpose": "============================================= CONTECS — POSPER (lector físico EA530) ============================================= El EA530 trae un lector de QR que se dispara con ",
       "minified_or_vendor": false,
@@ -5350,11 +5480,11 @@
         "participantes"
       ],
       "in_degree": 1,
-      "out_degree": 4,
-      "degree": 5,
+      "out_degree": 12,
+      "degree": 13,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.6
+      "risk_score": 32.3
     },
     {
       "id": "js/modulos/randomizer.js",
@@ -5362,10 +5492,32 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 7241,
-      "loc": 188,
+      "size_bytes": 9913,
+      "loc": 237,
       "exports": [],
       "purpose": "============================================= CONTECS — Randomizer ============================================= Lista en vivo a los participantes que ya tienen un RFID anclado des",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "eventos",
+        "participantes"
+      ],
+      "in_degree": 1,
+      "out_degree": 6,
+      "degree": 7,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 16.4
+    },
+    {
+      "id": "js/modulos/randomizerint.js",
+      "label": "js/modulos/randomizerint.js",
+      "folder": "js",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 13258,
+      "loc": 346,
+      "exports": [],
+      "purpose": "============================================= CONTECS — Sorteo en vivo (para proyectar) ============================================= Misma lista que randomizer.js (participantes c",
       "minified_or_vendor": false,
       "firestore_collections": [
         "eventos",
@@ -5376,7 +5528,7 @@
       "degree": 3,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 7.9
+      "risk_score": 9.5
     },
     {
       "id": "js/modulos/reporteFinancieroExcel.js",
@@ -5555,7 +5707,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 138100,
+      "size_bytes": 141078,
       "loc": 2979,
       "exports": [],
       "purpose": "",
@@ -5618,7 +5770,7 @@
       "folder": "(raiz)",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 318,
+      "size_bytes": 329,
       "loc": 12,
       "exports": [],
       "purpose": "",
@@ -5637,8 +5789,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 87104,
-      "loc": 1935,
+      "size_bytes": 95538,
+      "loc": 2025,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5652,12 +5804,12 @@
         "usuarios",
         "voluntarios"
       ],
-      "in_degree": 25,
+      "in_degree": 28,
       "out_degree": 15,
-      "degree": 40,
+      "degree": 43,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 99.3
+      "risk_score": 106.2
     },
     {
       "id": "panel/index.html",
@@ -5665,7 +5817,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9456,
+      "size_bytes": 9709,
       "loc": 254,
       "exports": [],
       "purpose": "",
@@ -5686,7 +5838,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6641,
+      "size_bytes": 6800,
       "loc": 160,
       "exports": [],
       "purpose": "",
@@ -5705,7 +5857,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 2104,
+      "size_bytes": 2156,
       "loc": 53,
       "exports": [],
       "purpose": "",
@@ -5724,7 +5876,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5737,
+      "size_bytes": 5847,
       "loc": 111,
       "exports": [],
       "purpose": "",
@@ -5743,7 +5895,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3483,
+      "size_bytes": 3560,
       "loc": 78,
       "exports": [],
       "purpose": "",
@@ -5762,7 +5914,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3502,
+      "size_bytes": 3601,
       "loc": 100,
       "exports": [],
       "purpose": "",
@@ -5800,18 +5952,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 28413,
-      "loc": 527,
+      "size_bytes": 30236,
+      "loc": 541,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 3,
-      "out_degree": 13,
-      "degree": 16,
+      "in_degree": 1,
+      "out_degree": 11,
+      "degree": 12,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 37.3
+      "risk_score": 29.4
     },
     {
       "id": "panel/modulos/congreso/lecturaQR.html",
@@ -5819,8 +5971,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12213,
-      "loc": 200,
+      "size_bytes": 9751,
+      "loc": 173,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5830,7 +5982,7 @@
       "degree": 8,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 18.0
+      "risk_score": 17.7
     },
     {
       "id": "panel/modulos/congreso/modulos_participantes.html",
@@ -5838,8 +5990,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 100713,
-      "loc": 2256,
+      "size_bytes": 101071,
+      "loc": 2263,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5860,18 +6012,18 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12638,
-      "loc": 206,
+      "size_bytes": 13308,
+      "loc": 211,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 1,
+      "in_degree": 0,
       "out_degree": 6,
-      "degree": 7,
+      "degree": 6,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 16.1
+      "risk_score": 14.1
     },
     {
       "id": "panel/modulos/congreso/randomizer.html",
@@ -5879,8 +6031,27 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 4838,
-      "loc": 98,
+      "size_bytes": 5556,
+      "loc": 106,
+      "exports": [],
+      "purpose": "",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "degree": 7,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 15.1
+    },
+    {
+      "id": "panel/modulos/congreso/randomizerint.html",
+      "label": "panel/modulos/congreso/randomizerint.html",
+      "folder": "panel",
+      "ext": ".html",
+      "kind": "source",
+      "size_bytes": 10382,
+      "loc": 157,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5890,7 +6061,7 @@
       "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 15.0
+      "risk_score": 15.6
     },
     {
       "id": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -5898,7 +6069,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8857,
+      "size_bytes": 9082,
       "loc": 226,
       "exports": [],
       "purpose": "",
@@ -5944,7 +6115,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6612,
+      "size_bytes": 6815,
       "loc": 204,
       "exports": [],
       "purpose": "",
@@ -5963,7 +6134,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12383,
+      "size_bytes": 12792,
       "loc": 410,
       "exports": [],
       "purpose": "",
@@ -5982,7 +6153,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6829,
+      "size_bytes": 7049,
       "loc": 221,
       "exports": [],
       "purpose": "",
@@ -6001,7 +6172,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 4037,
+      "size_bytes": 4155,
       "loc": 119,
       "exports": [],
       "purpose": "",
@@ -6020,7 +6191,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 3405,
+      "size_bytes": 3485,
       "loc": 81,
       "exports": [],
       "purpose": "",
@@ -6039,7 +6210,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 5625,
+      "size_bytes": 5737,
       "loc": 113,
       "exports": [],
       "purpose": "",
@@ -6058,7 +6229,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 12439,
+      "size_bytes": 12710,
       "loc": 272,
       "exports": [],
       "purpose": "",
@@ -6077,7 +6248,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11534,
+      "size_bytes": 11754,
       "loc": 221,
       "exports": [],
       "purpose": "",
@@ -6096,7 +6267,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 33112,
+      "size_bytes": 34002,
       "loc": 891,
       "exports": [],
       "purpose": "",
@@ -6136,7 +6307,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 7478,
+      "size_bytes": 7644,
       "loc": 167,
       "exports": [],
       "purpose": "",
@@ -6155,7 +6326,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8198,
+      "size_bytes": 8352,
       "loc": 155,
       "exports": [],
       "purpose": "",
@@ -6174,7 +6345,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 24262,
+      "size_bytes": 24779,
       "loc": 518,
       "exports": [],
       "purpose": "",
@@ -6193,7 +6364,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 11981,
+      "size_bytes": 12266,
       "loc": 286,
       "exports": [],
       "purpose": "",
@@ -6212,7 +6383,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 8137,
+      "size_bytes": 8320,
       "loc": 184,
       "exports": [],
       "purpose": "",
@@ -6231,7 +6402,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 9524,
+      "size_bytes": 9722,
       "loc": 199,
       "exports": [],
       "purpose": "",
@@ -6250,7 +6421,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 20492,
+      "size_bytes": 20915,
       "loc": 424,
       "exports": [],
       "purpose": "",
@@ -6269,7 +6440,7 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 24605,
+      "size_bytes": 25066,
       "loc": 462,
       "exports": [],
       "purpose": "",
@@ -6288,7 +6459,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 17853,
+      "size_bytes": 18345,
       "loc": 493,
       "exports": [],
       "purpose": "",
@@ -6307,7 +6478,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 6586,
+      "size_bytes": 6771,
       "loc": 186,
       "exports": [],
       "purpose": "",
@@ -6326,7 +6497,7 @@
       "folder": "public",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 25226,
+      "size_bytes": 25924,
       "loc": 699,
       "exports": [],
       "purpose": "",
@@ -6345,7 +6516,7 @@
       "folder": "(raiz)",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 59225,
+      "size_bytes": 60362,
       "loc": 1138,
       "exports": [],
       "purpose": "",
@@ -6647,6 +6818,24 @@
       "line": 9,
       "detail": {
         "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbols": [
+          "enPanama",
+          "msPanama",
+          "checkpointsParaEscanear",
+          "proximoCheckpointHoy",
+          "evaluarPermanencia",
+          "contarValidas"
+        ],
         "dynamic": false
       }
     },
@@ -7170,7 +7359,7 @@
       "target": "js/core/sso-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 16,
+      "line": 17,
       "detail": {
         "symbols": [
           "URL_BASE_PERFIL"
@@ -7183,7 +7372,7 @@
       "target": "js/core/librerias.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
         "symbols": [
           "cargarLibreria"
@@ -7451,6 +7640,22 @@
       }
     },
     {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/permanencia.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbols": [
+          "PERMANENCIA_MINIMA_DEFECTO",
+          "estaCancelado",
+          "evaluarPermanencia",
+          "contarValidas"
+        ],
+        "dynamic": false
+      }
+    },
+    {
       "source": "js/modulos/lecturaQR.js",
       "target": "js/core/firebase-config.js",
       "type": "imports",
@@ -7500,6 +7705,36 @@
       "detail": {
         "symbols": [
           "extraerCredencialQr"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/auth.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbols": [
+          "esperarSesionLista",
+          "getUsuarioActual"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbols": [
+          "enPanama",
+          "estaOperativo",
+          "checkpointsParaEscanear",
+          "proximoCheckpointHoy"
         ],
         "dynamic": false
       }
@@ -7710,7 +7945,7 @@
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 16,
+      "line": 20,
       "detail": {
         "symbols": [
           "app",
@@ -7724,7 +7959,7 @@
       "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 24,
+      "line": 28,
       "detail": {
         "symbols": [
           "escaparHtml"
@@ -7737,10 +7972,40 @@
       "target": "js/core/credencial-qr.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 25,
+      "line": 29,
       "detail": {
         "symbols": [
           "extraerCredencialQr"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/auth.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 30,
+      "detail": {
+        "symbols": [
+          "esperarSesionLista",
+          "getUsuarioActual"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbols": [
+          "enPanama",
+          "estaOperativo",
+          "checkpointsParaEscanear",
+          "proximoCheckpointHoy"
         ],
         "dynamic": false
       }
@@ -7750,9 +8015,10 @@
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 8,
+      "line": 10,
       "detail": {
         "symbols": [
+          "app",
           "db"
         ],
         "dynamic": false
@@ -7763,7 +8029,48 @@
       "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 12,
+      "line": 18,
+      "detail": {
+        "symbols": [
+          "escaparAtributo",
+          "escaparHtml"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/randomizer.js",
+      "target": "js/core/auth.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbols": [
+          "esperarSesionLista",
+          "usuarioTienePermiso"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/randomizerint.js",
+      "target": "js/core/firebase-config.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbols": [
+          "db"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "js/modulos/randomizerint.js",
+      "target": "js/core/seguridad.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 17,
       "detail": {
         "symbols": [
           "escaparHtml"
@@ -8123,7 +8430,7 @@
       "target": "js/core/auth.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1027,
+      "line": 1073,
       "detail": {
         "symbols": [
           "guardRoute",
@@ -8139,7 +8446,7 @@
       "target": "js/core/permisos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1028,
+      "line": 1074,
       "detail": {
         "symbols": [
           "tienePermiso",
@@ -8153,7 +8460,7 @@
       "target": "js/modulos/reuniones-utils.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1029,
+      "line": 1075,
       "detail": {
         "symbols": [
           "usuarioPuedeVerReunion"
@@ -8166,7 +8473,7 @@
       "target": "js/core/operaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1030,
+      "line": 1076,
       "detail": {
         "symbols": [
           "formatearMoneda"
@@ -8179,7 +8486,7 @@
       "target": "js/core/firebase-config.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1031,
+      "line": 1077,
       "detail": {
         "symbols": [
           "db"
@@ -8199,14 +8506,14 @@
       "target": "logocontecsheader.png",
       "type": "loads_asset",
       "provenance": "extracted",
-      "line": 962
+      "line": 1010
     },
     {
       "source": "panel/dashboard.html",
       "target": "img/iconos/cerrar.svg",
       "type": "loads_asset",
       "provenance": "extracted",
-      "line": 1082
+      "line": 1130
     },
     {
       "source": "panel/index.html",
@@ -8533,35 +8840,21 @@
       "target": "panel/modulos/congreso/lecturaQR.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 182
-    },
-    {
-      "source": "panel/modulos/congreso/inscripciones.html",
-      "target": "panel/modulos/congreso/posper.html",
-      "type": "navigates_to",
-      "provenance": "extracted",
-      "line": 183
-    },
-    {
-      "source": "panel/modulos/congreso/inscripciones.html",
-      "target": "panel/modulos/congreso/randomizer.html",
-      "type": "navigates_to",
-      "provenance": "extracted",
-      "line": 184
+      "line": 193
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 185
+      "line": 194
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/modulos/inscripciones.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 524
+      "line": 538
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
@@ -8596,14 +8889,14 @@
       "target": "panel/modulos/congreso/inscripciones.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 101
+      "line": 85
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/modulos/lecturaQR.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 197
+      "line": 170
     },
     {
       "source": "panel/modulos/congreso/modulos_participantes.html",
@@ -8778,17 +9071,17 @@
     },
     {
       "source": "panel/modulos/congreso/posper.html",
-      "target": "panel/modulos/congreso/inscripciones.html",
+      "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 97
+      "line": 100
     },
     {
       "source": "panel/modulos/congreso/posper.html",
       "target": "js/modulos/posper.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 203
+      "line": 208
     },
     {
       "source": "panel/modulos/congreso/randomizer.html",
@@ -8813,17 +9106,59 @@
     },
     {
       "source": "panel/modulos/congreso/randomizer.html",
-      "target": "panel/modulos/congreso/inscripciones.html",
+      "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 59
+      "line": 62
+    },
+    {
+      "source": "panel/modulos/congreso/randomizer.html",
+      "target": "panel/modulos/congreso/randomizerint.html",
+      "type": "navigates_to",
+      "provenance": "extracted",
+      "line": 82
     },
     {
       "source": "panel/modulos/congreso/randomizer.html",
       "target": "js/modulos/randomizer.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 95
+      "line": 103
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "js/core/auth.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbols": [
+          "guardRoute",
+          "requirePermiso"
+        ],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "css/styles.css",
+      "type": "loads_stylesheet",
+      "provenance": "extracted",
+      "line": 10
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "panel/dashboard.html",
+      "type": "navigates_to",
+      "provenance": "extracted",
+      "line": 123
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "js/modulos/randomizerint.js",
+      "type": "loads_script",
+      "provenance": "extracted",
+      "line": 154
     },
     {
       "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
@@ -9948,6 +10283,16 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
+        "symbol": "parsearEntradaCorreo"
+      }
+    },
+    {
+      "source": "functions/test/correos.test.mjs",
+      "target": "js/core/correos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
         "symbol": "esCorreoValido"
       }
     },
@@ -9962,13 +10307,63 @@
       }
     },
     {
-      "source": "functions/test/correos.test.mjs",
-      "target": "js/core/correos.js",
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "parsearEntradaCorreo"
+        "symbol": "contarValidas"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "msPanama"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "evaluarPermanencia"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "proximoCheckpointHoy"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "checkpointsParaEscanear"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "enPanama"
       }
     },
     {
@@ -10008,6 +10403,16 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
+        "symbol": "nombreIconoCombo"
+      }
+    },
+    {
+      "source": "js/modulos/actividadVentas.js",
+      "target": "js/core/iconos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
         "symbol": "iconoComboImg"
       }
     },
@@ -10019,16 +10424,6 @@
       "line": 7,
       "detail": {
         "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/actividadVentas.js",
-      "target": "js/core/iconos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
-        "symbol": "nombreIconoCombo"
       }
     },
     {
@@ -10098,7 +10493,7 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "esperarSesionLista"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -10108,17 +10503,7 @@
       "provenance": "extracted",
       "line": 5,
       "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "js/modulos/calendario.js",
-      "target": "js/modulos/reuniones-utils.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "usuarioPuedeVerReunion"
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -10129,6 +10514,16 @@
       "line": 6,
       "detail": {
         "symbol": "usuarioPuedeGestionarMinuta"
+      }
+    },
+    {
+      "source": "js/modulos/calendario.js",
+      "target": "js/modulos/reuniones-utils.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "usuarioPuedeVerReunion"
       }
     },
     {
@@ -10178,7 +10573,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10188,7 +10583,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10208,7 +10603,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -10218,7 +10613,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -10238,7 +10633,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -10248,7 +10643,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10268,7 +10663,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10278,7 +10673,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10298,7 +10693,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "crearProducto"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -10318,7 +10713,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "crearProducto"
       }
     },
     {
@@ -10338,7 +10733,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -10348,7 +10743,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -10366,7 +10761,7 @@
       "target": "js/core/librerias.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
         "symbol": "cargarLibreria"
       }
@@ -10378,7 +10773,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10388,7 +10783,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10428,7 +10823,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10448,7 +10843,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10459,6 +10854,16 @@
       "line": 1,
       "detail": {
         "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "registrarMovimientoFondo"
       }
     },
     {
@@ -10479,16 +10884,6 @@
       "line": 3,
       "detail": {
         "symbol": "formatearMoneda"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "registrarMovimientoFondo"
       }
     },
     {
@@ -10562,6 +10957,36 @@
       }
     },
     {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "contarValidas"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "evaluarPermanencia"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 9,
+      "detail": {
+        "symbol": "estaCancelado"
+      }
+    },
+    {
       "source": "js/modulos/lecturaQR.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
@@ -10589,6 +11014,66 @@
       "line": 11,
       "detail": {
         "symbol": "extraerCredencialQr"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "esperarSesionLista"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "estaOperativo"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "proximoCheckpointHoy"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "checkpointsParaEscanear"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "enPanama"
       }
     },
     {
@@ -10658,7 +11143,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparHtml"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -10668,7 +11153,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "escaparHtml"
       }
     },
     {
@@ -10716,9 +11201,99 @@
       "target": "js/core/credencial-qr.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 25,
+      "line": 29,
       "detail": {
         "symbol": "extraerCredencialQr"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 30,
+      "detail": {
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 30,
+      "detail": {
+        "symbol": "esperarSesionLista"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbol": "estaOperativo"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbol": "proximoCheckpointHoy"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbol": "checkpointsParaEscanear"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbol": "enPanama"
+      }
+    },
+    {
+      "source": "js/modulos/randomizer.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 18,
+      "detail": {
+        "symbol": "escaparAtributo"
+      }
+    },
+    {
+      "source": "js/modulos/randomizer.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "usuarioTienePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/randomizer.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -10758,7 +11333,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10768,7 +11343,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -10798,16 +11373,6 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "escaparHtml"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
         "symbol": "urlImagenSegura"
       }
     },
@@ -10822,13 +11387,23 @@
       }
     },
     {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "escaparHtml"
+      }
+    },
+    {
       "source": "js/modulos/ventaRapida.js",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -10848,7 +11423,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11008,7 +11583,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -11018,7 +11593,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -11046,7 +11621,17 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1027,
+      "line": 1073,
+      "detail": {
+        "symbol": "getUsuarioActual"
+      }
+    },
+    {
+      "source": "panel/dashboard.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1073,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11056,39 +11641,29 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1027,
+      "line": 1073,
       "detail": {
         "symbol": "esperarSesionLista"
       }
     },
     {
       "source": "panel/dashboard.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1027,
-      "detail": {
-        "symbol": "getUsuarioActual"
-      }
-    },
-    {
-      "source": "panel/dashboard.html",
       "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1028,
-      "detail": {
-        "symbol": "tienePermiso"
-      }
-    },
-    {
-      "source": "panel/dashboard.html",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1028,
+      "line": 1074,
       "detail": {
         "symbol": "infoRol"
+      }
+    },
+    {
+      "source": "panel/dashboard.html",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1074,
+      "detail": {
+        "symbol": "tienePermiso"
       }
     },
     {
@@ -11096,7 +11671,7 @@
       "target": "js/modulos/reuniones-utils.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1029,
+      "line": 1075,
       "detail": {
         "symbol": "usuarioPuedeVerReunion"
       }
@@ -11106,7 +11681,7 @@
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1030,
+      "line": 1076,
       "detail": {
         "symbol": "formatearMoneda"
       }
@@ -11138,7 +11713,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11148,16 +11723,6 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/admin/exportar.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 47,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -11172,11 +11737,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutaReunion.html",
+      "source": "panel/modulos/admin/exportar.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 47,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11192,7 +11757,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutas.html",
+      "source": "panel/modulos/admin/minutaReunion.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -11212,7 +11777,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/secretaria.html",
+      "source": "panel/modulos/admin/minutas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -11232,11 +11797,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/inscripciones.html",
+      "source": "panel/modulos/admin/secretaria.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 16,
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11252,11 +11817,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/lecturaQR.html",
+      "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 15,
+      "line": 16,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11272,11 +11837,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 14,
+      "line": 15,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11289,6 +11854,16 @@
       "line": 14,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11348,7 +11923,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "dibujarCredencial"
+        "symbol": "generarPdf"
       }
     },
     {
@@ -11368,7 +11943,57 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
+        "symbol": "nombreDe"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "generarZip"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "medidaImpresa"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
         "symbol": "nombreArchivo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "descargarBlob"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "imprimirPdf"
       }
     },
     {
@@ -11388,7 +12013,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "generarPdf"
+        "symbol": "textoQr"
       }
     },
     {
@@ -11418,47 +12043,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "tieneCredencial"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "medidaImpresa"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "textoQr"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "nombreDe"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "imprimirPdf"
+        "symbol": "dibujarCredencial"
       }
     },
     {
@@ -11478,17 +12063,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "descargarBlob"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "generarZip"
+        "symbol": "tieneCredencial"
       }
     },
     {
@@ -11498,7 +12073,17 @@
       "provenance": "extracted",
       "line": 936,
       "detail": {
-        "symbol": "descargarPlantilla"
+        "symbol": "revisarFilas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "leerArchivo"
       }
     },
     {
@@ -11518,7 +12103,7 @@
       "provenance": "extracted",
       "line": 936,
       "detail": {
-        "symbol": "revisarFilas"
+        "symbol": "detectarColumnas"
       }
     },
     {
@@ -11548,27 +12133,7 @@
       "provenance": "extracted",
       "line": 936,
       "detail": {
-        "symbol": "detectarColumnas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "leerArchivo"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/posper.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 14,
-      "detail": {
-        "symbol": "guardRoute"
+        "symbol": "descargarPlantilla"
       }
     },
     {
@@ -11582,11 +12147,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/randomizer.html",
+      "source": "panel/modulos/congreso/posper.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 14,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11602,11 +12167,31 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "source": "panel/modulos/congreso/randomizer.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 218,
+      "line": 12,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/randomizerint.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11622,11 +12207,11 @@
       }
     },
     {
-      "source": "panel/modulos/finanzas/bitacora.html",
+      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 331,
+      "line": 218,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -11639,6 +12224,16 @@
       "line": 331,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 331,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11678,7 +12273,7 @@
       "provenance": "extracted",
       "line": 75,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11688,16 +12283,6 @@
       "provenance": "extracted",
       "line": 75,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/finanzas/reportes_financieros.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 97,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -11709,6 +12294,16 @@
       "line": 97,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 97,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11728,7 +12323,7 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11738,16 +12333,6 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 461,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -11759,6 +12344,16 @@
       "line": 461,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 461,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11778,77 +12373,7 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "escucharProductosPorCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "reactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearCategoria"
+        "symbol": "editarProducto"
       }
     },
     {
@@ -11868,7 +12393,77 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
-        "symbol": "editarProducto"
+        "symbol": "reactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "escucharProductosPorCategoria"
       }
     },
     {
@@ -11888,7 +12483,7 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11898,7 +12493,7 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11918,7 +12513,7 @@
       "provenance": "extracted",
       "line": 344,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -11928,7 +12523,7 @@
       "provenance": "extracted",
       "line": 344,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -11958,7 +12553,7 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11968,16 +12563,6 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/calendario.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 12,
-      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -11992,11 +12577,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/giras.html",
+      "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 15,
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -12012,11 +12597,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/informeActividad.html",
+      "source": "panel/modulos/voluntariado/giras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 15,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -12032,11 +12617,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
+      "source": "panel/modulos/voluntariado/informeActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -12052,7 +12637,7 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -12072,11 +12657,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/solicitudActividad.html",
+      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 13,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -12092,11 +12677,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "source": "panel/modulos/voluntariado/solicitudActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 16,
+      "line": 12,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -12109,6 +12694,16 @@
       "line": 16,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 16,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -12183,45 +12778,13 @@
     }
   ],
   "git": {
-    "available": true,
-    "branch": "main",
-    "head": "29129de541abff6b454898ed765b8d3a2b63c256",
-    "changed_files": [
-      {
-        "file": ".firebase/hosting..cache",
-        "status": " M"
-      },
-      {
-        "file": "functions/rfid.js",
-        "status": " M"
-      },
-      {
-        "file": "functions/test/rfid.test.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/lecturaQR.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/posper.js",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/lecturaQR.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/posper.html",
-        "status": " M"
-      }
-    ],
-    "changed_count": 7
+    "available": false,
+    "changed_files": []
   },
   "ai_usage": {
     "purpose": "Mapa arquitectónico normal. Abrir después de GraphCompacto.json cuando se necesiten relaciones exactas.",
     "next_view": "GraphProfundo.json",
     "source_of_truth": "El código real; este archivo es un índice estático."
   },
-  "estimated_tokens": 55085
+  "estimated_tokens": 57603
 }

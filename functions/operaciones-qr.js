@@ -7,9 +7,16 @@ const {
 const {idLockRfid, normalizarRfid, serialRfid} = require("./rfid");
 
 const db = getFirestore();
+// Marcan asistencia: Staff con Lectura QR y el patrocinador desde POSPER.
 const ROLES_CONGRESO = new Set([
-  "ceo", "staff_contecs",
+  "ceo", "staff_contecs", "posper",
 ]);
+// Anclan RFID (solo desde POSPER). Debe reflejar "acceso_posper" en
+// js/core/permisos.js.
+const ROLES_POSPER = new Set(["ceo", "posper"]);
+// Liberan un RFID asignado por error. Debe reflejar "liberar_rfid" en
+// js/core/permisos.js.
+const ROLES_LIBERAR_RFID = new Set(["ceo"]);
 const ROLES_VOLUNTARIADO = new Set([
   "ceo", "junta_principal", "voluntariado",
 ]);
@@ -57,6 +64,14 @@ function validarParticipante(participante, coleccion, checkpoint) {
   }
 }
 
+// Cancelado o desactivado desde Gestión de Eventos. Los documentos antiguos
+// no tienen estos campos y siguen operativos.
+function noOperativo(item) {
+  if (item?.estado === "cancelado") return "está cancelado";
+  if (item?.activo === false) return "está desactivado";
+  return null;
+}
+
 function validarContextoEvento(eventoSnap, checkpoint, eventoId) {
   if (!eventoSnap.exists) {
     throw new HttpsError("not-found", "El evento seleccionado ya no existe.");
@@ -65,6 +80,17 @@ function validarContextoEvento(eventoSnap, checkpoint, eventoId) {
     throw new HttpsError(
         "failed-precondition",
         "El checkpoint no pertenece al evento seleccionado.",
+    );
+  }
+  const eventoMotivo = noOperativo(eventoSnap.data());
+  if (eventoMotivo) {
+    throw new HttpsError("failed-precondition", `El evento ${eventoMotivo}.`);
+  }
+  const checkpointMotivo = noOperativo(checkpoint);
+  if (checkpointMotivo) {
+    throw new HttpsError(
+        "failed-precondition",
+        `"${checkpoint.nombre || "El checkpoint"}" ${checkpointMotivo}.`,
     );
   }
 }
@@ -463,10 +489,12 @@ async function marcarCheckpointGira(request) {
 }
 
 // ─── RFID: ancla el QR "RFID" a un participante (POSPER / lector EA530) ─────
-// El lock en `rfid_participantes` impide que el mismo RFID quede en dos
-// personas. Si el participante ya tenía otro RFID, el anterior se libera.
+// Un RFID por persona y una persona por RFID: el lock en `rfid_participantes`
+// impide que el mismo RFID quede en dos personas, y quien ya tiene un RFID
+// se queda con ese (no se reemplaza). Volver a leer el mismo RFID de la misma
+// persona no es error: responde ok sin cambiar nada.
 async function anclarRfid(request) {
-  const actorId = await validarActor(request, ROLES_CONGRESO);
+  const actorId = await validarActor(request, ROLES_POSPER);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const eventoId = idValido(data.eventoId, "evento");
@@ -500,8 +528,20 @@ async function anclarRfid(request) {
     }
 
     const anterior = participante.rfid?.lockId;
-    if (anterior && anterior !== lockId) {
-      tx.delete(db.collection("rfid_participantes").doc(anterior));
+    if (anterior === lockId) {
+      return {
+        ok: true,
+        serial: participante.rfid.serial || serial,
+        yaAnclado: true,
+        participanteNombre: nombreParticipante(participante),
+      };
+    }
+    if (anterior) {
+      throw new HttpsError(
+          "already-exists",
+          `${nombreParticipante(participante) || "El participante"} ya tiene ` +
+          `el RFID ${participante.rfid.serial || ""}. No se le puede asignar otro.`,
+      );
     }
     tx.set(lockRef, {
       participanteId,
@@ -525,7 +565,49 @@ async function anclarRfid(request) {
     return {
       ok: true,
       serial,
-      reemplazado: Boolean(anterior && anterior !== lockId),
+      yaAnclado: false,
+      participanteNombre: nombreParticipante(participante),
+    };
+  });
+}
+
+// ─── RFID asignado por error: lo libera (solo CEO) ──────────────────────────
+// Quita el RFID del participante y borra su lock, así ese RFID puede ir a otra
+// persona y el participante puede recibir uno nuevo desde POSPER. Queda
+// constancia de qué se liberó, quién y cuándo.
+async function liberarRfid(request) {
+  const actorId = await validarActor(request, ROLES_LIBERAR_RFID);
+  const participanteId = idValido(request.data?.participanteId, "participante");
+  const participanteRef = db.collection("participantes").doc(participanteId);
+
+  return db.runTransaction(async (tx) => {
+    const participanteSnap = await tx.get(participanteRef);
+    if (!participanteSnap.exists) {
+      throw new HttpsError("not-found", "Participante no encontrado.");
+    }
+    const participante = participanteSnap.data();
+    const rfid = participante.rfid;
+    if (!rfid?.lockId) {
+      throw new HttpsError("failed-precondition", "El participante no tiene RFID.");
+    }
+    const lockRef = db.collection("rfid_participantes").doc(rfid.lockId);
+    const lockSnap = await tx.get(lockRef);
+    // Solo se borra el lock si de verdad es de esta persona.
+    if (lockSnap.exists && lockSnap.data()?.participanteId === participanteId) {
+      tx.delete(lockRef);
+    }
+    tx.update(participanteRef, {
+      rfid: FieldValue.delete(),
+      rfidLiberado: {
+        serial: rfid.serial || null,
+        liberadoEn: FieldValue.serverTimestamp(),
+        liberadoPor: actorId,
+      },
+      actualizadoEn: FieldValue.serverTimestamp(),
+    });
+    return {
+      ok: true,
+      serial: rfid.serial || null,
       participanteNombre: nombreParticipante(participante),
     };
   });
@@ -536,6 +618,7 @@ async function ejecutarOperacionQr(request) {
     case "asistencia_participante": return asistenciaParticipante(request);
     case "inscripcion_taller": return inscripcionTaller(request);
     case "anclar_rfid": return anclarRfid(request);
+    case "liberar_rfid": return liberarRfid(request);
     case "asistencia_voluntario": return asistenciaVoluntario(request);
     default:
       throw new HttpsError("invalid-argument", "Operación QR no reconocida.");

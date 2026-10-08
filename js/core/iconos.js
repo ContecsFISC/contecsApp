@@ -11,10 +11,10 @@ const BASE_ICONOS = new URL("../../img/iconos/", import.meta.url).href;
 
 // Nombres válidos de icono (deben coincidir con un archivo .svg en img/iconos/)
 export const ICONOS_DISPONIBLES = [
-  "advertencia", "agua", "bubble_tea", "cafe", "caja", "carrito",
+  "activar", "advertencia", "agua", "bubble_tea", "cafe", "caja", "cancelar", "carrito",
   "cat_bebidas", "cat_comida", "cat_dulces", "cat_otros", "cat_postres", "cat_snacks",
   "cerrar", "chocolate", "combo", "combo_hamburguesa_soda", "combo_pizza_soda",
-  "donut", "dulce", "dulce_alt", "editar", "eliminar", "estrella",
+  "desactivar", "donut", "dulce", "dulce_alt", "editar", "eliminar", "estrella",
   "extra_sin_identificar_1",
   "galleta", "galleta_alt", "hamburguesa", "helado", "hotdog", "jugo",
   "manos", "nachos", "nueces", "paleta", "palomitas", "papas", "papitas",

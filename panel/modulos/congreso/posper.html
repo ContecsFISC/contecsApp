@@ -13,7 +13,7 @@
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
- await requirePermiso("gestionar_inscripciones");
+ await requirePermiso("acceso_posper");
  </script>
  <style>
  .container { max-width: 560px; }
@@ -36,6 +36,9 @@
  .captura-wrap.sin-foco .captura-aviso { display: block; }
  .escenario.inactivo .captura-wrap { display: none; }
 
+ .cp-aviso { margin-top: 8px; font-size: 12px; color: var(--gris-medio); line-height: 1.45; }
+ .ceo-todos { display: none; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--gris-medio); }
+ .ceo-todos input { width: auto; }
  .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--verde-oscuro); font-weight: 600; }
  .config-resumen span { min-width: 0; overflow-wrap: anywhere; }
 
@@ -94,7 +97,7 @@
 
 <div class="topbar">
  <h1>CONTECS — POSPER</h1>
- <a href="inscripciones.html" class="btn-volver" title="Volver a eventos" aria-label="Volver a eventos"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
 <div class="container anim-page-in">
@@ -110,8 +113,10 @@
  <select id="sel-evento"><option value="">— Selecciona un evento —</option></select>
  </div>
  <div class="form-groupE" style="margin-bottom:0;">
- <label for="sel-checkpoint">Checkpoint donde se marca la asistencia</label>
+ <label for="sel-checkpoint">Checkpoint donde se marca la entrada</label>
  <select id="sel-checkpoint" disabled><option value="">— Primero elige el evento —</option></select>
+ <div class="cp-aviso" id="cp-aviso" role="status"></div>
+ <label class="ceo-todos" id="ceo-todos"><input type="checkbox" id="chk-todos"/> Ver todos los checkpoints del evento (solo CEO, para pruebas)</label>
  </div>
  </div>
  <div id="config-resumen" class="config-resumen" style="display:none;">
@@ -150,7 +155,7 @@
  <div class="card-title">Registros de esta sesión</div>
  <div class="tabla-wrap">
  <table>
- <thead><tr><th>Nombre</th><th>Asistencia</th><th>RFID</th><th>Hora</th></tr></thead>
+ <thead><tr><th>Nombre</th><th>Entrada</th><th>RFID</th><th>Hora</th></tr></thead>
  <tbody id="log-posper"><tr><td colspan="4" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
  </table>
  </div>
@@ -200,6 +205,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/posper.js"></script>
+<script type="module" src="../../../js/modulos/posper.js?v=20261008.1"></script>
 </body>
 </html>

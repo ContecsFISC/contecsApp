@@ -1,5 +1,5 @@
-// Lectura del "RFID" que se ancla a un participante (POSPER y Lectura QR con
-// el lector EA530). Es lo que traiga la siguiente lectura tras la credencial:
+// Lectura del "RFID" que se ancla a un participante (POSPER, con el lector
+// EA530). Es lo que traiga la siguiente lectura tras la credencial:
 // normalmente un QR con un texto hexadecimal largo, pero puede ser un código
 // de barras u otro texto. Se muestra un serial corto (primeros + últimos
 // caracteres) y se guarda el valor completo para que el mismo RFID no quede

@@ -10,8 +10,9 @@
 // cualquier tamaño vertical.
 //
 // La credencial oficial es doblada: la impresora saca una tira de 4 × 10 in
-// que se dobla a la mitad y queda con dos caras de 4 × 5 in. En `TAMANOS`,
-// ancho y alto son siempre los de una cara; `doblez` duplica el alto impreso.
+// (o 4 × 13 in) que se dobla a la mitad y queda con dos caras de 4 × 5 in (o
+// 4 × 6.5 in). En `TAMANOS`, ancho y alto son siempre los de una cara;
+// `doblez` duplica el alto impreso.
 
 import { URL_BASE_PERFIL } from "../core/sso-config.js";
 import { cargarLibreria } from "../core/librerias.js";
@@ -20,6 +21,10 @@ export const TAMANOS = {
   doblada: {
     nombre: "4 × 10 in doblada · frente y reverso de 4 × 5 in (recomendado)",
     ancho: 101.6, alto: 127, doblez: true,
+  },
+  doblada13: {
+    nombre: "4 × 13 in doblada · frente y reverso de 4 × 6.5 in",
+    ancho: 101.6, alto: 165.1, doblez: true,
   },
   carta: {
     nombre: "4 × 10 in doblada sobre hoja Carta (impresora común)",
@@ -565,11 +570,14 @@ export function nombreArchivo(p, ext) {
   return `Credencial_${slug(p.codigo)}_${slug(nombreDe(p))}.${ext}`;
 }
 
+// CONTECS_credenciales_2026-10-08_14-05-09.pdf: con la hora, cada descarga
+// tiene un nombre distinto y no se pisa con la anterior.
 export function nombreLote(ext, sufijo = "") {
-  const hoy = new Date();
-  const fecha = [hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate()]
-    .map(n => String(n).padStart(2, "0")).join("-");
-  return `CONTECS_credenciales_${fecha}${sufijo ? `_${sufijo}` : ""}.${ext}`;
+  const ahora = new Date();
+  const dos = n => String(n).padStart(2, "0");
+  const fecha = [ahora.getFullYear(), ahora.getMonth() + 1, ahora.getDate()].map(dos).join("-");
+  const hora = [ahora.getHours(), ahora.getMinutes(), ahora.getSeconds()].map(dos).join("-");
+  return `CONTECS_credenciales_${fecha}_${hora}${sufijo ? `_${sufijo}` : ""}.${ext}`;
 }
 
 export function descargarBlob(blob, nombre) {

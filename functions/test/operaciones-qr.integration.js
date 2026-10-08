@@ -9,6 +9,8 @@ const db = getFirestore();
 const {ejecutarOperacionQr} = require("../operaciones-qr");
 
 const request = (data) => ({auth: {uid: "staff-prueba"}, data});
+const requestPosper = (data) => ({auth: {uid: "posper-prueba"}, data});
+const requestCeo = (data) => ({auth: {uid: "ceo-prueba"}, data});
 const participante = (nombre, pago = "aprobado") => ({
   nombreCompleto: nombre,
   correo: `${nombre.toLowerCase().replace(/\s+/g, ".")}@example.com`,
@@ -30,6 +32,24 @@ async function prepararDatos() {
   const batch = db.batch();
   batch.set(db.collection("usuarios").doc("staff-prueba"), {
     rol: "staff_contecs",
+  });
+  batch.set(db.collection("usuarios").doc("posper-prueba"), {
+    rol: "posper",
+  });
+  batch.set(db.collection("usuarios").doc("ceo-prueba"), {
+    rol: "ceo",
+  });
+  batch.set(db.collection("checkpoints").doc("cancelado-prueba"), {
+    eventoId: "evento-prueba",
+    nombre: "Conferencia cancelada",
+    tipo: "conferencia",
+    estado: "cancelado",
+  });
+  batch.set(db.collection("checkpoints").doc("inactivo-prueba"), {
+    eventoId: "evento-prueba",
+    nombre: "Conferencia desactivada",
+    tipo: "conferencia",
+    activo: false,
   });
   batch.set(db.collection("eventos").doc("evento-prueba"), {
     nombre: "Congreso de prueba",
@@ -108,6 +128,23 @@ async function probarEntradaGeneral() {
     ...datos,
     eventoId: "evento-ajeno",
   })), "failed-precondition");
+  // Cancelado o desactivado desde Gestión de Eventos: no se marca nada.
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...datos,
+    participanteId: "concurrente-dos",
+    checkpointId: "cancelado-prueba",
+  })), "failed-precondition");
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...datos,
+    participanteId: "concurrente-dos",
+    checkpointId: "inactivo-prueba",
+  })), "failed-precondition");
+  // El patrocinador también marca entradas desde POSPER.
+  const desdePosper = await ejecutarOperacionQr(requestPosper({
+    ...datos,
+    participanteId: "concurrente-dos",
+  }));
+  assert.equal(desdePosper.ok, true);
 }
 
 async function probarTallerConAsistencia() {
@@ -158,43 +195,84 @@ async function probarUltimoCupoConcurrente() {
 }
 
 // POSPER: el RFID queda en el participante, el mismo RFID no puede quedar en
-// dos personas y anclar otro reemplaza (y libera) el anterior.
+// dos personas y quien ya tiene un RFID no recibe otro.
 async function probarAnclarRfid() {
   const base = {tipo: "anclar_rfid", eventoId: "evento-prueba"};
   const rfidA = "e2:80:11:60:60:00:02:0a:3b:4c:3f:1a";
   const rfidB = "E2801160600002FFFFFF9999";
 
-  const r1 = await ejecutarOperacionQr(request({
+  // Staff marca asistencia, pero el RFID solo se ancla desde POSPER.
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...base, participanteId: "participante-uno", rfid: rfidA,
+  })), "permission-denied");
+
+  const r1 = await ejecutarOperacionQr(requestPosper({
     ...base, participanteId: "participante-uno", rfid: rfidA,
   }));
   assert.equal(r1.serial, "E280...3F1A");
-  assert.equal(r1.reemplazado, false);
+  assert.equal(r1.yaAnclado, false);
   const p1 = await db.collection("participantes").doc("participante-uno").get();
   assert.equal(p1.data().rfid.serial, "E280...3F1A");
   assert.equal(p1.data().rfid.eventoId, "evento-prueba");
-  const lockA = p1.data().rfid.lockId;
 
-  await rechazaCon(ejecutarOperacionQr(request({
+  await rechazaCon(ejecutarOperacionQr(requestPosper({
     ...base, participanteId: "concurrente-uno", rfid: "E28011606000020A3B4C3F1A",
   })), "already-exists");
-  await rechazaCon(ejecutarOperacionQr(request({
+  await rechazaCon(ejecutarOperacionQr(requestPosper({
     ...base, participanteId: "pago-pendiente", rfid: rfidB,
   })), "failed-precondition");
-  await rechazaCon(ejecutarOperacionQr(request({
+  await rechazaCon(ejecutarOperacionQr(requestPosper({
     ...base, participanteId: "participante-uno", rfid: "https://x.test/?c=A&t=B",
   })), "invalid-argument");
 
-  const r2 = await ejecutarOperacionQr(request({
+  // Un segundo RFID para la misma persona se rechaza y el primero se conserva.
+  await rechazaCon(ejecutarOperacionQr(requestPosper({
     ...base, participanteId: "participante-uno", rfid: rfidB,
+  })), "already-exists");
+  const p2 = await db.collection("participantes").doc("participante-uno").get();
+  assert.equal(p2.data().rfid.lockId, p1.data().rfid.lockId);
+
+  // Volver a leer su mismo RFID no es error.
+  const repetido = await ejecutarOperacionQr(requestPosper({
+    ...base, participanteId: "participante-uno", rfid: rfidA,
   }));
-  assert.equal(r2.reemplazado, true);
-  const viejo = await db.collection("rfid_participantes").doc(lockA).get();
-  assert.equal(viejo.exists, false);
-  // El RFID liberado ya lo puede usar otra persona.
-  const r3 = await ejecutarOperacionQr(request({
-    ...base, participanteId: "concurrente-uno", rfid: rfidA,
+  assert.equal(repetido.yaAnclado, true);
+
+  // El RFID que nadie usó queda libre para otra persona.
+  const r3 = await ejecutarOperacionQr(requestPosper({
+    ...base, participanteId: "concurrente-uno", rfid: rfidB,
   }));
-  assert.equal(r3.serial, "E280...3F1A");
+  assert.equal(r3.serial, "E280...9999");
+}
+
+// RFID asignado por error: solo el CEO lo libera; después el RFID puede ir a
+// otra persona y el participante puede recibir uno nuevo.
+async function probarLiberarRfid() {
+  const base = {tipo: "anclar_rfid", eventoId: "evento-prueba"};
+  const liberar = {tipo: "liberar_rfid", participanteId: "participante-uno"};
+  const rfidA = "E28011606000020A3B4C3F1A";
+
+  await rechazaCon(ejecutarOperacionQr(requestPosper(liberar)), "permission-denied");
+  await rechazaCon(ejecutarOperacionQr(request(liberar)), "permission-denied");
+
+  const r = await ejecutarOperacionQr(requestCeo(liberar));
+  assert.equal(r.serial, "E280...3F1A");
+  const p = await db.collection("participantes").doc("participante-uno").get();
+  assert.equal(p.data().rfid, undefined);
+  assert.equal(p.data().rfidLiberado.serial, "E280...3F1A");
+
+  await rechazaCon(ejecutarOperacionQr(requestCeo(liberar)), "failed-precondition");
+
+  // El RFID liberado ya lo puede recibir otra persona...
+  const otro = await ejecutarOperacionQr(requestPosper({
+    ...base, participanteId: "concurrente-dos", rfid: rfidA,
+  }));
+  assert.equal(otro.yaAnclado, false);
+  // ...y quien lo tenía puede recibir uno nuevo.
+  const nuevo = await ejecutarOperacionQr(requestPosper({
+    ...base, participanteId: "participante-uno", rfid: "ABCD1234EF",
+  }));
+  assert.equal(nuevo.yaAnclado, false);
 }
 
 async function main() {
@@ -203,7 +281,8 @@ async function main() {
   await probarTallerConAsistencia();
   await probarUltimoCupoConcurrente();
   await probarAnclarRfid();
-  console.log("Integración QR: 23 comprobaciones críticas superadas.");
+  await probarLiberarRfid();
+  console.log("Integración QR: comprobaciones críticas superadas.");
 }
 
 main().catch((error) => {

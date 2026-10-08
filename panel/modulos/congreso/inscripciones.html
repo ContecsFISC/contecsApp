@@ -50,7 +50,18 @@
  .tabla-asistencia th:first-child,.tabla-asistencia td:first-child { text-align:left; min-width:140px; position:sticky; left:0; background:#fff; color:var(--verde-oscuro); }
  .tabla-asistencia th:first-child { background:var(--verde-fondo); color:var(--verde-oscuro); border-bottom:2px solid var(--verde-oscuro); }
  .asistio { color:var(--verde-claro); font-size:18px; }
+ .tabla-asistencia td.asistio-parcial { color:var(--amarillo); font-size:12px; font-weight:700; cursor:help; }
+ .tabla-asistencia td.asistio { cursor:help; }
  .no-asistio { color:var(--gris-borde); font-size:16px; }
+
+ .estado-item { display:inline-block; margin-left:6px; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; vertical-align:middle; }
+ .estado-cancelado { background:var(--rojo-fondo); color:var(--rojo); }
+ .estado-inactivo { background:var(--amarillo-fondo); color:var(--amarillo); }
+ tr.fila-cancelada td, .checkpoint-list-item.fila-cancelada .checkpoint-list-info { opacity:0.6; }
+ tr.fila-cancelada td:last-child { opacity:1; }
+ tr.fila-cancelada strong, .checkpoint-list-item.fila-cancelada .checkpoint-list-info > div:first-child { text-decoration:line-through; text-decoration-color:var(--rojo); }
+ tr.fila-inactiva td:not(:last-child), .checkpoint-list-item.fila-inactiva .checkpoint-list-info { opacity:0.7; }
+ .btn-estado { margin:0 2px; }
 
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
@@ -180,8 +191,6 @@
  <h1>CONTECS 2026 — Gestión de Eventos </h1>
  <div class="topbar-actions">
  <a href="lecturaQR.html" class="btn-qr-scan"> Leer QR</a>
- <a href="posper.html" class="btn-qr-scan" title="Lector físico EA530">POSPER</a>
- <a href="randomizer.html" class="btn-qr-scan" title="Sorteo entre participantes con RFID">Randomizer</a>
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
  </div>
 </div>
@@ -251,6 +260,11 @@
  <label style="color:var(--verde-oscuro)">Mínimo de asistencias para certificado</label>
  <input type="number" id="ev-min-cert" min="1" value="1"/>
  <small id="ev-min-cert-hint" style="color:var(--gris-medio);font-size:12px;">Se calcula automáticamente como el 60 % de los checkpoints del evento.</small>
+ </div>
+ <div class="form-groupE">
+ <label for="ev-permanencia" style="color:var(--verde-oscuro)">Permanencia mínima por checkpoint (%)</label>
+ <input type="number" id="ev-permanencia" min="1" max="100" value="75"/>
+ <small style="color:var(--gris-medio);font-size:12px;">Solo se registra la entrada: la salida es la entrada al siguiente checkpoint o el fin de la actividad. Un checkpoint cuenta para el certificado si la persona estuvo al menos este porcentaje de su duración (con 75 %, 90 min de una conferencia de 2 h).</small>
  </div>
  <div class="form-actions">
  <button class="btn btn-primary" id="btn-guardar-evento" style="flex:1">Guardar evento</button>
@@ -521,6 +535,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/inscripciones.js"></script>
+<script type="module" src="../../../js/modulos/inscripciones.js?v=20261008.1"></script>
 </body>
 </html>
