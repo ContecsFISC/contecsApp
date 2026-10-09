@@ -1579,7 +1579,7 @@ exports.accederGiraParticipante = onCall(
 
 // ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
 exports.notificarPagoAprobado = onDocumentUpdated(
-    {document: "participantes/{docId}", region: "us-central1", maxInstances: 5, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
+    {document: "participantes/{docId}", region: "us-central1", maxInstances: 3, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
     async (event) => {
       const before = event.data.before.data();
       const after = event.data.after.data();
@@ -1665,7 +1665,7 @@ exports.notificarPagoAprobado = onDocumentUpdated(
 // borra el lock si sigue apuntando a ESE participante, para no pisar uno que
 // otra inscripción ya haya reclamado legítimamente.
 exports.liberarIdentidadParticipante = onDocumentDeleted(
-    {document: "participantes/{docId}", region: "us-central1", maxInstances: 5},
+    {document: "participantes/{docId}", region: "us-central1", maxInstances: 3},
     async (event) => {
       const borrado = event.data?.data();
       if (!borrado) return;
