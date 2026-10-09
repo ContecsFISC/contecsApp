@@ -138,7 +138,10 @@ exports.marcarCheckpointGira = onCall(
 );
 
 const SSO_USER_URL = "https://sso.utp.ac.pa/ms/user";
+// La app se publica en Vercel; GitHub Pages queda mientras el repo sea público.
+// También es la lista CORS de validarTokenSSO.
 const ORIGENES_SSO_PERMITIDOS = new Set([
+  "https://contecs-app.vercel.app",
   "https://contecsfisc.github.io",
   "http://localhost:5000",
   "http://127.0.0.1:5000",
@@ -659,13 +662,7 @@ exports.validarTokenSSO = onRequest(
     {
       region: "us-central1",
       maxInstances: 20,
-      cors: [
-        "https://contecsfisc.github.io",
-        "http://localhost:5000",
-        "http://127.0.0.1:5000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-      ],
+      cors: [...ORIGENES_SSO_PERMITIDOS],
     },
     async (req, res) => {
       if (req.method !== "POST") {

@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-09T16:06:56.552447+00:00**
+- Generado: **2026-10-09T17:55:25.620560+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `ad624a9414605b47…`
-- Archivos analizados: **219**
-- Relaciones internas tipadas: **778**
-- Símbolos detectados: **5904**
-- Llamadas detectadas: **13191**
+- Huella del proyecto: `0aba36ab03f530d2…`
+- Archivos analizados: **221**
+- Relaciones internas tipadas: **864**
+- Símbolos detectados: **5905**
+- Llamadas detectadas: **13200**
 - IDs DOM definidos: **1133**
 - Paquetes externos usados: **32**
 - Colecciones de Firestore detectadas: **37**
@@ -19,16 +19,16 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**14,718 tokens** · leer primero
-- `GraphCompleto.json` — ~**73,132 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**137,070 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.3%** frente al profundo
+- `GraphCompacto.json` — ~**16,326 tokens** · leer primero
+- `GraphCompleto.json` — ~**76,722 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**140,682 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.4%** frente al profundo
 
 ## Diagnósticos de integridad
 
 Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o valores dinámicos.
 
-- 🔵 `js/modulos/voluntarios.js:336` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
+- 🔵 `js/modulos/voluntarios.js:338` — ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)
 
 ## Archivos de mayor RIESGO al modificar
 
@@ -36,45 +36,45 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 - `js/core/auth.js` — riesgo 345.7 (conexiones: 171, 369 lineas)
 - `js/core/seguridad.js` — riesgo 114.4 (conexiones: 57, 40 lineas)
-- `panel/dashboard.html` — riesgo 110.4 (conexiones: 45, 2041 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 102.6 (conexiones: 40, 2262 lineas)
-- `js/modulos/voluntarios.js` — riesgo 93.8 (conexiones: 30, 3229 lineas)
+- `panel/dashboard.html` — riesgo 114.4 (conexiones: 47, 2043 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 106.6 (conexiones: 42, 2264 lineas)
+- `js/modulos/voluntarios.js` — riesgo 93.9 (conexiones: 30, 3236 lineas)
+- `apple-touch-icon.png` — riesgo 86.0 (conexiones: 43, 0 lineas)
+- `favicon.ico` — riesgo 86.0 (conexiones: 43, 0 lineas)
 - `css/styles.css` — riesgo 80.3 (conexiones: 36, 831 lineas)
 - `js/core/firebase-config.js` — riesgo 80.3 (conexiones: 40, 35 lineas)
 - `js/modulos/credenciales.js` — riesgo 80.1 (conexiones: 36, 813 lineas)
 - `js/modulos/inscripciones.js` — riesgo 74.5 (conexiones: 27, 2051 lineas)
 - `js/modulos/gestorCredenciales.js` — riesgo 68.9 (conexiones: 31, 687 lineas)
 - `js/core/permanencia.js` — riesgo 68.0 (conexiones: 33, 202 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 62.9 (conexiones: 27, 893 lineas)
+- `panel/modulos/logistica/catalogo.html` — riesgo 67.0 (conexiones: 29, 895 lineas)
 - `js/modulos/mapa.js` — riesgo 61.5 (conexiones: 26, 955 lineas)
-- `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
-- `js/core/permisos.js` — riesgo 57.8 (conexiones: 27, 376 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
 - `js/core/auth.js` — grado 171 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
 - `js/core/seguridad.js` — grado 57 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
-- `panel/dashboard.html` — grado 45 | exporta: (sin exports detectados)
+- `panel/dashboard.html` — grado 47 | exporta: (sin exports detectados)
+- `apple-touch-icon.png` — grado 43 | exporta: (sin exports detectados)
+- `favicon.ico` — grado 43 | exporta: (sin exports detectados)
+- `panel/modulos/congreso/modulos_participantes.html` — grado 42 | exporta: (sin exports detectados)
 - `js/core/firebase-config.js` — grado 40 | exporta: analytics, app, auth, db, storage
-- `panel/modulos/congreso/modulos_participantes.html` — grado 40 | exporta: (sin exports detectados)
 - `css/styles.css` — grado 36 | exporta: (sin exports detectados)
 - `js/modulos/credenciales.js` — grado 36 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
 - `js/core/permanencia.js` — grado 33 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, checkpointsParaEscanear, contarValidas, enCurso, enPanama, estaCancelado, estaOperativo
 - `js/modulos/gestorCredenciales.js` — grado 31 | exporta: (sin exports detectados)
 - `js/modulos/voluntarios.js` — grado 30 | exporta: (sin exports detectados)
 - `js/modulos/catalogo.js` — grado 29 | exporta: ICONOS, ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, crearCategoria, crearProducto, desactivarProducto, editarCategoria
+- `panel/modulos/logistica/catalogo.html` — grado 29 | exporta: (sin exports detectados)
 - `js/core/iconos.js` — grado 28 | exporta: ICONOS_DISPONIBLES, estrellasImg, iconoComboImg, iconoImg, nombreIconoCombo, rutaIcono
-- `js/core/agenda-salones.js` — grado 27 | exporta: RE_ESPACIO, ROTULO_MAX, TIPOS_PROGRAMABLES, buscarChoques, describirChoque, etiquetaSalon, nombrePiso, nombreSalon
-- `js/core/operaciones.js` — grado 27 | exporta: ajustarStock, esperarAuthListo, formatearMoneda, registrarCompra, registrarMerma, registrarMovimientoFondo, registrarVenta, registrarVentaConMerma
-- `js/core/permisos.js` — grado 27 | exporta: CATALOGO_PERMISOS, PERMISOS, ROLES, SUBPERMISOS, admiteAjustes, ajusteDePermiso, ajusteDelRol, infoRol
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -354,6 +354,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ### `voluntarios`
 - `functions/operaciones-qr.js`
 - `functions/registro-voluntarios.js`
+- `functions/test/permisos-reglas.integration.mjs`
 - `functions/test/registro-voluntarios.integration.js`
 - `js/modulos/gestorCredenciales.js`
 - `js/modulos/lecturaQRVoluntarios.js`
@@ -407,10 +408,10 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `calls_imported_symbol`: 342
 - `imports`: 271
+- `loads_asset`: 108
 - `navigates_to`: 66
 - `loads_script`: 41
 - `loads_stylesheet`: 36
-- `loads_asset`: 22
 
 ## Paquetes/SDKs externos
 
@@ -426,7 +427,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `fs` — usado en 2 archivo(s)
 - `https` — usado en 2 archivo(s)
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
-- `https://contecsfisc.github.io/contecsApp/logocontecs.png` — usado en 4 archivo(s)
+- `https://contecs-app.vercel.app/logocontecs.png` — usado en 4 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
 - `https://fonts.googleapis.com` — usado en 43 archivo(s)

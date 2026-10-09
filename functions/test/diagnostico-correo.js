@@ -154,7 +154,7 @@ async function envioDePrueba() {
     gira_lugar: "Lugar de prueba",
     gira_lugar_encuentro: "Punto de encuentro de prueba",
     coordinador_info: "Coordinador de prueba (Staff)",
-    link_gira: "https://contecsfisc.github.io/contecsApp/public/gira.html?c=0&t=0&g=0",
+    link_gira: "https://contecs-app.vercel.app/public/gira.html?c=0&t=0&g=0",
   });
 
   if (!plantilla.activo) {
