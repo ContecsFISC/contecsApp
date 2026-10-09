@@ -17,6 +17,9 @@ const ROLES_POSPER = new Set(["ceo", "posper"]);
 // Liberan un RFID asignado por error. Debe reflejar "liberar_rfid" en
 // js/core/permisos.js.
 const ROLES_LIBERAR_RFID = new Set(["ceo"]);
+// Liberan el asiento de quien salió antes (Mapa del evento). Debe reflejar
+// "liberar_asiento" en js/core/permisos.js.
+const ROLES_LIBERAR_ASIENTO = new Set(["ceo", "staff_contecs"]);
 const ROLES_VOLUNTARIADO = new Set([
   "ceo", "junta_principal", "voluntariado",
 ]);
@@ -613,8 +616,39 @@ async function liberarRfid(request) {
   });
 }
 
+// ─── Asiento liberado: la persona salió antes de terminar ───────────────────
+// Se marca la salida en su entrada (`salidaEn`). La entrada no se borra: la
+// permanencia se mide hasta ese momento (js/core/permanencia.js) y el asiento
+// queda libre en el Mapa del evento.
+async function liberarAsiento(request) {
+  const actorId = await validarActor(request, ROLES_LIBERAR_ASIENTO);
+  const data = request.data || {};
+  const participanteId = idValido(data.participanteId, "participante");
+  const checkpointId = idValido(data.checkpointId, "checkpoint");
+  const coleccion = data.coleccion === "inscripciones" ?
+    "inscripciones" : "participantes";
+  const asistenciaRef = db.collection("asistencias_congreso")
+      .doc(`${checkpointId}_${coleccion}_${participanteId}`);
+
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(asistenciaRef);
+    if (!snap.exists) {
+      throw new HttpsError("not-found", "Esa persona no tiene entrada en esta actividad.");
+    }
+    if (snap.data().salidaEn) {
+      throw new HttpsError("already-exists", "Ese asiento ya estaba liberado.");
+    }
+    tx.update(asistenciaRef, {
+      salidaEn: FieldValue.serverTimestamp(),
+      salidaPor: actorId,
+    });
+    return {ok: true, participanteNombre: snap.data().participanteNombre || null};
+  });
+}
+
 async function ejecutarOperacionQr(request) {
   switch (request.data?.tipo) {
+    case "liberar_asiento": return liberarAsiento(request);
     case "asistencia_participante": return asistenciaParticipante(request);
     case "inscripcion_taller": return inscripcionTaller(request);
     case "anclar_rfid": return anclarRfid(request);

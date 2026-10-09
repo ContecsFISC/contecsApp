@@ -9,6 +9,11 @@ import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../core/se
 import {
   PERMANENCIA_MINIMA_DEFECTO, estaCancelado, evaluarPermanencia, contarValidas,
 } from "../core/permanencia.js";
+import {
+  TIPOS_PROGRAMABLES, buscarChoques, describirChoque, etiquetaSalon, nombrePiso,
+  nombreSalon, rotuloSalon, salonDeCheckpoint,
+} from "../core/agenda-salones.js";
+import { escucharSalones, guardarSalon, eliminarSalon } from "../core/salones-firestore.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
@@ -37,6 +42,8 @@ let filasArchivo        = [];
 let editandoEventoId    = null;
 let editandoCpId        = null;
 let qrActualCanvas      = null;
+let salonesConfig       = {};   // colección 'salones': espacioId -> { nombre, rotulo, capacidad }
+const OTRO_LUGAR        = "_otro";
 
 // ─── Constantes ─────────────────────────────────────────────────────────────
 const CATEGORIA_LABELS = {
@@ -126,6 +133,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     if (btn.dataset.tab === "tab-participantes") renderParticipantes();
     if (btn.dataset.tab === "tab-asistencia")    renderAsistencia();
     if (btn.dataset.tab === "tab-certificados")  renderCertificados();
+    if (btn.dataset.tab === "tab-salones")       void abrirTabSalones();
   });
 });
 
@@ -267,6 +275,11 @@ window._alternarCancelado = async (tipo, id) => {
     if (!snap.exists()) return;
     const cancelar = !estaCancelado(snap.data());
     const nombre = snap.data().nombre || (tipo === "evento" ? "este evento" : "este checkpoint");
+    // Mientras estuvo cancelado, otra actividad pudo ocupar su salón.
+    if (!cancelar && tipo === "checkpoint") {
+      const choque = await primerChoque({ id, ...snap.data() });
+      if (choque) { avisoEstado(tipo, "error", `No se puede restaurar. ${choque}`); return; }
+    }
     const pregunta = cancelar
       ? `¿Cancelar "${nombre}"? No se podrán registrar entradas. Las asistencias ya registradas se conservan.`
       : `¿Restaurar "${nombre}"? Volverá a estar disponible para registrar entradas.`;
@@ -836,6 +849,15 @@ el("btn-guardar-cp").addEventListener("click", async () => {
   if (TIPO_CON_CUPOS.includes(tipo) && !cupos) {
     mostrarAlertaCp("error", "Indica la cantidad de cupos disponibles."); return;
   }
+
+  // Salón del plano o, con "Otro lugar", el texto escrito.
+  const lugar = leerLugarCp();
+  if (lugar.error) { mostrarAlertaCp("error", lugar.error); return; }
+  const capacidad = lugar.salonId ? salonesConfig[lugar.salonId]?.capacidad : null;
+  if (cupos && capacidad && cupos > capacidad) {
+    mostrarAlertaCp("error", `${etiquetaSalon(lugar.salonId, salonesConfig[lugar.salonId])}: tiene capacidad para ${capacidad} personas y pediste ${cupos} cupos.`); return;
+  }
+
   const datos = {
     eventoId:      eventoActivo.id,
     eventoNombre:  eventoActivo.nombre,
@@ -843,7 +865,8 @@ el("btn-guardar-cp").addEventListener("click", async () => {
     titulo:        el("cp-titulo").value.trim(),
     tipo,
     dia,
-    salon:         el("cp-salon").value.trim(),
+    salon:         lugar.salon,
+    salonId:       lugar.salonId,
     horaInicio,
     horaFin,
     exponente:     el("cp-exponente").value.trim(),
@@ -855,6 +878,9 @@ el("btn-guardar-cp").addEventListener("click", async () => {
 
   try {
     el("btn-guardar-cp").disabled = true;
+    // Un salón no puede tener dos actividades a la misma hora (de ningún evento).
+    const choque = await primerChoque({ ...datos, id: editandoCpId || undefined });
+    if (choque) { mostrarAlertaCp("error", choque, 12000); return; }
     if (editandoCpId) {
       const checkpointRef = doc(db, "checkpoints", editandoCpId);
       await runTransaction(db, async txn => {
@@ -891,12 +917,96 @@ el("btn-guardar-cp").addEventListener("click", async () => {
   }
 });
 
+// ─── Salón / Lugar del checkpoint ───────────────────────────────────────────
+function poblarSelectSalones() {
+  const sel = el("cp-salon-sel");
+  const previo = sel.value;
+  const porPiso = {};
+  Object.entries(salonesConfig).forEach(([id, s]) => {
+    (porPiso[id.split("-")[0]] ||= []).push([id, s]);
+  });
+  sel.innerHTML = `<option value="">— Sin salón asignado —</option>` +
+    Object.keys(porPiso).sort().map(piso => `<optgroup label="${escaparAtributo(nombrePiso(piso))}">${
+      porPiso[piso]
+        .sort((a, b) => rotuloSalon(a[0], a[1]).localeCompare(rotuloSalon(b[0], b[1]), "es", { numeric: true }))
+        .map(([id, s]) => `<option value="${escaparAtributo(id)}">${h(etiquetaSalon(id, s))}</option>`).join("")
+    }</optgroup>`).join("") +
+    `<option value="${OTRO_LUGAR}">Otro lugar (escribirlo)…</option>`;
+  if (previo && [...sel.options].some(o => o.value === previo)) sel.value = previo;
+  actualizarInfoSalon();
+}
+
+function actualizarInfoSalon() {
+  const valor = el("cp-salon-sel").value;
+  const info = el("cp-salon-info");
+  el("cp-salon").style.display = valor === OTRO_LUGAR ? "block" : "none";
+  info.classList.remove("aviso");
+  if (valor && valor !== OTRO_LUGAR) {
+    const s = salonesConfig[valor];
+    info.textContent = `Capacidad: ${s?.capacidad ?? "—"} personas · ${nombrePiso(valor.split("-")[0])}`;
+    const cupos = parseInt(el("cp-cupos").value);
+    if (s?.capacidad && cupos > s.capacidad) {
+      info.textContent += ` · los cupos (${cupos}) superan la capacidad`;
+      info.classList.add("aviso");
+    }
+  } else if (valor === OTRO_LUGAR) {
+    info.textContent = "Un lugar fuera del plano: no aparecerá en el Mapa del evento.";
+  } else {
+    info.textContent = Object.keys(salonesConfig).length
+      ? "Elige el salón para verlo en el Mapa del evento y evitar choques de horario."
+      : "Todavía no hay salones: configúralos en la pestaña Salones.";
+  }
+}
+
+el("cp-salon-sel").addEventListener("change", () => {
+  actualizarInfoSalon();
+  if (el("cp-salon-sel").value === OTRO_LUGAR) el("cp-salon").focus();
+});
+el("cp-cupos").addEventListener("input", actualizarInfoSalon);
+
+function leerLugarCp() {
+  const valor = el("cp-salon-sel").value;
+  if (valor === OTRO_LUGAR) {
+    const texto = el("cp-salon").value.trim();
+    if (!texto) return { error: "Escribe el lugar o elige un salón del plano." };
+    return { salonId: null, salon: texto };
+  }
+  if (!valor) return { salonId: null, salon: "" };
+  const s = salonesConfig[valor];
+  return { salonId: valor, salon: s ? `${nombreSalon(valor, s)}${s.rotulo ? ` (${s.rotulo})` : ""}` : valor };
+}
+
+// Pone el salón de un checkpoint en el formulario (los de antes solo tienen texto).
+function ponerLugarCp(cp) {
+  const id = salonDeCheckpoint(cp, salonesConfig);
+  if (id && salonesConfig[id]) {
+    el("cp-salon-sel").value = id;
+    el("cp-salon").value = "";
+  } else if (cp?.salon) {
+    el("cp-salon-sel").value = OTRO_LUGAR;
+    el("cp-salon").value = cp.salon;
+  } else {
+    el("cp-salon-sel").value = "";
+    el("cp-salon").value = "";
+  }
+  actualizarInfoSalon();
+}
+
+// Mensaje del primer choque de horario o null. Se buscan los checkpoints de
+// ese día de TODOS los eventos: el salón es el mismo para todos.
+async function primerChoque(cp) {
+  if (!cp.dia || (!cp.salonId && !cp.salon)) return null;
+  const snap = await getDocs(query(collection(db, "checkpoints"), where("dia", "==", cp.dia)));
+  const choques = buscarChoques(cp, snap.docs.map(d => ({ id: d.id, ...d.data() })), salonesConfig);
+  return choques.length ? describirChoque(choques[0], salonesConfig) : null;
+}
+
 function limpiarFormCp() {
   el("cp-nombre").value     = "";
   el("cp-titulo").value     = "";
   el("cp-tipo").value       = "congreso";
   el("cp-dia").value        = "";
-  el("cp-salon").value      = "";
+  ponerLugarCp(null);
   el("cp-hora-inicio").value = "";
   el("cp-hora-fin").value   = "";
   el("cp-ponente-select").value         = "";
@@ -926,7 +1036,7 @@ window._editarCp = id => {
   el("cp-titulo").value      = cp.titulo      || "";
   el("cp-tipo").value        = cp.tipo        || "conferencia";
   el("cp-dia").value         = cp.dia         || "";
-  el("cp-salon").value       = cp.salon       || "";
+  ponerLugarCp(cp);
   el("cp-hora-inicio").value = cp.horaInicio  || "";
   el("cp-hora-fin").value    = cp.horaFin     || "";
   el("cp-tipo-presencia").value = cp.tipoPresencia || "";
@@ -1390,6 +1500,7 @@ function construirResumenAsistencia() {
     const fila = incorporar(base, coleccion, true);
     fila.asistencias[asistencia.checkpointId] = {
       marcadoEn: asistencia.marcadoEn,
+      salidaEn: asistencia.salidaEn || null,
       marcadoPor: asistencia.marcadoPor,
       checkpoint: asistencia.checkpointNombre,
       eventoId: asistencia.eventoId,
@@ -1403,7 +1514,7 @@ function construirResumenAsistencia() {
   const porcentajeMinimo = eventoActivo?.permanenciaMinima || PERMANENCIA_MINIMA_DEFECTO;
   resumen.forEach(fila => {
     fila.permanencia = evaluarPermanencia(
-      Object.entries(fila.asistencias).map(([checkpointId, a]) => ({ checkpointId, marcadoEn: a?.marcadoEn })),
+      Object.entries(fila.asistencias).map(([checkpointId, a]) => ({ checkpointId, marcadoEn: a?.marcadoEn, salidaEn: a?.salidaEn })),
       checkpointsEvento,
       { porcentajeMinimo },
     );
@@ -1420,7 +1531,8 @@ function tituloPermanencia(r, marcadoEn) {
   const hora = fmtHora(marcadoEn);
   if (!r?.medible) return `Entrada ${hora}`;
   return `Entrada ${hora} · ${r.minutos} de ${r.duracion} min (mínimo ${r.requeridos})` +
-    (r.cerradaPor === "siguiente" ? " · salió al entrar a otro checkpoint" : "");
+    (r.cerradaPor === "siguiente" ? " · salió al entrar a otro checkpoint"
+      : r.cerradaPor === "salida" ? " · su asiento se liberó en el Mapa del evento" : "");
 }
 
 function fmtHora(ts) {
@@ -1826,10 +1938,175 @@ el("modal-preview-close").addEventListener("click", () => el("modal-preview").cl
 [el("modal-qr"), el("modal-preview")].forEach(m => m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); }));
 
 // ═══════════════════════════════════════════════════════════
+// SALONES — nombre, rótulo y capacidad de cada espacio del plano
+// ═══════════════════════════════════════════════════════════
+// El plano (imágenes de ~140 KB) se carga solo al abrir esta pestaña.
+let planos = null;
+let pisoSalones = null;
+let espacioSel = "";
+
+async function abrirTabSalones() {
+  if (!planos) {
+    try {
+      ({ PLANOS: planos } = await import("../data/planos-edificio3.js"));
+    } catch (e) {
+      el("sal-plano").innerHTML = `<p class="checkpoint-helper" style="padding:16px;">No se pudo cargar el plano: ${h(e.message)}</p>`;
+      return;
+    }
+    pisoSalones = planos[0]?.id || null;
+    poblarSelectEspacios();
+  }
+  renderPisosSalones();
+  renderPlanoSalones();
+  renderTablaSalones();
+}
+
+function espaciosProgramables(piso) {
+  return (piso?.espacios || []).filter(e => TIPOS_PROGRAMABLES.has(e.t));
+}
+
+function poblarSelectEspacios() {
+  const sel = el("sal-espacio");
+  sel.innerHTML = `<option value="">— Selecciona un espacio —</option>` + planos.map(p =>
+    `<optgroup label="${escaparAtributo(p.nombre)}">${espaciosProgramables(p)
+      .sort((a, b) => Number(a.n) - Number(b.n))
+      .map(e => `<option value="${escaparAtributo(e.id)}">${h(salonesConfig[e.id] ? etiquetaSalon(e.id, salonesConfig[e.id]) : `${e.t === "vestibulo" ? "Área" : "Espacio"} ${e.n}`)}</option>`)
+      .join("")}</optgroup>`).join("");
+  sel.value = espacioSel;
+}
+
+function renderPisosSalones() {
+  el("sal-pisos").innerHTML = planos.map(p =>
+    `<button type="button" role="tab" data-piso="${escaparAtributo(p.id)}" aria-selected="${p.id === pisoSalones}">${h(p.nombre)}</button>`).join("");
+}
+
+el("sal-pisos").addEventListener("click", e => {
+  const btn = e.target.closest("[data-piso]");
+  if (!btn) return;
+  pisoSalones = btn.dataset.piso;
+  renderPisosSalones();
+  renderPlanoSalones();
+});
+
+function renderPlanoSalones() {
+  const piso = planos.find(p => p.id === pisoSalones);
+  if (!piso) return;
+  const programables = new Set(espaciosProgramables(piso).map(e => e.id));
+  el("sal-plano").innerHTML = `<svg viewBox="0 0 ${piso.ancho} ${piso.alto}" role="img" aria-label="Plano del ${h(piso.nombre.toLowerCase())}">
+    <image href="${piso.imagen}" width="${piso.ancho}" height="${piso.alto}" opacity="0.55"/>
+    ${piso.espacios.map(e => {
+      const cls = !programables.has(e.id) ? "no-prog" : e.id === espacioSel ? "sel" : salonesConfig[e.id] ? "conf" : "";
+      return `<polygon class="esp ${cls}" points="${e.p}" data-id="${escaparAtributo(e.id)}"><title>${h(salonesConfig[e.id] ? etiquetaSalon(e.id, salonesConfig[e.id]) : `Espacio ${e.n}`)}</title></polygon>`;
+    }).join("")}
+    ${piso.espacios.filter(e => programables.has(e.id)).map(e =>
+      `<text x="${e.l[0]}" y="${e.l[1]}" class="${e.id === espacioSel ? "sel" : ""}" font-size="${Math.max(e.fs, 9)}">${h(rotuloSalon(e.id, salonesConfig[e.id]))}</text>`).join("")}
+  </svg>`;
+}
+
+el("sal-plano").addEventListener("click", e => {
+  const pol = e.target.closest("polygon.esp:not(.no-prog)");
+  if (pol) elegirEspacio(pol.dataset.id);
+});
+
+el("sal-espacio").addEventListener("change", () => elegirEspacio(el("sal-espacio").value));
+
+function elegirEspacio(id) {
+  espacioSel = id || "";
+  el("sal-espacio").value = espacioSel;
+  const s = salonesConfig[espacioSel];
+  const numero = espacioSel.split("-")[1] || "";
+  el("sal-nombre").value = s?.nombre || "";
+  el("sal-nombre").placeholder = numero ? `Salón ${numero}` : "ej. Auditorio menor";
+  el("sal-rotulo").value = s?.rotulo || "";
+  el("sal-rotulo").placeholder = numero || "ej. 3-301";
+  el("sal-capacidad").value = s?.capacidad || "";
+  el("sal-form-titulo").textContent = !espacioSel ? "Configurar salón" : s ? `Editar ${etiquetaSalon(espacioSel, s)}` : `Configurar espacio ${numero}`;
+  if (espacioSel && planos) {
+    const piso = espacioSel.split("-")[0];
+    if (piso !== pisoSalones && planos.some(p => p.id === piso)) { pisoSalones = piso; renderPisosSalones(); }
+    renderPlanoSalones();
+  }
+  if (espacioSel) el("sal-nombre").focus();
+}
+
+el("btn-limpiar-salon").addEventListener("click", () => elegirEspacio(""));
+
+el("btn-guardar-salon").addEventListener("click", async () => {
+  const btn = el("btn-guardar-salon");
+  const datos = {
+    espacioId: espacioSel,
+    nombre: el("sal-nombre").value.trim() || el("sal-nombre").placeholder,
+    rotulo: el("sal-rotulo").value.trim(),
+    capacidad: parseInt(el("sal-capacidad").value),
+  };
+  try {
+    btn.disabled = true;
+    await guardarSalon(datos);
+    mostrarAlerta("success", `Salón ${etiquetaSalon(datos.espacioId, datos)} guardado.`);
+  } catch (e) {
+    mostrarAlerta("error", e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+function renderTablaSalones() {
+  const filas = Object.entries(salonesConfig)
+    .sort((a, b) => a[0].localeCompare(b[0], "es", { numeric: true }));
+  el("sal-contador").textContent = filas.length ? `(${filas.length})` : "";
+  el("tabla-salones-body").innerHTML = filas.length
+    ? filas.map(([id, s]) => `<tr>
+        <td><strong>${h(rotuloSalon(id, s))}</strong></td>
+        <td>${h(nombreSalon(id, s))}</td>
+        <td style="font-size:12px;">${h(nombrePiso(id.split("-")[0]))} · espacio ${h(id.split("-")[1])}</td>
+        <td style="text-align:center;">${h(s.capacidad ?? "—")}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-outline btn-sm" type="button" data-sal-editar="${escaparAtributo(id)}" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
+          <a class="btn btn-outline btn-sm" href="mapa.html?salon=${encodeURIComponent(id)}" style="width:auto;text-decoration:none;" title="Ver en el mapa">Mapa</a>
+          <button class="btn btn-danger btn-sm" type="button" data-sal-eliminar="${escaparAtributo(id)}" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>
+        </td>
+      </tr>`).join("")
+    : `<tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Todavía no hay salones configurados. Toca un espacio del plano para empezar.</td></tr>`;
+}
+
+el("tabla-salones-body").addEventListener("click", async e => {
+  const editar = e.target.closest("[data-sal-editar]");
+  if (editar) {
+    elegirEspacio(editar.dataset.salEditar);
+    el("sal-form-titulo").scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  const borrar = e.target.closest("[data-sal-eliminar]");
+  if (!borrar) return;
+  const id = borrar.dataset.salEliminar;
+  if (!confirm(`¿Eliminar la configuración de ${etiquetaSalon(id, salonesConfig[id])}? El espacio sigue en el plano.`)) return;
+  try {
+    await eliminarSalon(id);
+    if (espacioSel === id) elegirEspacio("");
+    mostrarAlerta("success", "Salón eliminado.");
+  } catch (err) {
+    mostrarAlerta("error", "No se pudo eliminar: " + err.message);
+  }
+});
+
+function alCambiarSalones(nuevos) {
+  salonesConfig = nuevos;
+  poblarSelectSalones();
+  if (planos) {
+    poblarSelectEspacios();
+    renderPlanoSalones();
+    renderTablaSalones();
+    if (espacioSel) el("sal-form-titulo").textContent = salonesConfig[espacioSel]
+      ? `Editar ${etiquetaSalon(espacioSel, salonesConfig[espacioSel])}` : el("sal-form-titulo").textContent;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // INIT — espera a que Auth confirme sesión antes de leer Firestore
 // ═══════════════════════════════════════════════════════════
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
+  escucharSalones(alCambiarSalones, e => console.error("Salones:", e));
   await Promise.all([cargarEventos(), cargarParticipantes()]);
   actualizarControlCheckpoints();
 });

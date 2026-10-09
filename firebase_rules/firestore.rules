@@ -228,6 +228,28 @@ service cloud.firestore {
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
+    // Salones del Mapa del evento: un doc por espacio del plano (id
+    // "piso-número", js/data/planos-edificio3.js). Los gestiona quien
+    // gestiona checkpoints; los ve todo el staff (el patrocinador no).
+    match /salones/{espacioId} {
+      allow read: if isStaff();
+      allow create, update: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
+        && espacioId.matches('^[0-9]{1,2}-[0-9]{1,4}$')
+        && request.resource.data.keys().hasOnly([
+          'espacioId', 'piso', 'nombre', 'rotulo', 'capacidad', 'actualizadoEn', 'actualizadoPor'
+        ])
+        && request.resource.data.espacioId == espacioId
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 100
+        && request.resource.data.rotulo is string
+        && request.resource.data.rotulo.size() <= 7
+        && request.resource.data.capacidad is int
+        && request.resource.data.capacidad >= 1
+        && request.resource.data.capacidad <= 100000;
+      allow delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+    }
+
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
     match /inscripciones_checkpoint/{id} {
       allow read: if isStaff();

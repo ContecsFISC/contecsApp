@@ -275,6 +275,28 @@ async function probarLiberarRfid() {
   assert.equal(nuevo.yaAnclado, false);
 }
 
+// Mapa del evento: Staff libera el asiento de quien salió antes; la entrada
+// se conserva con su hora de salida.
+async function probarLiberarAsiento() {
+  const datos = {
+    tipo: "liberar_asiento",
+    participanteId: "participante-uno",
+    checkpointId: "acceso-prueba",
+    coleccion: "participantes",
+  };
+  await rechazaCon(ejecutarOperacionQr(requestPosper(datos)), "permission-denied");
+  const r = await ejecutarOperacionQr(request(datos));
+  assert.equal(r.ok, true);
+  const snap = await db.collection("asistencias_congreso")
+      .doc("acceso-prueba_participantes_participante-uno").get();
+  assert.ok(snap.data().salidaEn);
+  assert.ok(snap.data().marcadoEn);
+  await rechazaCon(ejecutarOperacionQr(request(datos)), "already-exists");
+  await rechazaCon(ejecutarOperacionQr(request({
+    ...datos, participanteId: "pago-pendiente",
+  })), "not-found");
+}
+
 async function main() {
   await prepararDatos();
   await probarEntradaGeneral();
@@ -282,6 +304,7 @@ async function main() {
   await probarUltimoCupoConcurrente();
   await probarAnclarRfid();
   await probarLiberarRfid();
+  await probarLiberarAsiento();
   console.log("Integración QR: comprobaciones críticas superadas.");
 }
 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Mapa del evento</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <!-- Three.js para la maqueta 3D (si no carga, el mapa usa la vista 2D). -->
+ <script type="importmap">
+ {
+   "imports": {
+     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+   }
+ }
+ </script>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("ver_mapa");
+ </script>
+ <style>
+ body { overflow: hidden; }
+ .mapa-app { position: relative; height: calc(100dvh - var(--alto-topbar, 58px)); min-height: 420px; }
+
+ /* Escenario: fondo de estudio para la maqueta */
+ .escenario-mapa {
+   position: absolute; inset: 0; overflow: hidden;
+   background:
+     radial-gradient(ellipse at 30% 10%, rgba(57,181,74,0.16), transparent 55%),
+     radial-gradient(ellipse at 80% 90%, rgba(21,101,192,0.10), transparent 50%),
+     linear-gradient(180deg, #f3f7f4 0%, #e3ece6 100%);
+ }
+ .mapa3d-lienzo { position: absolute; inset: 0; width: 100% !important; height: 100% !important; touch-action: none; display: block; }
+ .mapa3d-etiquetas { position: absolute; inset: 0; pointer-events: none; }
+ .etq3d {
+   pointer-events: auto; display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+   padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08);
+   background: rgba(255,255,255,0.92); color: #173024; font: 700 11px/1.1 var(--fuente);
+   box-shadow: 0 4px 12px rgba(0,0,0,0.12); cursor: pointer; white-space: nowrap;
+   transition: transform .2s var(--ease-out);
+ }
+ .etq3d:hover { transform: translateY(-2px) scale(1.06); }
+ .etq3d-programado { border-color: var(--c); color: var(--c); }
+ .etq3d-vivo { background: var(--c); color: #fff; border-color: transparent; padding: 5px 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+ .etq3d-finalizado, .etq3d-cancelado { opacity: 0.75; }
+ .etq3d-chip { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
+ .etq3d-vivo .etq3d-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: latido 1.2s ease-in-out infinite; }
+ @keyframes latido { 50% { opacity: 0.25; } }
+
+ /* Vista 2D */
+ .vista2d { position: absolute; inset: 0; display: none; touch-action: none; cursor: grab; }
+ .vista2d.activa { display: block; }
+ .vista2d svg { width: 100%; height: 100%; display: block; }
+ .vista2d .esp { stroke: rgba(23,48,36,0.35); stroke-width: 1; transition: fill .3s; }
+ .vista2d .esp.prog { cursor: pointer; }
+ .vista2d .esp.prog:hover { filter: brightness(0.92); }
+ .vista2d .esp.sel { stroke: #e0a100; stroke-width: 4; }
+ .vista2d .esp.vivo { animation: vivo2d 1.6s ease-in-out infinite; }
+ @keyframes vivo2d { 50% { opacity: 0.7; } }
+ .vista2d text { font: 700 13px var(--fuente); text-anchor: middle; dominant-baseline: middle; pointer-events: none; fill: #173024; }
+ .vista2d text.claro { fill: #fff; }
+
+ /* Controles flotantes */
+ .controles-mapa { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; pointer-events: none; z-index: 5; }
+ .controles-mapa > * { pointer-events: auto; }
+ .vidrio { background: rgba(255,255,255,0.82); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 8px 24px rgba(15,40,25,0.12); border-radius: 14px; }
+ .ctrl-grupo { display: flex; gap: 4px; padding: 4px; align-items: center; }
+ .ctrl-grupo select { border: none; background: transparent; font: 600 13px var(--fuente); color: var(--verde-oscuro); padding: 6px 8px; max-width: 240px; }
+ .chip-btn { border: none; background: transparent; padding: 7px 12px; border-radius: 10px; font: 700 12px var(--fuente); color: var(--gris-medio); cursor: pointer; white-space: nowrap; transition: background .2s, color .2s; }
+ .chip-btn:hover { background: rgba(0,114,46,0.08); color: var(--verde-oscuro); }
+ .chip-btn[aria-pressed="true"] { background: var(--verde); color: #fff; }
+ .reloj { padding: 8px 12px; font: 700 13px var(--fuente); color: var(--verde-oscuro); display: flex; gap: 8px; align-items: center; }
+ .reloj .punto { width: 8px; height: 8px; border-radius: 50%; background: #d32f2f; animation: latido 1.2s ease-in-out infinite; }
+ .reloj.sin-vivo .punto { background: var(--gris-medio); animation: none; }
+
+ .leyenda { position: absolute; left: 12px; bottom: 12px; padding: 10px 12px; font-size: 11px; color: var(--gris-texto); display: grid; gap: 5px; z-index: 5; }
+ .leyenda span { display: flex; align-items: center; gap: 6px; }
+ .leyenda i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,0.12); }
+ .ayuda-mapa { position: absolute; right: 12px; bottom: 12px; padding: 8px 12px; font-size: 11px; color: var(--gris-medio); z-index: 5; max-width: 260px; }
+
+ /* Panel del salón */
+ .panel-salon {
+   position: absolute; top: 12px; right: 12px; bottom: 12px; width: min(400px, calc(100% - 24px)); z-index: 6;
+   display: flex; flex-direction: column; overflow: hidden;
+   transform: translateX(calc(100% + 24px)); transition: transform .45s var(--ease-spring);
+ }
+ .panel-salon.abierto { transform: none; }
+ .panel-cab { padding: 18px 18px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); position: relative; }
+ .panel-cerrar { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.06); cursor: pointer; font-size: 18px; color: var(--gris-texto); }
+ .panel-rotulo { display: inline-block; padding: 3px 10px; border-radius: 8px; background: var(--verde-fondo); color: var(--verde-oscuro); font: 800 12px var(--fuente); letter-spacing: 0.5px; }
+ .panel-nombre { font-family: var(--fuente-display); font-size: 22px; font-weight: 700; color: #173024; margin: 8px 40px 2px 0; line-height: 1.15; overflow-wrap: anywhere; }
+ .panel-meta { font-size: 12px; color: var(--gris-medio); }
+ .panel-cuerpo { overflow-y: auto; padding: 14px 18px 20px; display: grid; gap: 14px; }
+ .bloque { background: #fff; border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.06); }
+ .bloque h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--gris-medio); margin: 0 0 8px; }
+ .vivo-titulo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #173024; }
+ .badge-vivo { padding: 2px 8px; border-radius: 999px; background: #d32f2f; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
+ .contadores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+ .contador { text-align: center; padding: 8px 4px; border-radius: 10px; background: var(--gris-suave); }
+ .contador b { display: block; font-family: var(--fuente-display); font-size: 22px; color: #173024; font-variant-numeric: tabular-nums; }
+ .contador span { font-size: 11px; color: var(--gris-medio); }
+ .contador.libres b { color: var(--verde); }
+ .barra-ocup { height: 8px; border-radius: 999px; background: var(--gris-suave); overflow: hidden; margin-bottom: 12px; }
+ .barra-ocup > div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--verde-claro), var(--verde)); transition: width .8s var(--ease-out); }
+ .barra-ocup.llena > div { background: linear-gradient(90deg, #ef6c00, #d32f2f); }
+ .asientos { display: grid; grid-template-columns: repeat(auto-fill, minmax(13px, 1fr)); gap: 4px; }
+ .asiento { aspect-ratio: 1; border-radius: 4px 4px 2px 2px; background: #e6efe9; border: 1px solid #cfdcd3; transition: background .35s, transform .35s var(--ease-spring); }
+ .asiento.ocupado { background: var(--c, var(--verde)); border-color: transparent; transform: scale(0.92); }
+ .asientos-nota { font-size: 11px; color: var(--gris-medio); margin-top: 6px; }
+ .presentes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; max-height: 240px; overflow-y: auto; }
+ .presentes li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 8px; background: var(--gris-suave); }
+ .presentes small { color: var(--gris-medio); }
+ .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: #fff; border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
+ .btn-liberar:disabled { opacity: 0.5; }
+ .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+ .acts li { display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: start; padding: 8px; border-radius: 10px; border-left: 4px solid var(--c, var(--verde)); background: var(--gris-suave); }
+ .acts .hora { font: 700 12px var(--fuente); color: #173024; font-variant-numeric: tabular-nums; }
+ .acts .titulo { font-weight: 700; font-size: 13px; color: #173024; overflow-wrap: anywhere; }
+ .acts .det { font-size: 11px; color: var(--gris-medio); }
+ .acts li.fin { opacity: 0.6; }
+ .acts li.cancelada .titulo { text-decoration: line-through; }
+ .estado-act { display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+ .estado-act.vivo { background: #d32f2f; color: #fff; }
+ .estado-act.cancelada { background: var(--rojo-fondo); color: var(--rojo); }
+ .form-salon { display: grid; gap: 8px; }
+ .form-salon label { font-size: 12px; font-weight: 600; color: var(--verde-oscuro); display: grid; gap: 4px; }
+ .form-salon .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ .vacio-mapa { font-size: 13px; color: var(--gris-medio); }
+
+ .cargando-mapa { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; color: var(--verde-oscuro); font-weight: 700; }
+ .cargando-mapa[hidden] { display: none; }
+
+ @media (max-width: 760px) {
+   .panel-salon { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: 72%; border-radius: 20px 20px 0 0; transform: translateY(105%); }
+   .panel-salon.abierto { transform: none; }
+   .leyenda { display: none; }
+   .ayuda-mapa { display: none; }
+   .ctrl-grupo select { max-width: 150px; }
+ }
+ @media (prefers-reduced-motion: reduce) {
+   .etq3d-vivo .etq3d-chip::before, .reloj .punto, .vista2d .esp.vivo { animation: none; }
+   .panel-salon { transition: none; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+ <h1>CONTECS — Mapa del evento</h1>
+ <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="mapa-app" id="mapa-app">
+ <div class="escenario-mapa" id="escenario-mapa" aria-label="Maqueta del edificio. Arrastra para girar, rueda o pellizca para acercar, toca un salón para ver sus actividades.">
+ <div class="vista2d" id="vista2d"></div>
+ <div class="cargando-mapa" id="cargando-mapa">Construyendo la maqueta…</div>
+ </div>
+
+ <div class="controles-mapa">
+ <div class="vidrio ctrl-grupo"><select id="sel-evento" aria-label="Evento"></select></div>
+ <div class="vidrio ctrl-grupo" id="dias" role="group" aria-label="Día"></div>
+ <div class="vidrio ctrl-grupo" id="pisos" role="group" aria-label="Piso"></div>
+ <div class="vidrio ctrl-grupo" role="group" aria-label="Vista">
+ <button class="chip-btn" type="button" id="btn-3d" aria-pressed="true">3D</button>
+ <button class="chip-btn" type="button" id="btn-2d" aria-pressed="false">2D</button>
+ <button class="chip-btn" type="button" id="btn-encuadre" title="Ver el piso completo">Centrar</button>
+ </div>
+ <div class="vidrio reloj sin-vivo" id="reloj" aria-live="polite"><span class="punto"></span><span id="reloj-texto">—</span></div>
+ </div>
+
+ <div class="vidrio leyenda" id="leyenda" aria-label="Leyenda"></div>
+ <div class="vidrio ayuda-mapa">Arrastra para girar · rueda para acercar · clic derecho para mover · toca un salón para ver sus asientos.</div>
+
+ <aside class="vidrio panel-salon" id="panel-salon" aria-label="Detalle del salón" aria-hidden="true">
+ <div class="panel-cab">
+ <button class="panel-cerrar" type="button" id="panel-cerrar" aria-label="Cerrar">&times;</button>
+ <span class="panel-rotulo" id="panel-rotulo"></span>
+ <div class="panel-nombre" id="panel-nombre"></div>
+ <div class="panel-meta" id="panel-meta"></div>
+ </div>
+ <div class="panel-cuerpo" id="panel-cuerpo"></div>
+ </aside>
+
+ <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
+</div>
+
+<script type="module" src="../../../js/modulos/mapa.js?v=20261008.1"></script>
+</body>
+</html>

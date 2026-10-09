@@ -15,6 +15,8 @@ import {
   proximoCheckpointHoy,
   evaluarPermanencia,
   contarValidas,
+  ocupacionActual,
+  enCurso,
 } from "../../js/core/permanencia.js";
 
 let pasadas = 0;
@@ -175,6 +177,54 @@ prueba("checkpoint sin horario o sin hora de marcado: cuenta", () => {
   assert.equal(r.X.valida, true);
   assert.equal(r.A.valida, true);
   assert.equal(r.A.medible, false);
+});
+
+prueba("liberar el asiento cierra la permanencia en ese momento", () => {
+  const r = evaluarPermanencia([
+    { checkpointId: "A", marcadoEn: a("09:00"), salidaEn: a("09:20") },
+  ], cps);
+  assert.equal(r.A.minutos, 20);
+  assert.equal(r.A.valida, false);
+  assert.equal(r.A.cerradaPor, "salida");
+});
+
+console.log("\nocupación en vivo:\n");
+
+const asis = (participanteId, checkpointId, hora, extra = {}) =>
+  ({ participanteId, participanteColeccion: "participantes", checkpointId, marcadoEn: a(hora), ...extra });
+
+prueba("cuenta a quien entró y sigue adentro", () => {
+  const ocup = ocupacionActual([asis("p1", "A", "09:00"), asis("p2", "A", "09:05")], cps, a("09:30"));
+  assert.equal(ocup.get("A").length, 2);
+});
+
+prueba("entrar a otra actividad libera el asiento de la anterior", () => {
+  const ocup = ocupacionActual([asis("p1", "A", "09:00"), asis("p1", "B", "09:15")], cps, a("09:30"));
+  assert.equal(ocup.get("A"), undefined);
+  assert.equal(ocup.get("B").length, 1);
+});
+
+prueba("una entrada futura todavía no cuenta", () => {
+  const ocup = ocupacionActual([asis("p1", "A", "09:00"), asis("p1", "B", "10:00")], cps, a("09:30"));
+  assert.equal(ocup.get("A").length, 1);
+  assert.equal(ocup.get("B"), undefined);
+});
+
+prueba("el asiento liberado a mano queda libre", () => {
+  const ocup = ocupacionActual([asis("p1", "A", "09:00", { salidaEn: a("09:20") })], cps, a("09:30"));
+  assert.equal(ocup.get("A"), undefined);
+});
+
+prueba("pasar por el control de acceso no saca a nadie de su actividad", () => {
+  const ocup = ocupacionActual([asis("p1", "A", "09:00"), asis("p1", "acceso", "09:10")], cps, a("09:30"));
+  assert.equal(ocup.get("A").length, 1);
+  assert.equal(ocup.get("acceso").length, 1);
+});
+
+prueba("en curso solo entre inicio y fin, hoy", () => {
+  assert.equal(enCurso(cps[0], { dia: DIA, minutos: 9 * 60 }), true);
+  assert.equal(enCurso(cps[0], { dia: DIA, minutos: 11 * 60 }), false);
+  assert.equal(enCurso(cps[0], { dia: "2026-10-20", minutos: 9 * 60 + 30 }), false);
 });
 
 console.log(`\n${pasadas} pruebas de permanencia superadas.\n`);

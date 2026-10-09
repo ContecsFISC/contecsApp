@@ -63,6 +63,23 @@
  tr.fila-inactiva td:not(:last-child), .checkpoint-list-item.fila-inactiva .checkpoint-list-info { opacity:0.7; }
  .btn-estado { margin:0 2px; }
 
+ /* Salones: plano para elegir el espacio */
+ .sal-layout { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:16px; align-items:start; }
+ .sal-pisos { display:flex; gap:6px; margin-bottom:8px; }
+ .sal-pisos button { flex:1; padding:7px 10px; border:1.5px solid var(--verde-claro); background:#fff; color:var(--verde-oscuro); border-radius:999px; font-size:12px; font-weight:700; cursor:pointer; }
+ .sal-pisos button[aria-selected="true"] { background:var(--verde-claro); color:#fff; }
+ .sal-plano { position:relative; border-radius:var(--radio); overflow:hidden; background:#f4f7f5; border:1px solid var(--gris-borde); }
+ .sal-plano svg { display:block; width:100%; height:auto; }
+ .sal-plano .esp { fill:rgba(0,114,46,0.04); stroke:rgba(0,114,46,0.25); stroke-width:1; cursor:pointer; transition:fill .15s; }
+ .sal-plano .esp:hover { fill:rgba(57,181,74,0.28); }
+ .sal-plano .esp.conf { fill:rgba(57,181,74,0.32); }
+ .sal-plano .esp.sel { fill:rgba(0,114,46,0.75); stroke:var(--verde-oscuro); stroke-width:2.5; }
+ .sal-plano .esp.no-prog { fill:rgba(0,0,0,0.04); stroke:none; cursor:default; pointer-events:none; }
+ .sal-plano text { font-size:13px; font-weight:700; fill:var(--verde-oscuro); text-anchor:middle; dominant-baseline:middle; pointer-events:none; font-family:var(--fuente); }
+ .sal-plano text.sel { fill:#fff; }
+ #cp-salon-info.aviso { color:var(--amarillo); font-weight:600; }
+ @media(max-width:760px) { .sal-layout { grid-template-columns:1fr; } }
+
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
  .modal-box { background:#fff; border-radius:var(--radio-lg); padding:28px 24px; max-width:400px; width:100%; position:relative; animation:modalBounceUp 0.35s var(--ease-spring) both; max-height:90vh; overflow-y:auto; }
@@ -191,6 +208,7 @@
  <h1>CONTECS 2026 — Gestión de Eventos </h1>
  <div class="topbar-actions">
  <a href="lecturaQR.html" class="btn-qr-scan"> Leer QR</a>
+ <a href="mapa.html" class="btn-qr-scan" title="Mapa del evento">Mapa</a>
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
  </div>
 </div>
@@ -218,6 +236,7 @@
  <button class="tab-btn" data-tab="tab-participantes"> Participantes</button>
  <button class="tab-btn" data-tab="tab-asistencia"> Asistencia</button>
  <button class="tab-btn" data-tab="tab-certificados"> Certificados</button>
+ <button class="tab-btn" data-tab="tab-salones">Salones</button>
  </div>
 
  <!-- TAB EVENTO -->
@@ -412,6 +431,62 @@
  </div>
  </div>
 
+ <!-- TAB SALONES -->
+ <div class="tab-panel" id="tab-salones">
+ <div class="card" style="border-left: 3px solid var(--verde-claro);">
+ <div class="card-heading-row">
+ <div class="card-title" style="margin-bottom:0" id="sal-form-titulo">Configurar salón</div>
+ <a class="btn btn-outline btn-sm" href="mapa.html" style="width:auto;text-decoration:none;">Abrir Mapa del evento</a>
+ </div>
+ <p class="checkpoint-helper" style="margin-bottom:12px;">Elige el espacio tocándolo en el plano o desde la lista. Estos datos se usan en el Mapa del evento y en el campo "Salón / Lugar" de los checkpoints.</p>
+ <div class="sal-layout">
+ <div>
+ <div class="sal-pisos" id="sal-pisos" role="tablist" aria-label="Piso"></div>
+ <div class="sal-plano" id="sal-plano"><p class="checkpoint-helper" style="padding:16px;">Cargando plano…</p></div>
+ </div>
+ <div>
+ <div class="form-groupE">
+ <label for="sal-espacio" style="color:var(--verde-oscuro)">Espacio del plano *</label>
+ <select id="sal-espacio"><option value="">— Selecciona un espacio —</option></select>
+ </div>
+ <div class="form-groupE">
+ <label for="sal-nombre" style="color:var(--verde-oscuro)">Nombre que verán los asistentes *</label>
+ <input type="text" id="sal-nombre" maxlength="100" placeholder="ej. Auditorio menor"/>
+ </div>
+ <div class="form-grid-2">
+ <div class="form-groupE">
+ <label for="sal-rotulo" style="color:var(--verde-oscuro)">Rótulo en el plano</label>
+ <input type="text" id="sal-rotulo" maxlength="7" placeholder="ej. 3-301"/>
+ </div>
+ <div class="form-groupE">
+ <label for="sal-capacidad" style="color:var(--verde-oscuro)">Capacidad *</label>
+ <input type="number" id="sal-capacidad" min="1" inputmode="numeric" placeholder="ej. 80"/>
+ </div>
+ </div>
+ <div class="form-actions">
+ <button class="btn btn-primary" id="btn-guardar-salon" type="button" style="flex:1">Guardar salón</button>
+ <button class="btn btn-outline btn-sm" id="btn-limpiar-salon" type="button" style="width:auto">Limpiar</button>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="card" style="border-left: 3px solid var(--verde-claro);">
+ <div class="card-title">Salones configurados <span id="sal-contador" style="font-weight:400;color:var(--gris-medio);font-size:13px;"></span></div>
+ <div class="tabla-wrap">
+ <table>
+ <thead><tr>
+ <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Rótulo</th>
+ <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Nombre</th>
+ <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Piso</th>
+ <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)">Capacidad</th>
+ <th style="border-bottom:2px solid var(--verde-claro);color:var(--verde-oscuro)"></th>
+ </tr></thead>
+ <tbody id="tabla-salones-body"><tr><td colspan="5" style="text-align:center;color:var(--gris-medio)">Cargando…</td></tr></tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+
 </div>
 
 <!-- MODAL QR -->
@@ -479,8 +554,10 @@
  <select id="cp-dia"><option value="">— Selecciona un día —</option></select>
  </div>
  <div class="form-groupE" style="margin:0;">
- <label style="color:var(--verde-oscuro)">Salón / Lugar</label>
- <input type="text" id="cp-salon" placeholder="ej. Auditorio A"/>
+ <label for="cp-salon-sel" style="color:var(--verde-oscuro)">Salón / Lugar</label>
+ <select id="cp-salon-sel"><option value="">— Sin salón asignado —</option></select>
+ <input type="text" id="cp-salon" placeholder="Escribe el lugar (ej. Cancha techada)" style="display:none;margin-top:6px;"/>
+ <small id="cp-salon-info" class="checkpoint-helper" style="display:block;margin-top:4px;">Los salones se configuran en la pestaña Salones.</small>
  </div>
  </div>
  <div class="checkpoint-form-grid">
@@ -535,6 +612,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/inscripciones.js?v=20261008.1"></script>
+<script type="module" src="../../../js/modulos/inscripciones.js?v=20261008.2"></script>
 </body>
 </html>

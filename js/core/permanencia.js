@@ -99,8 +99,9 @@ function esMedible(cp) {
 
 /**
  * Evalúa las entradas de UN participante.
- * @param {Array<{checkpointId: string, marcadoEn: any}>} entradas
- *   Una por checkpoint (el servidor ya guarda solo la primera).
+ * @param {Array<{checkpointId: string, marcadoEn: any, salidaEn?: any}>} entradas
+ *   Una por checkpoint (el servidor ya guarda solo la primera). `salidaEn`
+ *   existe si alguien autorizado liberó su asiento desde el Mapa del evento.
  * @param {Array<object>} checkpoints  Checkpoints con id, dia, horaInicio, horaFin, tipo.
  * @param {{porcentajeMinimo?: number}} [opciones]
  * @returns {Record<string, {valida: boolean, medible: boolean, minutos?: number,
@@ -121,15 +122,16 @@ export function evaluarPermanencia(entradas, checkpoints, { porcentajeMinimo = P
       resultado[cp.id] = { valida: true, medible: false };
       continue;
     }
-    medibles.push({ cp, ms });
+    const salidaMs = aMs(entrada.salidaEn);
+    medibles.push({ cp, ms, salidaMs: Number.isFinite(salidaMs) ? salidaMs : Infinity });
   }
 
   medibles.sort((a, b) => a.ms - b.ms);
-  medibles.forEach(({ cp, ms }, i) => {
+  medibles.forEach(({ cp, ms, salidaMs }, i) => {
     const inicio = msPanama(cp.dia, minutosDeHora(cp.horaInicio));
     const fin = msPanama(cp.dia, minutosDeHora(cp.horaFin));
     const siguiente = medibles[i + 1]?.ms ?? Infinity;
-    const salida = Math.min(fin, siguiente);
+    const salida = Math.min(fin, siguiente, salidaMs);
     const desde = Math.max(ms, inicio);
     const minutos = Math.max(0, Math.floor((salida - desde) / 60000));
     const duracion = Math.round((fin - inicio) / 60000);
@@ -140,11 +142,58 @@ export function evaluarPermanencia(entradas, checkpoints, { porcentajeMinimo = P
       minutos,
       requeridos,
       duracion,
-      cerradaPor: siguiente < fin ? "siguiente" : "fin",
+      cerradaPor: salidaMs < Math.min(fin, siguiente) ? "salida" : siguiente < fin ? "siguiente" : "fin",
     };
   });
 
   return resultado;
+}
+
+/**
+ * Quiénes están ocupando un asiento AHORA en cada checkpoint, con la misma
+ * regla que la permanencia: alguien deja su asiento cuando entra a otra
+ * actividad o cuando un rol autorizado lo libera (`salidaEn`). El control de
+ * acceso general no saca a nadie de su actividad.
+ * @param {Array<object>} asistencias  docs de `asistencias_congreso` del día
+ *   ({ checkpointId, participanteId, participanteColeccion, marcadoEn, salidaEn })
+ * @param {Array<object>} checkpoints
+ * @param {number} [ahoraMs]
+ * @returns {Map<string, Array<object>>} checkpointId -> asistencias presentes
+ */
+export function ocupacionActual(asistencias, checkpoints, ahoraMs = Date.now()) {
+  const tipos = new Map((checkpoints || []).map(cp => [cp.id, String(cp.tipo || "").toLowerCase()]));
+  const persona = a => `${a.participanteColeccion || "participantes"}:${a.participanteId}`;
+  // Entradas a actividades (no control de acceso) por persona, en orden.
+  const entradas = new Map();
+  for (const a of asistencias || []) {
+    const ms = aMs(a.marcadoEn);
+    if (!Number.isFinite(ms) || ms > ahoraMs || TIPOS_SIN_PERMANENCIA.has(tipos.get(a.checkpointId))) continue;
+    const lista = entradas.get(persona(a)) || [];
+    lista.push(ms);
+    entradas.set(persona(a), lista);
+  }
+
+  const ocupacion = new Map();
+  for (const a of asistencias || []) {
+    if (!tipos.has(a.checkpointId)) continue;
+    const ms = aMs(a.marcadoEn);
+    if (!Number.isFinite(ms) || ms > ahoraMs) continue;
+    const salida = aMs(a.salidaEn);
+    if (Number.isFinite(salida) && salida <= ahoraMs) continue;
+    const esAcceso = TIPOS_SIN_PERMANENCIA.has(tipos.get(a.checkpointId));
+    if (!esAcceso && (entradas.get(persona(a)) || []).some(t => t > ms)) continue;
+    if (!ocupacion.has(a.checkpointId)) ocupacion.set(a.checkpointId, []);
+    ocupacion.get(a.checkpointId).push(a);
+  }
+  return ocupacion;
+}
+
+// ¿El checkpoint está pasando en este momento (hora de Panamá)?
+export function enCurso(cp, ahora = enPanama()) {
+  if (!estaOperativo(cp) || cp.dia !== ahora.dia) return false;
+  const ini = minutosDeHora(cp.horaInicio);
+  const fin = minutosDeHora(cp.horaFin);
+  return ini != null && fin != null && ahora.minutos >= ini && ahora.minutos < fin;
 }
 
 export function contarValidas(evaluacion) {

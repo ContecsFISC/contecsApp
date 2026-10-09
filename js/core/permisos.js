@@ -46,6 +46,12 @@ export const PERMISOS = {
   // Pestaña POSPER del dashboard: posper.html, randomizer.html y
   // randomizerint.html. Debe reflejar ROLES_POSPER en functions/operaciones-qr.js.
   acceso_posper: ["ceo", "posper"],
+  // Mapa del evento: lo ven todos los roles internos (el patrocinador solo
+  // ve su pestaña). Configurar salones y liberar asientos va con
+  // "gestionar_inscripciones", como el resto de Gestión de Eventos.
+  ver_mapa: Object.keys(ROLES).filter(r => r !== "posper"),
+  // Debe reflejar ROLES_LIBERAR_ASIENTO en functions/operaciones-qr.js.
+  liberar_asiento: ["ceo", "staff_contecs"],
   // Quitar un RFID asignado por error (botón "Liberar" del Randomizer).
   // Debe reflejar ROLES_LIBERAR_RFID en functions/operaciones-qr.js.
   liberar_rfid: ["ceo"],
