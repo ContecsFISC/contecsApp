@@ -57,11 +57,12 @@
  .ri-kicker { font-size: clamp(13px, 1.6vw, 18px); letter-spacing: 6px; text-transform: uppercase; color: var(--ri-suave); font-weight: 700; }
  .ri-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin: 0; }
  .ri-titulo span { color: var(--ri-laser-claro); text-shadow: 0 0 28px rgba(255,59,59,0.45); }
- /* Logo grande con su láser extendido de lado a lado de la pantalla (54 % =
-    altura de la línea roja dentro de posper-logo-blanco.png). */
+ /* Logo grande. Su láser va en CSS (en la captura original salía irregular):
+    línea recta sobre el logo y un reflejo tenue de lado a lado de la pantalla. */
  .ri-logo { position: relative; width: min(560px, 80vw); }
+ .ri-logo::after { content: ""; position: absolute; left: 2%; right: 2.2%; top: 50.6%; height: 7.4%; background: var(--ri-laser); box-shadow: 0 0 12px rgba(255,42,42,0.7); }
  .ri-logo img { display: block; width: 100%; height: auto; position: relative; filter: drop-shadow(0 0 10px rgba(255,42,42,0.4)); }
- .ri-logo::before { content: ""; position: absolute; left: -100vw; right: -100vw; top: 54%; height: 3px; margin-top: -1.5px; background: var(--ri-laser-claro); box-shadow: 0 0 16px rgba(255,42,42,0.8); opacity: 0.4; }
+ .ri-logo::before { content: ""; position: absolute; left: -100vw; right: -100vw; top: 54.3%; height: 3px; margin-top: -1.5px; background: var(--ri-laser-claro); box-shadow: 0 0 16px rgba(255,42,42,0.8); opacity: 0.4; }
  .ri-escenario { overflow-x: clip; }
 
  /* Carrete: ventana con el RFID y el nombre que pasan cada vez más lento. */

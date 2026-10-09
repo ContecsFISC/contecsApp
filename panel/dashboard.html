@@ -389,18 +389,26 @@
       border: 28px solid rgba(255,255,255,0.06);
     }
     .posper-hero > * { position: relative; z-index: 1; }
-    /* El láser del logo sigue de borde a borde del hero (54 % = altura de la
-       línea roja dentro de posper-logo-blanco.png). */
+    /* El láser del logo va en CSS (en la captura original salía irregular):
+       una línea recta sobre el logo, a la altura donde la trae POSPER, y un
+       reflejo tenue que sigue de borde a borde del hero. */
     .posper-marca { width: clamp(200px, 32vw, 300px); margin-bottom: clamp(18px, 3vw, 26px); }
     .posper-marca::before {
       content: "";
       position: absolute;
-      left: -100vw; right: -100vw; top: 54%;
+      left: -100vw; right: -100vw; top: 54.3%;
       height: 2px; margin-top: -1px;
       background: #ff2a2a;
       box-shadow: 0 0 12px rgba(255,42,42,0.75);
       opacity: 0.45;
       z-index: -1;
+    }
+    .posper-marca::after {
+      content: "";
+      position: absolute;
+      left: 2%; right: 2.2%; top: 50.6%; height: 7.4%;
+      background: #cc0000;
+      box-shadow: 0 0 8px rgba(255,42,42,0.6);
     }
     .posper-logo { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
     .posper-kicker { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
