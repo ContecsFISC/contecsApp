@@ -1,12 +1,12 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:35:42.197941+00:00**
+- Generado: **2026-10-09T03:35:45.235068+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `5ca29557c8739e31…`
+- Huella del proyecto: `0a53a36562d4d972…`
 - Archivos analizados: **194**
 - Relaciones internas tipadas: **653**
 - Símbolos detectados: **4976**
-- Llamadas detectadas: **10956**
+- Llamadas detectadas: **10963**
 - IDs DOM definidos: **977**
 - Paquetes externos usados: **30**
 - Colecciones de Firestore detectadas: **29**
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 

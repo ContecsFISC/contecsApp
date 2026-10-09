@@ -127,8 +127,19 @@
  .estado-act.vivo { background: #d32f2f; color: #fff; }
  .estado-act.cancelada { background: var(--rojo-fondo); color: var(--rojo); }
  .form-salon { display: grid; gap: 8px; }
- .form-salon label { font-size: 12px; font-weight: 600; color: var(--verde-oscuro); display: grid; gap: 4px; }
+ .form-salon label { font-size: 13px; font-weight: 600; color: var(--verde-oscuro); display: grid; gap: 5px; }
  .form-salon .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ /* Mismo estilo que los formularios del sistema (.form-groupE en styles.css). */
+ .form-salon input {
+   width: 100%; box-sizing: border-box; padding: 11px 13px;
+   border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+   font: 500 14px var(--fuente); color: var(--gris-texto); background: var(--blanco);
+   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+ }
+ .form-salon input::placeholder { color: var(--gris-medio); opacity: 0.7; font-weight: 400; }
+ .form-salon input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); transform: translateY(-1px); }
+ .form-salon .btn { margin-top: 4px; }
+ @media (max-width: 760px) { .form-salon input { font-size: 16px; } }
  .vacio-mapa { font-size: 13px; color: var(--gris-medio); }
 
  .cargando-mapa { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; color: var(--verde-oscuro); font-weight: 700; }
@@ -188,6 +199,6 @@
  <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/mapa.js?v=20261008.1"></script>
+<script type="module" src="../../../js/modulos/mapa.js?v=20261008.2"></script>
 </body>
 </html>
