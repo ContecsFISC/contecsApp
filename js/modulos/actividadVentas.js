@@ -454,7 +454,7 @@ function renderTablaVentas() {
       <td>${fmtFecha(v.fecha)}</td>
       <td>${h(v.tipo || "—")}</td>
       <td>${h(v.lugar || "—")}</td>
-      <td style="text-align:center;">${v.voluntariosReq ? `<strong style="color:#c81e1e">${v.voluntariosReq}</strong>` : "—"}</td>
+      <td style="text-align:center;">${v.voluntariosReq ? `<strong style="color:#c81e1e">${h(v.voluntariosReq)}</strong>` : "—"}</td>
       <td>${h(v.responsables || "—")}</td>
       <td>
         ${(v.turnos || []).map(t => `<span style="font-size:11px;background:#fde8e8;color:#c81e1e;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}

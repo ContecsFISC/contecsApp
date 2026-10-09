@@ -377,8 +377,8 @@ function renderTablaActividades() {
       <td data-label="Fecha">${fmtFecha(a.fecha)}</td>
       <td data-label="Tipo">${h(a.area || "—")}</td>
       <td data-label="Lugar">${h(a.lugar || "—")}${a.salonId ? `<br><span style="font-size:11px;color:var(--verde-oscuro);font-weight:600;">En el mapa</span>` : ""}</td>
-      <td data-label="Vol. req." style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${a.voluntariosReq}</strong>` : "—"}</td>
-      <td data-label="Cupo" style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${a.cupo}</strong>` : "—"}</td>
+      <td data-label="Vol. req." style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${h(a.voluntariosReq)}</strong>` : "—"}</td>
+      <td data-label="Cupo" style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${h(a.cupo)}</strong>` : "—"}</td>
       <td data-label="Turnos">
         <span>${(a.turnos || []).map(t => `<span style="font-size:11px;background:var(--verde-fondo);color:var(--verde-oscuro);padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("") || "—"}</span>
       </td>
@@ -1505,7 +1505,7 @@ function renderTablaGiras() {
       ["Lugar", h(g.lugar || "—")],
       g.coordinador?.nombre ? ["Coordinador", `${h(g.coordinador.nombre)}${g.coordinador.tipo ? ` (${g.coordinador.tipo === "profesor" ? "Profesor" : "Staff"})` : ""}`] : null,
       g.coordinador?.telefono ? ["Tel. coordinador", h(g.coordinador.telefono)] : null,
-      ["Voluntarios req.", g.voluntariosReq ? `<strong style="color:#856404">${g.voluntariosReq}</strong>` : "—"],
+      ["Voluntarios req.", g.voluntariosReq ? `<strong style="color:#856404">${h(g.voluntariosReq)}</strong>` : "—"],
       ["Cupo", g.cupo ? `<strong style="color:#1a56db;">${g.cupo}</strong>` : "—"],
       (g.turnos || []).length
         ? ["Turnos", (g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("")]

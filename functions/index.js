@@ -2,6 +2,7 @@ const {onCall, onRequest, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentUpdated, onDocumentDeleted} =
   require("firebase-functions/v2/firestore");
 const {onInit} = require("firebase-functions/v2/core");
+const {setGlobalOptions} = require("firebase-functions/v2");
 const {defineSecret} = require("firebase-functions/params");
 const {initializeApp} = require("firebase-admin/app");
 const {getAuth} = require("firebase-admin/auth");
@@ -10,6 +11,16 @@ const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
 const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
+
+// El proyecto tiene 20 vCPU en total en us-central1 (cuota de Cloud Run que
+// la consola no deja subir). Con 1 vCPU por instancia, 24 funciones no caben
+// ni al desplegar ni con varias calientes a la vez, y las que no alcanzan a
+// arrancar responden 503. "gcf_gen1" da la CPU de las funciones de 1.ª
+// generación (~0,17 vCPU con 256 MB, una petición por instancia).
+// Mantienen 1 vCPU (CPU_COMPLETA) los correos de Brevo, la lectura QR y el
+// mapa público: muchas peticiones a la vez el día del congreso.
+setGlobalOptions({cpu: "gcf_gen1"});
+const CPU_COMPLETA = {cpu: 1};
 const {
   generarDocId,
   errorDuplicado,
@@ -55,6 +66,7 @@ const {cambiarRolUsuario} = require("./cambio-rol");
 const {desbloquearUsuarios, guardarPermisosUsuario, guardarPermisosRol} = require("./permisos-admin");
 const {registrarVoluntario} = require("./registro-voluntarios");
 const {mapaPublico} = require("./mapa-publico");
+const {ipDelCliente, claveDeLimite} = require("./ip-cliente");
 const {
   CATEGORIAS_REGISTRO,
   generarToken,
@@ -110,7 +122,7 @@ exports.ejecutarOperacionFinanciera = onCall(
 );
 
 exports.ejecutarOperacionQr = onCall(
-    {region: "us-central1", maxInstances: 10},
+    {region: "us-central1", maxInstances: 10, ...CPU_COMPLETA},
     async (request) => {
       try {
         return await ejecutarOperacionQr(request);
@@ -292,10 +304,16 @@ function normalizarEstudiantes(valor) {
 }
 
 async function aplicarLimiteRegistro(request) {
-  const raw = request.rawRequest;
-  const ip = String(raw?.headers?.["x-forwarded-for"] || raw?.ip || "desconocida")
-      .split(",")[0].trim();
-  const hash = crypto.createHash("sha256").update(ip).digest("hex").slice(0, 32);
+  // Una vez por instancia: cuántos valores trae X-Forwarded-For (sin IPs). En
+  // una petición normal del navegador debe ser 1; si fuera 2, hay un proxy
+  // de Google al final y ip-cliente.js tendría que tomar el penúltimo.
+  if (!aplicarLimiteRegistro.revisado) {
+    aplicarLimiteRegistro.revisado = true;
+    const xff = String(request.rawRequest?.headers?.["x-forwarded-for"] || "");
+    console.log(`limite-registro: X-Forwarded-For con ${xff.split(",").filter((v) => v.trim()).length} valor(es)`);
+  }
+  const clave = claveDeLimite(ipDelCliente(request.rawRequest));
+  const hash = crypto.createHash("sha256").update(clave).digest("hex").slice(0, 32);
   const ref = db.collection("limites_registro").doc(hash);
   const ahora = Date.now();
   const ventanaMs = 60 * 60 * 1000;
@@ -961,7 +979,7 @@ exports.accederParticipante = onCall(
 
 // ─── CALLABLE: enviar correo QR (panel staff) ─────────────────────────────────
 exports.enviarCorreoQrParticipante = onCall(
-    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
     async (request) => {
       try {
         const forzarReenvio = !!request.data?.forzarReenvio;
@@ -1199,7 +1217,7 @@ async function enviarCorreoNoSeleccionadoGira({gira, participante, motivo, mensa
 // registro en gira.notificados), para no reenviar a todo el mundo cada vez
 // que GIRAS ajusta la lista y vuelve a hacer clic.
 exports.notificarParticipantesGira = onCall(
-    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
     async (request) => {
       try {
         await verificarGestorGiras(request, "No tienes permiso para notificar esta gira.", "giras_notificar");
@@ -1336,7 +1354,7 @@ function motivosDeGira(gira) {
 // Se lleva registro en gira.notificadosNoSeleccionados para no volver a
 // escribirle a la misma persona cada vez que se pulsa el boton.
 exports.notificarNoSeleccionadosGira = onCall(
-    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
+    {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
     async (request) => {
       try {
         await verificarGestorGiras(request, "No tienes permiso para notificar esta gira.", "giras_notificar");
@@ -1561,7 +1579,7 @@ exports.accederGiraParticipante = onCall(
 
 // ─── TRIGGER: respaldo al aprobar pago ───────────────────────────────────────
 exports.notificarPagoAprobado = onDocumentUpdated(
-    {document: "participantes/{docId}", region: "us-central1", secrets: [BREVO_API_KEY]},
+    {document: "participantes/{docId}", region: "us-central1", maxInstances: 5, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
     async (event) => {
       const before = event.data.before.data();
       const after = event.data.after.data();
@@ -1647,7 +1665,7 @@ exports.notificarPagoAprobado = onDocumentUpdated(
 // borra el lock si sigue apuntando a ESE participante, para no pisar uno que
 // otra inscripción ya haya reclamado legítimamente.
 exports.liberarIdentidadParticipante = onDocumentDeleted(
-    {document: "participantes/{docId}", region: "us-central1"},
+    {document: "participantes/{docId}", region: "us-central1", maxInstances: 5},
     async (event) => {
       const borrado = event.data?.data();
       if (!borrado) return;
@@ -1678,7 +1696,7 @@ exports.eliminarParticipante = onCall(
 // Mapa público (public/mapa.html, el QR del congreso): agenda, salones y
 // asientos ocupados en conteos, sin iniciar sesión. Ver functions/mapa-publico.js.
 exports.mapaPublico = onCall(
-    {region: "us-central1", maxInstances: 10, invoker: "public"},
+    {region: "us-central1", maxInstances: 10, invoker: "public", ...CPU_COMPLETA},
     async () => {
       try {
         return await mapaPublico();

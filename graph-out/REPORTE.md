@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-09T17:55:25.620560+00:00**
+- Generado: **2026-10-09T20:08:23.281452+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `0aba36ab03f530d2…`
-- Archivos analizados: **221**
-- Relaciones internas tipadas: **864**
-- Símbolos detectados: **5905**
-- Llamadas detectadas: **13200**
+- Huella del proyecto: `9c91e6cc6b40847a…`
+- Archivos analizados: **223**
+- Relaciones internas tipadas: **867**
+- Símbolos detectados: **5924**
+- Llamadas detectadas: **13288**
 - IDs DOM definidos: **1133**
 - Paquetes externos usados: **32**
 - Colecciones de Firestore detectadas: **37**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**16,326 tokens** · leer primero
-- `GraphCompleto.json` — ~**76,722 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**140,682 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.4%** frente al profundo
+- `GraphCompacto.json` — ~**15,923 tokens** · leer primero
+- `GraphCompleto.json` — ~**76,594 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**140,738 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.7%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,7 +35,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 345.7 (conexiones: 171, 369 lineas)
-- `js/core/seguridad.js` — riesgo 114.4 (conexiones: 57, 40 lineas)
+- `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `panel/dashboard.html` — riesgo 114.4 (conexiones: 47, 2043 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 106.6 (conexiones: 42, 2264 lineas)
 - `js/modulos/voluntarios.js` — riesgo 93.9 (conexiones: 30, 3236 lineas)
@@ -44,16 +44,16 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `css/styles.css` — riesgo 80.3 (conexiones: 36, 831 lineas)
 - `js/core/firebase-config.js` — riesgo 80.3 (conexiones: 40, 35 lineas)
 - `js/modulos/credenciales.js` — riesgo 80.1 (conexiones: 36, 813 lineas)
-- `js/modulos/inscripciones.js` — riesgo 74.5 (conexiones: 27, 2051 lineas)
+- `js/modulos/inscripciones.js` — riesgo 76.5 (conexiones: 28, 2051 lineas)
 - `js/modulos/gestorCredenciales.js` — riesgo 68.9 (conexiones: 31, 687 lineas)
 - `js/core/permanencia.js` — riesgo 68.0 (conexiones: 33, 202 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 67.0 (conexiones: 29, 895 lineas)
-- `js/modulos/mapa.js` — riesgo 61.5 (conexiones: 26, 955 lineas)
+- `js/modulos/mapa.js` — riesgo 61.7 (conexiones: 26, 974 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
 - `js/core/auth.js` — grado 171 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
-- `js/core/seguridad.js` — grado 57 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
+- `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/dashboard.html` — grado 47 | exporta: (sin exports detectados)
 - `apple-touch-icon.png` — grado 43 | exporta: (sin exports detectados)
 - `favicon.ico` — grado 43 | exporta: (sin exports detectados)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -151,6 +151,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/mapa-publico.js`
 - `functions/operaciones-qr.js`
 - `functions/test/operaciones-qr.integration.js`
+- `functions/test/permisos-reglas.integration.mjs`
 - `js/modulos/inscripciones.js`
 - `js/modulos/mapa.js`
 - `js/modulos/reportes_estadisticaCont.js`
@@ -162,6 +163,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `asistencias_voluntarios`
 - `functions/operaciones-qr.js`
+- `functions/test/permisos-reglas.integration.mjs`
 - `js/modulos/lecturaQRVoluntarios.js`
 - `js/modulos/reportes_estadisticaCont.js`
 - `js/modulos/voluntarios.js`
@@ -255,6 +257,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `inscripciones`
 - `functions/test/operaciones-qr.integration.js`
+- `functions/test/permisos-reglas.integration.mjs`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/reportes_estadisticaCont.js`
@@ -263,6 +266,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/eliminaciones.js`
 - `functions/operaciones-qr.js`
 - `functions/test/operaciones-qr.integration.js`
+- `functions/test/permisos-reglas.integration.mjs`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/reportes_estadisticaCont.js`
@@ -406,8 +410,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 342
-- `imports`: 271
+- `calls_imported_symbol`: 343
+- `imports`: 273
 - `loads_asset`: 108
 - `navigates_to`: 66
 - `loads_script`: 41
@@ -439,7 +443,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 37 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 11 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 20 archivo(s)
+- `node:assert/strict` — usado en 21 archivo(s)
 - `node:module` — usado en 3 archivo(s)
 - `path` — usado en 2 archivo(s)
 - `readline` — usado en 1 archivo(s)

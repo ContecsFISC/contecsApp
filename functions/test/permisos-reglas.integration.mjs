@@ -94,6 +94,12 @@ const USUARIOS = {
   "ventas-sin-categorias": { rol: "ventas", permisosExtra: { catalogo_categorias: { modo: "quitar" } } },
   "miembro-evento": { rol: "miembro", permisosExtra: { gestionar_inscripciones: { modo: "otorgar", vence: null } } },
   "voluntariado-1": { rol: "voluntariado" },
+  "finanzas-1": { rol: "finanzas" },
+  // El último permiso de cada cadena: comprueba que no se agote el límite de
+  // 1000 expresiones de Firestore (al agotarse, niega).
+  "ventas-posper": { rol: "ventas", permisosExtra: { acceso_posper: { modo: "otorgar", vence: null } } },
+  "ventas-estadisticas": { rol: "ventas", permisosExtra: { ver_estadisticas_congreso: { modo: "otorgar", vence: null } } },
+  "miembro-liberar": { rol: "miembro", permisosExtra: { liberar_asiento: { modo: "otorgar", vence: null } } },
   "voluntariado-grupo": { rol: "voluntariado", permisosExtra: { voluntarios_cambiar_grupo: { modo: "otorgar", vence: null } } },
   // Para los permisos por rol (al final, cuando se crea config/permisos_roles).
   "ventas-sin-ver-propio": { rol: "ventas", permisosExtra: { ver_participantes: { modo: "quitar" } } },
@@ -111,6 +117,10 @@ async function preparar() {
   batch.set(db.collection("fondos").doc("f-1"), { balance: 0 });
   batch.set(db.collection("compras").doc("c-1"), { total: 1 });
   batch.set(db.collection("voluntarios").doc("v-1"), { nombre: "Ana", id: "8-1-1", grupo: "voluntario", totalHoras: 0 });
+  batch.set(db.collection("asistencias_voluntarios").doc("av-1"), { voluntarioId: "v-1", horas: 2 });
+  batch.set(db.collection("inscripciones").doc("i-1"), { nombre: "Luis", cedula: "8-2-2" });
+  batch.set(db.collection("inscripciones_checkpoint").doc("ic-1"), { participanteNombre: "Luis" });
+  batch.set(db.collection("asistencias_congreso").doc("ac-1"), { participanteNombre: "Luis", participanteCedula: "8-2-2" });
   await batch.commit();
 }
 
@@ -203,6 +213,44 @@ await prueba("cambiar el grupo: solo CEO o a quien se le otorga; lo demás sigue
   await puede("voluntariado-grupo", "PATCH", "voluntarios/v-1", { grupo: "voluntario" });
   await puede("voluntariado-1", "PATCH", "voluntarios/v-1", { telefono: "6000-0000" });
   await puede("voluntariado-1", "PATCH", "voluntarios/v-1", { grupo: "voluntario", telefono: "6111-1111" });
+});
+
+console.log("\nDatos personales:\n");
+
+await prueba("voluntarios: solo Voluntarios, Credenciales y Estadísticas; no cualquier staff", async () => {
+  for (const uid of ["ceo-1", "voluntariado-1", "junta-1", "staff-1", "finanzas-1"]) {
+    await puede(uid, "GET", "voluntarios/v-1");
+  }
+  for (const uid of ["miembro-1", "ventas-1"]) await noPuede(uid, "GET", "voluntarios/v-1");
+  await puede("voluntariado-1", "GET", "asistencias_voluntarios/av-1");
+  await noPuede("miembro-1", "GET", "asistencias_voluntarios/av-1");
+});
+
+await prueba("inscripciones: Gestión de Evento, Lectura QR y Estadísticas", async () => {
+  for (const uid of ["ceo-1", "staff-1", "finanzas-1", "ventas-solo-qr"]) {
+    await puede(uid, "GET", "inscripciones/i-1");
+    await puede(uid, "GET", "inscripciones_checkpoint/ic-1");
+  }
+  for (const uid of ["miembro-1", "ventas-1", "voluntariado-1"]) {
+    await noPuede(uid, "GET", "inscripciones/i-1");
+    await noPuede(uid, "GET", "inscripciones_checkpoint/ic-1");
+  }
+});
+
+await prueba("asistencias del congreso: además quien ve participantes; el resto del Mapa no", async () => {
+  for (const uid of ["ceo-1", "staff-1", "junta-1", "ventas-ve", "finanzas-1"]) {
+    await puede(uid, "GET", "asistencias_congreso/ac-1");
+  }
+  for (const uid of ["miembro-1", "ventas-1", "voluntariado-1"]) await noPuede(uid, "GET", "asistencias_congreso/ac-1");
+});
+
+await prueba("el último permiso de cada cadena también vale (no se agota el límite de expresiones)", async () => {
+  await puede("ventas-posper", "GET", "participantes/p-1");
+  await puede("ventas-estadisticas", "GET", "participantes/p-1");
+  await puede("ventas-estadisticas", "GET", "voluntarios/v-1");
+  await puede("ventas-estadisticas", "GET", "inscripciones/i-1");
+  await puede("ventas-estadisticas", "GET", "asistencias_congreso/ac-1");
+  await puede("miembro-liberar", "GET", "asistencias_congreso/ac-1");
 });
 
 console.log("\nFinanzas y Secretaría:\n");

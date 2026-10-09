@@ -23,15 +23,19 @@ service cloud.firestore {
       return userExists() && userRol() in roles;
     }
 
-    function isStaff() {
-      // Lista cerrada: un rol ausente, nulo o escrito incorrectamente nunca
-      // debe heredar permisos de staff por accidente.
-      return hasRol([
+    // Lista cerrada: un rol ausente, nulo o escrito incorrectamente nunca
+    // debe heredar permisos de staff por accidente.
+    function rolesStaff() {
+      return [
         'ceo', 'junta_principal', 'junta', 'coordinador',
         'finanzas', 'logistica', 'ventas', 'secretario', 'actividades',
         'patrocinios', 'investigacion', 'voluntariado', 'giras',
         'comunicaciones', 'staff_contecs', 'miembro'
-      ]);
+      ];
+    }
+
+    function isStaff() {
+      return hasRol(rolesStaff());
     }
 
     // ── Permisos individuales ────────────────────────────────────────────────
@@ -41,43 +45,43 @@ service cloud.firestore {
     // Misma regla que tienePermiso() en js/core/permisos.js y usuarioPuede()
     // en functions/permisos.js. Solo cuentan para roles internos que no sean
     // CEO: "sin_rol" desactiva la cuenta aunque conserve ajustes.
-    function ajuste(permiso) {
-      return userDoc().data.get('permisosExtra', {}).get(permiso, {});
-    }
-
-    function admiteAjustes() {
-      return isStaff() && userRol() != 'ceo';
-    }
-
-    // Un "otorgar" con vence deja de valer solo al pasar esa fecha.
-    function personaOtorga(permiso) {
-      return ajuste(permiso).get('modo', '') == 'otorgar'
-        && (ajuste(permiso).get('vence', null) == null
-          || request.time < ajuste(permiso).get('vence', null));
-    }
-
-    function personaQuita(permiso) {
-      return ajuste(permiso).get('modo', '') == 'quitar';
+    //
+    // Firestore deja de evaluar (y NIEGA) al llegar a 1000 expresiones por
+    // petición. Por eso el rol y los ajustes se leen una sola vez en sesion()
+    // y se pasan a los helpers "...De(s, ...)"; las reglas que revisan varios
+    // permisos seguidos usan esos directamente.
+    function sesion() {
+      let rol = userRol();
+      return {
+        'rol': rol,
+        'ajustable': rol in rolesStaff() && rol != 'ceo',
+        'extra': rol != '' ? userDoc().data.get('permisosExtra', {}) : {}
+      };
     }
 
     // Permisos por rol (Usuarios → "Permisos por rol"), en
     // config/permisos_roles = { roles: { rol: { permiso: { modo } } } }.
-    // El ajuste propio de la persona manda sobre el de su rol.
-    function ajusteDelRol(permiso) {
+    function ajusteDelRolDe(rol, permiso) {
       return exists(/databases/$(database)/documents/config/permisos_roles)
         ? get(/databases/$(database)/documents/config/permisos_roles).data
-            .get('roles', {}).get(userRol(), {}).get(permiso, {}).get('modo', '')
+            .get('roles', {}).get(rol, {}).get(permiso, {}).get('modo', '')
         : '';
     }
 
-    function otorgado(permiso) {
-      return admiteAjustes() && (personaOtorga(permiso)
-        || (!personaQuita(permiso) && ajusteDelRol(permiso) == 'otorgar'));
+    // 'otorgar', 'quitar' o '' (sin ajuste). El ajuste propio manda sobre el
+    // de su rol; un "otorgar" con vence deja de valer al pasar esa fecha (y
+    // entonces cuenta el del rol). Solo para quien es s.ajustable.
+    function modoDe(s, permiso) {
+      let propio = s.extra.get(permiso, {});
+      let modo = propio.get('modo', '');
+      let vence = propio.get('vence', null);
+      return modo == 'quitar' ? 'quitar'
+        : (modo == 'otorgar' && (vence == null || request.time < vence)) ? 'otorgar'
+        : ajusteDelRolDe(s.rol, permiso);
     }
 
-    function quitado(permiso) {
-      return admiteAjustes() && (personaQuita(permiso)
-        || (!personaOtorga(permiso) && ajusteDelRol(permiso) == 'quitar'));
+    function otorgadoDe(s, permiso) {
+      return s.ajustable && modoDe(s, permiso) == 'otorgar';
     }
 
     // Para reglas que corresponden a UN permiso de la app: los roles de
@@ -85,15 +89,26 @@ service cloud.firestore {
     // Donde una colección la usan varios módulos (ventas, compras...) solo se
     // suman los otorgados: quitar un permiso esconde el módulo en el panel,
     // pero el rol sigue leyendo lo que necesitan sus otros módulos.
+    function permiteDe(s, permiso, roles) {
+      let modo = s.ajustable ? modoDe(s, permiso) : '';
+      return (s.rol in roles && modo != 'quitar') || modo == 'otorgar';
+    }
+
+    function otorgado(permiso) {
+      return otorgadoDe(sesion(), permiso);
+    }
+
     function permite(permiso, roles) {
-      return (hasRol(roles) && !quitado(permiso)) || otorgado(permiso);
+      return permiteDe(sesion(), permiso, roles);
     }
 
     // Sub-permiso (pestaña o acción de un módulo, SUBPERMISOS en
     // js/core/permisos.js): su propio ajuste manda; sin ajuste sigue al
     // permiso del módulo.
     function permiteSub(sub, modulo, roles) {
-      return !quitado(sub) && (otorgado(sub) || permite(modulo, roles));
+      let s = sesion();
+      let modo = s.ajustable ? modoDe(s, sub) : '';
+      return modo != 'quitar' && (modo == 'otorgar' || permiteDe(s, modulo, roles));
     }
 
     // Debe reflejar exactamente "ver_participantes" en js/core/permisos.js.
@@ -101,15 +116,58 @@ service cloud.firestore {
     // comunicaciones NO (no tienen ese permiso en el modelo de la app).
     // Gestión de Evento, Lectura QR, Estadísticas y POSPER también leen la
     // lista: a quien se le otorgan esos módulos se le abre la lectura.
-    function canVerParticipantes() {
-      return permite('ver_participantes', [
+    function canVerParticipantesDe(s) {
+      return permiteDe(s, 'ver_participantes', [
         'ceo', 'junta_principal', 'junta', 'coordinador', 'staff_contecs'
       ])
-        || otorgado('gestionar_inscripciones')
-        || otorgado('lectura_qr')
-        || otorgado('gestionar_credenciales')
-        || otorgado('ver_estadisticas_congreso')
-        || otorgado('acceso_posper');
+        || otorgadoDe(s, 'gestionar_inscripciones')
+        || otorgadoDe(s, 'lectura_qr')
+        || otorgadoDe(s, 'gestionar_credenciales')
+        || otorgadoDe(s, 'ver_estadisticas_congreso')
+        || otorgadoDe(s, 'acceso_posper');
+    }
+
+    function canVerParticipantes() {
+      return canVerParticipantesDe(sesion());
+    }
+
+    // ── Datos personales: solo las pantallas que los usan ────────────────────
+    // Antes bastaba isStaff(): cualquier rol del staff (hasta Miembro General)
+    // podía bajar cédulas, teléfonos y correos.
+    function puedeVerEstadisticasDe(s) {
+      return permiteDe(s, 'ver_estadisticas_congreso', ['ceo', 'junta_principal', 'finanzas', 'staff_contecs']);
+    }
+
+    // Voluntarios: módulo Voluntarios (y su widget del dashboard), Lectura QR
+    // de voluntarios, Credenciales y Estadísticas.
+    function puedeVerVoluntarios() {
+      let s = sesion();
+      return permiteDe(s, 'gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
+        || otorgadoDe(s, 'voluntarios_lectura_qr')
+        || permiteDe(s, 'gestionar_credenciales', ['ceo'])
+        || puedeVerEstadisticasDe(s);
+    }
+
+    // Inscripciones a actividades: Gestión de Evento, Lectura QR y Estadísticas.
+    function puedeVerInscripcionesDe(s) {
+      return permiteDe(s, 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
+        || otorgadoDe(s, 'lectura_qr')
+        || puedeVerEstadisticasDe(s);
+    }
+
+    function puedeVerInscripciones() {
+      return puedeVerInscripcionesDe(sesion());
+    }
+
+    // Asistencias del congreso (llevan cédula y correo): además quien ve
+    // participantes y quien libera asientos en el Mapa. El resto del Mapa usa
+    // los conteos de mapaPublico, sin datos personales.
+    // Debe reflejar puedeVerPresentes() en js/modulos/mapa.js.
+    function puedeVerAsistenciasCongreso() {
+      let s = sesion();
+      return puedeVerInscripcionesDe(s)
+        || canVerParticipantesDe(s)
+        || permiteDe(s, 'liberar_asiento', ['ceo', 'staff_contecs']);
     }
 
     // Patrocinador POSPER ("acceso_posper" en js/core/permisos.js). No es
@@ -374,7 +432,7 @@ service cloud.firestore {
     }
 
     match /inscripciones/{id} {
-      allow read: if isStaff();
+      allow read: if puedeVerInscripciones();
       allow create, delete: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
       allow update: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
@@ -412,13 +470,13 @@ service cloud.firestore {
 
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
     match /inscripciones_checkpoint/{id} {
-      allow read: if isStaff();
+      allow read: if puedeVerInscripciones();
       allow create, update, delete: if false;
     }
 
     // Registro auditable y centralizado de cada asistencia confirmada por QR.
     match /asistencias_congreso/{id} {
-      allow read: if isStaff();
+      allow read: if puedeVerAsistenciasCongreso();
       allow create, update, delete: if false;
     }
 
@@ -452,7 +510,7 @@ service cloud.firestore {
     }
 
     match /voluntarios/{id} {
-      allow read: if isStaff();
+      allow read: if puedeVerVoluntarios();
       allow create: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
         && request.resource.data.totalHoras == 0;
       // Cambiar el grupo (voluntario ↔ comité organizador) pide además
@@ -465,7 +523,7 @@ service cloud.firestore {
     }
 
     match /asistencias_voluntarios/{id} {
-      allow read: if isStaff();
+      allow read: if puedeVerVoluntarios();
       allow write: if false;
     }
 

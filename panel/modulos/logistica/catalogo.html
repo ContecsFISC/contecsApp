@@ -750,7 +750,7 @@
  function renderProductoCard(prod, inactivo = false) {
  const estado = estadoStock(prod.stock ?? 0, prod.alertaMinima ?? 0);
  const badgeClass = { ok: "stock-ok", alerta: "stock-alerta", agotado: "stock-agotado" }[estado];
- const badgeText = { ok: `${prod.stock}`, alerta: `<img src="../../../img/iconos/advertencia.svg" class="icono-svg" alt=""/> ${prod.stock}`, agotado: "Agotado" }[estado];
+ const badgeText = { ok: `${h(prod.stock)}`, alerta: `<img src="../../../img/iconos/advertencia.svg" class="icono-svg" alt=""/> ${h(prod.stock)}`, agotado: "Agotado" }[estado];
 
  const card = document.createElement("div");
  card.className = `prod-card${inactivo ? " prod-inactivo" : ""}`;

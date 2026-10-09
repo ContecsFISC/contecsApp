@@ -330,7 +330,7 @@ function renderTablaEventos() {
     return `<tr class="${clases}" data-evento-id="${escaparAtributo(ev.id)}" title="Seleccionar este evento">
       <td><strong>${h(ev.nombre)}</strong>${badgeEstado(ev)}</td>
       <td style="font-size:12px;">${diasLabel}</td>
-      <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
+      <td style="text-align:center;">${escaparHtml(ev.checkpointsMinCertificado || 1)}</td>
       <td style="white-space:nowrap;">
         ${puedeEditarEvento() ? `
         <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
@@ -772,7 +772,7 @@ function renderVistaCheckpoints() {
     const hora    = cp.horaInicio && cp.horaFin ? `${cp.horaInicio}–${cp.horaFin}` : cp.horaInicio || "—";
     const tipoCls = cp.tipo === "taller" || cp.tipo === "workshop" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : cp.tipo === "congreso" ? "cp-tipo-congreso" : "";
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
-      ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
+      ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${escaparHtml(cp.cuposDisponibles ?? cp.cupos)}/${escaparHtml(cp.cupos)} cupos</span>`
       : "";
     return itemCheckpoint(cp, fmtFechaCorta(cp.dia), hora, tipoCls, cuposStr);
   }).join("");
@@ -793,7 +793,7 @@ function renderTablaCheckpoints() {
     const diaLabel = fmtFechaCorta(cp.dia);
     const tipoCls  = cp.tipo === "taller" || cp.tipo === "workshop" ? "cp-tipo-taller" : cp.tipo === "gira" ? "cp-tipo-gira" : cp.tipo === "congreso" ? "cp-tipo-congreso" : "";
     const cuposStr = TIPO_CON_CUPOS.includes(cp.tipo) && cp.cupos
-      ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${cp.cuposDisponibles ?? cp.cupos}/${cp.cupos} cupos</span>`
+      ? `<span style="font-size:12px;font-weight:700;color:var(--verde-oscuro);">${escaparHtml(cp.cuposDisponibles ?? cp.cupos)}/${escaparHtml(cp.cupos)} cupos</span>`
       : "";
     return itemCheckpoint(cp, diaLabel, hora, tipoCls, cuposStr);
   }).join("");
@@ -874,7 +874,7 @@ function poblarSelectorDiasCP() {
       weekday: "long", day: "numeric", month: "long",
     });
     const horas = d.horaInicio && d.horaFin ? ` · ${d.horaInicio}–${d.horaFin}` : "";
-    return `<option value="${d.fecha}">${label}${horas}</option>`;
+    return `<option value="${escaparAtributo(d.fecha)}">${escaparHtml(label + horas)}</option>`;
   }).join("");
   if (prev) sel.value = prev;
 }

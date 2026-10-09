@@ -167,9 +167,18 @@ function checkpointsPorSalon() {
   return mapa;
 }
 
-// checkpointId -> personas dentro ahora. En modo público llega contado.
+// asistencias_congreso lleva cédula y correo: solo la leen quienes pueden
+// (puedeVerAsistenciasCongreso() en firestore.rules). El resto ve los asientos
+// con los conteos de mapaPublico, igual que el mapa público.
+function puedeVerPresentes() {
+  return ["ver_participantes", "gestionar_inscripciones", "lectura_qr", "ver_estadisticas_congreso", "liberar_asiento"]
+    .some(usuarioTienePermiso);
+}
+
+// checkpointId -> personas dentro ahora. En modo público (o sin permiso para
+// ver quién entró) llega contado.
 function ocupadosPorCheckpoint() {
-  if (PUBLICO) return new Map(Object.entries(S.ocupacionPublica || {}));
+  if (PUBLICO || !S.verPresentes) return new Map(Object.entries(S.ocupacionPublica || {}));
   return new Map([...ocupacionActual(S.asistencias, S.checkpoints)].map(([id, lista]) => [id, lista.length]));
 }
 
@@ -841,6 +850,15 @@ function escucharAsistencias() {
   cancelarAsistencias = null;
   S.asistencias = [];
   if (!S.evento || S.dia !== enPanama().dia) { render(); return; }
+  if (!S.verPresentes) {
+    const leer = () => leerMapaPublico()
+      .then(({ data }) => { S.ocupacionPublica = data.ocupacion || {}; render(); })
+      .catch(e => console.error("Mapa: ocupación:", e));
+    leer();
+    const reloj = setInterval(leer, 30000);
+    cancelarAsistencias = () => clearInterval(reloj);
+    return;
+  }
   cancelarAsistencias = onSnapshot(
     query(collection(db, "asistencias_congreso"), where("checkpointDia", "==", S.dia)),
     snap => {
@@ -909,6 +927,7 @@ async function iniciar() {
     await esperarSesionLista();
     S.gestor = usuarioTienePermiso("evento_salones");
     S.liberar = usuarioTienePermiso("liberar_asiento");
+    S.verPresentes = puedeVerPresentes();
     aplicarPermisosDom();
   }
   renderLeyenda();

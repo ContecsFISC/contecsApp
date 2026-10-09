@@ -235,7 +235,7 @@ function verDia(dia, año, mes) {
         data-id="${escaparAtributo(e.id)}" data-tipo="${e.tipo}">
         <div style="font-weight:700;font-size:14px;">${h(nombre)}</div>
         ${e.tipo !== "reunion" && e.lugar ? `<div style="font-size:12px;margin-top:4px;">${h(e.lugar)}</div>` : ""}
-        ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">${iconoImg("persona")} ${e.voluntariosReq} voluntarios requeridos</div>` : ""}
+        ${e.voluntariosReq ? `<div style="font-size:12px;margin-top:2px;">${iconoImg("persona")} ${h(e.voluntariosReq)} voluntarios requeridos</div>` : ""}
       </div>`;
     }).join("")}
   `;

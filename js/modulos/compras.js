@@ -378,7 +378,7 @@ function renderProductos() {
         <div class="venta-icono">${getIconoHTML(prod.iconoId, { clase: "icono-lg" })}</div>
         <div class="venta-info">
           <div class="venta-nombre">${h(prod.nombre)}</div>
-          <div class="venta-meta">Stock: ${prod.stock ?? 0}</div>
+          <div class="venta-meta">Stock: ${h(prod.stock ?? 0)}</div>
         </div>
         <button class="btn btn-sm btn-outline" style="width:auto;">Agregar</button>`;
       card.querySelector("button").addEventListener("click", () => agregarAlCarrito(prod));

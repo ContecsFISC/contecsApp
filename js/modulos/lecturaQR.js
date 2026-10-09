@@ -135,7 +135,7 @@ function renderCheckpoints() {
     grid.innerHTML = checkpointsSesion.map(cp => {
       const esTaller = TIPO_CON_CUPOS.includes(cp.tipo);
       const cuposTag = esTaller && cp.cupos != null
-        ? `<span class="cp-cupos-tag">${iconoImg("ticket")} ${cp.cuposDisponibles ?? cp.cupos} / ${cp.cupos} cupos</span>`
+        ? `<span class="cp-cupos-tag">${iconoImg("ticket")} ${h(cp.cuposDisponibles ?? cp.cupos)} / ${h(cp.cupos)} cupos</span>`
         : "";
       const tipoTag  = cp.tipo
         ? `<span class="cp-tipo-tag">${h(cp.tipo.toUpperCase())}${cp.horaInicio && cp.horaFin ? ` · ${h(cp.horaInicio)}–${h(cp.horaFin)}` : ""}${todos && cp.dia ? ` · ${h(cp.dia)}` : ""}</span>`
@@ -440,7 +440,7 @@ async function mostrarInfoTaller(p, tokenActual) {
 
   el("res-cupos-wrap").style.display = "block";
   el("res-cupos-display").innerHTML  = disponibles > 0
-    ? `<span style="color:var(--verde-oscuro)">${disponibles} de ${cpData.cupos} disponibles</span>`
+    ? `<span style="color:var(--verde-oscuro)">${h(disponibles)} de ${h(cpData.cupos)} disponibles</span>`
     : `<span style="color:var(--rojo)">Sin cupos disponibles</span>`;
 
   const badge = el("res-estado-badge");
