@@ -1,16 +1,16 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:35:54.548583+00:00**
+- Generado: **2026-10-09T03:35:57.724291+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `3b074a60a7d21830…`
-- Archivos analizados: **197**
-- Relaciones internas tipadas: **689**
-- Símbolos detectados: **5174**
-- Llamadas detectadas: **11476**
-- IDs DOM definidos: **992**
+- Huella del proyecto: `bc256ae1b2869bba…`
+- Archivos analizados: **199**
+- Relaciones internas tipadas: **692**
+- Símbolos detectados: **5271**
+- Llamadas detectadas: **11675**
+- IDs DOM definidos: **1003**
 - Paquetes externos usados: **31**
 - Colecciones de Firestore detectadas: **29**
-- Cloud Functions detectadas: **17**
+- Cloud Functions detectadas: **18**
 - Archivos huerfanos: **71**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**12,219 tokens** · leer primero
-- `GraphCompleto.json` — ~**64,136 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**120,227 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**12,442 tokens** · leer primero
+- `GraphCompleto.json` — ~**64,512 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**121,655 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -41,7 +41,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/modulos/voluntarios.js` — riesgo 90.2 (conexiones: 29, 3071 lineas)
 - `css/styles.css` — riesgo 76.3 (conexiones: 34, 831 lineas)
 - `js/core/firebase-config.js` — riesgo 76.3 (conexiones: 38, 35 lineas)
-- `js/modulos/inscripciones.js` — riesgo 73.6 (conexiones: 27, 1961 lineas)
+- `js/modulos/inscripciones.js` — riesgo 74.5 (conexiones: 27, 2051 lineas)
 - `js/core/permanencia.js` — riesgo 66.0 (conexiones: 32, 202 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 62.9 (conexiones: 27, 893 lineas)
 - `js/modulos/catalogo.js` — riesgo 59.5 (conexiones: 29, 150 lineas)
@@ -80,7 +80,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Cloud Functions detectadas
 
-- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, eliminarParticipante, eliminarUsuario, enviarCorreoQrParticipante, importarParticipantes, liberarIdentidadParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
+- `functions/index.js`: accederGiraParticipante, accederParticipante, ejecutarOperacionFinanciera, ejecutarOperacionQr, eliminarEventoOCheckpoint, eliminarParticipante, eliminarUsuario, enviarCorreoQrParticipante, importarParticipantes, liberarIdentidadParticipante, listarParticipantesParaGiras, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, subirFotoEfectivo, validarTokenSSO
 
 ## Archivos huerfanos
 
@@ -171,6 +171,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `checkpoints`
 - `functions/eliminaciones.js`
+- `functions/eliminar-eventos.js`
 - `functions/operaciones-qr.js`
 - `functions/test/operaciones-qr.integration.js`
 - `js/core/salones-firestore.js`
@@ -179,7 +180,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/mapa.js`
 - `js/modulos/posper.js`
 - `js/modulos/reportes_estadisticaCont.js`
-- `panel/dashboard.html`
+- ...y 1 archivos mas
 
 ### `compras`
 - `functions/operaciones-financieras.js`
@@ -190,6 +191,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `eventos`
+- `functions/eliminar-eventos.js`
 - `functions/operaciones-qr.js`
 - `functions/test/operaciones-qr.integration.js`
 - `js/modulos/inscripciones.js`
@@ -288,6 +290,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `rfid_participantes`
 - `functions/eliminaciones.js`
+- `functions/eliminar-eventos.js`
 - `functions/operaciones-qr.js`
 
 ### `salones`
@@ -300,6 +303,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `usuarios`
 - `functions/eliminaciones.js`
+- `functions/eliminar-eventos.js`
 - `functions/importaciones.js`
 - `functions/index.js`
 - `functions/operaciones-financieras.js`
@@ -308,8 +312,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/test/operaciones-qr.integration.js`
 - `functions/test/permisos-reglas.integration.mjs`
 - `index.html`
-- `js/core/auth.js`
-- ...y 10 archivos mas
+- ...y 11 archivos mas
 
 ### `ventas`
 - `functions/operaciones-financieras.js`
@@ -329,26 +332,26 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `actividades_ventas` — regla explícita · 7 operaciones detectadas
 - `actividades_voluntarios` — regla explícita · 9 operaciones detectadas
 - `asignaciones_voluntarios` — regla explícita · 3 operaciones detectadas
-- `asistencias_congreso` — regla explícita · 5 operaciones detectadas
+- `asistencias_congreso` — regla explícita · 3 operaciones detectadas
 - `asistencias_giras` — regla explícita · 1 operaciones detectadas
 - `asistencias_voluntarios` — regla explícita · 2 operaciones detectadas
 - `categorias` — regla explícita · 4 operaciones detectadas
-- `checkpoints` — regla explícita · 14 operaciones detectadas
+- `checkpoints` — regla explícita · 13 operaciones detectadas
 - `compras` — regla explícita · 4 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
 - `contadores` — regla explícita · 0 operaciones detectadas
-- `eventos` — regla explícita · 12 operaciones detectadas
+- `eventos` — regla explícita · 11 operaciones detectadas
 - `fondos` — regla explícita · 1 operaciones detectadas
 - `fondos_entrada` — regla explícita · 6 operaciones detectadas
 - `giras_voluntarios` — regla explícita · 5 operaciones detectadas
 - `identificadores_participantes` — regla explícita · 0 operaciones detectadas
 - `informes_actividad` — regla explícita · 2 operaciones detectadas
 - `inscripciones` — regla explícita · 3 operaciones detectadas
-- `inscripciones_checkpoint` — regla explícita · 7 operaciones detectadas
+- `inscripciones_checkpoint` — regla explícita · 6 operaciones detectadas
 - `limites_registro` — regla explícita · 0 operaciones detectadas
 - `mermas` — regla explícita · 3 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 10 operaciones detectadas
+- `participantes` — regla explícita · 9 operaciones detectadas
 - `productos` — regla explícita · 19 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
 - `rfid_participantes` — regla explícita · 1 operaciones detectadas
@@ -361,7 +364,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Tipos de relaciones
 
 - `calls_imported_symbol`: 307
-- `imports`: 222
+- `imports`: 225
 - `navigates_to`: 65
 - `loads_script`: 40
 - `loads_stylesheet`: 34
@@ -370,14 +373,14 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Paquetes/SDKs externos
 
 - `crypto` — usado en 4 archivo(s)
-- `firebase-admin/app` — usado en 5 archivo(s)
+- `firebase-admin/app` — usado en 6 archivo(s)
 - `firebase-admin/auth` — usado en 2 archivo(s)
-- `firebase-admin/firestore` — usado en 9 archivo(s)
+- `firebase-admin/firestore` — usado en 11 archivo(s)
 - `firebase-admin/storage` — usado en 2 archivo(s)
 - `firebase-functions/params` — usado en 1 archivo(s)
 - `firebase-functions/v2/core` — usado en 1 archivo(s)
 - `firebase-functions/v2/firestore` — usado en 1 archivo(s)
-- `firebase-functions/v2/https` — usado en 7 archivo(s)
+- `firebase-functions/v2/https` — usado en 8 archivo(s)
 - `fs` — usado en 2 archivo(s)
 - `https` — usado en 2 archivo(s)
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
@@ -391,9 +394,9 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 5 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 36 archivo(s)
-- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 9 archivo(s)
+- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 10 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 13 archivo(s)
+- `node:assert/strict` — usado en 14 archivo(s)
 - `node:module` — usado en 2 archivo(s)
 - `path` — usado en 2 archivo(s)
 - `three` — usado en 1 archivo(s)

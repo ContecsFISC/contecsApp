@@ -1,9 +1,10 @@
-import { db, auth } from "../core/firebase-config.js";
+import { app, db, auth } from "../core/firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import { aplicarPermisosDom, usuarioTienePermiso } from "../core/auth.js";
 import {
-  collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp, runTransaction, limit,
+  collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc,
+  query, where, orderBy, serverTimestamp, runTransaction,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { iconoImg } from "../core/iconos.js";
 import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../core/seguridad.js";
@@ -475,34 +476,132 @@ window._editarEvento = async id => {
   }
 };
 
-window._eliminarEvento = async id => {
+// ─── Eliminar evento o checkpoint ───────────────────────────────────────────
+// Pasa por la Cloud Function eliminarEventoOCheckpoint (functions/
+// eliminar-eventos.js): primero muestra qué se borraría (asistencias,
+// inscripciones a talleres, RFID...) y pide escribir "eliminar_<nombre>".
+// Lo vacío lo borra quien edita eventos; con historial, solo quien tiene
+// "eliminar_con_historial" (por ahora el CEO).
+const eliminarEnServidor = httpsCallable(getFunctions(app, "us-central1"), "eliminarEventoOCheckpoint");
+
+function plural(n, uno, varios) {
+  return `${n} ${n === 1 ? uno : varios}`;
+}
+
+function lineasConteo(tipo, c) {
+  return [
+    tipo === "evento" && c.checkpoints ? plural(c.checkpoints, "checkpoint", "checkpoints") : null,
+    c.asistencias ? `${plural(c.asistencias, "asistencia registrada", "asistencias registradas")} (dejan de contar para la permanencia y los certificados)` : null,
+    c.participantesAfectados ? `Se quita la asistencia a ${plural(c.participantesAfectados, "participante", "participantes")}` : null,
+    c.inscripcionesTaller ? plural(c.inscripcionesTaller, "inscripción a taller", "inscripciones a talleres") : null,
+    c.inscripcionesEvento ? plural(c.inscripcionesEvento, "inscripción antigua del evento", "inscripciones antiguas del evento") : null,
+    c.rfids ? `${plural(c.rfids, "RFID anclado", "RFID anclados")} en POSPER ${c.rfids === 1 ? "se libera" : "se liberan"}` : null,
+  ].filter(Boolean);
+}
+
+// Abre el modal y resuelve true si se confirmó con la frase exacta. No deja
+// pegar: la idea es que nadie borre algo por error.
+function confirmarEliminacionModal(prev) {
+  const modal = el("modal-eliminar");
+  const input = el("me-input");
+  const btnOk = el("me-confirmar");
+  const btnNo = el("me-cancelar");
+  const frase = prev.frase;
+  const lineas = lineasConteo(prev.tipo, prev.conteo);
+
+  el("me-titulo").textContent = prev.tipo === "evento" ? "¿Eliminar evento?" : "¿Eliminar checkpoint?";
+  el("me-quien").textContent = prev.nombre || prev.id;
+  el("me-txt").innerHTML = prev.conHistorial
+    ? `Se borrará ${prev.tipo === "evento" ? "el evento" : "el checkpoint"} con <strong>todo su rastro</strong>:`
+    : `No tiene asistencias ni inscripciones registradas. <strong>Esta acción no se puede deshacer.</strong>`;
+  el("me-lista").innerHTML = lineas.map(l => `<li>${h(l)}</li>`).join("");
+  el("me-lista").hidden = !lineas.length;
+  el("me-bloqueo").hidden = prev.puedeEliminar;
+  el("me-bloqueo").textContent = prev.puedeEliminar ? "" :
+    "Tiene historial y solo quien tiene el permiso \"Eliminar con historial\" (por ahora el CEO) puede borrarlo.";
+  el("me-confirmacion").hidden = !prev.puedeEliminar;
+  el("me-frase").textContent = frase;
+  input.value = "";
+  input.classList.remove("ok");
+  btnOk.disabled = true;
+  btnOk.hidden = !prev.puedeEliminar;
+  modal.hidden = false;
+  setTimeout(() => (prev.puedeEliminar ? input : btnNo).focus(), 50);
+
+  return new Promise(resolve => {
+    const coincide = () => input.value.trim().toLowerCase() === frase;
+    const alEscribir = () => {
+      btnOk.disabled = !coincide();
+      input.classList.toggle("ok", coincide());
+    };
+    const bloquearPegado = e => e.preventDefault();
+    const alTecla = e => {
+      if (e.key === "Escape") terminar(false);
+      if (e.key === "Enter" && coincide()) terminar(true);
+    };
+    const alFondo = e => { if (e.target === modal) terminar(false); };
+    const siOk = () => { if (coincide()) terminar(true); };
+    const siNo = () => terminar(false);
+    function terminar(valor) {
+      modal.hidden = true;
+      input.removeEventListener("input", alEscribir);
+      input.removeEventListener("paste", bloquearPegado);
+      input.removeEventListener("drop", bloquearPegado);
+      document.removeEventListener("keydown", alTecla);
+      modal.removeEventListener("click", alFondo);
+      btnOk.removeEventListener("click", siOk);
+      btnNo.removeEventListener("click", siNo);
+      resolve(valor);
+    }
+    input.addEventListener("input", alEscribir);
+    input.addEventListener("paste", bloquearPegado);
+    input.addEventListener("drop", bloquearPegado);
+    document.addEventListener("keydown", alTecla);
+    modal.addEventListener("click", alFondo);
+    btnOk.addEventListener("click", siOk);
+    btnNo.addEventListener("click", siNo);
+  });
+}
+
+// Devuelve el conteo de lo borrado, o null si se canceló.
+async function eliminarConConfirmacion(tipo, id, avisar) {
+  let prev;
   try {
-    const [cpSnap, asistenciaSnap] = await Promise.all([
-      getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", id), limit(1))),
-      getDocs(query(collection(db, "asistencias_congreso"), where("eventoId", "==", id), limit(1))),
-    ]);
-    if (!cpSnap.empty || !asistenciaSnap.empty) {
-      mostrarAlerta("aviso", "Este evento ya tiene checkpoints o asistencias y no se puede eliminar sin romper su historial.");
-      return;
-    }
-    if (!confirm("¿Eliminar este evento vacío?")) return;
-    await deleteDoc(doc(db, "eventos", id));
-    if (eventoActivo?.id === id) {
-      eventoActivo = null;
-      el("sel-evento").value = "";
-      el("evento-info").textContent = "";
-      inscripciones = [];
-      checkpointsEvento = [];
-      asistenciasEvento = [];
-      inscripcionesCheckpointEvento = [];
-      actualizarBadgeCheckpoints();
-      actualizarControlCheckpoints();
-    }
-    if (editandoEventoId === id) cerrarFormEvento();
-    await cargarEventos();
+    ({ data: prev } = await eliminarEnServidor({ tipo, id, previsualizar: true }));
   } catch (e) {
-    mostrarAlerta("error", "No se pudo eliminar el evento: " + e.message);
+    avisar("error", "No se pudo revisar qué se borraría: " + e.message);
+    return null;
   }
+  if (!(await confirmarEliminacionModal(prev))) return null;
+  el("me-confirmar").disabled = true;
+  try {
+    const { data } = await eliminarEnServidor({ tipo, id, confirmacion: el("me-input").value.trim().toLowerCase() });
+    const lineas = lineasConteo(tipo, data.conteo);
+    avisar("success", `${tipo === "evento" ? "Evento" : "Checkpoint"} "${prev.nombre || id}" eliminado${lineas.length ? `. También se borró: ${lineas.join("; ")}.` : "."}`);
+    return data.conteo;
+  } catch (e) {
+    avisar("error", "No se pudo eliminar: " + e.message);
+    return null;
+  }
+}
+
+window._eliminarEvento = async id => {
+  const conteo = await eliminarConConfirmacion("evento", id, mostrarAlerta);
+  if (!conteo) return;
+  if (eventoActivo?.id === id) {
+    eventoActivo = null;
+    el("sel-evento").value = "";
+    el("evento-info").textContent = "";
+    inscripciones = [];
+    checkpointsEvento = [];
+    asistenciasEvento = [];
+    inscripcionesCheckpointEvento = [];
+    actualizarBadgeCheckpoints();
+    actualizarControlCheckpoints();
+  }
+  if (editandoEventoId === id) cerrarFormEvento();
+  await cargarEventos();
+  if (conteo.asistencias || conteo.rfids) await cargarParticipantes();
 };
 
 el("btn-cancelar-evento").addEventListener("click", cerrarFormEvento);
@@ -1114,24 +1213,15 @@ window._editarCp = id => {
 };
 
 window._eliminarCp = async id => {
-  try {
-    const tieneAsistenciaEmbebida = [...participantesGlobal, ...inscripciones]
-      .some(p => Boolean(p.asistencias?.[id]));
-    const [asistenciaSnap, inscripcionSnap] = await Promise.all([
-      getDocs(query(collection(db, "asistencias_congreso"), where("checkpointId", "==", id), limit(1))),
-      getDocs(query(collection(db, "inscripciones_checkpoint"), where("checkpointId", "==", id), limit(1))),
-    ]);
-    if (tieneAsistenciaEmbebida || !asistenciaSnap.empty || !inscripcionSnap.empty) {
-      mostrarAlertaCp("aviso", "Este checkpoint ya tiene registros y no se puede eliminar sin romper la asistencia histórica.");
-      return;
-    }
-    if (!confirm("¿Eliminar este checkpoint vacío?")) return;
-    await deleteDoc(doc(db, "checkpoints", id));
-    await cargarCheckpointsEvento(eventoActivo.id);
-    mostrarAlerta("success", "Checkpoint eliminado.");
-  } catch (e) {
-    mostrarAlerta("error", "Error al eliminar: " + e.message);
-  }
+  const avisar = el("modal-checkpoints").style.display === "flex" ? mostrarAlertaCp : mostrarAlerta;
+  const conteo = await eliminarConConfirmacion("checkpoint", id, avisar);
+  if (!conteo || !eventoActivo) return;
+  await Promise.all([
+    cargarCheckpointsEvento(eventoActivo.id),
+    cargarAsistenciasEvento(eventoActivo.id),
+    cargarInscripcionesCheckpointEvento(eventoActivo.id),
+  ]);
+  if (conteo.asistencias || conteo.participantesAfectados) await cargarParticipantes();
 };
 
 // ═══════════════════════════════════════════════════════════

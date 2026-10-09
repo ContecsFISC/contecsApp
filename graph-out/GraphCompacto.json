@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T03:35:54.548583+00:00",
-  "project_fingerprint": "3b074a60a7d218307d805ce70ae80cc5e35774068a17a7252890bbb6a205dc57",
+  "generated_at": "2026-10-09T03:35:57.724291+00:00",
+  "project_fingerprint": "bc256ae1b2869bba55a3feb1a65cc1090509f5a1c2537b4b729eb8c20e261ae1",
   "project": "t",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 197,
-    "total_edges": 689,
+    "total_files": 199,
+    "total_edges": 692,
     "total_orphans": 71,
     "total_cycles": 0,
     "total_external_packages": 31,
     "total_firestore_collections": 29,
-    "total_cloud_functions": 17,
+    "total_cloud_functions": 18,
     "total_possible_implicit_links": 5,
-    "total_symbols": 5174,
-    "total_function_calls": 11476,
-    "total_dom_ids": 992,
+    "total_symbols": 5271,
+    "total_function_calls": 11675,
+    "total_dom_ids": 1003,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -118,15 +118,15 @@
     },
     {
       "name": "functions",
-      "file_count": 32,
+      "file_count": 34,
       "key_files": [
         "functions/index.js",
         "functions/test/permanencia.test.mjs",
         "functions/identidad.js",
         "functions/importaciones.js",
+        "functions/permisos.js",
         "functions/operaciones-qr.js",
         "functions/test/permisos.test.mjs",
-        "functions/permisos.js",
         "functions/operaciones-financieras.js",
         "functions/test/correos.test.mjs",
         "functions/test/agenda-salones.test.mjs"
@@ -156,7 +156,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 7.6,
+      "average_risk": 7.7,
       "diagnostics": 0
     },
     {
@@ -240,8 +240,8 @@
         "panel/modulos/congreso/modulos_participantes.html",
         "panel/modulos/logistica/catalogo.html",
         "panel/modulos/logistica/inventario.html",
-        "panel/modulos/finanzas/bitacora.html",
         "panel/modulos/congreso/inscripciones.html",
+        "panel/modulos/finanzas/bitacora.html",
         "panel/modulos/voluntariado/voluntarios.html",
         "panel/modulos/admin/minutas.html",
         "panel/modulos/voluntariado/actividades.html",
@@ -263,7 +263,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 25.4,
+      "average_risk": 25.5,
       "diagnostics": 0
     },
     {
@@ -331,10 +331,10 @@
     },
     {
       "label": "js/modulos/inscripciones.js",
-      "risk_score": 73.6,
+      "risk_score": 74.5,
       "degree": 27,
       "in_cycle": false,
-      "loc": 1961
+      "loc": 2051
     },
     {
       "label": "js/core/permanencia.js",
@@ -494,6 +494,24 @@
       ]
     },
     {
+      "file": "functions/eliminar-eventos.js",
+      "risk": 8.9,
+      "relations": 3,
+      "purpose": "Borrado definitivo de un evento o de un checkpoint desde Gestión de Evento, con todo su rastro. Existe para limpiar pruebas (un checkpoint de prueba deja asistencias que cuentan pa",
+      "exports": [
+        "ROLES_ELIMINAR_CON_HISTORIAL",
+        "eliminarEventoOCheckpoint",
+        "fraseConfirmacion",
+        "slug"
+      ],
+      "collections": [
+        "checkpoints",
+        "eventos",
+        "rfid_participantes",
+        "usuarios"
+      ]
+    },
+    {
       "file": "functions/giras.js",
       "risk": 4.4,
       "relations": 2,
@@ -538,21 +556,21 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 37.7,
-      "relations": 10,
+      "risk": 39.8,
+      "relations": 11,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
+        "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
         "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
-        "marcarCheckpointGira",
-        "notificarNoSeleccionadosGira"
+        "marcarCheckpointGira"
       ],
       "collections": [
         "asistencias_giras",
@@ -563,6 +581,7 @@
       ],
       "key_neighbors": [
         "functions/eliminaciones.js",
+        "functions/eliminar-eventos.js",
         "functions/giras.js",
         "functions/identidad.js",
         "functions/importaciones.js",
@@ -622,8 +641,8 @@
     },
     {
       "file": "functions/permisos.js",
-      "risk": 12.9,
-      "relations": 6,
+      "risk": 14.9,
+      "relations": 7,
       "purpose": "Permisos individuales en las Cloud Functions. El rol sigue siendo la base (cada función conserva su set ROLES_*), pero el CEO puede darle o quitarle un permiso suelto a una persona",
       "exports": [
         "ROLES_CON_AJUSTES",
@@ -717,6 +736,12 @@
       "risk": 4.3,
       "relations": 1,
       "purpose": "Diagnóstico del envío de correo, aparte de las Cloud Functions. Existe porque desde el panel los tres fallos más comunes se ven exactamente igual (\"no se pudo enviar\"), pero se arr"
+    },
+    {
+      "file": "functions/test/eliminar-eventos.integration.js",
+      "risk": 3.6,
+      "relations": 1,
+      "purpose": "eliminarEventoOCheckpoint contra el emulador de Firestore: permisos, frase de confirmación y que no quede rastro (asistencias, inscripciones a talleres, asistencia en el participan"
     },
     {
       "file": "functions/test/envios.test.js",
@@ -1085,7 +1110,7 @@
     },
     {
       "file": "js/core/permisos.js",
-      "risk": 51.5,
+      "risk": 51.6,
       "relations": 24,
       "purpose": "============================================= CONTECS — Sistema de Roles y Permisos =============================================",
       "exports": [
@@ -1437,7 +1462,7 @@
     },
     {
       "file": "js/modulos/inscripciones.js",
-      "risk": 73.6,
+      "risk": 74.5,
       "relations": 27,
       "collections": [
         "asistencias_congreso",
@@ -1833,7 +1858,7 @@
     },
     {
       "file": "panel/modulos/congreso/inscripciones.html",
-      "risk": 33.8,
+      "risk": 34.2,
       "relations": 14,
       "key_neighbors": [
         "css/styles.css",
@@ -2166,6 +2191,7 @@
     ],
     "checkpoints": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js",
       "functions/test/operaciones-qr.integration.js",
       "js/core/salones-firestore.js",
@@ -2185,6 +2211,7 @@
       "panel/modulos/finanzas/bitacora.html"
     ],
     "eventos": [
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js",
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
@@ -2288,6 +2315,7 @@
     ],
     "rfid_participantes": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js"
     ],
     "salones": [
@@ -2300,6 +2328,7 @@
     ],
     "usuarios": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
@@ -2342,6 +2371,7 @@
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
+        "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
@@ -2375,5 +2405,5 @@
       }
     }
   ],
-  "estimated_tokens": 12219
+  "estimated_tokens": 12442
 }

@@ -49,6 +49,7 @@ const {
   eliminarUsuario,
   liberarLocksParticipante,
 } = require("./eliminaciones");
+const {eliminarEventoOCheckpoint} = require("./eliminar-eventos");
 const {
   CATEGORIAS_REGISTRO,
   generarToken,
@@ -1666,6 +1667,21 @@ exports.eliminarParticipante = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("eliminarParticipante:", e);
         throw new HttpsError("internal", "No se pudo eliminar el participante. Intenta de nuevo.");
+      }
+    },
+);
+
+// Evento o checkpoint con todo su rastro (asistencias, inscripciones a
+// talleres, RFID). Ver functions/eliminar-eventos.js.
+exports.eliminarEventoOCheckpoint = onCall(
+    {region: "us-central1", maxInstances: 5, timeoutSeconds: 300},
+    async (request) => {
+      try {
+        return await eliminarEventoOCheckpoint(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("eliminarEventoOCheckpoint:", e);
+        throw new HttpsError("internal", "No se pudo eliminar. Intenta de nuevo.");
       }
     },
 );

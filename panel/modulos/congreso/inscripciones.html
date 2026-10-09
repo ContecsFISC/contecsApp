@@ -84,6 +84,29 @@
 
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
+ /* Eliminar evento o checkpoint: frase escrita (como eliminar participante). */
+ .modal-eliminar-fondo { position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); z-index:500; display:flex; align-items:center; justify-content:center; padding:16px; }
+ .modal-eliminar-fondo[hidden] { display:none; }
+ /* .btn y otras clases fijan display: hidden debe ganar dentro del modal. */
+ .modal-eliminar [hidden] { display:none !important; }
+ .modal-eliminar { background:#fff; border-radius:var(--radio); box-shadow:0 20px 50px rgba(0,0,0,0.25); width:100%; max-width:480px; max-height:92vh; overflow-y:auto; padding:22px 20px 18px; border-top:4px solid var(--rojo); }
+ .modal-eliminar h2 { font-size:18px; font-weight:800; color:var(--rojo); margin:0 0 10px; }
+ .me-quien { font-size:14px; font-weight:700; color:var(--gris-texto); margin-bottom:8px; overflow-wrap:anywhere; }
+ .me-txt { font-size:13px; color:var(--gris-medio); line-height:1.5; margin-bottom:12px; }
+ .me-lista { margin:0 0 12px; padding:10px 12px 10px 28px; border-radius:var(--radio-sm); background:var(--rojo-fondo); color:var(--gris-texto); font-size:13px; line-height:1.55; }
+ .me-lista[hidden] { display:none; }
+ .me-bloqueo { font-size:13px; font-weight:600; color:var(--rojo); background:var(--rojo-fondo); border-radius:var(--radio-sm); padding:8px 10px; margin-bottom:12px; }
+ .me-bloqueo[hidden] { display:none; }
+ .me-instruccion { font-size:13px; color:var(--gris-texto); margin-bottom:6px; }
+ .me-frase { display:block; font-family:'Courier New',monospace; font-size:13px; font-weight:700; background:var(--gris-suave); border:1px solid var(--gris-borde); border-radius:var(--radio-sm); padding:8px 10px; margin-bottom:10px; word-break:break-all; user-select:none; -webkit-user-select:none; }
+ .me-input { width:100%; box-sizing:border-box; padding:10px 12px; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); font-size:14px; font-family:'Courier New',monospace; outline:none; }
+ .me-input:focus { border-color:var(--rojo); }
+ .me-input.ok { border-color:var(--verde); }
+ .me-acciones { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+ .me-acciones .btn { width:100%; }
+ .me-confirmar { background:var(--rojo); border-color:var(--rojo); color:#fff; }
+ .me-confirmar:disabled { opacity:0.45; cursor:not-allowed; }
+ @media (max-width:760px) { .me-input { font-size:16px; } }
  .modal-box { background:#fff; border-radius:var(--radio-lg); padding:28px 24px; max-width:400px; width:100%; position:relative; animation:modalBounceUp 0.35s var(--ease-spring) both; max-height:90vh; overflow-y:auto; }
  .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--gris-medio); }
  .modal-title { font-size:16px; font-weight:700; color:var(--verde-oscuro); margin-bottom:16px; }
@@ -476,6 +499,26 @@
  </div>
 </div>
 
+<!-- MODAL ELIMINAR EVENTO / CHECKPOINT (js/modulos/inscripciones.js) -->
+<div class="modal-eliminar-fondo" id="modal-eliminar" hidden>
+ <div class="modal-eliminar" role="dialog" aria-modal="true" aria-labelledby="me-titulo">
+ <h2 id="me-titulo">¿Eliminar?</h2>
+ <div class="me-quien" id="me-quien"></div>
+ <div class="me-txt" id="me-txt"></div>
+ <ul class="me-lista" id="me-lista" hidden></ul>
+ <div class="me-bloqueo" id="me-bloqueo" hidden></div>
+ <div id="me-confirmacion">
+ <div class="me-instruccion">Para confirmar, escribe exactamente:</div>
+ <code class="me-frase" id="me-frase"></code>
+ <input type="text" class="me-input" id="me-input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Frase de confirmación"/>
+ </div>
+ <div class="me-acciones">
+ <button type="button" class="btn btn-outline" id="me-cancelar">Cancelar</button>
+ <button type="button" class="btn me-confirmar" id="me-confirmar" disabled>Eliminar</button>
+ </div>
+ </div>
+</div>
+
 <!-- MODAL CHECKPOINTS -->
 <div class="modal-overlay" id="modal-checkpoints">
  <div class="modal-box" style="max-width:680px;width:100%;max-height:92vh;overflow-y:auto;">
@@ -573,6 +616,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/inscripciones.js?v=20261009.1"></script>
+<script type="module" src="../../../js/modulos/inscripciones.js?v=20261009.2"></script>
 </body>
 </html>

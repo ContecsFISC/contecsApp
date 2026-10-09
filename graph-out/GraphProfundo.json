@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T03:35:54.548583+00:00",
-  "project_fingerprint": "3b074a60a7d218307d805ce70ae80cc5e35774068a17a7252890bbb6a205dc57",
+  "generated_at": "2026-10-09T03:35:57.724291+00:00",
+  "project_fingerprint": "bc256ae1b2869bba55a3feb1a65cc1090509f5a1c2537b4b729eb8c20e261ae1",
   "project": "t",
   "root": ".",
   "view": "deep",
   "stats": {
-    "total_files": 197,
-    "total_edges": 689,
+    "total_files": 199,
+    "total_edges": 692,
     "total_orphans": 71,
     "total_cycles": 0,
     "total_external_packages": 31,
     "total_firestore_collections": 29,
-    "total_cloud_functions": 17,
+    "total_cloud_functions": 18,
     "total_possible_implicit_links": 5,
-    "total_symbols": 5174,
-    "total_function_calls": 11476,
-    "total_dom_ids": 992,
+    "total_symbols": 5271,
+    "total_function_calls": 11675,
+    "total_dom_ids": 1003,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -270,10 +270,10 @@
     },
     {
       "label": "js/modulos/inscripciones.js",
-      "risk_score": 73.6,
+      "risk_score": 74.5,
       "degree": 27,
       "in_cycle": false,
-      "loc": 1961
+      "loc": 2051
     },
     {
       "label": "js/core/permanencia.js",
@@ -408,6 +408,7 @@
     ],
     "firebase-admin/app": [
       "functions/index.js",
+      "functions/test/eliminar-eventos.integration.js",
       "functions/test/importaciones.integration.js",
       "functions/test/importaciones.test.js",
       "functions/test/operaciones-qr.integration.js",
@@ -419,11 +420,13 @@
     ],
     "firebase-admin/firestore": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js",
       "functions/registro.js",
+      "functions/test/eliminar-eventos.integration.js",
       "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "functions/test/permisos-reglas.integration.mjs"
@@ -443,6 +446,7 @@
     ],
     "firebase-functions/v2/https": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/identidad.js",
       "functions/importaciones.js",
       "functions/index.js",
@@ -656,6 +660,7 @@
     "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js": [
       "js/core/operaciones.js",
       "js/core/participantes-api.js",
+      "js/modulos/inscripciones.js",
       "js/modulos/lecturaQR.js",
       "js/modulos/lecturaQRVoluntarios.js",
       "js/modulos/mapa.js",
@@ -672,6 +677,7 @@
     "node:assert/strict": [
       "functions/test/agenda-salones.test.mjs",
       "functions/test/correos.test.mjs",
+      "functions/test/eliminar-eventos.integration.js",
       "functions/test/envios.test.js",
       "functions/test/giras.test.js",
       "functions/test/identidad.test.js",
@@ -749,6 +755,7 @@
     ],
     "checkpoints": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js",
       "functions/test/operaciones-qr.integration.js",
       "js/core/salones-firestore.js",
@@ -768,6 +775,7 @@
       "panel/modulos/finanzas/bitacora.html"
     ],
     "eventos": [
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js",
       "functions/test/operaciones-qr.integration.js",
       "js/modulos/inscripciones.js",
@@ -871,6 +879,7 @@
     ],
     "rfid_participantes": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/operaciones-qr.js"
     ],
     "salones": [
@@ -883,6 +892,7 @@
     ],
     "usuarios": [
       "functions/eliminaciones.js",
+      "functions/eliminar-eventos.js",
       "functions/importaciones.js",
       "functions/index.js",
       "functions/operaciones-financieras.js",
@@ -1063,21 +1073,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "asistencias_congreso",
-        "line": 482
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "getDocs",
-        "kind": "read",
-        "collection": "asistencias_congreso",
-        "line": 571
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "getDocs",
-        "kind": "read",
-        "collection": "asistencias_congreso",
-        "line": 1121
+        "line": 670
       },
       {
         "file": "js/modulos/mapa.js",
@@ -1169,28 +1165,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 481
+        "line": 691
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "checkpoints",
-        "line": 592
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "getDocs",
-        "kind": "read",
-        "collection": "checkpoints",
-        "line": 1051
+        "line": 1150
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "checkpoints",
-        "line": 960
+        "line": 1059
       },
       {
         "file": "js/modulos/lecturaQR.js",
@@ -1285,42 +1274,35 @@
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 432
+        "line": 433
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDoc",
         "kind": "read",
         "collection": "eventos",
-        "line": 541
+        "line": 640
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 207
+        "line": 208
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "eventos",
-        "line": 386
+        "line": 387
       },
       {
         "file": "js/modulos/inscripciones.js",
         "operation": "setDoc",
         "kind": "write",
         "collection": "eventos",
-        "line": 376
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "deleteDoc",
-        "kind": "delete",
-        "collection": "eventos",
-        "line": 489
+        "line": 377
       },
       {
         "file": "js/modulos/lecturaQR.js",
@@ -1477,7 +1459,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones",
-        "line": 565
+        "line": 664
       },
       {
         "file": "js/modulos/lecturaQR.js",
@@ -1507,14 +1489,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "inscripciones_checkpoint",
-        "line": 580
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "getDocs",
-        "kind": "read",
-        "collection": "inscripciones_checkpoint",
-        "line": 1122
+        "line": 679
       },
       {
         "file": "js/modulos/lecturaQR.js",
@@ -1583,14 +1558,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "participantes",
-        "line": 1143
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
-        "operation": "deleteDoc",
-        "kind": "delete",
-        "collection": "participantes",
-        "line": 1129
+        "line": 1233
       },
       {
         "file": "js/modulos/lecturaQR.js",
@@ -2663,6 +2631,7 @@
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
+        "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
@@ -2695,6 +2664,9 @@
       "js/modulos/mapa.js",
       "js/modulos/posper.js",
       "js/modulos/randomizer.js"
+    ],
+    "eliminarEventoOCheckpoint": [
+      "js/modulos/inscripciones.js"
     ],
     "eliminarParticipante": [
       "js/core/participantes-api.js"
@@ -3077,6 +3049,35 @@
       "risk_score": 9.1
     },
     {
+      "id": "functions/eliminar-eventos.js",
+      "label": "functions/eliminar-eventos.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 12034,
+      "loc": 287,
+      "exports": [
+        "ROLES_ELIMINAR_CON_HISTORIAL",
+        "eliminarEventoOCheckpoint",
+        "fraseConfirmacion",
+        "slug"
+      ],
+      "purpose": "Borrado definitivo de un evento o de un checkpoint desde Gestión de Evento, con todo su rastro. Existe para limpiar pruebas (un checkpoint de prueba deja asistencias que cuentan pa",
+      "minified_or_vendor": false,
+      "firestore_collections": [
+        "checkpoints",
+        "eventos",
+        "rfid_participantes",
+        "usuarios"
+      ],
+      "in_degree": 2,
+      "out_degree": 1,
+      "degree": 3,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 8.9
+    },
+    {
       "id": "functions/giras.js",
       "label": "functions/giras.js",
       "folder": "functions",
@@ -3160,13 +3161,14 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 76658,
-      "loc": 1766,
+      "size_bytes": 77298,
+      "loc": 1782,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
+        "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
@@ -3191,11 +3193,11 @@
         "usuarios"
       ],
       "in_degree": 0,
-      "out_degree": 10,
-      "degree": 10,
+      "out_degree": 11,
+      "degree": 11,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 37.7
+      "risk_score": 39.8
     },
     {
       "id": "functions/operaciones-financieras.js",
@@ -3268,8 +3270,8 @@
       "folder": "functions",
       "ext": ".json",
       "kind": "source",
-      "size_bytes": 1324,
-      "loc": 31,
+      "size_bytes": 1436,
+      "loc": 32,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3299,12 +3301,12 @@
       "purpose": "Permisos individuales en las Cloud Functions. El rol sigue siendo la base (cada función conserva su set ROLES_*), pero el CEO puede darle o quitarle un permiso suelto a una persona",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 6,
+      "in_degree": 7,
       "out_degree": 0,
-      "degree": 6,
+      "degree": 7,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 12.9
+      "risk_score": 14.9
     },
     {
       "id": "functions/plantillas.js",
@@ -3519,6 +3521,25 @@
       "in_cycle": false,
       "diagnostic_count": 0,
       "risk_score": 4.3
+    },
+    {
+      "id": "functions/test/eliminar-eventos.integration.js",
+      "label": "functions/test/eliminar-eventos.integration.js",
+      "folder": "functions",
+      "ext": ".js",
+      "kind": "source",
+      "size_bytes": 7651,
+      "loc": 159,
+      "exports": [],
+      "purpose": "eliminarEventoOCheckpoint contra el emulador de Firestore: permisos, frase de confirmación y que no quede rastro (asistencias, inscripciones a talleres, asistencia en el participan",
+      "minified_or_vendor": false,
+      "firestore_collections": [],
+      "in_degree": 0,
+      "out_degree": 1,
+      "degree": 1,
+      "in_cycle": false,
+      "diagnostic_count": 0,
+      "risk_score": 3.6
     },
     {
       "id": "functions/test/envios.test.js",
@@ -5077,8 +5098,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 20092,
-      "loc": 352,
+      "size_bytes": 20581,
+      "loc": 357,
       "exports": [
         "CATALOGO_PERMISOS",
         "PERMISOS",
@@ -5100,7 +5121,7 @@
       "degree": 24,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 51.5
+      "risk_score": 51.6
     },
     {
       "id": "js/core/salones-firestore.js",
@@ -5627,8 +5648,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 87556,
-      "loc": 1961,
+      "size_bytes": 92075,
+      "loc": 2051,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -5645,7 +5666,7 @@
       "degree": 27,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 73.6
+      "risk_score": 74.5
     },
     {
       "id": "js/modulos/lecturaQR.js",
@@ -6293,8 +6314,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 33054,
-      "loc": 579,
+      "size_bytes": 36492,
+      "loc": 622,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -6304,7 +6325,7 @@
       "degree": 14,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 33.8
+      "risk_score": 34.2
     },
     {
       "id": "panel/modulos/congreso/lecturaQR.html",
@@ -6933,6 +6954,17 @@
       }
     },
     {
+      "source": "functions/eliminar-eventos.js",
+      "target": "functions/permisos.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 23,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
       "source": "functions/importaciones.js",
       "target": "functions/identidad.js",
       "type": "imports",
@@ -7055,10 +7087,21 @@
     },
     {
       "source": "functions/index.js",
+      "target": "functions/eliminar-eventos.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 52,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/index.js",
       "target": "functions/registro.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 57,
+      "line": 58,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -7069,7 +7112,7 @@
       "target": "functions/importaciones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 58,
+      "line": 59,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -7170,6 +7213,17 @@
       "type": "imports",
       "provenance": "extracted",
       "line": 24,
+      "detail": {
+        "symbols": [],
+        "dynamic": false
+      }
+    },
+    {
+      "source": "functions/test/eliminar-eventos.integration.js",
+      "target": "functions/eliminar-eventos.js",
+      "type": "imports",
+      "provenance": "extracted",
+      "line": 16,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -8114,6 +8168,7 @@
       "line": 1,
       "detail": {
         "symbols": [
+          "app",
           "db",
           "auth"
         ],
@@ -8125,7 +8180,7 @@
       "target": "js/core/auth.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 3,
+      "line": 4,
       "detail": {
         "symbols": [
           "aplicarPermisosDom",
@@ -8139,7 +8194,7 @@
       "target": "js/core/iconos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 8,
+      "line": 9,
       "detail": {
         "symbols": [
           "iconoImg"
@@ -8152,7 +8207,7 @@
       "target": "js/core/seguridad.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbols": [
           "escaparAtributo",
@@ -8167,7 +8222,7 @@
       "target": "js/core/permanencia.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 10,
+      "line": 11,
       "detail": {
         "symbols": [
           "PERMANENCIA_MINIMA_DEFECTO",
@@ -8183,7 +8238,7 @@
       "target": "js/core/agenda-salones.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 13,
+      "line": 14,
       "detail": {
         "symbols": [
           "TIPOS_PROGRAMABLES",
@@ -8203,7 +8258,7 @@
       "target": "js/core/salones-firestore.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
         "symbols": [
           "escucharSalones",
@@ -8218,7 +8273,7 @@
       "target": "js/data/planos-edificio3.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 1793,
+      "line": 1883,
       "detail": {
         "symbols": [],
         "dynamic": true
@@ -9560,35 +9615,35 @@
       "target": "panel/modulos/congreso/lecturaQR.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 209
+      "line": 232
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "panel/modulos/congreso/mapa.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 210
+      "line": 233
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 211
+      "line": 234
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "panel/modulos/congreso/mapa.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 412
+      "line": 435
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/modulos/inscripciones.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 576
+      "line": 619
     },
     {
       "source": "panel/modulos/congreso/lecturaQR.html",
@@ -11062,7 +11117,17 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "etiquetaSalon"
+        "symbol": "describirChoque"
+      }
+    },
+    {
+      "source": "functions/test/agenda-salones.test.mjs",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "salonDeCheckpoint"
       }
     },
     {
@@ -11082,17 +11147,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "describirChoque"
-      }
-    },
-    {
-      "source": "functions/test/agenda-salones.test.mjs",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
-      "detail": {
-        "symbol": "salonDeCheckpoint"
+        "symbol": "etiquetaSalon"
       }
     },
     {
@@ -11102,7 +11157,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "parsearEntradaCorreo"
+        "symbol": "esCorreoValido"
       }
     },
     {
@@ -11122,7 +11177,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "esCorreoValido"
+        "symbol": "parsearEntradaCorreo"
       }
     },
     {
@@ -11142,26 +11197,6 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "proximoCheckpointHoy"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
-        "symbol": "evaluarPermanencia"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
         "symbol": "msPanama"
       }
     },
@@ -11172,7 +11207,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "checkpointsParaEscanear"
+        "symbol": "enCurso"
       }
     },
     {
@@ -11192,6 +11227,16 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
+        "symbol": "evaluarPermanencia"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
         "symbol": "ocupacionActual"
       }
     },
@@ -11202,27 +11247,17 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "enCurso"
+        "symbol": "proximoCheckpointHoy"
       }
     },
     {
-      "source": "functions/test/permisos.test.mjs",
-      "target": "js/core/permisos.js",
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 11,
       "detail": {
-        "symbol": "admiteAjustes"
-      }
-    },
-    {
-      "source": "functions/test/permisos.test.mjs",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 12,
-      "detail": {
-        "symbol": "ajusteDePermiso"
+        "symbol": "checkpointsParaEscanear"
       }
     },
     {
@@ -11243,6 +11278,26 @@
       "line": 12,
       "detail": {
         "symbol": "rolIncluyePermiso"
+      }
+    },
+    {
+      "source": "functions/test/permisos.test.mjs",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "ajusteDePermiso"
+      }
+    },
+    {
+      "source": "functions/test/permisos.test.mjs",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "admiteAjustes"
       }
     },
     {
@@ -11272,7 +11327,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "minutosDeHora"
+        "symbol": "estaCancelado"
       }
     },
     {
@@ -11282,7 +11337,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "estaCancelado"
+        "symbol": "minutosDeHora"
       }
     },
     {
@@ -11322,7 +11377,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -11342,7 +11397,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -11382,16 +11437,6 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparAtributo"
-      }
-    },
-    {
-      "source": "js/modulos/agendarReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
         "symbol": "urlImagenSegura"
       }
     },
@@ -11403,6 +11448,16 @@
       "line": 7,
       "detail": {
         "symbol": "urlHttpSegura"
+      }
+    },
+    {
+      "source": "js/modulos/agendarReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -11432,7 +11487,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeVerReunion"
+        "symbol": "usuarioPuedeGestionarMinuta"
       }
     },
     {
@@ -11442,7 +11497,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeGestionarMinuta"
+        "symbol": "usuarioPuedeVerReunion"
       }
     },
     {
@@ -11462,7 +11517,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -11472,7 +11527,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -11492,7 +11547,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11502,7 +11557,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11522,7 +11577,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getIconoHTML"
       }
     },
     {
@@ -11532,7 +11587,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "getIconoHTML"
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -11562,7 +11617,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -11572,17 +11627,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -11602,17 +11647,17 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "requirePermiso"
       }
     },
     {
       "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
+      "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 2,
+      "line": 1,
       "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -11637,6 +11682,16 @@
     },
     {
       "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -11662,7 +11717,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarCompra"
+        "symbol": "esperarAuthListo"
       }
     },
     {
@@ -11672,7 +11727,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "esperarAuthListo"
+        "symbol": "registrarCompra"
       }
     },
     {
@@ -11683,6 +11738,16 @@
       "line": 18,
       "detail": {
         "symbol": "cargarLibreria"
+      }
+    },
+    {
+      "source": "js/modulos/detalleFondo.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -11703,16 +11768,6 @@
       "line": 1,
       "detail": {
         "symbol": "aplicarPermisosDom"
-      }
-    },
-    {
-      "source": "js/modulos/detalleFondo.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 1,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -11752,7 +11807,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -11772,7 +11827,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -11860,9 +11915,9 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 3,
+      "line": 4,
       "detail": {
-        "symbol": "aplicarPermisosDom"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -11870,9 +11925,9 @@
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 3,
+      "line": 4,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -11880,7 +11935,7 @@
       "target": "js/core/iconos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 8,
+      "line": 9,
       "detail": {
         "symbol": "iconoImg"
       }
@@ -11890,7 +11945,7 @@
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbol": "neutralizarFormulaHoja"
       }
@@ -11900,7 +11955,7 @@
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 9,
+      "line": 10,
       "detail": {
         "symbol": "escaparAtributo"
       }
@@ -11910,9 +11965,9 @@
       "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 11,
       "detail": {
-        "symbol": "evaluarPermanencia"
+        "symbol": "contarValidas"
       }
     },
     {
@@ -11920,7 +11975,7 @@
       "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 11,
       "detail": {
         "symbol": "estaCancelado"
       }
@@ -11930,9 +11985,9 @@
       "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 10,
+      "line": 11,
       "detail": {
-        "symbol": "contarValidas"
+        "symbol": "evaluarPermanencia"
       }
     },
     {
@@ -11940,17 +11995,7 @@
       "target": "js/core/agenda-salones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "nombreSalon"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
+      "line": 14,
       "detail": {
         "symbol": "describirChoque"
       }
@@ -11960,37 +12005,7 @@
       "target": "js/core/agenda-salones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "nombrePiso"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "buscarChoques"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "rotuloSalon"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
+      "line": 14,
       "detail": {
         "symbol": "etiquetaSalon"
       }
@@ -12000,9 +12015,49 @@
       "target": "js/core/agenda-salones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 14,
       "detail": {
         "symbol": "salonDeCheckpoint"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "nombrePiso"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "rotuloSalon"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "buscarChoques"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "nombreSalon"
       }
     },
     {
@@ -12010,7 +12065,7 @@
       "target": "js/core/salones-firestore.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
         "symbol": "eliminarSalon"
       }
@@ -12020,9 +12075,9 @@
       "target": "js/core/salones-firestore.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
-        "symbol": "escucharSalones"
+        "symbol": "guardarSalon"
       }
     },
     {
@@ -12030,9 +12085,9 @@
       "target": "js/core/salones-firestore.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 18,
       "detail": {
-        "symbol": "guardarSalon"
+        "symbol": "escucharSalones"
       }
     },
     {
@@ -12092,6 +12147,16 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
+        "symbol": "estaOperativo"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
         "symbol": "proximoCheckpointHoy"
       }
     },
@@ -12113,16 +12178,6 @@
       "line": 13,
       "detail": {
         "symbol": "checkpointsParaEscanear"
-      }
-    },
-    {
-      "source": "js/modulos/lecturaQR.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "estaOperativo"
       }
     },
     {
@@ -12172,7 +12227,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "aplicarPermisosDom"
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -12192,7 +12247,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "esperarSesionLista"
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -12212,7 +12267,7 @@
       "provenance": "extracted",
       "line": 25,
       "detail": {
-        "symbol": "estaCancelado"
+        "symbol": "enCurso"
       }
     },
     {
@@ -12242,7 +12297,7 @@
       "provenance": "extracted",
       "line": 25,
       "detail": {
-        "symbol": "enCurso"
+        "symbol": "estaCancelado"
       }
     },
     {
@@ -12253,16 +12308,6 @@
       "line": 28,
       "detail": {
         "symbol": "salonDeCheckpoint"
-      }
-    },
-    {
-      "source": "js/modulos/mapa.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 28,
-      "detail": {
-        "symbol": "nombreSalon"
       }
     },
     {
@@ -12287,12 +12332,12 @@
     },
     {
       "source": "js/modulos/mapa.js",
-      "target": "js/core/salones-firestore.js",
+      "target": "js/core/agenda-salones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 31,
+      "line": 28,
       "detail": {
-        "symbol": "escucharSalones"
+        "symbol": "nombreSalon"
       }
     },
     {
@@ -12303,6 +12348,16 @@
       "line": 31,
       "detail": {
         "symbol": "guardarSalon"
+      }
+    },
+    {
+      "source": "js/modulos/mapa.js",
+      "target": "js/core/salones-firestore.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
+        "symbol": "escucharSalones"
       }
     },
     {
@@ -12352,16 +12407,6 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparAtributo"
-      }
-    },
-    {
-      "source": "js/modulos/minutaReunion.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 7,
-      "detail": {
         "symbol": "escaparHtml"
       }
     },
@@ -12373,6 +12418,16 @@
       "line": 7,
       "detail": {
         "symbol": "urlHttpSegura"
+      }
+    },
+    {
+      "source": "js/modulos/minutaReunion.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 7,
+      "detail": {
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -12442,6 +12497,16 @@
       "provenance": "extracted",
       "line": 31,
       "detail": {
+        "symbol": "estaOperativo"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 31,
+      "detail": {
         "symbol": "proximoCheckpointHoy"
       }
     },
@@ -12466,16 +12531,6 @@
       }
     },
     {
-      "source": "js/modulos/posper.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 31,
-      "detail": {
-        "symbol": "estaOperativo"
-      }
-    },
-    {
       "source": "js/modulos/randomizer.js",
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
@@ -12492,7 +12547,7 @@
       "provenance": "extracted",
       "line": 19,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -12502,7 +12557,7 @@
       "provenance": "extracted",
       "line": 19,
       "detail": {
-        "symbol": "esperarSesionLista"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -12542,7 +12597,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -12562,7 +12617,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -12582,7 +12637,7 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "infoRol"
+        "symbol": "rolIncluyePermiso"
       }
     },
     {
@@ -12602,27 +12657,17 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "rolIncluyePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "admiteAjustes"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
         "symbol": "tienePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "infoRol"
       }
     },
     {
@@ -12637,12 +12682,22 @@
     },
     {
       "source": "js/modulos/usuarios.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "admiteAjustes"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
       "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -12662,7 +12717,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "urlImagenSegura"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -12672,7 +12727,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -12692,7 +12747,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -12722,7 +12777,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "iconoComboImg"
       }
     },
     {
@@ -12732,7 +12787,7 @@
       "provenance": "extracted",
       "line": 3,
       "detail": {
-        "symbol": "iconoComboImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -12762,7 +12817,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVentaConMerma"
+        "symbol": "registrarVenta"
       }
     },
     {
@@ -12782,7 +12837,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVenta"
+        "symbol": "registrarVentaConMerma"
       }
     },
     {
@@ -12792,7 +12847,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "aplicarPermisosDom"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -12812,7 +12867,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -12832,7 +12887,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarNoSeleccionadosGira"
+        "symbol": "notificarParticipantesGira"
       }
     },
     {
@@ -12852,7 +12907,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarParticipantesGira"
+        "symbol": "notificarNoSeleccionadosGira"
       }
     },
     {
@@ -12872,7 +12927,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "etiquetaSalon"
+        "symbol": "nombreSalon"
       }
     },
     {
@@ -12882,7 +12937,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "nombreSalon"
+        "symbol": "etiquetaSalon"
       }
     },
     {
@@ -12922,7 +12977,7 @@
       "provenance": "extracted",
       "line": 16,
       "detail": {
-        "symbol": "iconoImg"
+        "symbol": "estrellasImg"
       }
     },
     {
@@ -12932,7 +12987,7 @@
       "provenance": "extracted",
       "line": 16,
       "detail": {
-        "symbol": "estrellasImg"
+        "symbol": "iconoImg"
       }
     },
     {
@@ -12962,7 +13017,7 @@
       "provenance": "extracted",
       "line": 1073,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "esperarSesionLista"
       }
     },
     {
@@ -12972,7 +13027,7 @@
       "provenance": "extracted",
       "line": 1073,
       "detail": {
-        "symbol": "esperarSesionLista"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -12992,7 +13047,7 @@
       "provenance": "extracted",
       "line": 1074,
       "detail": {
-        "symbol": "infoRol"
+        "symbol": "tienePermiso"
       }
     },
     {
@@ -13002,7 +13057,7 @@
       "provenance": "extracted",
       "line": 1074,
       "detail": {
-        "symbol": "tienePermiso"
+        "symbol": "infoRol"
       }
     },
     {
@@ -13052,7 +13107,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -13062,16 +13117,6 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/admin/exportar.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 47,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -13086,11 +13131,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutaReunion.html",
+      "source": "panel/modulos/admin/exportar.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 47,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13106,7 +13151,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutas.html",
+      "source": "panel/modulos/admin/minutaReunion.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -13126,7 +13171,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/secretaria.html",
+      "source": "panel/modulos/admin/minutas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -13146,11 +13191,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/inscripciones.html",
+      "source": "panel/modulos/admin/secretaria.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 15,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13166,7 +13211,7 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/lecturaQR.html",
+      "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -13196,11 +13241,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/mapa.html",
+      "source": "panel/modulos/congreso/lecturaQR.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 21,
+      "line": 15,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13216,11 +13261,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "source": "panel/modulos/congreso/mapa.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 14,
+      "line": 21,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13233,6 +13278,16 @@
       "line": 14,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -13262,7 +13317,7 @@
       "provenance": "extracted",
       "line": 930,
       "detail": {
-        "symbol": "importarParticipantes"
+        "symbol": "eliminarParticipante"
       }
     },
     {
@@ -13272,7 +13327,7 @@
       "provenance": "extracted",
       "line": 930,
       "detail": {
-        "symbol": "eliminarParticipante"
+        "symbol": "importarParticipantes"
       }
     },
     {
@@ -13292,77 +13347,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "nombreDe"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
         "symbol": "validarTamano"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "limpiarImpresion"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "generarZip"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "dibujarCredencial"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "medidaImpresa"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "nombreLote"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 932,
-      "detail": {
-        "symbol": "generarPdf"
       }
     },
     {
@@ -13382,7 +13367,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "nombreArchivo"
+        "symbol": "nombreDe"
       }
     },
     {
@@ -13392,7 +13377,7 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "descargarBlob"
+        "symbol": "generarZip"
       }
     },
     {
@@ -13412,7 +13397,77 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
+        "symbol": "medidaImpresa"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "descargarBlob"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
         "symbol": "tieneCredencial"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "generarPng"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "dibujarCredencial"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "generarPdf"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "limpiarImpresion"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 932,
+      "detail": {
+        "symbol": "nombreLote"
       }
     },
     {
@@ -13432,7 +13487,57 @@
       "provenance": "extracted",
       "line": 932,
       "detail": {
-        "symbol": "generarPng"
+        "symbol": "nombreArchivo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "descargarResultado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "armarFilas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "detectarColumnas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "detectarEncabezado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 936,
+      "detail": {
+        "symbol": "revisarFilas"
       }
     },
     {
@@ -13456,66 +13561,6 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "detectarColumnas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "armarFilas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "descargarResultado"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "revisarFilas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 936,
-      "detail": {
-        "symbol": "detectarEncabezado"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/posper.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 14,
-      "detail": {
-        "symbol": "requirePermiso"
-      }
-    },
-    {
       "source": "panel/modulos/congreso/posper.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
@@ -13526,11 +13571,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/randomizer.html",
+      "source": "panel/modulos/congreso/posper.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 14,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13546,7 +13591,7 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/randomizerint.html",
+      "source": "panel/modulos/congreso/randomizer.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -13566,11 +13611,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "source": "panel/modulos/congreso/randomizerint.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 218,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13581,6 +13626,26 @@
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 218,
+      "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 218,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/bitacora.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 331,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -13603,16 +13668,6 @@
       "line": 331,
       "detail": {
         "symbol": "aplicarPermisosDom"
-      }
-    },
-    {
-      "source": "panel/modulos/finanzas/bitacora.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 331,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -13632,7 +13687,7 @@
       "provenance": "extracted",
       "line": 334,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -13642,17 +13697,7 @@
       "provenance": "extracted",
       "line": 334,
       "detail": {
-        "symbol": "urlHttpSegura"
-      }
-    },
-    {
-      "source": "panel/modulos/finanzas/reportes.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 75,
-      "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -13666,11 +13711,11 @@
       }
     },
     {
-      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "source": "panel/modulos/finanzas/reportes.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 97,
+      "line": 75,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13683,6 +13728,16 @@
       "line": 97,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 97,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -13702,7 +13757,7 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -13711,6 +13766,16 @@
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 13,
+      "detail": {
+        "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 461,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -13737,102 +13802,12 @@
     },
     {
       "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 461,
-      "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "reactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
       "target": "js/modulos/catalogo.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 462,
       "detail": {
         "symbol": "escucharProductosPorCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "getIconoHTML"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "editarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "editarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 462,
-      "detail": {
-        "symbol": "crearCategoria"
       }
     },
     {
@@ -13852,7 +13827,87 @@
       "provenance": "extracted",
       "line": 462,
       "detail": {
+        "symbol": "editarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
         "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "reactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "editarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 462,
+      "detail": {
+        "symbol": "crearProducto"
       }
     },
     {
@@ -13872,7 +13927,7 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -13882,7 +13937,7 @@
       "provenance": "extracted",
       "line": 343,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -13942,7 +13997,7 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -13952,16 +14007,6 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/calendario.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 12,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -13976,11 +14021,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/giras.html",
+      "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 15,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -13996,11 +14041,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/informeActividad.html",
+      "source": "panel/modulos/voluntariado/giras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 15,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -14016,11 +14061,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
+      "source": "panel/modulos/voluntariado/informeActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -14036,7 +14081,7 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -14056,11 +14101,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/solicitudActividad.html",
+      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 12,
+      "line": 13,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -14076,11 +14121,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "source": "panel/modulos/voluntariado/solicitudActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 16,
+      "line": 12,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -14093,6 +14138,16 @@
       "line": 16,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 16,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -14216,6 +14271,74 @@
         ]
       }
     },
+    "functions/eliminar-eventos.js": {
+      "architectural_calls": {
+        "docsDonde": [
+          58,
+          8
+        ],
+        "eliminarEventoOCheckpoint": [
+          238,
+          1
+        ],
+        "enLotes": [
+          63,
+          4
+        ],
+        "fraseConfirmacion": [
+          54,
+          2
+        ],
+        "idValido": [
+          36,
+          2
+        ],
+        "limpiarParticipantes": [
+          200,
+          2
+        ],
+        "marcar": [
+          92,
+          3
+        ],
+        "rastroCheckpoint": [
+          73,
+          3
+        ],
+        "rastroDeCheckpoint": [
+          114,
+          2
+        ],
+        "rastroDeEvento": [
+          125,
+          2
+        ],
+        "rastroVacio": [
+          102,
+          3
+        ],
+        "resumen": [
+          167,
+          2
+        ],
+        "slug": [
+          46,
+          2
+        ],
+        "soltarRfids": [
+          225,
+          2
+        ],
+        "tieneHistorial": [
+          248,
+          1
+        ],
+        "validarPermiso": [
+          182,
+          4
+        ]
+      }
+    },
     "functions/giras.js": {
       "architectural_calls": {
         "motivoDeEntrada": [
@@ -14311,143 +14434,143 @@
     "functions/index.js": {
       "architectural_calls": {
         "aplicarLimiteRegistro": [
-          283,
+          284,
           2
         ],
         "brevoRequest": [
-          410,
+          411,
           2
         ],
         "brevoRequestOnce": [
-          351,
+          352,
           2
         ],
         "claveNoSeleccionado": [
-          1153,
+          1154,
           3
         ],
         "consultarUsuarioSSO": [
-          175,
+          176,
           2
         ],
         "eliminarParticipante": [
-          1664,
+          1665,
           1
         ],
         "enLotes": [
-          434,
+          435,
           3
         ],
         "enviarCorreoNoSeleccionadoGira": [
-          1159,
+          1160,
           2
         ],
         "enviarCorreoNotificacionGira": [
-          1081,
+          1082,
           2
         ],
         "enviarCorreoPagoAprobado": [
-          513,
+          514,
           2
         ],
         "enviarCorreoTransaccional": [
-          480,
+          481,
           4
         ],
         "esCorreoValido": [
-          1095,
+          1096,
           2
         ],
         "esErrorPasajeroBrevo": [
-          404,
+          405,
           2
         ],
         "esTokenSSOValido": [
-          146,
+          147,
           2
         ],
         "extraerEmailSSO": [
-          150,
+          151,
           2
         ],
         "extraerNombreSSO": [
-          166,
+          167,
           2
         ],
         "formatearFechaGira": [
-          1059,
+          1060,
           4
         ],
         "formatearHoraGira": [
-          1073,
+          1074,
           3
         ],
         "importarParticipantes": [
-          1693,
+          1709,
           1
         ],
         "marcarCheckpointGira": [
-          123,
+          124,
           1
         ],
         "motivosDeGira": [
-          1309,
+          1310,
           2
         ],
         "normalizarCamposExtra": [
-          240,
+          241,
           2
         ],
         "normalizarEstudiantes": [
-          268,
+          269,
           2
         ],
         "normalizarTutor": [
-          255,
+          256,
           2
         ],
         "origenPermitidoParaSSO": [
-          188,
+          189,
           2
         ],
         "procesarCorreoQrAprobado": [
-          551,
+          552,
           4
         ],
         "resumirEnvios": [
-          462,
+          463,
           3
         ],
         "sanitizarParticipante": [
-          326,
+          327,
           2
         ],
         "subirComprobante": [
-          308,
+          309,
           2
         ],
         "validarCorreo": [
-          142,
+          143,
           4
         ],
         "validarDocId": [
-          232,
+          233,
           3
         ],
         "validarTexto": [
-          194,
+          195,
           22
         ],
         "validarTextoLibre": [
-          214,
+          215,
           5
         ],
         "verificarGestorGiras": [
-          502,
+          503,
           4
         ],
         "verificarStaffCorreo": [
-          488,
+          489,
           2
         ]
       }
@@ -14801,6 +14924,46 @@
         "revisarRemitente": [
           111,
           2
+        ]
+      }
+    },
+    "functions/test/eliminar-eventos.integration.js": {
+      "architectural_calls": {
+        "asis": [
+          50,
+          3
+        ],
+        "como": [
+          73,
+          10
+        ],
+        "existe": [
+          87,
+          17
+        ],
+        "leer": [
+          114,
+          3
+        ],
+        "main": [
+          68,
+          2
+        ],
+        "preparar": [
+          35,
+          2
+        ],
+        "prueba": [
+          23,
+          9
+        ],
+        "rechazaCon": [
+          28,
+          5
+        ],
+        "set": [
+          38,
+          15
         ]
       }
     },
@@ -15620,31 +15783,31 @@
     "js/core/permisos.js": {
       "architectural_calls": {
         "admiteAjustes": [
-          157,
+          161,
           2
         ],
         "ajusteDePermiso": [
-          173,
+          177,
           2
         ],
         "infoRol": [
-          210,
+          214,
           1
         ],
         "permisosDeRol": [
-          205,
+          209,
           1
         ],
         "rolIncluyePermiso": [
-          186,
+          190,
           4
         ],
         "tienePermiso": [
-          196,
+          200,
           2
         ],
         "venceEnMs": [
-          163,
+          167,
           2
         ]
       }
@@ -17685,829 +17848,904 @@
     "js/modulos/inscripciones.js": {
       "architectural_calls": {
         "abrirFormEvento": [
-          406,
+          407,
           3
         ],
         "abrirTabSalones": [
-          135,
+          136,
           2
         ],
         "activarEvento": [
-          393,
+          394,
           5
         ],
         "actualizarBadgeCheckpoints": [
-          498,
+          599,
           4
         ],
         "actualizarControlCheckpoints": [
-          472,
+          473,
           6
         ],
         "actualizarInfoSalon": [
-          988,
+          1087,
           4
         ],
         "addPage": [
-          1518,
+          1608,
           1
         ],
         "alCambiarSalones": [
-          1934,
+          2024,
           1
         ],
         "aplicarPermisosDom": [
-          142,
+          143,
           1
         ],
         "avisoEstado": [
-          274,
+          275,
           5
         ],
         "badgeEstado": [
-          231,
+          232,
           3
         ],
         "botonesEstado": [
-          237,
-          3
-        ],
-        "buscarChoques": [
-          1052,
-          1
-        ],
-        "calcHorasNum": [
-          1433,
-          5
-        ],
-        "cargarAsistenciasEvento": [
-          469,
-          3
-        ],
-        "cargarCheckpointsEvento": [
-          258,
-          6
-        ],
-        "cargarEventos": [
-          206,
-          5
-        ],
-        "cargarInscripciones": [
-          467,
-          3
-        ],
-        "cargarInscripcionesCheckpointEvento": [
-          470,
-          3
-        ],
-        "cargarParticipantes": [
-          1141,
-          2
-        ],
-        "cerrarFormEvento": [
-          389,
-          3
-        ],
-        "checkY": [
-          1554,
-          5
-        ],
-        "construirResumenAsistencia": [
-          1278,
-          4
-        ],
-        "contarValidas": [
-          1364,
-          1
-        ],
-        "dateToLocalStr": [
-          118,
-          4
-        ],
-        "describirChoque": [
-          1053,
-          1
-        ],
-        "el": [
-          81,
-          224
-        ],
-        "elegirEspacio": [
-          1850,
-          6
-        ],
-        "eliminarSalon": [
-          1926,
-          1
-        ],
-        "escaparAtributo": [
-          239,
-          16
-        ],
-        "escucharSalones": [
-          1951,
-          1
-        ],
-        "espaciosProgramables": [
-          1806,
-          3
-        ],
-        "estaCancelado": [
-          232,
-          5
-        ],
-        "etiquetaSalon": [
-          910,
-          8
-        ],
-        "evaluarPermanencia": [
-          1359,
-          1
-        ],
-        "fmtDiaCorto": [
-          1463,
-          2
-        ],
-        "fmtDiaLargo": [
-          1456,
-          5
-        ],
-        "fmtFecha": [
-          96,
-          4
-        ],
-        "fmtFechaCorta": [
-          102,
-          3
-        ],
-        "fmtHora": [
-          1374,
-          2
-        ],
-        "fmtRangoFechas": [
-          1470,
-          3
-        ],
-        "generarQREnDiv": [
-          1206,
-          3
-        ],
-        "guardarSalon": [
-          1886,
-          1
-        ],
-        "hojaSegura": [
-          1692,
-          4
-        ],
-        "iconoImg": [
-          61,
-          10
-        ],
-        "incorporar": [
-          1302,
-          4
-        ],
-        "itemCheckpoint": [
-          678,
-          3
-        ],
-        "leerDiasEvento": [
-          186,
-          2
-        ],
-        "leerLugarCp": [
-          906,
-          2
-        ],
-        "limpiarFormCp": [
-          735,
-          5
-        ],
-        "limpiarFormEvento": [
-          414,
-          3
-        ],
-        "mostrarAlerta": [
-          80,
-          29
-        ],
-        "mostrarAlertaCp": [
-          87,
-          17
-        ],
-        "neutralizarFormulaHoja": [
-          27,
-          1
-        ],
-        "nombrePiso": [
-          981,
-          3
-        ],
-        "nombreSalon": [
-          1028,
-          2
-        ],
-        "origenParticipante": [
-          1440,
-          4
-        ],
-        "parseFechasEvento": [
-          148,
-          1
-        ],
-        "poblarSelectEspacios": [
-          1799,
-          3
-        ],
-        "poblarSelectPonentes": [
-          734,
-          4
-        ],
-        "poblarSelectSalones": [
-          973,
-          2
-        ],
-        "poblarSelectorDiasCP": [
-          379,
-          5
-        ],
-        "ponerLugarCp": [
-          1032,
-          3
-        ],
-        "primerChoque": [
-          290,
-          3
-        ],
-        "puedeEditarEvento": [
           238,
           3
         ],
+        "buscarChoques": [
+          1151,
+          1
+        ],
+        "calcHorasNum": [
+          1523,
+          5
+        ],
+        "cargarAsistenciasEvento": [
+          470,
+          4
+        ],
+        "cargarCheckpointsEvento": [
+          259,
+          6
+        ],
+        "cargarEventos": [
+          207,
+          5
+        ],
+        "cargarInscripciones": [
+          468,
+          3
+        ],
+        "cargarInscripcionesCheckpointEvento": [
+          471,
+          4
+        ],
+        "cargarParticipantes": [
+          604,
+          4
+        ],
+        "cerrarFormEvento": [
+          390,
+          3
+        ],
+        "checkY": [
+          1644,
+          5
+        ],
+        "coincide": [
+          534,
+          4
+        ],
+        "confirmarEliminacionModal": [
+          504,
+          2
+        ],
+        "construirResumenAsistencia": [
+          1368,
+          4
+        ],
+        "contarValidas": [
+          1454,
+          1
+        ],
+        "dateToLocalStr": [
+          119,
+          4
+        ],
+        "describirChoque": [
+          1152,
+          1
+        ],
+        "el": [
+          82,
+          240
+        ],
+        "elegirEspacio": [
+          1940,
+          6
+        ],
+        "eliminarConConfirmacion": [
+          567,
+          3
+        ],
+        "eliminarSalon": [
+          2016,
+          1
+        ],
+        "escaparAtributo": [
+          240,
+          16
+        ],
+        "escucharSalones": [
+          2041,
+          1
+        ],
+        "espaciosProgramables": [
+          1896,
+          3
+        ],
+        "estaCancelado": [
+          233,
+          5
+        ],
+        "etiquetaSalon": [
+          1009,
+          8
+        ],
+        "evaluarPermanencia": [
+          1449,
+          1
+        ],
+        "fmtDiaCorto": [
+          1553,
+          2
+        ],
+        "fmtDiaLargo": [
+          1546,
+          5
+        ],
+        "fmtFecha": [
+          97,
+          4
+        ],
+        "fmtFechaCorta": [
+          103,
+          3
+        ],
+        "fmtHora": [
+          1464,
+          2
+        ],
+        "fmtRangoFechas": [
+          1560,
+          3
+        ],
+        "generarQREnDiv": [
+          1296,
+          3
+        ],
+        "guardarSalon": [
+          1976,
+          1
+        ],
+        "hojaSegura": [
+          1782,
+          4
+        ],
+        "iconoImg": [
+          62,
+          10
+        ],
+        "incorporar": [
+          1392,
+          4
+        ],
+        "itemCheckpoint": [
+          777,
+          3
+        ],
+        "leerDiasEvento": [
+          187,
+          2
+        ],
+        "leerLugarCp": [
+          1005,
+          2
+        ],
+        "limpiarFormCp": [
+          834,
+          5
+        ],
+        "limpiarFormEvento": [
+          415,
+          3
+        ],
+        "lineasConteo": [
+          491,
+          3
+        ],
+        "mostrarAlerta": [
+          81,
+          25
+        ],
+        "mostrarAlertaCp": [
+          88,
+          16
+        ],
+        "neutralizarFormulaHoja": [
+          28,
+          1
+        ],
+        "nombrePiso": [
+          1080,
+          3
+        ],
+        "nombreSalon": [
+          1127,
+          2
+        ],
+        "origenParticipante": [
+          1530,
+          4
+        ],
+        "parseFechasEvento": [
+          149,
+          1
+        ],
+        "plural": [
+          487,
+          7
+        ],
+        "poblarSelectEspacios": [
+          1889,
+          3
+        ],
+        "poblarSelectPonentes": [
+          833,
+          4
+        ],
+        "poblarSelectSalones": [
+          1072,
+          2
+        ],
+        "poblarSelectorDiasCP": [
+          380,
+          5
+        ],
+        "ponerLugarCp": [
+          1131,
+          3
+        ],
+        "primerChoque": [
+          291,
+          3
+        ],
+        "puedeEditarEvento": [
+          239,
+          3
+        ],
         "refrescarTrasEstado": [
-          253,
+          254,
           3
         ],
         "renderAsistencia": [
-          133,
-          2
-        ],
-        "renderCertificados": [
           134,
           2
         ],
+        "renderCertificados": [
+          135,
+          2
+        ],
         "renderDiasEvento": [
-          163,
+          164,
           3
         ],
         "renderParticipantes": [
-          132,
+          133,
           3
         ],
         "renderPisosSalones": [
-          1801,
+          1891,
           4
         ],
         "renderPlanoSalones": [
-          1802,
+          1892,
           5
         ],
         "renderSelectorEventos": [
-          210,
+          211,
           2
         ],
         "renderTablaCheckpoints": [
-          599,
+          698,
           2
         ],
         "renderTablaEventos": [
-          209,
+          210,
           6
         ],
         "renderTablaSalones": [
-          1803,
+          1893,
           3
         ],
         "renderVistaCheckpoints": [
-          622,
+          721,
           2
         ],
         "rotuloSalon": [
-          983,
+          1082,
           3
         ],
         "salonDeCheckpoint": [
-          1033,
+          1132,
           1
         ],
         "slugArchivo": [
-          1694,
+          1784,
           3
         ],
+        "terminar": [
+          539,
+          6
+        ],
         "tituloPermanencia": [
-          1373,
+          1463,
           2
         ],
         "toMin": [
-          881,
+          980,
           3
         ],
         "tsToLocalDateStr": [
-          108,
+          109,
           3
         ],
         "usuarioTienePermiso": [
-          141,
+          142,
           1
         ]
       },
       "dom": {
         "ids": {
           "alerta-cp": [
-            88
+            89
           ],
           "alerta-global": [
-            81
+            82
           ],
           "asistencia-spinner": [
-            1389
+            1479
           ],
           "asistencia-tbody": [
-            1388,
-            1406,
-            1409
+            1478,
+            1496,
+            1499
           ],
           "asistencia-thead": [
-            1388,
-            1396
-          ],
-          "btn-abrir-modal-cp": [
-            626,
-            723
-          ],
-          "btn-abrir-modal-cp-vista": [
-            648,
-            744
-          ],
-          "btn-cancelar-cp": [
-            1075,
-            1079,
-            1111
-          ],
-          "btn-cancelar-evento": [
-            508
-          ],
-          "btn-copiar-qr": [
-            1238
-          ],
-          "btn-descargar-qr": [
-            1230
-          ],
-          "btn-export-excel-exponentes": [
-            1699
-          ],
-          "btn-export-excel-participantes": [
-            1740
-          ],
-          "btn-export-excel-programa": [
-            1655
-          ],
-          "btn-export-pdf-programa": [
-            1510
-          ],
-          "btn-gen-todos-qr": [
-            1248
-          ],
-          "btn-guardar-cp": [
-            864,
-            932,
-            968,
-            1074,
-            1110
-          ],
-          "btn-guardar-evento": [
-            343,
-            373,
-            401
-          ],
-          "btn-guardar-salon": [
-            1876,
-            1877
-          ],
-          "btn-limpiar-salon": [
-            1874
-          ],
-          "btn-nuevo-evento": [
-            509
-          ],
-          "btn-ver-todos-eventos": [
-            317,
-            318,
-            521
-          ],
-          "buscar-participante": [
-            1151,
-            1200
-          ],
-          "card-form-evento": [
-            407,
-            409,
-            415
-          ],
-          "cert-checkpoints": [
-            1488
-          ],
-          "cert-elegibles": [
+            1478,
             1486
           ],
+          "btn-abrir-modal-cp": [
+            725,
+            822
+          ],
+          "btn-abrir-modal-cp-vista": [
+            747,
+            843
+          ],
+          "btn-cancelar-cp": [
+            1174,
+            1178,
+            1210
+          ],
+          "btn-cancelar-evento": [
+            607
+          ],
+          "btn-copiar-qr": [
+            1328
+          ],
+          "btn-descargar-qr": [
+            1320
+          ],
+          "btn-export-excel-exponentes": [
+            1789
+          ],
+          "btn-export-excel-participantes": [
+            1830
+          ],
+          "btn-export-excel-programa": [
+            1745
+          ],
+          "btn-export-pdf-programa": [
+            1600
+          ],
+          "btn-gen-todos-qr": [
+            1338
+          ],
+          "btn-guardar-cp": [
+            963,
+            1031,
+            1067,
+            1173,
+            1209
+          ],
+          "btn-guardar-evento": [
+            344,
+            374,
+            402
+          ],
+          "btn-guardar-salon": [
+            1966,
+            1967
+          ],
+          "btn-limpiar-salon": [
+            1964
+          ],
+          "btn-nuevo-evento": [
+            608
+          ],
+          "btn-ver-todos-eventos": [
+            318,
+            319,
+            620
+          ],
+          "buscar-participante": [
+            1241,
+            1290
+          ],
+          "card-form-evento": [
+            408,
+            410,
+            416
+          ],
+          "cert-checkpoints": [
+            1578
+          ],
+          "cert-elegibles": [
+            1576
+          ],
           "cert-exponentes": [
-            1487
+            1577
           ],
           "cp-count-badge": [
-            605
+            704
           ],
           "cp-cupos": [
-            854,
-            900,
+            953,
             999,
-            1017,
-            1071,
-            1108
+            1098,
+            1116,
+            1170,
+            1207
           ],
           "cp-cupos-section": [
-            853,
-            1072,
-            1109
+            952,
+            1171,
+            1208
           ],
           "cp-dia": [
-            753,
-            868,
-            1060,
-            1090
+            852,
+            967,
+            1159,
+            1189
           ],
           "cp-exponente": [
-            811,
-            847,
-            924,
-            1066,
-            1104
+            910,
+            946,
+            1023,
+            1165,
+            1203
           ],
           "cp-exponente-manual": [
-            808,
-            846,
-            847,
-            1067,
-            1068,
-            1102,
-            1103
+            907,
+            945,
+            946,
+            1166,
+            1167,
+            1201,
+            1202
           ],
           "cp-form-helper": [
-            627
+            726
           ],
           "cp-hora-fin": [
-            873,
-            1063,
-            1093
+            972,
+            1162,
+            1192
           ],
           "cp-hora-inicio": [
-            872,
-            1062,
-            1092
+            971,
+            1161,
+            1191
           ],
           "cp-modal-lista": [
-            686
+            785
           ],
           "cp-modal-resumen": [
-            611
+            710
           ],
           "cp-nombre": [
-            866,
-            1057,
-            1087,
-            1113
+            965,
+            1156,
+            1186,
+            1212
           ],
           "cp-ponente-id": [
-            810,
-            925,
-            1065
+            909,
+            1024,
+            1164
           ],
           "cp-ponente-info": [
-            809,
-            1069,
-            1105
+            908,
+            1168,
+            1204
           ],
           "cp-ponente-select": [
-            784,
-            806,
-            807,
-            825,
-            1064,
-            1097,
-            1098,
-            1099,
-            1101
+            883,
+            905,
+            906,
+            924,
+            1163,
+            1196,
+            1197,
+            1198,
+            1200
           ],
           "cp-resumen-texto": [
-            612
+            711
           ],
           "cp-salon": [
-            994,
-            1015,
-            1022,
-            1036,
-            1039,
-            1042
+            1093,
+            1114,
+            1121,
+            1135,
+            1138,
+            1141
           ],
           "cp-salon-info": [
-            993
+            1092
           ],
           "cp-salon-sel": [
-            974,
-            992,
-            1013,
-            1015,
-            1020,
-            1035,
-            1038,
-            1041
+            1073,
+            1091,
+            1112,
+            1114,
+            1119,
+            1134,
+            1137,
+            1140
           ],
           "cp-tipo": [
-            851,
-            852,
-            867,
-            1059,
-            1089
+            950,
+            951,
+            966,
+            1158,
+            1188
           ],
           "cp-tipo-ayuda": [
-            861,
-            1073
+            960,
+            1172
           ],
           "cp-tipo-presencia": [
-            926,
-            1070,
-            1094
+            1025,
+            1169,
+            1193
           ],
           "cp-titulo": [
-            917,
-            1058,
-            1088
+            1016,
+            1157,
+            1187
           ],
           "cp-vista-lista": [
-            644
+            743
           ],
           "cp-vista-resumen": [
-            645
+            744
           ],
           "cp-vista-resumen-texto": [
-            646
+            745
           ],
           "cp-vista-sin-evento": [
-            643
+            742
           ],
           "cp-vista-titulo": [
-            647
+            746
           ],
           "dias-evento-lista": [
-            168,
-            187,
-            426
+            169,
+            188,
+            427
           ],
           "dias-evento-section": [
-            151,
-            425,
-            455
+            152,
+            426,
+            456
           ],
           "ev-descripcion": [
-            362,
-            420,
-            438
+            363,
+            421,
+            439
           ],
           "ev-fecha-fin": [
+            151,
+            196,
+            347,
+            423,
+            444
+          ],
+          "ev-fecha-inicio": [
             150,
             195,
             346,
             422,
             443
           ],
-          "ev-fecha-inicio": [
-            149,
-            194,
-            345,
-            421,
-            442
-          ],
           "ev-min-cert": [
-            347,
-            423,
-            444,
-            608
-          ],
-          "ev-nombre": [
-            344,
-            410,
-            419,
-            437
-          ],
-          "ev-permanencia": [
             348,
             424,
-            445
+            445,
+            707
+          ],
+          "ev-nombre": [
+            345,
+            411,
+            420,
+            438
+          ],
+          "ev-permanencia": [
+            349,
+            425,
+            446
           ],
           "evento-info": [
-            465,
-            493,
-            532,
-            545
+            466,
+            594,
+            631,
+            644
           ],
           "eventos-nota": [
-            314
+            315
           ],
           "eventos-titulo": [
-            313
+            314
           ],
           "form-evento-titulo": [
-            427,
-            458
+            428,
+            459
           ],
-          "modal-checkpoints": [
-            251,
-            736,
-            740,
-            749,
-            1112
+          "me-bloqueo": [
+            519,
+            520
           ],
-          "modal-cp-close": [
-            739
+          "me-cancelar": [
+            508
           ],
-          "modal-qr": [
-            1227,
-            1779,
-            1780
+          "me-confirmacion": [
+            522
           ],
-          "modal-qr-close": [
-            1779
+          "me-confirmar": [
+            507,
+            576
           ],
-          "participantes-spinner": [
-            1142,
-            1145,
-            1150
+          "me-frase": [
+            523
           ],
-          "qr-canvas-wrap": [
-            1220
+          "me-input": [
+            506,
+            578
           ],
-          "qr-modal-info": [
-            1219
-          ],
-          "qr-modal-nombre": [
-            1218,
-            1233
-          ],
-          "sal-capacidad": [
-            1864,
-            1882
-          ],
-          "sal-contador": [
-            1898
-          ],
-          "sal-espacio": [
-            1811,
-            1853,
-            1857
-          ],
-          "sal-form-titulo": [
-            1865,
-            1918,
-            1941,
-            1942
-          ],
-          "sal-nombre": [
-            1860,
-            1861,
-            1871,
-            1880
-          ],
-          "sal-pisos": [
-            1821,
-            1825
-          ],
-          "sal-plano": [
-            1795,
-            1837,
-            1848
-          ],
-          "sal-rotulo": [
-            1862,
-            1863,
-            1881
-          ],
-          "sel-evento": [
-            214,
-            392,
-            463,
-            492,
+          "me-lista": [
             517,
-            555,
-            556,
-            1955,
-            1956
+            518
           ],
-          "stat-asistentes": [
-            1161
+          "me-quien": [
+            513
           ],
-          "stat-certificados": [
-            1162
-          ],
-          "stat-total": [
-            1160
-          ],
-          "tabla-cert-body": [
-            1490
-          ],
-          "tabla-eventos-body": [
-            309,
+          "me-titulo": [
             512
           ],
+          "me-txt": [
+            514
+          ],
+          "modal-checkpoints": [
+            252,
+            835,
+            839,
+            848,
+            1211,
+            1216
+          ],
+          "modal-cp-close": [
+            838
+          ],
+          "modal-eliminar": [
+            505
+          ],
+          "modal-qr": [
+            1317,
+            1869,
+            1870
+          ],
+          "modal-qr-close": [
+            1869
+          ],
+          "participantes-spinner": [
+            1232,
+            1235,
+            1240
+          ],
+          "qr-canvas-wrap": [
+            1310
+          ],
+          "qr-modal-info": [
+            1309
+          ],
+          "qr-modal-nombre": [
+            1308,
+            1323
+          ],
+          "sal-capacidad": [
+            1954,
+            1972
+          ],
+          "sal-contador": [
+            1988
+          ],
+          "sal-espacio": [
+            1901,
+            1943,
+            1947
+          ],
+          "sal-form-titulo": [
+            1955,
+            2008,
+            2031,
+            2032
+          ],
+          "sal-nombre": [
+            1950,
+            1951,
+            1961,
+            1970
+          ],
+          "sal-pisos": [
+            1911,
+            1915
+          ],
+          "sal-plano": [
+            1885,
+            1927,
+            1938
+          ],
+          "sal-rotulo": [
+            1952,
+            1953,
+            1971
+          ],
+          "sel-evento": [
+            215,
+            393,
+            464,
+            593,
+            616,
+            654,
+            655,
+            2045,
+            2046
+          ],
+          "stat-asistentes": [
+            1251
+          ],
+          "stat-certificados": [
+            1252
+          ],
+          "stat-total": [
+            1250
+          ],
+          "tabla-cert-body": [
+            1580
+          ],
+          "tabla-eventos-body": [
+            310,
+            611
+          ],
           "tabla-participantes-body": [
-            1166
+            1256
           ],
           "tabla-salones-body": [
-            1899,
-            1914
+            1989,
+            2004
           ]
         },
         "selectors": {
           ".dia-evento-fila": [
-            187
+            188
           ],
           ".dia-hora-fin": [
-            190
+            191
           ],
           ".dia-hora-inicio": [
-            189
+            190
           ],
           ".tab-btn": [
-            126,
-            128
-          ],
-          ".tab-panel": [
+            127,
             129
           ],
+          ".tab-panel": [
+            130
+          ],
           "[data-ver-qr]": [
-            1195
+            1285
           ],
           "canvas": [
-            1226,
-            1260
+            1316,
+            1350
           ]
         }
       },
       "events_listened": {
         "change": [
-          194,
           195,
-          555,
-          806,
-          851,
-          1013,
-          1853
+          196,
+          654,
+          905,
+          950,
+          1112,
+          1943
         ],
         "click": [
-          127,
-          343,
-          508,
-          509,
-          512,
-          521,
-          723,
-          739,
-          744,
-          864,
-          1079,
-          1196,
-          1230,
-          1238,
-          1248,
-          1510,
-          1655,
-          1699,
-          1740,
-          1779,
-          1780,
-          1825,
-          1848,
-          1874,
-          1876,
-          1914
+          128,
+          344,
+          560,
+          561,
+          562,
+          607,
+          608,
+          611,
+          620,
+          822,
+          838,
+          843,
+          963,
+          1178,
+          1286,
+          1320,
+          1328,
+          1338,
+          1600,
+          1745,
+          1789,
+          1830,
+          1869,
+          1870,
+          1915,
+          1938,
+          1964,
+          1966,
+          2004
+        ],
+        "drop": [
+          558
         ],
         "input": [
-          846,
-          1017,
-          1200
+          556,
+          945,
+          1116,
+          1290
+        ],
+        "keydown": [
+          559
+        ],
+        "paste": [
+          557
         ]
       },
       "events_dispatched": {
         "change": [
-          1099
+          1198
         ]
       }
     },
@@ -23881,614 +24119,680 @@
       "html": {
         "ids": {
           "alerta-cp": [
-            484
-          ],
-          "alerta-global": [
-            217
-          ],
-          "asistencia-spinner": [
-            370
-          ],
-          "asistencia-tbody": [
-            367
-          ],
-          "asistencia-thead": [
-            366
-          ],
-          "btn-abrir-modal-cp": [
-            270
-          ],
-          "btn-abrir-modal-cp-vista": [
-            316
-          ],
-          "btn-cancelar-cp": [
-            562
-          ],
-          "btn-cancelar-evento": [
-            289
-          ],
-          "btn-copiar-qr": [
-            474
-          ],
-          "btn-descargar-qr": [
-            473
-          ],
-          "btn-export-excel-exponentes": [
-            387
-          ],
-          "btn-export-excel-participantes": [
-            388
-          ],
-          "btn-export-excel-programa": [
-            386
-          ],
-          "btn-export-pdf-programa": [
-            385
-          ],
-          "btn-gen-todos-qr": [
-            338
-          ],
-          "btn-guardar-cp": [
-            561
-          ],
-          "btn-guardar-evento": [
-            288
-          ],
-          "btn-guardar-salon": [
-            440
-          ],
-          "btn-limpiar-salon": [
-            441
-          ],
-          "btn-nuevo-evento": [
-            226
-          ],
-          "btn-ver-todos-eventos": [
-            296
-          ],
-          "buscar-participante": [
-            337
-          ],
-          "card-checkpoints-vista": [
-            313
-          ],
-          "card-form-evento": [
-            243
-          ],
-          "cert-checkpoints": [
-            382
-          ],
-          "cert-elegibles": [
-            380
-          ],
-          "cert-exponentes": [
-            381
-          ],
-          "cp-count-badge": [
-            273
-          ],
-          "cp-cupos": [
-            558
-          ],
-          "cp-cupos-section": [
-            556
-          ],
-          "cp-dia": [
-            515
-          ],
-          "cp-exponente": [
-            542
-          ],
-          "cp-exponente-manual": [
-            543
-          ],
-          "cp-form-helper": [
-            274
-          ],
-          "cp-form-titulo": [
-            488
-          ],
-          "cp-hora-fin": [
-            531
-          ],
-          "cp-hora-inicio": [
             527
           ],
-          "cp-modal-lista": [
-            567
+          "alerta-global": [
+            240
           ],
-          "cp-modal-resumen": [
-            570
+          "asistencia-spinner": [
+            393
           ],
-          "cp-nombre": [
-            492
+          "asistencia-tbody": [
+            390
           ],
-          "cp-ponente-id": [
-            541
+          "asistencia-thead": [
+            389
           ],
-          "cp-ponente-info": [
-            545
+          "btn-abrir-modal-cp": [
+            293
           ],
-          "cp-ponente-select": [
-            537
+          "btn-abrir-modal-cp-vista": [
+            339
           ],
-          "cp-resumen-texto": [
-            571
+          "btn-cancelar-cp": [
+            605
           ],
-          "cp-salon": [
-            520
+          "btn-cancelar-evento": [
+            312
           ],
-          "cp-salon-info": [
-            521
+          "btn-copiar-qr": [
+            497
           ],
-          "cp-salon-sel": [
-            519
-          ],
-          "cp-tipo": [
+          "btn-descargar-qr": [
             496
           ],
-          "cp-tipo-ayuda": [
-            505
+          "btn-export-excel-exponentes": [
+            410
           ],
-          "cp-tipo-presencia": [
-            549
-          ],
-          "cp-titulo": [
-            510
-          ],
-          "cp-vista-lista": [
-            321
-          ],
-          "cp-vista-resumen": [
-            322
-          ],
-          "cp-vista-resumen-texto": [
-            323
-          ],
-          "cp-vista-sin-evento": [
-            318
-          ],
-          "cp-vista-titulo": [
-            315
-          ],
-          "dias-evento-lista": [
-            265
-          ],
-          "dias-evento-section": [
-            263
-          ],
-          "ev-descripcion": [
-            251
-          ],
-          "ev-fecha-fin": [
-            260
-          ],
-          "ev-fecha-inicio": [
-            256
-          ],
-          "ev-min-cert": [
-            279
-          ],
-          "ev-min-cert-hint": [
-            280
-          ],
-          "ev-nombre": [
-            247
-          ],
-          "ev-permanencia": [
-            284
-          ],
-          "evento-info": [
-            228
-          ],
-          "eventos-nota": [
-            298
-          ],
-          "eventos-titulo": [
-            295
-          ],
-          "form-evento-titulo": [
-            244
-          ],
-          "modal-checkpoints": [
-            480
-          ],
-          "modal-cp-close": [
-            482
-          ],
-          "modal-cp-titulo": [
-            483
-          ],
-          "modal-qr": [
-            466
-          ],
-          "modal-qr-close": [
-            468
-          ],
-          "participantes-spinner": [
-            355
-          ],
-          "qr-canvas-wrap": [
-            470
-          ],
-          "qr-modal-info": [
-            471
-          ],
-          "qr-modal-nombre": [
-            469
-          ],
-          "sal-capacidad": [
-            436
-          ],
-          "sal-contador": [
-            447
-          ],
-          "sal-espacio": [
-            423
-          ],
-          "sal-form-titulo": [
+          "btn-export-excel-participantes": [
             411
           ],
-          "sal-nombre": [
-            427
+          "btn-export-excel-programa": [
+            409
           ],
-          "sal-pisos": [
-            417
-          ],
-          "sal-plano": [
-            418
-          ],
-          "sal-rotulo": [
-            432
-          ],
-          "sel-evento": [
-            224
-          ],
-          "stat-asistentes": [
-            332
-          ],
-          "stat-certificados": [
-            333
-          ],
-          "stat-total": [
-            331
-          ],
-          "stats-participantes": [
-            330
-          ],
-          "tab-asistencia": [
-            360
-          ],
-          "tab-certificados": [
-            375
-          ],
-          "tab-evento": [
-            241
-          ],
-          "tab-participantes": [
-            329
-          ],
-          "tab-salones": [
+          "btn-export-pdf-programa": [
             408
           ],
-          "tabla-cert-body": [
-            401
+          "btn-gen-todos-qr": [
+            361
           ],
-          "tabla-eventos-body": [
+          "btn-guardar-cp": [
+            604
+          ],
+          "btn-guardar-evento": [
+            311
+          ],
+          "btn-guardar-salon": [
+            463
+          ],
+          "btn-limpiar-salon": [
+            464
+          ],
+          "btn-nuevo-evento": [
+            249
+          ],
+          "btn-ver-todos-eventos": [
+            319
+          ],
+          "buscar-participante": [
+            360
+          ],
+          "card-checkpoints-vista": [
+            336
+          ],
+          "card-form-evento": [
+            266
+          ],
+          "cert-checkpoints": [
+            405
+          ],
+          "cert-elegibles": [
+            403
+          ],
+          "cert-exponentes": [
+            404
+          ],
+          "cp-count-badge": [
+            296
+          ],
+          "cp-cupos": [
+            601
+          ],
+          "cp-cupos-section": [
+            599
+          ],
+          "cp-dia": [
+            558
+          ],
+          "cp-exponente": [
+            585
+          ],
+          "cp-exponente-manual": [
+            586
+          ],
+          "cp-form-helper": [
+            297
+          ],
+          "cp-form-titulo": [
+            531
+          ],
+          "cp-hora-fin": [
+            574
+          ],
+          "cp-hora-inicio": [
+            570
+          ],
+          "cp-modal-lista": [
+            610
+          ],
+          "cp-modal-resumen": [
+            613
+          ],
+          "cp-nombre": [
+            535
+          ],
+          "cp-ponente-id": [
+            584
+          ],
+          "cp-ponente-info": [
+            588
+          ],
+          "cp-ponente-select": [
+            580
+          ],
+          "cp-resumen-texto": [
+            614
+          ],
+          "cp-salon": [
+            563
+          ],
+          "cp-salon-info": [
+            564
+          ],
+          "cp-salon-sel": [
+            562
+          ],
+          "cp-tipo": [
+            539
+          ],
+          "cp-tipo-ayuda": [
+            548
+          ],
+          "cp-tipo-presencia": [
+            592
+          ],
+          "cp-titulo": [
+            553
+          ],
+          "cp-vista-lista": [
+            344
+          ],
+          "cp-vista-resumen": [
+            345
+          ],
+          "cp-vista-resumen-texto": [
+            346
+          ],
+          "cp-vista-sin-evento": [
+            341
+          ],
+          "cp-vista-titulo": [
+            338
+          ],
+          "dias-evento-lista": [
+            288
+          ],
+          "dias-evento-section": [
+            286
+          ],
+          "ev-descripcion": [
+            274
+          ],
+          "ev-fecha-fin": [
+            283
+          ],
+          "ev-fecha-inicio": [
+            279
+          ],
+          "ev-min-cert": [
+            302
+          ],
+          "ev-min-cert-hint": [
+            303
+          ],
+          "ev-nombre": [
+            270
+          ],
+          "ev-permanencia": [
             307
           ],
-          "tabla-participantes-body": [
+          "evento-info": [
+            251
+          ],
+          "eventos-nota": [
+            321
+          ],
+          "eventos-titulo": [
+            318
+          ],
+          "form-evento-titulo": [
+            267
+          ],
+          "me-bloqueo": [
+            509
+          ],
+          "me-cancelar": [
+            516
+          ],
+          "me-confirmacion": [
+            510
+          ],
+          "me-confirmar": [
+            517
+          ],
+          "me-frase": [
+            512
+          ],
+          "me-input": [
+            513
+          ],
+          "me-lista": [
+            508
+          ],
+          "me-quien": [
+            506
+          ],
+          "me-titulo": [
+            505
+          ],
+          "me-txt": [
+            507
+          ],
+          "modal-checkpoints": [
+            523
+          ],
+          "modal-cp-close": [
+            525
+          ],
+          "modal-cp-titulo": [
+            526
+          ],
+          "modal-eliminar": [
+            503
+          ],
+          "modal-qr": [
+            489
+          ],
+          "modal-qr-close": [
+            491
+          ],
+          "participantes-spinner": [
+            378
+          ],
+          "qr-canvas-wrap": [
+            493
+          ],
+          "qr-modal-info": [
+            494
+          ],
+          "qr-modal-nombre": [
+            492
+          ],
+          "sal-capacidad": [
+            459
+          ],
+          "sal-contador": [
+            470
+          ],
+          "sal-espacio": [
+            446
+          ],
+          "sal-form-titulo": [
+            434
+          ],
+          "sal-nombre": [
+            450
+          ],
+          "sal-pisos": [
+            440
+          ],
+          "sal-plano": [
+            441
+          ],
+          "sal-rotulo": [
+            455
+          ],
+          "sel-evento": [
+            247
+          ],
+          "stat-asistentes": [
+            355
+          ],
+          "stat-certificados": [
+            356
+          ],
+          "stat-total": [
+            354
+          ],
+          "stats-participantes": [
+            353
+          ],
+          "tab-asistencia": [
+            383
+          ],
+          "tab-certificados": [
+            398
+          ],
+          "tab-evento": [
+            264
+          ],
+          "tab-participantes": [
             352
           ],
+          "tab-salones": [
+            431
+          ],
+          "tabla-cert-body": [
+            424
+          ],
+          "tabla-eventos-body": [
+            330
+          ],
+          "tabla-participantes-body": [
+            375
+          ],
           "tabla-salones-body": [
-            457
+            480
           ]
         }
       },
       "dom": {
         "generated_ids": {
           "alerta-cp": [
-            484
-          ],
-          "alerta-global": [
-            217
-          ],
-          "asistencia-spinner": [
-            370
-          ],
-          "asistencia-tbody": [
-            367
-          ],
-          "asistencia-thead": [
-            366
-          ],
-          "btn-abrir-modal-cp": [
-            270
-          ],
-          "btn-abrir-modal-cp-vista": [
-            316
-          ],
-          "btn-cancelar-cp": [
-            562
-          ],
-          "btn-cancelar-evento": [
-            289
-          ],
-          "btn-copiar-qr": [
-            474
-          ],
-          "btn-descargar-qr": [
-            473
-          ],
-          "btn-export-excel-exponentes": [
-            387
-          ],
-          "btn-export-excel-participantes": [
-            388
-          ],
-          "btn-export-excel-programa": [
-            386
-          ],
-          "btn-export-pdf-programa": [
-            385
-          ],
-          "btn-gen-todos-qr": [
-            338
-          ],
-          "btn-guardar-cp": [
-            561
-          ],
-          "btn-guardar-evento": [
-            288
-          ],
-          "btn-guardar-salon": [
-            440
-          ],
-          "btn-limpiar-salon": [
-            441
-          ],
-          "btn-nuevo-evento": [
-            226
-          ],
-          "btn-ver-todos-eventos": [
-            296
-          ],
-          "buscar-participante": [
-            337
-          ],
-          "card-checkpoints-vista": [
-            313
-          ],
-          "card-form-evento": [
-            243
-          ],
-          "cert-checkpoints": [
-            382
-          ],
-          "cert-elegibles": [
-            380
-          ],
-          "cert-exponentes": [
-            381
-          ],
-          "cp-count-badge": [
-            273
-          ],
-          "cp-cupos": [
-            558
-          ],
-          "cp-cupos-section": [
-            556
-          ],
-          "cp-dia": [
-            515
-          ],
-          "cp-exponente": [
-            542
-          ],
-          "cp-exponente-manual": [
-            543
-          ],
-          "cp-form-helper": [
-            274
-          ],
-          "cp-form-titulo": [
-            488
-          ],
-          "cp-hora-fin": [
-            531
-          ],
-          "cp-hora-inicio": [
             527
           ],
-          "cp-modal-lista": [
-            567
+          "alerta-global": [
+            240
           ],
-          "cp-modal-resumen": [
-            570
+          "asistencia-spinner": [
+            393
           ],
-          "cp-nombre": [
-            492
+          "asistencia-tbody": [
+            390
           ],
-          "cp-ponente-id": [
-            541
+          "asistencia-thead": [
+            389
           ],
-          "cp-ponente-info": [
-            545
+          "btn-abrir-modal-cp": [
+            293
           ],
-          "cp-ponente-select": [
-            537
+          "btn-abrir-modal-cp-vista": [
+            339
           ],
-          "cp-resumen-texto": [
-            571
+          "btn-cancelar-cp": [
+            605
           ],
-          "cp-salon": [
-            520
+          "btn-cancelar-evento": [
+            312
           ],
-          "cp-salon-info": [
-            521
+          "btn-copiar-qr": [
+            497
           ],
-          "cp-salon-sel": [
-            519
-          ],
-          "cp-tipo": [
+          "btn-descargar-qr": [
             496
           ],
-          "cp-tipo-ayuda": [
-            505
+          "btn-export-excel-exponentes": [
+            410
           ],
-          "cp-tipo-presencia": [
-            549
-          ],
-          "cp-titulo": [
-            510
-          ],
-          "cp-vista-lista": [
-            321
-          ],
-          "cp-vista-resumen": [
-            322
-          ],
-          "cp-vista-resumen-texto": [
-            323
-          ],
-          "cp-vista-sin-evento": [
-            318
-          ],
-          "cp-vista-titulo": [
-            315
-          ],
-          "dias-evento-lista": [
-            265
-          ],
-          "dias-evento-section": [
-            263
-          ],
-          "ev-descripcion": [
-            251
-          ],
-          "ev-fecha-fin": [
-            260
-          ],
-          "ev-fecha-inicio": [
-            256
-          ],
-          "ev-min-cert": [
-            279
-          ],
-          "ev-min-cert-hint": [
-            280
-          ],
-          "ev-nombre": [
-            247
-          ],
-          "ev-permanencia": [
-            284
-          ],
-          "evento-info": [
-            228
-          ],
-          "eventos-nota": [
-            298
-          ],
-          "eventos-titulo": [
-            295
-          ],
-          "form-evento-titulo": [
-            244
-          ],
-          "modal-checkpoints": [
-            480
-          ],
-          "modal-cp-close": [
-            482
-          ],
-          "modal-cp-titulo": [
-            483
-          ],
-          "modal-qr": [
-            466
-          ],
-          "modal-qr-close": [
-            468
-          ],
-          "participantes-spinner": [
-            355
-          ],
-          "qr-canvas-wrap": [
-            470
-          ],
-          "qr-modal-info": [
-            471
-          ],
-          "qr-modal-nombre": [
-            469
-          ],
-          "sal-capacidad": [
-            436
-          ],
-          "sal-contador": [
-            447
-          ],
-          "sal-espacio": [
-            423
-          ],
-          "sal-form-titulo": [
+          "btn-export-excel-participantes": [
             411
           ],
-          "sal-nombre": [
-            427
+          "btn-export-excel-programa": [
+            409
           ],
-          "sal-pisos": [
-            417
-          ],
-          "sal-plano": [
-            418
-          ],
-          "sal-rotulo": [
-            432
-          ],
-          "sel-evento": [
-            224
-          ],
-          "stat-asistentes": [
-            332
-          ],
-          "stat-certificados": [
-            333
-          ],
-          "stat-total": [
-            331
-          ],
-          "stats-participantes": [
-            330
-          ],
-          "tab-asistencia": [
-            360
-          ],
-          "tab-certificados": [
-            375
-          ],
-          "tab-evento": [
-            241
-          ],
-          "tab-participantes": [
-            329
-          ],
-          "tab-salones": [
+          "btn-export-pdf-programa": [
             408
           ],
-          "tabla-cert-body": [
-            401
+          "btn-gen-todos-qr": [
+            361
           ],
-          "tabla-eventos-body": [
+          "btn-guardar-cp": [
+            604
+          ],
+          "btn-guardar-evento": [
+            311
+          ],
+          "btn-guardar-salon": [
+            463
+          ],
+          "btn-limpiar-salon": [
+            464
+          ],
+          "btn-nuevo-evento": [
+            249
+          ],
+          "btn-ver-todos-eventos": [
+            319
+          ],
+          "buscar-participante": [
+            360
+          ],
+          "card-checkpoints-vista": [
+            336
+          ],
+          "card-form-evento": [
+            266
+          ],
+          "cert-checkpoints": [
+            405
+          ],
+          "cert-elegibles": [
+            403
+          ],
+          "cert-exponentes": [
+            404
+          ],
+          "cp-count-badge": [
+            296
+          ],
+          "cp-cupos": [
+            601
+          ],
+          "cp-cupos-section": [
+            599
+          ],
+          "cp-dia": [
+            558
+          ],
+          "cp-exponente": [
+            585
+          ],
+          "cp-exponente-manual": [
+            586
+          ],
+          "cp-form-helper": [
+            297
+          ],
+          "cp-form-titulo": [
+            531
+          ],
+          "cp-hora-fin": [
+            574
+          ],
+          "cp-hora-inicio": [
+            570
+          ],
+          "cp-modal-lista": [
+            610
+          ],
+          "cp-modal-resumen": [
+            613
+          ],
+          "cp-nombre": [
+            535
+          ],
+          "cp-ponente-id": [
+            584
+          ],
+          "cp-ponente-info": [
+            588
+          ],
+          "cp-ponente-select": [
+            580
+          ],
+          "cp-resumen-texto": [
+            614
+          ],
+          "cp-salon": [
+            563
+          ],
+          "cp-salon-info": [
+            564
+          ],
+          "cp-salon-sel": [
+            562
+          ],
+          "cp-tipo": [
+            539
+          ],
+          "cp-tipo-ayuda": [
+            548
+          ],
+          "cp-tipo-presencia": [
+            592
+          ],
+          "cp-titulo": [
+            553
+          ],
+          "cp-vista-lista": [
+            344
+          ],
+          "cp-vista-resumen": [
+            345
+          ],
+          "cp-vista-resumen-texto": [
+            346
+          ],
+          "cp-vista-sin-evento": [
+            341
+          ],
+          "cp-vista-titulo": [
+            338
+          ],
+          "dias-evento-lista": [
+            288
+          ],
+          "dias-evento-section": [
+            286
+          ],
+          "ev-descripcion": [
+            274
+          ],
+          "ev-fecha-fin": [
+            283
+          ],
+          "ev-fecha-inicio": [
+            279
+          ],
+          "ev-min-cert": [
+            302
+          ],
+          "ev-min-cert-hint": [
+            303
+          ],
+          "ev-nombre": [
+            270
+          ],
+          "ev-permanencia": [
             307
           ],
-          "tabla-participantes-body": [
+          "evento-info": [
+            251
+          ],
+          "eventos-nota": [
+            321
+          ],
+          "eventos-titulo": [
+            318
+          ],
+          "form-evento-titulo": [
+            267
+          ],
+          "me-bloqueo": [
+            509
+          ],
+          "me-cancelar": [
+            516
+          ],
+          "me-confirmacion": [
+            510
+          ],
+          "me-confirmar": [
+            517
+          ],
+          "me-frase": [
+            512
+          ],
+          "me-input": [
+            513
+          ],
+          "me-lista": [
+            508
+          ],
+          "me-quien": [
+            506
+          ],
+          "me-titulo": [
+            505
+          ],
+          "me-txt": [
+            507
+          ],
+          "modal-checkpoints": [
+            523
+          ],
+          "modal-cp-close": [
+            525
+          ],
+          "modal-cp-titulo": [
+            526
+          ],
+          "modal-eliminar": [
+            503
+          ],
+          "modal-qr": [
+            489
+          ],
+          "modal-qr-close": [
+            491
+          ],
+          "participantes-spinner": [
+            378
+          ],
+          "qr-canvas-wrap": [
+            493
+          ],
+          "qr-modal-info": [
+            494
+          ],
+          "qr-modal-nombre": [
+            492
+          ],
+          "sal-capacidad": [
+            459
+          ],
+          "sal-contador": [
+            470
+          ],
+          "sal-espacio": [
+            446
+          ],
+          "sal-form-titulo": [
+            434
+          ],
+          "sal-nombre": [
+            450
+          ],
+          "sal-pisos": [
+            440
+          ],
+          "sal-plano": [
+            441
+          ],
+          "sal-rotulo": [
+            455
+          ],
+          "sel-evento": [
+            247
+          ],
+          "stat-asistentes": [
+            355
+          ],
+          "stat-certificados": [
+            356
+          ],
+          "stat-total": [
+            354
+          ],
+          "stats-participantes": [
+            353
+          ],
+          "tab-asistencia": [
+            383
+          ],
+          "tab-certificados": [
+            398
+          ],
+          "tab-evento": [
+            264
+          ],
+          "tab-participantes": [
             352
           ],
+          "tab-salones": [
+            431
+          ],
+          "tabla-cert-body": [
+            424
+          ],
+          "tabla-eventos-body": [
+            330
+          ],
+          "tabla-participantes-body": [
+            375
+          ],
           "tabla-salones-body": [
-            457
+            480
           ]
         }
       }
@@ -31899,7 +32203,7 @@
       "CATALOGO_PERMISOS": [
         [
           "js/core/permisos.js",
-          222,
+          226,
           "variable",
           true
         ]
@@ -32043,7 +32347,7 @@
       "SUBPERMISOS": [
         [
           "js/core/permisos.js",
-          108,
+          112,
           "variable",
           true
         ]
@@ -32169,7 +32473,7 @@
       "abrirFormEvento": [
         [
           "js/modulos/inscripciones.js",
-          406,
+          407,
           "function",
           false
         ]
@@ -32271,7 +32575,7 @@
       "abrirTabSalones": [
         [
           "js/modulos/inscripciones.js",
-          1790,
+          1880,
           "function",
           false
         ]
@@ -32311,7 +32615,7 @@
       "activarEvento": [
         [
           "js/modulos/inscripciones.js",
-          527,
+          626,
           "function",
           false
         ]
@@ -32357,7 +32661,7 @@
       "actualizarBadgeCheckpoints": [
         [
           "js/modulos/inscripciones.js",
-          603,
+          702,
           "function",
           false
         ]
@@ -32419,7 +32723,7 @@
       "actualizarControlCheckpoints": [
         [
           "js/modulos/inscripciones.js",
-          625,
+          724,
           "function",
           false
         ]
@@ -32451,7 +32755,7 @@
       "actualizarInfoSalon": [
         [
           "js/modulos/inscripciones.js",
-          991,
+          1090,
           "function",
           false
         ]
@@ -32599,7 +32903,7 @@
       "addPage": [
         [
           "js/modulos/inscripciones.js",
-          1517,
+          1607,
           "function",
           false
         ]
@@ -32607,7 +32911,7 @@
       "admiteAjustes": [
         [
           "js/core/permisos.js",
-          157,
+          161,
           "function",
           true
         ]
@@ -32743,7 +33047,7 @@
         ],
         [
           "js/core/permisos.js",
-          173,
+          177,
           "function",
           true
         ]
@@ -32759,7 +33063,7 @@
       "alCambiarSalones": [
         [
           "js/modulos/inscripciones.js",
-          1934,
+          2024,
           "function",
           false
         ]
@@ -32774,6 +33078,12 @@
       ],
       "alEscribir": [
         [
+          "js/modulos/inscripciones.js",
+          533,
+          "function",
+          false
+        ],
+        [
           "panel/modulos/congreso/modulos_participantes.html",
           1463,
           "function",
@@ -32781,6 +33091,12 @@
         ]
       ],
       "alFondo": [
+        [
+          "js/modulos/inscripciones.js",
+          542,
+          "function",
+          false
+        ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1472,
@@ -32797,6 +33113,12 @@
         ]
       ],
       "alTecla": [
+        [
+          "js/modulos/inscripciones.js",
+          538,
+          "function",
+          false
+        ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1468,
@@ -32935,7 +33257,7 @@
       "aplicarLimiteRegistro": [
         [
           "functions/index.js",
-          283,
+          284,
           "function",
           false
         ]
@@ -33013,6 +33335,12 @@
         ]
       ],
       "asis": [
+        [
+          "functions/test/eliminar-eventos.integration.js",
+          47,
+          "function",
+          false
+        ],
         [
           "functions/test/permanencia.test.mjs",
           193,
@@ -33103,7 +33431,7 @@
       "avisoEstado": [
         [
           "js/modulos/inscripciones.js",
-          250,
+          251,
           "function",
           false
         ]
@@ -33119,7 +33447,7 @@
       "badgeEstado": [
         [
           "js/modulos/inscripciones.js",
-          231,
+          232,
           "function",
           false
         ]
@@ -33149,6 +33477,12 @@
         ]
       ],
       "bloquearPegado": [
+        [
+          "js/modulos/inscripciones.js",
+          537,
+          "function",
+          false
+        ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1467,
@@ -33191,7 +33525,7 @@
       "botonesEstado": [
         [
           "js/modulos/inscripciones.js",
-          237,
+          238,
           "function",
           false
         ]
@@ -33207,7 +33541,7 @@
       "brevoRequest": [
         [
           "functions/index.js",
-          410,
+          411,
           "function",
           false
         ]
@@ -33215,7 +33549,7 @@
       "brevoRequestOnce": [
         [
           "functions/index.js",
-          351,
+          352,
           "function",
           false
         ]
@@ -33271,7 +33605,7 @@
       "calcHorasNum": [
         [
           "js/modulos/inscripciones.js",
-          1433,
+          1523,
           "function",
           false
         ],
@@ -33493,7 +33827,7 @@
       "cargarAsistenciasEvento": [
         [
           "js/modulos/inscripciones.js",
-          569,
+          668,
           "function",
           false
         ]
@@ -33501,7 +33835,7 @@
       "cargarCheckpointsEvento": [
         [
           "js/modulos/inscripciones.js",
-          591,
+          690,
           "function",
           false
         ]
@@ -33563,7 +33897,7 @@
         ],
         [
           "js/modulos/inscripciones.js",
-          206,
+          207,
           "function",
           false
         ],
@@ -33653,7 +33987,7 @@
       "cargarInscripciones": [
         [
           "js/modulos/inscripciones.js",
-          563,
+          662,
           "function",
           false
         ]
@@ -33661,7 +33995,7 @@
       "cargarInscripcionesCheckpointEvento": [
         [
           "js/modulos/inscripciones.js",
-          578,
+          677,
           "function",
           false
         ]
@@ -33693,7 +34027,7 @@
       "cargarParticipantes": [
         [
           "js/modulos/inscripciones.js",
-          1141,
+          1231,
           "function",
           false
         ]
@@ -33835,7 +34169,7 @@
       "cerrarFormEvento": [
         [
           "js/modulos/inscripciones.js",
-          413,
+          414,
           "function",
           false
         ]
@@ -33963,7 +34297,7 @@
       "checkY": [
         [
           "js/modulos/inscripciones.js",
-          1518,
+          1608,
           "function",
           false
         ]
@@ -34039,7 +34373,7 @@
       "claveNoSeleccionado": [
         [
           "functions/index.js",
-          1153,
+          1154,
           "function",
           false
         ]
@@ -34053,6 +34387,12 @@
         ]
       ],
       "coincide": [
+        [
+          "js/modulos/inscripciones.js",
+          532,
+          "function",
+          false
+        ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1462,
@@ -34094,6 +34434,12 @@
       ],
       "como": [
         [
+          "functions/test/eliminar-eventos.integration.js",
+          18,
+          "function",
+          false
+        ],
+        [
           "functions/test/permisos-reglas.integration.mjs",
           50,
           "function",
@@ -34132,6 +34478,14 @@
           false
         ]
       ],
+      "confirmarEliminacionModal": [
+        [
+          "js/modulos/inscripciones.js",
+          504,
+          "function",
+          false
+        ]
+      ],
       "congelarYFiltrar": [
         [
           "js/modulos/reporteFinancieroExcel.js",
@@ -34159,7 +34513,7 @@
       "construirResumenAsistencia": [
         [
           "js/modulos/inscripciones.js",
-          1278,
+          1368,
           "function",
           false
         ]
@@ -34167,7 +34521,7 @@
       "consultarUsuarioSSO": [
         [
           "functions/index.js",
-          175,
+          176,
           "function",
           false
         ]
@@ -34277,7 +34631,7 @@
       "dateToLocalStr": [
         [
           "js/modulos/inscripciones.js",
-          118,
+          119,
           "function",
           false
         ]
@@ -34538,6 +34892,14 @@
           false
         ]
       ],
+      "docsDonde": [
+        [
+          "functions/eliminar-eventos.js",
+          58,
+          "function",
+          false
+        ]
+      ],
       "dos": [
         [
           "js/modulos/credenciales.js",
@@ -34661,7 +35023,7 @@
         ],
         [
           "js/modulos/inscripciones.js",
-          20,
+          21,
           "function",
           false
         ],
@@ -34807,7 +35169,7 @@
       "elegirEspacio": [
         [
           "js/modulos/inscripciones.js",
-          1855,
+          1945,
           "function",
           false
         ]
@@ -34834,6 +35196,22 @@
           101,
           "function",
           true
+        ]
+      ],
+      "eliminarConConfirmacion": [
+        [
+          "js/modulos/inscripciones.js",
+          567,
+          "function",
+          false
+        ]
+      ],
+      "eliminarEventoOCheckpoint": [
+        [
+          "functions/eliminar-eventos.js",
+          238,
+          "function",
+          false
         ]
       ],
       "eliminarParticipante": [
@@ -34890,8 +35268,14 @@
       ],
       "enLotes": [
         [
+          "functions/eliminar-eventos.js",
+          63,
+          "function",
+          false
+        ],
+        [
           "functions/index.js",
-          434,
+          435,
           "function",
           false
         ]
@@ -34945,7 +35329,7 @@
       "enviarCorreoNoSeleccionadoGira": [
         [
           "functions/index.js",
-          1159,
+          1160,
           "function",
           false
         ]
@@ -34953,7 +35337,7 @@
       "enviarCorreoNotificacionGira": [
         [
           "functions/index.js",
-          1081,
+          1082,
           "function",
           false
         ]
@@ -34961,7 +35345,7 @@
       "enviarCorreoPagoAprobado": [
         [
           "functions/index.js",
-          513,
+          514,
           "function",
           false
         ]
@@ -34977,7 +35361,7 @@
       "enviarCorreoTransaccional": [
         [
           "functions/index.js",
-          480,
+          481,
           "function",
           false
         ]
@@ -35085,7 +35469,7 @@
       "esErrorPasajeroBrevo": [
         [
           "functions/index.js",
-          404,
+          405,
           "function",
           false
         ]
@@ -35117,7 +35501,7 @@
       "esTokenSSOValido": [
         [
           "functions/index.js",
-          146,
+          147,
           "function",
           false
         ]
@@ -35229,7 +35613,7 @@
       "espaciosProgramables": [
         [
           "js/modulos/inscripciones.js",
-          1806,
+          1896,
           "function",
           false
         ]
@@ -35426,6 +35810,14 @@
           false
         ]
       ],
+      "existe": [
+        [
+          "functions/test/eliminar-eventos.integration.js",
+          19,
+          "function",
+          false
+        ]
+      ],
       "exportarExcel": [
         [
           "js/modulos/detalleFondo.js",
@@ -35459,7 +35851,7 @@
       "extraerEmailSSO": [
         [
           "functions/index.js",
-          150,
+          151,
           "function",
           false
         ]
@@ -35467,7 +35859,7 @@
       "extraerNombreSSO": [
         [
           "functions/index.js",
-          166,
+          167,
           "function",
           false
         ]
@@ -35687,7 +36079,7 @@
       "fmtDiaCorto": [
         [
           "js/modulos/inscripciones.js",
-          1463,
+          1553,
           "function",
           false
         ],
@@ -35701,7 +36093,7 @@
       "fmtDiaLargo": [
         [
           "js/modulos/inscripciones.js",
-          1456,
+          1546,
           "function",
           false
         ]
@@ -35721,7 +36113,7 @@
         ],
         [
           "js/modulos/inscripciones.js",
-          96,
+          97,
           "function",
           false
         ],
@@ -35747,7 +36139,7 @@
       "fmtFechaCorta": [
         [
           "js/modulos/inscripciones.js",
-          102,
+          103,
           "function",
           false
         ]
@@ -35769,7 +36161,7 @@
         ],
         [
           "js/modulos/inscripciones.js",
-          1381,
+          1471,
           "function",
           false
         ],
@@ -35809,7 +36201,7 @@
       "fmtRangoFechas": [
         [
           "js/modulos/inscripciones.js",
-          1470,
+          1560,
           "function",
           false
         ]
@@ -35857,7 +36249,7 @@
       "formatearFechaGira": [
         [
           "functions/index.js",
-          1059,
+          1060,
           "function",
           false
         ]
@@ -35865,7 +36257,7 @@
       "formatearHoraGira": [
         [
           "functions/index.js",
-          1073,
+          1074,
           "function",
           false
         ]
@@ -35912,6 +36304,14 @@
         [
           "js/modulos/compras2.js",
           283,
+          "function",
+          false
+        ]
+      ],
+      "fraseConfirmacion": [
+        [
+          "functions/eliminar-eventos.js",
+          54,
           "function",
           false
         ]
@@ -36007,7 +36407,7 @@
       "generarQREnDiv": [
         [
           "js/modulos/inscripciones.js",
-          1206,
+          1296,
           "function",
           false
         ]
@@ -36293,7 +36693,7 @@
       "hojaSegura": [
         [
           "js/modulos/inscripciones.js",
-          26,
+          27,
           "function",
           false
         ]
@@ -36418,6 +36818,12 @@
           false
         ],
         [
+          "functions/eliminar-eventos.js",
+          36,
+          "function",
+          false
+        ],
+        [
           "functions/operaciones-qr.js",
           35,
           "function",
@@ -36465,7 +36871,7 @@
       "incorporar": [
         [
           "js/modulos/inscripciones.js",
-          1282,
+          1372,
           "function",
           false
         ]
@@ -36489,7 +36895,7 @@
       "infoRol": [
         [
           "js/core/permisos.js",
-          210,
+          214,
           "function",
           true
         ]
@@ -36665,7 +37071,7 @@
       "itemCheckpoint": [
         [
           "js/modulos/inscripciones.js",
-          704,
+          803,
           "function",
           false
         ]
@@ -36696,6 +37102,12 @@
         [
           "functions/plantillas.js",
           21,
+          "function",
+          false
+        ],
+        [
+          "functions/test/eliminar-eventos.integration.js",
+          20,
           "function",
           false
         ],
@@ -36733,7 +37145,7 @@
       "leerDiasEvento": [
         [
           "js/modulos/inscripciones.js",
-          186,
+          187,
           "function",
           false
         ]
@@ -36789,7 +37201,7 @@
       "leerLugarCp": [
         [
           "js/modulos/inscripciones.js",
-          1019,
+          1118,
           "function",
           false
         ]
@@ -36909,7 +37321,7 @@
       "limpiarFormCp": [
         [
           "js/modulos/inscripciones.js",
-          1056,
+          1155,
           "function",
           false
         ]
@@ -36917,7 +37329,7 @@
       "limpiarFormEvento": [
         [
           "js/modulos/inscripciones.js",
-          418,
+          419,
           "function",
           false
         ]
@@ -36962,6 +37374,14 @@
           false
         ]
       ],
+      "limpiarParticipantes": [
+        [
+          "functions/eliminar-eventos.js",
+          200,
+          "function",
+          false
+        ]
+      ],
       "limpiarPreviewFactura": [
         [
           "js/modulos/compras.js",
@@ -36988,6 +37408,14 @@
         [
           "js/modulos/lecturaQR.js",
           98,
+          "function",
+          false
+        ]
+      ],
+      "lineasConteo": [
+        [
+          "js/modulos/inscripciones.js",
+          491,
           "function",
           false
         ]
@@ -37088,6 +37516,12 @@
           false
         ],
         [
+          "functions/test/eliminar-eventos.integration.js",
+          68,
+          "function",
+          false
+        ],
+        [
           "functions/test/envios.test.js",
           55,
           "function",
@@ -37154,6 +37588,14 @@
         [
           "panel/modulos/congreso/modulos_participantes.html",
           2047,
+          "function",
+          false
+        ]
+      ],
+      "marcar": [
+        [
+          "functions/eliminar-eventos.js",
+          83,
           "function",
           false
         ]
@@ -37281,7 +37723,7 @@
         ],
         [
           "js/modulos/inscripciones.js",
-          80,
+          81,
           "function",
           false
         ],
@@ -37325,7 +37767,7 @@
       "mostrarAlertaCp": [
         [
           "js/modulos/inscripciones.js",
-          87,
+          88,
           "function",
           false
         ]
@@ -37495,7 +37937,7 @@
       "motivosDeGira": [
         [
           "functions/index.js",
-          1309,
+          1310,
           "function",
           false
         ]
@@ -37697,7 +38139,7 @@
         ],
         [
           "functions/index.js",
-          240,
+          241,
           "function",
           false
         ]
@@ -37705,7 +38147,7 @@
       "normalizarEstudiantes": [
         [
           "functions/index.js",
-          268,
+          269,
           "function",
           false
         ]
@@ -37759,7 +38201,7 @@
       "normalizarTutor": [
         [
           "functions/index.js",
-          255,
+          256,
           "function",
           false
         ]
@@ -37971,7 +38413,7 @@
       "origenParticipante": [
         [
           "js/modulos/inscripciones.js",
-          1440,
+          1530,
           "function",
           false
         ]
@@ -37979,7 +38421,7 @@
       "origenPermitidoParaSSO": [
         [
           "functions/index.js",
-          188,
+          189,
           "function",
           false
         ]
@@ -38039,7 +38481,7 @@
       "parseFechasEvento": [
         [
           "js/modulos/inscripciones.js",
-          148,
+          149,
           "function",
           false
         ]
@@ -38135,7 +38577,7 @@
       "permisosDeRol": [
         [
           "js/core/permisos.js",
-          205,
+          209,
           "function",
           true
         ]
@@ -38172,6 +38614,14 @@
           false
         ]
       ],
+      "plural": [
+        [
+          "js/modulos/inscripciones.js",
+          487,
+          "function",
+          false
+        ]
+      ],
       "pngConDpi": [
         [
           "js/modulos/credenciales.js",
@@ -38191,7 +38641,7 @@
       "poblarSelectEspacios": [
         [
           "js/modulos/inscripciones.js",
-          1810,
+          1900,
           "function",
           false
         ]
@@ -38199,7 +38649,7 @@
       "poblarSelectPonentes": [
         [
           "js/modulos/inscripciones.js",
-          783,
+          882,
           "function",
           false
         ]
@@ -38207,7 +38657,7 @@
       "poblarSelectSalones": [
         [
           "js/modulos/inscripciones.js",
-          973,
+          1072,
           "function",
           false
         ]
@@ -38215,7 +38665,7 @@
       "poblarSelectorDiasCP": [
         [
           "js/modulos/inscripciones.js",
-          752,
+          851,
           "function",
           false
         ]
@@ -38231,7 +38681,7 @@
       "ponerLugarCp": [
         [
           "js/modulos/inscripciones.js",
-          1032,
+          1131,
           "function",
           false
         ]
@@ -38350,6 +38800,12 @@
       ],
       "preparar": [
         [
+          "functions/test/eliminar-eventos.integration.js",
+          35,
+          "function",
+          false
+        ],
+        [
           "functions/test/permisos-reglas.integration.mjs",
           97,
           "function",
@@ -38399,7 +38855,7 @@
       "primerChoque": [
         [
           "js/modulos/inscripciones.js",
-          1049,
+          1148,
           "function",
           false
         ]
@@ -38479,7 +38935,7 @@
       "procesarCorreoQrAprobado": [
         [
           "functions/index.js",
-          551,
+          552,
           "function",
           false
         ]
@@ -38550,6 +39006,12 @@
         [
           "functions/test/correos.test.mjs",
           20,
+          "function",
+          false
+        ],
+        [
+          "functions/test/eliminar-eventos.integration.js",
+          23,
           "function",
           false
         ],
@@ -38625,7 +39087,7 @@
       "puedeEditarEvento": [
         [
           "js/modulos/inscripciones.js",
-          141,
+          142,
           "function",
           false
         ]
@@ -38692,6 +39154,38 @@
           false
         ]
       ],
+      "rastroCheckpoint": [
+        [
+          "functions/eliminar-eventos.js",
+          73,
+          "function",
+          false
+        ]
+      ],
+      "rastroDeCheckpoint": [
+        [
+          "functions/eliminar-eventos.js",
+          114,
+          "function",
+          false
+        ]
+      ],
+      "rastroDeEvento": [
+        [
+          "functions/eliminar-eventos.js",
+          125,
+          "function",
+          false
+        ]
+      ],
+      "rastroVacio": [
+        [
+          "functions/eliminar-eventos.js",
+          102,
+          "function",
+          false
+        ]
+      ],
       "reactivarProducto": [
         [
           "js/modulos/catalogo.js",
@@ -38725,6 +39219,12 @@
         ]
       ],
       "rechazaCon": [
+        [
+          "functions/test/eliminar-eventos.integration.js",
+          28,
+          "function",
+          false
+        ],
         [
           "functions/test/importaciones.integration.js",
           26,
@@ -38827,7 +39327,7 @@
       "refrescarTrasEstado": [
         [
           "js/modulos/inscripciones.js",
-          253,
+          254,
           "function",
           false
         ]
@@ -38967,7 +39467,7 @@
       "renderAsistencia": [
         [
           "js/modulos/inscripciones.js",
-          1387,
+          1477,
           "function",
           false
         ]
@@ -39029,7 +39529,7 @@
       "renderCertificados": [
         [
           "js/modulos/inscripciones.js",
-          1479,
+          1569,
           "function",
           false
         ]
@@ -39107,7 +39607,7 @@
       "renderDiasEvento": [
         [
           "js/modulos/inscripciones.js",
-          167,
+          168,
           "function",
           false
         ]
@@ -39351,7 +39851,7 @@
       "renderParticipantes": [
         [
           "js/modulos/inscripciones.js",
-          1149,
+          1239,
           "function",
           false
         ]
@@ -39391,7 +39891,7 @@
       "renderPisosSalones": [
         [
           "js/modulos/inscripciones.js",
-          1820,
+          1910,
           "function",
           false
         ]
@@ -39399,7 +39899,7 @@
       "renderPlanoSalones": [
         [
           "js/modulos/inscripciones.js",
-          1833,
+          1923,
           "function",
           false
         ]
@@ -39531,7 +40031,7 @@
       "renderSelectorEventos": [
         [
           "js/modulos/inscripciones.js",
-          213,
+          214,
           "function",
           false
         ]
@@ -39619,7 +40119,7 @@
       "renderTablaCheckpoints": [
         [
           "js/modulos/inscripciones.js",
-          685,
+          784,
           "function",
           false
         ]
@@ -39627,7 +40127,7 @@
       "renderTablaEventos": [
         [
           "js/modulos/inscripciones.js",
-          308,
+          309,
           "function",
           false
         ]
@@ -39643,7 +40143,7 @@
       "renderTablaSalones": [
         [
           "js/modulos/inscripciones.js",
-          1895,
+          1985,
           "function",
           false
         ]
@@ -39705,7 +40205,7 @@
       "renderVistaCheckpoints": [
         [
           "js/modulos/inscripciones.js",
-          642,
+          741,
           "function",
           false
         ]
@@ -39814,6 +40314,12 @@
       ],
       "resumen": [
         [
+          "functions/eliminar-eventos.js",
+          167,
+          "function",
+          false
+        ],
+        [
           "functions/operaciones-financieras.js",
           187,
           "function",
@@ -39831,7 +40337,7 @@
       "resumirEnvios": [
         [
           "functions/index.js",
-          462,
+          463,
           "function",
           false
         ]
@@ -39879,7 +40385,7 @@
       "rolIncluyePermiso": [
         [
           "js/core/permisos.js",
-          186,
+          190,
           "function",
           true
         ]
@@ -39951,7 +40457,7 @@
       "sanitizarParticipante": [
         [
           "functions/index.js",
-          326,
+          327,
           "function",
           false
         ]
@@ -40084,6 +40590,12 @@
       ],
       "set": [
         [
+          "functions/test/eliminar-eventos.integration.js",
+          37,
+          "function",
+          false
+        ],
+        [
           "js/modulos/reportes_estadisticaCont.js",
           282,
           "function",
@@ -40092,6 +40604,12 @@
       ],
       "siNo": [
         [
+          "js/modulos/inscripciones.js",
+          544,
+          "function",
+          false
+        ],
+        [
           "panel/modulos/congreso/modulos_participantes.html",
           1474,
           "function",
@@ -40099,6 +40617,12 @@
         ]
       ],
       "siOk": [
+        [
+          "js/modulos/inscripciones.js",
+          543,
+          "function",
+          false
+        ],
         [
           "panel/modulos/congreso/modulos_participantes.html",
           1473,
@@ -40116,6 +40640,12 @@
       ],
       "slug": [
         [
+          "functions/eliminar-eventos.js",
+          46,
+          "function",
+          false
+        ],
+        [
           "js/modulos/credenciales.js",
           561,
           "function",
@@ -40125,7 +40655,7 @@
       "slugArchivo": [
         [
           "js/modulos/inscripciones.js",
-          29,
+          30,
           "function",
           false
         ]
@@ -40140,6 +40670,14 @@
         [
           "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
           126,
+          "function",
+          false
+        ]
+      ],
+      "soltarRfids": [
+        [
+          "functions/eliminar-eventos.js",
+          225,
           "function",
           false
         ]
@@ -40171,7 +40709,7 @@
       "subirComprobante": [
         [
           "functions/index.js",
-          308,
+          309,
           "function",
           false
         ]
@@ -40243,6 +40781,12 @@
         ]
       ],
       "terminar": [
+        [
+          "js/modulos/inscripciones.js",
+          545,
+          "function",
+          false
+        ],
         [
           "js/modulos/randomizerint.js",
           222,
@@ -40344,10 +40888,18 @@
           true
         ]
       ],
+      "tieneHistorial": [
+        [
+          "functions/eliminar-eventos.js",
+          179,
+          "function",
+          false
+        ]
+      ],
       "tienePermiso": [
         [
           "js/core/permisos.js",
-          196,
+          200,
           "function",
           true
         ]
@@ -40379,7 +40931,7 @@
       "tituloPermanencia": [
         [
           "js/modulos/inscripciones.js",
-          1373,
+          1463,
           "function",
           false
         ]
@@ -40387,13 +40939,13 @@
       "toMin": [
         [
           "js/modulos/inscripciones.js",
-          880,
+          979,
           "function",
           false
         ],
         [
           "js/modulos/inscripciones.js",
-          1435,
+          1525,
           "function",
           false
         ],
@@ -40491,7 +41043,7 @@
       "tsToLocalDateStr": [
         [
           "js/modulos/inscripciones.js",
-          108,
+          109,
           "function",
           false
         ]
@@ -40667,7 +41219,7 @@
       "validarCorreo": [
         [
           "functions/index.js",
-          142,
+          143,
           "function",
           false
         ]
@@ -40675,7 +41227,7 @@
       "validarDocId": [
         [
           "functions/index.js",
-          232,
+          233,
           "function",
           false
         ]
@@ -40720,6 +41272,14 @@
           false
         ]
       ],
+      "validarPermiso": [
+        [
+          "functions/eliminar-eventos.js",
+          182,
+          "function",
+          false
+        ]
+      ],
       "validarRol": [
         [
           "functions/eliminaciones.js",
@@ -40753,7 +41313,7 @@
       "validarTexto": [
         [
           "functions/index.js",
-          194,
+          195,
           "function",
           false
         ]
@@ -40761,7 +41321,7 @@
       "validarTextoLibre": [
         [
           "functions/index.js",
-          214,
+          215,
           "function",
           false
         ]
@@ -40783,7 +41343,7 @@
         ],
         [
           "js/core/permisos.js",
-          163,
+          167,
           "function",
           true
         ]
@@ -40815,7 +41375,7 @@
       "verificarGestorGiras": [
         [
           "functions/index.js",
-          502,
+          503,
           "function",
           false
         ]
@@ -40823,7 +41383,7 @@
       "verificarStaffCorreo": [
         [
           "functions/index.js",
-          488,
+          489,
           "function",
           false
         ]
@@ -40920,13 +41480,14 @@
       "2009ea6fa9d8702af87177d3f8fc663bad57f150c3497ee157df11020723f0ce": "firebase_rules/storage.rules",
       "d133f07094153566c2bd53792bdb37fae1efa7da2552b1df6f4e4b8aece050ab": "functions/.eslintrc.js",
       "79b58b8bb1aa39fdf396e20b6086c11ae92d366e083542ea81a947c62369f2ed": "functions/eliminaciones.js",
+      "2e4e89265cddac5bf6d93b6851c5a6330d553c46d510e2660c8abb94d73ba464": "functions/eliminar-eventos.js",
       "a31beb45d499b44a3f9a34b6ec3f368132f05d23e378a44cf3351c290d1d373b": "functions/giras.js",
       "3ad06f6552c7b841d6df4fe89eb6a0391eced9e956d9554c64ce4d313164162d": "functions/identidad.js",
       "cc01bb8362bd01e608f27a11752e8251184be6536370ccde1bef9be8e8a1ab65": "functions/importaciones.js",
-      "b4ce98ffd16dc8afaf5ee42b1544c59cf8bd4a2940c811444e6b6bb183cf136a": "functions/index.js",
+      "3358fe6c6cc7bdc5dc665a3848d80f106c75513694a26142c67f7c84d4b5f09d": "functions/index.js",
       "6d14055164701dd080ac3d89f8a46d2c90e92866e5c3a52c4999a3c6d73c7adf": "functions/operaciones-financieras.js",
       "dfa6c427d5d9021ee14ea22095258179bb5f454713850d31798bdbd4e92b0777": "functions/operaciones-qr.js",
-      "d6328725aead1c82b3b877e35339ef291b950f8b21e85935132cc8156ec21efa": "functions/package.json",
+      "eb98331438313c889ddfbc324168f17ebfe3722a2c68fcf064d7681a7dd96b07": "functions/package.json",
       "6f3db2cff5fb945dedcdff5c92211754e833ef17f09b0aa86bbcbd77f4b82c38": "functions/permisos.js",
       "d0ce5b6bc7f8c819437685f4be6960d733fe887237975b019a77914285b52dc4": "functions/plantillas.js",
       "7a168c5376688df324fed4f11ceff481c83040eda8f951fbaf0968180be9c78f": "functions/qr-participante.js",
@@ -40938,6 +41499,7 @@
       "2663ad0c3b75a2ee724979370e7b252cf66e7ed372fdbd5c88a2f84c190581aa": "functions/test/agenda-salones.test.mjs",
       "0258fdc0d7ad6cda242e79eb28a7485b454f69678a841f65712fb05c1a4f261e": "functions/test/correos.test.mjs",
       "b008003bcfdbd77841badbc67d9a99d83080b465660b1a783b33cc5b2766573f": "functions/test/diagnostico-correo.js",
+      "d19b2a84de1aa4b97120e4e96c2d8dbf63154e41dbda5aba981f895dacac08f8": "functions/test/eliminar-eventos.integration.js",
       "4431be38693ec1c4cb977e2ff4a7d15ec5d5eae6eaf4abd96e19ec7e33ef2d00": "functions/test/envios.test.js",
       "1da16d23c20ed9e09f8e793d10ab32c951e8433c26f12cfe14ba34e283fd0ec9": "functions/test/giras.test.js",
       "75a6db2cdeac1ab14e1cd13978578a5cbd80440cbfac028c7f77d934eed3adc4": "functions/test/id-bloqueo.js",
@@ -41016,7 +41578,7 @@
       "e489153274cd88daedb77f6e932bec5f4356fdf81f2fdd3e979a50c95180aa97": "js/core/operaciones.js",
       "b26d7f6eb3bc6a1fd23ef96841d761a675d8e13303864058eaaa78be263c9680": "js/core/participantes-api.js",
       "0371e3d732d5900cd2993363554d17c695b7bb7349644d09c49c075afc0c6b53": "js/core/permanencia.js",
-      "cd1d39fdf2e194da4cea143188a82563fc0d19c5c5af25011d0bea314515d0e0": "js/core/permisos.js",
+      "8695fe3131f2e455197f258137c314abecc838ddadb6219eed5dcee0b0bc7412": "js/core/permisos.js",
       "5024c53606e1250341e67e0db1aa9b1e000e3f53a67699546b5348a1f31a0eda": "js/core/salones-firestore.js",
       "8d555eb48164965e94cd7f02c743684fd8b1be53d5564157c9acf618256e6129": "js/core/seguridad.js",
       "5d2c5044c8785a230f0f2077bcdef5b13d9dd92cce94039a1b45ca90e8cc6f19": "js/core/sso-config.js",
@@ -41039,7 +41601,7 @@
       "79d9d32480de85c5d4328388aeb4540e6870f691fb155d1e0503dcb4688aaf44": "js/modulos/fondo.js",
       "04ef867008d722a15cdb988147c5dcc6dcb0e41df45ce79459a2dd861d3bfcf7": "js/modulos/importar-participantes.js",
       "bfd467cfbd4c8d1755b9fb5a299cb017fbef1af79b84772a90e868f523bdc911": "js/modulos/informeActividad.js",
-      "70003d242b2635526773e5024e5241081492e8b230e710065178bf7bb7447c27": "js/modulos/inscripciones.js",
+      "74024d29965a3e10214ef552ca155886f3e0188e512db8a40f1484bb7b1813d4": "js/modulos/inscripciones.js",
       "52b80827fc9819494d2ccb10b0d23fccadfa3b2602624a75ed037d842041499a": "js/modulos/lecturaQR.js",
       "e65289c54346cab0ca29047d16bd2f3befe58ca82a0e95dd69a0b69642fefccb": "js/modulos/lecturaQRGiras.js",
       "de76f37ac758a72fda34bef1e0a3665dd1c819391b3fea5b77b83f3644d90574": "js/modulos/lecturaQRVoluntarios.js",
@@ -41069,7 +41631,7 @@
       "c287d1f2f60bcf004d00bdb05f5835cd935ef8b7ffc5b6316c46d4084debebfb": "panel/modulos/admin/minutas.html",
       "88da584bc0654dda93e95914ea536545f36a69eb7e2b23c0066ced9457f836b8": "panel/modulos/admin/secretaria.html",
       "9f6662218c50713480a3ef6b1b478ecdc33b3f86fe0148ac5a0f21cfa63cc937": "panel/modulos/admin/usuarios.html",
-      "1d3cf128cbdce1189f72290e28f91c2b1e24792e72666dfb9ac40c66d06d7258": "panel/modulos/congreso/inscripciones.html",
+      "da74d5d15e95fc0ec524384043b0205f312932126de4e1d9e3c8db70cde01fd8": "panel/modulos/congreso/inscripciones.html",
       "2eca1dcf3fa1ef938c56113737b1dc08ed10ca74227b232e2b06c54f5d8962cf": "panel/modulos/congreso/lecturaQR.html",
       "69d2dc93e914b4053f508fbec83d29a4c6bddda0c6af6d7c982ee5446ab754f5": "panel/modulos/congreso/mapa.html",
       "b9f25030f8105014b860f68f2c76161be090bc04c5189c1455b27d8e72b06a45": "panel/modulos/congreso/modulos_participantes.html",
@@ -41104,10 +41666,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 5174,
-    "architectural_symbols_retained": 1181,
-    "calls_detected": 11476,
-    "architectural_calls_retained": 6294,
+    "symbols_detected": 5271,
+    "architectural_symbols_retained": 1218,
+    "calls_detected": 11675,
+    "architectural_calls_retained": 6443,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -41154,5 +41716,5 @@
       "change"
     ]
   },
-  "estimated_tokens": 120227
+  "estimated_tokens": 121655
 }

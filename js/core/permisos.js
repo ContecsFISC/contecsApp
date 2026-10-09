@@ -85,6 +85,10 @@ export const PERMISOS = {
   // "ver_participantes"; se separa para poder darlo o quitarlo suelto.
   reenviar_credencial:    ["ceo", "junta_principal", "junta", "coordinador", "staff_contecs"],
   gestionar_inscripciones: ["ceo", "staff_contecs"],
+  // Borrar un evento o checkpoint que ya tiene asistencias o inscripciones
+  // (con todo su rastro). Debe reflejar ROLES_ELIMINAR_CON_HISTORIAL en
+  // functions/eliminar-eventos.js.
+  eliminar_con_historial: ["ceo"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],
   gestionar_ventas:        ["junta_principal","junta","ventas","ceo"],
@@ -242,6 +246,7 @@ export const CATALOGO_PERMISOS = [
       { id: "evento_asistencia",    label: "Pestaña Asistencia", detalle: "Matriz de asistencia por checkpoint." },
       { id: "evento_documentos",    label: "Pestaña Certificados", detalle: "PDF y Excel del programa, exponentes y participantes elegibles." },
       { id: "evento_salones",       label: "Salones", detalle: "Configurar nombre y capacidad de los salones (pestaña y Mapa)." },
+      { id: "eliminar_con_historial", label: "Eliminar con historial", detalle: "Borrar un evento o checkpoint que ya tiene asistencias, inscripciones o RFID, con todo su rastro. Sin esto solo se pueden borrar los vacíos.", requiere: "gestionar_inscripciones" },
     ],
   },
   {
