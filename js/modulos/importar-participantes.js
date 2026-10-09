@@ -140,8 +140,9 @@ export async function leerArchivo(archivo) {
 const PARTICULAS = new Set(["de", "del", "la", "las", "los", "y", "da", "van", "von"]);
 
 // "MARÍA JOSÉ DE LA CRUZ" → "María José de la Cruz". Solo toca lo que viene
-// todo en mayúsculas: un nombre escrito a mano se respeta tal cual.
-function nombrePropio(texto) {
+// todo en mayúsculas: un nombre escrito a mano se respeta tal cual. También
+// la usa importar-voluntarios.js.
+export function nombrePropio(texto) {
   if (!texto || texto !== texto.toLocaleUpperCase("es") || texto === texto.toLocaleLowerCase("es")) return texto;
   return texto.toLocaleLowerCase("es").split(" ").map((palabra, i) =>
     i > 0 && PARTICULAS.has(palabra) ? palabra : palabra.charAt(0).toLocaleUpperCase("es") + palabra.slice(1),

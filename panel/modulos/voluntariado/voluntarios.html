@@ -10,7 +10,6 @@
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/jszip.min.js"></script>
- <script src="../../../js/libs/papaparse.min.js"></script>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
@@ -35,9 +34,6 @@
  .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
  .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
 
- .upload-zone { border:2px dashed var(--gris-borde); border-radius:var(--radio); padding:36px 20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
- .upload-zone:hover,.upload-zone.dragover { border-color:var(--verde-claro); background:var(--verde-fondo); }
- .upload-zone p { color:var(--gris-medio); font-size:14px; margin-top:8px; }
 
  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
  .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--verde-claro); }
@@ -54,9 +50,6 @@
  .tipo-gira { background:#fff3cd; color:#856404; border:1px solid #ffc107; }
  .tipo-venta { background:#fde8e8; color:#c81e1e; border:1px solid #f98080; }
 
- .mapeo-table { width:100%; font-size:13px; margin-top:12px; }
- .mapeo-table td { padding:6px 8px; border-bottom:1px solid var(--gris-borde); vertical-align:middle; }
- .mapeo-table select { width:100%; padding:6px 8px; border:1.5px solid var(--verde-claro); border-radius:6px; font-size:13px; }
 
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
@@ -86,6 +79,102 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ /* ── Importar voluntarios (mismo recorrido que Participantes) ── */
+ .iv-card { padding:0; overflow:hidden; border:2px solid var(--verde-claro); }
+ .iv-paso { display:flex; flex-direction:column; gap:14px; padding:20px; }
+ .iv-paso[hidden], .iv-revision[hidden], .iv-error[hidden], .iv-progreso[hidden], .iv-campo[hidden] { display:none; }
+ .iv-drop { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:220px; padding:24px; text-align:center; color:var(--verde-oscuro); background:var(--verde-fondo); border:2px dashed var(--verde-claro); border-radius:var(--radio); cursor:pointer; transition:background .2s, border-color .2s; }
+ .iv-drop:hover, .iv-drop.encima { background:#dcefe3; border-color:var(--verde); }
+ .iv-drop input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+ .iv-drop svg { width:40px; height:40px; }
+ .iv-drop strong { font-size:15px; }
+ .iv-drop small { font-size:12px; color:var(--gris-medio); max-width:480px; line-height:1.5; }
+ .iv-plantilla { font-size:13px; color:var(--gris-medio); text-align:center; }
+ .iv-link { background:none; border:none; padding:0; margin-left:6px; font:600 13px var(--fuente); color:var(--verde-oscuro); cursor:pointer; text-decoration:underline; }
+ .iv-error { font-size:12px; font-weight:600; color:var(--rojo); background:var(--rojo-fondo); border-radius:var(--radio-sm); padding:8px 10px; }
+ .iv-revision { display:grid; grid-template-columns:minmax(0,320px) minmax(0,1fr); }
+ .iv-config { display:flex; flex-direction:column; gap:12px; padding:16px 18px; background:var(--gris-suave); border-right:1.5px solid var(--gris-borde); max-height:72vh; overflow-y:auto; }
+ .iv-vista { display:flex; flex-direction:column; gap:10px; padding:16px 18px; min-width:0; }
+ .iv-archivo-info { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; }
+ .iv-archivo-info strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .iv-campo { display:flex; flex-direction:column; gap:6px; }
+ .iv-label { font-size:11px; font-weight:700; color:var(--gris-medio); text-transform:uppercase; letter-spacing:.4px; }
+ .iv-select { width:100%; box-sizing:border-box; padding:8px 10px; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); font:13px var(--fuente); color:var(--gris-texto); background:#fff; }
+ .iv-select:focus { outline:none; border-color:var(--verde); }
+ .iv-seg { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:3px; background:#fff; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); }
+ .iv-seg label { position:relative; }
+ .iv-seg input { position:absolute; opacity:0; pointer-events:none; }
+ .iv-seg span { display:block; text-align:center; padding:7px 4px; border-radius:6px; font-size:12px; font-weight:700; color:var(--gris-medio); cursor:pointer; }
+ .iv-seg input:checked + span { background:var(--verde); color:#fff; }
+ .iv-seg input:focus-visible + span { outline:2px solid var(--verde-claro); }
+ .iv-columnas { display:flex; flex-direction:column; gap:6px; }
+ .iv-columna { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:center; padding:6px 8px; background:#fff; border:1px solid var(--gris-borde); border-radius:var(--radio-sm); }
+ .iv-columna strong { display:block; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .iv-columna small { display:block; font-size:11px; color:var(--gris-medio); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .iv-columna .iv-select { padding:6px 8px; font-size:12px; }
+ .iv-check { display:inline-flex; align-items:center; gap:7px; font-size:13px; cursor:pointer; }
+ .iv-check input { width:16px; height:16px; accent-color:var(--verde); }
+ .iv-chips { display:flex; gap:8px; flex-wrap:wrap; }
+ .iv-chip { font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; }
+ .iv-chip.ok { background:var(--verde-fondo); color:var(--verde-oscuro); }
+ .iv-chip.aviso { background:var(--amarillo-fondo); color:var(--amarillo); }
+ .iv-chip.error { background:var(--rojo-fondo); color:var(--rojo); }
+ .iv-chip.comite { background:#efe7f8; color:#5b2c83; }
+ .iv-tabla-wrap { max-height:52vh; overflow:auto; border:1.5px solid var(--gris-borde); border-radius:var(--radio-sm); }
+ .iv-tabla { width:100%; border-collapse:collapse; }
+ .iv-tabla th { position:sticky; top:0; z-index:1; padding:8px 10px; background:var(--verde-fondo); color:var(--verde-oscuro); font-size:12px; text-align:left; white-space:nowrap; }
+ .iv-tabla td { padding:8px 10px; font-size:12px; border-top:1px solid var(--gris-borde); }
+ .iv-tabla tr.error td { background:#fff8f7; color:var(--gris-medio); }
+ .iv-tabla tr.excluida td { opacity:.45; }
+ .iv-tabla input { width:16px; height:16px; accent-color:var(--verde); }
+ .iv-notas { font-size:11px; color:var(--gris-medio); min-width:170px; }
+ .iv-tabla tr.error .iv-notas { color:var(--rojo); }
+ .iv-estado { display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+ .iv-estado.ok { background:var(--verde-fondo); color:var(--verde-oscuro); }
+ .iv-estado.aviso { background:var(--amarillo-fondo); color:var(--amarillo); }
+ .iv-estado.error { background:var(--rojo-fondo); color:var(--rojo); }
+ .iv-grupo-tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; background:var(--verde-fondo); color:var(--verde-oscuro); white-space:nowrap; }
+ .iv-grupo-tag.comite { background:#efe7f8; color:#5b2c83; }
+ .iv-progreso { display:flex; flex-direction:column; gap:6px; }
+ .iv-barra { height:8px; background:#fff; border:1px solid var(--gris-borde); border-radius:4px; overflow:hidden; }
+ .iv-barra span { display:block; height:100%; width:0; background:linear-gradient(90deg, var(--verde), var(--verde-claro)); transition:width .2s; }
+ .iv-progreso-txt { font-size:12px; font-weight:600; }
+ .iv-acciones { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+ .iv-res-numeros { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; }
+ .iv-res-num { background:var(--verde-fondo); border-radius:var(--radio); padding:16px; text-align:center; }
+ .iv-res-num strong { display:block; font-size:30px; font-weight:800; color:var(--verde-oscuro); line-height:1.1; }
+ .iv-res-num span { font-size:12px; font-weight:600; color:var(--gris-medio); }
+ .iv-res-num.omitidos { background:var(--amarillo-fondo); }
+ .iv-res-num.omitidos strong { color:var(--amarillo); }
+ .iv-res-acciones { display:flex; gap:10px; flex-wrap:wrap; }
+ .iv-res-acciones .btn { width:auto; }
+ @media (max-width:760px) {
+   .iv-revision { display:block; }
+   .iv-config { border-right:none; border-bottom:1.5px solid var(--gris-borde); max-height:none; }
+   .iv-paso, .iv-vista, .iv-config { padding:14px; }
+   .iv-acciones .btn { flex:1; }
+ }
+ /* Grupo en la lista de voluntarios */
+ .sel-grupo { padding:4px 6px; border:1.5px solid var(--gris-borde); border-radius:8px; font:600 11px var(--fuente); background:#fff; color:var(--verde-oscuro); }
+ .sel-grupo.comite { color:#5b2c83; border-color:#d9c6ee; background:#f7f2fc; }
+ /* ── Turnos (Gestionar turnos) ── */
+ .turnos-form { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) auto; gap:10px; align-items:end; }
+ .turnos-form .form-groupE { margin-bottom:0; }
+ .turnos-form .btn { height:44px; white-space:nowrap; }
+ .turnos-ayuda { display:block; margin-top:8px; color:var(--gris-medio); font-size:12px; }
+ .turnos-lista { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:8px; margin-bottom:14px; }
+ .turnos-vacio { font-size:13px; color:var(--gris-medio); margin:2px 0 12px; }
+ .turno-chip { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radio-sm); background:#f3f6ff; border:1px solid #d7e2fd; border-left:4px solid #1a56db; }
+ .turno-chip .t-info { flex:1; min-width:0; }
+ .turno-chip .t-nombre { font-weight:700; font-size:13px; color:#173a8a; overflow-wrap:anywhere; }
+ .turno-chip .t-hora { font-size:12px; color:#3b5bb5; font-variant-numeric:tabular-nums; }
+ .turno-chip .t-quitar { flex-shrink:0; width:28px; height:28px; border-radius:50%; border:none; background:transparent; color:#5b72b8; font-size:18px; line-height:1; cursor:pointer; transition:background .15s, color .15s; }
+ .turno-chip .t-quitar:hover { background:#fde8e8; color:var(--rojo); }
+ @media (max-width:640px) {
+   .turnos-form { grid-template-columns:1fr 1fr; }
+   .turnos-form .t-campo-nombre { grid-column:1 / -1; }
+   .turnos-form .btn { grid-column:1 / -1; width:100% !important; }
+ }
  </style>
   <script type="speculationrules">
   { "prefetch": [{ "where": { "href_matches": "/*panel/*" }, "eagerness": "moderate" }] }
@@ -164,13 +253,22 @@
  </div>
  <div id="turno-evt-lista" style="margin-bottom:8px;min-height:24px;"></div>
  <div id="turno-evt-form" style="display:none;">
-<div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:4px;">
- <input type="text" id="turno-evt-nombre" placeholder="ej. Turno 1"/>
- <input type="time" id="turno-evt-inicio" title="Hora inicio"/>
- <input type="time" id="turno-evt-fin" title="Hora fin"/>
- <button class="btn btn-outline btn-sm" id="btn-add-turno-evt" style="width:auto;color:#1a56db;border-color:#c7d9fc;">+ Agregar</button>
+ <div class="turnos-form">
+ <div class="form-groupE t-campo-nombre">
+ <label for="turno-evt-nombre" style="color:#1a56db;">Nombre del turno</label>
+ <input type="text" id="turno-evt-nombre" placeholder="ej. Turno mañana"/>
  </div>
- <small style="color:var(--gris-medio);font-size:12px;">Ej: Turno 1 — 09:00 a 13:00 · Turno 2 — 13:00 a 17:00</small>
+ <div class="form-groupE">
+ <label for="turno-evt-inicio" style="color:#1a56db;">Inicio</label>
+ <input type="time" id="turno-evt-inicio"/>
+ </div>
+ <div class="form-groupE">
+ <label for="turno-evt-fin" style="color:#1a56db;">Fin</label>
+ <input type="time" id="turno-evt-fin"/>
+ </div>
+ <button class="btn btn-outline btn-sm" id="btn-add-turno-evt" style="width:auto;color:#1a56db;border-color:#c7d9fc;">+ Agregar turno</button>
+ </div>
+ <small class="turnos-ayuda">Ej.: Turno mañana 09:00–13:00 · Turno tarde 13:00–17:00. Los turnos no pueden superponerse.</small>
  </div>
  </div>
 
@@ -268,31 +366,55 @@
 
  <!-- TAB IMPORTAR -->
  <div class="tab-panel" id="tab-importar">
- <div class="card" style="border:2px solid var(--verde-claro);">
- <div class="card-title">Importar desde CSV / Excel</div>
- <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
- Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. El sistema detectará las columnas automáticamente.
- </p>
- <div class="upload-zone" id="upload-zone">
- <div style="font-size:36px;"></div>
- <p>Arrastra tu archivo CSV o Excel aquí<br/>o <strong>haz clic</strong> para seleccionar</p>
- <input type="file" id="input-archivo" accept=".csv,.xlsx,.xls" style="display:none"/>
+ <!-- Mismo recorrido que Participantes → Importar listas (js/modulos/importar-voluntarios.js). -->
+ <div class="card iv-card">
+ <div class="iv-paso" id="iv-paso-archivo">
+ <div class="card-title">Importar voluntarios desde Excel</div>
+ <label class="iv-drop" id="iv-drop">
+ <input type="file" id="iv-archivo" accept=".xlsx,.xls,.csv"/>
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13l2 2 4-4"/></svg>
+ <strong>Arrastra el Excel aquí o haz clic para elegirlo</strong>
+ <small>Sirve la plantilla, una hoja propia o las respuestas de Google/Microsoft Forms (.xlsx, .xls o .csv). Antes de guardar verás cada fila revisada.</small>
+ </label>
+ <div class="iv-plantilla">¿No tienes un formato? <button type="button" class="iv-link" id="iv-plantilla">Descargar plantilla de Excel</button></div>
+ <div class="iv-error" id="iv-error-archivo" hidden></div>
  </div>
- <div id="mapeo-section" style="display:none;margin-top:20px;">
- <div class="card-title">Mapeo de columnas</div>
- <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
- Verifica que cada campo corresponda a la columna correcta. Los campos marcados no se detectaron automáticamente.
- </p>
- <table class="mapeo-table">
- <thead><tr><th style="text-align:left;font-weight:600">Campo</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
- <tbody id="mapeo-tbody"></tbody>
+
+ <div class="iv-revision" id="iv-paso-revision" hidden>
+ <div class="iv-config">
+ <div class="iv-archivo-info"><strong id="iv-archivo-nombre"></strong><button type="button" class="iv-link" id="iv-cambiar">Cambiar archivo</button></div>
+ <label class="iv-campo" id="iv-hoja-wrap" hidden><span class="iv-label">Hoja</span><select class="iv-select" id="iv-hoja"></select></label>
+ <label class="iv-campo"><span class="iv-label">Fila de títulos</span><select class="iv-select" id="iv-encabezado"></select></label>
+ <div class="iv-campo">
+ <span class="iv-label">Si la fila no dice el grupo</span>
+ <div class="iv-seg" role="radiogroup" aria-label="Grupo por defecto">
+ <label><input type="radio" name="iv-grupo" value="voluntario" checked/><span>Voluntario</span></label>
+ <label><input type="radio" name="iv-grupo" value="comite"/><span>Comité organizador</span></label>
+ </div>
+ </div>
+ <div class="iv-campo">
+ <span class="iv-label">Qué trae cada columna</span>
+ <div class="iv-columnas" id="iv-columnas"></div>
+ </div>
+ <label class="iv-check"><input type="checkbox" id="iv-mayusculas" checked/> Corregir nombres escritos en MAYÚSCULAS</label>
+ </div>
+ <div class="iv-vista">
+ <div id="iv-resumen"></div>
+ <div class="iv-tabla-wrap">
+ <table class="iv-tabla">
+ <thead><tr><th></th><th>Fila</th><th>Estado</th><th>Nombre</th><th>Apellido</th><th>Cédula</th><th>Correo</th><th>Grupo</th><th>Notas</th></tr></thead>
+ <tbody id="iv-filas"></tbody>
  </table>
- <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
- <button class="btn btn-outline btn-sm" id="btn-preview-importar" style="width:auto"> Vista previa</button>
- <button class="btn btn-primary" id="btn-confirmar-importar" style="flex:1"> Importar voluntarios</button>
  </div>
- <div id="importar-progreso" style="display:none;margin-top:12px;font-size:13px;color:var(--gris-medio);text-align:center;"></div>
+ <div class="iv-progreso" id="iv-progreso" hidden><div class="iv-barra"><span id="iv-barra"></span></div><span class="iv-progreso-txt" id="iv-progreso-txt"></span></div>
+ <div class="iv-acciones">
+ <button type="button" class="btn btn-outline btn-sm" id="iv-cancelar" style="width:auto">Cancelar</button>
+ <button type="button" class="btn btn-primary" id="iv-importar" disabled style="width:auto">Importar</button>
  </div>
+ </div>
+ </div>
+
+ <div class="iv-paso" id="iv-paso-resultado" hidden></div>
  </div>
  </div>
 
@@ -301,6 +423,7 @@
  <div class="stats-grid">
  <div class="stat-mini"><div class="num" id="stat-total">—</div><div class="lbl">Total voluntarios</div></div>
  <div class="stat-mini"><div class="num" id="stat-horas">—</div><div class="lbl">Horas totales</div></div>
+ <div class="stat-mini"><div class="num" id="stat-comite">—</div><div class="lbl">Comité organizador</div></div>
  </div>
  <div class="card" style="border:2px solid var(--verde-claro);">
  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -311,6 +434,11 @@
  <option value="Vespertino">Vespertino (12:50 pm – 5:00 pm)</option>
  <option value="Nocturno"> Nocturno (5:50 pm – 10:00 pm)</option>
  </select>
+ <select id="filtro-grupo-vol" aria-label="Grupo" style="padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:13px;background:#fff;">
+ <option value="">Voluntarios y comité</option>
+ <option value="voluntario">Solo voluntarios</option>
+ <option value="comite">Solo comité organizador</option>
+ </select>
  <button class="btn btn-outline btn-sm" id="btn-exportar-excel" data-permiso="voluntarios_exportar" style="width:auto"> Exportar Excel</button>
  <button class="btn btn-outline btn-sm" id="btn-exportar-qr" data-permiso="voluntarios_exportar" style="width:auto"> Exportar QR</button>
  </div>
@@ -320,6 +448,7 @@
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Nombre</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">ID</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Carrera</th>
+ <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Grupo</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horario</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)">Horas</th>
  <th style="color:var(--verde-oscuro);border-bottom:2px solid var(--verde-claro)"></th>
@@ -380,18 +509,6 @@
  <div style="display:flex;gap:8px;">
  <button class="btn btn-primary btn-sm" id="btn-descargar-qr" style="flex:1"> Descargar</button>
  <button class="btn btn-outline btn-sm" id="btn-copiar-qr" style="flex:1"> Copiar</button>
- </div>
- </div>
-</div>
-
-<!-- MODAL PREVIEW IMPORTAR -->
-<div class="modal-overlay" id="modal-preview">
- <div class="modal-box" style="max-width:720px;width:100%;">
- <button class="modal-close" id="modal-preview-close" type="button" aria-label="Cerrar">&times;</button>
- <div class="modal-title">Vista previa (primeras 5 filas)</div>
- <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
- <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
- <table><thead id="preview-thead"></thead><tbody id="preview-tbody"></tbody></table>
  </div>
  </div>
 </div>

@@ -81,6 +81,10 @@ export const PERMISOS = {
   imprimir_credenciales:  ["ceo", "junta_principal"],
   // Debe reflejar ROLES_IMPORTAR_PARTICIPANTES en functions/importaciones.js.
   importar_participantes: ["ceo", "junta_principal"],
+  // Módulo Credenciales: imprimir las de participantes, voluntarios, comité
+  // organizador y expositores, y llevar el control de cuáles se imprimieron
+  // (colección credenciales_impresas en firestore.rules).
+  gestionar_credenciales: ["ceo"],
   // Botón "Reenviar correo de credencial" del perfil. Antes iba con
   // "ver_participantes"; se separa para poder darlo o quitarlo suelto.
   reenviar_credencial:    ["ceo", "junta_principal", "junta", "coordinador", "staff_contecs"],
@@ -234,6 +238,12 @@ export const CATALOGO_PERMISOS = [
       { id: "exportar_participantes", label: "Exportar a Excel", detalle: "Descarga la lista completa con datos personales.", requiere: "ver_participantes" },
       { id: "imprimir_credenciales",  label: "Imprimir credenciales", detalle: "Las credenciales llevan el QR de acceso de cada persona.", requiere: "ver_participantes" },
       { id: "importar_participantes", label: "Importar listas", detalle: "Inscribir estudiantes desde el Excel o CSV de un profesor.", requiere: "ver_participantes" },
+    ],
+  },
+  {
+    modulo: "Credenciales",
+    permisos: [
+      { id: "gestionar_credenciales", label: "Módulo Credenciales", detalle: "Imprimir y descargar credenciales de participantes, voluntarios, comité organizador y expositores, y marcar cuáles ya se imprimieron." },
     ],
   },
   {

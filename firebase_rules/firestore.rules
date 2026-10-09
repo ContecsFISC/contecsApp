@@ -88,6 +88,7 @@ service cloud.firestore {
       ])
         || otorgado('gestionar_inscripciones')
         || otorgado('lectura_qr')
+        || otorgado('gestionar_credenciales')
         || otorgado('ver_estadisticas_congreso')
         || otorgado('acceso_posper');
     }
@@ -182,6 +183,24 @@ service cloud.firestore {
           'asistencias', 'totalAsistencias', 'rfid'
         ]);
       allow delete: if permite('eliminar_participantes', ['ceo', 'junta_principal']);
+    }
+
+    // Historial de impresión del módulo Credenciales: un documento por persona
+    // (id = participante_<id>, voluntario_<docId>, expositor_<id>...).
+    match /credenciales_impresas/{id} {
+      allow read: if permite('gestionar_credenciales', ['ceo']);
+      allow create, update: if permite('gestionar_credenciales', ['ceo'])
+        && id.matches('^[a-z]+_[A-Za-z0-9_-]{1,120}$')
+        && request.resource.data.keys().hasOnly([
+          'tipo', 'nombre', 'veces', 'primeraEn', 'ultimaEn', 'ultimaPor'
+        ])
+        && request.resource.data.tipo is string
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() <= 200
+        && request.resource.data.veces is int
+        && request.resource.data.veces >= 1
+        && request.resource.data.ultimaPor == request.auth.uid;
+      allow delete: if permite('gestionar_credenciales', ['ceo']);
     }
 
     // RFID anclado desde POSPER — solo Admin SDK (ejecutarOperacionQr)

@@ -9,6 +9,11 @@
 // Todo el diseño se mide en "u" = 1 % del ancho, de modo que escala igual en
 // cualquier tamaño vertical.
 //
+// Además de participantes, el módulo Credenciales (gestorCredenciales.js)
+// dibuja voluntarios, comité organizador y expositores con el mismo diseño:
+// esas personas traen `p.cred` (QR, código, etiqueta, textos y tema de color).
+// Sin `p.cred` todo sale exactamente como la credencial de participante.
+//
 // La credencial oficial es doblada: la impresora saca una tira de 4 × 10 in
 // (o 4 × 13 in) que se dobla a la mitad y queda con dos caras de 4 × 5 in (o
 // 4 × 6.5 in). En `TAMANOS`, ancho y alto son siempre los de una cara;
@@ -75,18 +80,35 @@ const C = {
   separador: "#c3cec7",
   qr: "#062b16",
 };
+// Tema de color por tipo de credencial. `participante` es el de siempre.
+export const TEMAS = {
+  participante: { oscuro: C.verdeOscuro, principal: C.verde, claro: C.verdeClaro, tinte: C.tinte, bordeQr: C.bordeQr, qr: C.qr },
+  voluntario: { oscuro: "#00564d", principal: "#00897b", claro: "#4db6ac", tinte: "#ddf1ee", bordeQr: "#bfe3dd", qr: "#003b35" },
+  comite: { oscuro: "#3b1857", principal: "#6a2c91", claro: "#c9a227", tinte: "#efe6f8", bordeQr: "#dccbef", qr: "#2a1040" },
+  expositor: { oscuro: "#0d3a78", principal: "#1565c0", claro: "#64b5f6", tinte: "#e2edfb", bordeQr: "#c5daf5", qr: "#0a2b5a" },
+};
+const temaDe = p => TEMAS[p?.cred?.tema] || TEMAS.participante;
 const FUENTE = "Inter, 'Segoe UI', system-ui, sans-serif";
 const FUENTE_TITULO = "'Space Grotesk', Inter, 'Segoe UI', sans-serif";
 const FUENTE_CODIGO = "'Courier New', Courier, monospace";
 
 // ── DATOS ──────────────────────────────────────────────────────────────────
 export function textoQr(p) {
+  if (p?.cred) return p.cred.qr || "";
   return `${URL_BASE_PERFIL}?c=${encodeURIComponent(p.codigo)}&t=${encodeURIComponent(p.token)}`;
 }
 
-// Sin código y token el QR no abriría ninguna credencial.
+// Sin código y token el QR no abriría ninguna credencial. Las de `p.cred`
+// siempre se pueden dibujar (un expositor externo va sin QR).
 export function tieneCredencial(p) {
+  if (p?.cred) return true;
   return !!(p?.codigo && p?.token);
+}
+
+// Lo que va en la etiqueta bajo el QR: el código del participante o, en las
+// demás, lo que traiga `p.cred.codigo` (la cédula de un voluntario).
+export function codigoDe(p) {
+  return p?.cred ? p.cred.codigo || "" : p.codigo;
 }
 
 export function nombreDe(p) {
@@ -95,10 +117,12 @@ export function nombreDe(p) {
 }
 
 export function categoriaDe(p) {
+  if (p?.cred?.etiqueta) return p.cred.etiqueta;
   return CATEGORIAS[p.categoria] || p.categoriaNombre || "Participante";
 }
 
 function institucionDe(p) {
+  if (p?.cred && "institucion" in p.cred) return p.cred.institucion || "";
   const ex = p.camposExtra || {};
   if (p.esColegio || p.categoria === "colegio" || p.categoria === "colegio_estudiante") {
     return p.colegio || p.tutor?.colegio || "";
@@ -229,7 +253,7 @@ function rectRedondeado(ctx, x, y, w, h, r) {
 // ── QR ─────────────────────────────────────────────────────────────────────
 // Se toma la matriz de módulos de qrcode.min.js y se pinta a mano con
 // módulos de tamaño entero: escalar su canvas emborronaría los bordes.
-function dibujarQr(ctx, texto, x, y, lado) {
+function dibujarQr(ctx, texto, x, y, lado, color = C.qr) {
   const QR = window.QRCode;
   const modelo = new QR(document.createElement("div"), {
     text: texto, width: 64, height: 64, correctLevel: QR.CorrectLevel.M,
@@ -239,7 +263,7 @@ function dibujarQr(ctx, texto, x, y, lado) {
   const modulo = Math.max(1, Math.floor(lado / n));
   const ox = Math.round(x + (lado - modulo * n) / 2);
   const oy = Math.round(y + (lado - modulo * n) / 2);
-  ctx.fillStyle = C.qr;
+  ctx.fillStyle = color;
   for (let fila = 0; fila < n; fila++) {
     for (let col = 0; col < n; col++) {
       if (modelo.isDark(fila, col)) ctx.fillRect(ox + col * modulo, oy + fila * modulo, modulo, modulo);
@@ -274,16 +298,17 @@ function dibujarRed(ctx, u) {
   ctx.restore();
 }
 
-function dibujarCabecera(ctx, W, u, logo) {
+function dibujarCabecera(ctx, W, u, logo, p) {
+  const tema = temaDe(p);
   const alto = 24 * u;
   const franja = 1.1 * u;
   const fondo = ctx.createLinearGradient(0, 0, W, alto);
-  fondo.addColorStop(0, C.verdeOscuro);
-  fondo.addColorStop(1, C.verde);
+  fondo.addColorStop(0, tema.oscuro);
+  fondo.addColorStop(1, tema.principal);
   ctx.fillStyle = fondo;
   ctx.fillRect(0, 0, W, alto);
   dibujarRed(ctx, u);
-  ctx.fillStyle = C.verdeClaro;
+  ctx.fillStyle = tema.claro;
   ctx.fillRect(0, alto, W, franja);
 
   let xTexto = 6 * u;
@@ -308,7 +333,7 @@ function dibujarCabecera(ctx, W, u, logo) {
   const lema = ajustarTexto(ctx, LEMA, { anchoMax: anchoTexto, tamMax: 2.3 * u, tamMin: 1.8 * u, peso: 500 });
   ctx.fillText(lema.lineas[0], xTexto, cy + 0.4 * u);
 
-  const etiqueta = "CREDENCIAL DE ACCESO";
+  const etiqueta = p?.cred?.cabecera || "CREDENCIAL DE ACCESO";
   const espacio = 0.32 * u;
   ctx.font = fuente(700, 2.4 * u);
   const altoEtq = 4.8 * u;
@@ -323,12 +348,13 @@ function dibujarCabecera(ctx, W, u, logo) {
   return alto + franja;
 }
 
-function dibujarPie(ctx, W, H, u) {
+function dibujarPie(ctx, W, H, u, p) {
+  const tema = temaDe(p);
   const alto = 6 * u;
   const y = H - alto;
   const fondo = ctx.createLinearGradient(0, 0, W, 0);
-  fondo.addColorStop(0, C.verdeOscuro);
-  fondo.addColorStop(1, C.verde);
+  fondo.addColorStop(0, tema.oscuro);
+  fondo.addColorStop(1, tema.principal);
   ctx.fillStyle = fondo;
   ctx.fillRect(0, y, W, alto);
   ctx.textAlign = "center";
@@ -350,6 +376,9 @@ const QR_MIN = 20;
 const QR_COMODO = 36;
 const QR_MAX = 54;
 const SUBTITULO = "Permite que los Staff escaneen tu QR de acceso al Congreso";
+const TITULO = "¡Disfruta del Congreso!";
+const tituloDe = p => p?.cred?.titulo || TITULO;
+const subtituloDe = p => (p?.cred && "subtitulo" in p.cred ? p.cred.subtitulo : SUBTITULO);
 
 // Mide todos los bloques y reparte el alto: el QR se queda con lo que sobre.
 function medirCuerpo(ctx, p, u, disponible, v) {
@@ -387,21 +416,23 @@ function medirCuerpo(ctx, p, u, disponible, v) {
   m.tamCodigo = 4.6 * u;
   ctx.font = fuente(700, m.tamCodigo, FUENTE_CODIGO);
   const anchoCodigoMax = 72 * u;
-  const anchoCodigoTxt = anchoEspaciado(ctx, p.codigo, m.espCodigo);
+  m.codigo = codigoDe(p);
+  const anchoCodigoTxt = anchoEspaciado(ctx, m.codigo, m.espCodigo);
   if (anchoCodigoTxt > anchoCodigoMax) m.tamCodigo *= anchoCodigoMax / anchoCodigoTxt;
-  m.altoCodigo = 8 * u;
+  m.altoCodigo = m.codigo ? 8 * u : 0;
   m.anchoCodigo = Math.min(anchoCodigoTxt, anchoCodigoMax) + 9 * u;
 
   m.tamTitulo = 3.7 * u;
   m.altoTitulo = v.titulo ? m.tamTitulo * 1.2 : 0;
-  m.sub = v.subtitulo
-    ? ajustarTexto(ctx, SUBTITULO, { anchoMax: 84 * u, maxLineas: 2, tamMax: 2.55 * u, tamMin: 2.2 * u })
+  const subtitulo = subtituloDe(p);
+  m.sub = v.subtitulo && subtitulo
+    ? ajustarTexto(ctx, subtitulo, { anchoMax: 84 * u, maxLineas: 2, tamMax: 2.55 * u, tamMin: 2.2 * u })
     : null;
   m.lhSub = m.sub ? m.sub.tam * 1.35 : 0;
   const altoSub = m.sub ? m.sub.lineas.length * m.lhSub : 0;
 
   m.huecos = {
-    arriba: 4.5, nombreCedula: m.cedula ? 0.6 : 0, nombreCat: 2.6, catInst: m.inst ? 1.8 : 0, infoQr: 3.8, qrCodigo: 2.8,
+    arriba: 4.5, nombreCedula: m.cedula ? 0.6 : 0, nombreCat: 2.6, catInst: m.inst ? 1.8 : 0, infoQr: 3.8, qrCodigo: m.codigo ? 2.8 : 0,
     codigoSep: v.titulo ? 3.8 : 0, sepTitulo: v.titulo ? 3.4 : 0, tituloSub: m.sub ? 1.2 : 0, abajo: 3,
   };
   for (const k in m.huecos) m.huecos[k] *= u;
@@ -422,7 +453,33 @@ function medirCuerpo(ctx, p, u, disponible, v) {
   return m;
 }
 
+// Sin QR (un expositor que no está inscrito): en su lugar va un recuadro con
+// lo que expone. Ocupa el mismo sitio, así el resto del diseño no cambia.
+function dibujarDetalle(ctx, p, x, y, lado, u, tema) {
+  ctx.fillStyle = tema.tinte;
+  rectRedondeado(ctx, x, y, lado, lado, 3 * u);
+  ctx.fill();
+  const anchoMax = lado - 8 * u;
+  const cx = x + lado / 2;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = tema.principal;
+  ctx.font = fuente(800, 3 * u);
+  textoEspaciado(ctx, (p.cred.detalleTitulo || "EXPONE").toLocaleUpperCase("es"), cx, y + 6 * u, 0.3 * u);
+  const lineas = (p.cred.detalle || []).slice(0, 4);
+  const espacio = (lado - 12 * u) / Math.max(lineas.length, 1);
+  lineas.forEach((texto, i) => {
+    const t = ajustarTexto(ctx, texto, { anchoMax, maxLineas: 2, tamMax: 3.2 * u, tamMin: 2.3 * u, peso: 600 });
+    const lh = t.tam * 1.25;
+    const yCentro = y + 11 * u + espacio * (i + 0.5);
+    ctx.fillStyle = C.tinta;
+    ctx.font = fuente(600, t.tam);
+    t.lineas.forEach((linea, j) => ctx.fillText(linea, cx, yCentro + (j - (t.lineas.length - 1) / 2) * lh));
+  });
+}
+
 function dibujarCuerpo(ctx, p, { W, u, arriba, abajo }) {
+  const tema = temaDe(p);
   let m;
   for (const v of VARIANTES) {
     m = medirCuerpo(ctx, p, u, abajo - arriba, v);
@@ -447,10 +504,10 @@ function dibujarCuerpo(ctx, p, { W, u, arriba, abajo }) {
   }
   y += huecos.nombreCat;
 
-  ctx.fillStyle = C.tinte;
+  ctx.fillStyle = tema.tinte;
   rectRedondeado(ctx, cx - m.anchoCat / 2, y, m.anchoCat, m.altoCat, m.altoCat / 2);
   ctx.fill();
-  ctx.fillStyle = C.verde;
+  ctx.fillStyle = tema.principal;
   ctx.font = fuente(700, m.tamCat);
   textoEspaciado(ctx, m.categoria, cx, y + m.altoCat / 2, m.espCat);
   y += m.altoCat + huecos.catInst;
@@ -464,22 +521,29 @@ function dibujarCuerpo(ctx, p, { W, u, arriba, abajo }) {
   y += huecos.infoQr;
 
   const xQr = cx - m.ladoQr / 2;
-  ctx.fillStyle = "#fff";
-  ctx.strokeStyle = C.bordeQr;
-  ctx.lineWidth = 0.6 * u;
-  rectRedondeado(ctx, xQr, y, m.ladoQr, m.ladoQr, 3 * u);
-  ctx.fill();
-  ctx.stroke();
-  const margenQr = m.ladoQr * 0.075;
-  dibujarQr(ctx, textoQr(p), xQr + margenQr, y + margenQr, m.ladoQr - 2 * margenQr);
+  const qr = textoQr(p);
+  if (qr) {
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = tema.bordeQr;
+    ctx.lineWidth = 0.6 * u;
+    rectRedondeado(ctx, xQr, y, m.ladoQr, m.ladoQr, 3 * u);
+    ctx.fill();
+    ctx.stroke();
+    const margenQr = m.ladoQr * 0.075;
+    dibujarQr(ctx, qr, xQr + margenQr, y + margenQr, m.ladoQr - 2 * margenQr, tema.qr);
+  } else {
+    dibujarDetalle(ctx, p, xQr, y, m.ladoQr, u, tema);
+  }
   y += m.ladoQr + huecos.qrCodigo;
 
-  ctx.fillStyle = C.tinte;
-  rectRedondeado(ctx, cx - m.anchoCodigo / 2, y, m.anchoCodigo, m.altoCodigo, 2 * u);
-  ctx.fill();
-  ctx.fillStyle = C.verdeOscuro;
-  ctx.font = fuente(700, m.tamCodigo, FUENTE_CODIGO);
-  textoEspaciado(ctx, p.codigo, cx, y + m.altoCodigo / 2, m.espCodigo);
+  if (m.codigo) {
+    ctx.fillStyle = tema.tinte;
+    rectRedondeado(ctx, cx - m.anchoCodigo / 2, y, m.anchoCodigo, m.altoCodigo, 2 * u);
+    ctx.fill();
+    ctx.fillStyle = tema.oscuro;
+    ctx.font = fuente(700, m.tamCodigo, FUENTE_CODIGO);
+    textoEspaciado(ctx, m.codigo, cx, y + m.altoCodigo / 2, m.espCodigo);
+  }
   y += m.altoCodigo + huecos.codigoSep;
 
   if (!m.v.titulo) return;
@@ -494,9 +558,9 @@ function dibujarCuerpo(ctx, p, { W, u, arriba, abajo }) {
   ctx.restore();
   y += huecos.sepTitulo;
 
-  ctx.fillStyle = C.verdeOscuro;
+  ctx.fillStyle = tema.oscuro;
   ctx.font = fuente(800, m.tamTitulo);
-  ctx.fillText("¡Disfruta del Congreso!", cx, y + m.altoTitulo / 2);
+  ctx.fillText(tituloDe(p), cx, y + m.altoTitulo / 2);
   y += m.altoTitulo + huecos.tituloSub;
 
   if (!m.sub) return;
@@ -517,8 +581,8 @@ async function dibujarCara(p, tamano, dpi) {
 
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, W, H);
-  const arriba = dibujarCabecera(ctx, W, u, logo);
-  const altoPie = dibujarPie(ctx, W, H, u);
+  const arriba = dibujarCabecera(ctx, W, u, logo, p);
+  const altoPie = dibujarPie(ctx, W, H, u, p);
   dibujarCuerpo(ctx, p, { W, u, arriba, abajo: H - altoPie });
   return canvas;
 }
@@ -567,7 +631,7 @@ function slug(texto) {
 }
 
 export function nombreArchivo(p, ext) {
-  return `Credencial_${slug(p.codigo)}_${slug(nombreDe(p))}.${ext}`;
+  return `Credencial_${slug(codigoDe(p) || p.cred?.tema || "")}_${slug(nombreDe(p))}.${ext}`;
 }
 
 // CONTECS_credenciales_2026-10-08_14-05-09.pdf: con la hora, cada descarga

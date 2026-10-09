@@ -1,7 +1,7 @@
 import { db, auth } from "../core/firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, serverTimestamp
+  query, where, orderBy, serverTimestamp, writeBatch,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual, aplicarPermisosDom, usuarioTienePermiso } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
@@ -11,6 +11,12 @@ import {
   notificarNoSeleccionadosGira,
 } from "../core/participantes-api.js";
 import { parsearListaCorreos } from "../core/correos.js";
+import {
+  CAMPOS as CAMPOS_IMP_VOL, GRUPOS as GRUPOS_VOL, armarFilas as armarFilasVol, descargarPlantilla as descargarPlantillaVol,
+  descargarResultado as descargarResultadoVol, detectarColumnas as detectarColumnasVol,
+  detectarEncabezado as detectarEncabezadoVol, documentoVoluntario, leerArchivo as leerArchivoVol,
+  revisarFilas as revisarFilasVol,
+} from "./importar-voluntarios.js";
 import { etiquetaSalon, nombrePiso, nombreSalon, rotuloSalon } from "../core/agenda-salones.js";
 import { escucharSalones } from "../core/salones-firestore.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
@@ -36,7 +42,6 @@ function scrollAElemento(id, margenExtra = 16) {
 }
 const h = escaparHtml;
 const QRCode = window.QRCode;
-const Papa   = window.Papa;
 
 // XLSX se resuelve al usarlo, no al cargar el modulo: giras.html ya no carga
 // xlsx.full.min.js (930 KB) porque no exporta hojas de calculo. Capturarlo en
@@ -87,12 +92,14 @@ let ventas            = [];
 let voluntarios       = [];
 let voluntarioQRActual = null;
 let asignaciones      = [];
-let columnasArchivo   = [];
-let filasArchivo      = [];
 let asistenciasCache  = [];
 let editandoActividadId = null;
 let editandoGiraId      = null;
 let filtroHorarioVol  = "";
+// "voluntario" | "comite" | "" (todos). El comité organizador es voluntario a
+// efectos de horas; `grupo` solo lo distingue en listas y credenciales.
+let filtroGrupoVol    = "";
+const grupoVol = v => (v.grupo === "comite" ? "comite" : "voluntario");
 let solicitudesActividad = [];
 
 // Selector de participantes para giras (lista mínima vía listarParticipantesParaGiras)
@@ -658,136 +665,235 @@ el("act-area")?.addEventListener("change", () => {
 });
 
 // ════════════════════════════════════════════════════════════
-// IMPORTAR CSV / EXCEL
+// IMPORTAR VOLUNTARIOS (Excel o CSV)
 // ════════════════════════════════════════════════════════════
+// Mismo recorrido que Participantes → Importar listas: archivo → revisión
+// fila por fila → resultado. La lectura y las reglas viven en
+// importar-voluntarios.js; aquí la pantalla y el guardado en lotes.
 
-const CAMPOS_VOL = [
-  { key: "id",      label: "ID",                              requerido: true,  kw: ["id"] },
-  { key: "nombre",      label: "Nombre",                          requerido: true,  kw: ["nombre","name"] },
-  { key: "apellido",    label: "Apellido",                        requerido: true,  kw: ["apellido","lastname","surname"] },
-  { key: "telefono",    label: "Teléfono",                        requerido: false, kw: ["telefono","teléfono","phone","celular","movil"] },
-  { key: "correo",      label: "Correo electrónico",              requerido: false, kw: ["correo","email","mail"] },
-  { key: "carrera",     label: "Carrera",                         requerido: false, kw: ["carrera","program","facultad"] },
-  { key: "anio",        label: "Año de carrera",                  requerido: false, kw: ["año","anio","year","semestre"] },
-  { key: "motivacion",  label: "¿Por qué deseas ser voluntario?", requerido: false, kw: ["deseas ser voluntario","por qué deseas","motivo"] },
-  { key: "experiencia", label: "Experiencia previa",              requerido: false, kw: ["experiencia","comités","asociaciones"] },
-  { key: "horario",     label: "Horario de clases",               requerido: false, kw: ["horario","asiste","clases"] },
-  { key: "habilidad",   label: "Habilidad destacada",             requerido: false, kw: ["habilidad","domines","habilidad específica"] },
-];
+const imp = { hojas: [], hoja: 0, encabezado: 0, columnas: [], filas: [], excluidas: new Set(), tarea: false, archivo: "" };
 
-const uploadZone = el("upload-zone");
-if (uploadZone) {
-  uploadZone.addEventListener("click", () => el("input-archivo").click());
-  uploadZone.addEventListener("dragover",  e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
-  uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
-  uploadZone.addEventListener("drop", e => {
-    e.preventDefault(); uploadZone.classList.remove("dragover");
-    if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
-  });
-  el("input-archivo")?.addEventListener("change", e => { if (e.target.files[0]) procesarArchivo(e.target.files[0]); });
+function pasoImpVol(paso) {
+  el("iv-paso-archivo").hidden = paso !== "archivo";
+  el("iv-paso-revision").hidden = paso !== "revision";
+  el("iv-paso-resultado").hidden = paso !== "resultado";
 }
 
-function procesarArchivo(file) {
-  const ext = file.name.split(".").pop().toLowerCase();
-  if (ext === "csv") {
-    Papa.parse(file, {
-      header: true, skipEmptyLines: true,
-      complete: r => { columnasArchivo = r.meta.fields || []; filasArchivo = r.data; mostrarMapeo(); },
-    });
-  } else if (["xlsx","xls"].includes(ext)) {
-    const reader = new FileReader();
-    reader.onload = e2 => {
-      const wb   = xlsx().read(e2.target.result, { type: "array" });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const data = xlsx().utils.sheet_to_json(ws, { header: 1 });
-      if (!data.length) return;
-      columnasArchivo = data[0].map(String);
-      filasArchivo    = data.slice(1).map(row =>
-        Object.fromEntries(columnasArchivo.map((h, i) => [h, row[i] ?? ""]))
-      );
-      mostrarMapeo();
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    mostrarAlerta("error", "Formato no soportado. Usa CSV o Excel (.xlsx, .xls).");
+function reiniciarImpVol() {
+  Object.assign(imp, { hojas: [], hoja: 0, encabezado: 0, columnas: [], filas: [], tarea: false, archivo: "" });
+  imp.excluidas.clear();
+  el("iv-archivo").value = "";
+  el("iv-error-archivo").hidden = true;
+  el("iv-progreso").hidden = true;
+  pasoImpVol("archivo");
+}
+
+async function elegirArchivoVol(archivo) {
+  if (!archivo) return;
+  el("iv-error-archivo").hidden = true;
+  try {
+    const hojas = await leerArchivoVol(archivo);
+    if (!hojas.length) throw new Error("no tiene datos");
+    Object.assign(imp, { hojas, hoja: 0, archivo: archivo.name });
+    el("iv-archivo-nombre").textContent = archivo.name;
+    el("iv-hoja-wrap").hidden = hojas.length < 2;
+    el("iv-hoja").innerHTML = hojas.map((hoja, i) => `<option value="${i}">${h(hoja.nombre)}</option>`).join("");
+    if (!voluntarios.length) await cargarVoluntarios();
+    prepararHojaVol();
+    pasoImpVol("revision");
+  } catch (err) {
+    console.error(err);
+    el("iv-error-archivo").textContent = `No se pudo leer "${archivo.name}": ${err.message}. Usa un Excel (.xlsx, .xls) o un CSV.`;
+    el("iv-error-archivo").hidden = false;
   }
 }
 
-function detectarCol(campo) {
-  return columnasArchivo.find(c => campo.kw.some(k => c.toLowerCase().includes(k))) || "";
-}
-
-function mostrarMapeo() {
-  el("mapeo-tbody").innerHTML = CAMPOS_VOL.map(campo => {
-    const det = detectarCol(campo);
-    const ind = det ? "" : (campo.requerido ? iconoImg("advertencia") : "—");
-    return `<tr>
-      <td><strong>${ind} ${campo.label}${campo.requerido ? ' <span style="color:#dc3545">*</span>' : ""}</strong></td>
-      <td>
-        <select id="map-${campo.key}">
-          <option value="">— No incluir —</option>
-          ${columnasArchivo.map(c => `<option value="${escaparAtributo(c)}"${c === det ? " selected" : ""}>${h(c)}</option>`).join("")}
-        </select>
-      </td>
-    </tr>`;
+function prepararHojaVol() {
+  const hoja = imp.hojas[imp.hoja];
+  imp.excluidas.clear();
+  imp.encabezado = detectarEncabezadoVol(hoja.filas);
+  el("iv-encabezado").innerHTML = hoja.filas.slice(0, 10).map((fila, i) => {
+    const muestra = fila.filter(Boolean).slice(0, 3).join(" · ").slice(0, 60);
+    return `<option value="${i}">Fila ${hoja.primeraFila + i}${muestra ? `: ${h(muestra)}` : ""}</option>`;
   }).join("");
-  el("mapeo-section").style.display = "block";
+  el("iv-encabezado").value = String(imp.encabezado);
+  prepararColumnasVol();
 }
 
-el("btn-preview-importar")?.addEventListener("click", () => {
-  const mapeo = CAMPOS_VOL.map(c => ({ key: c.key, label: c.label, col: el(`map-${c.key}`)?.value })).filter(m => m.col);
-  el("preview-thead").innerHTML = `<tr>${mapeo.map(m => `<th>${h(m.label)}</th>`).join("")}</tr>`;
-  el("preview-tbody").innerHTML = filasArchivo.slice(0, 5).map(row =>
-    `<tr>${mapeo.map(m => `<td>${h(row[m.col] ?? "—")}</td>`).join("")}</tr>`
-  ).join("");
-  el("preview-resumen").textContent = `${filasArchivo.length} filas encontradas en el archivo.`;
-  el("modal-preview").classList.add("open");
-});
+function prepararColumnasVol() {
+  const filas = imp.hojas[imp.hoja].filas;
+  const encabezados = filas[imp.encabezado] || [];
+  const ancho = Math.max(encabezados.length, ...filas.slice(imp.encabezado + 1, imp.encabezado + 51).map(f => f.length));
+  imp.columnas = detectarColumnasVol(Array.from({ length: ancho }, (_, i) => encabezados[i] || ""));
+  renderColumnasVol();
+  revisarImpVol();
+}
 
-el("btn-confirmar-importar")?.addEventListener("click", async () => {
-  const nombreCol = el("map-nombre")?.value;
-  if (!nombreCol) { mostrarAlerta("error", "El campo 'Nombre' es obligatorio en el mapeo."); return; }
+function renderColumnasVol() {
+  const filas = imp.hojas[imp.hoja].filas;
+  const encabezados = filas[imp.encabezado] || [];
+  const ejemplo = filas.slice(imp.encabezado + 1).find(f => f.some(Boolean)) || [];
+  const opciones = `<option value="">— No importar —</option>` +
+    CAMPOS_IMP_VOL.map(c => `<option value="${c.clave}">${h(c.etiqueta)}</option>`).join("");
+  el("iv-columnas").innerHTML = imp.columnas.map((_, i) => {
+    const titulo = encabezados[i] || `Columna ${i + 1}`;
+    return `<div class="iv-columna">
+      <div><strong>${h(titulo)}</strong><small>${h(ejemplo[i] || "—")}</small></div>
+      <select class="iv-select" data-columna="${i}" aria-label="${escaparAtributo(`Dato de la columna ${titulo}`)}">${opciones}</select>
+    </div>`;
+  }).join("");
+  el("iv-columnas").querySelectorAll("select").forEach(sel => { sel.value = imp.columnas[sel.dataset.columna]; });
+}
 
-  const mapeo = Object.fromEntries(CAMPOS_VOL.map(c => [c.key, el(`map-${c.key}`)?.value || ""]));
-  const filas  = filasArchivo.filter(r => r[mapeo.nombre]?.toString().trim());
+function existentesVol() {
+  const mapa = campo => new Map(voluntarios
+    .filter(v => v[campo])
+    .map(v => [String(v[campo]).trim().toLowerCase(), nombreCompletoVol(v)]));
+  return { id: mapa("id"), correo: mapa("correo") };
+}
 
-  el("importar-progreso").style.display = "block";
-  el("btn-confirmar-importar").disabled = true;
+function revisarImpVol() {
+  const hoja = imp.hojas[imp.hoja];
+  const filas = armarFilasVol(hoja.filas, imp.encabezado, imp.columnas, {
+    corregirMayusculas: el("iv-mayusculas").checked,
+    primeraFila: hoja.primeraFila,
+    normalizarHorario,
+    grupoPorDefecto: document.querySelector("input[name=iv-grupo]:checked")?.value || "voluntario",
+  });
+  imp.filas = revisarFilasVol(filas, existentesVol());
+  renderFilasVol();
+}
 
-  let importados = 0, omitidos = 0;
-  for (const fila of filas) {
-    const id = mapeo.id ? fila[mapeo.id]?.toString().trim() : "";
-    if (id) {
-      const existe = await getDocs(query(collection(db, "voluntarios"), where("id", "==", id)));
-      if (!existe.empty) { omitidos++; continue; }
+const ESTADO_IMP_VOL = { ok: "Lista", aviso: "Aviso", error: "Error" };
+const filasAImportarVol = () => imp.filas.filter(f => f.estado !== "error" && !imp.excluidas.has(f.fila));
+
+function renderFilasVol() {
+  const cuenta = { ok: 0, aviso: 0, error: 0 };
+  imp.filas.forEach(f => { cuenta[f.estado] += 1; });
+  const comite = filasAImportarVol().filter(f => f.grupo === "comite").length;
+  const faltan = [
+    !imp.columnas.some(c => c === "nombre" || c === "nombreCompleto") && "el nombre",
+    !imp.columnas.includes("id") && "la cédula",
+  ].filter(Boolean);
+  el("iv-resumen").innerHTML = `
+    <div class="iv-chips">
+      <span class="iv-chip ok">${cuenta.ok} lista${cuenta.ok !== 1 ? "s" : ""}</span>
+      <span class="iv-chip aviso">${cuenta.aviso} con avisos (se importan)</span>
+      <span class="iv-chip error">${cuenta.error} con errores (no se importan)</span>
+      ${comite ? `<span class="iv-chip comite">${comite} del comité organizador</span>` : ""}
+    </div>
+    ${faltan.length ? `<div class="iv-error" style="margin-top:8px;">Elige en "Qué trae cada columna" cuál trae ${faltan.join(" y cuál ")}.</div>` : ""}`;
+  el("iv-filas").innerHTML = imp.filas.length
+    ? imp.filas.map(f => {
+      const excluida = imp.excluidas.has(f.fila);
+      return `<tr class="${f.estado === "error" ? "error" : ""}${excluida ? " excluida" : ""}">
+        <td><input type="checkbox" data-fila="${f.fila}" ${f.estado === "error" ? "disabled" : excluida ? "" : "checked"} aria-label="Importar fila ${f.fila}"/></td>
+        <td>${f.fila}</td>
+        <td><span class="iv-estado ${f.estado}">${ESTADO_IMP_VOL[f.estado]}</span></td>
+        <td>${h(f.nombre || "—")}</td>
+        <td>${h(f.apellido || "—")}</td>
+        <td style="font-family:'Courier New',monospace;white-space:nowrap;">${h(f.id || "—")}</td>
+        <td style="white-space:nowrap;">${h(f.correo || "—")}</td>
+        <td><span class="iv-grupo-tag ${f.grupo === "comite" ? "comite" : ""}">${h(GRUPOS_VOL[f.grupo])}</span></td>
+        <td class="iv-notas">${h(f.notas.join(" · "))}</td>
+      </tr>`;
+    }).join("")
+    : `<tr><td colspan="9" style="text-align:center;color:var(--gris-medio);padding:20px;">No hay filas de datos debajo de la fila de títulos.</td></tr>`;
+  const n = filasAImportarVol().length;
+  el("iv-importar").disabled = !n || imp.tarea;
+  el("iv-importar").textContent = `Importar ${n} persona${n !== 1 ? "s" : ""}`;
+}
+
+// En lotes de 200 (writeBatch): si un lote falla, lo anterior ya quedó
+// guardado y el resto se informa. Reimportar el mismo archivo es seguro: las
+// cédulas ya registradas salen como error en la revisión.
+async function importarVoluntariosLista() {
+  const filas = filasAImportarVol();
+  if (!filas.length || imp.tarea) return;
+  imp.tarea = true;
+  el("iv-importar").disabled = true;
+  el("iv-cancelar").disabled = true;
+  el("iv-progreso").hidden = false;
+  const loteId = `vol_${Date.now().toString(36)}`;
+  const importadas = [];
+  const fallidas = [];
+  const TAM = 200;
+  for (let i = 0; i < filas.length; i += TAM) {
+    const bloque = filas.slice(i, i + TAM);
+    el("iv-progreso-txt").textContent = `Guardando ${Math.min(i + TAM, filas.length)} de ${filas.length}…`;
+    try {
+      const batch = writeBatch(db);
+      bloque.forEach(f => batch.set(doc(collection(db, "voluntarios")), {
+        ...documentoVoluntario(f, { loteId }),
+        creadoEn: serverTimestamp(),
+      }));
+      await batch.commit();
+      importadas.push(...bloque.map(f => f.fila));
+    } catch (err) {
+      console.error("Importar voluntarios:", err);
+      fallidas.push(...bloque.map(f => ({ fila: f.fila, motivo: err.message || "No se pudo guardar" })));
     }
-    await addDoc(collection(db, "voluntarios"), {
-      nombre:      fila[mapeo.nombre]?.toString().trim() || "",
-      apellido:    fila[mapeo.apellido]?.toString().trim() || "",
-      id:      fila[mapeo.id]?.toString().trim() || "",
-      correo:      fila[mapeo.correo]?.toString().trim() || "",
-      telefono:    fila[mapeo.telefono]?.toString().trim() || "",
-      carrera:     fila[mapeo.carrera]?.toString().trim() || "",
-      anio:        fila[mapeo.anio]?.toString().trim() || "",
-      motivacion:  fila[mapeo.motivacion]?.toString().trim() || "",
-      experiencia: fila[mapeo.experiencia]?.toString().trim() || "",
-      horario:     normalizarHorario(fila[mapeo.horario]?.toString().trim() || ""),
-      habilidad:   fila[mapeo.habilidad]?.toString().trim() || "",
-      totalHoras:  0,
-      importadoDeArchivo: new Date().toISOString(),
-      creadoEn:    serverTimestamp(),
-    });
-    importados++;
-    el("importar-progreso").textContent = `Importando... ${importados} de ${filas.length}`;
+    el("iv-barra").style.width = `${Math.round(Math.min(i + TAM, filas.length) / filas.length * 100)}%`;
   }
-
-  el("importar-progreso").textContent = `Listo: ${importados} importados${omitidos ? `, ${omitidos} duplicados omitidos` : ""}.`;
-  el("btn-confirmar-importar").disabled = false;
-  mostrarAlerta("success", `${importados} voluntarios importados.`);
+  imp.tarea = false;
+  el("iv-cancelar").disabled = false;
   await cargarVoluntarios();
-});
+  mostrarResultadoVol({ importadas, fallidas });
+}
 
-el("modal-preview-close")?.addEventListener("click", () => el("modal-preview").classList.remove("open"));
+function mostrarResultadoVol(resultado) {
+  const noImportadas = imp.filas.length - resultado.importadas.length;
+  el("iv-paso-resultado").innerHTML = `
+    <div class="card-title">Importación terminada</div>
+    <div class="iv-res-numeros">
+      <div class="iv-res-num"><strong>${resultado.importadas.length}</strong><span>importados</span></div>
+      <div class="iv-res-num omitidos"><strong>${noImportadas}</strong><span>no importados (errores, desmarcados o fallos)</span></div>
+    </div>
+    ${resultado.fallidas.length ? `<div class="iv-error">${resultado.fallidas.length} no se pudieron guardar. Descarga el resultado para ver cuáles y vuelve a intentar.</div>` : ""}
+    <div class="iv-res-acciones">
+      <button type="button" class="btn btn-outline btn-sm" id="iv-descargar-resultado">Descargar resultado (Excel)</button>
+      <button type="button" class="btn btn-outline btn-sm" id="iv-otra">Importar otra lista</button>
+      <button type="button" class="btn btn-primary btn-sm" id="iv-ver-lista">Ver voluntarios</button>
+    </div>`;
+  pasoImpVol("resultado");
+  el("iv-descargar-resultado").addEventListener("click", () => descargarResultadoVol(imp.filas, resultado));
+  el("iv-otra").addEventListener("click", reiniciarImpVol);
+  el("iv-ver-lista").addEventListener("click", () => document.querySelector('[data-tab="tab-voluntarios"]')?.click());
+  mostrarAlerta("success", `${resultado.importadas.length} voluntario${resultado.importadas.length !== 1 ? "s" : ""} importado${resultado.importadas.length !== 1 ? "s" : ""}.`);
+}
+
+if (el("iv-drop")) {
+  const drop = el("iv-drop");
+  el("iv-archivo").addEventListener("change", e => elegirArchivoVol(e.target.files[0]));
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("encima"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("encima"));
+  drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("encima"); elegirArchivoVol(e.dataTransfer.files[0]); });
+  el("iv-plantilla").addEventListener("click", () => descargarPlantillaVol());
+  el("iv-cambiar").addEventListener("click", reiniciarImpVol);
+  el("iv-cancelar").addEventListener("click", reiniciarImpVol);
+  el("iv-hoja").addEventListener("change", () => { imp.hoja = Number(el("iv-hoja").value); prepararHojaVol(); });
+  el("iv-encabezado").addEventListener("change", () => { imp.encabezado = Number(el("iv-encabezado").value); imp.excluidas.clear(); prepararColumnasVol(); });
+  el("iv-mayusculas").addEventListener("change", revisarImpVol);
+  document.querySelectorAll("input[name=iv-grupo]").forEach(r => r.addEventListener("change", revisarImpVol));
+  el("iv-columnas").addEventListener("change", e => {
+    const sel = e.target.closest("[data-columna]");
+    if (!sel) return;
+    const i = Number(sel.dataset.columna);
+    // Un dato solo puede venir de una columna: la otra queda sin importar.
+    if (sel.value) imp.columnas = imp.columnas.map((c, j) => (j !== i && c === sel.value ? "" : c));
+    imp.columnas[i] = sel.value;
+    renderColumnasVol();
+    revisarImpVol();
+  });
+  el("iv-filas").addEventListener("change", e => {
+    const cb = e.target.closest("[data-fila]");
+    if (!cb) return;
+    const fila = Number(cb.dataset.fila);
+    if (cb.checked) imp.excluidas.delete(fila); else imp.excluidas.add(fila);
+    renderFilasVol();
+  });
+  el("iv-importar").addEventListener("click", importarVoluntariosLista);
+}
 
 // ════════════════════════════════════════════════════════════
 // VOLUNTARIOS
@@ -808,6 +914,7 @@ function actualizarStats() {
   const totalH = voluntarios.reduce((s, v) => s + (v.totalHoras || 0), 0);
   if (el("stat-total"))  el("stat-total").textContent  = voluntarios.length;
   if (el("stat-horas"))  el("stat-horas").textContent  = totalH.toFixed(1) + "h";
+  if (el("stat-comite")) el("stat-comite").textContent = voluntarios.filter(v => grupoVol(v) === "comite").length;
 }
 
 const HORARIO_CFG = {
@@ -826,9 +933,10 @@ function renderVoluntarios(filtro = "") {
     String(v.id || "").toLowerCase().includes(filtro)
   );
   if (filtroHorarioVol) lista = lista.filter(v => v.horario === filtroHorarioVol);
+  if (filtroGrupoVol) lista = lista.filter(v => grupoVol(v) === filtroGrupoVol);
 
   if (!lista.length) {
-    tb.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">${filtro || filtroHorarioVol ? "Sin coincidencias" : "Sin voluntarios registrados"}</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">${filtro || filtroHorarioVol || filtroGrupoVol ? "Sin coincidencias" : "Sin voluntarios registrados"}</td></tr>`;
     return;
   }
 
@@ -847,6 +955,10 @@ function renderVoluntarios(filtro = "") {
       </td>
       <td>${h(v.id || "—")}</td>
       <td>${h(v.carrera || "—")}</td>
+      <td><select class="sel-grupo ${grupoVol(v) === "comite" ? "comite" : ""}" data-grupo-vol="${escaparAtributo(v._docId)}" aria-label="Grupo de ${escaparAtributo(nombreCompleto)}">
+        <option value="voluntario"${grupoVol(v) === "voluntario" ? " selected" : ""}>Voluntario</option>
+        <option value="comite"${grupoVol(v) === "comite" ? " selected" : ""}>Comité organizador</option>
+      </select></td>
       <td>${horarioBadge}</td>
       <td><span class="horas-badge">${(v.totalHoras || 0).toFixed(2)}h</span></td>
       <td style="white-space:nowrap;">
@@ -873,6 +985,29 @@ window.eliminarVoluntario = async function(id) {
 
 el("buscar-voluntario")?.addEventListener("input", e => renderVoluntarios(e.target.value.toLowerCase().trim()));
 el("filtro-horario-vol")?.addEventListener("change", e => { filtroHorarioVol = e.target.value; renderVoluntarios(el("buscar-voluntario")?.value.toLowerCase().trim() || ""); });
+el("filtro-grupo-vol")?.addEventListener("change", e => { filtroGrupoVol = e.target.value; renderVoluntarios(el("buscar-voluntario")?.value.toLowerCase().trim() || ""); });
+
+// Cambiar el grupo de un voluntario (voluntario ↔ comité organizador).
+el("tabla-voluntarios-body")?.addEventListener("change", async e => {
+  const sel = e.target.closest("[data-grupo-vol]");
+  if (!sel) return;
+  const v = voluntarios.find(x => x._docId === sel.dataset.grupoVol);
+  if (!v) return;
+  const anterior = grupoVol(v);
+  sel.disabled = true;
+  try {
+    await updateDoc(doc(db, "voluntarios", v._docId), { grupo: sel.value, actualizadoEn: serverTimestamp() });
+    v.grupo = sel.value;
+    sel.classList.toggle("comite", sel.value === "comite");
+    if (el("stat-comite")) el("stat-comite").textContent = voluntarios.filter(x => grupoVol(x) === "comite").length;
+    mostrarAlerta("success", `${nombreCompletoVol(v)} ahora es ${sel.value === "comite" ? "del comité organizador" : "voluntario"}.`);
+  } catch (err) {
+    sel.value = anterior;
+    mostrarAlerta("error", "No se pudo cambiar el grupo: " + err.message);
+  } finally {
+    sel.disabled = false;
+  }
+});
 
 // ── QR ────────────────────────────────────────────────────────────────────────
 window.verQR = function(id) {
@@ -937,6 +1072,7 @@ el("btn-exportar-excel")?.addEventListener("click", () => {
     "ID":           v.id || "",
     "Nombre":       v.nombre,
     "Apellido":     v.apellido || "",
+    "Grupo":        GRUPOS_VOL[grupoVol(v)],
     "Teléfono":     v.telefono || "",
     "Correo":       v.correo || "",
     "Carrera":      v.carrera || "",
@@ -1111,6 +1247,7 @@ el("btn-exportar-qr")?.addEventListener("click", async () => {
     );
   }
   if (filtroHorarioVol) lista = lista.filter(v => v.horario === filtroHorarioVol);
+  if (filtroGrupoVol) lista = lista.filter(v => grupoVol(v) === filtroGrupoVol);
 
   if (!lista.length) { mostrarAlerta("warning", "No hay voluntarios para exportar."); return; }
 
@@ -1156,10 +1293,16 @@ async function cargarAsistencias() {
   const spAsist = el("asistencias-spinner");
   if (spAsist) spAsist.style.display = "flex";
 
+  // Filtrar por actividad y ordenar por fecha en Firestore pediría un índice
+  // compuesto; con una actividad se filtra allá y se ordena aquí.
   const consulta = actividadId
-    ? query(collection(db, "asistencias_voluntarios"), where("actividadId", "==", actividadId), orderBy("creadoEn", "desc"))
+    ? query(collection(db, "asistencias_voluntarios"), where("actividadId", "==", actividadId))
     : query(collection(db, "asistencias_voluntarios"), orderBy("creadoEn", "desc"));
   asistenciasCache = await leerDocs(consulta, "las asistencias");
+  if (actividadId) {
+    const ms = a => a.creadoEn?.toMillis?.() ?? 0;
+    asistenciasCache.sort((a, b) => ms(b) - ms(a));
+  }
   if (turnoId) asistenciasCache = asistenciasCache.filter(a => a.turnoId === turnoId);
 
   renderTablaAsistencias(asistenciasCache);
@@ -2615,17 +2758,29 @@ function renderTurnosEvt() {
   if (!tipo || !eventoId) { lista.innerHTML = ""; return; }
   const evento = eventosPorTipo(tipo).find(e => e.id === eventoId);
   const turnos = evento?.turnos || [];
+  lista.className = turnos.length ? "turnos-lista" : "";
   if (!turnos.length) {
-    lista.innerHTML = `<p style="font-size:12px;color:var(--gris-medio);margin:4px 0;">Sin turnos todavía.</p>`;
+    lista.innerHTML = `<p class="turnos-vacio">Este evento todavía no tiene turnos. Agrega el primero abajo.</p>`;
     return;
   }
-  lista.innerHTML = turnos.map(t => `
-    <span style="display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #c7d9fc;
-      border-radius:20px;padding:5px 12px;font-size:13px;margin:3px;color:#1a56db;">
-      ${iconoImg("reloj")} <strong>${h(t.nombre)}</strong>&nbsp;${h(t.horaInicio)} – ${h(t.horaFin)}
-      <button onclick="eliminarTurnoEvt('${escaparAtributo(tipo)}','${escaparAtributo(eventoId)}','${escaparAtributo(t.id)}')"
-        style="background:none;border:none;cursor:pointer;color:#1a56db;font-size:15px;line-height:1;padding:0 2px;">×</button>
-    </span>`).join("");
+  // "4 h", "1 h 30 min": cuánto dura cada turno, para revisar de un vistazo.
+  const duracion = t => {
+    const min = (minutosDeHora(t.horaFin) ?? 0) - (minutosDeHora(t.horaInicio) ?? 0);
+    if (min <= 0) return "";
+    const hh = Math.floor(min / 60), mm = min % 60;
+    return ` · ${hh ? `${hh} h` : ""}${hh && mm ? " " : ""}${mm ? `${mm} min` : ""}`;
+  };
+  lista.innerHTML = [...turnos]
+    .sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio)))
+    .map(t => `
+    <div class="turno-chip">
+      <div class="t-info">
+        <div class="t-nombre">${h(t.nombre)}</div>
+        <div class="t-hora">${h(t.horaInicio)} – ${h(t.horaFin)}${duracion(t)}</div>
+      </div>
+      <button type="button" class="t-quitar" title="Quitar turno" aria-label="Quitar ${escaparAtributo(t.nombre)}"
+        onclick="eliminarTurnoEvt('${escaparAtributo(tipo)}','${escaparAtributo(eventoId)}','${escaparAtributo(t.id)}')">&times;</button>
+    </div>`).join("");
 }
 
 el("turno-evt-tipo")?.addEventListener("change", () => {

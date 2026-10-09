@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>CONTECS — Credenciales</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("gestionar_credenciales");
+ </script>
+ <style>
+ .container { max-width: 1240px; }
+
+ /* ── Tarjetas por tipo (también son las pestañas) ── */
+ .cr-tipos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+ .cr-tipo {
+   position: relative; display: flex; flex-direction: column; gap: 8px; text-align: left;
+   padding: 14px 16px; border-radius: var(--radio); border: 1.5px solid var(--gris-borde);
+   background: #fff; box-shadow: var(--sombra-sm); cursor: pointer; font-family: var(--fuente);
+   transition: border-color .2s, box-shadow .2s, transform .15s;
+ }
+ .cr-tipo:hover { transform: translateY(-1px); box-shadow: var(--sombra-md); }
+ .cr-tipo[aria-selected="true"] { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent), var(--sombra-md); }
+ .cr-tipo .t-cab { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--gris-texto); }
+ .cr-tipo .t-cab i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+ .cr-tipo .t-num { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--c); line-height: 1; font-variant-numeric: tabular-nums; }
+ .cr-tipo .t-barra { height: 6px; border-radius: 999px; background: var(--gris-suave); overflow: hidden; }
+ .cr-tipo .t-barra span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--c); transition: width .6s var(--ease-out); }
+ .cr-tipo .t-pie { font-size: 11px; color: var(--gris-medio); }
+
+ /* ── Panel principal ── */
+ .cr-panel { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 0; padding: 0; overflow: hidden; }
+ .cr-lista-col { display: flex; flex-direction: column; min-width: 0; border-right: 1.5px solid var(--gris-borde); }
+ .cr-barra { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--gris-borde); }
+ .cr-barra .cr-buscar { flex: 1 1 220px; }
+ .cr-input, .cr-select {
+   box-sizing: border-box; padding: 9px 12px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+   font: 13px var(--fuente); color: var(--gris-texto); background: #fff;
+ }
+ .cr-input:focus, .cr-select:focus { outline: none; border-color: var(--verde); }
+ .cr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gris-texto); cursor: pointer; }
+ .cr-check input { width: 16px; height: 16px; accent-color: var(--verde); margin: 0; }
+ .cr-check[hidden], .cr-select[hidden] { display: none; }
+ .cr-sel { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 16px; background: var(--verde-fondo); font-size: 12px; }
+ .cr-sel .cr-check { color: var(--verde-oscuro); }
+ .cr-sel-num { font-weight: 700; color: var(--verde-oscuro); }
+ .cr-link { background: none; border: none; padding: 0; margin-left: 8px; font: 600 12px var(--fuente); color: var(--verde-oscuro); cursor: pointer; text-decoration: underline; }
+ .cr-items { list-style: none; margin: 0; padding: 6px 8px 10px; max-height: 64vh; overflow-y: auto; }
+ .cr-item { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 10px; border-radius: var(--radio-sm); cursor: pointer; transition: background .12s; }
+ .cr-item:hover { background: var(--gris-suave); }
+ .cr-item.actual { background: color-mix(in srgb, var(--c) 9%, #fff); box-shadow: inset 3px 0 0 var(--c); }
+ .cr-item.no-imprimible { opacity: .55; cursor: default; }
+ .cr-item input { width: 17px; height: 17px; accent-color: var(--c); margin: 0; }
+ .cr-item .i-nombre { font-size: 13px; font-weight: 700; color: var(--gris-texto); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .cr-item .i-sub { font-size: 11px; color: var(--gris-medio); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .cr-estado { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+ .cr-estado.impresa { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .cr-estado.pendiente { background: var(--amarillo-fondo); color: var(--amarillo); }
+ .cr-estado.sin-qr { background: var(--gris-suave); color: var(--gris-medio); }
+ .cr-vacio { padding: 36px 16px; text-align: center; color: var(--gris-medio); font-size: 13px; }
+
+ /* ── Columna de vista previa y acciones ── */
+ .cr-accion-col { display: flex; flex-direction: column; gap: 14px; padding: 16px; background: var(--gris-suave); position: sticky; top: 0; align-self: start; }
+ .cr-preview { display: flex; align-items: center; justify-content: center; min-height: 330px; }
+ .cr-preview canvas { display: block; max-width: 100%; max-height: 360px; width: auto; height: auto; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+ .cr-preview.doblada canvas { max-height: 460px; }
+ .cr-preview-txt { font-size: 11px; color: var(--gris-medio); text-align: center; margin-top: -6px; }
+ .cr-campo { display: flex; flex-direction: column; gap: 6px; }
+ .cr-label { font-size: 11px; font-weight: 700; color: var(--gris-medio); text-transform: uppercase; letter-spacing: .4px; }
+ .cr-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; background: #fff; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); }
+ .cr-seg label { position: relative; }
+ .cr-seg input { position: absolute; opacity: 0; pointer-events: none; }
+ .cr-seg span { display: block; text-align: center; padding: 7px 4px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--gris-medio); cursor: pointer; }
+ .cr-seg input:checked + span { background: var(--verde); color: #fff; }
+ .cr-seg input:focus-visible + span { outline: 2px solid var(--verde-claro); }
+ .cr-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+ .cr-botones .btn { width: 100%; }
+ .cr-progreso { display: flex; flex-direction: column; gap: 6px; }
+ .cr-progreso[hidden], .cr-aviso[hidden] { display: none; }
+ .cr-barra-prog { height: 8px; background: #fff; border: 1px solid var(--gris-borde); border-radius: 4px; overflow: hidden; }
+ .cr-barra-prog span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde), var(--verde-claro)); transition: width .2s; }
+ .cr-progreso-txt { font-size: 12px; font-weight: 600; }
+ .cr-aviso { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radio-sm); background: #fff; border: 1.5px solid var(--verde-claro); font-size: 13px; }
+ .cr-aviso .cr-botones .btn { font-size: 12px; }
+ .cr-nota { font-size: 11px; color: var(--gris-medio); line-height: 1.5; }
+
+ @media (max-width: 980px) {
+   .cr-tipos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+   .cr-panel { grid-template-columns: 1fr; }
+   .cr-lista-col { border-right: none; border-bottom: 1.5px solid var(--gris-borde); }
+   .cr-items { max-height: 46vh; }
+   .cr-accion-col { position: static; }
+ }
+ @media (max-width: 560px) {
+   .cr-tipo .t-num { font-size: 22px; }
+   .cr-input, .cr-select { font-size: 16px; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Credenciales</h1>
+ <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container">
+ <div id="alerta" class="alerta"></div>
+
+ <div class="cr-tipos" id="cr-tipos" role="tablist" aria-label="Tipo de credencial"></div>
+
+ <div class="card cr-panel">
+ <div class="cr-lista-col">
+ <div class="cr-barra">
+ <input type="search" class="cr-input cr-buscar" id="cr-buscar" placeholder="Buscar por nombre, cédula o código..." autocomplete="off" aria-label="Buscar"/>
+ <select class="cr-select" id="cr-estado" aria-label="Estado de impresión">
+ <option value="">Todas</option>
+ <option value="pendiente">Pendientes de imprimir</option>
+ <option value="impresa">Ya impresas</option>
+ </select>
+ <select class="cr-select" id="cr-categoria" aria-label="Categoría" hidden></select>
+ <select class="cr-select" id="cr-evento" aria-label="Evento" hidden></select>
+ <label class="cr-check" id="cr-no-aprobados-wrap" hidden><input type="checkbox" id="cr-no-aprobados"/> Incluir pagos no aprobados</label>
+ </div>
+ <div class="cr-sel">
+ <label class="cr-check"><input type="checkbox" id="cr-todos"/> <span id="cr-todos-txt">Seleccionar todas</span></label>
+ <span><span class="cr-sel-num" id="cr-sel-num">0 seleccionadas</span><button type="button" class="cr-link" id="cr-limpiar">Quitar selección</button></span>
+ </div>
+ <ul class="cr-items" id="cr-items" aria-label="Personas"></ul>
+ </div>
+
+ <div class="cr-accion-col">
+ <div class="cr-preview" id="cr-preview"><div class="cr-vacio">Cargando…</div></div>
+ <div class="cr-preview-txt" id="cr-preview-txt"></div>
+ <label class="cr-campo"><span class="cr-label">Tamaño</span><select class="cr-select" id="cr-tamano"></select></label>
+ <div class="cr-campo">
+ <span class="cr-label">Descargar como</span>
+ <div class="cr-seg" role="radiogroup" aria-label="Formato">
+ <label><input type="radio" name="cr-formato" value="pdf" checked/><span>Un PDF</span></label>
+ <label><input type="radio" name="cr-formato" value="png"/><span>PNG (ZIP)</span></label>
+ </div>
+ </div>
+ <div class="cr-botones">
+ <button type="button" class="btn btn-outline" id="cr-descargar" disabled>Descargar</button>
+ <button type="button" class="btn btn-primary" id="cr-imprimir" disabled>Imprimir</button>
+ </div>
+ <div class="cr-progreso" id="cr-progreso" hidden>
+ <div class="cr-barra-prog"><span id="cr-barra"></span></div>
+ <span class="cr-progreso-txt" id="cr-progreso-txt"></span>
+ <button type="button" class="cr-link" id="cr-cancelar" style="margin:0;align-self:flex-start;">Cancelar</button>
+ </div>
+ <div class="cr-aviso" id="cr-aviso" hidden>
+ <span id="cr-aviso-txt"></span>
+ <div class="cr-botones">
+ <button type="button" class="btn btn-outline btn-sm" id="cr-aviso-no">Ahora no</button>
+ <button type="button" class="btn btn-primary btn-sm" id="cr-aviso-si">Marcar como impresas</button>
+ </div>
+ </div>
+ <p class="cr-nota" id="cr-nota"></p>
+ </div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261009.1"></script>
+</body>
+</html>
