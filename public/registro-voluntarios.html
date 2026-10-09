@@ -45,6 +45,7 @@
  font: 500 15px var(--fuente); color: var(--gris-texto); background: #fff; transition: border-color .2s, box-shadow .2s; }
  .campo textarea { resize: vertical; min-height: 76px; }
  .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .campo select:disabled { background: var(--gris-suave); color: var(--gris-medio); cursor: not-allowed; }
  .campo input.invalido { border-color: var(--rojo); }
  .ayuda { font-size: 12px; color: var(--gris-medio); }
  .ayuda.ok { color: var(--verde-oscuro); font-weight: 600; }
@@ -110,15 +111,9 @@
  <p class="card-sub">Para organizar los grupos de voluntarios.</p>
  <div class="campo"><label for="centro">Centro regional <span class="req">*</span></label><select id="centro" required></select></div>
  <div class="campo"><label for="facultad">Facultad <span class="req">*</span></label><select id="facultad" required></select></div>
- <div class="grid-2">
- <div class="campo"><label for="carrera">Carrera <span class="req">*</span></label><input id="carrera" maxlength="150" placeholder="Ej.: Ingeniería de Software" required/></div>
+ <div class="campo"><label for="carrera">Carrera <span class="req">*</span></label><select id="carrera" required disabled><option value="">Primero selecciona tu facultad</option></select></div>
  <div class="campo"><label for="anio">Año que cursas <span class="req">*</span></label>
- <select id="anio" required>
- <option value="">Selecciona</option>
- <option value="1">1er año</option><option value="2">2do año</option><option value="3">3er año</option>
- <option value="4">4to año</option><option value="5">5to año</option><option value="Egresado">Egresado</option>
- </select></div>
- </div>
+ <select id="anio" required></select></div>
  </div>
 
  <div class="card">
@@ -156,21 +151,19 @@
 <script type="module">
 import { app } from "../js/core/firebase-config.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+import { ANIOS, CAMPUS, CARRERAS, FACULTADES } from "../js/core/catalogo-utp.js";
 
-// Las mismas listas que registro.html, para que los datos queden iguales.
-const CAMPUS = [
-  "Campus Central Dr. Victor Levi Sasso (Panama)", "Centro Regional de Azuero", "Centro Regional de Bocas del Toro",
-  "Centro Regional de Chiriqui", "Centro Regional de Cocle", "Centro Regional de Colon",
-  "Centro Regional de Panama Oeste", "Centro Regional de Veraguas",
-];
-const FACULTADES = [
-  "Facultad de Ingenieria de Sistemas Computacionales", "Facultad de Ciencias y Tecnologia", "Facultad de Ingenieria Civil",
-  "Facultad de Ingenieria Electrica", "Facultad de Ingenieria Industrial", "Facultad de Ingenieria Mecanica",
-];
 const el = id => document.getElementById(id);
 const opciones = (lista, texto) => `<option value="">${texto}</option>` + lista.map(v => `<option>${v}</option>`).join("");
 el("centro").innerHTML = opciones(CAMPUS, "Selecciona tu campus");
 el("facultad").innerHTML = opciones(FACULTADES, "Selecciona tu facultad");
+el("anio").innerHTML = `<option value="">Selecciona</option>` + ANIOS.map(([valor, texto]) => `<option value="${valor}">${texto}</option>`).join("");
+
+el("facultad").addEventListener("change", () => {
+  const carreras = CARRERAS[el("facultad").value];
+  el("carrera").innerHTML = carreras ? opciones(carreras, "Selecciona tu carrera") : opciones([], "Primero selecciona tu facultad");
+  el("carrera").disabled = !carreras;
+});
 
 // Misma regla que normalizarCedula() en functions/registro-voluntarios.js
 // (el servidor vuelve a validar).

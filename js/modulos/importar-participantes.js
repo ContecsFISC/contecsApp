@@ -124,7 +124,9 @@ export async function leerArchivo(archivo) {
   const libro = /\.(csv|txt)$/i.test(archivo.name)
     ? XLSX.read(await textoDeCsv(archivo), { type: "string" })
     : XLSX.read(await archivo.arrayBuffer(), { type: "array" });
-  return libro.SheetNames.map(nombre => {
+  // Las hojas ocultas (como "Listas" de la plantilla de voluntarios) no traen personas.
+  const ocultas = new Set((libro.Workbook?.Sheets || []).filter(h => h.Hidden).map(h => h.name));
+  return libro.SheetNames.filter(nombre => !ocultas.has(nombre)).map(nombre => {
     const hoja = libro.Sheets[nombre];
     return {
       nombre,

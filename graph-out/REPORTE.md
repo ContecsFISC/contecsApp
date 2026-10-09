@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-09T14:09:52.173190+00:00**
+- Generado: **2026-10-09T16:06:56.552447+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `735d87e863e9fcf2…`
-- Archivos analizados: **218**
-- Relaciones internas tipadas: **776**
-- Símbolos detectados: **5864**
-- Llamadas detectadas: **13148**
+- Huella del proyecto: `ad624a9414605b47…`
+- Archivos analizados: **219**
+- Relaciones internas tipadas: **778**
+- Símbolos detectados: **5904**
+- Llamadas detectadas: **13191**
 - IDs DOM definidos: **1133**
 - Paquetes externos usados: **32**
 - Colecciones de Firestore detectadas: **37**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**14,841 tokens** · leer primero
-- `GraphCompleto.json` — ~**73,079 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**136,728 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **89.1%** frente al profundo
+- `GraphCompacto.json` — ~**14,718 tokens** · leer primero
+- `GraphCompleto.json` — ~**73,132 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**137,070 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **89.3%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -38,7 +38,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/seguridad.js` — riesgo 114.4 (conexiones: 57, 40 lineas)
 - `panel/dashboard.html` — riesgo 110.4 (conexiones: 45, 2041 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 102.6 (conexiones: 40, 2262 lineas)
-- `js/modulos/voluntarios.js` — riesgo 93.8 (conexiones: 30, 3226 lineas)
+- `js/modulos/voluntarios.js` — riesgo 93.8 (conexiones: 30, 3229 lineas)
 - `css/styles.css` — riesgo 80.3 (conexiones: 36, 831 lineas)
 - `js/core/firebase-config.js` — riesgo 80.3 (conexiones: 40, 35 lineas)
 - `js/modulos/credenciales.js` — riesgo 80.1 (conexiones: 36, 813 lineas)
@@ -406,7 +406,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ## Tipos de relaciones
 
 - `calls_imported_symbol`: 342
-- `imports`: 269
+- `imports`: 271
 - `navigates_to`: 66
 - `loads_script`: 41
 - `loads_stylesheet`: 36

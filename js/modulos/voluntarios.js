@@ -868,7 +868,10 @@ if (el("iv-drop")) {
   drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("encima"); });
   drop.addEventListener("dragleave", () => drop.classList.remove("encima"));
   drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("encima"); elegirArchivoVol(e.dataTransfer.files[0]); });
-  el("iv-plantilla").addEventListener("click", () => descargarPlantillaVol());
+  el("iv-plantilla").addEventListener("click", () => descargarPlantillaVol().catch(err => {
+    console.error("Plantilla de voluntarios:", err);
+    mostrarAlerta("error", "No se pudo generar la plantilla de Excel. Intenta de nuevo.");
+  }));
   el("iv-cambiar").addEventListener("click", reiniciarImpVol);
   el("iv-cancelar").addEventListener("click", reiniciarImpVol);
   el("iv-hoja").addEventListener("change", () => { imp.hoja = Number(el("iv-hoja").value); prepararHojaVol(); });
