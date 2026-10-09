@@ -94,6 +94,9 @@ export const PERMISOS = {
   // functions/eliminar-eventos.js.
   eliminar_con_historial: ["ceo"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
+  // Pasar a alguien de voluntario a comité organizador (o al revés). Debe
+  // reflejar la regla de `voluntarios` en firestore.rules. Por ahora solo CEO.
+  voluntarios_cambiar_grupo: ["ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],
   gestionar_ventas:        ["junta_principal","junta","ventas","ceo"],
   gestionar_giras:         ["junta_principal","giras","ceo"],
@@ -338,6 +341,7 @@ export const CATALOGO_PERMISOS = [
       { id: "voluntarios_asistencias", label: "Pestaña Asistencias", detalle: "" },
       { id: "voluntarios_importar",    label: "Pestaña Importar", detalle: "" },
       { id: "voluntarios_exportar",    label: "Exportar Excel y QR", detalle: "Botones de exportar de las pestañas." },
+      { id: "voluntarios_cambiar_grupo", label: "Cambiar grupo", detalle: "Pasar a alguien de voluntario a comité organizador, o al revés.", requiere: "gestionar_voluntarios" },
     ],
   },
   {

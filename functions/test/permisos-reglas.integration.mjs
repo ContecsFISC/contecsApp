@@ -93,6 +93,8 @@ const USUARIOS = {
   "ventas-solo-qr": { rol: "ventas", permisosExtra: { lectura_qr: { modo: "otorgar", vence: null } } },
   "ventas-sin-categorias": { rol: "ventas", permisosExtra: { catalogo_categorias: { modo: "quitar" } } },
   "miembro-evento": { rol: "miembro", permisosExtra: { gestionar_inscripciones: { modo: "otorgar", vence: null } } },
+  "voluntariado-1": { rol: "voluntariado" },
+  "voluntariado-grupo": { rol: "voluntariado", permisosExtra: { voluntarios_cambiar_grupo: { modo: "otorgar", vence: null } } },
   // Para los permisos por rol (al final, cuando se crea config/permisos_roles).
   "ventas-sin-ver-propio": { rol: "ventas", permisosExtra: { ver_participantes: { modo: "quitar" } } },
   "junta-1": { rol: "junta" },
@@ -108,6 +110,7 @@ async function preparar() {
   batch.set(db.collection("participantes").doc("p-borrable"), { nombreCompleto: "Borrable", pago: { estado: "pendiente_efectivo" } });
   batch.set(db.collection("fondos").doc("f-1"), { balance: 0 });
   batch.set(db.collection("compras").doc("c-1"), { total: 1 });
+  batch.set(db.collection("voluntarios").doc("v-1"), { nombre: "Ana", id: "8-1-1", grupo: "voluntario", totalHoras: 0 });
   await batch.commit();
 }
 
@@ -189,6 +192,17 @@ await prueba("expositores agregados a mano: solo con el módulo Credenciales", a
   await puede("ventas-credenciales", "GET", "expositores/e-1");
   await noPuede("ventas-1", "GET", "expositores/e-1");
   await noPuede("ventas-1", "PATCH", "expositores/e-2", ex);
+});
+
+console.log("\nVoluntarios:\n");
+
+await prueba("cambiar el grupo: solo CEO o a quien se le otorga; lo demás sigue con gestionar_voluntarios", async () => {
+  await puede("ceo-1", "PATCH", "voluntarios/v-1", { grupo: "comite" });
+  await noPuede("voluntariado-1", "PATCH", "voluntarios/v-1", { grupo: "voluntario" });
+  await noPuede("jp-1", "PATCH", "voluntarios/v-1", { grupo: "voluntario" });
+  await puede("voluntariado-grupo", "PATCH", "voluntarios/v-1", { grupo: "voluntario" });
+  await puede("voluntariado-1", "PATCH", "voluntarios/v-1", { telefono: "6000-0000" });
+  await puede("voluntariado-1", "PATCH", "voluntarios/v-1", { grupo: "voluntario", telefono: "6111-1111" });
 });
 
 console.log("\nFinanzas y Secretaría:\n");

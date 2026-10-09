@@ -455,8 +455,12 @@ service cloud.firestore {
       allow read: if isStaff();
       allow create: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
         && request.resource.data.totalHoras == 0;
+      // Cambiar el grupo (voluntario ↔ comité organizador) pide además
+      // "voluntarios_cambiar_grupo" (js/core/permisos.js): por ahora solo CEO.
       allow update: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['grupo'])
+          || permite('voluntarios_cambiar_grupo', ['ceo']));
       allow delete: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']);
     }
 

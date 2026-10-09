@@ -243,7 +243,9 @@ function avisarFalloDeCarga(etiqueta, e) {
 async function leerDocs(consulta, etiqueta) {
   try {
     const snap = await getDocs(consulta);
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // En `voluntarios` el campo `id` es la cédula y pisa al id del documento:
+    // para escribir en el documento se usa siempre `_docId`.
+    return snap.docs.map(d => ({ id: d.id, ...d.data(), _docId: d.id }));
   } catch (e) {
     avisarFalloDeCarga(etiqueta, e);
     return [];
@@ -905,9 +907,9 @@ if (el("iv-drop")) {
 async function cargarVoluntarios() {
   const spVol = el("voluntarios-spinner");
   if (spVol) spVol.style.display = "flex";
-  voluntarios = (await leerDocs(
+  voluntarios = await leerDocs(
     query(collection(db, "voluntarios"), orderBy("creadoEn", "desc")),
-    "los voluntarios")).map(v => ({ ...v, _docId: v.id }));
+    "los voluntarios");
   if (spVol) spVol.style.display = "none";
   renderVoluntarios();
   actualizarStats();
@@ -943,6 +945,9 @@ function renderVoluntarios(filtro = "") {
     return;
   }
 
+  // Sin el permiso, el grupo se ve pero no se cambia (firestore.rules también lo frena).
+  const bloqueoGrupo = usuarioTienePermiso("voluntarios_cambiar_grupo")
+    ? "" : ` disabled title="Solo el CEO, o quien tenga el permiso, puede cambiar el grupo"`;
   tb.innerHTML = lista.map(v => {
     const hCfg = HORARIO_CFG[v.horario];
     const horarioBadge = hCfg
@@ -958,7 +963,7 @@ function renderVoluntarios(filtro = "") {
       </td>
       <td>${h(v.id || "—")}</td>
       <td>${h(v.carrera || "—")}</td>
-      <td><select class="sel-grupo ${grupoVol(v) === "comite" ? "comite" : ""}" data-grupo-vol="${escaparAtributo(v._docId)}" aria-label="Grupo de ${escaparAtributo(nombreCompleto)}">
+      <td><select class="sel-grupo ${grupoVol(v) === "comite" ? "comite" : ""}" data-grupo-vol="${escaparAtributo(v._docId)}" aria-label="Grupo de ${escaparAtributo(nombreCompleto)}"${bloqueoGrupo}>
         <option value="voluntario"${grupoVol(v) === "voluntario" ? " selected" : ""}>Voluntario</option>
         <option value="comite"${grupoVol(v) === "comite" ? " selected" : ""}>Comité organizador</option>
       </select></td>
@@ -1006,7 +1011,9 @@ el("tabla-voluntarios-body")?.addEventListener("change", async e => {
     mostrarAlerta("success", `${nombreCompletoVol(v)} ahora es ${sel.value === "comite" ? "del comité organizador" : "voluntario"}.`);
   } catch (err) {
     sel.value = anterior;
-    mostrarAlerta("error", "No se pudo cambiar el grupo: " + err.message);
+    mostrarAlerta("error", err?.code === "permission-denied"
+      ? "No tienes permiso para cambiar el grupo. Solo el CEO, o quien tenga el permiso, puede hacerlo."
+      : "No se pudo cambiar el grupo: " + err.message);
   } finally {
     sel.disabled = false;
   }
