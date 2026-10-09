@@ -11,6 +11,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getAuth} = require("firebase-admin/auth");
 const {getStorage} = require("firebase-admin/storage");
 const {idBloqueoParticipante} = require("./identidad");
+const {usuarioPuede} = require("./permisos");
 
 const db = getFirestore();
 
@@ -33,12 +34,13 @@ function idValido(valor, campo) {
   return id;
 }
 
-async function validarRol(request, roles, mensaje) {
+// `permiso` cuenta los ajustes individuales (functions/permisos.js).
+async function validarRol(request, permiso, roles, mensaje) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  if (!snap.exists || !roles.has(snap.data()?.rol)) {
+  if (!usuarioPuede(snap.exists ? snap.data() : null, permiso, roles)) {
     throw new HttpsError("permission-denied", mensaje);
   }
   return request.auth.uid;
@@ -191,7 +193,8 @@ async function borrarArchivosHuerfanos(rutas) {
 }
 
 async function eliminarParticipante(request) {
-  const actor = await validarRol(request, ROLES_ELIMINAR_PARTICIPANTES,
+  const actor = await validarRol(request, "eliminar_participantes",
+      ROLES_ELIMINAR_PARTICIPANTES,
       "No tienes permiso para eliminar participantes.");
   const docId = idValido(request.data?.docId, "El participante");
   const incluirEstudiantes = request.data?.incluirEstudiantes === true;
@@ -270,8 +273,8 @@ async function eliminarParticipante(request) {
 }
 
 async function eliminarUsuario(request) {
-  const actor = await validarRol(request, ROLES_ELIMINAR_USUARIOS,
-      "Solo el CEO puede eliminar usuarios.");
+  const actor = await validarRol(request, "eliminar_usuarios",
+      ROLES_ELIMINAR_USUARIOS, "No tienes permiso para eliminar usuarios.");
   const uid = typeof request.data?.uid === "string" ? request.data.uid.trim() : "";
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) {
     throw new HttpsError("invalid-argument", "El usuario no es válido.");

@@ -5,12 +5,12 @@ const {
   Timestamp,
 } = require("firebase-admin/firestore");
 const {idLockRfid, normalizarRfid, serialRfid} = require("./rfid");
+const {usuarioPuede} = require("./permisos");
 
 const db = getFirestore();
-// Marcan asistencia: Staff con Lectura QR y el patrocinador desde POSPER.
-const ROLES_CONGRESO = new Set([
-  "ceo", "staff_contecs", "posper",
-]);
+// Marcan asistencia: Staff con Lectura QR ("lectura_qr") y el
+// patrocinador desde POSPER ("acceso_posper"); ver ACCESO_CONGRESO.
+const ROLES_LECTURA_QR = new Set(["ceo", "staff_contecs"]);
 // Anclan RFID (solo desde POSPER). Debe reflejar "acceso_posper" en
 // js/core/permisos.js.
 const ROLES_POSPER = new Set(["ceo", "posper"]);
@@ -27,6 +27,10 @@ const ROLES_VOLUNTARIADO = new Set([
 // quienes pueden armar la lista de una gira son los únicos que pueden
 // marcar sus checkpoints de entrada/salida.
 const ROLES_GIRAS = new Set(["ceo", "junta_principal", "giras"]);
+const ACCESO_CONGRESO = [
+  ["lectura_qr", ROLES_LECTURA_QR],
+  ["acceso_posper", ROLES_POSPER],
+];
 
 function idValido(valor, campo) {
   const id = typeof valor === "string" ? valor.trim() : "";
@@ -36,12 +40,16 @@ function idValido(valor, campo) {
   return id;
 }
 
-async function validarActor(request, roles) {
+// `accesos` es una lista de [permiso, ROLES_*]: basta con cumplir uno. El
+// permiso cuenta los ajustes individuales (functions/permisos.js).
+async function validarActor(request, accesos) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  if (!snap.exists || !roles.has(snap.data()?.rol)) {
+  const usuario = snap.exists ? snap.data() : null;
+  if (!accesos.some(([permiso, roles]) =>
+    usuarioPuede(usuario, permiso, roles))) {
     throw new HttpsError(
         "permission-denied",
         "No tienes permiso para registrar este escaneo.",
@@ -126,7 +134,7 @@ function datosAsistencia({
 }
 
 async function asistenciaParticipante(request) {
-  const actorId = await validarActor(request, ROLES_CONGRESO);
+  const actorId = await validarActor(request, ACCESO_CONGRESO);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const checkpointId = idValido(data.checkpointId, "checkpoint");
@@ -194,7 +202,7 @@ async function asistenciaParticipante(request) {
 }
 
 async function inscripcionTaller(request) {
-  const actorId = await validarActor(request, ROLES_CONGRESO);
+  const actorId = await validarActor(request, ACCESO_CONGRESO);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const checkpointId = idValido(data.checkpointId, "checkpoint");
@@ -316,7 +324,9 @@ function buscarTurno(actividad, turnoId) {
 }
 
 async function asistenciaVoluntario(request) {
-  const actorId = await validarActor(request, ROLES_VOLUNTARIADO);
+  const actorId = await validarActor(request, [
+    ["voluntarios_lectura_qr", ROLES_VOLUNTARIADO],
+  ]);
   const data = request.data || {};
   const voluntarioId = idValido(data.voluntarioId, "voluntario");
   const actividadId = idValido(data.actividadId, "actividad");
@@ -405,7 +415,9 @@ async function asistenciaVoluntario(request) {
 // "giras" no tiene lectura directa de /participantes (firestore.rules). Por
 // eso la validación de identidad ocurre aquí, con Admin SDK.
 async function marcarCheckpointGira(request) {
-  const actorId = await validarActor(request, ROLES_GIRAS);
+  const actorId = await validarActor(request, [
+    ["giras_lectura_qr", ROLES_GIRAS],
+  ]);
   const data = request.data || {};
   const giraId = idValido(data.giraId, "gira");
   const codigo = String(data.codigo || "").trim().toUpperCase();
@@ -497,7 +509,9 @@ async function marcarCheckpointGira(request) {
 // se queda con ese (no se reemplaza). Volver a leer el mismo RFID de la misma
 // persona no es error: responde ok sin cambiar nada.
 async function anclarRfid(request) {
-  const actorId = await validarActor(request, ROLES_POSPER);
+  const actorId = await validarActor(request, [
+    ["acceso_posper", ROLES_POSPER],
+  ]);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const eventoId = idValido(data.eventoId, "evento");
@@ -579,7 +593,9 @@ async function anclarRfid(request) {
 // persona y el participante puede recibir uno nuevo desde POSPER. Queda
 // constancia de qué se liberó, quién y cuándo.
 async function liberarRfid(request) {
-  const actorId = await validarActor(request, ROLES_LIBERAR_RFID);
+  const actorId = await validarActor(request, [
+    ["liberar_rfid", ROLES_LIBERAR_RFID],
+  ]);
   const participanteId = idValido(request.data?.participanteId, "participante");
   const participanteRef = db.collection("participantes").doc(participanteId);
 
@@ -621,7 +637,9 @@ async function liberarRfid(request) {
 // permanencia se mide hasta ese momento (js/core/permanencia.js) y el asiento
 // queda libre en el Mapa del evento.
 async function liberarAsiento(request) {
-  const actorId = await validarActor(request, ROLES_LIBERAR_ASIENTO);
+  const actorId = await validarActor(request, [
+    ["liberar_asiento", ROLES_LIBERAR_ASIENTO],
+  ]);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const checkpointId = idValido(data.checkpointId, "checkpoint");

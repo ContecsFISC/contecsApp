@@ -34,13 +34,62 @@ service cloud.firestore {
       ]);
     }
 
+    // ── Permisos individuales ────────────────────────────────────────────────
+    // El rol es la base; el CEO puede darle o quitarle permisos sueltos a una
+    // persona desde Usuarios: usuarios/{uid}.permisosExtra =
+    //   { permiso: { modo: 'otorgar' | 'quitar', vence: timestamp | null } }
+    // Misma regla que tienePermiso() en js/core/permisos.js y usuarioPuede()
+    // en functions/permisos.js. Solo cuentan para roles internos que no sean
+    // CEO: "sin_rol" desactiva la cuenta aunque conserve ajustes.
+    function ajuste(permiso) {
+      return userDoc().data.get('permisosExtra', {}).get(permiso, {});
+    }
+
+    function admiteAjustes() {
+      return isStaff() && userRol() != 'ceo';
+    }
+
+    // Un "otorgar" con vence deja de valer solo al pasar esa fecha.
+    function otorgado(permiso) {
+      return admiteAjustes()
+        && ajuste(permiso).get('modo', '') == 'otorgar'
+        && (ajuste(permiso).get('vence', null) == null
+          || request.time < ajuste(permiso).get('vence', null));
+    }
+
+    function quitado(permiso) {
+      return admiteAjustes() && ajuste(permiso).get('modo', '') == 'quitar';
+    }
+
+    // Para reglas que corresponden a UN permiso de la app: los roles de
+    // siempre, menos a quien se lo quitaron, más a quien se lo dieron.
+    // Donde una colección la usan varios módulos (ventas, compras...) solo se
+    // suman los otorgados: quitar un permiso esconde el módulo en el panel,
+    // pero el rol sigue leyendo lo que necesitan sus otros módulos.
+    function permite(permiso, roles) {
+      return (hasRol(roles) && !quitado(permiso)) || otorgado(permiso);
+    }
+
+    // Sub-permiso (pestaña o acción de un módulo, SUBPERMISOS en
+    // js/core/permisos.js): su propio ajuste manda; sin ajuste sigue al
+    // permiso del módulo.
+    function permiteSub(sub, modulo, roles) {
+      return !quitado(sub) && (otorgado(sub) || permite(modulo, roles));
+    }
+
     // Debe reflejar exactamente "ver_participantes" en js/core/permisos.js.
     // Coordinador SÍ puede ver la lista de participantes; actividades y
     // comunicaciones NO (no tienen ese permiso en el modelo de la app).
+    // Gestión de Evento, Lectura QR, Estadísticas y POSPER también leen la
+    // lista: a quien se le otorgan esos módulos se le abre la lectura.
     function canVerParticipantes() {
-      return hasRol([
+      return permite('ver_participantes', [
         'ceo', 'junta_principal', 'junta', 'coordinador', 'staff_contecs'
-      ]);
+      ])
+        || otorgado('gestionar_inscripciones')
+        || otorgado('lectura_qr')
+        || otorgado('ver_estadisticas_congreso')
+        || otorgado('acceso_posper');
     }
 
     // Patrocinador POSPER ("acceso_posper" en js/core/permisos.js). No es
@@ -55,9 +104,26 @@ service cloud.firestore {
     // Ver la lista no implica poder aprobar/rechazar un pago — coordinador
     // queda fuera de este segundo permiso a propósito.
     function canAprobarPagosParticipantes() {
-      return hasRol([
+      return permite('aprobar_pagos', [
         'ceo', 'junta_principal', 'junta', 'finanzas', 'secretario', 'staff_contecs'
       ]);
+    }
+
+    // Módulos de Finanzas/Logística que leen ventas, compras, mermas y
+    // movimientos de inventario (bitácora, reportes, inventario, compras).
+    function otorgadoLecturaFinanciera() {
+      return otorgado('ver_bitacora') || otorgado('ver_reportes')
+        || otorgado('ver_inventario') || otorgado('registrar_compras')
+        || otorgado('ver_fondos');
+    }
+
+    function rolValido(rol) {
+      return rol in [
+        'sin_rol', 'ceo', 'junta_principal', 'junta', 'coordinador',
+        'finanzas', 'logistica', 'ventas', 'secretario', 'actividades',
+        'patrocinios', 'investigacion', 'voluntariado', 'giras',
+        'comunicaciones', 'staff_contecs', 'miembro', 'posper'
+      ];
     }
 
     // ── Usuarios ─────────────────────────────────────────────────────────────
@@ -65,6 +131,7 @@ service cloud.firestore {
       allow read: if signedIn() && (
         request.auth.uid == uid
         || hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'finanzas'])
+        || otorgado('gestionar_usuarios')
       );
       allow create: if signedIn()
         && request.auth.uid == uid
@@ -90,7 +157,17 @@ service cloud.firestore {
           && request.resource.data.nombre.size() <= 120
           && request.resource.data.foto is string
           && request.resource.data.foto.size() <= 2048)
-        || hasRol(['ceo', 'junta_principal'])
+        // El CEO cambia cualquier campo, incluidos los permisos individuales.
+        || (hasRol(['ceo'])
+          && request.resource.data.get('permisosExtra', {}) is map)
+        // Quien gestiona usuarios solo cambia el rol de OTRA persona, y nunca
+        // da ni quita el rol de CEO (así nadie se sube a sí mismo).
+        || (permite('gestionar_usuarios', ['junta_principal'])
+          && request.auth.uid != uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rol'])
+          && rolValido(request.resource.data.rol)
+          && request.resource.data.rol != 'ceo'
+          && resource.data.rol != 'ceo')
       );
     }
 
@@ -104,7 +181,7 @@ service cloud.firestore {
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'asistencias', 'totalAsistencias', 'rfid'
         ]);
-      allow delete: if hasRol(["ceo","junta_principal"]);
+      allow delete: if permite('eliminar_participantes', ['ceo', 'junta_principal']);
     }
 
     // RFID anclado desde POSPER — solo Admin SDK (ejecutarOperacionQr)
@@ -129,7 +206,7 @@ service cloud.firestore {
     // ── Inventario y catálogo ────────────────────────────────────────────────
     match /productos/{id} {
       allow read: if isStaff();
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
+      allow create: if permiteSub('catalogo_productos', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
         && request.resource.data.keys().hasOnly([
           'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId',
           'stock', 'activo', 'creadoEn'
@@ -143,7 +220,7 @@ service cloud.firestore {
         && request.resource.data.alertaMinima >= 0
         && request.resource.data.stock == 0
         && request.resource.data.activo == true;
-      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
+      allow update: if permiteSub('catalogo_productos', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activo'
         ]);
@@ -152,12 +229,13 @@ service cloud.firestore {
 
     match /categorias/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow write: if permiteSub('catalogo_categorias', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
     }
 
     // ── Operaciones financieras ──────────────────────────────────────────────
     match /ventas/{id} {
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+        || otorgadoLecturaFinanciera();
       // Las ventas se crean exclusivamente desde Cloud Functions, que valida
       // rol, identidad, productos, precios y movimientos relacionados.
       allow create: if false;
@@ -165,12 +243,14 @@ service cloud.firestore {
     }
 
     match /compras/{id} {
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+        || otorgadoLecturaFinanciera();
       allow create: if false;
       // Tras registrar la compra, el flujo sube la factura a Storage y luego
       // actualiza solo su estado (factura/facturaEstado/facturaError); quien
       // pudo crear la compra debe poder cerrar ese mismo paso.
-      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+      allow update: if (hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+          || otorgado('registrar_compras'))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'factura', 'facturaEstado', 'facturaError', 'actualizadoEn'
         ])
@@ -181,14 +261,15 @@ service cloud.firestore {
     }
 
     match /mermas/{id} {
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+        || otorgadoLecturaFinanciera();
       allow create: if false;
       allow update, delete: if false;
     }
 
     match /fondos/{id} {
       // Ver y editar el fondo libremente: solo gestión financiera.
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      allow read: if permite('ver_fondos', ['ceo', 'junta_principal', 'junta', 'finanzas']);
       allow create, delete: if false;
       // Los movimientos pasan por Cloud Functions; ni siquiera Finanzas puede
       // reescribir el balance directamente desde DevTools.
@@ -196,13 +277,14 @@ service cloud.firestore {
     }
 
     match /fondos_entrada/{id} {
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas']);
+      allow read: if permite('ver_fondos', ['ceo', 'junta_principal', 'junta', 'finanzas']);
       allow create: if false;
       allow update, delete: if false;
     }
 
     match /movimientos_inventario/{id} {
-      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']);
+      allow read: if hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica'])
+        || otorgadoLecturaFinanciera();
       allow create: if false;
       allow update, delete: if false;
     }
@@ -210,13 +292,13 @@ service cloud.firestore {
     // ── Eventos e inscripciones internas ─────────────────────────────────────
     match /eventos/{id} {
       allow read: if isStaff() || isPosper();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow write: if permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     match /inscripciones/{id} {
       allow read: if isStaff();
-      allow create, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
-      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
+      allow create, delete: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow update: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'asistencias', 'totalAsistencias'
         ]);
@@ -225,7 +307,7 @@ service cloud.firestore {
     // Checkpoints detallados del programa (colección separada)
     match /checkpoints/{id} {
       allow read: if isStaff() || isPosper();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow write: if permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     // Salones del Mapa del evento: un doc por espacio del plano (id
@@ -233,7 +315,7 @@ service cloud.firestore {
     // gestiona checkpoints; los ve todo el staff (el patrocinador no).
     match /salones/{espacioId} {
       allow read: if isStaff();
-      allow create, update: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
+      allow create, update: if permiteSub('evento_salones', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
         && espacioId.matches('^[0-9]{1,2}-[0-9]{1,4}$')
         && request.resource.data.keys().hasOnly([
           'espacioId', 'piso', 'nombre', 'rotulo', 'capacidad', 'actualizadoEn', 'actualizadoPor'
@@ -247,7 +329,7 @@ service cloud.firestore {
         && request.resource.data.capacidad is int
         && request.resource.data.capacidad >= 1
         && request.resource.data.capacidad <= 100000;
-      allow delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
+      allow delete: if permiteSub('evento_salones', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
@@ -268,12 +350,14 @@ service cloud.firestore {
     // desactiva y elimina actividades, y administra sus turnos.
     match /actividades_voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades'])
+        || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios');
     }
 
     match /giras_voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])
+        || otorgado('gestionar_giras');
     }
 
     // Check-in/check-out de gira (doble checkpoint) — escritura únicamente
@@ -286,16 +370,16 @@ service cloud.firestore {
 
     match /asignaciones_voluntarios/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+      allow write: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']);
     }
 
     match /voluntarios/{id} {
       allow read: if isStaff();
-      allow create: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])
+      allow create: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
         && request.resource.data.totalHoras == 0;
-      allow update: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado'])
+      allow update: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras']);
-      allow delete: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado']);
+      allow delete: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']);
     }
 
     match /asistencias_voluntarios/{id} {
@@ -306,26 +390,29 @@ service cloud.firestore {
     // ── Actividades de Ventas ────────────────────────────────────────────────
     match /actividades_ventas/{id} {
       allow read: if isStaff();
-      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']);
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])
+        || otorgado('gestionar_ventas');
     }
 
     // ── Formularios universitarios (Solicitud e Informe de Actividad) ─────────
     match /solicitudes_actividad/{id} {
       allow read: if isStaff();
       allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])
+        || otorgado('gestionar_actividades');
     }
 
     match /informes_actividad/{id} {
       allow read: if isStaff();
       allow create: if isStaff();
-      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']);
+      allow update, delete: if hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades'])
+        || otorgado('gestionar_actividades');
     }
 
     // ── Reuniones (Secretaría) ────────────────────────────────────────────────
     match /reuniones/{id} {
       allow read: if isStaff();
-      allow create, update, delete: if hasRol(['ceo', 'secretario']);
+      allow create, update, delete: if permite('gestionar_secretaria', ['ceo', 'secretario']);
     }
 
     // ── Denegar todo lo no definido explícitamente ───────────────────────────

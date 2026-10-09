@@ -3,7 +3,7 @@ import {
   collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
   query, orderBy, where, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { getUsuarioActual } from "../core/auth.js";
+import { getUsuarioActual, aplicarPermisosDom } from "../core/auth.js";
 import { iconoImg, iconoComboImg, nombreIconoCombo } from "../core/iconos.js?v=20260817-combos";
 import {
   escaparAtributo,
@@ -57,6 +57,8 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     if (btn.dataset.tab === "tab-lista") renderTablaVentas();
   });
 });
+// Exportar Excel ("ventas_exportar", sub-permiso de "gestionar_ventas").
+aplicarPermisosDom();
 
 // ─── TURNOS ───────────────────────────────────────────────────────────────────
 function renderTurnos() {

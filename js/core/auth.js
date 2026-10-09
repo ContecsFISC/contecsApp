@@ -9,7 +9,7 @@ import { SSO_LOGIN_URL } from "./sso-config.js";
 import {
   doc, getDoc, setDoc, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { tienePermiso } from "./permisos.js";
+import { tienePermiso, venceEnMs } from "./permisos.js";
 
 const provider = new GoogleAuthProvider();
 const PUBLIC_PAGES = ["index.html", "auth.html"];
@@ -71,8 +71,46 @@ function manejarErrorAuth(error, contexto) {
   console.error(`[Auth] Error en ${contexto}:`, error);
 }
 
-// Escucha cambios en el documento del usuario en Firestore en tiempo real
-// Si el rol cambia, actualiza sessionStorage y recarga la página automáticamente
+// usuarios/{uid}.permisosExtra tal como se guarda en sessionStorage: el
+// vencimiento en milisegundos para que sobreviva a JSON. Las claves van
+// ordenadas: el texto se compara para saber si algo cambió.
+function serializarPermisosExtra(extra) {
+  const limpio = {};
+  Object.entries(extra || {}).sort(([a], [b]) => a.localeCompare(b)).forEach(([permiso, ajuste]) => {
+    if (ajuste?.modo !== "otorgar" && ajuste?.modo !== "quitar") return;
+    limpio[permiso] = { modo: ajuste.modo, vence: venceEnMs(ajuste.vence) };
+  });
+  return JSON.stringify(limpio);
+}
+
+function leerPermisosExtra() {
+  try {
+    return JSON.parse(sessionStorage.getItem("permisosExtra") || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+// Un permiso otorgado "hasta el viernes" deja de valer en las reglas a esa
+// hora exacta; la página se recarga entonces para dejar de mostrar lo que ya
+// no se puede usar. Solo se programa si vence en las próximas 24 h.
+let temporizadorVencimiento = null;
+function programarRecargaPorVencimiento() {
+  clearTimeout(temporizadorVencimiento);
+  const ahora = Date.now();
+  const proximo = Object.values(leerPermisosExtra())
+    .map(a => a.modo === "otorgar" ? a.vence : null)
+    .filter(v => typeof v === "number" && v > ahora)
+    .sort((a, b) => a - b)[0];
+  if (proximo && proximo - ahora < 24 * 60 * 60 * 1000) {
+    temporizadorVencimiento = setTimeout(() => window.location.reload(), proximo - ahora + 1000);
+  }
+}
+
+// Escucha cambios en el documento del usuario en Firestore en tiempo real.
+// Si cambia el rol, vuelve al dashboard; si cambian solo sus permisos
+// individuales, recarga la página actual (requirePermiso la saca de ahí si
+// ya no tiene acceso).
 export function escucharCambiosDeRol(uid) {
   const ref = doc(db, "usuarios", uid);
   return onSnapshot(ref, (snap) => {
@@ -80,11 +118,17 @@ export function escucharCambiosDeRol(uid) {
     const data       = snap.data();
     const rolActual  = sessionStorage.getItem("rol");
     const rolNuevo   = data.rol || "sin_rol";
+    const extraActual = sessionStorage.getItem("permisosExtra") || "{}";
+    const extraNuevo  = serializarPermisosExtra(data.permisosExtra);
 
     if (rolActual !== rolNuevo) {
       sessionStorage.setItem("rol",    rolNuevo);
       sessionStorage.setItem("nombre", data.nombre || sessionStorage.getItem("nombre"));
+      sessionStorage.setItem("permisosExtra", extraNuevo);
       window.location.href = prefijoHaciaPanel() + "dashboard.html";
+    } else if (extraActual !== extraNuevo) {
+      sessionStorage.setItem("permisosExtra", extraNuevo);
+      window.location.reload();
     }
   });
 }
@@ -114,6 +158,7 @@ export function guardRoute() {
           await cargarUsuario(user);
         }
         escucharCambiosDeRol(user.uid);
+        programarRecargaPorVencimiento();
       }
     } catch (error) {
       manejarErrorAuth(error, "guardRoute/onAuthStateChanged");
@@ -147,6 +192,7 @@ export async function cargarUsuario(user) {
       sessionStorage.setItem("nombre", data.nombre || nombreFallback);
       sessionStorage.setItem("rol",    data.rol || rolFallback);
       sessionStorage.setItem("email",  user.email);
+      sessionStorage.setItem("permisosExtra", serializarPermisosExtra(data.permisosExtra));
       return;
     }
 
@@ -163,6 +209,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("nombre", nuevoUsuario.nombre);
     sessionStorage.setItem("rol",    rolFallback);
     sessionStorage.setItem("email",  user.email);
+    sessionStorage.setItem("permisosExtra", "{}");
   } catch (error) {
     if (!esErrorDePermisosFirestore(error)) {
       throw error;
@@ -174,6 +221,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("nombre", nombreFallback);
     sessionStorage.setItem("rol",    rolFallback);
     sessionStorage.setItem("email",  user.email);
+    sessionStorage.setItem("permisosExtra", "{}");
     console.warn(
       `[Auth] Firestore no permitió acceder a usuarios/${user.uid}. Se usaron datos de respaldo de Auth.`,
       error
@@ -208,12 +256,42 @@ export function getUsuarioActual() {
     nombre: sessionStorage.getItem("nombre"),
     rol:    sessionStorage.getItem("rol"),
     email:  sessionStorage.getItem("email"),
+    permisosExtra: leerPermisosExtra(),
   };
 }
 
+// Rol + permisos individuales de quien tiene la sesión abierta.
 export function usuarioTienePermiso(permiso) {
   const rol = sessionStorage.getItem("rol");
-  return tienePermiso(rol, permiso);
+  return tienePermiso(rol, permiso, leerPermisosExtra());
+}
+
+// Oculta todo elemento con data-permiso="..." que la sesión no puede usar
+// (pestañas, botones, enlaces). Con !important, para que un
+// `style.display = ""` posterior de la página no lo vuelva a mostrar.
+// Si se oculta la pestaña activa, abre la primera visible con un click, así
+// que la página debe llamarlo después de registrar sus manejadores de tabs.
+export function aplicarPermisosDom(raiz = document) {
+  if (!document.getElementById("estilo-sin-permiso")) {
+    const estilo = document.createElement("style");
+    estilo.id = "estilo-sin-permiso";
+    estilo.textContent = "[data-sin-permiso]{display:none !important}";
+    document.head.appendChild(estilo);
+  }
+  let tabActivaOculta = false;
+  raiz.querySelectorAll("[data-permiso]").forEach(elemento => {
+    if (usuarioTienePermiso(elemento.dataset.permiso)) return;
+    elemento.setAttribute("data-sin-permiso", "");
+    if (!elemento.matches(".tab-btn")) return;
+    // Su panel también, por si la página lo abre por código.
+    const tab = elemento.dataset.tab;
+    (document.getElementById(tab) || document.getElementById(`tab-${tab}`))?.setAttribute("data-sin-permiso", "");
+    if (elemento.matches(".active, .activo")) tabActivaOculta = true;
+  });
+  if (tabActivaOculta) {
+    const primera = [...document.querySelectorAll(".tab-btn")].find(b => !b.hasAttribute("data-sin-permiso"));
+    primera?.click();
+  }
 }
 
 export async function requirePermiso(...permisos) {

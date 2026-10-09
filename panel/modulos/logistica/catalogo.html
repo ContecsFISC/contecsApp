@@ -338,8 +338,8 @@
 
  <!-- TABS -->
  <div class="tabs">
- <button class="tab-btn activo" data-tab="categorias">Categorías</button>
- <button class="tab-btn" data-tab="productos"><img src="../../../img/iconos/producto.svg" class="icono-svg" alt=""/> Productos</button>
+ <button class="tab-btn activo" data-tab="categorias" data-permiso="catalogo_categorias">Categorías</button>
+ <button class="tab-btn" data-tab="productos" data-permiso="catalogo_productos"><img src="../../../img/iconos/producto.svg" class="icono-svg" alt=""/> Productos</button>
  </div>
 
  <!-- ══ TAB: CATEGORÍAS ══ -->
@@ -458,7 +458,7 @@
  </div>
 
  <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, aplicarPermisosDom } from "../../../js/core/auth.js";
  import {
  ICONOS_CATEGORIA, ICONOS_PRODUCTO, TODOS_ICONOS, getIconoHTML,
  escucharCategorias, crearCategoria, editarCategoria, eliminarCategoria,
@@ -480,6 +480,8 @@
  document.getElementById("tab-productos").style.display = btn.dataset.tab === "productos" ? "" : "none";
  });
  });
+ // Pestañas según sub-permisos de "editar_catalogo" (js/core/permisos.js).
+ aplicarPermisosDom();
 
  // ── ESTADO LOCAL ─────────────────────────────────────────────────────────
  let categorias = [];

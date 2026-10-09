@@ -3,7 +3,7 @@ import {
   collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { getUsuarioActual } from "../core/auth.js";
+import { getUsuarioActual, aplicarPermisosDom, usuarioTienePermiso } from "../core/auth.js";
 import { tienePermiso } from "../core/permisos.js";
 import {
   listarParticipantesParaGiras,
@@ -154,6 +154,10 @@ function hayConflictoHorario(horarioVol, horaInicioTurno, horaFinTurno) {
 }
 
 const usuario = getUsuarioActual();
+// Acciones de las tarjetas de gira (sub-permisos de "gestionar_giras"). El
+// envío de correos además lo valida el servidor.
+const puedeNotificarGiras = usuarioTienePermiso("giras_notificar");
+const puedeEliminarGiras = usuarioTienePermiso("giras_eliminar");
 
 // ─── Alerta + Toast fijo ──────────────────────────────────────────────────────
 function mostrarAlerta(tipo, msg, duracion = 5000) {
@@ -260,20 +264,22 @@ function fmtHora12(horaStr) {
 }
 
 // ─── TABS ────────────────────────────────────────────────────────────────────
+// Las de Voluntarios son sub-permisos de "gestionar_voluntarios": siguen al
+// módulo salvo que el CEO las ajuste (js/core/permisos.js).
 const TAB_PERMISOS = {
   "tab-actividades":  "gestionar_actividades",
   "tab-giras":        "gestionar_giras",
-  "tab-voluntariado": "gestionar_voluntarios",
-  "tab-importar":     "gestionar_voluntarios",
-  "tab-voluntarios":  "gestionar_voluntarios",
-  "tab-asistencias":  "gestionar_voluntarios",
+  "tab-voluntariado": "voluntarios_asignar",
+  "tab-importar":     "voluntarios_importar",
+  "tab-voluntarios":  "voluntarios_registro",
+  "tab-asistencias":  "voluntarios_asistencias",
 };
 
 function aplicarPermisosTab() {
   let primerVisible = null;
   document.querySelectorAll(".tab-btn").forEach(btn => {
     const permiso = TAB_PERMISOS[btn.dataset.tab];
-    const acceso  = !permiso || tienePermiso(usuario.rol, permiso);
+    const acceso  = !permiso || tienePermiso(usuario.rol, permiso, usuario.permisosExtra);
     btn.style.display = acceso ? "" : "none";
     if (acceso && !primerVisible) primerVisible = btn.dataset.tab;
   });
@@ -301,6 +307,8 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 });
 
 aplicarPermisosTab();
+// Botones y enlaces con data-permiso (exportar, lectura QR, formularios).
+aplicarPermisosDom();
 
 // ════════════════════════════════════════════════════════════
 // ACTIVIDADES
@@ -1319,7 +1327,7 @@ function renderTablaGiras() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Editar
         </button>
-        <button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
+        ${puedeNotificarGiras ? `<button class="btn-fila notificar" onclick="notificarGira('${escaparAtributo(g.id)}')" id="btn-notificar-${escaparAtributo(g.id)}"
           ${numParticipantes ? "" : "disabled"}
           title="${numParticipantes ?
             `Enviar el correo de la gira a ${numParticipantes} participante(s)` :
@@ -1346,15 +1354,15 @@ function renderTablaGiras() {
           title="Volver a enviar el aviso a TODOS los no seleccionados, incluidos los ya avisados">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
           Reenviar aviso
-        </button>` : ""}
+        </button>` : ""}` : ""}
         <button class="btn-fila ${g.activo ? "desactivar" : "activar"}" onclick="toggleGira('${escaparAtributo(g.id)}',${!!g.activo})" title="${g.activo ? "Desactivar" : "Activar"}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
           ${g.activo ? "Desactivar" : "Activar"}
         </button>
-        <button class="btn-fila eliminar" onclick="eliminarGira('${escaparAtributo(g.id)}')" title="Eliminar">
+        ${puedeEliminarGiras ? `<button class="btn-fila eliminar" onclick="eliminarGira('${escaparAtributo(g.id)}')" title="Eliminar">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Eliminar
-        </button>
+        </button>` : ""}
       </div>
     </div>`;
   }).join("");

@@ -277,11 +277,11 @@
  <div class="seccion-titulo">Historial de operaciones</div>
 
  <div class="tabs">
- <button class="tab-btn activo" data-tab="ventas"> Ventas</button>
- <button class="tab-btn" data-tab="compras"> Compras</button>
- <button class="tab-btn" data-tab="fondos"> Fondos</button>
- <button class="tab-btn" data-tab="inventario"> Inventario</button>
- <button class="tab-btn" data-tab="mermas">Mermas</button>
+ <button class="tab-btn activo" data-tab="ventas" data-permiso="bitacora_ventas"> Ventas</button>
+ <button class="tab-btn" data-tab="compras" data-permiso="bitacora_compras"> Compras</button>
+ <button class="tab-btn" data-tab="fondos" data-permiso="bitacora_fondos"> Fondos</button>
+ <button class="tab-btn" data-tab="inventario" data-permiso="bitacora_inventario"> Inventario</button>
+ <button class="tab-btn" data-tab="mermas" data-permiso="bitacora_mermas">Mermas</button>
  </div>
 
  <div id="tab-ventas">
@@ -328,7 +328,7 @@
  </div>
 
  <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, aplicarPermisosDom } from "../../../js/core/auth.js";
  import { formatearMoneda } from "../../../js/core/operaciones.js";
  import { db } from "../../../js/core/firebase-config.js";
  import { escaparAtributo, escaparHtml, urlHttpSegura } from "../../../js/core/seguridad.js";
@@ -391,6 +391,8 @@
  });
  });
  });
+ // Pestañas según sub-permisos de "ver_bitacora" (js/core/permisos.js).
+ aplicarPermisosDom();
 
  // ── Unsubs para limpiar listeners si fuera necesario ─────────────────────
  const unsubs = {};

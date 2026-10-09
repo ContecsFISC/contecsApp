@@ -1,5 +1,6 @@
 const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {usuarioPuede} = require("./permisos");
 
 const db = getFirestore();
 
@@ -112,14 +113,19 @@ function metodoPagoValido(valor) {
   return metodo;
 }
 
-async function obtenerActor(request, roles) {
+// `permiso` cuenta los ajustes individuales (functions/permisos.js); sin él
+// (ajuste y vaciado de inventario) solo cuenta el rol.
+async function obtenerActor(request, roles, permiso = null) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const usuarioSnap = await db.collection("usuarios")
       .doc(request.auth.uid).get();
   const usuario = usuarioSnap.data();
-  if (!usuarioSnap.exists || !roles.has(usuario?.rol)) {
+  const permitido = permiso ?
+    usuarioPuede(usuarioSnap.exists ? usuario : null, permiso, roles) :
+    usuarioSnap.exists && roles.has(usuario?.rol);
+  if (!permitido) {
     throw new HttpsError(
         "permission-denied",
         "No tienes permiso para realizar esta operación.",
@@ -202,7 +208,8 @@ function aplicarStock(tx, estados) {
 }
 
 async function ejecutarVenta(request, conMerma = false) {
-  const actor = await obtenerActor(request, ROLES_VENTA);
+  const actor = await obtenerActor(request, ROLES_VENTA,
+      "acceso_venta_rapida");
   const data = request.data || {};
   const items = Array.isArray(data.items) && data.items.length ?
     normalizarItems(data.items) : [];
@@ -442,7 +449,8 @@ async function ejecutarVenta(request, conMerma = false) {
 }
 
 async function ejecutarCompra(request) {
-  const actor = await obtenerActor(request, ROLES_COMPRA);
+  const actor = await obtenerActor(request, ROLES_COMPRA,
+      "registrar_compras");
   const data = request.data || {};
   const items = normalizarItems(data.items);
   const proveedor = texto(data.proveedor, "proveedor", 150, true);
@@ -668,7 +676,8 @@ async function ejecutarMerma(request) {
 }
 
 async function ejecutarMovimientoFondo(request) {
-  const actor = await obtenerActor(request, ROLES_FONDOS);
+  const actor = await obtenerActor(request, ROLES_FONDOS,
+      "editar_fondos");
   const data = request.data || {};
   const tipo = data.tipo === "salida" ? "salida" : "entrada";
   const monto = dinero(data.monto);

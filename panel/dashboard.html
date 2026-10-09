@@ -1440,10 +1440,10 @@
       renderAhoraMovil(checkpointsHoy);
       renderAgendaMovil(checkpointsHoy);
 
-      const participantesPromise = tienePermiso(rol, "ver_participantes")
+      const participantesPromise = tienePermiso(rol, "ver_participantes", usuario.permisosExtra)
         ? getDocs(collection(db, "participantes")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "participantes dashboard móvil"); return null; })
         : Promise.resolve(null);
-      const productosPromise = tienePermiso(rol, "ver_inventario")
+      const productosPromise = tienePermiso(rol, "ver_inventario", usuario.permisosExtra)
         ? getDocs(collection(db, "productos")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "productos dashboard móvil"); return null; })
         : Promise.resolve(null);
       const [participantes, productos] = await Promise.all([participantesPromise, productosPromise]);
@@ -1666,7 +1666,7 @@
             }
           }
         },
-        ].filter(w => tienePermiso(rol, w.permiso));
+        ].filter(w => tienePermiso(rol, w.permiso, usuario.permisosExtra));
 
         if (widgetsDef.length > 0) {
         const widgetsEl = document.createElement("div");
@@ -1690,7 +1690,7 @@
         reunion:   "var(--verde-apagado)",
         };
 
-        if (tienePermiso(rol, "ver_calendario")) {
+        if (tienePermiso(rol, "ver_calendario", usuario.permisosExtra)) {
         const tituloAgenda = document.createElement("div");
         tituloAgenda.className = "agenda-hoy-titulo";
         tituloAgenda.textContent = "Hoy";
@@ -1820,6 +1820,9 @@
           modulos: [
             { label: "Participantes",       href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
             { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
+            // Acceso directo para quien solo tiene Lectura QR suelta (sin el
+            // módulo, que ya trae el botón "Leer QR").
+            { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html",                permiso: "lectura_qr", salvoSi: "gestionar_inscripciones" },
             { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
           ],
         },
@@ -1863,8 +1866,10 @@
           id: "voluntariado", label: "Voluntariado",
           modulos: [
             { label: "Voluntarios",  href: "modulos/voluntariado/voluntarios.html",  permiso: "gestionar_voluntarios", admin: true },
+            { label: "QR de voluntarios", href: "modulos/voluntariado/lecturaQRVoluntarios.html", permiso: "voluntarios_lectura_qr", salvoSi: "gestionar_voluntarios" },
             { label: "Actividades",  href: "modulos/voluntariado/actividades.html",  permiso: "gestionar_actividades", admin: true },
             { label: "Giras",        href: "modulos/voluntariado/giras.html",        permiso: "gestionar_giras", admin: true },
+            { label: "QR de giras",  href: "modulos/voluntariado/lecturaQRGiras.html", permiso: "giras_lectura_qr", salvoSi: "gestionar_giras" },
             { label: "Calendario",   href: "modulos/voluntariado/calendario.html",   permiso: "ver_calendario", admin: true },
           ],
         },
@@ -1878,9 +1883,11 @@
         },
       ];
 
-      // Solo categorías con al menos un módulo visible para este rol
+      // Solo categorías con al menos un módulo visible para este rol.
+      // "salvoSi": el acceso directo sobra si ya se ve el módulo completo.
+      const puede = p => tienePermiso(rol, p, usuario.permisosExtra);
       const categoriasVisibles = CATEGORIAS
-        .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => tienePermiso(rol, m.permiso)) }))
+        .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
         .filter(cat => cat.modulos.length > 0);
 
       // ══════════ Mobile — bottom sheet: lista de texto limpia,

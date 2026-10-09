@@ -926,7 +926,7 @@
 </div>
 
 <script type="module">
-import { tienePermiso } from "../../../js/core/permisos.js";
+import { usuarioTienePermiso } from "../../../js/core/auth.js";
 import { enviarCorreoQrParticipante, eliminarParticipante, importarParticipantes } from "../../../js/core/participantes-api.js";
 import { escaparAtributo, escaparHtml } from "../../../js/core/seguridad.js";
 import {
@@ -950,7 +950,6 @@ const fireFunc = getFunctions(undefined, "us-central1");
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
-const rol = sessionStorage.getItem("rol") || "";
 const uid = sessionStorage.getItem("uid") || "";
 
 let todosParticipantes = [];
@@ -1035,8 +1034,8 @@ function renderTabla() {
  return;
  }
 
- const canAprobar = tienePermiso(rol, "aprobar_pagos");
- const canEliminar = tienePermiso(rol, "eliminar_participantes");
+ const canAprobar = usuarioTienePermiso("aprobar_pagos");
+ const canEliminar = usuarioTienePermiso("eliminar_participantes");
 
  el("tabla-body").innerHTML = participanteFiltrado.map((p, i) => {
  const fecha = p.fechaRegistro?.toDate?.()
@@ -1121,10 +1120,10 @@ window._verComprobante = async function(rutaEnc) {
 };
 
 function renderSheet(p) {
- const canAprobar = tienePermiso(rol, "aprobar_pagos");
+ const canAprobar = usuarioTienePermiso("aprobar_pagos");
  const reenviosUsados = Math.max(0, Number(p.pago?.correo_aprobacion_reenvios) || 0);
  const reenviosRestantes = Math.max(0, 4 - reenviosUsados);
- const puedeReenviar = tienePermiso(rol, "ver_participantes") && reenviosRestantes > 0;
+ const puedeReenviar = usuarioTienePermiso("reenviar_credencial") && reenviosRestantes > 0;
  const estadoPago = p.pago?.estado || "pendiente_efectivo";
  const yaAprobado = estadoPago === "aprobado";
  const fecha = p.fechaRegistro?.toDate?.()
@@ -1239,10 +1238,10 @@ function renderSheet(p) {
  Reenviar correo de credencial (${reenviosRestantes} disponibles)
  </button>` : `
  <div style="margin-top:10px;text-align:center;font-size:12px;font-weight:700;color:var(--gris-medio);">
- ${tienePermiso(rol, "ver_participantes") ? "Límite de 4 reenvíos alcanzado" : ""}
+ ${usuarioTienePermiso("reenviar_credencial") ? "Límite de 4 reenvíos alcanzado" : ""}
  </div>`}` : ""}
 
- ${tienePermiso(rol, "eliminar_participantes") ? (() => {
+ ${usuarioTienePermiso("eliminar_participantes") ? (() => {
  const esTutor = p.categoria === "colegio" && !!p.codigo;
  const nEst = esTutor ? todosParticipantes.filter(x => x.tutorCodigo === p.codigo).length : 0;
  return `
@@ -1497,7 +1496,7 @@ function confirmarEliminacion(p, nombre, nEst) {
 }
 
 window._eliminar = async function() {
- if (!participanteSeleccionado || !tienePermiso(rol, "eliminar_participantes")) return;
+ if (!participanteSeleccionado || !usuarioTienePermiso("eliminar_participantes")) return;
  const p = participanteSeleccionado;
  const nombre = p.nombreCompleto || `${p.nombre || ""} ${p.apellido || ""}`.trim() || p.codigo || p.id;
  const incluirEstudiantes = !!document.getElementById("chk-eliminar-estudiantes")?.checked;
@@ -1564,7 +1563,7 @@ async function nombresDeUsuarios() {
 }
 
 el("btn-exportar").addEventListener("click", async () => {
- if (!tienePermiso(rol, "exportar_participantes")) return;
+ if (!usuarioTienePermiso("exportar_participantes")) return;
  if (typeof ExcelJS === "undefined") {
  alert("La librería de Excel aún no terminó de cargar. Intenta de nuevo en unos segundos.");
  return;
@@ -1684,7 +1683,7 @@ el("btn-exportar").addEventListener("click", async () => {
  }
 });
 
-if (tienePermiso(rol, "exportar_participantes")) el("btn-exportar").style.display = "";
+if (usuarioTienePermiso("exportar_participantes")) el("btn-exportar").style.display = "";
 
 // ── IMPRIMIR CREDENCIALES ─────────────────────────────────────────────────
 // El dibujo y la exportación viven en js/modulos/credenciales.js; aquí solo
@@ -1808,7 +1807,7 @@ async function renderPreviewCred() {
 }
 
 function abrirCredenciales() {
- if (!tienePermiso(rol, "imprimir_credenciales")) return;
+ if (!usuarioTienePermiso("imprimir_credenciales")) return;
  const categorias = new Map(todosParticipantes.filter(p => p.categoria).map(p => [p.categoria, categoriaDe(p)]));
  const actual = el("mc-categoria").value;
  el("mc-categoria").innerHTML = `<option value="">Todas las categorías</option>` +
@@ -1862,7 +1861,7 @@ async function ejecutarTareaCred(total, etiqueta, trabajo) {
 el("mc-descargar").addEventListener("click", () => {
  const lista = seleccionadosCred();
  const tamano = cred.tamano;
- if (!lista.length || !tamano || !tienePermiso(rol, "imprimir_credenciales")) return;
+ if (!lista.length || !tamano || !usuarioTienePermiso("imprimir_credenciales")) return;
  const formato = formatoCred();
  const juntos = formato === "pdf" && agruparCred() === "uno";
  ejecutarTareaCred(lista.length, "Generando", async control => {
@@ -1880,7 +1879,7 @@ el("mc-descargar").addEventListener("click", () => {
 el("mc-imprimir").addEventListener("click", () => {
  const lista = seleccionadosCred();
  const tamano = cred.tamano;
- if (!lista.length || !tamano || !tienePermiso(rol, "imprimir_credenciales")) return;
+ if (!lista.length || !tamano || !usuarioTienePermiso("imprimir_credenciales")) return;
  ejecutarTareaCred(lista.length, "Preparando", async control => {
  const pdf = await generarPdf(lista, tamano, control);
  try {
@@ -1943,7 +1942,7 @@ el("mc-tamano").addEventListener("change", alCambiarTamano);
 document.querySelectorAll('input[name="mc-formato"], input[name="mc-agrupar"]')
  .forEach(r => r.addEventListener("change", actualizarResumenCred));
 
-if (tienePermiso(rol, "imprimir_credenciales")) el("btn-credenciales").style.display = "";
+if (usuarioTienePermiso("imprimir_credenciales")) el("btn-credenciales").style.display = "";
 
 // ── IMPORTAR PARTICIPANTES ────────────────────────────────────────────────
 // Leer el archivo y revisar las filas vive en js/modulos/importar-participantes.js;
@@ -1972,7 +1971,7 @@ function reiniciarImp() {
 }
 
 function abrirImportar() {
- if (!tienePermiso(rol, "importar_participantes")) return;
+ if (!usuarioTienePermiso("importar_participantes")) return;
  reiniciarImp();
  mostrarPrecioImp();
  el("modal-imp").hidden = false;
@@ -2113,7 +2112,7 @@ function actualizarBotonImp() {
 // a quien ya esté inscrito.
 async function importarLista() {
  const filas = filasAImportar();
- if (!filas.length || imp.tarea || !tienePermiso(rol, "importar_participantes")) return;
+ if (!filas.length || imp.tarea || !usuarioTienePermiso("importar_participantes")) return;
  const lote = {
  categoria: el("mi-categoria").value,
  referencia: el("mi-referencia").value.trim(),
@@ -2253,7 +2252,7 @@ el("mi-filas").addEventListener("change", e => {
  actualizarBotonImp();
 });
 
-if (tienePermiso(rol, "importar_participantes")) el("btn-importar").style.display = "";
+if (usuarioTienePermiso("importar_participantes")) el("btn-importar").style.display = "";
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();

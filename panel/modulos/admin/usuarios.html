@@ -121,6 +121,145 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ /* ── Gestor de permisos ── */
+ .btn-permisos {
+ flex-shrink: 0;
+ display: inline-flex; align-items: center; gap: 6px;
+ height: 36px; padding: 0 12px;
+ border-radius: 8px;
+ border: 1.5px solid var(--gris-borde);
+ background: #fff;
+ color: var(--verde-oscuro);
+ font: 600 13px var(--fuente);
+ cursor: pointer;
+ transition: border-color 0.15s, background 0.15s;
+ }
+ .btn-permisos:hover { border-color: var(--verde); background: var(--verde-fondo); }
+ .btn-permisos .n-ajustes {
+ min-width: 20px; height: 20px; padding: 0 6px;
+ border-radius: 10px;
+ background: var(--amarillo); color: #fff;
+ font-size: 11px; line-height: 20px; text-align: center;
+ }
+ .chip-ajustes { font-size: 11px; font-weight: 600; color: var(--amarillo); margin-left: 4px; }
+
+ .dlg-permisos {
+ width: min(720px, calc(100vw - 32px));
+ max-height: calc(100vh - 48px);
+ margin: auto;
+ padding: 0;
+ border: 0;
+ border-radius: var(--radio-lg);
+ box-shadow: var(--sombra-md);
+ color: var(--gris-texto);
+ font-family: var(--fuente);
+ }
+ .dlg-permisos::backdrop { background: rgba(0,0,0,0.45); }
+ .perm-form { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
+ .perm-head {
+ display: flex; align-items: flex-start; gap: 12px;
+ padding: 18px 20px 10px;
+ border-bottom: 1px solid var(--gris-borde);
+ }
+ .perm-head-txt { flex: 1; min-width: 0; }
+ .perm-head h2 { font: 700 17px var(--fuente-display); margin: 0; }
+ .perm-head p { font-size: 13px; color: var(--gris-medio); margin: 2px 0 0; }
+ .perm-cerrar {
+ width: 32px; height: 32px; border-radius: 50%;
+ border: 0; background: var(--gris-suave); color: var(--gris-texto);
+ font-size: 20px; line-height: 1; cursor: pointer;
+ }
+ .perm-ayuda { font-size: 12px; color: var(--gris-medio); line-height: 1.6; margin: 0; padding: 10px 20px 0; }
+ .perm-aviso {
+ margin: 10px 20px 0; padding: 8px 12px;
+ border-radius: var(--radio-sm);
+ background: var(--amarillo-fondo); color: #7a4f0e;
+ font-size: 12px; line-height: 1.5;
+ }
+ .perm-body { overflow-y: auto; padding: 6px 20px 12px; }
+ .perm-modulo { border-bottom: 1px solid var(--gris-borde); }
+ .perm-modulo:last-child { border-bottom: 0; }
+ .perm-modulo summary {
+ display: flex; align-items: center; gap: 8px;
+ padding: 12px 0;
+ font-size: 14px; font-weight: 700;
+ cursor: pointer; list-style: none;
+ }
+ .perm-modulo summary::-webkit-details-marker { display: none; }
+ .perm-modulo summary::before {
+ content: ""; width: 7px; height: 7px;
+ border-right: 2px solid var(--gris-medio); border-bottom: 2px solid var(--gris-medio);
+ transform: rotate(-45deg); transition: transform 0.15s;
+ }
+ .perm-modulo[open] summary::before { transform: rotate(45deg); }
+ .perm-modulo .resumen { margin-left: auto; font-size: 12px; font-weight: 500; color: var(--gris-medio); }
+ .perm-fila {
+ display: grid;
+ grid-template-columns: 22px minmax(0,1fr) auto;
+ gap: 2px 10px;
+ align-items: start;
+ padding: 8px 10px;
+ margin: 0 -10px 2px;
+ border-radius: var(--radio-sm);
+ }
+ /* Pestañas y acciones de un módulo (sub-permisos): un poco adentro. */
+ .perm-fila.sub { margin-left: 4px; border-left: 2px solid var(--gris-borde); border-radius: 0 var(--radio-sm) var(--radio-sm) 0; }
+ .perm-fila.otorgado { background: var(--verde-fondo); }
+ .perm-fila.quitado { background: var(--rojo-fondo); }
+ .perm-fila input[type="checkbox"] { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--verde); cursor: pointer; }
+ .perm-fila label { cursor: pointer; }
+ .perm-fila .p-label { font-size: 13px; font-weight: 600; }
+ .perm-fila .p-detalle { font-size: 12px; color: var(--gris-medio); line-height: 1.45; }
+ .perm-fila .p-estado { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+ .perm-fila .p-vence { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--verde-oscuro); margin-top: 4px; }
+ .perm-fila .p-vence input {
+ padding: 4px 8px; border: 1.5px solid var(--gris-borde); border-radius: 6px;
+ font: 12px var(--fuente); color: var(--gris-texto); background: #fff;
+ }
+ .perm-tag {
+ display: inline-block; padding: 1px 8px; border-radius: 10px;
+ font-size: 11px; font-weight: 700; white-space: nowrap;
+ }
+ .tag-rol { background: var(--gris-suave); color: var(--gris-medio); }
+ .tag-otorgado { background: var(--verde); color: #fff; }
+ .tag-quitado { background: var(--rojo); color: #fff; }
+ .perm-deshacer {
+ border: 0; background: none; padding: 0;
+ font: 600 11px var(--fuente); color: var(--gris-medio);
+ text-decoration: underline; cursor: pointer;
+ }
+ .perm-foot {
+ display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+ padding: 12px 20px;
+ border-top: 1px solid var(--gris-borde);
+ }
+ .perm-foot-espacio { flex: 1; }
+ .perm-btn {
+ height: 38px; padding: 0 16px;
+ border-radius: var(--radio-sm);
+ border: 1.5px solid var(--gris-borde);
+ background: #fff; color: var(--gris-texto);
+ font: 600 13px var(--fuente); cursor: pointer;
+ }
+ .perm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+ .perm-btn-primario { background: var(--verde); border-color: var(--verde); color: #fff; }
+ .perm-btn-primario:hover:not(:disabled) { background: var(--verde-hover); }
+ .perm-btn-texto { border-color: transparent; color: var(--rojo); padding: 0 6px; }
+
+ @media(max-width:600px) {
+   .btn-permisos { grid-column:1 / -1; width:100%; justify-content:center; height:40px; }
+   .dlg-permisos { width: 100vw; max-width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; margin: 0; }
+   .perm-form { max-height: 100dvh; height: 100%; }
+   .perm-body { flex: 1; }
+   .perm-head, .perm-body, .perm-foot { padding-left: 16px; padding-right: 16px; }
+   .perm-ayuda { padding-left: 16px; padding-right: 16px; }
+   .perm-aviso { margin-left: 16px; margin-right: 16px; }
+   .perm-fila { grid-template-columns: 22px minmax(0,1fr); }
+   .perm-fila .p-estado { grid-column: 2; flex-direction: row; align-items: center; justify-content: flex-start; }
+   .perm-btn { flex: 1; min-height: 44px; }
+   .perm-foot-espacio { display: none; }
+   .perm-btn-texto { flex-basis: 100%; order: 3; }
+ }
  @media(max-width:600px) {
    .usuario-card {
      display:grid;
@@ -182,6 +321,32 @@
  <div id="lista-usuarios"></div>
  </div>
  </div>
+
+ <!-- Gestor de permisos individuales (solo CEO). Lo llena js/modulos/usuarios.js -->
+ <dialog id="dlg-permisos" class="dlg-permisos" aria-labelledby="perm-titulo">
+ <form method="dialog" class="perm-form" id="perm-form">
+ <header class="perm-head">
+ <div class="perm-head-txt">
+ <h2 id="perm-titulo">Permisos</h2>
+ <p id="perm-sub"></p>
+ </div>
+ <button type="button" class="perm-cerrar" id="perm-cerrar" aria-label="Cerrar">&times;</button>
+ </header>
+ <p class="perm-ayuda">
+ Marcado = puede hacerlo. Su rol trae una base; lo que cambies aquí queda resaltado como
+ <span class="perm-tag tag-otorgado">Otorgado</span> o <span class="perm-tag tag-quitado">Quitado</span>
+ y solo aplica a esta persona.
+ </p>
+ <div class="perm-aviso" id="perm-aviso" hidden></div>
+ <div class="perm-body" id="perm-body"></div>
+ <footer class="perm-foot">
+ <button type="button" class="perm-btn perm-btn-texto" id="perm-restablecer">Volver a solo su rol</button>
+ <span class="perm-foot-espacio"></span>
+ <button type="button" class="perm-btn" id="perm-cancelar">Cancelar</button>
+ <button type="button" class="perm-btn perm-btn-primario" id="perm-guardar">Guardar</button>
+ </footer>
+ </form>
+ </dialog>
 
  <script type="module" src="../../../js/modulos/usuarios.js"></script>
 </body>

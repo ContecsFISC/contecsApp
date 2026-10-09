@@ -16,6 +16,7 @@ const {
   esCorreoValido,
 } = require("./identidad");
 const {motivoDeEntrada, motivosCrudosDeGira} = require("./giras");
+const {usuarioPuede} = require("./permisos");
 const {
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
@@ -481,16 +482,32 @@ async function enviarCorreoTransaccional({sender, to, subject, htmlContent, text
   return {messageId: resp?.messageId || null};
 }
 
-async function verificarStaffCorreo(request) {
+// El primer envío sale al aprobar el pago ("aprobar_pagos"); el reenvío
+// manual del perfil es "reenviar_credencial". ROLES_ENVIAR_CORREO_QR sigue
+// siendo la base de ambos; el permiso suma los ajustes individuales.
+async function verificarStaffCorreo(request, permiso) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión para enviar correos.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  const rol = snap.data()?.rol;
-  if (!ROLES_ENVIAR_CORREO_QR.has(rol)) {
+  const usuario = snap.exists ? snap.data() : null;
+  if (!usuarioPuede(usuario, permiso, ROLES_ENVIAR_CORREO_QR)) {
     throw new HttpsError("permission-denied", "No tienes permiso para enviar este correo.");
   }
-  return rol;
+  return usuario.rol;
+}
+
+// Lista de participantes para giras ("gestionar_giras") y avisos de gira
+// ("giras_notificar", que sigue a gestionar_giras salvo ajuste).
+async function verificarGestorGiras(request, mensaje, permiso = "gestionar_giras") {
+  if (!request.auth?.uid) {
+    throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  }
+  const snap = await db.collection("usuarios").doc(request.auth.uid).get();
+  const usuario = snap.exists ? snap.data() : null;
+  if (!usuarioPuede(usuario, permiso, ROLES_LISTAR_PARTICIPANTES_GIRAS)) {
+    throw new HttpsError("permission-denied", mensaje);
+  }
 }
 
 async function enviarCorreoPagoAprobado({docId, participante}) {
@@ -942,9 +959,9 @@ exports.enviarCorreoQrParticipante = onCall(
     {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
     async (request) => {
       try {
-        await verificarStaffCorreo(request);
-        const docId = validarDocId(request.data?.docId, "docId");
         const forzarReenvio = !!request.data?.forzarReenvio;
+        await verificarStaffCorreo(request, forzarReenvio ? "reenviar_credencial" : "aprobar_pagos");
+        const docId = validarDocId(request.data?.docId, "docId");
 
         console.log("enviarCorreoQrParticipante:", docId, forzarReenvio ? "(reenvío)" : "(envío)");
 
@@ -1006,14 +1023,7 @@ exports.listarParticipantesParaGiras = onCall(
     {region: "us-central1", maxInstances: 10},
     async (request) => {
       try {
-        if (!request.auth?.uid) {
-          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
-        }
-        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
-        const rol = snapUsuario.data()?.rol;
-        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
-          throw new HttpsError("permission-denied", "No tienes permiso para ver la lista de participantes.");
-        }
+        await verificarGestorGiras(request, "No tienes permiso para ver la lista de participantes.");
 
         const snap = await db.collection("participantes")
             .select("nombreCompleto", "nombre", "apellido", "cedula", "codigo", "categoria", "camposExtra", "pago")
@@ -1187,14 +1197,7 @@ exports.notificarParticipantesGira = onCall(
     {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
     async (request) => {
       try {
-        if (!request.auth?.uid) {
-          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
-        }
-        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
-        const rol = snapUsuario.data()?.rol;
-        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
-          throw new HttpsError("permission-denied", "No tienes permiso para notificar esta gira.");
-        }
+        await verificarGestorGiras(request, "No tienes permiso para notificar esta gira.", "giras_notificar");
 
         const giraId = validarTexto(request.data?.giraId, "giraId", {requerido: true, max: 200});
         const giraRef = db.collection("giras_voluntarios").doc(giraId);
@@ -1331,14 +1334,7 @@ exports.notificarNoSeleccionadosGira = onCall(
     {region: "us-central1", maxInstances: 10, secrets: [BREVO_API_KEY]},
     async (request) => {
       try {
-        if (!request.auth?.uid) {
-          throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
-        }
-        const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
-        const rol = snapUsuario.data()?.rol;
-        if (!ROLES_LISTAR_PARTICIPANTES_GIRAS.has(rol)) {
-          throw new HttpsError("permission-denied", "No tienes permiso para notificar esta gira.");
-        }
+        await verificarGestorGiras(request, "No tienes permiso para notificar esta gira.", "giras_notificar");
 
         const giraId = validarTexto(request.data?.giraId, "giraId", {requerido: true, max: 200});
         const giraRef = db.collection("giras_voluntarios").doc(giraId);
@@ -1715,9 +1711,9 @@ exports.subirFotoEfectivo = onCall(
           throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
         }
         const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
-        const rolUsuario = snapUsuario.data()?.rol;
+        const usuario = snapUsuario.exists ? snapUsuario.data() : null;
         const ROLES_APROBAR = new Set(["ceo", "junta_principal", "junta", "finanzas", "secretario", "staff_contecs"]);
-        if (!ROLES_APROBAR.has(rolUsuario)) {
+        if (!usuarioPuede(usuario, "aprobar_pagos", ROLES_APROBAR)) {
           throw new HttpsError("permission-denied", "No tienes permiso para registrar pagos en efectivo.");
         }
 

@@ -1,5 +1,6 @@
 import { db, auth } from "../core/firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { aplicarPermisosDom, usuarioTienePermiso } from "../core/auth.js";
 import {
   collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, serverTimestamp, runTransaction, limit,
@@ -37,8 +38,6 @@ let participantesGlobal = [];
 let checkpointsEvento   = [];   // de la colección 'checkpoints'
 let asistenciasEvento    = [];   // registro central confirmado por el backend QR
 let inscripcionesCheckpointEvento = []; // compatibilidad con cupos históricos
-let columnasArchivo     = [];
-let filasArchivo        = [];
 let editandoEventoId    = null;
 let editandoCpId        = null;
 let qrActualCanvas      = null;
@@ -137,6 +136,11 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
+// Pestañas y botones según los permisos de la sesión (sub-permisos de
+// "gestionar_inscripciones"). Sin "evento_editar" el módulo queda en lectura.
+const puedeEditarEvento = () => usuarioTienePermiso("evento_editar");
+aplicarPermisosDom();
+
 // ═══════════════════════════════════════════════════════════
 // DÍAS DEL EVENTO
 // ═══════════════════════════════════════════════════════════
@@ -226,6 +230,7 @@ function badgeEstado(item) {
 }
 
 function botonesEstado(item, tipo) {
+  if (!puedeEditarEvento()) return "";
   const id = escaparAtributo(item.id);
   const cancelado = estaCancelado(item);
   const inactivo = item.activo === false;
@@ -310,9 +315,10 @@ function renderTablaEventos(eventos) {
       <td style="font-size:12px;">${diasLabel}</td>
       <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
       <td style="white-space:nowrap;">
+        ${puedeEditarEvento() ? `
         <button class="btn btn-outline btn-sm" onclick="window._editarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
         ${botonesEstado(ev, "evento")}
-        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>
+        <button class="btn btn-danger btn-sm" onclick="window._eliminarEvento('${escaparAtributo(ev.id)}')" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>` : ""}
       </td>
     </tr>`;
   }).join("");
@@ -659,11 +665,11 @@ function itemCheckpoint(cp, diaLabel, hora, tipoCls, cuposStr) {
       <div style="font-size:12px;color:var(--gris-medio)">${diaLabel} · ${h(hora)}${cp.salon ? ` · ${h(cp.salon)}` : ""}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
       ${cuposStr}
     </div>
-    <div class="checkpoint-list-actions">
+    ${puedeEditarEvento() ? `<div class="checkpoint-list-actions">
       <button class="btn btn-outline btn-sm" onclick="window._editarCp('${id}')" style="width:auto" title="Editar" aria-label="Editar">${iconoImg("editar")}</button>
       ${botonesEstado(cp, "checkpoint")}
       <button class="btn btn-danger btn-sm" onclick="window._eliminarCp('${id}')" style="width:auto" title="Eliminar" aria-label="Eliminar">${iconoImg("eliminar")}</button>
-    </div>
+    </div>` : ""}
   </div>`;
 }
 
@@ -1081,215 +1087,6 @@ window._eliminarCp = async id => {
     mostrarAlerta("error", "Error al eliminar: " + e.message);
   }
 };
-
-// ═══════════════════════════════════════════════════════════
-// IMPORTAR CSV / EXCEL
-// ═══════════════════════════════════════════════════════════
-
-const CAMPOS_EURUS = [
-  { key: "nombre",              label: "Nombre",                          req: true  },
-  { key: "apellido",            label: "Apellido",                        req: false },
-  { key: "correo",              label: "Correo",                          req: true  },
-  { key: "cedula",              label: "Cédula",                          req: true  },
-  { key: "telefono",            label: "Teléfono",                        req: false },
-  { key: "universidad",         label: "Universidad / Institución",       req: true  },
-  { key: "facultad",            label: "Facultad",                        req: false },
-  { key: "carrera",             label: "Carrera",                         req: false },
-  { key: "ocupacion",           label: "Ocupación",                       req: false },
-  { key: "categoria",           label: "Categoría",                       req: false },
-  { key: "participacionCodeClash", label: "Participación CodeClashPython", req: false },
-  { key: "nivelPython",         label: "Nivel de experiencia en Python",  req: false },
-  { key: "temasInteres",        label: "Temas de interés",                req: false },
-  { key: "tallaSueter",         label: "Talla de suéter",                 req: false },
-];
-
-const MAPEO_AUTO = {
-  nombre:              ["nombre", "name", "nombre completo", "full name", "primer nombre"],
-  apellido:            ["apellido", "last name", "primer apellido", "surname"],
-  correo:              ["correo", "email", "correo institucional", "correo electrónico", "e-mail"],
-  cedula:              ["cedula", "cédula", "número de cédula", "numero de cedula"],
-  telefono:            ["telefono", "teléfono", "phone", "celular"],
-  universidad:         ["universidad", "university", "institución", "institucion", "institution"],
-  facultad:            ["facultad", "faculty"],
-  carrera:             ["carrera", "program", "programa", "profesión"],
-  ocupacion:           ["ocupacion", "ocupación", "occupation"],
-  categoria:           ["categoria", "categoría", "category", "tipo", "tipo de participante"],
-  participacionCodeClash: ["codeclash", "code clash", "codeclashpython", "participación en codeclash", "participacion"],
-  nivelPython:         ["python", "nivel python", "experiencia python", "nivel de experiencia"],
-  temasInteres:        ["temas", "topics", "temas que te entusiasman", "temas de interés", "intereses"],
-  tallaSueter:         ["talla", "suéter", "sueter", "talla sueter", "sweater"],
-};
-
-function detectarColumna(campo, headers) {
-  const keywords = MAPEO_AUTO[campo] || [];
-  return headers.find(h => keywords.some(kw => h.toLowerCase().includes(kw))) || "";
-}
-
-function procesarArchivo(archivo) {
-  const ext = archivo.name.split(".").pop().toLowerCase();
-  if (ext === "csv") {
-    Papa.parse(archivo, {
-      header: true, skipEmptyLines: true,
-      complete: res => procesarFilas(res.meta.fields || [], res.data),
-      error: e => mostrarAlerta("error", "Error leyendo CSV: " + e.message),
-    });
-  } else {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const wb  = XLSX.read(e.target.result, { type: "array" });
-      const ws  = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      if (rows.length < 2) { mostrarAlerta("error", "El archivo parece estar vacío."); return; }
-      const headers = rows[0].map(String);
-      const data    = rows.slice(1).filter(r => r.some(c => c !== "" && c != null))
-                         .map(r => Object.fromEntries(headers.map((h, i) => [h, r[i] ?? ""])));
-      procesarFilas(headers, data);
-    };
-    reader.readAsArrayBuffer(archivo);
-  }
-}
-
-function procesarFilas(headers, filas) {
-  columnasArchivo = headers;
-  filasArchivo    = filas;
-  renderMapeoCols();
-  el("mapeo-section").style.display = "block";
-  mostrarAlerta("success", `Archivo cargado: ${filas.length} filas detectadas.`);
-}
-
-function renderMapeoCols() {
-  const tbody = el("mapeo-tbody");
-  tbody.innerHTML = CAMPOS_EURUS.map(campo => {
-    const detectado = detectarColumna(campo.key, columnasArchivo);
-    const ico = detectado ? "" : (campo.req ? iconoImg("advertencia") : "");
-    const opts = columnasArchivo.map(c => `<option value="${escaparAtributo(c)}" ${c === detectado ? "selected" : ""}>${h(c)}</option>`).join("");
-    return `<tr>
-      <td>${ico} <strong>${campo.label}</strong>${campo.req ? " *" : ""}</td>
-      <td><select id="map-${campo.key}"><option value="">— Ignorar —</option>${opts}</select></td>
-    </tr>`;
-  }).join("");
-}
-
-function leerMapeo() {
-  const m = {};
-  CAMPOS_EURUS.forEach(c => { m[c.key] = el(`map-${c.key}`)?.value || ""; });
-  return m;
-}
-
-function filaAInscripcion(fila, mapeo) {
-  const get      = key => String(fila[mapeo[key]] ?? "").trim();
-  const apellido = get("apellido");
-  const nombre   = get("nombre");
-  const correo   = get("correo").toLowerCase();
-  const cedula   = get("cedula");
-  const categoria = get("categoria") || "importado";
-  const temas    = get("temasInteres").split(/[,;]+/).map(t => t.trim()).filter(Boolean);
-  const pcch     = get("participacionCodeClash").toLowerCase();
-
-  return {
-    nombre,
-    apellido,
-    nombreCompleto: apellido ? `${nombre} ${apellido}` : nombre,
-    correo,
-    cedula,
-    telefono:       get("telefono"),
-    categoria,
-    categoriaNombre: CATEGORIA_LABELS[categoria] || "Importado",
-    institucion:    get("universidad"),
-    pago: {
-      metodo: "importado", estado: "importado",
-      comprobanteRuta: null, monto: null,
-      aprobadoPor: null, aprobadoEn: null, notas: null,
-    },
-    esColegio: false, tutor: null, colegio: null, estudiantes: [],
-    estadoRegistro: "activo",
-    asistencias: {},
-    camposExtra: {
-      facultad:              get("facultad"),
-      carrera:               get("carrera"),
-      ocupacion:             get("ocupacion"),
-      participacionCodeClash: pcch === "sí" || pcch === "si" || pcch === "yes" || pcch === "true",
-      nivelPython:           get("nivelPython"),
-      temasInteres:          temas,
-      tallaSueter:           get("tallaSueter").toUpperCase().replace("TALLA ", ""),
-    },
-  };
-}
-
-function validarInscripcion(ins) {
-  if (!ins.nombre)  return "Nombre vacío";
-  if (!ins.correo || !ins.correo.includes("@")) return `Correo inválido: ${ins.correo}`;
-  return null;
-}
-
-el("btn-preview-importar").addEventListener("click", () => {
-  if (!filasArchivo.length) return;
-  const mapeo = leerMapeo();
-  const thead = el("preview-thead");
-  const tbody = el("preview-tbody");
-  const campos = CAMPOS_EURUS.map(c => c.label);
-  thead.innerHTML = `<tr>${campos.map(c => `<th>${h(c)}</th>`).join("")}</tr>`;
-  tbody.innerHTML = filasArchivo.slice(0, 5).map(fila => {
-    return `<tr>${CAMPOS_EURUS.map(c => {
-      const val = mapeo[c.key] ? String(fila[mapeo[c.key]] ?? "").trim() : "";
-      return `<td>${h(val || "—")}</td>`;
-    }).join("")}</tr>`;
-  }).join("");
-  el("preview-resumen").textContent = `${filasArchivo.length} filas en total. Mostrando las primeras 5.`;
-  el("modal-preview").classList.add("open");
-});
-
-el("btn-confirmar-importar").addEventListener("click", async () => {
-  if (!filasArchivo.length) { mostrarAlerta("error", "Carga un archivo primero."); return; }
-
-  const mapeo = leerMapeo();
-  const prg   = el("importar-progreso");
-  prg.style.display = "block";
-  el("btn-confirmar-importar").disabled = true;
-
-  prg.textContent = "Cargando participantes existentes...";
-  const snapExist = await getDocs(collection(db, "participantes"));
-  const correosExistentes = new Set(snapExist.docs.map(d => d.data().correo).filter(Boolean));
-
-  let ok = 0, dup = 0, err = 0;
-  for (let i = 0; i < filasArchivo.length; i++) {
-    prg.textContent = `Procesando ${i + 1} / ${filasArchivo.length}...`;
-    const ins   = filaAInscripcion(filasArchivo[i], mapeo);
-    const fallo = validarInscripcion(ins);
-    if (fallo) { err++; continue; }
-    if (correosExistentes.has(ins.correo)) { dup++; continue; }
-
-    try {
-      const cedLimpia  = ins.cedula.replace(/[^a-zA-Z0-9]/g, "_");
-      const mailLimpio = ins.correo.replace(/[^a-zA-Z0-9]/g, "_");
-      const docId = cedLimpia ? `c_${cedLimpia}` : `e_${mailLimpio}`;
-      const token = [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, "0")).join("");
-      const codigo = `IMP-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-
-      await setDoc(doc(db, "participantes", docId), {
-        ...ins, codigo, token,
-        fechaRegistro:      serverTimestamp(),
-        actualizadoEn:      serverTimestamp(),
-        importadoDeArchivo: true,
-      });
-      correosExistentes.add(ins.correo);
-      ok++;
-    } catch (e) { err++; }
-  }
-
-  prg.textContent = "";
-  prg.style.display = "none";
-  el("btn-confirmar-importar").disabled = false;
-  mostrarAlerta("success", `Importación completa: ${ok} importados · ${dup} duplicados omitidos · ${err} errores.`);
-  await cargarParticipantes();
-});
-
-const zone = el("upload-zone");
-zone.addEventListener("click", () => el("input-archivo").click());
-zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("dragover"); });
-zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
-zone.addEventListener("drop", e => { e.preventDefault(); zone.classList.remove("dragover"); const f = e.dataTransfer.files[0]; if (f) procesarArchivo(f); });
-el("input-archivo").addEventListener("change", e => { if (e.target.files[0]) procesarArchivo(e.target.files[0]); });
 
 // ═══════════════════════════════════════════════════════════
 // PARTICIPANTES  (lee de la colección "participantes")
@@ -1934,8 +1731,7 @@ el("btn-export-excel-participantes").addEventListener("click", () => {
 // MODALES
 // ═══════════════════════════════════════════════════════════
 el("modal-qr-close").addEventListener("click", () => el("modal-qr").classList.remove("open"));
-el("modal-preview-close").addEventListener("click", () => el("modal-preview").classList.remove("open"));
-[el("modal-qr"), el("modal-preview")].forEach(m => m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); }));
+[el("modal-qr")].forEach(m => m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); }));
 
 // ═══════════════════════════════════════════════════════════
 // SALONES — nombre, rótulo y capacidad de cada espacio del plano

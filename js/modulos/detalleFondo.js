@@ -1,4 +1,4 @@
-﻿import { guardRoute, requirePermiso } from "../core/auth.js";
+﻿import { guardRoute, requirePermiso, aplicarPermisosDom } from "../core/auth.js";
 import { db } from "../core/firebase-config.js";
 import { formatearMoneda, resumenItemPrincipal } from "../core/operaciones.js";
 import { generarReporteFinancieroExcel } from "./reporteFinancieroExcel.js";
@@ -9,6 +9,7 @@ import {
 
 guardRoute();
 await requirePermiso("ver_fondos");
+aplicarPermisosDom();
 const h = escaparHtml;
 
 const estado = {

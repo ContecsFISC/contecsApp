@@ -78,6 +78,9 @@ export const PERMISOS = {
   imprimir_credenciales:  ["ceo", "junta_principal"],
   // Debe reflejar ROLES_IMPORTAR_PARTICIPANTES en functions/importaciones.js.
   importar_participantes: ["ceo", "junta_principal"],
+  // Botón "Reenviar correo de credencial" del perfil. Antes iba con
+  // "ver_participantes"; se separa para poder darlo o quitarlo suelto.
+  reenviar_credencial:    ["ceo", "junta_principal", "junta", "coordinador", "staff_contecs"],
   gestionar_inscripciones: ["ceo", "staff_contecs"],
   gestionar_voluntarios:   ["junta_principal","voluntariado","ceo"],
   gestionar_actividades:   ["junta_principal","actividades","ceo"],
@@ -93,19 +96,252 @@ export const PERMISOS = {
   gestionar_secretaria:    ["ceo", "secretario"],
 };
 
-// Función para verificar si un rol tiene un permiso
-export function tienePermiso(rol, permiso) {
+// ── Sub-permisos (pestañas y botones de un módulo) ───────────────────────────
+// No tienen lista de roles: por defecto siguen al permiso del módulo (con sus
+// ajustes), así que quien entra al módulo ve todo como siempre. El CEO puede
+// quitar o dar cada uno suelto. Los que también se validan en el servidor
+// (lectura QR, avisos de giras, editar eventos, salones) están copiados en
+// functions/permisos.js y firestore.rules (permiteSub).
+export const SUBPERMISOS = {
+  // Gestión de Evento
+  lectura_qr:              "gestionar_inscripciones",
+  evento_editar:           "gestionar_inscripciones",
+  evento_participantes:    "gestionar_inscripciones",
+  evento_asistencia:       "gestionar_inscripciones",
+  evento_documentos:       "gestionar_inscripciones",
+  evento_salones:          "gestionar_inscripciones",
+  // Fondos
+  fondos_exportar:         "ver_fondos",
+  // Actividades de venta
+  ventas_exportar:         "gestionar_ventas",
+  // Bitácora
+  bitacora_ventas:         "ver_bitacora",
+  bitacora_compras:        "ver_bitacora",
+  bitacora_fondos:         "ver_bitacora",
+  bitacora_inventario:     "ver_bitacora",
+  bitacora_mermas:         "ver_bitacora",
+  // Catálogo
+  catalogo_categorias:     "editar_catalogo",
+  catalogo_productos:      "editar_catalogo",
+  // Voluntarios
+  voluntarios_lectura_qr:  "gestionar_voluntarios",
+  voluntarios_asignar:     "gestionar_voluntarios",
+  voluntarios_importar:    "gestionar_voluntarios",
+  voluntarios_registro:    "gestionar_voluntarios",
+  voluntarios_asistencias: "gestionar_voluntarios",
+  voluntarios_exportar:    "gestionar_voluntarios",
+  // Actividades
+  actividades_formularios: "gestionar_actividades",
+  // Giras
+  giras_lectura_qr:        "gestionar_giras",
+  giras_notificar:         "gestionar_giras",
+  giras_eliminar:          "gestionar_giras",
+};
+
+// ── Ajustes individuales ─────────────────────────────────────────────────────
+// El rol es la plantilla; el CEO puede darle o quitarle permisos sueltos a una
+// persona desde Usuarios. Viven en usuarios/{uid}.permisosExtra:
+//   { ver_participantes: { modo: "otorgar", vence: Timestamp | null },
+//     exportar_participantes: { modo: "quitar" } }
+// Un "otorgar" con vence deja de valer solo al pasar esa fecha.
+// La misma regla está en functions/permisos.js y en permite()/otorgado() de
+// firebase_rules/firestore.rules: si cambia aquí, cambia allá.
+
+// Solo cuentan para roles internos. "Sin rol" desactiva la cuenta aunque
+// conserve ajustes, el patrocinador queda en su pestaña y el CEO ya tiene todo.
+const ROLES_CON_AJUSTES = Object.keys(ROLES).filter(r => r !== "ceo" && r !== "posper");
+
+export function admiteAjustes(rol) {
+  return ROLES_CON_AJUSTES.includes(rol);
+}
+
+// Firestore Timestamp, Date, milisegundos o { seconds } (lo que quede en
+// sessionStorage) -> milisegundos, o null si no vence.
+export function venceEnMs(vence) {
+  if (vence == null) return null;
+  if (typeof vence === "number") return vence;
+  if (typeof vence.toMillis === "function") return vence.toMillis();
+  if (vence instanceof Date) return vence.getTime();
+  if (typeof vence.seconds === "number") return vence.seconds * 1000;
+  return null;
+}
+
+// "otorgar", "quitar" o null (sin ajuste o ya vencido).
+export function ajusteDePermiso(rol, permiso, extra, ahora = Date.now()) {
+  if (!admiteAjustes(rol)) return null;
+  const ajuste = extra?.[permiso];
+  if (ajuste?.modo === "quitar") return "quitar";
+  if (ajuste?.modo === "otorgar") {
+    const vence = venceEnMs(ajuste.vence);
+    return vence == null || ahora < vence ? "otorgar" : null;
+  }
+  return null;
+}
+
+// Lo que el rol da por sí solo, sin ajustes. Un sub-permiso, lo mismo que su
+// módulo.
+export function rolIncluyePermiso(rol, permiso) {
   if (!rol || !permiso) return false;
   if (rol === "ceo") return true; // CEO tiene acceso a todo sin excepción
+  if (SUBPERMISOS[permiso]) return rolIncluyePermiso(rol, SUBPERMISOS[permiso]);
   return (PERMISOS[permiso] || []).includes(rol);
+}
+
+// ¿Puede? Rol + ajustes individuales. `extra` es usuarios/{uid}.permisosExtra;
+// sin él se responde solo por rol. Un sub-permiso sin ajuste propio sigue a su
+// módulo, incluidos los ajustes del módulo.
+export function tienePermiso(rol, permiso, extra = null) {
+  const ajuste = ajusteDePermiso(rol, permiso, extra);
+  if (ajuste === "otorgar") return true;
+  if (ajuste === "quitar") return false;
+  if (SUBPERMISOS[permiso]) return tienePermiso(rol, SUBPERMISOS[permiso], extra);
+  return rolIncluyePermiso(rol, permiso);
 }
 
 // Función para obtener todos los permisos de un rol
 export function permisosDeRol(rol) {
-  return Object.keys(PERMISOS).filter(p => tienePermiso(rol, p));
+  return Object.keys(PERMISOS).filter(p => rolIncluyePermiso(rol, p));
 }
 
 // Función para obtener info del rol
 export function infoRol(rol) {
   return ROLES[rol] || { label: rol, color: "#717D7E" };
 }
+
+// ── Catálogo para el gestor de permisos (Usuarios) ───────────────────────────
+// Agrupa los permisos por pantalla, con el texto que ve el CEO.
+// - "requiere": acción con roles propios que solo sirve si se puede entrar al
+//   módulo; el gestor da la entrada junto con ella.
+// - Los sub-permisos (SUBPERMISOS) siguen al módulo mientras no se ajusten.
+//   Darlos suelto da también la entrada al módulo, salvo los "independiente"
+//   (páginas propias, como Lectura QR).
+// ver_precios y aprobar_gastos no aparecen porque hoy ninguna pantalla los usa.
+export const CATALOGO_PERMISOS = [
+  {
+    modulo: "Participantes",
+    permisos: [
+      { id: "ver_participantes",      label: "Ver participantes", detalle: "Entrar al módulo, ver la lista y los perfiles." },
+      { id: "aprobar_pagos",          label: "Revisar pagos", detalle: "Aprobar o rechazar pagos, ver comprobantes y subir la foto del pago en efectivo.", requiere: "ver_participantes" },
+      { id: "reenviar_credencial",    label: "Reenviar correo de credencial", detalle: "Botón de reenvío en el perfil (máximo 4 por persona).", requiere: "ver_participantes" },
+      { id: "eliminar_participantes", label: "Eliminar participantes", detalle: "Borrado definitivo, con sus asistencias y comprobante.", requiere: "ver_participantes" },
+      { id: "exportar_participantes", label: "Exportar a Excel", detalle: "Descarga la lista completa con datos personales.", requiere: "ver_participantes" },
+      { id: "imprimir_credenciales",  label: "Imprimir credenciales", detalle: "Las credenciales llevan el QR de acceso de cada persona.", requiere: "ver_participantes" },
+      { id: "importar_participantes", label: "Importar listas", detalle: "Inscribir estudiantes desde el Excel o CSV de un profesor.", requiere: "ver_participantes" },
+    ],
+  },
+  {
+    modulo: "Gestión de Evento",
+    permisos: [
+      { id: "gestionar_inscripciones", label: "Entrar a Gestión de Evento", detalle: "El módulo completo. Sus pestañas, abajo, siguen a este permiso salvo que las ajustes." },
+      { id: "lectura_qr",           label: "Lectura QR", detalle: "Escanear credenciales para marcar asistencia (también sin entrar al resto del módulo).", independiente: true },
+      { id: "evento_editar",        label: "Crear y editar eventos", detalle: "Eventos y checkpoints: crear, editar, activar, cancelar y eliminar." },
+      { id: "evento_participantes", label: "Pestaña Participantes", detalle: "Lista del evento y exportar todos los QR." },
+      { id: "evento_asistencia",    label: "Pestaña Asistencia", detalle: "Matriz de asistencia por checkpoint." },
+      { id: "evento_documentos",    label: "Pestaña Certificados", detalle: "PDF y Excel del programa, exponentes y participantes elegibles." },
+      { id: "evento_salones",       label: "Salones", detalle: "Configurar nombre y capacidad de los salones (pestaña y Mapa)." },
+    ],
+  },
+  {
+    modulo: "Mapa y estadísticas",
+    permisos: [
+      { id: "ver_estadisticas_congreso", label: "Estadísticas del congreso", detalle: "Asistencia, checkpoints y participantes." },
+      { id: "ver_mapa",                  label: "Mapa del evento", detalle: "Ver la maqueta y la ocupación de los salones." },
+      { id: "liberar_asiento",           label: "Liberar asientos", detalle: "Desde el Mapa, para quien salió antes.", requiere: "ver_mapa" },
+    ],
+  },
+  {
+    modulo: "POSPER",
+    permisos: [
+      { id: "acceso_posper", label: "POSPER, Randomizer y Sorteo", detalle: "La pestaña del patrocinador." },
+      { id: "liberar_rfid",  label: "Liberar RFID", detalle: "Quitar un RFID asignado por error.", requiere: "acceso_posper" },
+    ],
+  },
+  {
+    modulo: "Fondos",
+    permisos: [
+      { id: "ver_fondos",      label: "Ver fondos", detalle: "Saldos y movimientos de los fondos." },
+      { id: "editar_fondos",   label: "Mover fondos", detalle: "Registrar entradas y salidas de un fondo.", requiere: "ver_fondos" },
+      { id: "fondos_exportar", label: "Exportar reporte financiero", detalle: "El Excel del detalle de fondos." },
+    ],
+  },
+  {
+    modulo: "Ventas",
+    permisos: [
+      { id: "acceso_venta_rapida", label: "Ventas", detalle: "Entrar a Venta rápida." },
+      { id: "registrar_ventas",    label: "Registrar mermas en ventas", detalle: "Dentro de Ventas.", requiere: "acceso_venta_rapida" },
+      { id: "gestionar_ventas",    label: "Actividades de venta", detalle: "Crear y administrar las actividades de venta." },
+      { id: "ventas_exportar",     label: "Exportar actividades de venta", detalle: "El Excel del listado de actividades." },
+    ],
+  },
+  {
+    modulo: "Compras y reportes",
+    permisos: [
+      { id: "registrar_compras", label: "Compras", detalle: "Registrar compras y subir facturas." },
+      { id: "ver_reportes",      label: "Reportes financieros", detalle: "" },
+    ],
+  },
+  {
+    modulo: "Bitácora",
+    permisos: [
+      { id: "ver_bitacora",        label: "Entrar a Bitácora", detalle: "Historial financiero. Sus pestañas siguen a este permiso salvo que las ajustes." },
+      { id: "bitacora_ventas",     label: "Pestaña Ventas", detalle: "" },
+      { id: "bitacora_compras",    label: "Pestaña Compras", detalle: "" },
+      { id: "bitacora_fondos",     label: "Pestaña Fondos", detalle: "" },
+      { id: "bitacora_inventario", label: "Pestaña Inventario", detalle: "" },
+      { id: "bitacora_mermas",     label: "Pestaña Mermas", detalle: "" },
+    ],
+  },
+  {
+    modulo: "Logística",
+    permisos: [
+      { id: "ver_inventario",      label: "Inventario", detalle: "Ver existencias y movimientos de stock." },
+      { id: "editar_catalogo",     label: "Catálogo", detalle: "Crear y editar productos y categorías." },
+      { id: "catalogo_categorias", label: "Pestaña Categorías", detalle: "" },
+      { id: "catalogo_productos",  label: "Pestaña Productos", detalle: "" },
+    ],
+  },
+  {
+    modulo: "Voluntarios",
+    permisos: [
+      { id: "gestionar_voluntarios",   label: "Entrar a Voluntarios", detalle: "El módulo completo. Sus pestañas siguen a este permiso salvo que las ajustes." },
+      { id: "voluntarios_lectura_qr",  label: "Escanear QR de voluntarios", detalle: "Marcar asistencia de voluntarios (también sin entrar al resto del módulo).", independiente: true },
+      { id: "voluntarios_asignar",     label: "Pestaña Voluntariado", detalle: "Asignar voluntarios y grupos a actividades." },
+      { id: "voluntarios_registro",    label: "Pestaña Voluntarios", detalle: "Registro de voluntarios." },
+      { id: "voluntarios_asistencias", label: "Pestaña Asistencias", detalle: "" },
+      { id: "voluntarios_importar",    label: "Pestaña Importar", detalle: "" },
+      { id: "voluntarios_exportar",    label: "Exportar Excel y QR", detalle: "Botones de exportar de las pestañas." },
+    ],
+  },
+  {
+    modulo: "Actividades",
+    permisos: [
+      { id: "gestionar_actividades",   label: "Actividades", detalle: "Crear y administrar actividades." },
+      { id: "actividades_formularios", label: "Solicitud e informe de actividad", detalle: "Los formularios universitarios." },
+    ],
+  },
+  {
+    modulo: "Giras",
+    permisos: [
+      { id: "gestionar_giras",  label: "Entrar a Giras", detalle: "Armar giras. Sus acciones siguen a este permiso salvo que las ajustes." },
+      { id: "giras_lectura_qr", label: "Lectura QR de giras", detalle: "Entrada y salida de la gira (también sin entrar al resto del módulo).", independiente: true },
+      { id: "giras_notificar",  label: "Enviar correos de gira", detalle: "Notificar participantes y no seleccionados, y reenviar." },
+      { id: "giras_eliminar",   label: "Eliminar giras", detalle: "" },
+    ],
+  },
+  {
+    modulo: "Calendario y Secretaría",
+    permisos: [
+      { id: "ver_calendario",       label: "Calendario", detalle: "" },
+      { id: "gestionar_secretaria", label: "Secretaría", detalle: "Reuniones y minutas." },
+    ],
+  },
+  {
+    modulo: "Administración",
+    permisos: [
+      { id: "gestionar_usuarios", label: "Usuarios", detalle: "Ver usuarios y cambiar roles (nunca el propio ni el de CEO)." },
+      { id: "filtrar_usuarios",   label: "Buscar y filtrar usuarios", detalle: "", requiere: "gestionar_usuarios" },
+      { id: "eliminar_usuarios",  label: "Eliminar usuarios", detalle: "", requiere: "gestionar_usuarios" },
+      { id: "exportar_datos",     label: "Exportar base de datos", detalle: "" },
+    ],
+  },
+];

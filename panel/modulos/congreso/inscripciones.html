@@ -9,7 +9,6 @@
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
- <script src="../../../js/libs/papaparse.min.js"></script>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
  <script src="../../../js/libs/jspdf.umd.min.js"></script>
  <script type="module">
@@ -41,9 +40,6 @@
  .checkpoint-tag { display:inline-flex; align-items:center; gap:6px; background:var(--verde-fondo); border:1px solid var(--verde-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--verde-oscuro); }
  .checkpoint-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
 
- .upload-zone { border:2px dashed var(--gris-borde); border-radius:var(--radio); padding:36px 20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; }
- .upload-zone:hover,.upload-zone.dragover { border-color:var(--verde-claro); background:var(--verde-fondo); }
- .upload-zone p { color:var(--gris-medio); font-size:14px; margin-top:8px; }
 
  .tabla-asistencia th,.tabla-asistencia td { font-size:12px; padding:8px 10px; text-align:center; white-space:nowrap; color:var(--verde-claro); }
  .tabla-asistencia th { background:var(--verde-fondo); color:var(--verde-oscuro); border-bottom:2px solid var(--verde-oscuro); }
@@ -92,9 +88,6 @@
  .stat-mini .num { font-size:26px; font-weight:700; color:var(--verde-oscuro); }
  .stat-mini .lbl { font-size:12px; color:var(--gris-medio); margin-top:4px; }
 
- .mapeo-table { width:100%; font-size:13px; margin-top:12px; }
- .mapeo-table td { padding:6px 8px; border-bottom:1px solid var(--gris-borde); vertical-align:middle; }
- .mapeo-table select { width:100%; padding:6px 8px; border:1.5px solid var(--verde-claro); border-radius:6px; font-size:13px; }
 
  .card-title { color: var(--verde-oscuro); }
 
@@ -207,8 +200,8 @@
 <div class="topbar">
  <h1>CONTECS 2026 — Gestión de Eventos </h1>
  <div class="topbar-actions">
- <a href="lecturaQR.html" class="btn-qr-scan"> Leer QR</a>
- <a href="mapa.html" class="btn-qr-scan" title="Mapa del evento">Mapa</a>
+ <a href="lecturaQR.html" class="btn-qr-scan" data-permiso="lectura_qr"> Leer QR</a>
+ <a href="mapa.html" class="btn-qr-scan" title="Mapa del evento" data-permiso="ver_mapa">Mapa</a>
  <a href="../../../panel/dashboard.html" class="btn-volver" title="Volver"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
  </div>
 </div>
@@ -224,7 +217,7 @@
  <div class="form-groupE">
  <select id="sel-evento"><option value="">— Selecciona un evento —</option></select>
  </div>
- <button class="btn btn-outline btn-sm" id="btn-nuevo-evento" style="width:auto">+ Nuevo</button>
+ <button class="btn btn-outline btn-sm" id="btn-nuevo-evento" data-permiso="evento_editar" style="width:auto">+ Nuevo</button>
  </div>
  <div id="evento-info" style="margin-top:8px;font-size:13px;color:var(--gris-medio);"></div>
  </div>
@@ -232,16 +225,15 @@
  <!-- TABS -->
  <div class="tabs">
  <button class="tab-btn active" data-tab="tab-evento">Evento</button>
- <button class="tab-btn" data-tab="tab-importar"> Importar</button>
- <button class="tab-btn" data-tab="tab-participantes"> Participantes</button>
- <button class="tab-btn" data-tab="tab-asistencia"> Asistencia</button>
- <button class="tab-btn" data-tab="tab-certificados"> Certificados</button>
- <button class="tab-btn" data-tab="tab-salones">Salones</button>
+ <button class="tab-btn" data-tab="tab-participantes" data-permiso="evento_participantes"> Participantes</button>
+ <button class="tab-btn" data-tab="tab-asistencia" data-permiso="evento_asistencia"> Asistencia</button>
+ <button class="tab-btn" data-tab="tab-certificados" data-permiso="evento_documentos"> Certificados</button>
+ <button class="tab-btn" data-tab="tab-salones" data-permiso="evento_salones">Salones</button>
  </div>
 
  <!-- TAB EVENTO -->
  <div class="tab-panel active" id="tab-evento">
- <div class="card" style="border-left: 3px solid var(--verde-claro);">
+ <div class="card" style="border-left: 3px solid var(--verde-claro);" data-permiso="evento_editar">
  <div class="card-title" id="form-evento-titulo">Crear nuevo evento</div>
  <div class="form-groupE">
  <label style="color:var(--verde-oscuro)">Nombre del evento *</label>
@@ -310,7 +302,7 @@
  <div class="card" style="border-left: 3px solid var(--verde-claro);" id="card-checkpoints-vista">
  <div class="card-heading-row">
  <div class="card-title" style="margin-bottom:0" id="cp-vista-titulo">Checkpoints del evento</div>
- <button class="btn btn-outline btn-sm" id="btn-abrir-modal-cp-vista" style="width:auto;display:none"> Gestionar checkpoints</button>
+ <button class="btn btn-outline btn-sm" id="btn-abrir-modal-cp-vista" data-permiso="evento_editar" style="width:auto;display:none"> Gestionar checkpoints</button>
  </div>
  <div id="cp-vista-sin-evento" style="color:var(--gris-medio);font-size:13px;text-align:center;padding:16px 0;">
  Selecciona un evento activo para ver sus checkpoints.
@@ -318,36 +310,6 @@
  <div id="cp-vista-lista" style="display:none;"></div>
  <div id="cp-vista-resumen" style="display:none;margin-top:12px;padding:10px 14px;background:var(--verde-fondo);border-radius:var(--radio-sm);font-size:13px;color:var(--verde-oscuro);">
  <strong id="cp-vista-resumen-texto"></strong>
- </div>
- </div>
- </div>
-
- <!-- TAB IMPORTAR -->
- <div class="tab-panel" id="tab-importar">
- <div class="card" style="border: 2px solid var(--verde-claro);">
- <div class="card-title">Importar desde CSV / Excel</div>
- <p style="font-size:13px;color:var(--gris-medio);margin-bottom:16px;">
- Exporta las respuestas de tu Google Form o Microsoft Form (CSV o .xlsx) y sube el archivo aquí. Los participantes se guardarán en la colección global. Los correos duplicados se omitirán automáticamente.
- </p>
- <div class="upload-zone" id="upload-zone">
- <div style="font-size:36px;"></div>
- <p>Arrastra tu archivo CSV o Excel aquí<br/>o <strong>haz clic</strong> para seleccionar</p>
- <input type="file" id="input-archivo" accept=".csv,.xlsx,.xls" style="display:none"/>
- </div>
- <div id="mapeo-section" style="display:none;margin-top:20px;">
- <div class="card-title">Mapeo de columnas</div>
- <p style="font-size:13px;color:var(--gris-medio);margin-bottom:10px;">
- Verifica que cada campo corresponda a la columna correcta del archivo. Los campos marcados no se detectaron automáticamente.
- </p>
- <table class="mapeo-table">
- <thead><tr><th style="text-align:left;font-weight:600">Campo contecs</th><th style="text-align:left;font-weight:600">Columna del archivo</th></tr></thead>
- <tbody id="mapeo-tbody"></tbody>
- </table>
- <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
- <button class="btn btn-outline btn-sm" id="btn-preview-importar" style="width:auto"> Vista previa</button>
- <button class="btn btn-primary" id="btn-confirmar-importar" style="flex:1"> Importar participantes</button>
- </div>
- <div id="importar-progreso" style="display:none;margin-top:12px;font-size:13px;color:var(--gris-medio);text-align:center;"></div>
  </div>
  </div>
  </div>
@@ -499,18 +461,6 @@
  <div style="display:flex;gap:8px;">
  <button class="btn btn-primary btn-sm" id="btn-descargar-qr" style="flex:1"> Descargar</button>
  <button class="btn btn-outline btn-sm" id="btn-copiar-qr" style="flex:1"> Copiar</button>
- </div>
- </div>
-</div>
-
-<!-- MODAL PREVIEW IMPORTAR -->
-<div class="modal-overlay" id="modal-preview">
- <div class="modal-box" style="max-width:720px;width:100%;">
- <button class="modal-close" id="modal-preview-close" type="button" aria-label="Cerrar">&times;</button>
- <div class="modal-title">Vista previa (primeras 5 filas)</div>
- <p id="preview-resumen" style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;"></p>
- <div class="tabla-wrap" style="max-height:340px;overflow-y:auto;">
- <table><thead id="preview-thead"></thead><tbody id="preview-tbody"></tbody></table>
  </div>
  </div>
 </div>

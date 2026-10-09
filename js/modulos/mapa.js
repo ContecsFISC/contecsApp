@@ -562,7 +562,7 @@ ajustarAlto();
 
 async function iniciar() {
   await esperarSesionLista();
-  S.gestor = usuarioTienePermiso("gestionar_inscripciones");
+  S.gestor = usuarioTienePermiso("evento_salones");
   S.liberar = usuarioTienePermiso("liberar_asiento");
   renderLeyenda();
   renderPisos();
