@@ -355,7 +355,19 @@
 
     /* ══════════ POSPER — patrocinador ══════════
        Su inicio es solo esta bienvenida y sus tres módulos: nada de
-       balances, agenda ni próximos días. */
+       balances, agenda ni próximos días. Colores y degradado del sitio de
+       POSPER (azul noche → azul → rojo); la línea roja del hero es el
+       "láser" que cruza su logo. */
+    body.dashboard-posper {
+      --posper-noche: #061b2a;
+      --posper-azul:  #0b3857;
+      --posper-rojo:  #980000;
+      --posper-laser: #cc0000;
+      background: linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 24rem);
+    }
+    body.dashboard-posper .topbar { background: var(--posper-noche) !important; }
+    body.dashboard-posper .rol-pill { background: rgba(204,0,0,0.08); color: var(--posper-rojo); }
+    body.dashboard-posper .badge-verificado .bv-body { fill: var(--posper-azul); }
     .posper-hero {
       position: relative;
       overflow: hidden;
@@ -363,9 +375,9 @@
       padding: clamp(24px, 4vw, 40px);
       color: #fff;
       background:
-        radial-gradient(circle at 90% 10%, rgba(0,166,81,0.45), transparent 45%),
-        linear-gradient(135deg, #0b2f5c 0%, #123f78 55%, #0a5c3a 100%);
-      box-shadow: 0 18px 40px rgba(11,47,92,0.28);
+        radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%),
+        linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
+      box-shadow: 0 18px 40px rgba(6,27,42,0.32);
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
     }
     .posper-hero::after {
@@ -376,10 +388,26 @@
       border-radius: 50%;
       border: 28px solid rgba(255,255,255,0.06);
     }
+    .posper-hero > * { position: relative; z-index: 1; }
+    /* El láser del logo sigue de borde a borde del hero (54 % = altura de la
+       línea roja dentro de posper-logo-blanco.png). */
+    .posper-marca { width: clamp(200px, 32vw, 300px); margin-bottom: clamp(18px, 3vw, 26px); }
+    .posper-marca::before {
+      content: "";
+      position: absolute;
+      left: -100vw; right: -100vw; top: 54%;
+      height: 2px; margin-top: -1px;
+      background: #ff2a2a;
+      box-shadow: 0 0 12px rgba(255,42,42,0.75);
+      opacity: 0.45;
+      z-index: -1;
+    }
+    .posper-logo { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
     .posper-kicker { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
     .posper-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 5vw, 46px); font-weight: 700; line-height: 1.05; margin: 8px 0 10px; }
     .posper-sub { font-size: 15px; line-height: 1.55; max-width: 560px; opacity: 0.92; }
-    .posper-sello { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+    .posper-sello { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+    .posper-sello::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 8px #ff2a2a; }
     .posper-modulos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
     .posper-modulo {
       display: flex; flex-direction: column; gap: 6px;
@@ -390,12 +418,12 @@
       transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s;
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
     }
-    .posper-modulo:hover { transform: translateY(-3px); border-color: #2f80ed; box-shadow: 0 14px 30px rgba(11,47,92,0.16); }
+    .posper-modulo:hover { transform: translateY(-3px); border-color: #cc0000; box-shadow: 0 14px 30px rgba(6,27,42,0.16); }
     .posper-modulo:active { transform: scale(0.98); }
-    .posper-modulo-icono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #0b2f5c, #2f80ed); margin-bottom: 6px; }
-    .posper-modulo:nth-child(2) .posper-modulo-icono { background: linear-gradient(135deg, #0a5c3a, #00a651); }
-    .posper-modulo:nth-child(3) .posper-modulo-icono { background: linear-gradient(135deg, #8a5a00, #f5b700); }
-    .posper-modulo-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #0b2f5c; }
+    .posper-modulo-icono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #061b2a, #0b3857); margin-bottom: 6px; }
+    .posper-modulo:nth-child(2) .posper-modulo-icono { background: linear-gradient(135deg, #0b3857, #980000); }
+    .posper-modulo:nth-child(3) .posper-modulo-icono { background: linear-gradient(135deg, #980000, #cc0000); }
+    .posper-modulo-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
     .posper-modulo-texto { font-size: 13px; line-height: 1.45; color: var(--gris-medio); }
 
     @media (max-width: 400px) {
@@ -1548,6 +1576,7 @@
         const icono = trazo => `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${trazo}</svg>`;
         contenido.innerHTML = `
           <section class="posper-hero">
+            <div class="posper-marca"><img class="posper-logo" src="../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/></div>
             <div class="posper-kicker">CONTECS 2026</div>
             <h2 class="posper-titulo">¡Bienvenidos, POSPER!</h2>
             <p class="posper-sub">Gracias por patrocinar los lectores del congreso y por acompañar a los estudiantes de la FISC en esta edición. Desde aquí registran la entrada a las actividades, entregan los RFID y realizan el gran sorteo.</p>

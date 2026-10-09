@@ -9,7 +9,11 @@
 // La cédula es lo que lleva su QR (Lectura QR de voluntarios marca horas con
 // ella), así que se normaliza y no puede repetirse: un documento-candado en
 // identificadores_voluntarios/{cédula} lo garantiza dentro de la transacción.
+// El correo tampoco puede repetirse: correos_voluntarios/{sha256(correo)} hace
+// lo mismo (el hash porque un correo puede tener caracteres que no valen en un
+// ID de documento).
 
+const crypto = require("node:crypto");
 const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 
@@ -95,18 +99,27 @@ async function registrarVoluntario(request, {aplicarLimite}) {
   const datos = normalizarVoluntario(request.data || {});
   await aplicarLimite(request);
   const lockRef = db.collection("identificadores_voluntarios").doc(datos.id);
+  const correoRef = db.collection("correos_voluntarios")
+      .doc(crypto.createHash("sha256").update(datos.correo).digest("hex"));
   const volRef = db.collection("voluntarios").doc();
   await db.runTransaction(async (tx) => {
-    const [lock, existentes] = await Promise.all([
+    const [lock, existentes, lockCorreo, mismoCorreo] = await Promise.all([
       tx.get(lockRef),
       // Voluntarios importados antes del registro no tienen candado.
       tx.get(db.collection("voluntarios").where("id", "==", datos.id).limit(1)),
+      tx.get(correoRef),
+      tx.get(db.collection("voluntarios").where("correo", "==", datos.correo).limit(1)),
     ]);
     if (lock.exists || !existentes.empty) {
       throw new HttpsError("already-exists",
           "Esta cédula ya está registrada como voluntario. Si necesitas corregir tus datos, escríbele al comité de voluntariado.");
     }
+    if (lockCorreo.exists || !mismoCorreo.empty) {
+      throw new HttpsError("already-exists",
+          "Este correo ya está registrado como voluntario. Si necesitas corregir tus datos, escríbele al comité de voluntariado.");
+    }
     tx.set(lockRef, {voluntarioId: volRef.id, creadoEn: FieldValue.serverTimestamp()});
+    tx.set(correoRef, {voluntarioId: volRef.id, creadoEn: FieldValue.serverTimestamp()});
     tx.set(volRef, {
       ...datos,
       grupo: "voluntario",

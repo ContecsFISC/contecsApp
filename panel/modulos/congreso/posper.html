@@ -18,14 +18,33 @@
  await requirePermiso("acceso_posper");
  </script>
  <style>
+ /* Colores del sitio de POSPER (patrocinador): azul noche, azul y rojo
+    "láser". El verde de éxito y el rojo de error se mantienen para que el
+    estado se lea de un vistazo. */
+ :root {
+   --pp-noche: #061b2a;
+   --pp-azul: #0b3857;
+   --pp-rojo: #980000;
+   --pp-laser: #cc0000;
+   --pp-borde: rgba(204, 0, 0, 0.4);
+   --pp-degradado: radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%), linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
+ }
+ .topbar { background: var(--pp-noche) !important; }
+ .pp-h1 { display: flex; align-items: center; gap: 10px; }
+ .pp-h1 img { height: 1.2em; width: auto; display: block; }
+ body { background: radial-gradient(circle at 88% -5%, rgba(204,0,0,0.08), transparent 32%), linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 240px); }
+ .card { border-left-color: var(--pp-laser); }
+ .card-title { border-bottom-color: #e7eef4; }
+ th { background: #e7eef4; color: var(--pp-azul); border-bottom-color: var(--pp-azul); }
+ .btn-primary:hover { box-shadow: 0 8px 24px rgba(204, 0, 0, 0.32); }
  .container { max-width: 560px; }
 
  .btn-primary {
- background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
- box-shadow: 0 4px 12px var(--verde-sombra);
+ background: linear-gradient(135deg, var(--pp-laser) 0%, var(--pp-rojo) 100%);
+ box-shadow: 0 4px 12px rgba(204, 0, 0, 0.25);
  }
- .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
- .card-title { color: var(--verde-oscuro); }
+ .btn-outline { color: var(--pp-azul); border-color: var(--pp-azul); }
+ .card-title { color: var(--pp-azul); }
 
  /* Campo que recibe lo que "teclea" el lector del EA530. Va visible y con
     teclado: en el EA530 la lectura entra por el teclado del sistema y, con el
@@ -41,11 +60,11 @@
  .cp-aviso { margin-top: 8px; font-size: 12px; color: var(--gris-medio); line-height: 1.45; }
  .ceo-todos { display: none; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--gris-medio); }
  .ceo-todos input { width: auto; }
- .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--verde-oscuro); font-weight: 600; }
+ .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--pp-azul); font-weight: 600; }
  .config-resumen span { min-width: 0; overflow-wrap: anywhere; }
 
- .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: linear-gradient(160deg, var(--topbar-verde) 0%, var(--verde) 100%); box-shadow: var(--sombra-verde); transition: background var(--dur-vista) var(--ease-out); user-select: none; }
- .escenario.rfid { background: linear-gradient(160deg, #0b2f5c 0%, var(--azul-info) 100%); }
+ .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: var(--pp-degradado); box-shadow: 0 8px 28px rgba(6, 27, 42, 0.3); transition: background var(--dur-vista) var(--ease-out); user-select: none; }
+ .escenario.rfid { background: linear-gradient(160deg, var(--pp-noche) 0%, #1f6fa3 100%); }
  .escenario.ok { background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); }
  .escenario.error { background: linear-gradient(160deg, #6e1712 0%, var(--rojo) 100%); }
  .escenario.inactivo { background: linear-gradient(160deg, #3a3a3c 0%, #636366 100%); }
@@ -57,31 +76,31 @@
  .escenario-acciones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
  .escenario-acciones .btn { width: auto; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.5); color: #fff; }
 
- .resultado { margin-top: 16px; background: #fff; border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
- .resultado-nombre { font-size: 19px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 6px; overflow-wrap: anywhere; }
+ .resultado { margin-top: 16px; background: #fff; border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--pp-laser); }
+ .resultado-nombre { font-size: 19px; font-weight: 700; color: var(--pp-noche); margin-bottom: 6px; overflow-wrap: anywhere; }
  .resultado-fila { font-size: 13px; color: var(--gris-medio); margin-bottom: 3px; overflow-wrap: anywhere; }
  .resultado-fila strong { color: var(--gris-texto); }
  .chip { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin: 8px 6px 0 0; }
  .chip-ok { background: var(--verde-fondo); color: var(--verde-oscuro); }
  .chip-aviso { background: var(--amarillo-fondo); color: var(--amarillo); }
- .chip-rfid { background: #e8f1fa; color: var(--azul-info); font-family: ui-monospace, Consolas, monospace; }
+ .chip-rfid { background: #e7eef4; color: var(--pp-azul); font-family: ui-monospace, Consolas, monospace; }
 
  .pp-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.55); }
  .pp-modal.abierto { display: flex; }
  .pp-modal-caja { width: 100%; max-width: 380px; background: #fff; border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); animation: modalIn var(--dur-vista) var(--ease-spring); }
  @keyframes modalIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
- .pp-modal-titulo { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 8px; }
+ .pp-modal-titulo { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--pp-noche); margin-bottom: 8px; }
  .pp-modal-texto { font-size: 14px; color: var(--gris-medio); line-height: 1.45; margin-bottom: 20px; overflow-wrap: anywhere; }
  .pp-modal-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
  .pp-modal-botones .btn { min-height: 64px; font-size: 22px; font-weight: 800; }
  .btn-no { background: var(--gris-suave); color: var(--gris-texto); border: 2px solid var(--gris-borde); }
 
  .diag { font-size: 13px; }
- .diag summary { cursor: pointer; font-weight: 700; color: var(--verde-oscuro); padding: 2px 0; }
+ .diag summary { cursor: pointer; font-weight: 700; color: var(--pp-azul); padding: 2px 0; }
  .diag-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 6px 12px; margin-top: 12px; }
  .diag-grid dt { color: var(--gris-medio); }
  .diag-grid dd { margin: 0; color: var(--gris-texto); font-weight: 600; overflow-wrap: anywhere; }
- .diag-sub { margin-top: 14px; font-weight: 700; color: var(--verde-oscuro); }
+ .diag-sub { margin-top: 14px; font-weight: 700; color: var(--pp-azul); }
  .diag-crudo { margin-top: 6px; padding: 8px 10px; background: var(--gris-suave); border-radius: var(--radio-sm); font-family: ui-monospace, Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; min-height: 34px; }
  .diag-badge { display: inline-block; margin-top: 10px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
  .diag-badge.si { background: var(--verde-fondo); color: var(--verde-oscuro); }
@@ -98,7 +117,7 @@
 <body>
 
 <div class="topbar">
- <h1>CONTECS — POSPER</h1>
+ <h1 class="pp-h1">CONTECS × <img src="../../../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/></h1>
  <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
@@ -107,7 +126,7 @@
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
  <!-- CONFIGURACIÓN -->
- <div class="card" id="config-card" style="border: 2px solid var(--verde-claro);">
+ <div class="card" id="config-card" style="border: 2px solid var(--pp-borde);">
  <div id="config-form">
  <div class="card-title">Dónde se está escaneando</div>
  <div class="form-groupE">
@@ -153,7 +172,7 @@
  </div>
 
  <!-- REGISTROS DE LA SESIÓN -->
- <div class="card" style="margin-top:20px;border: 2px solid var(--verde-claro);">
+ <div class="card" style="margin-top:20px;border: 2px solid var(--pp-borde);">
  <div class="card-title">Registros de esta sesión</div>
  <div class="tabla-wrap">
  <table>

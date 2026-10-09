@@ -332,6 +332,10 @@ service cloud.firestore {
     match /identificadores_voluntarios/{id} {
       allow read, write: if false;
     }
+    // Correo único del mismo registro (sha256 del correo en minúsculas).
+    match /correos_voluntarios/{id} {
+      allow read, write: if false;
+    }
 
     // Caché del mapa público (mapaPublico): se entrega por la función, nunca
     // directo al navegador.

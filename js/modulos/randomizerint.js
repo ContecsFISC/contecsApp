@@ -117,7 +117,8 @@ const lienzo = el("confeti");
 const pincel = lienzo.getContext("2d");
 let piezas = [];
 let animandoConfeti = false;
-const COLORES = ["#ffd34d", "#2f80ed", "#00a651", "#ffffff", "#ff6b6b", "#7ad3ff"];
+// Colores de POSPER (rojo láser, azul) más el dorado de los ganadores.
+const COLORES = ["#ffd34d", "#cc0000", "#ff3b3b", "#ffffff", "#2a7ab0", "#0b3857"];
 
 function ajustarLienzo() {
   lienzo.width = window.innerWidth * devicePixelRatio;

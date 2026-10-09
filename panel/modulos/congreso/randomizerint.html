@@ -16,13 +16,15 @@
  await requirePermiso("acceso_posper");
  </script>
  <style>
- /* Pantalla para proyectar: fondo oscuro con los colores de POSPER (azul) y
-    CONTECS (verde). Todo se lee a varios metros. */
+ /* Pantalla para proyectar con el degradado y colores del sitio de POSPER
+    (azul noche → azul → rojo, línea roja de "láser" como en su logo); el
+    dorado queda para los ganadores. Todo se lee a varios metros. */
  :root {
-   --ri-fondo: #050d18;
-   --ri-azul: #0b2f5c;
-   --ri-azul-claro: #2f80ed;
-   --ri-verde: #00a651;
+   --ri-fondo: #061b2a;
+   --ri-azul: #0b3857;
+   --ri-rojo: #980000;
+   --ri-laser: #cc0000;
+   --ri-laser-claro: #ff3b3b;
    --ri-dorado: #ffd34d;
    --ri-texto: #f4f8ff;
    --ri-suave: rgba(244, 248, 255, 0.68);
@@ -31,8 +33,9 @@
  body {
    margin: 0; color: var(--ri-texto); background: var(--ri-fondo);
    background-image:
-     radial-gradient(ellipse at 15% 0%, rgba(47,128,237,0.35) 0%, transparent 55%),
-     radial-gradient(ellipse at 85% 100%, rgba(0,166,81,0.28) 0%, transparent 55%);
+     radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%),
+     linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
+   background-attachment: fixed;
    font-family: var(--fuente); overflow-x: hidden;
  }
  .ri { min-height: 100vh; display: flex; flex-direction: column; padding: 16px clamp(16px, 3vw, 40px) 24px; gap: 18px; box-sizing: border-box; }
@@ -41,7 +44,7 @@
  .ri-marca { display: flex; align-items: center; gap: 12px; min-width: 0; }
  .ri-marca a { color: var(--ri-suave); display: inline-flex; width: 38px; height: 38px; border-radius: 50%; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
  .ri-marca-txt { font-family: var(--fuente-display); font-weight: 700; letter-spacing: 1px; font-size: clamp(14px, 2vw, 18px); }
- .ri-marca-txt span { color: var(--ri-azul-claro); }
+ .ri-marca-txt span { color: var(--ri-laser-claro); }
  .ri-controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
  .ri-controles select, .ri-controles input { background: rgba(255,255,255,0.08); color: var(--ri-texto); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 10px; font-size: 13px; font-family: var(--fuente); }
  .ri-controles select option { color: #111; }
@@ -53,19 +56,25 @@
  .ri-escenario { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: clamp(14px, 3vh, 28px); position: relative; }
  .ri-kicker { font-size: clamp(13px, 1.6vw, 18px); letter-spacing: 6px; text-transform: uppercase; color: var(--ri-suave); font-weight: 700; }
  .ri-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin: 0; }
- .ri-titulo span { background: linear-gradient(90deg, var(--ri-azul-claro), var(--ri-verde)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+ .ri-titulo span { color: var(--ri-laser-claro); text-shadow: 0 0 28px rgba(255,59,59,0.45); }
+ /* Logo grande con su láser extendido de lado a lado de la pantalla (54 % =
+    altura de la línea roja dentro de posper-logo-blanco.png). */
+ .ri-logo { position: relative; width: min(560px, 80vw); }
+ .ri-logo img { display: block; width: 100%; height: auto; position: relative; filter: drop-shadow(0 0 10px rgba(255,42,42,0.4)); }
+ .ri-logo::before { content: ""; position: absolute; left: -100vw; right: -100vw; top: 54%; height: 3px; margin-top: -1.5px; background: var(--ri-laser-claro); box-shadow: 0 0 16px rgba(255,42,42,0.8); opacity: 0.4; }
+ .ri-escenario { overflow-x: clip; }
 
  /* Carrete: ventana con el RFID y el nombre que pasan cada vez más lento. */
  .ri-carrete {
    width: min(920px, 100%); border-radius: 28px; padding: clamp(20px, 4vh, 40px) clamp(16px, 3vw, 40px);
-   background: linear-gradient(160deg, rgba(11,47,92,0.85), rgba(4,20,40,0.9));
-   border: 2px solid rgba(47,128,237,0.55);
-   box-shadow: 0 0 0 6px rgba(47,128,237,0.08), 0 30px 80px rgba(0,0,0,0.55), inset 0 0 60px rgba(47,128,237,0.18);
+   background: linear-gradient(160deg, rgba(11,56,87,0.88), rgba(6,27,42,0.92));
+   border: 2px solid rgba(204,0,0,0.6);
+   box-shadow: 0 0 0 6px rgba(204,0,0,0.08), 0 30px 80px rgba(0,0,0,0.55), inset 0 0 60px rgba(204,0,0,0.16);
    position: relative; overflow: hidden; box-sizing: border-box;
  }
  .ri-carrete::before, .ri-carrete::after { content: ""; position: absolute; left: 0; right: 0; height: 26%; pointer-events: none; z-index: 1; }
- .ri-carrete::before { top: 0; background: linear-gradient(rgba(4,20,40,0.95), transparent); }
- .ri-carrete::after { bottom: 0; background: linear-gradient(transparent, rgba(4,20,40,0.95)); }
+ .ri-carrete::before { top: 0; background: linear-gradient(rgba(6,27,42,0.95), transparent); }
+ .ri-carrete::after { bottom: 0; background: linear-gradient(transparent, rgba(6,27,42,0.95)); }
  .ri-rfid { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: clamp(34px, 8vw, 104px); font-weight: 800; letter-spacing: 0.06em; line-height: 1.1; color: var(--ri-dorado); text-shadow: 0 0 24px rgba(255,211,77,0.45); overflow-wrap: anywhere; }
  .ri-nombre { margin-top: 10px; font-family: var(--fuente-display); font-size: clamp(22px, 4vw, 46px); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
  .ri-dato { margin-top: 6px; font-size: clamp(14px, 1.8vw, 20px); color: var(--ri-suave); overflow-wrap: anywhere; min-height: 1.4em; }
@@ -82,15 +91,15 @@
  .ri-batir {
    font-family: var(--fuente-display); font-size: clamp(22px, 3.4vw, 38px); font-weight: 700; letter-spacing: 4px;
    padding: clamp(14px, 2.4vh, 22px) clamp(40px, 7vw, 90px); border-radius: 999px; border: none; cursor: pointer; color: #fff;
-   background: linear-gradient(135deg, var(--ri-azul-claro), var(--ri-verde));
-   box-shadow: 0 12px 40px rgba(47,128,237,0.45), inset 0 -4px 0 rgba(0,0,0,0.18);
+   background: linear-gradient(135deg, var(--ri-laser), var(--ri-rojo));
+   box-shadow: 0 12px 40px rgba(204,0,0,0.45), inset 0 -4px 0 rgba(0,0,0,0.18);
    transition: transform 0.15s ease, filter 0.2s ease;
  }
  .ri-batir:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); filter: brightness(1.08); }
  .ri-batir:active:not(:disabled) { transform: scale(0.97); }
  .ri-batir:disabled { opacity: 0.45; cursor: not-allowed; }
  .ri-batir.listo { animation: llamar 2s ease-in-out infinite; }
- @keyframes llamar { 0%,100% { box-shadow: 0 12px 40px rgba(47,128,237,0.45); } 50% { box-shadow: 0 12px 70px rgba(0,166,81,0.7); } }
+ @keyframes llamar { 0%,100% { box-shadow: 0 12px 40px rgba(204,0,0,0.45); } 50% { box-shadow: 0 12px 70px rgba(255,59,59,0.75); } }
  .ri-estado { font-size: clamp(13px, 1.5vw, 17px); color: var(--ri-suave); min-height: 1.5em; }
  .ri-estado strong { color: var(--ri-texto); }
 
@@ -138,6 +147,7 @@
  <div id="alerta" class="alerta"></div>
 
  <div class="ri-escenario">
+ <div class="ri-logo"><img src="../../../img/posper/posper-logo-blanco.png" alt="" width="448" height="81"/></div>
  <div class="ri-kicker">Gran sorteo</div>
  <h1 class="ri-titulo">¡Gracias, <span>POSPER</span>!</h1>
  <div class="ri-carrete" id="carrete" aria-live="polite">
@@ -153,6 +163,6 @@
  <div class="ri-ganadores" id="ri-ganadores" aria-label="Ganadores"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/randomizerint.js?v=20261008.1"></script>
+<script type="module" src="../../../js/modulos/randomizerint.js?v=20261009.1"></script>
 </body>
 </html>

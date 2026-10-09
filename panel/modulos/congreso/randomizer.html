@@ -16,13 +16,31 @@
  await requirePermiso("acceso_posper");
  </script>
  <style>
+ /* Colores del sitio de POSPER (patrocinador): azul noche, azul y rojo
+    "láser"; las tarjetas de ganadores llevan su degradado. */
+ :root {
+   --pp-noche: #061b2a;
+   --pp-azul: #0b3857;
+   --pp-rojo: #980000;
+   --pp-laser: #cc0000;
+   --pp-borde: rgba(204, 0, 0, 0.4);
+   --pp-degradado: radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%), linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
+ }
+ .topbar { background: var(--pp-noche) !important; }
+ .pp-h1 { display: flex; align-items: center; gap: 10px; }
+ .pp-h1 img { height: 1.2em; width: auto; display: block; }
+ body { background: radial-gradient(circle at 88% -5%, rgba(204,0,0,0.08), transparent 32%), linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 240px); }
+ .card { border-left-color: var(--pp-laser); }
+ .card-title { border-bottom-color: #e7eef4; }
+ th { background: #e7eef4; color: var(--pp-azul); border-bottom-color: var(--pp-azul); }
+ .btn-primary:hover { box-shadow: 0 8px 24px rgba(204, 0, 0, 0.32); }
  .container { max-width: 1100px; }
  .btn-primary {
- background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%);
- box-shadow: 0 4px 12px var(--verde-sombra);
+ background: linear-gradient(135deg, var(--pp-laser) 0%, var(--pp-rojo) 100%);
+ box-shadow: 0 4px 12px rgba(204, 0, 0, 0.25);
  }
- .btn-outline { color: var(--verde-oscuro); border-color: var(--verde-oscuro); }
- .card-title { color: var(--verde-oscuro); }
+ .btn-outline { color: var(--pp-azul); border-color: var(--pp-azul); }
+ .card-title { color: var(--pp-azul); }
 
  .barra { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
  .barra .form-groupE { flex: 1; min-width: 220px; margin: 0; }
@@ -31,10 +49,10 @@
  .btn-vivo { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
  #btn-batir { min-width: 170px; font-size: 17px; font-weight: 800; letter-spacing: 1px; }
  .conteo { font-size: 13px; color: var(--gris-medio); margin-top: 10px; }
- .conteo strong { color: var(--verde-oscuro); }
+ .conteo strong { color: var(--pp-azul); }
 
  .ganadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
- .ganador { position: relative; border-radius: var(--radio-lg); padding: 20px 16px 18px; color: #fff; text-align: center; background: linear-gradient(160deg, var(--topbar-verde) 0%, var(--verde) 100%); box-shadow: var(--sombra-verde); min-height: 150px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+ .ganador { position: relative; border-radius: var(--radio-lg); padding: 20px 16px 18px; color: #fff; text-align: center; background: var(--pp-degradado); box-shadow: 0 8px 24px rgba(6, 27, 42, 0.28); min-height: 150px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
  .ganador.listo { animation: revelar var(--dur-vista) var(--ease-spring); }
  @keyframes revelar { from { transform: scale(0.9); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
  .ganador-pos { position: absolute; top: 10px; left: 12px; font-family: var(--fuente-display); font-size: 13px; font-weight: 700; opacity: 0.8; }
@@ -42,8 +60,8 @@
  .ganador-dato { font-size: 13px; opacity: 0.9; overflow-wrap: anywhere; }
  .ganador-rfid { display: inline-block; margin: 4px auto 0; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.18); font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
 
- .rfid { font-family: ui-monospace, Consolas, monospace; color: var(--azul-info); font-weight: 600; white-space: nowrap; }
- tr.es-ganador td { background: var(--verde-fondo); font-weight: 600; }
+ .rfid { font-family: ui-monospace, Consolas, monospace; color: var(--pp-azul); font-weight: 600; white-space: nowrap; }
+ tr.es-ganador td { background: rgba(204, 0, 0, 0.07); font-weight: 600; }
  .btn-liberar { width: auto; color: var(--rojo); border-color: var(--rojo); white-space: nowrap; }
  #tabla-rfid td { font-size: 13px; }
 
@@ -60,7 +78,7 @@
 <body>
 
 <div class="topbar">
- <h1>CONTECS — Randomizer</h1>
+ <h1 class="pp-h1"><img src="../../../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/> Randomizer</h1>
  <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
@@ -68,7 +86,7 @@
 
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
- <div class="card" style="border: 2px solid var(--verde-claro);">
+ <div class="card" style="border: 2px solid var(--pp-borde);">
  <div class="card-title">Participantes con RFID anclado</div>
  <div class="barra">
  <div class="form-groupE">

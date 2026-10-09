@@ -1,7 +1,7 @@
 "use strict";
 
-// registrarVoluntario contra el emulador: normalización, cédula única (con
-// candado y contra voluntarios importados antes) y validaciones.
+// registrarVoluntario contra el emulador: normalización, cédula y correo únicos
+// (con candado y contra voluntarios importados antes) y validaciones.
 //   npm run test:voluntarios   (desde functions/)
 
 const assert = require("node:assert/strict");
@@ -35,7 +35,7 @@ async function rechazaCon(promesa, codigo, texto) {
 }
 
 async function main() {
-  await db.collection("voluntarios").doc("importado").set({nombre: "Ya", id: "PE-12-345", totalHoras: 0});
+  await db.collection("voluntarios").doc("importado").set({nombre: "Ya", id: "PE-12-345", correo: "importado@utp.ac.pa", totalHoras: 0});
   console.log("\nregistrarVoluntario:\n");
 
   await prueba("formatos de cédula y pasaporte", () => {
@@ -70,6 +70,15 @@ async function main() {
 
   await prueba("tampoco si ya estaba importado (sin candado)", async () => {
     await rechazaCon(registrar({...base, cedula: "pe 12 345"}), "already-exists");
+  });
+
+  await prueba("el mismo correo (aunque cambien mayúsculas) no se registra dos veces", async () => {
+    await rechazaCon(registrar({...base, cedula: "3-111-222", correo: "  MARIA@gmail.COM "}), "already-exists", /correo/);
+    assert.equal((await db.collection("voluntarios").where("id", "==", "3-111-222").get()).size, 0);
+  });
+
+  await prueba("tampoco si el correo ya estaba importado (sin candado)", async () => {
+    await rechazaCon(registrar({...base, cedula: "3-111-223", correo: "importado@utp.ac.pa"}), "already-exists", /correo/);
   });
 
   await prueba("valida horario, año, correo, teléfono, cédula y consentimiento", async () => {
