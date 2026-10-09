@@ -32,9 +32,13 @@
  .topbar { background: var(--pp-noche) !important; }
  .pp-h1 { display: flex; align-items: center; gap: 10px; }
  .pp-logo { position: relative; display: block; flex-shrink: 0; }
- .pp-logo img { height: 1.2em; width: auto; display: block; }
- /* Láser del logo en CSS: el PNG viene sin él (en la captura salía irregular). */
- .pp-logo::after { content: ""; position: absolute; left: 2%; right: 2.2%; top: 50.6%; height: 7.4%; min-height: 1.5px; background: var(--pp-laser); }
+ .pp-logo img { position: relative; z-index: 1; height: 1.2em; width: auto; display: block; }
+ /* Láser del logo en CSS: el PNG viene sin él (en la captura salía
+    irregular). Como en el logo de POSPER, va por detrás de las letras
+    (::before, bajo la imagen) y por delante del código de barras (::after,
+    hasta el 15.5 % del ancho). */
+ .pp-logo::before, .pp-logo::after { content: ""; position: absolute; left: 2%; right: 2.2%; top: 50.6%; height: 7.4%; min-height: 1.5px; background: var(--pp-laser); }
+ .pp-logo::after { right: 84.5%; z-index: 2; }
  body { background: radial-gradient(circle at 88% -5%, rgba(204,0,0,0.08), transparent 32%), linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 240px); }
  .card { border-left-color: var(--pp-laser); }
  .card-title { border-bottom-color: #e7eef4; }

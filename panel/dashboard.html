@@ -389,9 +389,11 @@
       border: 28px solid rgba(255,255,255,0.06);
     }
     .posper-hero > * { position: relative; z-index: 1; }
-    /* El láser del logo va en CSS (en la captura original salía irregular):
-       una línea recta sobre el logo, a la altura donde la trae POSPER, y un
-       reflejo tenue que sigue de borde a borde del hero. */
+    /* El láser del logo va en CSS (en la captura original salía irregular).
+       Como en el logo de POSPER, cruza por delante del código de barras
+       (.posper-laser, hasta el 15.5 % del ancho) y por detrás de las letras
+       (::after, bajo la imagen); ::before es el reflejo tenue de borde a
+       borde del hero. */
     .posper-marca { width: clamp(200px, 32vw, 300px); margin-bottom: clamp(18px, 3vw, 26px); }
     .posper-marca::before {
       content: "";
@@ -403,14 +405,15 @@
       opacity: 0.45;
       z-index: -1;
     }
-    .posper-marca::after {
+    .posper-marca::after, .posper-laser {
       content: "";
       position: absolute;
       left: 2%; right: 2.2%; top: 50.6%; height: 7.4%;
       background: #cc0000;
       box-shadow: 0 0 8px rgba(255,42,42,0.6);
     }
-    .posper-logo { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
+    .posper-laser { right: 84.5%; z-index: 2; }
+    .posper-logo { position: relative; z-index: 1; display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
     .posper-kicker { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
     .posper-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 5vw, 46px); font-weight: 700; line-height: 1.05; margin: 8px 0 10px; }
     .posper-sub { font-size: 15px; line-height: 1.55; max-width: 560px; opacity: 0.92; }
@@ -1584,7 +1587,7 @@
         const icono = trazo => `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${trazo}</svg>`;
         contenido.innerHTML = `
           <section class="posper-hero">
-            <div class="posper-marca"><img class="posper-logo" src="../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/></div>
+            <div class="posper-marca"><img class="posper-logo" src="../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/><span class="posper-laser" aria-hidden="true"></span></div>
             <div class="posper-kicker">CONTECS 2026</div>
             <h2 class="posper-titulo">¡Bienvenidos, POSPER!</h2>
             <p class="posper-sub">Gracias por patrocinar los lectores del congreso y por acompañar a los estudiantes de la FISC en esta edición. Desde aquí registran la entrada a las actividades, entregan los RFID y realizan el gran sorteo.</p>
