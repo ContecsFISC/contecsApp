@@ -12,9 +12,15 @@
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
  <script src="../../../js/libs/html5-qrcode.min.js"></script>
  <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, usuarioTienePermiso } from "../../../js/core/auth.js";
  guardRoute();
  await requirePermiso("lectura_qr");
+ // "Volver" lleva a Gestión de Evento; si se entró desde el dashboard (Mapa
+ // del evento → Lectura QR) o no se tiene ese módulo, vuelve al dashboard.
+ if (/dashboard\.html/.test(document.referrer) || !usuarioTienePermiso("gestionar_inscripciones")) {
+   const volver = document.querySelector(".btn-volver");
+   if (volver) { volver.href = "../../dashboard.html"; volver.title = volver.ariaLabel = "Volver al inicio"; }
+ }
  </script>
  <style>
  .container { max-width: 560px; }

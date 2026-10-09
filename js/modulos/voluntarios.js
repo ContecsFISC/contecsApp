@@ -391,8 +391,9 @@ function renderTablaActividades() {
 
 
 // ─── Lugar de la actividad: texto libre o un salón del plano ────────────────
-// Con un salón, la actividad aparece en el Mapa del evento (js/modulos/mapa.js)
-// y puede llevar su propio horario. Mismo selector que Gestión de Evento.
+// Con un salón, la actividad aparece en el Mapa del evento (js/modulos/mapa.js).
+// El horario (opcional) va con cualquier lugar. Mismo selector que Gestión de
+// Evento.
 const LUGAR_LIBRE = "__otro__";
 let salonesActividad = {};
 
@@ -420,7 +421,6 @@ function actualizarLugarActividad() {
   const valor = el("act-lugar-sel")?.value || LUGAR_LIBRE;
   const conSalon = valor !== LUGAR_LIBRE;
   el("act-lugar").style.display = conSalon ? "none" : "";
-  el("act-horario-group").style.display = conSalon ? "grid" : "none";
   const s = salonesActividad[valor];
   el("act-lugar-info").textContent = conSalon
     ? `Aparecerá en el Mapa del evento · ${nombrePiso(valor.split("-")[0])}${s?.capacidad ? ` · capacidad ${s.capacidad} personas` : ""}`
@@ -435,20 +435,20 @@ function fijarLugarActividad(a) {
     sel.insertAdjacentHTML("beforeend", `<option value="${escaparAtributo(a.salonId)}">${h(a.lugar || nombreSalon(a.salonId))}</option>`);
   }
   sel.value = a.salonId || LUGAR_LIBRE;
-  el("act-hora-inicio").value = a.salonId ? a.horaInicio || "" : "";
-  el("act-hora-fin").value = a.salonId ? a.horaFin || "" : "";
+  el("act-hora-inicio").value = a.horaInicio || "";
+  el("act-hora-fin").value = a.horaFin || "";
   actualizarLugarActividad();
 }
 
 function leerLugarActividad() {
   const valor = el("act-lugar-sel")?.value || LUGAR_LIBRE;
-  if (valor === LUGAR_LIBRE) {
-    return { lugar: el("act-lugar").value.trim(), salonId: null, horaInicio: null, horaFin: null };
-  }
   const horaInicio = el("act-hora-inicio").value || null;
   const horaFin = el("act-hora-fin").value || null;
   if (!!horaInicio !== !!horaFin) return { error: "Completa la hora de inicio y la de fin, o deja ambas vacías." };
   if (horaInicio && horaFin <= horaInicio) return { error: "La hora de fin debe ser posterior a la de inicio." };
+  if (valor === LUGAR_LIBRE) {
+    return { lugar: el("act-lugar").value.trim(), salonId: null, horaInicio, horaFin };
+  }
   const s = salonesActividad[valor];
   return {
     lugar: s ? `${nombreSalon(valor, s)}${s.rotulo ? ` (${s.rotulo})` : ""}` : el("act-lugar-sel").selectedOptions[0]?.textContent || nombreSalon(valor),
@@ -476,7 +476,7 @@ el("btn-guardar-actividad")?.addEventListener("click", async () => {
     fecha: new Date(fecha + "T12:00:00"),
     area,
     // `lugar` siempre lleva el texto (calendario, informes y demás lo leen);
-    // salonId y el horario solo existen si se eligió un salón del plano.
+    // salonId solo si se eligió un salón del plano. El horario es opcional.
     lugar:          lugarElegido.lugar,
     salonId:        lugarElegido.salonId,
     horaInicio:     lugarElegido.horaInicio,

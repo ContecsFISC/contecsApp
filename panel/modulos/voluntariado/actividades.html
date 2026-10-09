@@ -128,8 +128,8 @@
  <input type="number" id="act-voluntarios-req" placeholder="ej. 10" min="0"/>
  </div>
  </div>
- <!-- Solo con un salón: el Mapa usa este horario para saber cuándo está ocupado. -->
- <div class="mobile-stack" id="act-horario-group" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+ <!-- Horario de la actividad, con cualquier lugar. Con un salón, el Mapa lo usa para saber cuándo está ocupado. -->
+ <div class="mobile-stack" id="act-horario-group" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
  <div class="form-groupE">
  <label for="act-hora-inicio" style="color:var(--verde-oscuro)">Hora de inicio</label>
  <input type="time" id="act-hora-inicio"/>
@@ -138,7 +138,7 @@
  <label for="act-hora-fin" style="color:var(--verde-oscuro)">Hora de fin</label>
  <input type="time" id="act-hora-fin"/>
  </div>
- <small style="grid-column:1/-1;margin-top:-8px;color:var(--gris-medio);font-size:12px;">Opcional. Si lo dejas vacío, el mapa usa el horario de los turnos; sin turnos, la muestra todo el día.</small>
+ <small style="grid-column:1/-1;margin-top:-8px;color:var(--gris-medio);font-size:12px;">Opcional. Con un salón, el mapa usa este horario; si lo dejas vacío, usa el de los turnos y, sin turnos, la muestra todo el día.</small>
  </div>
  <div class="form-groupE" id="act-cupo-group" style="display:none;">
  <label style="color:var(--verde-oscuro)">Cupo máximo de asistentes</label>

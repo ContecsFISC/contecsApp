@@ -1,11 +1,11 @@
 # Mapa de arquitectura — t
 
-- Generado: **2026-10-09T03:35:51.463703+00:00**
+- Generado: **2026-10-09T03:35:54.548583+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `07177b49cd41fbf2…`
+- Huella del proyecto: `3b074a60a7d21830…`
 - Archivos analizados: **197**
-- Relaciones internas tipadas: **688**
-- Símbolos detectados: **5173**
+- Relaciones internas tipadas: **689**
+- Símbolos detectados: **5174**
 - Llamadas detectadas: **11476**
 - IDs DOM definidos: **992**
 - Paquetes externos usados: **31**
@@ -20,8 +20,8 @@
 ## Cerebro para IA: tres niveles
 
 - `GraphCompacto.json` — ~**12,219 tokens** · leer primero
-- `GraphCompleto.json` — ~**64,084 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**120,165 tokens** · evidencia exhaustiva
+- `GraphCompleto.json` — ~**64,136 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**120,227 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **89.8%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -34,7 +34,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 329.1 (conexiones: 163, 313 lineas)
+- `js/core/auth.js` — riesgo 331.1 (conexiones: 164, 313 lineas)
 - `js/core/seguridad.js` — riesgo 110.4 (conexiones: 55, 40 lineas)
 - `panel/dashboard.html` — riesgo 108.4 (conexiones: 44, 2040 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 102.6 (conexiones: 40, 2262 lineas)
@@ -52,7 +52,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 163 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
+- `js/core/auth.js` — grado 164 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
 - `js/core/seguridad.js` — grado 55 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/dashboard.html` — grado 44 | exporta: (sin exports detectados)
 - `panel/modulos/congreso/modulos_participantes.html` — grado 40 | exporta: (sin exports detectados)
@@ -72,8 +72,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
@@ -360,7 +360,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 306
+- `calls_imported_symbol`: 307
 - `imports`: 222
 - `navigates_to`: 65
 - `loads_script`: 40

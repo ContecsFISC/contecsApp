@@ -1820,18 +1820,18 @@
           modulos: [
             { label: "Participantes",       href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
             { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
-            // Acceso directo para quien solo tiene Lectura QR suelta (sin el
-            // módulo, que ya trae el botón "Leer QR").
-            { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html",                permiso: "lectura_qr", salvoSi: "gestionar_inscripciones" },
             { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
           ],
         },
         {
           // Lo ven todos los roles internos; quién configura salones o libera
-          // asientos lo decide la página con los permisos de siempre.
+          // asientos lo decide la página con los permisos de siempre. Lectura
+          // QR va aquí para encontrarla rápido el día del evento (Gestión de
+          // Evento también la abre con "Leer QR").
           id: "mapa", label: "Mapa del evento",
           modulos: [
             { label: "Mapa interactivo 3D", href: "modulos/congreso/mapa.html", permiso: "ver_mapa" },
+            { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html", permiso: "lectura_qr" },
           ],
         },
         {
