@@ -101,7 +101,7 @@
  <span class="ayuda" id="cedula-ayuda">Es lo que lleva tu QR de voluntario para registrar tus horas.</span>
  </div>
  <div class="grid-2">
- <div class="campo"><label for="correo">Correo <span class="req">*</span></label><input id="correo" type="email" autocomplete="email" maxlength="254" required/></div>
+ <div class="campo"><label for="correo">Correo UTP <span class="req">*</span></label><input id="correo" type="email" autocomplete="email" maxlength="254" placeholder="nombre.apellido@utp.ac.pa" required/></div>
  <div class="campo"><label for="telefono">Teléfono / WhatsApp <span class="req">*</span></label><input id="telefono" type="tel" autocomplete="tel" maxlength="30" placeholder="Ej.: 6000-0000" required/></div>
  </div>
  </div>
@@ -200,12 +200,12 @@ el("form").addEventListener("submit", async e => {
   el("alerta").className = "alerta";
   const v = id => el(id).value.trim();
   const horario = document.querySelector("input[name=horario]:checked")?.value || "";
-  const requeridos = [["nombre", "tu nombre"], ["apellido", "tu apellido"], ["cedula", "tu cédula o pasaporte"], ["correo", "tu correo"],
+  const requeridos = [["nombre", "tu nombre"], ["apellido", "tu apellido"], ["cedula", "tu cédula o pasaporte"], ["correo", "tu correo UTP"],
     ["telefono", "tu teléfono"], ["centro", "tu centro regional"], ["facultad", "tu facultad"], ["carrera", "tu carrera"], ["anio", "el año que cursas"]];
   for (const [id, texto] of requeridos) if (!v(id)) return error(`Falta ${texto}.`, el(id));
   const ced = normalizarCedula(v("cedula"));
   if (!ced.ok) return error("La cédula no tiene un formato válido.", el("cedula"));
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("correo"))) return error("El correo no es válido.", el("correo"));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("correo"))) return error("El correo UTP no es válido.", el("correo"));
   if (!horario) return error("Elige tu horario de clases de este semestre.", document.querySelector("input[name=horario]"));
   if (!el("acepta").checked) return error("Debes aceptar el uso de tus datos para el voluntariado.", el("acepta"));
 
