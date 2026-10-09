@@ -13,6 +13,7 @@
 const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 const {verificarClave} = require("./clave-rol");
 
 const db = getFirestore();
@@ -29,27 +30,11 @@ const ROLES_VALIDOS = new Set([
 const MAX_FALLOS = 5;
 const BLOQUEO_MS = 15 * 60 * 1000;
 
-async function cambiarRolUsuario(request, {hashClave}) {
-  if (!request.auth?.uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
-  const actorId = request.auth.uid;
-  const uid = typeof request.data?.uid === "string" ? request.data.uid.trim() : "";
-  const rol = typeof request.data?.rol === "string" ? request.data.rol.trim() : "";
-  const clave = request.data?.clave;
-  if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) throw new HttpsError("invalid-argument", "El usuario no es válido.");
-  if (!ROLES_VALIDOS.has(rol)) throw new HttpsError("invalid-argument", "Ese rol no existe.");
-  if (!hashClave) {
-    throw new HttpsError("failed-precondition", "La contraseña para cambiar roles no está configurada.");
-  }
-
-  const actorRef = db.collection("usuarios").doc(actorId);
-  const objetivoRef = db.collection("usuarios").doc(uid);
+// Revisa la contraseña con el límite de intentos (intentos_cambio_rol/{uid},
+// compartido por todo lo que la pide). Si falla, lanza el HttpsError.
+async function comprobarClave(actorId, clave, hashClave, origen) {
   const intentosRef = db.collection("intentos_cambio_rol").doc(actorId);
-  const [actorSnap, objetivoSnap, intentosSnap] = await db.getAll(actorRef, objetivoRef, intentosRef);
-  const actor = actorSnap.exists ? actorSnap.data() : null;
-  if (!usuarioPuede(actor, "gestionar_usuarios", ROLES_GESTIONAR_USUARIOS)) {
-    throw new HttpsError("permission-denied", "No tienes permiso para cambiar roles.");
-  }
-
+  const intentosSnap = await intentosRef.get();
   const intentos = intentosSnap.exists ? intentosSnap.data() : {};
   const bloqueadoHasta = intentos.bloqueadoHasta?.toMillis?.() || 0;
   if (bloqueadoHasta > Date.now()) {
@@ -64,11 +49,35 @@ async function cambiarRolUsuario(request, {hashClave}) {
       ultimoFallo: FieldValue.serverTimestamp(),
       bloqueadoHasta: fallos >= MAX_FALLOS ? Timestamp.fromMillis(Date.now() + BLOQUEO_MS) : null,
     });
-    console.warn("cambiarRolUsuario: contraseña incorrecta de", actorId, `(${fallos})`);
+    console.warn(`${origen}: contraseña incorrecta de`, actorId, `(${fallos})`);
     throw new HttpsError("permission-denied", fallos >= MAX_FALLOS ?
       "Contraseña incorrecta. Demasiados intentos: espera 15 minutos." :
       `Contraseña incorrecta. Te quedan ${MAX_FALLOS - fallos} intento${MAX_FALLOS - fallos !== 1 ? "s" : ""}.`);
   }
+  if (intentosSnap.exists) await intentosRef.delete();
+}
+
+async function cambiarRolUsuario(request, {hashClave}) {
+  if (!request.auth?.uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+  const actorId = request.auth.uid;
+  const uid = typeof request.data?.uid === "string" ? request.data.uid.trim() : "";
+  const rol = typeof request.data?.rol === "string" ? request.data.rol.trim() : "";
+  const clave = request.data?.clave;
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(uid)) throw new HttpsError("invalid-argument", "El usuario no es válido.");
+  if (!ROLES_VALIDOS.has(rol)) throw new HttpsError("invalid-argument", "Ese rol no existe.");
+  if (!hashClave) {
+    throw new HttpsError("failed-precondition", "La contraseña para cambiar roles no está configurada.");
+  }
+
+  const actorRef = db.collection("usuarios").doc(actorId);
+  const objetivoRef = db.collection("usuarios").doc(uid);
+  const [actorSnap, objetivoSnap] = await db.getAll(actorRef, objetivoRef);
+  const actor = await conAjustesDeRol(actorSnap.exists ? actorSnap.data() : null);
+  if (!usuarioPuede(actor, "gestionar_usuarios", ROLES_GESTIONAR_USUARIOS)) {
+    throw new HttpsError("permission-denied", "No tienes permiso para cambiar roles.");
+  }
+
+  await comprobarClave(actorId, clave, hashClave, "cambiarRolUsuario");
 
   if (!objetivoSnap.exists) throw new HttpsError("not-found", "El usuario ya no existe.");
   const anterior = objetivoSnap.data().rol || "sin_rol";
@@ -78,7 +87,6 @@ async function cambiarRolUsuario(request, {hashClave}) {
   }
 
   const batch = db.batch();
-  if (intentosSnap.exists) batch.delete(intentosRef);
   if (anterior !== rol) {
     batch.update(objetivoRef, {
       rol, rolCambiadoPor: actorId, rolCambiadoEn: FieldValue.serverTimestamp(),
@@ -93,4 +101,4 @@ async function cambiarRolUsuario(request, {hashClave}) {
   return {ok: true, anterior, rol};
 }
 
-module.exports = {cambiarRolUsuario, MAX_FALLOS};
+module.exports = {cambiarRolUsuario, comprobarClave, ROLES_GESTIONAR_USUARIOS, MAX_FALLOS};

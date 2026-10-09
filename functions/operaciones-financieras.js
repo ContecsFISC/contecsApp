@@ -1,6 +1,7 @@
 const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 
 const db = getFirestore();
 
@@ -123,7 +124,7 @@ async function obtenerActor(request, roles, permiso = null) {
       .doc(request.auth.uid).get();
   const usuario = usuarioSnap.data();
   const permitido = permiso ?
-    usuarioPuede(usuarioSnap.exists ? usuario : null, permiso, roles) :
+    usuarioPuede(await conAjustesDeRol(usuarioSnap.exists ? usuario : null), permiso, roles) :
     usuarioSnap.exists && roles.has(usuario?.rol);
   if (!permitido) {
     throw new HttpsError(

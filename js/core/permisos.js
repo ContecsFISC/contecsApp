@@ -198,14 +198,23 @@ export function rolIncluyePermiso(rol, permiso) {
   return (PERMISOS[permiso] || []).includes(rol);
 }
 
-// ¿Puede? Rol + ajustes individuales. `extra` es usuarios/{uid}.permisosExtra;
-// sin él se responde solo por rol. Un sub-permiso sin ajuste propio sigue a su
-// módulo, incluidos los ajustes del módulo.
-export function tienePermiso(rol, permiso, extra = null) {
-  const ajuste = ajusteDePermiso(rol, permiso, extra);
+// Ajuste del rol (Usuarios → "Permisos por rol"): config/permisos_roles.roles[rol].
+// `ajustesRol` es el mapa de ESE rol: { permiso: { modo } }.
+export function ajusteDelRol(rol, permiso, ajustesRol) {
+  if (!admiteAjustes(rol)) return null;
+  const modo = ajustesRol?.[permiso]?.modo;
+  return modo === "otorgar" || modo === "quitar" ? modo : null;
+}
+
+// ¿Puede? Primero el ajuste de la persona (`extra`, usuarios/{uid}.permisosExtra),
+// luego el de su rol (`ajustesRol`) y al final lo que el rol trae en el código.
+// Sin ajustes se responde solo por rol. Un sub-permiso sin ajuste propio sigue
+// a su módulo, incluidos los ajustes del módulo.
+export function tienePermiso(rol, permiso, extra = null, ajustesRol = null) {
+  const ajuste = ajusteDePermiso(rol, permiso, extra) ?? ajusteDelRol(rol, permiso, ajustesRol);
   if (ajuste === "otorgar") return true;
   if (ajuste === "quitar") return false;
-  if (SUBPERMISOS[permiso]) return tienePermiso(rol, SUBPERMISOS[permiso], extra);
+  if (SUBPERMISOS[permiso]) return tienePermiso(rol, SUBPERMISOS[permiso], extra, ajustesRol);
   return rolIncluyePermiso(rol, permiso);
 }
 

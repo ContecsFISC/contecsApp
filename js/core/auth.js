@@ -9,7 +9,7 @@ import { SSO_LOGIN_URL } from "./sso-config.js";
 import {
   doc, getDoc, setDoc, onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { tienePermiso, venceEnMs } from "./permisos.js";
+import { tienePermiso, venceEnMs, admiteAjustes } from "./permisos.js";
 
 const provider = new GoogleAuthProvider();
 const PUBLIC_PAGES = ["index.html", "auth.html"];
@@ -91,6 +91,44 @@ function leerPermisosExtra() {
   }
 }
 
+// Permisos por rol (config/permisos_roles, los que el CEO cambia en Usuarios →
+// "Permisos por rol"): en sessionStorage solo los del rol de la sesión.
+const refPermisosRoles = () => doc(db, "config", "permisos_roles");
+
+function serializarAjustesRol(datos, rol) {
+  const delRol = datos?.roles?.[rol] || {};
+  const limpio = {};
+  Object.keys(delRol).sort().forEach(permiso => {
+    const modo = delRol[permiso]?.modo;
+    if (modo === "otorgar" || modo === "quitar") limpio[permiso] = { modo };
+  });
+  return JSON.stringify(limpio);
+}
+
+function leerAjustesRol() {
+  try {
+    return JSON.parse(sessionStorage.getItem("ajustesRol") || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+
+async function cargarAjustesRol(rol) {
+  if (!admiteAjustes(rol)) {
+    sessionStorage.setItem("ajustesRol", "{}");
+    return;
+  }
+  try {
+    const snap = await getDoc(refPermisosRoles());
+    sessionStorage.setItem("ajustesRol", serializarAjustesRol(snap.exists() ? snap.data() : null, rol));
+  } catch (error) {
+    // Sin poder leerlos, el rol queda como en el código (igual que en las reglas
+    // si el documento no existe).
+    sessionStorage.setItem("ajustesRol", "{}");
+    console.warn("[Auth] No se pudieron leer los permisos por rol:", error);
+  }
+}
+
 // Un permiso otorgado "hasta el viernes" deja de valer en las reglas a esa
 // hora exacta; la página se recarga entonces para dejar de mostrar lo que ya
 // no se puede usar. Solo se programa si vence en las próximas 24 h.
@@ -133,6 +171,19 @@ export function escucharCambiosDeRol(uid) {
   });
 }
 
+// Igual con los permisos de su rol: si el CEO los cambia, se recarga.
+function escucharAjustesDeRol() {
+  const rol = sessionStorage.getItem("rol");
+  if (!admiteAjustes(rol)) return null;
+  return onSnapshot(refPermisosRoles(), (snap) => {
+    const nuevo = serializarAjustesRol(snap.exists() ? snap.data() : null, rol);
+    if ((sessionStorage.getItem("ajustesRol") || "{}") !== nuevo) {
+      sessionStorage.setItem("ajustesRol", nuevo);
+      window.location.reload();
+    }
+  }, (error) => console.warn("[Auth] Permisos por rol:", error));
+}
+
 let resolverSesionLista;
 const sesionLista = new Promise((resolve) => { resolverSesionLista = resolve; });
 
@@ -158,6 +209,7 @@ export function guardRoute() {
           await cargarUsuario(user);
         }
         escucharCambiosDeRol(user.uid);
+        escucharAjustesDeRol();
         programarRecargaPorVencimiento();
       }
     } catch (error) {
@@ -193,6 +245,7 @@ export async function cargarUsuario(user) {
       sessionStorage.setItem("rol",    data.rol || rolFallback);
       sessionStorage.setItem("email",  user.email);
       sessionStorage.setItem("permisosExtra", serializarPermisosExtra(data.permisosExtra));
+      await cargarAjustesRol(data.rol || rolFallback);
       return;
     }
 
@@ -210,6 +263,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("rol",    rolFallback);
     sessionStorage.setItem("email",  user.email);
     sessionStorage.setItem("permisosExtra", "{}");
+    sessionStorage.setItem("ajustesRol", "{}");
   } catch (error) {
     if (!esErrorDePermisosFirestore(error)) {
       throw error;
@@ -222,6 +276,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("rol",    rolFallback);
     sessionStorage.setItem("email",  user.email);
     sessionStorage.setItem("permisosExtra", "{}");
+    sessionStorage.setItem("ajustesRol", "{}");
     console.warn(
       `[Auth] Firestore no permitió acceder a usuarios/${user.uid}. Se usaron datos de respaldo de Auth.`,
       error
@@ -257,13 +312,14 @@ export function getUsuarioActual() {
     rol:    sessionStorage.getItem("rol"),
     email:  sessionStorage.getItem("email"),
     permisosExtra: leerPermisosExtra(),
+    ajustesRol: leerAjustesRol(),
   };
 }
 
-// Rol + permisos individuales de quien tiene la sesión abierta.
+// Rol + permisos individuales + permisos por rol de quien tiene la sesión abierta.
 export function usuarioTienePermiso(permiso) {
   const rol = sessionStorage.getItem("rol");
-  return tienePermiso(rol, permiso, leerPermisosExtra());
+  return tienePermiso(rol, permiso, leerPermisosExtra(), leerAjustesRol());
 }
 
 // Oculta todo elemento con data-permiso="..." que la sesión no puede usar

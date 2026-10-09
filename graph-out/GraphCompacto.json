@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T05:40:12.363699+00:00",
-  "project_fingerprint": "3ca3f29e71696a2e6897d7bf5f228e2da7b5da70bed3def30d27922a31f9bf32",
+  "generated_at": "2026-10-09T14:09:52.173190+00:00",
+  "project_fingerprint": "735d87e863e9fcf28261a5cda645f665b42a5dada5802067226e3db727cfdf6f",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 215,
-    "total_edges": 757,
+    "total_files": 218,
+    "total_edges": 776,
     "total_orphans": 72,
     "total_cycles": 0,
     "total_external_packages": 32,
-    "total_firestore_collections": 35,
-    "total_cloud_functions": 21,
+    "total_firestore_collections": 37,
+    "total_cloud_functions": 24,
     "total_possible_implicit_links": 5,
-    "total_symbols": 5727,
-    "total_function_calls": 12863,
-    "total_dom_ids": 1123,
+    "total_symbols": 5864,
+    "total_function_calls": 13148,
+    "total_dom_ids": 1133,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,10 +39,30 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "ecfd90a43ddf0de06d5a836dce8aff5ff6d08de9",
+    "head": "ff8cd9d6989a0491190dabadaedfcceb0f2a14d0",
     "changed_files": [
       {
         "file": "firebase_rules/firestore.rules",
+        "status": " M"
+      },
+      {
+        "file": "functions/cambio-rol.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/clave-rol.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/eliminaciones.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/eliminar-eventos.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/importaciones.js",
         "status": " M"
       },
       {
@@ -50,7 +70,19 @@
         "status": " M"
       },
       {
+        "file": "functions/operaciones-financieras.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/operaciones-qr.js",
+        "status": " M"
+      },
+      {
         "file": "functions/package.json",
+        "status": " M"
+      },
+      {
+        "file": "functions/permisos.js",
         "status": " M"
       },
       {
@@ -58,19 +90,19 @@
         "status": " M"
       },
       {
-        "file": "js/modulos/credenciales.js",
+        "file": "functions/test/permisos.test.mjs",
         "status": " M"
       },
       {
-        "file": "js/modulos/gestorCredenciales.js",
+        "file": "js/core/auth.js",
         "status": " M"
       },
       {
-        "file": "js/modulos/mapa.js",
+        "file": "js/core/permisos.js",
         "status": " M"
       },
       {
-        "file": "js/modulos/personas-credenciales.js",
+        "file": "js/modulos/reuniones-utils.js",
         "status": " M"
       },
       {
@@ -78,71 +110,31 @@
         "status": " M"
       },
       {
+        "file": "js/modulos/voluntarios.js",
+        "status": " M"
+      },
+      {
+        "file": "panel/dashboard.html",
+        "status": " M"
+      },
+      {
         "file": "panel/modulos/admin/usuarios.html",
         "status": " M"
       },
       {
-        "file": "panel/modulos/congreso/credenciales.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/mapa.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/voluntariado/voluntarios.html",
-        "status": " M"
-      },
-      {
-        "file": "functions/cambio-rol.js",
+        "file": "functions/ajustes-rol.js",
         "status": "??"
       },
       {
-        "file": "functions/clave-rol.js",
+        "file": "functions/permisos-admin.js",
         "status": "??"
       },
       {
-        "file": "functions/herramientas/hash-clave-rol.js",
-        "status": "??"
-      },
-      {
-        "file": "functions/mapa-publico.js",
-        "status": "??"
-      },
-      {
-        "file": "functions/registro-voluntarios.js",
-        "status": "??"
-      },
-      {
-        "file": "functions/test/cambio-rol.integration.js",
-        "status": "??"
-      },
-      {
-        "file": "functions/test/credenciales-personas.test.mjs",
-        "status": "??"
-      },
-      {
-        "file": "functions/test/importar-voluntarios.test.mjs",
-        "status": "??"
-      },
-      {
-        "file": "functions/test/mapa-publico.test.mjs",
-        "status": "??"
-      },
-      {
-        "file": "functions/test/registro-voluntarios.integration.js",
-        "status": "??"
-      },
-      {
-        "file": "public/mapa.html",
-        "status": "??"
-      },
-      {
-        "file": "public/registro-voluntarios.html",
+        "file": "functions/test/permisos-admin.integration.js",
         "status": "??"
       }
     ],
-    "changed_count": 25
+    "changed_count": 23
   },
   "domains": [
     {
@@ -222,18 +214,18 @@
     },
     {
       "name": "functions",
-      "file_count": 44,
+      "file_count": 47,
       "key_files": [
         "functions/index.js",
-        "functions/test/permanencia.test.mjs",
-        "functions/identidad.js",
         "functions/permisos.js",
+        "functions/test/permanencia.test.mjs",
+        "functions/ajustes-rol.js",
         "functions/importaciones.js",
-        "functions/operaciones-qr.js",
         "functions/test/permisos.test.mjs",
-        "functions/operaciones-financieras.js",
-        "functions/test/correos.test.mjs",
-        "functions/test/agenda-salones.test.mjs"
+        "functions/identidad.js",
+        "functions/operaciones-qr.js",
+        "functions/permisos-admin.js",
+        "functions/operaciones-financieras.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -241,9 +233,11 @@
         "asistencias_congreso",
         "asistencias_giras",
         "asistencias_voluntarios",
+        "cambios_permisos",
         "cambios_rol",
         "checkpoints",
         "compras",
+        "config",
         "eventos",
         "fondos",
         "fondos_entrada",
@@ -265,7 +259,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 7.2,
+      "average_risk": 8.2,
       "diagnostics": 0
     },
     {
@@ -321,6 +315,7 @@
         "categorias",
         "checkpoints",
         "compras",
+        "config",
         "credenciales_impresas",
         "eventos",
         "expositores",
@@ -340,7 +335,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 37.7,
+      "average_risk": 37.9,
       "diagnostics": 1
     },
     {
@@ -395,10 +390,10 @@
   "critical_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 343.1,
-      "degree": 170,
+      "risk_score": 345.7,
+      "degree": 171,
       "in_cycle": false,
-      "loc": 313
+      "loc": 369
     },
     {
       "label": "js/core/seguridad.js",
@@ -492,11 +487,11 @@
       "loc": 150
     },
     {
-      "label": "js/core/iconos.js",
-      "risk_score": 56.9,
-      "degree": 28,
+      "label": "js/core/permisos.js",
+      "risk_score": 57.8,
+      "degree": 27,
       "in_cycle": false,
-      "loc": 88
+      "loc": 376
     }
   ],
   "files": [
@@ -566,7 +561,7 @@
     },
     {
       "file": "firebase_rules/firestore.rules",
-      "risk": 4.7,
+      "risk": 5.0,
       "relations": 0,
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────"
     },
@@ -585,13 +580,26 @@
       ]
     },
     {
+      "file": "functions/ajustes-rol.js",
+      "risk": 18.3,
+      "relations": 9,
+      "purpose": "Ajustes de permisos por rol (config/permisos_roles), los que el CEO cambia desde Usuarios → \"Permisos por rol\". Se leen con una caché corta para no sumar una lectura a cada llamada",
+      "exports": [
+        "ajustesDeRoles",
+        "conAjustesDeRol",
+        "olvidarCache"
+      ]
+    },
+    {
       "file": "functions/cambio-rol.js",
-      "risk": 9.0,
-      "relations": 4,
+      "risk": 13.1,
+      "relations": 6,
       "purpose": "Cambiar el rol de un usuario del panel exige una contraseña. La contraseña no está en el código ni en el repo: en Secret Manager vive solo su hash (secreto ROL_CLAVE_HASH, formato ",
       "exports": [
         "MAX_FALLOS",
-        "cambiarRolUsuario"
+        "ROLES_GESTIONAR_USUARIOS",
+        "cambiarRolUsuario",
+        "comprobarClave"
       ],
       "collections": [
         "cambios_rol",
@@ -601,18 +609,20 @@
     },
     {
       "file": "functions/clave-rol.js",
-      "risk": 6.3,
-      "relations": 3,
+      "risk": 10.6,
+      "relations": 5,
       "purpose": "Hash de la contraseña para cambiar roles (ver cambio-rol.js). Sin Firebase: lo usan la Cloud Function, la herramienta herramientas/hash-clave-rol.js y las pruebas.",
       "exports": [
+        "firmarPase",
         "generarHash",
+        "paseValido",
         "verificarClave"
       ]
     },
     {
       "file": "functions/eliminaciones.js",
-      "risk": 9.1,
-      "relations": 3,
+      "risk": 11.1,
+      "relations": 4,
       "purpose": "Borrados definitivos desde el panel: participantes (con todo lo que cuelga de ellos) y usuarios del panel. Vive aparte de index.js por lo mismo que operaciones-qr.js: la lógica es ",
       "exports": [
         "eliminarParticipante",
@@ -633,8 +643,8 @@
     },
     {
       "file": "functions/eliminar-eventos.js",
-      "risk": 8.9,
-      "relations": 3,
+      "risk": 10.9,
+      "relations": 4,
       "purpose": "Borrado definitivo de un evento o de un checkpoint desde Gestión de Evento, con todo su rastro. Existe para limpiar pruebas (un checkpoint de prueba deja asistencias que cuentan pa",
       "exports": [
         "ROLES_ELIMINAR_CON_HISTORIAL",
@@ -682,8 +692,8 @@
     },
     {
       "file": "functions/importaciones.js",
-      "risk": 15.1,
-      "relations": 6,
+      "risk": 17.1,
+      "relations": 7,
       "purpose": "Importación de participantes desde la lista (Excel o CSV) que manda un profesor con sus estudiantes. Cada fila queda igual que si la persona se hubiera inscrito en registro.html — ",
       "exports": [
         "CATEGORIAS_IMPORTABLES",
@@ -700,21 +710,21 @@
     },
     {
       "file": "functions/index.js",
-      "risk": 46.3,
-      "relations": 14,
+      "risk": 50.8,
+      "relations": 16,
       "exports": [
         "accederGiraParticipante",
         "accederParticipante",
         "cambiarRolUsuario",
+        "desbloquearUsuarios",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
-        "importarParticipantes",
-        "liberarIdentidadParticipante",
-        "listarParticipantesParaGiras"
+        "guardarPermisosRol",
+        "guardarPermisosUsuario"
       ],
       "collections": [
         "asistencias_giras",
@@ -724,6 +734,7 @@
         "usuarios"
       ],
       "key_neighbors": [
+        "functions/ajustes-rol.js",
         "functions/cambio-rol.js",
         "functions/eliminaciones.js",
         "functions/eliminar-eventos.js",
@@ -733,9 +744,8 @@
         "functions/mapa-publico.js",
         "functions/operaciones-financieras.js",
         "functions/operaciones-qr.js",
-        "functions/permisos.js",
-        "functions/plantillas.js",
-        "functions/qr-participante.js"
+        "functions/permisos-admin.js",
+        "functions/permisos.js"
       ]
     },
     {
@@ -758,8 +768,8 @@
     },
     {
       "file": "functions/operaciones-financieras.js",
-      "risk": 11.4,
-      "relations": 2,
+      "risk": 13.4,
+      "relations": 3,
       "exports": [
         "ejecutarOperacionFinanciera"
       ],
@@ -776,8 +786,8 @@
     },
     {
       "file": "functions/operaciones-qr.js",
-      "risk": 14.8,
-      "relations": 4,
+      "risk": 16.8,
+      "relations": 5,
       "exports": [
         "ejecutarOperacionQr",
         "marcarCheckpointGira"
@@ -803,16 +813,46 @@
       "relations": 0
     },
     {
+      "file": "functions/permisos-admin.js",
+      "risk": 13.5,
+      "relations": 6,
+      "purpose": "Usuarios pide la contraseña (la misma de cambiar roles) al entrar. Con ella desbloquearUsuarios entrega un pase firmado que dura PASE_MS; con ese pase el CEO guarda permisos indivi",
+      "exports": [
+        "PASE_MS",
+        "desbloquearUsuarios",
+        "guardarPermisosRol",
+        "guardarPermisosUsuario",
+        "limpiarAjustes"
+      ],
+      "collections": [
+        "cambios_permisos",
+        "config",
+        "usuarios"
+      ]
+    },
+    {
       "file": "functions/permisos.js",
-      "risk": 16.9,
-      "relations": 8,
-      "purpose": "Permisos individuales en las Cloud Functions. El rol sigue siendo la base (cada función conserva su set ROLES_*), pero el CEO puede darle o quitarle un permiso suelto a una persona",
+      "risk": 20.9,
+      "relations": 10,
+      "purpose": "Permisos individuales y por rol en las Cloud Functions. El rol sigue siendo la base (cada función conserva su set ROLES_*), pero el CEO puede darle o quitarle un permiso suelto a u",
       "exports": [
         "ROLES_CON_AJUSTES",
         "SUBPERMISOS",
         "ajusteDePermiso",
         "usuarioPuede",
         "venceEnMs"
+      ],
+      "key_neighbors": [
+        "functions/cambio-rol.js",
+        "functions/eliminaciones.js",
+        "functions/eliminar-eventos.js",
+        "functions/importaciones.js",
+        "functions/index.js",
+        "functions/operaciones-financieras.js",
+        "functions/operaciones-qr.js",
+        "functions/permisos-admin.js",
+        "functions/test/permisos-admin.integration.js",
+        "functions/test/permisos.test.mjs"
       ]
     },
     {
@@ -1014,8 +1054,17 @@
       ]
     },
     {
+      "file": "functions/test/permisos-admin.integration.js",
+      "risk": 9.3,
+      "relations": 4,
+      "purpose": "Entrada a Usuarios con contraseña y guardado de permisos (permisos-admin.js) contra el emulador. Usa una contraseña de prueba con su propio hash: la real solo está en Secret Manage",
+      "collections": [
+        "cambios_permisos"
+      ]
+    },
+    {
       "file": "functions/test/permisos-reglas.integration.mjs",
-      "risk": 2.4,
+      "risk": 2.8,
       "relations": 0,
       "purpose": "Permisos individuales contra las reglas reales (firebase_rules/firestore.rules) en el emulador. Es la tercera copia de la regla rol + ajustes (las otras dos se comparan en test/per",
       "collections": [
@@ -1027,8 +1076,8 @@
     },
     {
       "file": "functions/test/permisos.test.mjs",
-      "risk": 14.4,
-      "relations": 6,
+      "risk": 17.1,
+      "relations": 7,
       "purpose": "Prueba de los permisos individuales (rol + ajustes del CEO). La misma regla vive en dos archivos que no se pueden importar entre sí: el panel (js/core/permisos.js) y las Cloud Func"
     },
     {
@@ -1118,8 +1167,8 @@
     },
     {
       "file": "js/core/auth.js",
-      "risk": 343.1,
-      "relations": 170,
+      "risk": 345.7,
+      "relations": 171,
       "exports": [
         "aplicarPermisosDom",
         "cargarUsuario",
@@ -1134,6 +1183,7 @@
         "usuarioTienePermiso"
       ],
       "collections": [
+        "config",
         "usuarios"
       ],
       "key_neighbors": [
@@ -1333,8 +1383,8 @@
     },
     {
       "file": "js/core/permisos.js",
-      "risk": 51.7,
-      "relations": 24,
+      "risk": 57.8,
+      "relations": 27,
       "purpose": "============================================= CONTECS — Sistema de Roles y Permisos =============================================",
       "exports": [
         "CATALOGO_PERMISOS",
@@ -1343,6 +1393,7 @@
         "SUBPERMISOS",
         "admiteAjustes",
         "ajusteDePermiso",
+        "ajusteDelRol",
         "infoRol",
         "permisosDeRol",
         "rolIncluyePermiso",
@@ -1995,9 +2046,10 @@
     },
     {
       "file": "js/modulos/usuarios.js",
-      "risk": 41.0,
-      "relations": 18,
+      "risk": 44.6,
+      "relations": 19,
       "collections": [
+        "config",
         "usuarios"
       ],
       "key_neighbors": [
@@ -2152,7 +2204,7 @@
     },
     {
       "file": "panel/modulos/admin/usuarios.html",
-      "risk": 9.9,
+      "risk": 10.3,
       "relations": 3
     },
     {
@@ -2499,6 +2551,10 @@
       "js/modulos/reportes_estadisticaCont.js",
       "js/modulos/voluntarios.js"
     ],
+    "cambios_permisos": [
+      "functions/permisos-admin.js",
+      "functions/test/permisos-admin.integration.js"
+    ],
     "cambios_rol": [
       "functions/cambio-rol.js",
       "functions/test/cambio-rol.integration.js"
@@ -2529,6 +2585,11 @@
       "js/modulos/reporteFinancieroExcel.js",
       "js/modulos/reportes_financieros.js",
       "panel/modulos/finanzas/bitacora.html"
+    ],
+    "config": [
+      "functions/permisos-admin.js",
+      "js/core/auth.js",
+      "js/modulos/usuarios.js"
     ],
     "credenciales_impresas": [
       "js/modulos/gestorCredenciales.js"
@@ -2673,6 +2734,7 @@
       "functions/index.js",
       "functions/operaciones-financieras.js",
       "functions/operaciones-qr.js",
+      "functions/permisos-admin.js",
       "functions/test/importaciones.integration.js",
       "functions/test/operaciones-qr.integration.js",
       "functions/test/permisos-reglas.integration.mjs",
@@ -2713,12 +2775,15 @@
         "accederGiraParticipante",
         "accederParticipante",
         "cambiarRolUsuario",
+        "desbloquearUsuarios",
         "ejecutarOperacionFinanciera",
         "ejecutarOperacionQr",
         "eliminarEventoOCheckpoint",
         "eliminarParticipante",
         "eliminarUsuario",
         "enviarCorreoQrParticipante",
+        "guardarPermisosRol",
+        "guardarPermisosUsuario",
         "importarParticipantes",
         "liberarIdentidadParticipante",
         "listarParticipantesParaGiras",
@@ -2751,5 +2816,5 @@
       }
     }
   ],
-  "estimated_tokens": 14457
+  "estimated_tokens": 14841
 }

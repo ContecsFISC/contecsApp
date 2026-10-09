@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import {
   ROLES, PERMISOS, SUBPERMISOS, CATALOGO_PERMISOS, tienePermiso, rolIncluyePermiso,
-  ajusteDePermiso, admiteAjustes,
+  ajusteDePermiso, ajusteDelRol, admiteAjustes,
 } from "../../js/core/permisos.js";
 
 const require = createRequire(import.meta.url);
@@ -33,18 +33,21 @@ const timestamp = (ms) => ({ toMillis: () => ms });
 // En el servidor, el set ROLES_* de cada función es lo que en el panel es
 // PERMISOS[permiso] (para un sub-permiso, el de su módulo); para comparar se
 // usa el mismo.
-function servidorPuede(rol, permiso, extra, ahora = AHORA) {
+// `delRol`: los permisos por rol (config/permisos_roles.roles[rol]), que en
+// el servidor llegan como usuario._ajustesRol (ajustes-rol.js).
+function servidorPuede(rol, permiso, extra, ahora = AHORA, delRol = undefined) {
   const lista = PERMISOS[SUBPERMISOS[permiso] || permiso] || [];
   const roles = new Set(["ceo", ...lista]);
-  return servidor.usuarioPuede({ rol, permisosExtra: extra }, permiso, roles, ahora);
+  return servidor.usuarioPuede({ rol, permisosExtra: extra, _ajustesRol: delRol }, permiso, roles, ahora);
 }
 
-// La regla escrita a mano, independiente de tienePermiso().
-function panelPuede(rol, permiso, extra, ahora = AHORA) {
-  const ajuste = ajusteDePermiso(rol, permiso, extra, ahora);
+// La regla escrita a mano, independiente de tienePermiso(): ajuste propio,
+// luego el del rol, luego el módulo (si es sub-permiso) y al final el rol.
+function panelPuede(rol, permiso, extra, ahora = AHORA, delRol = null) {
+  const ajuste = ajusteDePermiso(rol, permiso, extra, ahora) ?? ajusteDelRol(rol, permiso, delRol);
   if (ajuste === "otorgar") return true;
   if (ajuste === "quitar") return false;
-  if (SUBPERMISOS[permiso]) return panelPuede(rol, SUBPERMISOS[permiso], extra, ahora);
+  if (SUBPERMISOS[permiso]) return panelPuede(rol, SUBPERMISOS[permiso], extra, ahora, delRol);
   return rolIncluyePermiso(rol, permiso);
 }
 
@@ -201,6 +204,73 @@ prueba("todas las combinaciones rol × permiso × ajuste", () => {
     }
   }
   assert.ok(casos > 1000);
+});
+
+console.log("\nPermisos por rol (config/permisos_roles):\n");
+
+prueba("otorgar o quitar al rol cambia a todos los de ese rol", () => {
+  const delRol = { ver_participantes: { modo: "otorgar" }, acceso_venta_rapida: { modo: "quitar" } };
+  assert.equal(tienePermiso("ventas", "ver_participantes", {}, delRol), true);
+  assert.equal(tienePermiso("ventas", "acceso_venta_rapida", {}, delRol), false);
+  assert.equal(servidorPuede("ventas", "ver_participantes", {}, AHORA, delRol), true);
+  assert.equal(servidorPuede("ventas", "acceso_venta_rapida", {}, AHORA, delRol), false);
+});
+
+prueba("el ajuste propio de la persona manda sobre el de su rol", () => {
+  const delRol = { ver_participantes: { modo: "otorgar" } };
+  const extra = { ver_participantes: { modo: "quitar" } };
+  assert.equal(tienePermiso("ventas", "ver_participantes", extra, delRol), false);
+  assert.equal(servidorPuede("ventas", "ver_participantes", extra, AHORA, delRol), false);
+  const quitadoAlRol = { ver_participantes: { modo: "quitar" } };
+  const otorgado = { ver_participantes: { modo: "otorgar", vence: null } };
+  assert.equal(tienePermiso("junta", "ver_participantes", otorgado, quitadoAlRol), true);
+});
+
+prueba("si el otorgado propio vence, vuelve a mandar el rol", () => {
+  const delRol = { ver_participantes: { modo: "quitar" } };
+  const extra = { ver_participantes: { modo: "otorgar", vence: AYER } };
+  assert.equal(panelPuede("junta", "ver_participantes", extra, AHORA, delRol), false);
+  assert.equal(servidorPuede("junta", "ver_participantes", extra, AHORA, delRol), false);
+});
+
+prueba("una pestaña sigue a su módulo ajustado en el rol", () => {
+  const delRol = { gestionar_inscripciones: { modo: "otorgar" } };
+  assert.equal(tienePermiso("ventas", "evento_asistencia", {}, delRol), true);
+  assert.equal(servidorPuede("ventas", "evento_asistencia", {}, AHORA, delRol), true);
+});
+
+prueba("CEO, POSPER y sin_rol no admiten permisos por rol", () => {
+  const delRol = { eliminar_usuarios: { modo: "quitar" }, ver_participantes: { modo: "otorgar" } };
+  assert.equal(tienePermiso("ceo", "eliminar_usuarios", {}, delRol), true);
+  assert.equal(tienePermiso("posper", "ver_participantes", {}, delRol), false);
+  assert.equal(tienePermiso("sin_rol", "ver_participantes", {}, delRol), false);
+  assert.equal(servidorPuede("ceo", "eliminar_usuarios", {}, AHORA, delRol), true);
+  assert.equal(servidorPuede("sin_rol", "ver_participantes", {}, AHORA, delRol), false);
+});
+
+prueba("todas las combinaciones con ajuste propio y del rol", () => {
+  const propios = [undefined, { modo: "otorgar", vence: null }, { modo: "otorgar", vence: AYER }, { modo: "quitar" }];
+  const delRoles = [undefined, { modo: "otorgar" }, { modo: "quitar" }, { modo: "raro" }];
+  let casos = 0;
+  for (const rol of ["sin_rol", ...Object.keys(ROLES)]) {
+    for (const permiso of [...Object.keys(PERMISOS), ...Object.keys(SUBPERMISOS)]) {
+      const modulo = SUBPERMISOS[permiso];
+      for (const propio of propios) {
+        for (const r of delRoles) {
+          for (const rModulo of modulo ? delRoles : [undefined]) {
+            const extra = propio ? { [permiso]: propio } : {};
+            const delRol = { ...(r ? { [permiso]: r } : {}), ...(rModulo ? { [modulo]: rModulo } : {}) };
+            const esperado = panelPuede(rol, permiso, extra, AHORA, delRol);
+            assert.equal(tienePermiso(rol, permiso, extra, delRol), esperado);
+            assert.equal(servidorPuede(rol, permiso, extra, AHORA, delRol), esperado,
+              `${rol} / ${permiso} / ${JSON.stringify(propio)} / ${JSON.stringify(delRol)}`);
+            casos += 1;
+          }
+        }
+      }
+    }
+  }
+  assert.ok(casos > 5000);
 });
 
 prueba("los mismos roles admiten ajustes en ambos lados", () => {

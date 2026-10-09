@@ -1,12 +1,12 @@
 import { guardRoute, requirePermiso, getUsuarioActual, usuarioTienePermiso } from "../core/auth.js";
 import {
   ROLES, CATALOGO_PERMISOS, SUBPERMISOS, infoRol, rolIncluyePermiso, admiteAjustes, ajusteDePermiso,
-  tienePermiso, venceEnMs,
+  ajusteDelRol, tienePermiso, venceEnMs,
 } from "../core/permisos.js";
 import { escaparAtributo, escaparHtml, urlImagenSegura } from "../core/seguridad.js";
 import { app, db } from "../core/firebase-config.js";
 import {
-  collection, onSnapshot, doc, updateDoc, orderBy, query, serverTimestamp, Timestamp
+  collection, onSnapshot, doc, orderBy, query
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 
@@ -18,11 +18,14 @@ const rolSesion = getUsuarioActual().rol;
 const esCeo = rolSesion === "ceo";
 const puedeEliminar = usuarioTienePermiso("eliminar_usuarios");
 const puedeFiltrar  = usuarioTienePermiso("filtrar_usuarios");
-// Los permisos individuales los edita solo el CEO (firestore.rules lo exige).
+// Los permisos individuales y por rol los edita solo el CEO (las Cloud
+// Functions guardarPermisosUsuario/guardarPermisosRol lo exigen).
 const puedeEditarPermisos = esCeo;
 
 let filtroActivo = "todos";
 let todosUsuarios = [];
+let ajustesRoles = {}; // config/permisos_roles.roles
+document.getElementById("btn-permisos-rol").hidden = !puedeEditarPermisos;
 
 const lista = document.getElementById("lista-usuarios");
 const contador = document.getElementById("contador");
@@ -227,14 +230,20 @@ async function eliminarUsuario(usuario, boton) {
 }
 
 // ── GESTOR DE PERMISOS ─────────────────────────────────────────────────────
-// El rol es la base; aquí el CEO le da o le quita permisos sueltos a una
-// persona. Se guarda en usuarios/{uid}.permisosExtra (ver js/core/permisos.js).
-// La pantalla muestra lo que la persona puede hacer al final (casilla) y
-// resalta lo que difiere de su rol.
+// Dos modos con el mismo catálogo:
+// - "usuario": el CEO le da o le quita permisos sueltos a una persona
+//   (usuarios/{uid}.permisosExtra). Su base es su rol con los permisos por rol.
+// - "rol": lo mismo para todos los de un rol (config/permisos_roles). Su base
+//   es lo que el rol trae en el código (js/core/permisos.js).
+// La persona: ajuste propio > ajuste de su rol > rol en el código. Ambos se
+// guardan por Cloud Function con el pase de la contraseña.
 const dlg = document.getElementById("dlg-permisos");
 const permBody = document.getElementById("perm-body");
 const permAviso = document.getElementById("perm-aviso");
 const btnGuardar = document.getElementById("perm-guardar");
+const selRolPermisos = document.getElementById("perm-rol");
+const guardarPermisosUsuario = httpsCallable(functions, "guardarPermisosUsuario");
+const guardarPermisosRol = httpsCallable(functions, "guardarPermisosRol");
 
 const PERMISO_INFO = new Map(CATALOGO_PERMISOS.flatMap(m => m.permisos.map(p => [p.id, p])));
 // Acciones con roles propios que dependen de un permiso de entrada
@@ -245,19 +254,27 @@ PERMISO_INFO.forEach(p => {
 });
 const SUBS_DE = new Map();
 Object.entries(SUBPERMISOS).forEach(([sub, modulo]) => SUBS_DE.set(modulo, [...(SUBS_DE.get(modulo) || []), sub]));
+const ROLES_AJUSTABLES = Object.keys(ROLES).filter(admiteAjustes);
 
-let editando = null; // { usuario, borrador: { permiso: { modo, vence(ms|null) } } }
+// { modo: "usuario"|"rol", rol, usuario?, borrador: { permiso: { modo, vence(ms|null) } } }
+let editando = null;
 
-// Lo que la persona podría hacer con el borrador actual (mismo cálculo que
-// la sesión: rol + ajustes + herencia de sub-permisos).
+// Lo que tendría con este borrador (mismo cálculo que la sesión: ajuste
+// propio, ajuste del rol, herencia de sub-permisos y rol en el código).
+function puedeCon(borrador, permiso) {
+  const { modo, rol } = editando;
+  return modo === "usuario"
+    ? tienePermiso(rol, permiso, borrador, ajustesRoles[rol])
+    : tienePermiso(rol, permiso, null, borrador);
+}
 function puedeEnBorrador(permiso) {
-  return tienePermiso(editando.usuario.rol, permiso, editando.borrador);
+  return puedeCon(editando.borrador, permiso);
 }
 
-// Lo que tendría sin ajuste propio: su rol o, si es sub-permiso, su módulo.
+// Lo que tendría sin ajuste en ESTE nivel para `permiso`.
 function baseDe(permiso) {
-  const modulo = SUBPERMISOS[permiso];
-  return modulo ? puedeEnBorrador(modulo) : rolIncluyePermiso(editando.usuario.rol, permiso);
+  const { [permiso]: _, ...resto } = editando.borrador;
+  return puedeCon(resto, permiso);
 }
 
 // Deja `permiso` como `quiere` (true/false) relativo a su base: si coincide
@@ -293,6 +310,19 @@ function hoyInput() {
   return fechaAInputs(Date.now());
 }
 
+function abrirDialogo() {
+  const enRol = editando.modo === "rol";
+  selRolPermisos.hidden = !enRol;
+  document.getElementById("perm-ayuda-usuario").hidden = enRol;
+  document.getElementById("perm-ayuda-rol").hidden = !enRol;
+  document.getElementById("perm-restablecer").textContent = enRol ? "Volver a lo predeterminado" : "Volver a solo su rol";
+  avisar("");
+  btnGuardar.disabled = false;
+  permBody.innerHTML = "";
+  renderPermisos();
+  if (!dlg.open) dlg.showModal();
+}
+
 function abrirPermisos(usuario) {
   // Los "otorgar" vencidos no cuentan: se descartan al abrir.
   const borrador = {};
@@ -300,24 +330,71 @@ function abrirPermisos(usuario) {
     if (ajusteDePermiso(usuario.rol, permiso, usuario.permisosExtra) === null) return;
     borrador[permiso] = { modo: ajuste.modo, vence: venceEnMs(ajuste.vence) };
   });
-  editando = { usuario, borrador };
+  editando = { modo: "usuario", rol: usuario.rol, usuario, borrador };
+  const nRol = Object.keys(ajustesRoles[usuario.rol] || {}).length;
   document.getElementById("perm-titulo").textContent = `Permisos de ${usuario.nombre || usuario.email || "usuario"}`;
-  document.getElementById("perm-sub").textContent = `Rol base: ${infoRol(usuario.rol).label} · ${usuario.email || ""}`;
-  avisar("");
-  btnGuardar.disabled = false;
-  renderPermisos();
-  dlg.showModal();
+  document.getElementById("perm-sub").textContent =
+    `Rol base: ${infoRol(usuario.rol).label}${nRol ? ` (con ${nRol} ajuste${nRol !== 1 ? "s" : ""} del rol)` : ""} · ${usuario.email || ""}`;
+  abrirDialogo();
+}
+
+function borradorDeRol(rol) {
+  const borrador = {};
+  Object.entries(ajustesRoles[rol] || {}).forEach(([permiso, a]) => {
+    if (a?.modo === "otorgar" || a?.modo === "quitar") borrador[permiso] = { modo: a.modo, vence: null };
+  });
+  return borrador;
+}
+
+function subtituloRol(rol) {
+  const miembros = todosUsuarios.filter(u => u.rol === rol);
+  const conPropios = miembros.filter(u => ajustesVigentes(u).length).length;
+  return `Afecta a ${miembros.length} persona${miembros.length !== 1 ? "s" : ""}` +
+    (conPropios ? ` · ${conPropios} con ajustes propios, que mandan sobre estos` : "");
+}
+
+function abrirPermisosRol(rol = ROLES_AJUSTABLES[0]) {
+  editando = { modo: "rol", rol, borrador: borradorDeRol(rol) };
+  selRolPermisos.value = rol;
+  document.getElementById("perm-titulo").textContent = `Permisos del rol ${infoRol(rol).label}`;
+  document.getElementById("perm-sub").textContent = subtituloRol(rol);
+  abrirDialogo();
+}
+
+selRolPermisos.innerHTML = ROLES_AJUSTABLES
+  .map(rol => `<option value="${escaparAtributo(rol)}">${escaparHtml(infoRol(rol).label)}</option>`).join("");
+selRolPermisos.addEventListener("change", () => {
+  const cambios = JSON.stringify(editando.borrador) !== JSON.stringify(borradorDeRol(editando.rol));
+  if (cambios && !confirm("Hay cambios sin guardar en este rol. ¿Descartarlos?")) {
+    selRolPermisos.value = editando.rol;
+    return;
+  }
+  abrirPermisosRol(selRolPermisos.value);
+});
+
+// Etiqueta de una fila sin ajuste en este nivel: de dónde le viene.
+function tagBase(p) {
+  const { modo, rol } = editando;
+  if (modo === "usuario") {
+    const delRol = ajusteDelRol(rol, p.id, ajustesRoles[rol]);
+    if (delRol === "otorgar") return `<span class="perm-tag tag-rol-ajuste">Dado a su rol</span>`;
+    if (delRol === "quitar") return `<span class="perm-tag tag-rol-ajuste">Quitado a su rol</span>`;
+  }
+  if (SUBPERMISOS[p.id]) return `<span class="perm-tag tag-rol">Igual que el módulo</span>`;
+  const trae = rolIncluyePermiso(rol, p.id);
+  if (modo === "rol") return `<span class="perm-tag tag-rol">${trae ? "Por defecto del rol" : "El rol no lo trae"}</span>`;
+  return `<span class="perm-tag tag-rol">${trae ? "Por su rol" : "Su rol no lo trae"}</span>`;
 }
 
 function renderPermisos() {
-  const { usuario, borrador } = editando;
+  const { modo, borrador } = editando;
   const abiertos = new Set([...permBody.querySelectorAll("details[open]")].map(d => d.dataset.modulo));
   const primeraVez = !permBody.childElementCount;
 
   permBody.innerHTML = CATALOGO_PERMISOS.map(modulo => {
     const activos = modulo.permisos.filter(p => puedeEnBorrador(p.id)).length;
     const ajustados = modulo.permisos.filter(p => borrador[p.id]).length;
-    // Abiertos al empezar: los módulos donde la persona tiene algo o hay ajustes.
+    // Abiertos al empezar: los módulos donde hay algo activo o ajustes.
     const abierto = primeraVez ? (activos > 0 || ajustados > 0) : abiertos.has(modulo.modulo);
     return `
       <details class="perm-modulo" data-modulo="${escaparAtributo(modulo.modulo)}" ${abierto ? "open" : ""}>
@@ -335,9 +412,8 @@ function renderPermisos() {
             ? `<span class="perm-tag tag-otorgado">Otorgado</span>`
             : ajuste?.modo === "quitar"
               ? `<span class="perm-tag tag-quitado">Quitado</span>`
-              : esSub
-                ? `<span class="perm-tag tag-rol">Igual que el módulo</span>`
-                : `<span class="perm-tag tag-rol">${rolIncluyePermiso(usuario.rol, p.id) ? "Por su rol" : "Su rol no lo trae"}</span>`;
+              : tagBase(p);
+          const deshacer = esSub ? "Como el módulo" : modo === "rol" ? "Por defecto" : "Como su rol";
           return `
             <div class="perm-fila ${clase}">
               <input type="checkbox" id="${idInput}" data-permiso="${escaparAtributo(p.id)}" ${puede ? "checked" : ""}/>
@@ -347,9 +423,9 @@ function renderPermisos() {
               </label>
               <div class="p-estado">
                 ${tag}
-                ${ajuste ? `<button type="button" class="perm-deshacer" data-deshacer="${escaparAtributo(p.id)}">${esSub ? "Como el módulo" : "Como su rol"}</button>` : ""}
+                ${ajuste ? `<button type="button" class="perm-deshacer" data-deshacer="${escaparAtributo(p.id)}">${deshacer}</button>` : ""}
               </div>
-              ${ajuste?.modo === "otorgar" ? `
+              ${modo === "usuario" && ajuste?.modo === "otorgar" ? `
                 <div class="p-vence">
                   <span>Vence:</span>
                   <input type="date" data-vence="${escaparAtributo(p.id)}" min="${hoyInput()}" value="${fechaAInputs(ajuste.vence)}" aria-label="Fecha en que vence ${escaparAtributo(p.label)}"/>
@@ -419,7 +495,10 @@ permBody.addEventListener("click", (e) => {
 
 document.getElementById("perm-restablecer").addEventListener("click", () => {
   if (!Object.keys(editando.borrador).length) return;
-  if (!confirm("¿Quitar todos los ajustes? La persona quedará solo con los permisos de su rol.")) return;
+  const texto = editando.modo === "rol"
+    ? "¿Quitar todos los ajustes del rol? Quedará con lo que trae por defecto."
+    : "¿Quitar todos los ajustes? La persona quedará solo con los permisos de su rol.";
+  if (!confirm(texto)) return;
   editando.borrador = {};
   avisar("");
   renderPermisos();
@@ -437,10 +516,10 @@ dlg.addEventListener("cancel", () => { editando = null; });
 
 btnGuardar.addEventListener("click", async () => {
   if (!editando) return;
-  const { usuario, borrador } = editando;
+  const { modo, usuario, rol, borrador } = editando;
   const ahora = Date.now();
   const vencidas = Object.entries(borrador)
-    .filter(([, a]) => a.modo === "otorgar" && a.vence != null && a.vence <= ahora);
+    .filter(([, a]) => modo === "usuario" && a.modo === "otorgar" && a.vence != null && a.vence <= ahora);
   if (vencidas.length) {
     avisar(`La fecha de "${etiquetaPermiso(vencidas[0][0])}" ya pasó. Elige una fecha futura o déjala vacía.`);
     return;
@@ -456,34 +535,117 @@ btnGuardar.addEventListener("click", async () => {
     if ((a.modo === "otorgar" && base) || (a.modo === "quitar" && !base)) delete borrador[permiso];
   });
 
-  const permisosExtra = {};
+  const ajustes = {};
   Object.entries(borrador).forEach(([permiso, a]) => {
-    permisosExtra[permiso] = a.modo === "otorgar"
-      ? { modo: "otorgar", vence: a.vence == null ? null : Timestamp.fromMillis(a.vence) }
-      : { modo: "quitar" };
+    ajustes[permiso] = a.modo === "otorgar" && modo === "usuario"
+      ? { modo: "otorgar", vence: a.vence ?? null }
+      : { modo: a.modo };
   });
 
   btnGuardar.disabled = true;
   try {
-    await updateDoc(doc(db, "usuarios", usuario.id), {
-      permisosExtra,
-      permisosActualizadosPor: getUsuarioActual().uid,
-      permisosActualizadosEn: serverTimestamp(),
-    });
+    if (modo === "usuario") {
+      await guardarPermisosUsuario({ pase: pase(), uid: usuario.id, permisosExtra: ajustes });
+    } else {
+      await guardarPermisosRol({ pase: pase(), rol, ajustes });
+    }
     cerrarPermisos();
-    // onSnapshot vuelve a pintar la tarjeta con el nuevo número de ajustes.
+    // onSnapshot vuelve a pintar las tarjetas con lo guardado.
   } catch (err) {
     console.error("[Usuarios] No se pudieron guardar los permisos:", err);
-    avisar("No se pudieron guardar los permisos. Intenta de nuevo.");
     btnGuardar.disabled = false;
+    if (err?.code === "functions/unauthenticated") {
+      cerrarPermisos();
+      bloquear(err.message);
+      return;
+    }
+    avisar(err?.message || "No se pudieron guardar los permisos. Intenta de nuevo.");
   }
 });
 
-onSnapshot(query(collection(db, "usuarios"), orderBy("creadoEn", "desc")), (snap) => {
-  todosUsuarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  spinner.style.display = "none";
-  renderUsuarios();
+document.getElementById("btn-permisos-rol")?.addEventListener("click", () => abrirPermisosRol());
+
+// ── ENTRADA CON CONTRASEÑA ─────────────────────────────────────────────────
+// Usuarios no muestra nada hasta escribir la contraseña. desbloquearUsuarios
+// la valida (mismo límite de intentos que cambiar rol) y devuelve un pase que
+// vive solo en memoria: al recargar o volver a entrar se pide otra vez.
+// Cambiar un rol la sigue pidiendo cada vez.
+const desbloquearEnServidor = httpsCallable(functions, "desbloquearUsuarios");
+const pantallaBloqueo = document.getElementById("bloqueo");
+const panelUsuarios = document.getElementById("panel-usuarios");
+const formBloqueo = document.getElementById("bloqueo-form");
+const claveBloqueo = document.getElementById("bloqueo-clave");
+const errorBloqueo = document.getElementById("bloqueo-error");
+const btnBloqueo = document.getElementById("bloqueo-entrar");
+let sesion = null; // { pase, vence }
+let temporizadorPase = null;
+let cancelarUsuarios = null;
+let cancelarAjustesRoles = null;
+
+function pase() {
+  return sesion?.pase || "";
+}
+
+function bloquear(mensaje = "") {
+  sesion = null;
+  clearTimeout(temporizadorPase);
+  cancelarUsuarios?.();
+  cancelarAjustesRoles?.();
+  cancelarUsuarios = cancelarAjustesRoles = null;
+  if (dlg.open) cerrarPermisos();
+  todosUsuarios = [];
+  lista.innerHTML = "";
+  panelUsuarios.hidden = true;
+  pantallaBloqueo.hidden = false;
+  errorBloqueo.textContent = mensaje;
+  errorBloqueo.hidden = !mensaje;
+  claveBloqueo.value = "";
+  setTimeout(() => claveBloqueo.focus(), 30);
+}
+
+function desbloquear(datos) {
+  sesion = { pase: datos.pase, vence: datos.vence };
+  claveBloqueo.value = "";
+  pantallaBloqueo.hidden = true;
+  panelUsuarios.hidden = false;
+  clearTimeout(temporizadorPase);
+  temporizadorPase = setTimeout(() => bloquear("La sesión de Usuarios venció. Vuelve a escribir la contraseña."),
+    Math.max(0, datos.vence - Date.now()));
+  escucharDatos();
+}
+
+formBloqueo.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!claveBloqueo.value || btnBloqueo.disabled) return;
+  btnBloqueo.disabled = true;
+  btnBloqueo.textContent = "Verificando…";
+  errorBloqueo.hidden = true;
+  try {
+    const { data } = await desbloquearEnServidor({ clave: claveBloqueo.value });
+    desbloquear(data);
+  } catch (err) {
+    errorBloqueo.textContent = err?.message || "No se pudo verificar la contraseña.";
+    errorBloqueo.hidden = false;
+    claveBloqueo.select();
+  } finally {
+    btnBloqueo.disabled = false;
+    btnBloqueo.textContent = "Entrar";
+  }
 });
+
+function escucharDatos() {
+  spinner.style.display = "";
+  cancelarUsuarios = onSnapshot(query(collection(db, "usuarios"), orderBy("creadoEn", "desc")), (snap) => {
+    todosUsuarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    spinner.style.display = "none";
+    renderUsuarios();
+  });
+  // Los permisos por rol: base de cada persona en su diálogo.
+  cancelarAjustesRoles = onSnapshot(doc(db, "config", "permisos_roles"), (snap) => {
+    ajustesRoles = (snap.exists() && snap.data().roles) || {};
+    if (editando?.modo === "usuario") renderPermisos();
+  }, (err) => console.warn("[Usuarios] Permisos por rol:", err));
+}
 
 document.querySelectorAll(".filtro-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -493,3 +655,5 @@ document.querySelectorAll(".filtro-btn").forEach(btn => {
     renderUsuarios();
   });
 });
+
+bloquear();

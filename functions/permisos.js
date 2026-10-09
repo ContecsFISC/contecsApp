@@ -1,6 +1,6 @@
 "use strict";
 
-// Permisos individuales en las Cloud Functions. El rol sigue siendo la base
+// Permisos individuales y por rol en las Cloud Functions. El rol sigue siendo la base
 // (cada función conserva su set ROLES_*), pero el CEO puede darle o quitarle
 // un permiso suelto a una persona desde Usuarios; queda en
 // usuarios/{uid}.permisosExtra = { permiso: { modo: "otorgar"|"quitar", vence } }.
@@ -57,16 +57,19 @@ function venceEnMs(vence) {
   return null;
 }
 
-// "otorgar", "quitar" o null (sin ajuste o ya vencido).
+// "otorgar", "quitar" o null. Primero el ajuste de la persona
+// (permisosExtra; un "otorgar" vencido no cuenta); si no tiene, el del rol
+// (config/permisos_roles, que ajustes-rol.js deja en usuario._ajustesRol).
 function ajusteDePermiso(usuario, permiso, ahora = Date.now()) {
   if (!usuario || !ROLES_CON_AJUSTES.has(usuario.rol)) return null;
   const ajuste = usuario.permisosExtra?.[permiso];
   if (ajuste?.modo === "quitar") return "quitar";
   if (ajuste?.modo === "otorgar") {
     const vence = venceEnMs(ajuste.vence);
-    return vence == null || ahora < vence ? "otorgar" : null;
+    if (vence == null || ahora < vence) return "otorgar";
   }
-  return null;
+  const delRol = usuario._ajustesRol?.[permiso]?.modo;
+  return delRol === "otorgar" || delRol === "quitar" ? delRol : null;
 }
 
 // `usuario` es el documento usuarios/{uid}; `rolesBase` el set ROLES_* que

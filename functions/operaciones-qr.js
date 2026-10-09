@@ -6,6 +6,7 @@ const {
 } = require("firebase-admin/firestore");
 const {idLockRfid, normalizarRfid, serialRfid} = require("./rfid");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 
 const db = getFirestore();
 // Marcan asistencia: Staff con Lectura QR ("lectura_qr") y el
@@ -47,7 +48,7 @@ async function validarActor(request, accesos) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  const usuario = snap.exists ? snap.data() : null;
+  const usuario = await conAjustesDeRol(snap.exists ? snap.data() : null);
   if (!accesos.some(([permiso, roles]) =>
     usuarioPuede(usuario, permiso, roles))) {
     throw new HttpsError(

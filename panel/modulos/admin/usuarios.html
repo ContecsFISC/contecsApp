@@ -134,7 +134,25 @@
  .rol-nota { font-size: 12px; color: var(--gris-medio); margin: 2px 0 0; line-height: 1.5; }
  .dlg-rol .perm-aviso { margin: 0; }
  @media(max-width:600px) { .dlg-rol { height: auto; max-height: 100dvh; border-radius: var(--radio-lg) var(--radio-lg) 0 0; margin: auto 0 0; } .rol-input { font-size: 16px; } }
+ /* ── Entrada con contraseña ── */
+ #bloqueo[hidden], #panel-usuarios[hidden], .btn-permisos[hidden], .perm-rol-sel[hidden], .perm-ayuda[hidden] { display: none !important; }
+ .bloqueo { max-width: 440px; margin: 40px auto; text-align: center; }
+ .bloqueo-icono {
+ width: 56px; height: 56px; margin: 4px auto 12px;
+ border-radius: 50%;
+ display: flex; align-items: center; justify-content: center;
+ background: var(--verde-fondo); color: var(--verde-oscuro);
+ }
+ .bloqueo h2 { font: 700 18px var(--fuente-display); margin: 0 0 6px; }
+ .bloqueo p { font-size: 13px; color: var(--gris-medio); line-height: 1.55; margin: 0 0 14px; }
+ .bloqueo form { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+ .bloqueo .perm-aviso { margin: 0; }
+ .bloqueo .perm-btn { width: 100%; height: 42px; }
+ .bloqueo .rol-nota { text-align: center; }
  /* ── Gestor de permisos ── */
+ .filtros .btn-permisos-rol { margin-left: auto; height: 32px; border-radius: 20px; font-size: 12px; }
+ .perm-rol-sel { margin-top: 8px; max-width: 100%; }
+ .tag-rol-ajuste { background: var(--amarillo-fondo); color: #7a4f0e; }
  .btn-permisos {
  flex-shrink: 0;
  display: inline-flex; align-items: center; gap: 6px;
@@ -293,6 +311,7 @@
    .filtros { flex-wrap:nowrap; overflow-x:auto; padding-bottom:5px; scrollbar-width:none; }
    .filtros::-webkit-scrollbar { display:none; }
    .filtro-btn { flex:0 0 auto; min-height:36px; }
+ .filtros .btn-permisos-rol { grid-column:auto; width:auto; flex:0 0 auto; height:36px; }
  }
  </style>
   <script type="speculationrules">
@@ -306,7 +325,21 @@
  </div>
 
  <div class="container">
- <div class="card">
+ <!-- Usuarios se abre con la contraseña de autorización (desbloquearUsuarios) -->
+ <div class="card bloqueo" id="bloqueo" hidden>
+ <div class="bloqueo-icono" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+ <h2>Usuarios protegido</h2>
+ <p>Escribe la contraseña de autorización para ver y administrar usuarios y permisos. Vale mientras tengas esta página abierta (hasta 2 horas). Cambiar un rol la vuelve a pedir.</p>
+ <form id="bloqueo-form" autocomplete="off">
+ <label class="rol-label" for="bloqueo-clave">Contraseña de autorización</label>
+ <input type="password" id="bloqueo-clave" class="rol-input" autocomplete="new-password" spellcheck="false" required/>
+ <div class="perm-aviso" id="bloqueo-error" hidden></div>
+ <button type="submit" class="perm-btn perm-btn-primario" id="bloqueo-entrar">Entrar</button>
+ <p class="rol-nota">Tras 5 intentos fallidos se bloquea 15 minutos.</p>
+ </form>
+ </div>
+
+ <div class="card" id="panel-usuarios" hidden>
  <div class="card-title"> Miembros registrados</div>
  <p style="font-size:13px;color:#86868b;margin-bottom:16px;">
  Cada persona que inicia sesión por primera vez aparece aquí con rol <strong>Sin rol</strong>. Asígnales su comisión con el selector.
@@ -316,6 +349,7 @@
  <button class="filtro-btn activo" data-filtro="todos">Todos</button>
  <button class="filtro-btn" data-filtro="sin_rol">Sin rol</button>
  <button class="filtro-btn" data-filtro="con_rol"> Con rol</button>
+ <button type="button" class="btn-permisos btn-permisos-rol" id="btn-permisos-rol" title="Cambiar los permisos de todos los de un rol" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Permisos por rol</button>
  </div>
 
  <div class="busqueda-bar" id="busqueda-bar" hidden>
@@ -360,20 +394,26 @@
  </form>
  </dialog>
 
- <!-- Gestor de permisos individuales (solo CEO). Lo llena js/modulos/usuarios.js -->
+ <!-- Gestor de permisos individuales y por rol (solo CEO). Lo llena js/modulos/usuarios.js -->
  <dialog id="dlg-permisos" class="dlg-permisos" aria-labelledby="perm-titulo">
  <form method="dialog" class="perm-form" id="perm-form">
  <header class="perm-head">
  <div class="perm-head-txt">
  <h2 id="perm-titulo">Permisos</h2>
  <p id="perm-sub"></p>
+ <select id="perm-rol" class="rol-select perm-rol-sel" aria-label="Rol" hidden></select>
  </div>
  <button type="button" class="perm-cerrar" id="perm-cerrar" aria-label="Cerrar">&times;</button>
  </header>
- <p class="perm-ayuda">
+ <p class="perm-ayuda" id="perm-ayuda-usuario">
  Marcado = puede hacerlo. Su rol trae una base; lo que cambies aquí queda resaltado como
  <span class="perm-tag tag-otorgado">Otorgado</span> o <span class="perm-tag tag-quitado">Quitado</span>
  y solo aplica a esta persona.
+ </p>
+ <p class="perm-ayuda" id="perm-ayuda-rol" hidden>
+ Marcado = todos los de este rol pueden hacerlo. Lo que cambies queda como
+ <span class="perm-tag tag-otorgado">Otorgado</span> o <span class="perm-tag tag-quitado">Quitado</span>
+ para el rol entero. Los ajustes individuales de una persona mandan sobre estos.
  </p>
  <div class="perm-aviso" id="perm-aviso" hidden></div>
  <div class="perm-body" id="perm-body"></div>
@@ -386,6 +426,6 @@
  </form>
  </dialog>
 
- <script type="module" src="../../../js/modulos/usuarios.js"></script>
+ <script type="module" src="../../../js/modulos/usuarios.js?v=20261009.1"></script>
 </body>
 </html>

@@ -288,7 +288,7 @@ function aplicarPermisosTab() {
   let primerVisible = null;
   document.querySelectorAll(".tab-btn").forEach(btn => {
     const permiso = TAB_PERMISOS[btn.dataset.tab];
-    const acceso  = !permiso || tienePermiso(usuario.rol, permiso, usuario.permisosExtra);
+    const acceso  = !permiso || tienePermiso(usuario.rol, permiso, usuario.permisosExtra, usuario.ajustesRol);
     btn.style.display = acceso ? "" : "none";
     if (acceso && !primerVisible) primerVisible = btn.dataset.tab;
   });

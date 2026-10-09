@@ -50,15 +50,34 @@ service cloud.firestore {
     }
 
     // Un "otorgar" con vence deja de valer solo al pasar esa fecha.
-    function otorgado(permiso) {
-      return admiteAjustes()
-        && ajuste(permiso).get('modo', '') == 'otorgar'
+    function personaOtorga(permiso) {
+      return ajuste(permiso).get('modo', '') == 'otorgar'
         && (ajuste(permiso).get('vence', null) == null
           || request.time < ajuste(permiso).get('vence', null));
     }
 
+    function personaQuita(permiso) {
+      return ajuste(permiso).get('modo', '') == 'quitar';
+    }
+
+    // Permisos por rol (Usuarios → "Permisos por rol"), en
+    // config/permisos_roles = { roles: { rol: { permiso: { modo } } } }.
+    // El ajuste propio de la persona manda sobre el de su rol.
+    function ajusteDelRol(permiso) {
+      return exists(/databases/$(database)/documents/config/permisos_roles)
+        ? get(/databases/$(database)/documents/config/permisos_roles).data
+            .get('roles', {}).get(userRol(), {}).get(permiso, {}).get('modo', '')
+        : '';
+    }
+
+    function otorgado(permiso) {
+      return admiteAjustes() && (personaOtorga(permiso)
+        || (!personaQuita(permiso) && ajusteDelRol(permiso) == 'otorgar'));
+    }
+
     function quitado(permiso) {
-      return admiteAjustes() && ajuste(permiso).get('modo', '') == 'quitar';
+      return admiteAjustes() && (personaQuita(permiso)
+        || (!personaOtorga(permiso) && ajusteDelRol(permiso) == 'quitar'));
     }
 
     // Para reglas que corresponden a UN permiso de la app: los roles de
@@ -149,12 +168,15 @@ service cloud.firestore {
           && request.resource.data.nombre.size() <= 120
           && request.resource.data.foto is string
           && request.resource.data.foto.size() <= 2048)
-        // El CEO cambia los demás campos, incluidos los permisos individuales.
-        // El ROL no se cambia desde el navegador, ni siquiera el CEO: pasa por
-        // la Cloud Function cambiarRolUsuario, que pide la contraseña.
+        // El CEO cambia los demás campos. El ROL y los permisos individuales
+        // no se cambian desde el navegador, ni siquiera el CEO: pasan por las
+        // Cloud Functions cambiarRolUsuario y guardarPermisosUsuario, que
+        // piden la contraseña.
         || (hasRol(['ceo'])
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'rolCambiadoPor', 'rolCambiadoEn'])
-          && request.resource.data.get('permisosExtra', {}) is map)
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+            'rol', 'rolCambiadoPor', 'rolCambiadoEn',
+            'permisosExtra', 'permisosActualizadosPor', 'permisosActualizadosEn'
+          ]))
       );
     }
 
@@ -235,6 +257,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /cambios_rol/{id} {
+      allow read, write: if false;
+    }
+    // Permisos por rol: el staff los lee para saber qué puede hacer; solo los
+    // escribe guardarPermisosRol (con la contraseña de Usuarios).
+    match /config/{docId} {
+      allow read: if docId == 'permisos_roles' && isStaff();
+      allow write: if false;
+    }
+    // Bitácora de cambios de permisos (individuales y por rol). Solo Admin SDK.
+    match /cambios_permisos/{id} {
       allow read, write: if false;
     }
 

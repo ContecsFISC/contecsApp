@@ -12,6 +12,7 @@ const {getAuth} = require("firebase-admin/auth");
 const {getStorage} = require("firebase-admin/storage");
 const {idBloqueoParticipante} = require("./identidad");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 
 const db = getFirestore();
 
@@ -40,7 +41,7 @@ async function validarRol(request, permiso, roles, mensaje) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  if (!usuarioPuede(snap.exists ? snap.data() : null, permiso, roles)) {
+  if (!usuarioPuede(await conAjustesDeRol(snap.exists ? snap.data() : null), permiso, roles)) {
     throw new HttpsError("permission-denied", mensaje);
   }
   return request.auth.uid;

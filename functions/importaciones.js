@@ -15,6 +15,7 @@ const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {esCorreoValido, generarDocId} = require("./identidad");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 const {
   CATEGORIAS_REGISTRO,
   generarToken,
@@ -156,7 +157,7 @@ async function validarRol(request) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  const usuario = snap.exists ? snap.data() : null;
+  const usuario = await conAjustesDeRol(snap.exists ? snap.data() : null);
   if (!usuarioPuede(usuario, "importar_participantes",
       ROLES_IMPORTAR_PARTICIPANTES)) {
     throw new HttpsError("permission-denied", "No tienes permiso para importar participantes.");

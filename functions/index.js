@@ -17,6 +17,7 @@ const {
 } = require("./identidad");
 const {motivoDeEntrada, motivosCrudosDeGira} = require("./giras");
 const {usuarioPuede} = require("./permisos");
+const {conAjustesDeRol} = require("./ajustes-rol");
 const {
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
@@ -51,6 +52,7 @@ const {
 } = require("./eliminaciones");
 const {eliminarEventoOCheckpoint} = require("./eliminar-eventos");
 const {cambiarRolUsuario} = require("./cambio-rol");
+const {desbloquearUsuarios, guardarPermisosUsuario, guardarPermisosRol} = require("./permisos-admin");
 const {registrarVoluntario} = require("./registro-voluntarios");
 const {mapaPublico} = require("./mapa-publico");
 const {
@@ -496,7 +498,7 @@ async function verificarStaffCorreo(request, permiso) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión para enviar correos.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  const usuario = snap.exists ? snap.data() : null;
+  const usuario = await conAjustesDeRol(snap.exists ? snap.data() : null);
   if (!usuarioPuede(usuario, permiso, ROLES_ENVIAR_CORREO_QR)) {
     throw new HttpsError("permission-denied", "No tienes permiso para enviar este correo.");
   }
@@ -510,7 +512,7 @@ async function verificarGestorGiras(request, mensaje, permiso = "gestionar_giras
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
   const snap = await db.collection("usuarios").doc(request.auth.uid).get();
-  const usuario = snap.exists ? snap.data() : null;
+  const usuario = await conAjustesDeRol(snap.exists ? snap.data() : null);
   if (!usuarioPuede(usuario, permiso, ROLES_LISTAR_PARTICIPANTES_GIRAS)) {
     throw new HttpsError("permission-denied", mensaje);
   }
@@ -1721,6 +1723,47 @@ exports.cambiarRolUsuario = onCall(
     },
 );
 
+// Usuarios: la contraseña al entrar da un pase; con él el CEO guarda permisos
+// individuales y por rol. Ver functions/permisos-admin.js.
+exports.desbloquearUsuarios = onCall(
+    {region: "us-central1", maxInstances: 5, secrets: [ROL_CLAVE_HASH]},
+    async (request) => {
+      try {
+        return await desbloquearUsuarios(request, {hashClave: ROL_CLAVE_HASH.value()});
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("desbloquearUsuarios:", e);
+        throw new HttpsError("internal", "No se pudo verificar la contraseña. Intenta de nuevo.");
+      }
+    },
+);
+
+exports.guardarPermisosUsuario = onCall(
+    {region: "us-central1", maxInstances: 5, secrets: [ROL_CLAVE_HASH]},
+    async (request) => {
+      try {
+        return await guardarPermisosUsuario(request, {hashClave: ROL_CLAVE_HASH.value()});
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("guardarPermisosUsuario:", e);
+        throw new HttpsError("internal", "No se pudieron guardar los permisos. Intenta de nuevo.");
+      }
+    },
+);
+
+exports.guardarPermisosRol = onCall(
+    {region: "us-central1", maxInstances: 5, secrets: [ROL_CLAVE_HASH]},
+    async (request) => {
+      try {
+        return await guardarPermisosRol(request, {hashClave: ROL_CLAVE_HASH.value()});
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("guardarPermisosRol:", e);
+        throw new HttpsError("internal", "No se pudieron guardar los permisos del rol. Intenta de nuevo.");
+      }
+    },
+);
+
 // Evento o checkpoint con todo su rastro (asistencias, inscripciones a
 // talleres, RFID). Ver functions/eliminar-eventos.js.
 exports.eliminarEventoOCheckpoint = onCall(
@@ -1777,7 +1820,7 @@ exports.subirFotoEfectivo = onCall(
           throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
         }
         const snapUsuario = await db.collection("usuarios").doc(request.auth.uid).get();
-        const usuario = snapUsuario.exists ? snapUsuario.data() : null;
+        const usuario = await conAjustesDeRol(snapUsuario.exists ? snapUsuario.data() : null);
         const ROLES_APROBAR = new Set(["ceo", "junta_principal", "junta", "finanzas", "secretario", "staff_contecs"]);
         if (!usuarioPuede(usuario, "aprobar_pagos", ROLES_APROBAR)) {
           throw new HttpsError("permission-denied", "No tienes permiso para registrar pagos en efectivo.");

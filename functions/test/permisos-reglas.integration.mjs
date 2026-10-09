@@ -93,6 +93,11 @@ const USUARIOS = {
   "ventas-solo-qr": { rol: "ventas", permisosExtra: { lectura_qr: { modo: "otorgar", vence: null } } },
   "ventas-sin-categorias": { rol: "ventas", permisosExtra: { catalogo_categorias: { modo: "quitar" } } },
   "miembro-evento": { rol: "miembro", permisosExtra: { gestionar_inscripciones: { modo: "otorgar", vence: null } } },
+  // Para los permisos por rol (al final, cuando se crea config/permisos_roles).
+  "ventas-sin-ver-propio": { rol: "ventas", permisosExtra: { ver_participantes: { modo: "quitar" } } },
+  "junta-1": { rol: "junta" },
+  "junta-ve-propio": { rol: "junta", permisosExtra: { ver_participantes: { modo: "otorgar", vence: null } } },
+  "junta-ve-vencido": { rol: "junta", permisosExtra: { ver_participantes: { modo: "otorgar", vence: AYER } } },
 };
 
 async function preparar() {
@@ -148,11 +153,13 @@ await prueba("nadie cambia un rol desde el navegador, ni el CEO (va por cambiarR
   await noPuede("jp-1", "PATCH", "usuarios/jp-1", { rol: "ceo" });
 });
 
-await prueba("solo el CEO toca permisos individuales", async () => {
+await prueba("permisos individuales: nadie desde el navegador, ni el CEO (van por guardarPermisosUsuario)", async () => {
   const extra = { permisosExtra: { ver_fondos: { modo: "otorgar", vence: null } } };
   await noPuede("jp-1", "PATCH", "usuarios/objetivo", extra);
   await noPuede("objetivo", "PATCH", "usuarios/objetivo", extra);
-  await puede("ceo-1", "PATCH", "usuarios/objetivo", extra);
+  await noPuede("ceo-1", "PATCH", "usuarios/objetivo", extra);
+  await noPuede("ceo-1", "PATCH", "usuarios/objetivo", { permisosActualizadosPor: "ceo-1" });
+  await puede("ceo-1", "PATCH", "usuarios/objetivo", { nombre: "Cambiado por el CEO" });
 });
 
 await prueba("cada quien edita su nombre, no su rol", async () => {
@@ -231,6 +238,39 @@ await prueba("Lectura QR suelta abre la lectura de participantes", async () => {
 await prueba("quitar Categorías del catálogo", async () => {
   await puede("ventas-1", "PATCH", "categorias/cat-1", { nombre: "Bebidas" });
   await noPuede("ventas-sin-categorias", "PATCH", "categorias/cat-1", { nombre: "Otra" });
+});
+
+console.log("\nPermisos por rol (config/permisos_roles):\n");
+
+await prueba("sin el documento, todo sigue igual (lo probado arriba); nadie lo escribe desde el navegador", async () => {
+  await noPuede("ceo-1", "PATCH", "config/permisos_roles", { roles: { ventas: {} } });
+});
+
+await db.doc("config/permisos_roles").set({ roles: {
+  ventas: { ver_participantes: { modo: "otorgar" } },
+  junta: { ver_participantes: { modo: "quitar" } },
+} });
+
+await prueba("el staff lee los permisos por rol; sin rol no", async () => {
+  await puede("ventas-1", "GET", "config/permisos_roles");
+  await noPuede("sinrol-con-ajuste", "GET", "config/permisos_roles");
+  await noPuede("ceo-1", "PATCH", "config/permisos_roles", { roles: {} });
+});
+
+await prueba("otorgar al rol abre a todos los de ese rol", async () => {
+  await puede("ventas-1", "GET", "participantes/p-1");
+  await noPuede("sinrol-con-ajuste", "GET", "participantes/p-1");
+});
+
+await prueba("quitar al rol cierra a todos los de ese rol", async () => {
+  await noPuede("junta-1", "GET", "participantes/p-1");
+});
+
+await prueba("el ajuste propio manda sobre el del rol", async () => {
+  await noPuede("ventas-sin-ver-propio", "GET", "participantes/p-1");
+  await puede("junta-ve-propio", "GET", "participantes/p-1");
+  // Vencido el propio, vuelve a mandar el rol.
+  await noPuede("junta-ve-vencido", "GET", "participantes/p-1");
 });
 
 console.log(`\n${pasadas} pruebas de reglas pasaron.\n`);

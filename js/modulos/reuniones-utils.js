@@ -4,7 +4,7 @@ import { tienePermiso } from "../core/permisos.js";
 export function usuarioPuedeVerReunion(reunion, usuario) {
   if (!usuario?.rol) return false;
   if (usuario.rol === "ceo") return true;
-  if (tienePermiso(usuario.rol, "gestionar_secretaria", usuario.permisosExtra)) return true; // secretario administra todas
+  if (tienePermiso(usuario.rol, "gestionar_secretaria", usuario.permisosExtra, usuario.ajustesRol)) return true; // secretario administra todas
   if (reunion.modoInvitados === "todos") return true;
   if (reunion.modoInvitados === "rol") return (reunion.invitadosRoles || []).includes(usuario.rol);
   if (reunion.modoInvitados === "individual") return (reunion.invitadosUids || []).includes(usuario.uid);
@@ -13,7 +13,7 @@ export function usuarioPuedeVerReunion(reunion, usuario) {
 
 // ¿El usuario puede crear/editar/eliminar reuniones y minutas?
 export function usuarioPuedeGestionarMinuta(usuario) {
-  return tienePermiso(usuario?.rol, "gestionar_secretaria", usuario?.permisosExtra);
+  return tienePermiso(usuario?.rol, "gestionar_secretaria", usuario?.permisosExtra, usuario?.ajustesRol);
 }
 
 // Resuelve modoInvitados + catálogo de usuarios a la lista real de invitados

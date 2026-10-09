@@ -1440,10 +1440,10 @@
       renderAhoraMovil(checkpointsHoy);
       renderAgendaMovil(checkpointsHoy);
 
-      const participantesPromise = tienePermiso(rol, "ver_participantes", usuario.permisosExtra)
+      const participantesPromise = tienePermiso(rol, "ver_participantes", usuario.permisosExtra, usuario.ajustesRol)
         ? getDocs(collection(db, "participantes")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "participantes dashboard móvil"); return null; })
         : Promise.resolve(null);
-      const productosPromise = tienePermiso(rol, "ver_inventario", usuario.permisosExtra)
+      const productosPromise = tienePermiso(rol, "ver_inventario", usuario.permisosExtra, usuario.ajustesRol)
         ? getDocs(collection(db, "productos")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "productos dashboard móvil"); return null; })
         : Promise.resolve(null);
       const [participantes, productos] = await Promise.all([participantesPromise, productosPromise]);
@@ -1666,7 +1666,7 @@
             }
           }
         },
-        ].filter(w => tienePermiso(rol, w.permiso, usuario.permisosExtra));
+        ].filter(w => tienePermiso(rol, w.permiso, usuario.permisosExtra, usuario.ajustesRol));
 
         if (widgetsDef.length > 0) {
         const widgetsEl = document.createElement("div");
@@ -1690,7 +1690,7 @@
         reunion:   "var(--verde-apagado)",
         };
 
-        if (tienePermiso(rol, "ver_calendario", usuario.permisosExtra)) {
+        if (tienePermiso(rol, "ver_calendario", usuario.permisosExtra, usuario.ajustesRol)) {
         const tituloAgenda = document.createElement("div");
         tituloAgenda.className = "agenda-hoy-titulo";
         tituloAgenda.textContent = "Hoy";
@@ -1886,7 +1886,7 @@
 
       // Solo categorías con al menos un módulo visible para este rol.
       // "salvoSi": el acceso directo sobra si ya se ve el módulo completo.
-      const puede = p => tienePermiso(rol, p, usuario.permisosExtra);
+      const puede = p => tienePermiso(rol, p, usuario.permisosExtra, usuario.ajustesRol);
       const categoriasVisibles = CATEGORIAS
         .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
         .filter(cat => cat.modulos.length > 0);
