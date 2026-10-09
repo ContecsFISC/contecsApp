@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>II CONTECS 2026 — Registro de voluntarios</title>
+ <meta name="description" content="Regístrate como voluntario del II CONTECS 2026."/>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <style>
+ :root {
+ --verde: #00722e; --verde-oscuro: #045223; --verde-claro: #39b54a; --verde-fondo: #e9f6ee;
+ --gris-texto: #1d1d1f; --gris-suave: #f5f5f7; --gris-borde: #e3e3e6; --gris-medio: #86868b;
+ --rojo: #d0342c; --rojo-fondo: #fdf0ef; --amarillo: #a87400; --amarillo-fondo: #fff3cc;
+ --radio: 14px; --radio-sm: 10px;
+ --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+ --fuente-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+ --sombra-sm: 0 1px 2px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.05);
+ --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+ body { font-family: var(--fuente); background: var(--gris-suave); color: var(--gris-texto); min-height: 100vh; font-size: 15px; line-height: 1.5; }
+ body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+ background: radial-gradient(560px circle at 12% -8%, rgba(57,181,74,0.10), transparent 60%), radial-gradient(640px circle at 105% 30%, rgba(0,114,46,0.07), transparent 62%); }
+
+ .hero { background: radial-gradient(620px circle at 50% -160px, rgba(57,181,74,0.55), transparent 68%), linear-gradient(165deg, #033f1b 0%, var(--verde-oscuro) 45%, var(--verde) 100%);
+ padding: 40px 20px 54px; text-align: center; color: #fff; }
+ .hero-logo { width: 78px; height: 78px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+ box-shadow: 0 0 0 10px rgba(255,255,255,0.07), 0 0 60px rgba(57,181,74,0.45); }
+ .hero h1 { font-family: var(--fuente-display); font-size: 30px; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }
+ .hero p { font-size: 15px; opacity: .9; }
+ .hero-badge { display: inline-block; margin-top: 12px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); font-size: 12px; font-weight: 600; }
+
+ .container { max-width: 640px; margin: -28px auto 0; padding: 0 16px 48px; position: relative; }
+ .card { background: #fff; border-radius: var(--radio); box-shadow: var(--sombra-sm); padding: 22px 20px; margin-bottom: 14px; border: 1px solid rgba(0,0,0,0.04); }
+ .card-title { font-family: var(--fuente-display); font-size: 17px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 4px; }
+ .card-sub { font-size: 13px; color: var(--gris-medio); margin-bottom: 16px; }
+ .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+ .campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+ .campo label, .campo .lbl { font-size: 13px; font-weight: 600; color: var(--gris-texto); }
+ .campo .req { color: var(--rojo); }
+ .campo input, .campo select, .campo textarea {
+ width: 100%; padding: 11px 13px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+ font: 500 15px var(--fuente); color: var(--gris-texto); background: #fff; transition: border-color .2s, box-shadow .2s; }
+ .campo textarea { resize: vertical; min-height: 76px; }
+ .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .campo input.invalido { border-color: var(--rojo); }
+ .ayuda { font-size: 12px; color: var(--gris-medio); }
+ .ayuda.ok { color: var(--verde-oscuro); font-weight: 600; }
+ .ayuda.mal { color: var(--rojo); font-weight: 600; }
+ .horarios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+ .horario { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); cursor: pointer; transition: border-color .2s, background .2s; }
+ .horario input { position: absolute; opacity: 0; pointer-events: none; }
+ .horario strong { font-size: 14px; }
+ .horario small { font-size: 12px; color: var(--gris-medio); }
+ .horario:has(input:checked) { border-color: var(--verde); background: var(--verde-fondo); }
+ .horario:has(input:focus-visible) { box-shadow: 0 0 0 4px rgba(0,114,46,0.18); }
+ .check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--gris-texto); cursor: pointer; }
+ .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--verde); flex-shrink: 0; }
+ .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radio-sm); background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); color: #fff; font: 700 15px var(--fuente); cursor: pointer; box-shadow: 0 4px 14px rgba(0,114,46,0.25); }
+ .btn:disabled { opacity: .6; cursor: wait; }
+ .alerta { display: none; padding: 12px 14px; border-radius: var(--radio-sm); font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+ .alerta.error { display: block; background: var(--rojo-fondo); color: var(--rojo); }
+ .exito { text-align: center; padding: 34px 22px; }
+ .exito .ico { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: var(--verde-fondo); color: var(--verde); display: flex; align-items: center; justify-content: center; }
+ .exito h2 { font-family: var(--fuente-display); color: var(--verde-oscuro); margin-bottom: 8px; }
+ .exito p { color: var(--gris-medio); font-size: 14px; }
+ [hidden] { display: none !important; }
+ @media (max-width: 560px) {
+ .grid-2, .horarios { grid-template-columns: 1fr; }
+ .hero h1 { font-size: 24px; }
+ }
+ @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+ </style>
+</head>
+<body>
+
+<div class="hero">
+ <div class="hero-logo"><img src="../logocontecs.png" alt="CONTECS 2026" width="50" height="50"/></div>
+ <h1>II CONTECS 2026</h1>
+ <p>Registro de voluntarios</p>
+ <span class="hero-badge">Universidad Tecnológica de Panamá · FISC</span>
+</div>
+
+<div class="container">
+ <form id="form" novalidate>
+ <div class="alerta" id="alerta" role="alert"></div>
+
+ <div class="card">
+ <div class="card-title">Tus datos</div>
+ <p class="card-sub">Escríbelos como aparecen en tu cédula: con ellos se imprime tu credencial.</p>
+ <div class="grid-2">
+ <div class="campo"><label for="nombre">Nombre <span class="req">*</span></label><input id="nombre" autocomplete="given-name" maxlength="100" required/></div>
+ <div class="campo"><label for="apellido">Apellido <span class="req">*</span></label><input id="apellido" autocomplete="family-name" maxlength="100" required/></div>
+ </div>
+ <div class="campo">
+ <label for="cedula">Cédula o pasaporte <span class="req">*</span></label>
+ <input id="cedula" maxlength="30" autocomplete="off" inputmode="text" placeholder="Ej.: 8-888-8888" required/>
+ <span class="ayuda" id="cedula-ayuda">Es lo que lleva tu QR de voluntario para registrar tus horas.</span>
+ </div>
+ <div class="grid-2">
+ <div class="campo"><label for="correo">Correo <span class="req">*</span></label><input id="correo" type="email" autocomplete="email" maxlength="254" required/></div>
+ <div class="campo"><label for="telefono">Teléfono / WhatsApp <span class="req">*</span></label><input id="telefono" type="tel" autocomplete="tel" maxlength="30" placeholder="Ej.: 6000-0000" required/></div>
+ </div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Tus estudios</div>
+ <p class="card-sub">Para organizar los grupos de voluntarios.</p>
+ <div class="campo"><label for="centro">Centro regional <span class="req">*</span></label><select id="centro" required></select></div>
+ <div class="campo"><label for="facultad">Facultad <span class="req">*</span></label><select id="facultad" required></select></div>
+ <div class="grid-2">
+ <div class="campo"><label for="carrera">Carrera <span class="req">*</span></label><input id="carrera" maxlength="150" placeholder="Ej.: Ingeniería de Software" required/></div>
+ <div class="campo"><label for="anio">Año que cursas <span class="req">*</span></label>
+ <select id="anio" required>
+ <option value="">Selecciona</option>
+ <option value="1">1er año</option><option value="2">2do año</option><option value="3">3er año</option>
+ <option value="4">4to año</option><option value="5">5to año</option><option value="Egresado">Egresado</option>
+ </select></div>
+ </div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Tu horario de clases este semestre <span class="req">*</span></div>
+ <p class="card-sub">Así no te asignamos turnos que choquen con tus clases.</p>
+ <div class="horarios" role="radiogroup" aria-label="Horario de clases">
+ <label class="horario"><input type="radio" name="horario" value="Diurno"/><strong>Diurno</strong><small>7:50 a. m. – 12:00 p. m.</small></label>
+ <label class="horario"><input type="radio" name="horario" value="Vespertino"/><strong>Vespertino</strong><small>12:50 p. m. – 5:00 p. m.</small></label>
+ <label class="horario"><input type="radio" name="horario" value="Nocturno"/><strong>Nocturno</strong><small>5:50 p. m. – 10:00 p. m.</small></label>
+ </div>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Cuéntanos de ti</div>
+ <p class="card-sub">Opcional, pero nos ayuda a ubicarte donde mejor te va.</p>
+ <div class="campo"><label for="habilidad">¿Qué habilidad dominas?</label><input id="habilidad" maxlength="300" placeholder="Ej.: diseño, fotografía, atención al público, programación…"/></div>
+ <div class="campo"><label for="experiencia">¿Has participado en comités o voluntariados antes?</label><textarea id="experiencia" maxlength="1000"></textarea></div>
+ <div class="campo"><label for="motivacion">¿Por qué quieres ser voluntario?</label><textarea id="motivacion" maxlength="1000"></textarea></div>
+ </div>
+
+ <div class="card">
+ <label class="check"><input type="checkbox" id="acepta"/> <span>Acepto que el comité organizador del CONTECS use estos datos para gestionar el voluntariado (turnos, horas y credencial).</span></label>
+ </div>
+
+ <button type="submit" class="btn" id="enviar">Registrarme como voluntario</button>
+ </form>
+
+ <div class="card exito" id="exito" hidden>
+ <div class="ico"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></div>
+ <h2 id="exito-titulo">¡Registro listo!</h2>
+ <p>Tus datos quedaron guardados. El comité de voluntariado te contactará para asignarte tus turnos y entregarte tu credencial.</p>
+ </div>
+</div>
+
+<script type="module">
+import { app } from "../js/core/firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+
+// Las mismas listas que registro.html, para que los datos queden iguales.
+const CAMPUS = [
+  "Campus Central Dr. Victor Levi Sasso (Panama)", "Centro Regional de Azuero", "Centro Regional de Bocas del Toro",
+  "Centro Regional de Chiriqui", "Centro Regional de Cocle", "Centro Regional de Colon",
+  "Centro Regional de Panama Oeste", "Centro Regional de Veraguas",
+];
+const FACULTADES = [
+  "Facultad de Ingenieria de Sistemas Computacionales", "Facultad de Ciencias y Tecnologia", "Facultad de Ingenieria Civil",
+  "Facultad de Ingenieria Electrica", "Facultad de Ingenieria Industrial", "Facultad de Ingenieria Mecanica",
+];
+const el = id => document.getElementById(id);
+const opciones = (lista, texto) => `<option value="">${texto}</option>` + lista.map(v => `<option>${v}</option>`).join("");
+el("centro").innerHTML = opciones(CAMPUS, "Selecciona tu campus");
+el("facultad").innerHTML = opciones(FACULTADES, "Selecciona tu facultad");
+
+// Misma regla que normalizarCedula() en functions/registro-voluntarios.js
+// (el servidor vuelve a validar).
+function normalizarCedula(texto) {
+  const t = String(texto || "").toUpperCase().replace(/[‐-―−]/g, "-").trim()
+    .replace(/\s*-\s*/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  if (/^(?:\d{1,2}|PE|E|N)(?:-(?:AV|PI))?-\d{1,4}-\d{1,6}$/.test(t)) return { ok: true, valor: t, tipo: "cédula" };
+  const pas = t.replace(/-/g, "");
+  if (/^[A-Z0-9]{5,20}$/.test(pas) && /\d/.test(pas)) return { ok: true, valor: pas, tipo: "pasaporte" };
+  return { ok: false, valor: t };
+}
+
+el("cedula").addEventListener("blur", () => {
+  const v = el("cedula").value.trim();
+  const ayuda = el("cedula-ayuda");
+  if (!v) { ayuda.className = "ayuda"; ayuda.textContent = "Es lo que lleva tu QR de voluntario para registrar tus horas."; el("cedula").classList.remove("invalido"); return; }
+  const r = normalizarCedula(v);
+  el("cedula").classList.toggle("invalido", !r.ok);
+  if (r.ok) { el("cedula").value = r.valor; ayuda.className = "ayuda ok"; ayuda.textContent = `Se guardará como ${r.tipo}: ${r.valor}`; }
+  else { ayuda.className = "ayuda mal"; ayuda.textContent = "Revisa el formato: 8-888-8888, PE-12-345, E-8-12345 o tu número de pasaporte."; }
+});
+
+function error(msg, foco) {
+  el("alerta").className = "alerta error";
+  el("alerta").textContent = msg;
+  el("alerta").scrollIntoView({ behavior: "smooth", block: "center" });
+  foco?.focus({ preventScroll: true });
+}
+
+const registrar = httpsCallable(getFunctions(app, "us-central1"), "registrarVoluntario");
+
+el("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  el("alerta").className = "alerta";
+  const v = id => el(id).value.trim();
+  const horario = document.querySelector("input[name=horario]:checked")?.value || "";
+  const requeridos = [["nombre", "tu nombre"], ["apellido", "tu apellido"], ["cedula", "tu cédula o pasaporte"], ["correo", "tu correo"],
+    ["telefono", "tu teléfono"], ["centro", "tu centro regional"], ["facultad", "tu facultad"], ["carrera", "tu carrera"], ["anio", "el año que cursas"]];
+  for (const [id, texto] of requeridos) if (!v(id)) return error(`Falta ${texto}.`, el(id));
+  const ced = normalizarCedula(v("cedula"));
+  if (!ced.ok) return error("La cédula no tiene un formato válido.", el("cedula"));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("correo"))) return error("El correo no es válido.", el("correo"));
+  if (!horario) return error("Elige tu horario de clases de este semestre.", document.querySelector("input[name=horario]"));
+  if (!el("acepta").checked) return error("Debes aceptar el uso de tus datos para el voluntariado.", el("acepta"));
+
+  el("enviar").disabled = true;
+  el("enviar").textContent = "Registrando…";
+  try {
+    const { data } = await registrar({
+      nombre: v("nombre"), apellido: v("apellido"), cedula: ced.valor, correo: v("correo"), telefono: v("telefono"),
+      centro: v("centro"), facultad: v("facultad"), carrera: v("carrera"), anio: v("anio"), horario,
+      habilidad: v("habilidad"), experiencia: v("experiencia"), motivacion: v("motivacion"), aceptaDatos: true,
+    });
+    el("form").hidden = true;
+    el("exito-titulo").textContent = `¡Registro listo, ${data?.nombre || v("nombre")}!`;
+    el("exito").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    error(err?.message || "No se pudo completar el registro. Intenta de nuevo.");
+  } finally {
+    el("enviar").disabled = false;
+    el("enviar").textContent = "Registrarme como voluntario";
+  }
+});
+</script>
+</body>
+</html>

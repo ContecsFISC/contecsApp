@@ -7,13 +7,15 @@
     "test:importar": "firebase emulators:exec --only firestore \"node test/importaciones.integration.js\"",
     "test:reglas": "firebase emulators:exec --only firestore \"node test/permisos-reglas.integration.mjs\"",
     "test:eliminar": "firebase emulators:exec --only firestore \"node test/eliminar-eventos.integration.js\"",
+    "test:rol": "firebase emulators:exec --only firestore \"node test/cambio-rol.integration.js\"",
+    "test:voluntarios": "firebase emulators:exec --only firestore \"node test/registro-voluntarios.integration.js\"",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "diag:correo": "node test/diagnostico-correo.js",
-    "test": "node test/identidad.test.js && node test/giras.test.js && node test/correos.test.mjs && node test/plantillas.test.js && node test/envios.test.js && node test/importaciones.test.js && node test/rfid.test.js && node test/permanencia.test.mjs && node test/agenda-salones.test.mjs && node test/permisos.test.mjs"
+    "test": "node test/identidad.test.js && node test/giras.test.js && node test/correos.test.mjs && node test/plantillas.test.js && node test/envios.test.js && node test/importaciones.test.js && node test/rfid.test.js && node test/permanencia.test.mjs && node test/agenda-salones.test.mjs && node test/permisos.test.mjs && node test/mapa-publico.test.mjs && node test/importar-voluntarios.test.mjs && node test/credenciales-personas.test.mjs"
   },
   "engines": {
     "node": "22"

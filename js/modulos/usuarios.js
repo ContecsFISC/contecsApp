@@ -129,14 +129,13 @@ function renderUsuarios() {
     select.addEventListener("change", async () => {
       const nuevoRol    = select.value;
       const guardandoEl = document.getElementById(`guardando-${usuario.id}`);
-      try {
-        await updateDoc(doc(db, "usuarios", usuario.id), { rol: nuevoRol });
-        guardandoEl.style.display = "block";
-        setTimeout(() => guardandoEl.style.display = "none", 2000);
-      } catch {
-        alert("Error al guardar. Intenta de nuevo.");
-        select.value = usuario.rol || "sin_rol";
-      }
+      // Si se cancela o falla, el selector vuelve a mostrar el rol real.
+      select.value = usuario.rol || "sin_rol";
+      const cambiado = await pedirClaveYCambiarRol(usuario, nuevoRol);
+      if (!cambiado) return;
+      select.value = nuevoRol;
+      guardandoEl.style.display = "block";
+      setTimeout(() => guardandoEl.style.display = "none", 2000);
     });
 
     card.querySelector(".btn-permisos")?.addEventListener("click", () => abrirPermisos(usuario));
@@ -144,6 +143,67 @@ function renderUsuarios() {
       eliminarUsuario(usuario, e.currentTarget));
 
     lista.appendChild(card);
+  });
+}
+
+// ── CAMBIAR ROL (con contraseña) ───────────────────────────────────────────
+// El rol solo lo cambia la Cloud Function cambiarRolUsuario, que valida la
+// contraseña contra su hash en Secret Manager (firestore.rules no deja
+// cambiar `rol` desde el navegador). Resuelve true si se cambió.
+const dlgRol = document.getElementById("dlg-rol");
+const cambiarRolEnServidor = httpsCallable(functions, "cambiarRolUsuario");
+const etiquetaRol = rol => (rol === "sin_rol" || !rol ? "Sin rol" : infoRol(rol).label);
+
+function pedirClaveYCambiarRol(usuario, nuevoRol) {
+  const form = document.getElementById("rol-form");
+  const input = document.getElementById("rol-clave");
+  const error = document.getElementById("rol-error");
+  const btn = document.getElementById("rol-confirmar");
+  document.getElementById("rol-sub").textContent = `${usuario.nombre || "Sin nombre"} · ${usuario.email || ""}`;
+  document.getElementById("rol-cambio").innerHTML =
+    `<span class="r-de">${escaparHtml(etiquetaRol(usuario.rol))}</span><span aria-hidden="true">→</span><span class="r-a">${escaparHtml(etiquetaRol(nuevoRol))}</span>`;
+  input.value = "";
+  error.hidden = true;
+  btn.disabled = false;
+  dlgRol.showModal();
+  setTimeout(() => input.focus(), 30);
+
+  return new Promise(resolve => {
+    let enviando = false;
+    const terminar = valor => {
+      form.removeEventListener("submit", alEnviar);
+      document.getElementById("rol-cerrar").removeEventListener("click", alCancelar);
+      document.getElementById("rol-cancelar").removeEventListener("click", alCancelar);
+      dlgRol.removeEventListener("cancel", alCancelar);
+      input.value = "";
+      if (dlgRol.open) dlgRol.close();
+      resolve(valor);
+    };
+    const alCancelar = e => { e?.preventDefault?.(); if (!enviando) terminar(false); };
+    const alEnviar = async e => {
+      e.preventDefault();
+      if (enviando || !input.value) return;
+      enviando = true;
+      btn.disabled = true;
+      btn.textContent = "Verificando…";
+      error.hidden = true;
+      try {
+        await cambiarRolEnServidor({ uid: usuario.id, rol: nuevoRol, clave: input.value });
+        terminar(true);
+      } catch (err) {
+        error.textContent = err?.message || "No se pudo cambiar el rol.";
+        error.hidden = false;
+        input.select();
+      } finally {
+        enviando = false;
+        btn.disabled = false;
+        btn.textContent = "Cambiar rol";
+      }
+    };
+    form.addEventListener("submit", alEnviar);
+    document.getElementById("rol-cerrar").addEventListener("click", alCancelar);
+    document.getElementById("rol-cancelar").addEventListener("click", alCancelar);
+    dlgRol.addEventListener("cancel", alCancelar);
   });
 }
 

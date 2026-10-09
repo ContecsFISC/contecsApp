@@ -50,6 +50,9 @@ const {
   liberarLocksParticipante,
 } = require("./eliminaciones");
 const {eliminarEventoOCheckpoint} = require("./eliminar-eventos");
+const {cambiarRolUsuario} = require("./cambio-rol");
+const {registrarVoluntario} = require("./registro-voluntarios");
+const {mapaPublico} = require("./mapa-publico");
 const {
   CATEGORIAS_REGISTRO,
   generarToken,
@@ -64,6 +67,8 @@ const {importarParticipantes} = require("./importaciones");
 //   firebase functions:secrets:set BREVO_API_KEY
 // y se referencia aquí solo por nombre; el valor real nunca toca git.
 const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
+// Hash (scrypt) de la contraseña para cambiar roles. Ver functions/cambio-rol.js.
+const ROL_CLAVE_HASH = defineSecret("ROL_CLAVE_HASH");
 const CORREO_REMITENTE = {name: "CONTECS 2026", email: "contecs.logistica@utp.ac.pa"};
 const MAX_REENVIOS_CORREO_QR = 4;
 const MAX_REGISTROS_POR_HORA_IP = 25;
@@ -1667,6 +1672,51 @@ exports.eliminarParticipante = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("eliminarParticipante:", e);
         throw new HttpsError("internal", "No se pudo eliminar el participante. Intenta de nuevo.");
+      }
+    },
+);
+
+// Mapa público (public/mapa.html, el QR del congreso): agenda, salones y
+// asientos ocupados en conteos, sin iniciar sesión. Ver functions/mapa-publico.js.
+exports.mapaPublico = onCall(
+    {region: "us-central1", maxInstances: 10, invoker: "public"},
+    async () => {
+      try {
+        return await mapaPublico();
+      } catch (e) {
+        console.error("mapaPublico:", e);
+        throw new HttpsError("internal", "No se pudo cargar el mapa. Intenta de nuevo.");
+      }
+    },
+);
+
+// Registro público de voluntarios (public/registro-voluntarios.html): sin
+// correos ni QR, solo deja el registro normalizado. Mismo límite por conexión
+// que el registro de participantes. Ver functions/registro-voluntarios.js.
+exports.registrarVoluntario = onCall(
+    {region: "us-central1", maxInstances: 10, invoker: "public"},
+    async (request) => {
+      try {
+        return await registrarVoluntario(request, {aplicarLimite: aplicarLimiteRegistro});
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("registrarVoluntario:", e);
+        throw new HttpsError("internal", "No se pudo completar el registro. Intenta de nuevo.");
+      }
+    },
+);
+
+// Cambiar el rol de un usuario: pide la contraseña (hash en Secret Manager)
+// y deja constancia en cambios_rol. Ver functions/cambio-rol.js.
+exports.cambiarRolUsuario = onCall(
+    {region: "us-central1", maxInstances: 5, secrets: [ROL_CLAVE_HASH]},
+    async (request) => {
+      try {
+        return await cambiarRolUsuario(request, {hashClave: ROL_CLAVE_HASH.value()});
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("cambiarRolUsuario:", e);
+        throw new HttpsError("internal", "No se pudo cambiar el rol. Intenta de nuevo.");
       }
     },
 );

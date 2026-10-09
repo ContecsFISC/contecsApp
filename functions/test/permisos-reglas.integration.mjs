@@ -86,6 +86,7 @@ const USUARIOS = {
   "sinrol-con-ajuste": { rol: "sin_rol", permisosExtra: { ver_participantes: { modo: "otorgar", vence: null } } },
   "objetivo": { rol: "miembro" },
   "miembro-1": { rol: "miembro" },
+  "ventas-credenciales": { rol: "ventas", permisosExtra: { gestionar_credenciales: { modo: "otorgar", vence: null } } },
   "staff-1": { rol: "staff_contecs" },
   "staff-sin-editar": { rol: "staff_contecs", permisosExtra: { evento_editar: { modo: "quitar" } } },
   "staff-sin-salones": { rol: "staff_contecs", permisosExtra: { evento_salones: { modo: "quitar" } } },
@@ -97,7 +98,7 @@ const USUARIOS = {
 async function preparar() {
   const batch = db.batch();
   Object.entries(USUARIOS).forEach(([uid, data]) =>
-    batch.set(db.collection("usuarios").doc(uid), { nombre: uid, email: `${uid}@example.com`, ...data }));
+    batch.set(db.collection("usuarios").doc(uid), { nombre: uid, email: `${uid}@example.com`, foto: "", ...data }));
   batch.set(db.collection("participantes").doc("p-1"), { nombreCompleto: "Prueba", pago: { estado: "comprobante_enviado" } });
   batch.set(db.collection("participantes").doc("p-borrable"), { nombreCompleto: "Borrable", pago: { estado: "pendiente_efectivo" } });
   batch.set(db.collection("fondos").doc("f-1"), { balance: 0 });
@@ -140,15 +141,11 @@ await prueba("eliminar participantes se puede quitar a junta_principal", async (
 
 console.log("\nUsuarios:\n");
 
-await prueba("junta_principal cambia el rol de otra persona", async () => {
-  await puede("jp-1", "PATCH", "usuarios/objetivo", { rol: "ventas" });
-});
-
-await prueba("...pero no el suyo, ni da o quita el rol de CEO", async () => {
+await prueba("nadie cambia un rol desde el navegador, ni el CEO (va por cambiarRolUsuario)", async () => {
+  await noPuede("jp-1", "PATCH", "usuarios/objetivo", { rol: "ventas" });
+  await noPuede("ceo-1", "PATCH", "usuarios/objetivo", { rol: "ventas" });
+  await noPuede("ventas-usuarios", "PATCH", "usuarios/objetivo", { rol: "miembro" });
   await noPuede("jp-1", "PATCH", "usuarios/jp-1", { rol: "ceo" });
-  await noPuede("jp-1", "PATCH", "usuarios/objetivo", { rol: "ceo" });
-  await noPuede("jp-1", "PATCH", "usuarios/ceo-1", { rol: "miembro" });
-  await noPuede("jp-1", "PATCH", "usuarios/objetivo", { rol: "inventado" });
 });
 
 await prueba("solo el CEO toca permisos individuales", async () => {
@@ -158,9 +155,33 @@ await prueba("solo el CEO toca permisos individuales", async () => {
   await puede("ceo-1", "PATCH", "usuarios/objetivo", extra);
 });
 
-await prueba("gestionar usuarios: se otorga a ventas y se quita a junta_principal", async () => {
-  await puede("ventas-usuarios", "PATCH", "usuarios/objetivo", { rol: "miembro" });
-  await noPuede("jp-sin-usuarios", "PATCH", "usuarios/objetivo", { rol: "ventas" });
+await prueba("cada quien edita su nombre, no su rol", async () => {
+  await puede("objetivo", "PATCH", "usuarios/objetivo", { nombre: "Nuevo nombre" });
+  await noPuede("objetivo", "PATCH", "usuarios/objetivo", { rol: "ceo" });
+});
+
+console.log("\nCredenciales:\n");
+
+await prueba("historial de impresión: CEO sí; ventas solo si se le otorga el módulo", async () => {
+  const marca = { tipo: "voluntario", nombre: "Ana", veces: 1, ultimaPor: "ceo-1" };
+  await puede("ceo-1", "PATCH", "credenciales_impresas/voluntario_abc", marca);
+  await noPuede("ventas-1", "GET", "credenciales_impresas/voluntario_abc");
+  await puede("ventas-credenciales", "GET", "credenciales_impresas/voluntario_abc");
+  await puede("ventas-credenciales", "PATCH", "credenciales_impresas/voluntario_abc", { ...marca, veces: 2, ultimaPor: "ventas-credenciales" });
+  await noPuede("ventas-credenciales", "PATCH", "credenciales_impresas/voluntario_abc", { ...marca, ultimaPor: "otro" });
+});
+
+await prueba("el módulo Credenciales abre la lectura de participantes", async () => {
+  await noPuede("ventas-1", "GET", "participantes/p-1");
+  await puede("ventas-credenciales", "GET", "participantes/p-1");
+});
+
+await prueba("expositores agregados a mano: solo con el módulo Credenciales", async () => {
+  const ex = { nombre: "Marta", apellido: "Ruiz", institucion: "UTP", tema: "IA", cedula: "", correo: "", creadoPor: "ceo-1" };
+  await puede("ceo-1", "PATCH", "expositores/e-1", ex);
+  await puede("ventas-credenciales", "GET", "expositores/e-1");
+  await noPuede("ventas-1", "GET", "expositores/e-1");
+  await noPuede("ventas-1", "PATCH", "expositores/e-2", ex);
 });
 
 console.log("\nFinanzas y Secretaría:\n");

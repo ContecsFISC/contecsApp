@@ -3,11 +3,12 @@
 <head>
  <meta charset="UTF-8"/>
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
- <title>CONTECS — Mapa del evento</title>
+ <title>II CONTECS 2026 — Mapa del congreso</title>
+ <meta name="description" content="Mapa interactivo del II CONTECS 2026: salones, agenda y asientos disponibles."/>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <link rel="stylesheet" href="../css/styles.css?v=20260906.1"/>
  <!-- Three.js para la maqueta 3D (si no carga, el mapa usa la vista 2D). -->
  <script type="importmap">
  {
@@ -16,11 +17,6 @@
      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
    }
  }
- </script>
- <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
- guardRoute();
- await requirePermiso("ver_mapa");
  </script>
  <style>
  body { overflow: hidden; }
@@ -204,11 +200,12 @@
  }
  </style>
 </head>
-<body>
+<!-- Página pública (QR del congreso): sin iniciar sesión. js/modulos/mapa.js
+     en modo público toma los datos de la Cloud Function mapaPublico. -->
+<body data-publico="1">
 
 <div class="topbar" id="topbar">
- <h1>CONTECS — Mapa del evento</h1>
- <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+ <h1>II CONTECS 2026 — Mapa del congreso</h1>
 </div>
 
 <div class="mapa-app" id="mapa-app">
@@ -229,7 +226,6 @@
  <div class="vidrio reloj sin-vivo" id="reloj" aria-live="polite"><span class="punto"></span><span id="reloj-texto">—</span></div>
  <div class="vidrio ctrl-grupo ctrl-acciones">
  <button class="chip-btn" type="button" id="btn-agenda" aria-pressed="false" aria-controls="panel-salon">Agenda</button>
- <a class="chip-btn btn-gestionar" id="btn-gestionar" href="inscripciones.html" data-permiso="mapa_gestionar_actividades">Gestionar actividades</a>
  </div>
  </div>
 
@@ -260,6 +256,6 @@
  <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/mapa.js?v=20261009.3"></script>
+<script type="module" src="../js/modulos/mapa.js?v=20261009.3"></script>
 </body>
 </html>

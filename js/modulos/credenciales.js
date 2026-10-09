@@ -83,8 +83,10 @@ const C = {
 // Tema de color por tipo de credencial. `participante` es el de siempre.
 export const TEMAS = {
   participante: { oscuro: C.verdeOscuro, principal: C.verde, claro: C.verdeClaro, tinte: C.tinte, bordeQr: C.bordeQr, qr: C.qr },
-  voluntario: { oscuro: "#00564d", principal: "#00897b", claro: "#4db6ac", tinte: "#ddf1ee", bordeQr: "#bfe3dd", qr: "#003b35" },
-  comite: { oscuro: "#3b1857", principal: "#6a2c91", claro: "#c9a227", tinte: "#efe6f8", bordeQr: "#dccbef", qr: "#2a1040" },
+  // Amarillo y rojo oscurecidos lo justo para que el texto blanco de la
+  // cabecera y el de la etiqueta se lean bien impresos.
+  voluntario: { oscuro: "#7a5200", principal: "#a87400", claro: "#ffcc33", tinte: "#fff3cc", bordeQr: "#f2dc8a", qr: "#4a3200" },
+  comite: { oscuro: "#7f1d1d", principal: "#c62828", claro: "#ef5350", tinte: "#fde7e7", bordeQr: "#f5c2c2", qr: "#5c1010" },
   expositor: { oscuro: "#0d3a78", principal: "#1565c0", claro: "#64b5f6", tinte: "#e2edfb", bordeQr: "#c5daf5", qr: "#0a2b5a" },
 };
 const temaDe = p => TEMAS[p?.cred?.tema] || TEMAS.participante;

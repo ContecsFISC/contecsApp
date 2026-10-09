@@ -89,6 +89,39 @@
  .cr-aviso .cr-botones .btn { font-size: 12px; }
  .cr-nota { font-size: 11px; color: var(--gris-medio); line-height: 1.5; }
 
+ /* ── Expositores agregados a mano ── */
+ .cr-exp-acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+ .cr-exp-acciones[hidden] { display: none; }
+ .cr-exp-acciones .btn { width: auto; }
+ .cr-item .i-acciones { display: flex; gap: 2px; margin-left: 4px; }
+ .cr-item .i-acc { width: 26px; height: 26px; border-radius: 6px; border: none; background: transparent; color: var(--gris-medio); cursor: pointer; font-size: 14px; }
+ .cr-item .i-acc:hover { background: #fff; color: var(--verde-oscuro); }
+ .cr-item .i-acc.quitar:hover { color: var(--rojo); }
+ .cr-item.con-acciones { grid-template-columns: 22px minmax(0, 1fr) auto auto; }
+ .cr-dlg { width: min(520px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: var(--radio-lg); box-shadow: var(--sombra-md); margin: auto; font-family: var(--fuente); }
+ .cr-dlg-ancho { width: min(760px, calc(100vw - 32px)); }
+ .cr-dlg::backdrop { background: rgba(0,0,0,0.45); }
+ .cr-dlg-form { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
+ .cr-dlg-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--gris-borde); }
+ .cr-dlg-cab h2 { font: 700 17px var(--fuente-display); margin: 0; color: var(--verde-oscuro); }
+ .cr-dlg-cerrar { width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--gris-suave); font-size: 20px; cursor: pointer; }
+ .cr-dlg-cuerpo { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; overflow-y: auto; }
+ .cr-dlg-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+ .cr-dlg-cuerpo .cr-input { width: 100%; }
+ .cr-dlg-pie { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--gris-borde); }
+ .cr-dlg-pie .btn { width: auto; }
+ .cr-dlg-error { font-size: 12px; font-weight: 600; color: var(--rojo); background: var(--rojo-fondo); border-radius: var(--radio-sm); padding: 8px 10px; }
+ .cr-dlg-error[hidden], #expi-revision[hidden] { display: none; }
+ .cr-drop { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 130px; padding: 18px; text-align: center; color: var(--verde-oscuro); background: var(--verde-fondo); border: 2px dashed var(--verde-claro); border-radius: var(--radio); cursor: pointer; }
+ .cr-drop.encima { border-color: var(--verde); background: #dcefe3; }
+ .cr-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+ .cr-drop small { font-size: 12px; color: var(--gris-medio); }
+ .cr-tabla-wrap { max-height: 40vh; overflow: auto; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); margin-top: 8px; }
+ .cr-tabla { width: 100%; border-collapse: collapse; }
+ .cr-tabla th { position: sticky; top: 0; background: var(--verde-fondo); color: var(--verde-oscuro); font-size: 12px; text-align: left; padding: 7px 10px; }
+ .cr-tabla td { font-size: 12px; padding: 7px 10px; border-top: 1px solid var(--gris-borde); }
+ .cr-tabla tr.error td { color: var(--rojo); background: #fff8f7; }
+ @media (max-width: 560px) { .cr-dlg-fila { grid-template-columns: 1fr; } }
  @media (max-width: 980px) {
    .cr-tipos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
    .cr-panel { grid-template-columns: 1fr; }
@@ -126,6 +159,10 @@
  <select class="cr-select" id="cr-categoria" aria-label="Categoría" hidden></select>
  <select class="cr-select" id="cr-evento" aria-label="Evento" hidden></select>
  <label class="cr-check" id="cr-no-aprobados-wrap" hidden><input type="checkbox" id="cr-no-aprobados"/> Incluir pagos no aprobados</label>
+ <div class="cr-exp-acciones" id="cr-exp-acciones" hidden>
+ <button type="button" class="btn btn-outline btn-sm" id="cr-exp-agregar">+ Agregar expositor</button>
+ <button type="button" class="btn btn-outline btn-sm" id="cr-exp-importar">Importar Excel</button>
+ </div>
  </div>
  <div class="cr-sel">
  <label class="cr-check"><input type="checkbox" id="cr-todos"/> <span id="cr-todos-txt">Seleccionar todas</span></label>
@@ -166,6 +203,55 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261009.1"></script>
+<!-- Agregar o editar un expositor que no se inscribió -->
+<dialog class="cr-dlg" id="dlg-exp" aria-labelledby="exp-titulo">
+ <form class="cr-dlg-form" id="exp-form" novalidate>
+ <header class="cr-dlg-cab"><h2 id="exp-titulo">Agregar expositor</h2><button type="button" class="cr-dlg-cerrar" data-cerrar aria-label="Cerrar">&times;</button></header>
+ <div class="cr-dlg-cuerpo">
+ <div class="cr-dlg-fila">
+ <label class="cr-campo"><span class="cr-label">Nombre *</span><input class="cr-input" id="exp-nombre" maxlength="100" required/></label>
+ <label class="cr-campo"><span class="cr-label">Apellido</span><input class="cr-input" id="exp-apellido" maxlength="100"/></label>
+ </div>
+ <label class="cr-campo"><span class="cr-label">Institución o empresa</span><input class="cr-input" id="exp-institucion" maxlength="150" placeholder="Ej.: SENACYT"/></label>
+ <label class="cr-campo"><span class="cr-label">Tema de su charla</span><input class="cr-input" id="exp-tema" maxlength="200" placeholder="Se muestra si no tiene actividades con su nombre en el evento"/></label>
+ <div class="cr-dlg-fila">
+ <label class="cr-campo"><span class="cr-label">Cédula / pasaporte</span><input class="cr-input" id="exp-cedula" maxlength="30"/></label>
+ <label class="cr-campo"><span class="cr-label">Correo</span><input class="cr-input" id="exp-correo" type="email" maxlength="254"/></label>
+ </div>
+ <p class="cr-nota">Si su nombre coincide con el exponente escrito en una actividad del evento, la credencial muestra esas actividades.</p>
+ <div class="cr-dlg-error" id="exp-error" hidden></div>
+ </div>
+ <footer class="cr-dlg-pie">
+ <button type="button" class="btn btn-outline btn-sm" data-cerrar>Cancelar</button>
+ <button type="submit" class="btn btn-primary btn-sm" id="exp-guardar">Guardar</button>
+ </footer>
+ </form>
+</dialog>
+
+<!-- Importar expositores desde Excel -->
+<dialog class="cr-dlg cr-dlg-ancho" id="dlg-exp-imp" aria-labelledby="expi-titulo">
+ <div class="cr-dlg-form">
+ <header class="cr-dlg-cab"><h2 id="expi-titulo">Importar expositores</h2><button type="button" class="cr-dlg-cerrar" data-cerrar aria-label="Cerrar">&times;</button></header>
+ <div class="cr-dlg-cuerpo">
+ <label class="cr-drop" id="expi-drop">
+ <input type="file" id="expi-archivo" accept=".xlsx,.xls,.csv"/>
+ <strong>Arrastra el Excel aquí o haz clic para elegirlo</strong>
+ <small>Columnas: Nombre, Apellido (o Nombre completo), Institución, Tema de la charla, Cédula, Correo.</small>
+ </label>
+ <div class="cr-nota" style="text-align:center;">¿No tienes un formato? <button type="button" class="cr-link" id="expi-plantilla">Descargar plantilla de Excel</button></div>
+ <div class="cr-dlg-error" id="expi-error" hidden></div>
+ <div id="expi-revision" hidden>
+ <div class="cr-nota" id="expi-resumen"></div>
+ <div class="cr-tabla-wrap"><table class="cr-tabla"><thead><tr><th>Fila</th><th>Nombre</th><th>Institución</th><th>Tema</th><th>Estado</th></tr></thead><tbody id="expi-filas"></tbody></table></div>
+ </div>
+ </div>
+ <footer class="cr-dlg-pie">
+ <button type="button" class="btn btn-outline btn-sm" data-cerrar>Cerrar</button>
+ <button type="button" class="btn btn-primary btn-sm" id="expi-importar" disabled>Importar</button>
+ </footer>
+ </div>
+</dialog>
+
+<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261009.2"></script>
 </body>
 </html>

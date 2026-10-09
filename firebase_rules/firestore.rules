@@ -118,15 +118,6 @@ service cloud.firestore {
         || otorgado('ver_fondos');
     }
 
-    function rolValido(rol) {
-      return rol in [
-        'sin_rol', 'ceo', 'junta_principal', 'junta', 'coordinador',
-        'finanzas', 'logistica', 'ventas', 'secretario', 'actividades',
-        'patrocinios', 'investigacion', 'voluntariado', 'giras',
-        'comunicaciones', 'staff_contecs', 'miembro', 'posper'
-      ];
-    }
-
     // ── Usuarios ─────────────────────────────────────────────────────────────
     match /usuarios/{uid} {
       allow read: if signedIn() && (
@@ -158,17 +149,12 @@ service cloud.firestore {
           && request.resource.data.nombre.size() <= 120
           && request.resource.data.foto is string
           && request.resource.data.foto.size() <= 2048)
-        // El CEO cambia cualquier campo, incluidos los permisos individuales.
+        // El CEO cambia los demás campos, incluidos los permisos individuales.
+        // El ROL no se cambia desde el navegador, ni siquiera el CEO: pasa por
+        // la Cloud Function cambiarRolUsuario, que pide la contraseña.
         || (hasRol(['ceo'])
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'rolCambiadoPor', 'rolCambiadoEn'])
           && request.resource.data.get('permisosExtra', {}) is map)
-        // Quien gestiona usuarios solo cambia el rol de OTRA persona, y nunca
-        // da ni quita el rol de CEO (así nadie se sube a sí mismo).
-        || (permite('gestionar_usuarios', ['junta_principal'])
-          && request.auth.uid != uid
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rol'])
-          && rolValido(request.resource.data.rol)
-          && request.resource.data.rol != 'ceo'
-          && resource.data.rol != 'ceo')
       );
     }
 
@@ -203,6 +189,27 @@ service cloud.firestore {
       allow delete: if permite('gestionar_credenciales', ['ceo']);
     }
 
+    // Expositores agregados a mano o importados en el módulo Credenciales
+    // (los que no se inscribieron como participantes).
+    match /expositores/{id} {
+      allow read: if permite('gestionar_credenciales', ['ceo']);
+      allow create, update: if permite('gestionar_credenciales', ['ceo'])
+        && request.resource.data.keys().hasOnly([
+          'nombre', 'apellido', 'cedula', 'correo', 'institucion', 'tema',
+          'creadoPor', 'creadoEn', 'actualizadoEn', 'lote'
+        ])
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 100
+        && request.resource.data.get('apellido', '') is string
+        && request.resource.data.get('apellido', '').size() <= 100
+        && request.resource.data.get('institucion', '') is string
+        && request.resource.data.get('institucion', '').size() <= 150
+        && request.resource.data.get('tema', '') is string
+        && request.resource.data.get('tema', '').size() <= 200;
+      allow delete: if permite('gestionar_credenciales', ['ceo']);
+    }
+
     // RFID anclado desde POSPER — solo Admin SDK (ejecutarOperacionQr)
     match /rfid_participantes/{id} {
       allow read, write: if false;
@@ -219,6 +226,26 @@ service cloud.firestore {
     }
 
     match /limites_registro/{id} {
+      allow read, write: if false;
+    }
+
+    // Cambio de rol con contraseña (cambiarRolUsuario): intentos fallidos
+    // por usuario y registro de cada cambio. Solo Admin SDK.
+    match /intentos_cambio_rol/{id} {
+      allow read, write: if false;
+    }
+    match /cambios_rol/{id} {
+      allow read, write: if false;
+    }
+
+    // Cédula única del registro público de voluntarios (registrarVoluntario).
+    match /identificadores_voluntarios/{id} {
+      allow read, write: if false;
+    }
+
+    // Caché del mapa público (mapaPublico): se entrega por la función, nunca
+    // directo al navegador.
+    match /publico/{id} {
       allow read, write: if false;
     }
 

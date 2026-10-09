@@ -121,6 +121,19 @@
  }
  .btn-volver:hover { background: rgba(255,255,255,0.28); }
  .btn-volver:active { transform: scale(0.92); }
+ /* ── Contraseña para cambiar un rol ── */
+ .dlg-rol { width: min(440px, calc(100vw - 32px)); }
+ .rol-cuerpo { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px 6px; }
+ .rol-cambio { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; margin-bottom: 6px; }
+ .rol-cambio .r-de, .rol-cambio .r-a { padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 12px; }
+ .rol-cambio .r-de { background: var(--gris-suave); color: var(--gris-medio); }
+ .rol-cambio .r-a { background: var(--verde-fondo); color: var(--verde-oscuro); }
+ .rol-label { font-size: 12px; font-weight: 700; color: var(--verde-oscuro); }
+ .rol-input { width: 100%; box-sizing: border-box; padding: 11px 13px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); font: 500 15px var(--fuente); }
+ .rol-input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .rol-nota { font-size: 12px; color: var(--gris-medio); margin: 2px 0 0; line-height: 1.5; }
+ .dlg-rol .perm-aviso { margin: 0; }
+ @media(max-width:600px) { .dlg-rol { height: auto; max-height: 100dvh; border-radius: var(--radio-lg) var(--radio-lg) 0 0; margin: auto 0 0; } .rol-input { font-size: 16px; } }
  /* ── Gestor de permisos ── */
  .btn-permisos {
  flex-shrink: 0;
@@ -321,6 +334,31 @@
  <div id="lista-usuarios"></div>
  </div>
  </div>
+
+ <!-- Contraseña para cambiar un rol (la valida la Cloud Function cambiarRolUsuario) -->
+ <dialog id="dlg-rol" class="dlg-permisos dlg-rol" aria-labelledby="rol-titulo">
+ <form class="perm-form" id="rol-form" autocomplete="off">
+ <header class="perm-head">
+ <div class="perm-head-txt">
+ <h2 id="rol-titulo">Cambiar rol</h2>
+ <p id="rol-sub"></p>
+ </div>
+ <button type="button" class="perm-cerrar" id="rol-cerrar" aria-label="Cerrar">&times;</button>
+ </header>
+ <div class="rol-cuerpo">
+ <div class="rol-cambio" id="rol-cambio"></div>
+ <label class="rol-label" for="rol-clave">Contraseña de autorización</label>
+ <input type="password" id="rol-clave" class="rol-input" autocomplete="new-password" spellcheck="false" required/>
+ <div class="perm-aviso" id="rol-error" hidden></div>
+ <p class="rol-nota">Solo las personas autorizadas conocen esta contraseña. Tras 5 intentos fallidos se bloquea 15 minutos.</p>
+ </div>
+ <footer class="perm-foot">
+ <span class="perm-foot-espacio"></span>
+ <button type="button" class="perm-btn" id="rol-cancelar">Cancelar</button>
+ <button type="submit" class="perm-btn perm-btn-primario" id="rol-confirmar">Cambiar rol</button>
+ </footer>
+ </form>
+ </dialog>
 
  <!-- Gestor de permisos individuales (solo CEO). Lo llena js/modulos/usuarios.js -->
  <dialog id="dlg-permisos" class="dlg-permisos" aria-labelledby="perm-titulo">

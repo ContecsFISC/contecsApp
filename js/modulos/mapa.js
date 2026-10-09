@@ -13,6 +13,11 @@
 //   - El panel muestra la agenda del evento (como la guía de salones) o el
 //     detalle de un salón; tocar una actividad la ubica en el mapa.
 // La maqueta 3D vive en mapa3d.js; si no hay WebGL se usa la vista 2D.
+//
+// Modo público (public/mapa.html, el QR del congreso; <body data-publico="1">):
+// sin iniciar sesión. Los datos vienen de la Cloud Function mapaPublico
+// (agenda, salones y asientos ocupados en conteos, sin nombres) y no hay nada
+// del staff: ni configurar salones, ni liberar asientos, ni voluntariado.
 
 import { app, db } from "../core/firebase-config.js";
 import {
@@ -32,6 +37,7 @@ import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
 import { crearVista3D } from "./mapa3d.js";
 
 const el = id => document.getElementById(id);
+const PUBLICO = document.body.dataset.publico === "1";
 const h = escaparHtml;
 const ejecutarOperacionQr = httpsCallable(getFunctions(app, "us-central1"), "ejecutarOperacionQr");
 const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -57,6 +63,8 @@ const ESPACIOS = new Map(PLANOS.flatMap(p => p.espacios.map(e => [e.id, { ...e, 
 const S = {
   salones: {}, eventos: [], evento: null, checkpoints: [], asistencias: [], voluntariado: [],
   dia: null, piso: PLANOS[0]?.id, sel: null, vista: "3d", gestor: false, liberar: false,
+  // Modo público: todas las actividades publicadas y asientos ocupados por checkpoint.
+  todosCheckpoints: [], ocupacionPublica: {},
   // Panel: "cerrado", "agenda" o "salon". destacado = actividad elegida en la agenda.
   panel: "cerrado", destacado: null,
   filtro: { tipo: "todo", dia: "todo", ahora: false, ocultarFin: false, q: [] },
@@ -78,6 +86,7 @@ function alerta(tipo, msg) {
 
 const fechaPanama = valor => {
   if (!valor) return null;
+  if (typeof valor === "string" && /^\d{4}-\d{2}-\d{2}$/.test(valor)) return valor;
   const d = valor.toDate ? valor.toDate() : new Date(valor);
   return Number.isNaN(d.getTime()) ? null : enPanama(d).dia;
 };
@@ -158,9 +167,15 @@ function checkpointsPorSalon() {
   return mapa;
 }
 
+// checkpointId -> personas dentro ahora. En modo público llega contado.
+function ocupadosPorCheckpoint() {
+  if (PUBLICO) return new Map(Object.entries(S.ocupacionPublica || {}));
+  return new Map([...ocupacionActual(S.asistencias, S.checkpoints)].map(([id, lista]) => [id, lista.length]));
+}
+
 function calcularEstados() {
   const ahora = enPanama();
-  const ocupacion = ocupacionActual(S.asistencias, S.checkpoints);
+  const ocupacion = ocupadosPorCheckpoint();
   const porSalon = checkpointsPorSalon();
   const resultado = new Map();
 
@@ -178,7 +193,7 @@ function calcularEstados() {
         chip: "EN VIVO · Voluntariado", titulo: `${nombreSalon(id, salon)}: ${vivo.nombre}`, vivo,
       };
     } else if (vivo) {
-      const ocupados = ocupacion.get(vivo.id)?.length || 0;
+      const ocupados = ocupacion.get(vivo.id) || 0;
       const capacidad = salon?.capacidad || 0;
       est = {
         estado: "vivo", color: tipoDe(vivo).color, rotulo,
@@ -226,7 +241,7 @@ function renderLeyenda() {
   const fila = (color, texto) => `<span><i style="background:${color}"></i>${h(texto)}</span>`;
   el("leyenda").innerHTML = [
     fila("#f7faf8", "Libre"),
-    ...["conferencia", "taller", "panel", "congreso", "voluntariado"].map(t => fila(TIPOS[t].color, TIPOS[t].nombre)),
+    ...["conferencia", "taller", "panel", "congreso", ...(PUBLICO ? [] : ["voluntariado"])].map(t => fila(TIPOS[t].color, TIPOS[t].nombre)),
     fila(COLOR_FIN, "Ya terminó"),
     fila(COLOR_CANCELADO, "Cancelada"),
     `<span style="margin-top:2px;color:var(--gris-medio)">En vivo: el cristal se llena con los asientos ocupados</span>`,
@@ -290,6 +305,7 @@ function cambiarVista(vista) {
 
 // "Gestionar actividades" abre Gestión de Evento en el evento que se ve.
 function actualizarEnlaceGestion() {
+  if (!el("btn-gestionar")) return;
   el("btn-gestionar").href = S.evento ? `inscripciones.html?evento=${encodeURIComponent(S.evento.id)}` : "inscripciones.html";
 }
 
@@ -299,6 +315,11 @@ el("sel-evento").addEventListener("change", () => {
   actualizarEnlaceGestion();
   elegirDiaInicial();
   renderDias();
+  if (PUBLICO) {
+    S.checkpoints = S.todosCheckpoints.filter(cp => cp.eventoId === S.evento?.id);
+    render();
+    return;
+  }
   escucharCheckpoints();
   escucharAsistencias();
 });
@@ -787,6 +808,7 @@ el("panel-cuerpo").addEventListener("click", async e => {
 
 // ─── Datos en vivo ──────────────────────────────────────────────────────────
 function escucharCheckpoints() {
+  if (PUBLICO) { render(); return; }
   cancelarCheckpoints?.();
   S.checkpoints = [];
   if (!S.evento) { render(); return; }
@@ -814,6 +836,7 @@ function escucharVoluntariado() {
 // Los asientos solo importan "en ese momento": se escuchan las entradas de
 // hoy y solo cuando se mira el día de hoy.
 function escucharAsistencias() {
+  if (PUBLICO) { render(); return; }
   cancelarAsistencias?.();
   cancelarAsistencias = null;
   S.asistencias = [];
@@ -847,6 +870,33 @@ async function cargarEventos() {
   escucharAsistencias();
 }
 
+// ─── Modo público ───────────────────────────────────────────────────────────
+// mapaPublico devuelve todo ya filtrado (y lo cachea unos segundos para todos).
+const leerMapaPublico = httpsCallable(getFunctions(app, "us-central1"), "mapaPublico");
+
+async function cargarPublico() {
+  const { data } = await leerMapaPublico();
+  const primeraVez = !S.eventos.length;
+  S.salones = data.salones || {};
+  S.eventos = (data.eventos || []).filter(estaOperativo);
+  S.todosCheckpoints = data.checkpoints || [];
+  S.ocupacionPublica = data.ocupacion || {};
+  if (primeraVez || !S.eventos.some(ev => ev.id === S.evento?.id)) {
+    const hoy = enPanama().dia;
+    S.evento = S.eventos.find(ev => diasDelEvento(ev).includes(hoy))
+      || [...S.eventos].filter(ev => (diasDelEvento(ev)[0] || "") >= hoy).sort((a, b) => diasDelEvento(a)[0].localeCompare(diasDelEvento(b)[0]))[0]
+      || S.eventos[0] || null;
+    el("sel-evento").innerHTML = S.eventos.length
+      ? S.eventos.map(ev => `<option value="${escaparAtributo(ev.id)}">${h(ev.nombre || "Evento")}</option>`).join("")
+      : `<option value="">Sin eventos publicados</option>`;
+    if (S.evento) el("sel-evento").value = S.evento.id;
+    elegirDiaInicial();
+    renderDias();
+  }
+  S.checkpoints = S.todosCheckpoints.filter(cp => cp.eventoId === S.evento?.id);
+  render();
+}
+
 // ─── Inicio ─────────────────────────────────────────────────────────────────
 function ajustarAlto() {
   document.documentElement.style.setProperty("--alto-topbar", `${el("topbar").offsetHeight}px`);
@@ -855,10 +905,12 @@ window.addEventListener("resize", ajustarAlto);
 ajustarAlto();
 
 async function iniciar() {
-  await esperarSesionLista();
-  S.gestor = usuarioTienePermiso("evento_salones");
-  S.liberar = usuarioTienePermiso("liberar_asiento");
-  aplicarPermisosDom();
+  if (!PUBLICO) {
+    await esperarSesionLista();
+    S.gestor = usuarioTienePermiso("evento_salones");
+    S.liberar = usuarioTienePermiso("liberar_asiento");
+    aplicarPermisosDom();
+  }
   renderLeyenda();
   renderPisos();
 
@@ -872,9 +924,15 @@ async function iniciar() {
     cambiarVista("2d");
   }
 
-  escucharSalones(salones => { S.salones = salones; render(); }, e => console.error("Mapa: salones:", e));
-  await cargarEventos();
-  cancelarVoluntariado = escucharVoluntariado();
+  if (PUBLICO) {
+    await cargarPublico();
+    // Asientos y "en vivo" al día cada 30 s.
+    setInterval(() => cargarPublico().catch(e => console.error("Mapa público:", e)), 30000);
+  } else {
+    escucharSalones(salones => { S.salones = salones; render(); }, e => console.error("Mapa: salones:", e));
+    await cargarEventos();
+    cancelarVoluntariado = escucharVoluntariado();
+  }
 
   // ?salon=3-73 abre ese salón (enlace desde Gestión de Eventos → Salones).
   const pedido = new URLSearchParams(location.search).get("salon");
@@ -884,7 +942,7 @@ async function iniciar() {
 
   // Lo "en vivo" cambia con la hora: se recalcula cada 30 s.
   setInterval(() => {
-    if (S.dia && S.evento && cancelarAsistencias === null && S.dia === enPanama().dia) escucharAsistencias();
+    if (!PUBLICO && S.dia && S.evento && cancelarAsistencias === null && S.dia === enPanama().dia) escucharAsistencias();
     render();
   }, 30000);
 }

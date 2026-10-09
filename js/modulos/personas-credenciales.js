@@ -16,8 +16,8 @@ import { textoQr, tieneCredencial, categoriaDe, nombreDe } from "./credenciales.
 
 export const TIPOS = {
   participante: { nombre: "Participantes", singular: "Participante", color: "#00722e" },
-  voluntario: { nombre: "Voluntarios", singular: "Voluntario", color: "#00897b" },
-  comite: { nombre: "Comité organizador", singular: "Comité organizador", color: "#6a2c91" },
+  voluntario: { nombre: "Voluntarios", singular: "Voluntario", color: "#a87400" },
+  comite: { nombre: "Comité organizador", singular: "Comité organizador", color: "#c62828" },
   expositor: { nombre: "Expositores", singular: "Expositor", color: "#1565c0" },
 };
 
@@ -80,7 +80,11 @@ export function personaVoluntario(v) {
 //     elegidos como ponente en un checkpoint): su QR sigue siendo el de
 //     acceso al congreso;
 //   - nombres escritos a mano en el checkpoint (exponente sin inscripción):
-//     van sin QR, con lo que exponen en su lugar.
+//     van sin QR, con lo que exponen en su lugar;
+//   - los agregados o importados en el módulo Credenciales (colección
+//     `expositores`), para quien no se inscribió: igual, sin QR. Si su nombre
+//     coincide con un exponente de una actividad, se le suman esas
+//     actividades; si no tiene ninguna, se muestra el tema de su charla.
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 function diaCorto(dia) {
@@ -98,7 +102,7 @@ export function lineaCharla(cp) {
 const ordenCharla = (a, b) => `${a.dia || ""} ${a.horaInicio || ""}`.localeCompare(`${b.dia || ""} ${b.horaInicio || ""}`);
 const operativo = cp => cp && cp.estado !== "cancelado" && cp.activo !== false;
 
-export function personasExpositores({ participantes = [], checkpoints = [] }) {
+export function personasExpositores({ participantes = [], checkpoints = [], manuales = [] }) {
   const charlas = checkpoints.filter(operativo).sort(ordenCharla);
   const porId = new Map(participantes.map(p => [p.id, p]));
   const charlasDe = new Map(); // participanteId -> checkpoints
@@ -156,6 +160,35 @@ export function personasExpositores({ participantes = [], checkpoints = [] }) {
       };
     });
 
+  // Los agregados a mano: se quedan con las actividades de su mismo nombre.
+  const agregados = manuales
+    .filter(m => !inscritoPorNombre.has(normalizar([m.nombre, m.apellido].join(" "))))
+    .map(m => {
+      const nombre = [m.nombre, m.apellido].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+      const k = normalizar(nombre);
+      const suyas = externos.get(k)?.charlas || [];
+      externos.delete(k);
+      const detalle = suyas.length ? suyas.map(lineaCharla) : m.tema ? [m.tema] : [];
+      return {
+        nombre: m.nombre || "", apellido: m.apellido || "", nombreCompleto: nombre,
+        cedula: "",
+        cred: {
+          tema: "expositor", qr: "", codigo: "",
+          etiqueta: "Expositor", cabecera: "EXPOSITOR",
+          institucion: m.institucion || "",
+          titulo: "¡Gracias por compartir!", subtitulo: "",
+          detalleTitulo: suyas.length ? "Expone" : "Tema", detalle,
+        },
+        _clave: `expositor_man_${m.id}`,
+        _tipo: "expositor",
+        _sub: [m.institucion, suyas.length ? `${suyas.length} actividad${suyas.length !== 1 ? "es" : ""}` : m.tema, "agregado a mano"].filter(Boolean).join(" · "),
+        _buscar: normalizar([nombre, m.cedula, m.institucion, m.tema, ...suyas.map(c => c.nombre)].join(" ")),
+        _imprimible: true,
+        _origen: "manual",
+        _doc: m,
+      };
+    });
+
   const sinInscripcion = [...externos.values()]
     .map(e => ({
       nombreCompleto: e.nombre,
@@ -180,7 +213,7 @@ export function personasExpositores({ participantes = [], checkpoints = [] }) {
       _origen: "externo",
     }));
 
-  return [...inscritos, ...sinInscripcion]
+  return [...inscritos, ...agregados, ...sinInscripcion]
     .sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), "es"));
 }
 
