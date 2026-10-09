@@ -57,6 +57,12 @@
  tr.fila-cancelada td:last-child { opacity:1; }
  tr.fila-cancelada strong, .checkpoint-list-item.fila-cancelada .checkpoint-list-info > div:first-child { text-decoration:line-through; text-decoration-color:var(--rojo); }
  tr.fila-inactiva td:not(:last-child), .checkpoint-list-item.fila-inactiva .checkpoint-list-info { opacity:0.7; }
+ /* Eventos registrados: tocar una fila elige ese evento. */
+ tr.fila-evento { cursor:pointer; }
+ tr.fila-evento:hover td { background:var(--verde-fondo); }
+ tr.fila-evento.fila-activa td { background:var(--verde-fondo); }
+ tr.fila-evento.fila-activa td:first-child { box-shadow:inset 3px 0 0 var(--verde); }
+ .eventos-nota { font-size:12px; color:var(--gris-medio); margin:-6px 0 10px; }
  .btn-estado { margin:0 2px; }
 
  /* Salones: plano para elegir el espacio */
@@ -233,7 +239,8 @@
 
  <!-- TAB EVENTO -->
  <div class="tab-panel active" id="tab-evento">
- <div class="card" style="border-left: 3px solid var(--verde-claro);" data-permiso="evento_editar">
+ <!-- Solo se abre con "+ Nuevo" o al editar un evento (js/modulos/inscripciones.js). -->
+ <div class="card" id="card-form-evento" style="border-left: 3px solid var(--verde-claro);display:none;" data-permiso="evento_editar">
  <div class="card-title" id="form-evento-titulo">Crear nuevo evento</div>
  <div class="form-groupE">
  <label style="color:var(--verde-oscuro)">Nombre del evento *</label>
@@ -279,12 +286,16 @@
  </div>
  <div class="form-actions">
  <button class="btn btn-primary" id="btn-guardar-evento" style="flex:1">Guardar evento</button>
- <button class="btn btn-outline btn-sm" id="btn-cancelar-evento" style="width:auto;display:none">Cancelar</button>
+ <button class="btn btn-outline btn-sm" id="btn-cancelar-evento" style="width:auto">Cancelar</button>
  </div>
  </div>
 
  <div class="card" style="border-left: 3px solid var(--verde-claro);">
- <div class="card-title">Eventos registrados</div>
+ <div class="card-heading-row">
+ <div class="card-title" style="margin-bottom:0" id="eventos-titulo">Eventos registrados</div>
+ <button class="btn btn-outline btn-sm" id="btn-ver-todos-eventos" type="button" style="width:auto;display:none">Ver todos</button>
+ </div>
+ <p class="eventos-nota" id="eventos-nota"></p>
  <div class="tabla-wrap">
  <table>
  <thead><tr>
@@ -562,6 +573,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/inscripciones.js?v=20261008.2"></script>
+<script type="module" src="../../../js/modulos/inscripciones.js?v=20261009.1"></script>
 </body>
 </html>

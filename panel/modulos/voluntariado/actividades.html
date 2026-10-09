@@ -116,13 +116,29 @@
  </div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:var(--verde-oscuro)">Lugar *</label>
- <input type="text" id="act-lugar" placeholder="ej. Centro de Convenciones"/>
+ <label for="act-lugar-sel" style="color:var(--verde-oscuro)">Lugar *</label>
+ <select id="act-lugar-sel">
+ <option value="__otro__">Escribir el lugar</option>
+ </select>
+ <input type="text" id="act-lugar" placeholder="ej. Centro de Convenciones" style="margin-top:6px;"/>
+ <small id="act-lugar-info" style="display:block;margin-top:4px;color:var(--gris-medio);font-size:12px;">Elige un salón del edificio para que la actividad aparezca en el Mapa del evento.</small>
  </div>
  <div class="form-groupE">
  <label style="color:var(--verde-oscuro)">Voluntarios requeridos</label>
  <input type="number" id="act-voluntarios-req" placeholder="ej. 10" min="0"/>
  </div>
+ </div>
+ <!-- Solo con un salón: el Mapa usa este horario para saber cuándo está ocupado. -->
+ <div class="mobile-stack" id="act-horario-group" style="display:none;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+ <div class="form-groupE">
+ <label for="act-hora-inicio" style="color:var(--verde-oscuro)">Hora de inicio</label>
+ <input type="time" id="act-hora-inicio"/>
+ </div>
+ <div class="form-groupE">
+ <label for="act-hora-fin" style="color:var(--verde-oscuro)">Hora de fin</label>
+ <input type="time" id="act-hora-fin"/>
+ </div>
+ <small style="grid-column:1/-1;margin-top:-8px;color:var(--gris-medio);font-size:12px;">Opcional. Si lo dejas vacío, el mapa usa el horario de los turnos; sin turnos, la muestra todo el día.</small>
  </div>
  <div class="form-groupE" id="act-cupo-group" style="display:none;">
  <label style="color:var(--verde-oscuro)">Cupo máximo de asistentes</label>

@@ -117,6 +117,7 @@
  .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: #fff; border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
  .btn-liberar:disabled { opacity: 0.5; }
  .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+ .acts li.con-btn { display: block; padding: 0; border: none; background: none; }
  .acts li { display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: start; padding: 8px; border-radius: 10px; border-left: 4px solid var(--c, var(--verde)); background: var(--gris-suave); }
  .acts .hora { font: 700 12px var(--fuente); color: #173024; font-variant-numeric: tabular-nums; }
  .acts .titulo { font-weight: 700; font-size: 13px; color: #173024; overflow-wrap: anywhere; }
@@ -141,6 +142,51 @@
  .form-salon .btn { margin-top: 4px; }
  @media (max-width: 760px) { .form-salon input { font-size: 16px; } }
  .vacio-mapa { font-size: 13px; color: var(--gris-medio); }
+
+ /* Acciones de la barra: Agenda y Gestionar actividades */
+ .btn-gestionar { text-decoration: none; color: var(--verde-oscuro); }
+ .mapa-app.con-panel .ayuda-mapa { display: none; }
+ /* Con el panel abierto al lado, la barra termina donde empieza el panel. */
+ @media (min-width: 761px) {
+   .mapa-app.con-panel .controles-mapa { right: calc(min(400px, 100% - 24px) + 24px); }
+ }
+
+ /* Agenda (vista general del panel) */
+ .panel-volver { display: inline-flex; align-items: center; gap: 4px; border: none; background: none; padding: 4px 0; margin-bottom: 6px; font: 700 12px var(--fuente); color: var(--verde); cursor: pointer; }
+ .panel-volver:hover { text-decoration: underline; }
+ .agenda-buscar {
+   width: 100%; box-sizing: border-box; margin-top: 10px; padding: 9px 12px;
+   border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+   font: 500 13px var(--fuente); color: var(--gris-texto); background: var(--blanco);
+ }
+ .agenda-buscar:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .agenda-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+ .agenda-filtros .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--gris-borde); background: #fff; border-radius: 999px; padding: 4px 10px; font: 600 11px var(--fuente); color: var(--gris-texto); cursor: pointer; }
+ .agenda-filtros .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+ .agenda-filtros .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+ .agenda-filtros .chip[aria-pressed="true"] i { box-shadow: 0 0 0 1.5px #fff; }
+ .agenda-filtros .sep { width: 1px; align-self: stretch; background: var(--gris-borde); margin: 0 2px; }
+ .agenda-resumen { font-size: 12px; color: var(--gris-medio); margin: 0; }
+ .agenda-dia h3 { display: flex; align-items: baseline; gap: 8px; font-family: var(--fuente-display); font-size: 15px; text-transform: none; letter-spacing: 0; color: #173024; margin: 0 0 8px; }
+ .agenda-dia h3 small { font: 600 11px var(--fuente); color: var(--gris-medio); }
+ .agenda-dia h3 .en-mapa { margin-left: auto; padding: 1px 8px; border-radius: 999px; background: var(--verde-fondo); color: var(--verde-oscuro); font: 700 10px var(--fuente); }
+ .act-btn {
+   width: 100%; display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: start; text-align: left;
+   padding: 8px; border: none; border-radius: 10px; border-left: 4px solid var(--c, var(--verde));
+   background: var(--gris-suave); cursor: pointer; font-family: var(--fuente); color: inherit;
+   transition: background .15s, box-shadow .15s;
+ }
+ .act-btn:hover { background: #ebf1ed; }
+ .act-btn:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+ .act-btn.destacada { box-shadow: 0 0 0 2px var(--c, var(--verde)); background: #fff; }
+ .act-btn.fin { opacity: 0.6; }
+ .act-btn.cancelada .titulo { text-decoration: line-through; }
+ .act-btn.sin-salon { cursor: default; }
+ .act-btn .hora { font: 700 12px var(--fuente); color: #173024; font-variant-numeric: tabular-nums; }
+ .act-btn .titulo { font-weight: 700; font-size: 13px; color: #173024; overflow-wrap: anywhere; }
+ .act-btn .det { display: block; font-size: 11px; color: var(--gris-medio); }
+ .act-btn .tipo { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--c, var(--verde)); }
+ .estado-act.fin { background: var(--gris-suave); color: var(--gris-medio); border: 1px solid var(--gris-borde); }
 
  .cargando-mapa { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; color: var(--verde-oscuro); font-weight: 700; }
  .cargando-mapa[hidden] { display: none; }
@@ -181,17 +227,32 @@
  <button class="chip-btn" type="button" id="btn-encuadre" title="Ver el piso completo">Centrar</button>
  </div>
  <div class="vidrio reloj sin-vivo" id="reloj" aria-live="polite"><span class="punto"></span><span id="reloj-texto">—</span></div>
+ <div class="vidrio ctrl-grupo ctrl-acciones">
+ <button class="chip-btn" type="button" id="btn-agenda" aria-pressed="false" aria-controls="panel-salon">Agenda</button>
+ <a class="chip-btn btn-gestionar" id="btn-gestionar" href="inscripciones.html" data-permiso="mapa_gestionar_actividades">Gestionar actividades</a>
+ </div>
  </div>
 
  <div class="vidrio leyenda" id="leyenda" aria-label="Leyenda"></div>
  <div class="vidrio ayuda-mapa">Arrastra para girar · rueda para acercar · clic derecho para mover · toca un salón para ver sus asientos.</div>
 
- <aside class="vidrio panel-salon" id="panel-salon" aria-label="Detalle del salón" aria-hidden="true">
+ <!-- Panel con dos vistas: la agenda del evento y el detalle de un salón. -->
+ <aside class="vidrio panel-salon" id="panel-salon" aria-label="Agenda y salones" aria-hidden="true">
  <div class="panel-cab">
  <button class="panel-cerrar" type="button" id="panel-cerrar" aria-label="Cerrar">&times;</button>
+ <div id="cab-agenda">
+ <span class="panel-rotulo">Agenda</span>
+ <div class="panel-nombre" id="agenda-titulo"></div>
+ <div class="panel-meta" id="agenda-meta"></div>
+ <input type="search" class="agenda-buscar" id="agenda-buscar" placeholder="Buscar actividad, exponente o salón" autocomplete="off" aria-label="Buscar en la agenda"/>
+ <div class="agenda-filtros" id="agenda-filtros" role="group" aria-label="Filtros de la agenda"></div>
+ </div>
+ <div id="cab-salon" hidden>
+ <button class="panel-volver" type="button" id="panel-volver"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Agenda completa</button>
  <span class="panel-rotulo" id="panel-rotulo"></span>
  <div class="panel-nombre" id="panel-nombre"></div>
  <div class="panel-meta" id="panel-meta"></div>
+ </div>
  </div>
  <div class="panel-cuerpo" id="panel-cuerpo"></div>
  </aside>
@@ -199,6 +260,6 @@
  <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/mapa.js?v=20261008.2"></script>
+<script type="module" src="../../../js/modulos/mapa.js?v=20261009.2"></script>
 </body>
 </html>

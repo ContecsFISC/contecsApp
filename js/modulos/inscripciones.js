@@ -198,11 +198,16 @@ el("ev-fecha-fin").addEventListener("change",    parseFechasEvento);
 // EVENTOS — CRUD
 // ═══════════════════════════════════════════════════════════
 
+// Eventos registrados: con un evento elegido la tabla muestra solo ese (como
+// los checkpoints); "Ver todos" vuelve a la lista completa.
+let eventosRegistrados = [];
+let verTodosEventos = false;
+
 async function cargarEventos() {
   const snap = await getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")));
-  const eventos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderTablaEventos(eventos);
-  renderSelectorEventos(eventos);
+  eventosRegistrados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderTablaEventos();
+  renderSelectorEventos(eventosRegistrados);
 }
 
 function renderSelectorEventos(eventos) {
@@ -300,8 +305,17 @@ window._alternarCancelado = async (tipo, id) => {
   }
 };
 
-function renderTablaEventos(eventos) {
+function renderTablaEventos() {
   const tb = el("tabla-eventos-body");
+  const filtrado = !!eventoActivo && !verTodosEventos;
+  const eventos = filtrado ? eventosRegistrados.filter(ev => ev.id === eventoActivo.id) : eventosRegistrados;
+  const total = eventosRegistrados.length;
+  el("eventos-titulo").textContent = filtrado ? "Evento seleccionado" : "Eventos registrados";
+  el("eventos-nota").textContent = filtrado
+    ? `Mostrando solo el evento activo de ${total}.`
+    : total > 1 ? "Toca un evento para seleccionarlo." : "";
+  el("btn-ver-todos-eventos").style.display = eventoActivo && total > 1 ? "" : "none";
+  el("btn-ver-todos-eventos").textContent = filtrado ? `Ver todos (${total})` : "Solo el seleccionado";
   if (!eventos.length) {
     tb.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--gris-medio)">Sin eventos registrados</td></tr>`;
     return;
@@ -310,7 +324,9 @@ function renderTablaEventos(eventos) {
     const diasLabel = ev.diasEvento?.length
       ? `${ev.diasEvento.length} día${ev.diasEvento.length > 1 ? "s" : ""}`
       : `${fmtFecha(ev.fechaInicio)} – ${fmtFecha(ev.fechaFin)}`;
-    return `<tr class="${estaCancelado(ev) ? "fila-cancelada" : ev.activo === false ? "fila-inactiva" : ""}">
+    const clases = ["fila-evento", ev.id === eventoActivo?.id ? "fila-activa" : "",
+      estaCancelado(ev) ? "fila-cancelada" : ev.activo === false ? "fila-inactiva" : ""].filter(Boolean).join(" ");
+    return `<tr class="${clases}" data-evento-id="${escaparAtributo(ev.id)}" title="Seleccionar este evento">
       <td><strong>${h(ev.nombre)}</strong>${badgeEstado(ev)}</td>
       <td style="font-size:12px;">${diasLabel}</td>
       <td style="text-align:center;">${ev.checkpointsMinCertificado || 1}</td>
@@ -370,7 +386,7 @@ el("btn-guardar-evento").addEventListener("click", async () => {
       const nuevoEvento = await addDoc(collection(db, "eventos"), datos);
       nuevoEventoId = nuevoEvento.id;
     }
-    limpiarFormEvento();
+    cerrarFormEvento();
     await cargarEventos();
     if (nuevoEventoId) {
       el("sel-evento").value = nuevoEventoId;
@@ -386,6 +402,19 @@ el("btn-guardar-evento").addEventListener("click", async () => {
   }
 });
 
+// El formulario de evento solo se ve al crear o editar.
+function abrirFormEvento() {
+  el("card-form-evento").style.display = "";
+  document.querySelector('[data-tab="tab-evento"]').click();
+  el("card-form-evento").scrollIntoView({ behavior: "smooth", block: "start" });
+  el("ev-nombre").focus({ preventScroll: true });
+}
+
+function cerrarFormEvento() {
+  limpiarFormEvento();
+  el("card-form-evento").style.display = "none";
+}
+
 function limpiarFormEvento() {
   el("ev-nombre").value      = "";
   el("ev-descripcion").value = "";
@@ -396,7 +425,6 @@ function limpiarFormEvento() {
   el("dias-evento-section").style.display = "none";
   el("dias-evento-lista").innerHTML = "";
   el("form-evento-titulo").textContent    = "Crear nuevo evento";
-  el("btn-cancelar-evento").style.display = "none";
   editandoEventoId = null;
 }
 
@@ -428,9 +456,7 @@ window._editarEvento = async id => {
   }
 
   el("form-evento-titulo").textContent    = "Editar evento";
-  el("btn-cancelar-evento").style.display = "inline-flex";
-  document.querySelector('[data-tab="tab-evento"]').click();
-  el("ev-nombre").scrollIntoView({ behavior: "smooth" });
+  abrirFormEvento();
 
   // Si no era el evento activo, lo cargamos
   if (!eventoActivo || eventoActivo.id !== id) {
@@ -444,6 +470,8 @@ window._editarEvento = async id => {
       cargarInscripcionesCheckpointEvento(id),
     ]);
     actualizarControlCheckpoints();
+    verTodosEventos = false;
+    renderTablaEventos();
   }
 };
 
@@ -470,20 +498,37 @@ window._eliminarEvento = async id => {
       actualizarBadgeCheckpoints();
       actualizarControlCheckpoints();
     }
-    if (editandoEventoId === id) limpiarFormEvento();
+    if (editandoEventoId === id) cerrarFormEvento();
     await cargarEventos();
   } catch (e) {
     mostrarAlerta("error", "No se pudo eliminar el evento: " + e.message);
   }
 };
 
-el("btn-cancelar-evento").addEventListener("click", limpiarFormEvento);
-el("btn-nuevo-evento").addEventListener("click", () => { limpiarFormEvento(); document.querySelector('[data-tab="tab-evento"]').click(); });
+el("btn-cancelar-evento").addEventListener("click", cerrarFormEvento);
+el("btn-nuevo-evento").addEventListener("click", () => { limpiarFormEvento(); abrirFormEvento(); });
+
+// Tocar una fila elige ese evento (los botones de la fila hacen lo suyo).
+el("tabla-eventos-body").addEventListener("click", async e => {
+  const fila = e.target.closest("tr[data-evento-id]");
+  if (!fila || e.target.closest("button")) return;
+  const id = fila.dataset.eventoId;
+  if (id === eventoActivo?.id) return;
+  el("sel-evento").value = id;
+  await activarEvento(id);
+});
+
+el("btn-ver-todos-eventos").addEventListener("click", () => {
+  verTodosEventos = !verTodosEventos;
+  renderTablaEventos();
+});
 
 // Cambio de evento activo (selector superior)
 async function activarEvento(id) {
+  verTodosEventos = false;
   if (!id) {
     eventoActivo = null;
+    renderTablaEventos();
     el("evento-info").textContent = "";
     inscripciones = [];
     checkpointsEvento = [];
@@ -496,6 +541,7 @@ async function activarEvento(id) {
   const snap = await getDoc(doc(db, "eventos", id));
   if (!snap.exists()) return;
   eventoActivo = { id, ...snap.data() };
+  renderTablaEventos();
   el("evento-info").innerHTML = `<strong>${h(eventoActivo.nombre)}</strong> · ${fmtFecha(eventoActivo.fechaInicio)} – ${fmtFecha(eventoActivo.fechaFin)}`;
   await Promise.all([
     cargarInscripciones(),
@@ -1904,5 +1950,11 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) return;
   escucharSalones(alCambiarSalones, e => console.error("Salones:", e));
   await Promise.all([cargarEventos(), cargarParticipantes()]);
+  // ?evento=ID abre ese evento (botón "Gestionar actividades" del Mapa).
+  const pedido = new URLSearchParams(location.search).get("evento");
+  if (pedido && [...el("sel-evento").options].some(o => o.value === pedido)) {
+    el("sel-evento").value = pedido;
+    await activarEvento(pedido);
+  }
   actualizarControlCheckpoints();
 });

@@ -11,6 +11,8 @@ import {
   notificarNoSeleccionadosGira,
 } from "../core/participantes-api.js";
 import { parsearListaCorreos } from "../core/correos.js";
+import { etiquetaSalon, nombrePiso, nombreSalon, rotuloSalon } from "../core/agenda-salones.js";
+import { escucharSalones } from "../core/salones-firestore.js";
 import { iconoImg, estrellasImg } from "../core/iconos.js";
 import {
   escaparAtributo,
@@ -365,7 +367,7 @@ function renderTablaActividades() {
       </td>
       <td data-label="Fecha">${fmtFecha(a.fecha)}</td>
       <td data-label="Tipo">${h(a.area || "—")}</td>
-      <td data-label="Lugar">${h(a.lugar || "—")}</td>
+      <td data-label="Lugar">${h(a.lugar || "—")}${a.salonId ? `<br><span style="font-size:11px;color:var(--verde-oscuro);font-weight:600;">En el mapa</span>` : ""}</td>
       <td data-label="Vol. req." style="text-align:center;">${a.voluntariosReq ? `<strong style="color:var(--verde-oscuro)">${a.voluntariosReq}</strong>` : "—"}</td>
       <td data-label="Cupo" style="text-align:center;">${a.area === "Taller" && a.cupo ? `<strong style="color:#1a56db;">${a.cupo}</strong>` : "—"}</td>
       <td data-label="Turnos">
@@ -388,18 +390,97 @@ function renderTablaActividades() {
 }
 
 
+// ─── Lugar de la actividad: texto libre o un salón del plano ────────────────
+// Con un salón, la actividad aparece en el Mapa del evento (js/modulos/mapa.js)
+// y puede llevar su propio horario. Mismo selector que Gestión de Evento.
+const LUGAR_LIBRE = "__otro__";
+let salonesActividad = {};
+
+function poblarSalonesActividad() {
+  const sel = el("act-lugar-sel");
+  if (!sel) return;
+  const previo = sel.value;
+  const porPiso = {};
+  Object.entries(salonesActividad).forEach(([id, s]) => (porPiso[id.split("-")[0]] ||= []).push([id, s]));
+  sel.innerHTML = `<option value="${LUGAR_LIBRE}">Escribir el lugar</option>` +
+    Object.keys(porPiso).sort().map(piso => `<optgroup label="${escaparAtributo(`${nombrePiso(piso)} · aparece en el mapa`)}">${
+      porPiso[piso]
+        .sort((a, b) => rotuloSalon(a[0], a[1]).localeCompare(rotuloSalon(b[0], b[1]), "es", { numeric: true }))
+        .map(([id, s]) => `<option value="${escaparAtributo(id)}">${h(etiquetaSalon(id, s))}</option>`).join("")
+    }</optgroup>`).join("");
+  // Una actividad guardada con un salón que ya no está configurado lo conserva.
+  if (previo && previo !== LUGAR_LIBRE && !salonesActividad[previo]) {
+    sel.insertAdjacentHTML("beforeend", `<option value="${escaparAtributo(previo)}">${h(nombreSalon(previo))}</option>`);
+  }
+  sel.value = previo || LUGAR_LIBRE;
+  actualizarLugarActividad();
+}
+
+function actualizarLugarActividad() {
+  const valor = el("act-lugar-sel")?.value || LUGAR_LIBRE;
+  const conSalon = valor !== LUGAR_LIBRE;
+  el("act-lugar").style.display = conSalon ? "none" : "";
+  el("act-horario-group").style.display = conSalon ? "grid" : "none";
+  const s = salonesActividad[valor];
+  el("act-lugar-info").textContent = conSalon
+    ? `Aparecerá en el Mapa del evento · ${nombrePiso(valor.split("-")[0])}${s?.capacidad ? ` · capacidad ${s.capacidad} personas` : ""}`
+    : "Elige un salón del edificio para que la actividad aparezca en el Mapa del evento.";
+}
+
+// Pone el formulario como la actividad `a` (o vacío).
+function fijarLugarActividad(a) {
+  const sel = el("act-lugar-sel");
+  if (!sel) return;
+  if (a.salonId && ![...sel.options].some(o => o.value === a.salonId)) {
+    sel.insertAdjacentHTML("beforeend", `<option value="${escaparAtributo(a.salonId)}">${h(a.lugar || nombreSalon(a.salonId))}</option>`);
+  }
+  sel.value = a.salonId || LUGAR_LIBRE;
+  el("act-hora-inicio").value = a.salonId ? a.horaInicio || "" : "";
+  el("act-hora-fin").value = a.salonId ? a.horaFin || "" : "";
+  actualizarLugarActividad();
+}
+
+function leerLugarActividad() {
+  const valor = el("act-lugar-sel")?.value || LUGAR_LIBRE;
+  if (valor === LUGAR_LIBRE) {
+    return { lugar: el("act-lugar").value.trim(), salonId: null, horaInicio: null, horaFin: null };
+  }
+  const horaInicio = el("act-hora-inicio").value || null;
+  const horaFin = el("act-hora-fin").value || null;
+  if (!!horaInicio !== !!horaFin) return { error: "Completa la hora de inicio y la de fin, o deja ambas vacías." };
+  if (horaInicio && horaFin <= horaInicio) return { error: "La hora de fin debe ser posterior a la de inicio." };
+  const s = salonesActividad[valor];
+  return {
+    lugar: s ? `${nombreSalon(valor, s)}${s.rotulo ? ` (${s.rotulo})` : ""}` : el("act-lugar-sel").selectedOptions[0]?.textContent || nombreSalon(valor),
+    salonId: valor, horaInicio, horaFin,
+  };
+}
+
+if (el("act-lugar-sel")) {
+  el("act-lugar-sel").addEventListener("change", actualizarLugarActividad);
+  escucharSalones(salones => { salonesActividad = salones; poblarSalonesActividad(); },
+    e => console.error("Actividades: salones:", e));
+}
+
 el("btn-guardar-actividad")?.addEventListener("click", async () => {
   const nombre = el("act-nombre").value.trim();
   const desc   = el("act-descripcion").value.trim();
   const fecha  = el("act-fecha").value;
   const area   = el("act-area").value;
   if (!nombre || !fecha || !area) { mostrarAlerta("error", "Nombre, fecha y tipo son obligatorios."); return; }
+  const lugarElegido = leerLugarActividad();
+  if (lugarElegido.error) { mostrarAlerta("error", lugarElegido.error); return; }
 
   const data = {
     nombre, descripcion: desc,
     fecha: new Date(fecha + "T12:00:00"),
     area,
-    lugar:          el("act-lugar").value.trim(),
+    // `lugar` siempre lleva el texto (calendario, informes y demás lo leen);
+    // salonId y el horario solo existen si se eligió un salón del plano.
+    lugar:          lugarElegido.lugar,
+    salonId:        lugarElegido.salonId,
+    horaInicio:     lugarElegido.horaInicio,
+    horaFin:        lugarElegido.horaFin,
     voluntariosReq: parseInt(el("act-voluntarios-req").value) || 0,
     cupo:           area === "Taller" ? (parseInt(el("act-cupo").value) || null) : null,
     colaboracion:   el("act-colaboracion").value.trim(),
@@ -433,6 +514,7 @@ function limpiarFormActividad() {
   el("act-nombre").value = el("act-descripcion").value = el("act-fecha").value = "";
   el("act-area").value = "";
   el("act-lugar").value = "";
+  fijarLugarActividad({});
   el("act-voluntarios-req").value = "";
   el("act-cupo").value = "";
   el("act-cupo-group").style.display = "none";
@@ -450,6 +532,7 @@ window.editarActividad = function(id) {
   el("act-descripcion").value     = a.descripcion || "";
   el("act-area").value            = a.area || "";
   el("act-lugar").value           = a.lugar || "";
+  fijarLugarActividad(a);
   el("act-voluntarios-req").value = a.voluntariosReq || "";
   el("act-cupo").value            = a.cupo || "";
   el("act-cupo-group").style.display = a.area === "Taller" ? "block" : "none";
@@ -559,6 +642,7 @@ function autorellenarDesdeSolicitud(sol) {
   }
 
   el("act-lugar").value = sol.lugar || "";
+  fijarLugarActividad({ lugar: sol.lugar });
 
   if (sol.instituciones?.length) {
     el("act-colaboracion").value = sol.instituciones.map(i => i.nombre).filter(Boolean).join(", ");

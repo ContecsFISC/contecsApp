@@ -52,6 +52,9 @@ export const PERMISOS = {
   ver_mapa: Object.keys(ROLES).filter(r => r !== "posper"),
   // Debe reflejar ROLES_LIBERAR_ASIENTO en functions/operaciones-qr.js.
   liberar_asiento: ["ceo", "staff_contecs"],
+  // Botón "Gestionar actividades" del Mapa (lleva a Gestión de Evento, que
+  // además pide "gestionar_inscripciones"). Por ahora solo CEO.
+  mapa_gestionar_actividades: ["ceo"],
   // Quitar un RFID asignado por error (botón "Liberar" del Randomizer).
   // Debe reflejar ROLES_LIBERAR_RFID en functions/operaciones-qr.js.
   liberar_rfid: ["ceo"],
@@ -247,6 +250,7 @@ export const CATALOGO_PERMISOS = [
       { id: "ver_estadisticas_congreso", label: "Estadísticas del congreso", detalle: "Asistencia, checkpoints y participantes." },
       { id: "ver_mapa",                  label: "Mapa del evento", detalle: "Ver la maqueta y la ocupación de los salones." },
       { id: "liberar_asiento",           label: "Liberar asientos", detalle: "Desde el Mapa, para quien salió antes.", requiere: "ver_mapa" },
+      { id: "mapa_gestionar_actividades", label: "Botón Gestionar actividades", detalle: "En el Mapa, abre Gestión de Evento en el mismo evento. Darlo da también la entrada a Gestión de Evento.", requiere: "gestionar_inscripciones" },
     ],
   },
   {

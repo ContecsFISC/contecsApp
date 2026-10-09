@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-09T03:35:48.375822+00:00",
-  "project_fingerprint": "1c96c4f542dbc04b807f41f9274e7c843590cd0c413f3968ac2123cb00f2de33",
+  "generated_at": "2026-10-09T03:35:51.463703+00:00",
+  "project_fingerprint": "07177b49cd41fbf29d2b4dc513e8adeca333646e9b0768f162ed44bcfbe0926d",
   "project": "t",
   "view": "compact",
   "ai_usage": {
@@ -22,16 +22,16 @@
   },
   "stats": {
     "total_files": 197,
-    "total_edges": 679,
+    "total_edges": 688,
     "total_orphans": 71,
     "total_cycles": 0,
     "total_external_packages": 31,
     "total_firestore_collections": 29,
     "total_cloud_functions": 17,
     "total_possible_implicit_links": 5,
-    "total_symbols": 5083,
-    "total_function_calls": 11253,
-    "total_dom_ids": 974,
+    "total_symbols": 5173,
+    "total_function_calls": 11476,
+    "total_dom_ids": 992,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -194,14 +194,14 @@
       "key_files": [
         "js/core/auth.js",
         "js/core/seguridad.js",
-        "js/core/firebase-config.js",
         "js/modulos/voluntarios.js",
+        "js/core/firebase-config.js",
         "js/modulos/inscripciones.js",
         "js/core/permanencia.js",
         "js/modulos/catalogo.js",
+        "js/modulos/mapa.js",
         "js/core/iconos.js",
-        "js/core/operaciones.js",
-        "js/modulos/mapa.js"
+        "js/core/operaciones.js"
       ],
       "collections": [
         "actividades_ventas",
@@ -229,7 +229,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 35.2,
+      "average_risk": 35.9,
       "diagnostics": 1
     },
     {
@@ -263,7 +263,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 25.2,
+      "average_risk": 25.4,
       "diagnostics": 0
     },
     {
@@ -282,8 +282,8 @@
   "critical_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 327.1,
-      "degree": 162,
+      "risk_score": 329.1,
+      "degree": 163,
       "in_cycle": false,
       "loc": 313
     },
@@ -309,6 +309,13 @@
       "loc": 2262
     },
     {
+      "label": "js/modulos/voluntarios.js",
+      "risk_score": 90.2,
+      "degree": 29,
+      "in_cycle": false,
+      "loc": 3071
+    },
+    {
       "label": "css/styles.css",
       "risk_score": 76.3,
       "degree": 34,
@@ -323,18 +330,11 @@
       "loc": 35
     },
     {
-      "label": "js/modulos/voluntarios.js",
-      "risk_score": 75.4,
-      "degree": 22,
-      "in_cycle": false,
-      "loc": 2987
-    },
-    {
       "label": "js/modulos/inscripciones.js",
-      "risk_score": 73.1,
+      "risk_score": 73.6,
       "degree": 27,
       "in_cycle": false,
-      "loc": 1909
+      "loc": 1961
     },
     {
       "label": "js/core/permanencia.js",
@@ -358,6 +358,13 @@
       "loc": 150
     },
     {
+      "label": "js/modulos/mapa.js",
+      "risk_score": 59.0,
+      "degree": 25,
+      "in_cycle": false,
+      "loc": 897
+    },
+    {
       "label": "js/core/iconos.js",
       "risk_score": 56.9,
       "degree": 28,
@@ -372,18 +379,11 @@
       "loc": 255
     },
     {
-      "label": "js/modulos/mapa.js",
-      "risk_score": 54.0,
-      "degree": 24,
+      "label": "js/core/agenda-salones.js",
+      "risk_score": 55.1,
+      "degree": 27,
       "in_cycle": false,
-      "loc": 599
-    },
-    {
-      "label": "js/core/permisos.js",
-      "risk_score": 51.5,
-      "degree": 24,
-      "in_cycle": false,
-      "loc": 348
+      "loc": 107
     }
   ],
   "files": [
@@ -852,8 +852,8 @@
     },
     {
       "file": "js/core/agenda-salones.js",
-      "risk": 45.1,
-      "relations": 22,
+      "risk": 55.1,
+      "relations": 27,
       "purpose": "============================================= CONTECS — Salones: nombres y choques de horario ============================================= Un salón es un espacio del plano (id \"pi",
       "exports": [
         "RE_ESPACIO",
@@ -872,13 +872,14 @@
         "js/core/permanencia.js",
         "js/core/salones-firestore.js",
         "js/modulos/inscripciones.js",
-        "js/modulos/mapa.js"
+        "js/modulos/mapa.js",
+        "js/modulos/voluntarios.js"
       ]
     },
     {
       "file": "js/core/auth.js",
-      "risk": 327.1,
-      "relations": 162,
+      "risk": 329.1,
+      "relations": 163,
       "exports": [
         "aplicarPermisosDom",
         "cargarUsuario",
@@ -1113,8 +1114,8 @@
     },
     {
       "file": "js/core/salones-firestore.js",
-      "risk": 18.6,
-      "relations": 9,
+      "risk": 22.6,
+      "relations": 11,
       "purpose": "============================================= CONTECS — Salones en Firestore ============================================= Lectura y guardado de la colección `salones` (un doc por ",
       "exports": [
         "eliminarSalon",
@@ -1126,6 +1127,13 @@
       "collections": [
         "checkpoints",
         "salones"
+      ],
+      "key_neighbors": [
+        "js/core/agenda-salones.js",
+        "js/core/firebase-config.js",
+        "js/modulos/inscripciones.js",
+        "js/modulos/mapa.js",
+        "js/modulos/voluntarios.js"
       ]
     },
     {
@@ -1429,7 +1437,7 @@
     },
     {
       "file": "js/modulos/inscripciones.js",
-      "risk": 73.1,
+      "risk": 73.6,
       "relations": 27,
       "collections": [
         "asistencias_congreso",
@@ -1492,10 +1500,11 @@
     },
     {
       "file": "js/modulos/mapa.js",
-      "risk": 54.0,
-      "relations": 24,
+      "risk": 59.0,
+      "relations": 25,
       "purpose": "============================================= CONTECS — Mapa del evento ============================================= Integra la guía de salones (planos del Edificio 3) con Gestión",
       "collections": [
+        "actividades_voluntarios",
         "asistencias_congreso",
         "checkpoints",
         "eventos"
@@ -1695,8 +1704,8 @@
     },
     {
       "file": "js/modulos/voluntarios.js",
-      "risk": 75.4,
-      "relations": 22,
+      "risk": 90.2,
+      "relations": 29,
       "collections": [
         "actividades_ventas",
         "actividades_voluntarios",
@@ -1708,12 +1717,14 @@
       ],
       "diagnostics": 1,
       "key_neighbors": [
+        "js/core/agenda-salones.js",
         "js/core/auth.js",
         "js/core/correos.js",
         "js/core/firebase-config.js",
         "js/core/iconos.js",
         "js/core/participantes-api.js",
         "js/core/permisos.js",
+        "js/core/salones-firestore.js",
         "js/core/seguridad.js",
         "panel/modulos/voluntariado/actividades.html",
         "panel/modulos/voluntariado/giras.html",
@@ -1822,8 +1833,8 @@
     },
     {
       "file": "panel/modulos/congreso/inscripciones.html",
-      "risk": 31.7,
-      "relations": 13,
+      "risk": 33.8,
+      "relations": 14,
       "key_neighbors": [
         "css/styles.css",
         "js/core/auth.js",
@@ -1843,8 +1854,15 @@
     },
     {
       "file": "panel/modulos/congreso/mapa.html",
-      "risk": 18.1,
-      "relations": 8
+      "risk": 20.7,
+      "relations": 9,
+      "key_neighbors": [
+        "css/styles.css",
+        "js/core/auth.js",
+        "js/modulos/mapa.js",
+        "panel/dashboard.html",
+        "panel/modulos/congreso/inscripciones.html"
+      ]
     },
     {
       "file": "panel/modulos/congreso/modulos_participantes.html",
@@ -1993,7 +2011,7 @@
     },
     {
       "file": "panel/modulos/voluntariado/actividades.html",
-      "risk": 25.7,
+      "risk": 25.8,
       "relations": 12,
       "key_neighbors": [
         "css/styles.css",
@@ -2116,6 +2134,7 @@
       "functions/operaciones-qr.js",
       "js/modulos/informeActividad.js",
       "js/modulos/lecturaQRVoluntarios.js",
+      "js/modulos/mapa.js",
       "js/modulos/reportes_estadisticaCont.js",
       "js/modulos/voluntarios.js"
     ],
@@ -2346,7 +2365,7 @@
       "file": "js/modulos/voluntarios.js",
       "message": "ID DOM opcional #sel-actividad no está en las páginas anfitrionas (uso protegido)",
       "provenance": "extracted",
-      "line": 327,
+      "line": 329,
       "evidence": {
         "pages": [
           "panel/modulos/voluntariado/actividades.html",
@@ -2356,5 +2375,5 @@
       }
     }
   ],
-  "estimated_tokens": 12110
+  "estimated_tokens": 12219
 }
