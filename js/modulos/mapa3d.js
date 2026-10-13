@@ -306,11 +306,26 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     renderer.domElement.style.cursor = sala ? "pointer" : "grab";
   });
   renderer.domElement.addEventListener("pointerleave", () => { if (sobre) sobre.hover = false; sobre = null; });
-  renderer.domElement.addEventListener("pointerdown", e => { presion = { x: e.clientX, y: e.clientY }; });
+  // En pantallas táctiles las etiquetas no capturan el dedo (CSS) para que la
+  // pinza llegue a OrbitControls; un toque sobre una etiqueta se resuelve aquí.
+  const etiquetaBajo = e => pisoActual && [...pisoActual.salas.values()].find(s => {
+    if (!s.etiqueta?.visible) return false;
+    const r = s.etiqueta.element.getBoundingClientRect();
+    return r.width > 0 && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  });
+  const dedos = new Set();
+  renderer.domElement.addEventListener("pointerdown", e => {
+    dedos.add(e.pointerId);
+    // Con dos dedos es una pinza: al soltar no cuenta como toque.
+    presion = dedos.size === 1 ? { x: e.clientX, y: e.clientY } : null;
+  });
+  renderer.domElement.addEventListener("pointercancel", e => { dedos.delete(e.pointerId); presion = null; });
   renderer.domElement.addEventListener("pointerup", e => {
+    dedos.delete(e.pointerId);
     // Arrastrar para girar no es un clic.
     if (!presion || Math.hypot(e.clientX - presion.x, e.clientY - presion.y) > 6) return;
-    const sala = salaBajo(e);
+    presion = null;
+    const sala = etiquetaBajo(e) || salaBajo(e);
     alElegir?.(sala ? sala.id : null);
   });
 

@@ -368,44 +368,103 @@ function render2D() {
   </svg>`;
 }
 
-// Arrastrar mueve, la rueda acerca; un toque sin arrastre elige el salón.
+// Un dedo (o el ratón) mueve, dos dedos pellizcan para acercar, la rueda
+// acerca; un toque sin arrastre elige el salón.
 (() => {
   const caja = el("vista2d");
+  const dedos = new Map(); // pointerId -> { x, y }
   let arrastre = null;
+  let pinza = null;
+  let multitoque = false; // el gesto usó dos dedos: al soltar no es un toque
+  const pintar = () => caja.querySelector("svg")?.setAttribute("viewBox", `${v2d.x} ${v2d.y} ${v2d.w} ${v2d.h}`);
+  const anchoValido = w => {
+    const piso = PLANOS.find(p => p.id === S.piso);
+    return Math.min(piso.ancho * 1.5, Math.max(piso.ancho / 8, w));
+  };
+  // Con preserveAspectRatio por defecto (xMidYMid meet) el centro de la caja
+  // coincide con el centro del viewBox; escala = unidades SVG por píxel.
+  const escalaDe = (v, r) => Math.max(v.w / r.width, v.h / r.height);
+  const iniciarArrastre = (x, y) => { arrastre = { x, y, v: { ...v2d }, movio: false }; };
+  const iniciarPinza = () => {
+    const [a, b] = [...dedos.values()];
+    const r = caja.getBoundingClientRect();
+    const v = { ...v2d };
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const esc = escalaDe(v, r);
+    pinza = {
+      d: Math.hypot(a.x - b.x, a.y - b.y) || 1, v,
+      ax: v.x + v.w / 2 + (mx - r.left - r.width / 2) * esc,
+      ay: v.y + v.h / 2 + (my - r.top - r.height / 2) * esc,
+    };
+    arrastre = null;
+    multitoque = true;
+  };
+
   caja.addEventListener("pointerdown", e => {
-    arrastre = { x: e.clientX, y: e.clientY, v: { ...v2d }, movio: false };
+    if (!v2d) return;
     caja.setPointerCapture(e.pointerId);
+    dedos.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (dedos.size === 1) { multitoque = false; iniciarArrastre(e.clientX, e.clientY); }
+    else if (dedos.size === 2) iniciarPinza();
   });
   caja.addEventListener("pointermove", e => {
-    if (!arrastre || !v2d) return;
+    if (!v2d || !dedos.has(e.pointerId)) return;
+    dedos.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const r = caja.getBoundingClientRect();
-    const escala = Math.max(v2d.w / r.width, v2d.h / r.height);
+    if (pinza && dedos.size >= 2) {
+      const [a, b] = [...dedos.values()];
+      const w = anchoValido(pinza.v.w * pinza.d / (Math.hypot(a.x - b.x, a.y - b.y) || 1));
+      const h2 = pinza.v.h * w / pinza.v.w;
+      const esc = escalaDe({ w, h: h2 }, r);
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      // El punto del plano que quedó entre los dedos los sigue.
+      v2d.x = pinza.ax - w / 2 - (mx - r.left - r.width / 2) * esc;
+      v2d.y = pinza.ay - h2 / 2 - (my - r.top - r.height / 2) * esc;
+      v2d.w = w;
+      v2d.h = h2;
+      pintar();
+      return;
+    }
+    if (!arrastre) return;
+    const escala = escalaDe(v2d, r);
     const dx = e.clientX - arrastre.x, dy = e.clientY - arrastre.y;
     if (Math.hypot(dx, dy) > 5) arrastre.movio = true;
     if (!arrastre.movio) return;
     v2d.x = arrastre.v.x - dx * escala;
     v2d.y = arrastre.v.y - dy * escala;
-    caja.querySelector("svg")?.setAttribute("viewBox", `${v2d.x} ${v2d.y} ${v2d.w} ${v2d.h}`);
+    pintar();
   });
-  caja.addEventListener("pointerup", e => {
-    const movio = arrastre?.movio;
+  const soltar = e => {
+    if (!dedos.delete(e.pointerId)) return;
+    if (dedos.size >= 2) { iniciarPinza(); return; }
+    if (dedos.size === 1) {
+      // Queda un dedo: sigue moviendo desde donde está, sin saltos.
+      pinza = null;
+      const [p] = dedos.values();
+      iniciarArrastre(p.x, p.y);
+      arrastre.movio = true;
+      return;
+    }
+    const tocar = e.type === "pointerup" && !multitoque && arrastre && !arrastre.movio;
     arrastre = null;
-    if (movio) return;
+    pinza = null;
+    if (!tocar) return;
     const pol = document.elementFromPoint(e.clientX, e.clientY)?.closest?.("polygon.prog");
     elegirSalon(pol ? pol.dataset.id : null);
-  });
+  };
+  caja.addEventListener("pointerup", soltar);
+  caja.addEventListener("pointercancel", soltar);
   caja.addEventListener("wheel", e => {
     if (!v2d) return;
     e.preventDefault();
     const factor = e.deltaY > 0 ? 1.15 : 1 / 1.15;
-    const piso = PLANOS.find(p => p.id === S.piso);
-    const w = Math.min(piso.ancho * 1.5, Math.max(piso.ancho / 8, v2d.w * factor));
+    const w = anchoValido(v2d.w * factor);
     const ratio = w / v2d.w;
     v2d.x += (v2d.w - w) / 2;
     v2d.y += (v2d.h - v2d.h * ratio) / 2;
     v2d.w = w;
     v2d.h *= ratio;
-    caja.querySelector("svg")?.setAttribute("viewBox", `${v2d.x} ${v2d.y} ${v2d.w} ${v2d.h}`);
+    pintar();
   }, { passive: false });
 })();
 
