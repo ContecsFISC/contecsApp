@@ -67,6 +67,16 @@
  .vista2d text { font: 700 13px var(--fuente); text-anchor: middle; dominant-baseline: middle; pointer-events: none; fill: #173024; }
  .vista2d text.claro { fill: #fff; }
 
+ /* "Estás aquí": QR pegado en el edificio (?aqui=<espacio>) */
+ .aqui3d { pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+ .aqui3d-rotulo { padding: 4px 10px; border-radius: 999px; background: #1a73e8; color: #fff; font: 800 12px/1.1 var(--fuente); box-shadow: 0 6px 16px rgba(0,0,0,0.25); white-space: nowrap; }
+ .aqui3d-punto { width: 16px; height: 16px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; animation: aqui-onda 1.6s ease-out infinite; }
+ @keyframes aqui-onda { from { box-shadow: 0 0 0 0 rgba(26,115,232,0.55); } to { box-shadow: 0 0 0 18px rgba(26,115,232,0); } }
+ .vista2d .aqui2d text { fill: #1a73e8; font-size: 17px; font-weight: 800; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+ .vista2d .aqui2d .centro { fill: #1a73e8; stroke: #fff; stroke-width: 3; }
+ .vista2d .aqui2d .onda { fill: #1a73e8; transform-box: fill-box; transform-origin: center; animation: aqui-onda2d 1.6s ease-out infinite; }
+ @keyframes aqui-onda2d { from { transform: scale(0.6); opacity: 0.5; } to { transform: scale(2.2); opacity: 0; } }
+
  /* Controles flotantes */
  .controles-mapa { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; pointer-events: none; z-index: 5; }
  .controles-mapa > * { pointer-events: auto; }
@@ -202,7 +212,7 @@
    .ctrl-grupo select { max-width: 150px; }
  }
  @media (prefers-reduced-motion: reduce) {
-   .etq3d-vivo .etq3d-chip::before, .reloj .punto, .vista2d .esp.vivo { animation: none; }
+   .etq3d-vivo .etq3d-chip::before, .reloj .punto, .vista2d .esp.vivo, .aqui3d-punto, .vista2d .aqui2d .onda { animation: none; }
    .panel-salon { transition: none; }
  }
  </style>
@@ -228,6 +238,7 @@
  <button class="chip-btn" type="button" id="btn-3d" aria-pressed="true">3D</button>
  <button class="chip-btn" type="button" id="btn-2d" aria-pressed="false">2D</button>
  <button class="chip-btn" type="button" id="btn-encuadre" title="Ver el piso completo">Centrar</button>
+ <button class="chip-btn" type="button" id="btn-aqui" title="Ir a donde escaneaste el QR" hidden>Mi ubicación</button>
  </div>
  <div class="vidrio reloj sin-vivo" id="reloj" aria-live="polite"><span class="punto"></span><span id="reloj-texto">—</span></div>
  <div class="vidrio ctrl-grupo ctrl-acciones">
@@ -263,6 +274,6 @@
  <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/mapa.js?v=20261012.1"></script>
+<script type="module" src="../../../js/modulos/mapa.js?v=20261012.2"></script>
 </body>
 </html>

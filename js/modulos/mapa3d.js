@@ -377,6 +377,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     const anterior = pisoActual;
     pisoActual = nuevo;
     seleccion = null;
+    if (aqui) aqui.objeto.visible = aqui.piso === nuevo;
 
     if (anterior) {
       const g = anterior.grupo;
@@ -436,6 +437,35 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     volarA(objetivo.clone().add(dir.multiplyScalar(16)), objetivo, 900);
   }
 
+  // "Estás aquí": el QR pegado en el edificio abre el mapa con ?aqui=<espacio>;
+  // mapa.js dice el piso y el punto del plano (en píxeles de la imagen). El
+  // marcador solo se ve en su piso.
+  let aqui = null; // { piso, objeto }
+  function marcarAqui(pisoId, [x, y]) {
+    aqui?.objeto.removeFromParent();
+    aqui = null;
+    const plano = planos.find(p => p.id === pisoId);
+    if (!plano) return;
+    const div = document.createElement("div");
+    div.className = "aqui3d";
+    div.innerHTML = `<span class="aqui3d-punto"></span><span class="aqui3d-rotulo">Estás aquí</span>`;
+    const objeto = new CSS2DObject(div);
+    objeto.center.set(0.5, 0); // el punto queda arriba y el rótulo debajo, sin tapar la etiqueta del salón
+    objeto.position.set((x - plano.ancho / 2) * ESCALA, 1, (y - plano.alto / 2) * ESCALA);
+    const piso = pisoDe(plano.id);
+    piso.grupo.add(objeto);
+    objeto.visible = piso === pisoActual;
+    aqui = { piso, objeto };
+  }
+
+  function enfocarAqui() {
+    if (!aqui || aqui.piso !== pisoActual) return;
+    const { x, z } = aqui.objeto.position;
+    const objetivo = new THREE.Vector3(x, 0, z);
+    const dir = camara.position.clone().sub(controles.target).normalize();
+    volarA(objetivo.clone().add(dir.multiplyScalar(22)), objetivo, 900);
+  }
+
   function reencuadrar() {
     if (!pisoActual) return;
     const { pos, objetivo } = encuadre(pisoActual);
@@ -457,5 +487,5 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     if (!corriendo) { corriendo = true; redimensionar(); cuadro = requestAnimationFrame(dibujar); }
   }
 
-  return { mostrarPiso, actualizar, seleccionar, reencuadrar, redimensionar, destruir, pausar };
+  return { mostrarPiso, actualizar, seleccionar, marcarAqui, enfocarAqui, reencuadrar, redimensionar, destruir, pausar };
 }

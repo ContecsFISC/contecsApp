@@ -60,9 +60,18 @@ const MAX_ASIENTOS_DIBUJADOS = 600;
 // Todos los espacios del plano por id.
 const ESPACIOS = new Map(PLANOS.flatMap(p => p.espacios.map(e => [e.id, { ...e, piso: p.id }])));
 
+// Punto del marcador "Estás aquí" dentro del espacio: centrado y a media
+// distancia del borde inferior, para no tapar la etiqueta del salón.
+function puntoAqui(esp) {
+  const [x1, y1, x2, y2] = esp.b;
+  return [(x1 + x2) / 2, (y1 + y2) / 2 + (y2 - y1) / 4];
+}
+
 const S = {
   salones: {}, eventos: [], evento: null, checkpoints: [], asistencias: [], voluntariado: [],
   dia: null, piso: PLANOS[0]?.id, sel: null, vista: "3d", gestor: false, liberar: false,
+  // ?aqui=<espacio>: dónde está quien escaneó el QR pegado en el edificio.
+  aqui: null,
   // Modo público: todas las actividades publicadas y asientos ocupados por checkpoint.
   todosCheckpoints: [], ocupacionPublica: {},
   // Panel: "cerrado", "agenda" o "salon". destacado = actividad elegida en la agenda.
@@ -301,6 +310,19 @@ el("btn-encuadre").addEventListener("click", () => {
   else { v2d = null; render2D(); }
 });
 
+// "Mi ubicación": lleva al piso del QR; si ya está en él, acerca al marcador.
+el("btn-aqui")?.addEventListener("click", () => {
+  const aqui = ESPACIOS.get(S.aqui);
+  if (!aqui) return;
+  if (aqui.piso !== S.piso) { cambiarPiso(aqui.piso); return; }
+  if (S.vista === "3d") { vista3d?.enfocarAqui(); return; }
+  const piso = PLANOS.find(p => p.id === aqui.piso);
+  const w = piso.ancho / 3, alto = w * piso.alto / piso.ancho;
+  const [x, y] = puntoAqui(aqui);
+  v2d = { x: x - w / 2, y: y - alto / 2, w, h: alto };
+  render2D();
+});
+
 function cambiarVista(vista) {
   if (vista === "3d" && !vista3d) { alerta("aviso", "Este equipo no puede mostrar la maqueta 3D; se usa la vista 2D."); vista = "2d"; }
   S.vista = vista;
@@ -345,6 +367,7 @@ function render2D() {
   const piso = PLANOS.find(p => p.id === S.piso);
   if (!piso) return;
   v2d ||= { x: 0, y: 0, w: piso.ancho, h: piso.alto };
+  const aqui = ESPACIOS.get(S.aqui);
   const textoSobre = color => {
     const m = /^#([0-9a-f]{6})$/i.exec(color || "");
     if (!m) return false;
@@ -365,6 +388,9 @@ function render2D() {
       const texto = est.estado === "vivo" ? `${est.rotulo} · ${est.ocupados}${est.capacidad ? `/${est.capacidad}` : ""}` : est.rotulo;
       return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${Math.max(e.fs, 10)}">${h(texto)}</text>`;
     }).join("")}
+    ${aqui?.piso === piso.id ? `<g class="aqui2d" transform="translate(${puntoAqui(aqui).join(" ")})">
+      <circle class="onda" r="16"/><circle class="centro" r="9"/><text y="26">Estás aquí</text>
+    </g>` : ""}
   </svg>`;
 }
 
@@ -749,10 +775,12 @@ function renderSalon() {
 
   el("panel-rotulo").textContent = rotuloSalon(id, salon);
   el("panel-nombre").textContent = nombreSalon(id, salon);
+  const aqui = ESPACIOS.get(S.aqui);
   el("panel-meta").textContent = [
     nombrePiso(esp.piso),
     salon?.capacidad ? `Capacidad: ${salon.capacidad} personas` : "Sin capacidad configurada",
-  ].join(" · ");
+    aqui && aqui.piso !== esp.piso ? `Estás en el ${nombrePiso(aqui.piso).toLowerCase()}` : "",
+  ].filter(Boolean).join(" · ");
 
   const bloques = [];
   if (est.estado === "vivo" && est.vivo.origen === "voluntariado") {
@@ -989,12 +1017,20 @@ async function iniciar() {
     S.verPresentes = puedeVerPresentes();
     aplicarPermisosDom();
   }
+  // ?aqui=2-1 (QR "Estás aquí"): el mapa abre en ese piso con el marcador.
+  const aqui = new URLSearchParams(location.search).get("aqui");
+  if (aqui && ESPACIOS.has(aqui)) {
+    S.aqui = aqui;
+    S.piso = ESPACIOS.get(aqui).piso;
+    if (el("btn-aqui")) el("btn-aqui").hidden = false;
+  }
   renderLeyenda();
   renderPisos();
 
   vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido });
   el("cargando-mapa").hidden = true;
   if (vista3d) {
+    if (S.aqui) vista3d.marcarAqui(ESPACIOS.get(S.aqui).piso, puntoAqui(ESPACIOS.get(S.aqui)));
     vista3d.mostrarPiso(S.piso);
     cambiarVista("3d");
   } else {
