@@ -26,6 +26,7 @@ const ALTURAS = {
 };
 const COLOR_FIJO = { bano: "#9cc7e8", escalera: "#b8c0c8", servicio: "#d5dad6", vestibulo: "#eef3ef" };
 const COLOR_LIBRE = "#f7faf8";
+
 const COLOR_SEL = "#ffc83d";
 const SALTO_PISO = 9;
 
@@ -42,7 +43,7 @@ function puntos(texto) {
   return String(texto).trim().split(/\s+/).map(par => par.split(",").map(Number));
 }
 
-export async function crearVista3D(contenedor, { planos, alElegir, reducido = false }) {
+export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "" }) {
   let THREE, OrbitControls, CSS2DRenderer, CSS2DObject;
   try {
     THREE = await import("three");
@@ -178,6 +179,20 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
 
       grupo.add(malla);
 
+      // Los baños llevan su señal encima, sin interacción.
+      let icono = null;
+      if (esp.t === "bano" && iconoBano) {
+        const div = document.createElement("div");
+        div.className = "bano3d";
+        div.innerHTML = iconoBano;
+        div.title = "Baño";
+        icono = new CSS2DObject(div);
+        const [lx, ly] = esp.l || [cx, cy];
+        icono.position.set((lx - plano.ancho / 2) * ESCALA, 0.6, (ly - plano.alto / 2) * ESCALA);
+        icono.visible = false;
+        grupo.add(icono);
+      }
+
       let etiqueta = null;
       if (esp.t === "espacio" || esp.t === "vestibulo") {
         const div = document.createElement("button");
@@ -191,7 +206,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       }
 
       const sala = {
-        id: esp.id, tipo: esp.t, malla, material, bordes, relleno, etiqueta,
+        id: esp.id, tipo: esp.t, malla, material, bordes, relleno, etiqueta, icono,
         alto: ALTURAS[esp.t] ?? ALTURAS.libre, ratio: 0, estado: fijo ? "fijo" : "libre",
         hover: false, vivo: false, color: new THREE.Color(colorInicial),
       };
@@ -344,6 +359,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       sala.malla.position.y += (objetivo - sala.malla.position.y) * 0.18;
       sala.relleno.position.y = sala.malla.position.y;
       if (sala.etiqueta) sala.etiqueta.position.y = sala.malla.scale.y + sala.malla.position.y + 0.35;
+      if (sala.icono) sala.icono.position.y = sala.malla.scale.y + sala.malla.position.y + 0.3;
       const brillo = elegido ? 0.35 : sala.vivo ? 0.12 + 0.22 * pulso : sala.hover ? 0.12 : 0;
       sala.material.emissive.copy(elegido ? colorTemp.set(COLOR_SEL) : sala.color).multiplyScalar(brillo);
       if (sala.vivo) sala.relleno.material.emissive.copy(sala.color).multiplyScalar(0.15 + 0.2 * pulso);
@@ -384,12 +400,16 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       animar(500, p => { g.position.y = -SALTO_PISO * p; }, { curva: ease.entradaSalida }).then(() => {
         if (pisoActual !== anterior) {
           g.visible = false;
-          anterior.salas.forEach(s => { if (s.etiqueta) s.etiqueta.visible = false; });
+          anterior.salas.forEach(s => {
+            if (s.etiqueta) s.etiqueta.visible = false;
+            if (s.icono) s.icono.visible = false;
+          });
         }
       });
     }
 
     nuevo.grupo.visible = true;
+    nuevo.salas.forEach(s => { if (s.icono) s.icono.visible = true; });
     nuevo.grupo.position.y = anterior ? SALTO_PISO : 0;
     nuevo.salas.forEach(s => { s.malla.scale.y = 0.001; if (s.relleno.visible) s.relleno.scale.y = 0.001; });
     const { pos, objetivo } = encuadre(nuevo);

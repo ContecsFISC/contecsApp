@@ -362,6 +362,16 @@ function elegirDiaInicial() {
 }
 
 // ─── Vista 2D ───────────────────────────────────────────────────────────────
+// Señal de baño (hombre | mujer) que va encima de cada baño, en 3D (mapa3d.js) y en 2D.
+const ICONO_BANO = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect width="24" height="24" rx="5" fill="#1565c0"/>
+  <g fill="#fff">
+    <circle cx="7" cy="5" r="2"/><rect x="4.6" y="7.8" width="4.8" height="7" rx="1.2"/><rect x="5.1" y="13.5" width="3.8" height="7" rx="0.8"/>
+    <rect x="11.4" y="3.5" width="1.2" height="17" rx="0.6" opacity="0.8"/>
+    <circle cx="17" cy="5" r="2"/><path d="M17 7.8c-1.1 0-1.7.6-2 1.6L13.4 16h7.2L19 9.4c-.3-1-.9-1.6-2-1.6z"/><rect x="15.4" y="15.5" width="3.2" height="5" rx="0.8"/>
+  </g>
+</svg>`;
+
 let v2d = null; // viewBox actual
 function render2D() {
   const piso = PLANOS.find(p => p.id === S.piso);
@@ -387,6 +397,10 @@ function render2D() {
       const est = estados.get(e.id);
       const texto = est.estado === "vivo" ? `${est.rotulo} · ${est.ocupados}${est.capacidad ? `/${est.capacidad}` : ""}` : est.rotulo;
       return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${Math.max(e.fs, 10)}">${h(texto)}</text>`;
+    }).join("")}
+    ${piso.espacios.filter(e => e.t === "bano").map(e => {
+      const [x, y] = e.l || [(e.b[0] + e.b[2]) / 2, (e.b[1] + e.b[3]) / 2];
+      return ICONO_BANO.replace("<svg ", `<svg class="bano2d" x="${x - 11}" y="${y - 11}" width="22" height="22" `);
     }).join("")}
     ${aqui?.piso === piso.id ? `<g class="aqui2d" transform="translate(${puntoAqui(aqui).join(" ")})">
       <circle class="onda" r="16"/><circle class="centro" r="9"/><text y="26">Estás aquí</text>
@@ -1036,7 +1050,7 @@ async function iniciar() {
   renderLeyenda();
   renderPisos();
 
-  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido });
+  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO });
   el("cargando-mapa").hidden = true;
   if (vista3d) {
     if (S.aqui) vista3d.marcarAqui(ESPACIOS.get(S.aqui).piso, puntoAqui(ESPACIOS.get(S.aqui)));
