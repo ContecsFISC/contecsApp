@@ -16,6 +16,7 @@ import {
   nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon, eliminarSalon } from "../core/salones-firestore.js";
+import { normalizar } from "./personas-credenciales.js";
 
 // ─── DOM helpers ────────────────────────────────────────────────────────────
 const el  = id => document.getElementById(id);
@@ -36,6 +37,7 @@ const slugArchivo = valor => String(valor || "evento")
 let eventoActivo        = null;
 let inscripciones       = [];
 let participantesGlobal = [];
+let expositoresCred     = [];   // agregados en Credenciales (colección 'expositores')
 let checkpointsEvento   = [];   // de la colección 'checkpoints'
 let asistenciasEvento    = [];   // registro central confirmado por el backend QR
 let inscripcionesCheckpointEvento = []; // compatibilidad con cupos históricos
@@ -833,6 +835,7 @@ el("btn-abrir-modal-cp").addEventListener("click", () => {
   poblarSelectPonentes();
   limpiarFormCp();
   el("modal-checkpoints").style.display = "flex";
+  cargarExpositoresCredenciales().then(poblarSelectPonentes);
 });
 
 el("modal-cp-close").addEventListener("click", () => {
@@ -846,6 +849,7 @@ el("btn-abrir-modal-cp-vista").addEventListener("click", () => {
   poblarSelectPonentes();
   limpiarFormCp();
   el("modal-checkpoints").style.display = "flex";
+  cargarExpositoresCredenciales().then(poblarSelectPonentes);
 });
 
 function poblarSelectorDiasCP() {
@@ -879,27 +883,80 @@ function poblarSelectorDiasCP() {
   if (prev) sel.value = prev;
 }
 
+// Expositores agregados o importados en Credenciales (no inscritos). El
+// checkpoint guarda solo su nombre en `exponente`: Credenciales los une por
+// nombre (personasExpositores en personas-credenciales.js).
+async function cargarExpositoresCredenciales() {
+  try {
+    const snap = await getDocs(collection(db, "expositores"));
+    expositoresCred = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.warn("Checkpoints: expositores de Credenciales no disponibles:", err);
+    expositoresCred = [];
+  }
+}
+
+const nombreExpositor = x => [x.nombre, x.apellido].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+
 function poblarSelectPonentes() {
   const sel = el("cp-ponente-select");
+  const prev = sel.value;
   const ponentes = participantesGlobal.filter(p => p.camposExtra?.ponencia === "si");
-  // Mantener primera opción (vacía) y última (_otro); limpiar intermedias
-  while (sel.options.length > 1) sel.remove(1);
+  const nombreInscrito = p => p.nombreCompleto || ((p.nombre || "") + " " + (p.apellido || "")).trim();
+  const yaInscritos = new Set(ponentes.map(p => normalizar(nombreInscrito(p))));
+  const externos = expositoresCred
+    .filter(x => nombreExpositor(x) && !yaInscritos.has(normalizar(nombreExpositor(x))))
+    .sort((a, b) => nombreExpositor(a).localeCompare(nombreExpositor(b), "es"));
+  // Mantener primera opción (vacía); limpiar el resto
+  while (sel.children.length > 1) sel.lastChild.remove();
+
+  if (ponentes.length) {
+    const grupo = document.createElement("optgroup");
+    grupo.label = "Inscritos con ponencia";
+    ponentes.forEach(p => {
+      const opt   = document.createElement("option");
+      opt.value   = p.id;
+      const nombre = nombreInscrito(p);
+      const cedula = p.cedula ? ` — ${p.cedula}` : "";
+      opt.textContent       = nombre + cedula;
+      opt.dataset.nombre    = nombre;
+      opt.dataset.cedula    = p.cedula || "";
+      opt.dataset.categoria = p.categoria || "";
+      opt.dataset.universidad = p.camposExtra?.universidad || "";
+      grupo.appendChild(opt);
+    });
+    sel.appendChild(grupo);
+  }
+
+  if (externos.length) {
+    const grupo = document.createElement("optgroup");
+    grupo.label = "Expositores (Credenciales)";
+    externos.forEach(x => {
+      const opt   = document.createElement("option");
+      opt.value   = `exp_${x.id}`;
+      const nombre = nombreExpositor(x);
+      opt.textContent         = nombre + (x.institucion ? ` — ${x.institucion}` : "");
+      opt.dataset.nombre      = nombre;
+      opt.dataset.externo     = "1";
+      opt.dataset.institucion = x.institucion || "";
+      opt.dataset.tema        = x.tema || "";
+      grupo.appendChild(opt);
+    });
+    sel.appendChild(grupo);
+  }
+
   const optOtro = document.createElement("option");
   optOtro.value = "_otro";
   optOtro.textContent = "Otro (ingresar manualmente)";
-  ponentes.forEach(p => {
-    const opt   = document.createElement("option");
-    opt.value   = p.id;
-    const nombre = p.nombreCompleto || ((p.nombre || "") + " " + (p.apellido || "")).trim();
-    const cedula = p.cedula ? ` — ${p.cedula}` : "";
-    opt.textContent       = nombre + cedula;
-    opt.dataset.nombre    = nombre;
-    opt.dataset.cedula    = p.cedula || "";
-    opt.dataset.categoria = p.categoria || "";
-    opt.dataset.universidad = p.camposExtra?.universidad || "";
-    sel.appendChild(opt);
-  });
   sel.appendChild(optOtro);
+  if (prev && sel.querySelector(`option[value="${CSS.escape(prev)}"]`)) sel.value = prev;
+}
+
+// El expositor de Credenciales con ese nombre, para reabrir un checkpoint.
+function opcionExpositorPorNombre(nombre) {
+  const k = normalizar(nombre);
+  if (!k) return null;
+  return [...el("cp-ponente-select").options].find(o => o.dataset.externo && normalizar(o.dataset.nombre) === k) || null;
 }
 
 el("cp-ponente-select").addEventListener("change", () => {
@@ -920,6 +977,16 @@ el("cp-ponente-select").addEventListener("change", () => {
     info.style.display   = "none";
     hiddenId.value       = "";
     hiddenNom.value      = "";
+  } else if (el("cp-ponente-select").selectedOptions[0]?.dataset.externo) {
+    // Expositor de Credenciales: sin inscripción, solo se guarda el nombre.
+    const opt = el("cp-ponente-select").selectedOptions[0];
+    hiddenId.value       = "";
+    hiddenNom.value      = opt.dataset.nombre;
+    manual.style.display = "none";
+    info.style.display   = "block";
+    info.innerHTML = `<strong>${h(opt.dataset.nombre)}</strong><br>Origen: Expositor agregado en Credenciales`
+      + (opt.dataset.institucion ? `<br>Institución: ${h(opt.dataset.institucion)}` : "")
+      + (opt.dataset.tema ? `<br>Tema: ${h(opt.dataset.tema)}` : "");
   } else {
     const opt         = el("cp-ponente-select").selectedOptions[0];
     const nombre      = opt.dataset.nombre;
@@ -1195,6 +1262,9 @@ window._editarCp = id => {
   // Restaurar ponente
   if (cp.ponenteId && el("cp-ponente-select").querySelector(`option[value="${cp.ponenteId}"]`)) {
     el("cp-ponente-select").value = cp.ponenteId;
+    el("cp-ponente-select").dispatchEvent(new Event("change"));
+  } else if (cp.exponente && opcionExpositorPorNombre(cp.exponente)) {
+    el("cp-ponente-select").value = opcionExpositorPorNombre(cp.exponente).value;
     el("cp-ponente-select").dispatchEvent(new Event("change"));
   } else if (cp.exponente) {
     el("cp-ponente-select").value         = "_otro";
@@ -2039,7 +2109,7 @@ function alCambiarSalones(nuevos) {
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
   escucharSalones(alCambiarSalones, e => console.error("Salones:", e));
-  await Promise.all([cargarEventos(), cargarParticipantes()]);
+  await Promise.all([cargarEventos(), cargarParticipantes(), cargarExpositoresCredenciales()]);
   // ?evento=ID abre ese evento (botón "Gestionar actividades" del Mapa).
   const pedido = new URLSearchParams(location.search).get("evento");
   if (pedido && [...el("sel-evento").options].some(o => o.value === pedido)) {

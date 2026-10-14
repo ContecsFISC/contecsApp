@@ -43,6 +43,7 @@ const S = {
   seleccion: { participante: new Set(), voluntario: new Set(), comite: new Set(), expositor: new Set() },
   actual: null, // _clave de la vista previa
   visibles: [],
+  letra: "", // filtro por letra inicial del nombre ("" = todas)
   tamano: null,
   tarea: null,
   porMarcar: [], // personas generadas que falta confirmar como impresas
@@ -162,13 +163,54 @@ el("cr-tipos").addEventListener("click", e => {
   if (!b || b.dataset.tipo === S.tipo || S.tarea) return;
   S.tipo = b.dataset.tipo;
   S.actual = null;
+  S.letra = "";
   el("cr-buscar").value = "";
   ocultarAviso();
   renderTodo();
 });
 
 // ── Lista ──────────────────────────────────────────────────────────────────
+// Letra inicial del nombre tal como sale en la lista, para imprimir por
+// bloques. Sin tildes (Á → A), pero la Ñ va aparte; lo que no empieza con
+// letra se agrupa en "#".
+function inicial(p) {
+  const c = nombreDe(p).trim().charAt(0).toUpperCase();
+  if (c === "Ñ") return c;
+  const base = c.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return /^[A-Z]$/.test(base) ? base : "#";
+}
+
+const ordenLetras = (a, b) => (a === "#") - (b === "#") || a.localeCompare(b, "es");
+
+function renderLetras(base) {
+  const cuenta = new Map();
+  base.forEach(p => { const l = inicial(p); cuenta.set(l, (cuenta.get(l) || 0) + 1); });
+  const letras = [...cuenta.keys()].sort(ordenLetras);
+  const boton = (valor, texto, n) =>
+    `<button type="button" class="cr-letra" data-letra="${escaparAtributo(valor)}" aria-pressed="${S.letra === valor}" title="${n} persona${n !== 1 ? "s" : ""}">${h(texto)}</button>`;
+  el("cr-letras").hidden = !base.length;
+  el("cr-letras").innerHTML = boton("", "Todas", base.length) +
+    letras.map(l => boton(l, l, cuenta.get(l))).join("");
+}
+
+el("cr-letras").addEventListener("click", e => {
+  const b = e.target.closest("[data-letra]");
+  if (!b || S.tarea) return;
+  S.letra = b.dataset.letra;
+  renderLista();
+  renderPreview();
+  actualizarBotones();
+});
+
 function filtrar() {
+  const base = filtrarSinLetra();
+  // Si la letra elegida ya no tiene a nadie con los otros filtros, vuelve a todas.
+  if (S.letra && !base.some(p => inicial(p) === S.letra)) S.letra = "";
+  renderLetras(base);
+  return S.letra ? base.filter(p => inicial(p) === S.letra) : base;
+}
+
+function filtrarSinLetra() {
   const tipo = S.tipo;
   const q = normalizar(el("cr-buscar").value).split(" ").filter(Boolean);
   const estado = el("cr-estado").value;

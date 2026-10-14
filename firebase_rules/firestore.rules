@@ -272,7 +272,10 @@ service cloud.firestore {
     // Expositores agregados a mano o importados en el módulo Credenciales
     // (los que no se inscribieron como participantes).
     match /expositores/{id} {
-      allow read: if permite('gestionar_credenciales', ['ceo']);
+      // También los lee quien edita checkpoints, para elegirlos como
+      // exponente de una actividad (js/modulos/inscripciones.js).
+      allow read: if permite('gestionar_credenciales', ['ceo'])
+        || permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
       allow create, update: if permite('gestionar_credenciales', ['ceo'])
         && request.resource.data.keys().hasOnly([
           'nombre', 'apellido', 'cedula', 'correo', 'institucion', 'tema',

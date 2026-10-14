@@ -48,6 +48,15 @@
  .cr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gris-texto); cursor: pointer; }
  .cr-check input { width: 16px; height: 16px; accent-color: var(--verde); margin: 0; }
  .cr-check[hidden], .cr-select[hidden] { display: none; }
+ .cr-letras { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--gris-borde); }
+ .cr-letras[hidden] { display: none; }
+ .cr-letra {
+   min-width: 30px; height: 30px; padding: 0 8px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+   background: #fff; font: 700 12px var(--fuente); color: var(--gris-texto); cursor: pointer;
+ }
+ .cr-letra:hover { border-color: var(--verde); }
+ .cr-letra[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+ .cr-letra:focus-visible { outline: 2px solid var(--verde-oscuro); outline-offset: 2px; }
  .cr-sel { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 16px; background: var(--verde-fondo); font-size: 12px; }
  .cr-sel .cr-check { color: var(--verde-oscuro); }
  .cr-sel-num { font-weight: 700; color: var(--verde-oscuro); }
@@ -166,6 +175,7 @@
  <button type="button" class="btn btn-outline btn-sm" id="cr-exp-importar">Importar Excel</button>
  </div>
  </div>
+ <div class="cr-letras" id="cr-letras" role="toolbar" aria-label="Filtrar por letra inicial del nombre" hidden></div>
  <div class="cr-sel">
  <label class="cr-check"><input type="checkbox" id="cr-todos"/> <span id="cr-todos-txt">Seleccionar todas</span></label>
  <span><span class="cr-sel-num" id="cr-sel-num">0 seleccionadas</span><button type="button" class="cr-link" id="cr-limpiar">Quitar selección</button></span>
@@ -254,6 +264,6 @@
  </div>
 </dialog>
 
-<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261009.2"></script>
+<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261014.1"></script>
 </body>
 </html>
