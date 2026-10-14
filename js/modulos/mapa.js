@@ -584,6 +584,13 @@ function etiquetaDiaLarga(dia) {
   return new Date(`${dia}T12:00:00Z`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
 }
 
+
+// "Título" sin duplicar las comillas si ya vienen escritas.
+const entreComillas = texto => {
+  const limpio = String(texto || "").trim().replace(/^["“”«]+|["“”»]+$/g, "").trim();
+  return limpio ? `"${limpio}"` : "";
+};
+
 function htmlActividad(cp, ahora, { conSalon = true } = {}) {
   const est = estadoActividad(cp, ahora);
   const tipo = tipoDe(cp);
@@ -598,7 +605,9 @@ function htmlActividad(cp, ahora, { conSalon = true } = {}) {
   const lugar = id
     ? `${nombreSalon(id, S.salones[id])} · ${nombrePiso(ESPACIOS.get(id).piso).toLowerCase()}`
     : cp.salon ? `${cp.salon} (fuera del plano)` : "Sin salón asignado";
-  const detalles = [cp.titulo, cp.exponente, conSalon ? lugar : null].filter(Boolean);
+  // El título formal va entre comillas; en voluntariado ese campo es el área.
+  const titulo = cp.origen === "voluntariado" ? cp.titulo : entreComillas(cp.titulo);
+  const detalles = [titulo, cp.exponente, conSalon ? lugar : null].filter(Boolean);
   const clases = ["act-btn", est === "fin" ? "fin" : "", est === "cancelada" ? "cancelada" : "", id ? "" : "sin-salon",
     cp.id === S.destacado ? "destacada" : ""].filter(Boolean).join(" ");
   return `<li class="con-btn"><button type="button" class="${clases}" data-cp="${escaparAtributo(cp.id)}" style="--c:${color}">
