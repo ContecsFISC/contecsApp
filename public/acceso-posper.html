@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="referrer" content="no-referrer"/>
+  <link rel="icon" href="../favicon.ico" sizes="any"/>
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+  <link rel="manifest" href="../manifest.json"/>
+  <meta name="theme-color" content="#061b2a"/>
+  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
+  <title>POSPER — CONTECS 2026</title>
+  <style>
+    /* Paleta de POSPER (patrocinador), como en el dashboard y los randomizer. */
+    :root {
+      --pp-noche: #061b2a;
+      --pp-azul: #0b3857;
+      --pp-rojo: #980000;
+      --pp-laser: #cc0000;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%),
+        linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
+    }
+    .caja { width: 100%; max-width: 400px; text-align: center; }
+    /* Láser del logo en CSS: por delante del código de barras (.laser) y por
+       detrás de las letras (::after), igual que en el dashboard de POSPER. */
+    .marca { position: relative; width: min(280px, 80vw); margin: 0 auto 28px; }
+    .marca::after, .laser {
+      content: "";
+      position: absolute;
+      left: 2%; right: 2.2%; top: 50.6%; height: 7.4%;
+      background: var(--pp-laser);
+      box-shadow: 0 0 8px rgba(255,42,42,0.6);
+    }
+    .laser { right: 84.5%; z-index: 2; }
+    .logo { position: relative; z-index: 1; display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
+    h1 { font-family: 'Space Grotesk', 'Inter', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    p { font-size: 14px; line-height: 1.55; opacity: 0.9; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      margin: 26px auto 0;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error {
+      display: none;
+      margin-top: 22px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: left;
+      background: rgba(255,255,255,0.12);
+      border-left: 4px solid #ff2a2a;
+    }
+    .error.show { display: block; }
+    .is-hidden { display: none; }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+</head>
+<body>
+  <main class="caja">
+    <div class="marca"><img class="logo" src="../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/><span class="laser" aria-hidden="true"></span></div>
+    <h1 id="titulo">Entrando…</h1>
+    <p id="mensaje">Abriendo la pestaña de POSPER en CONTECS 2026.</p>
+    <div class="spinner" id="spinner"></div>
+    <div class="error" id="msg-error" role="alert"></div>
+  </main>
+
+  <script type="module">
+    // Link de POSPER sin iniciar sesión: la clave viene en #k= (el fragmento no
+    // viaja al servidor) y entrarConLinkPosper la cambia por una sesión con rol
+    // posper. Ver functions/acceso-posper.js.
+    import { app, auth } from "../js/core/firebase-config.js";
+    import { cargarUsuario } from "../js/core/auth.js";
+    import { signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+
+    const clave = new URLSearchParams(window.location.hash.slice(1)).get("k") || "";
+
+    function mostrarError(texto) {
+      document.getElementById("titulo").textContent = "No se pudo entrar";
+      document.getElementById("mensaje").textContent = "Este acceso es solo para el equipo de POSPER.";
+      document.getElementById("spinner").classList.add("is-hidden");
+      const error = document.getElementById("msg-error");
+      error.textContent = texto;
+      error.classList.add("show");
+    }
+
+    async function entrar() {
+      if (!clave) {
+        mostrarError("El link está incompleto. Escanea de nuevo el QR de POSPER.");
+        return;
+      }
+      const entrarConLink = httpsCallable(getFunctions(app, "us-central1"), "entrarConLinkPosper");
+      const { data } = await entrarConLink({ clave });
+      await signInWithCustomToken(auth, data.firebaseToken);
+      await cargarUsuario(auth.currentUser);
+      window.location.replace("../panel/dashboard.html");
+    }
+
+    entrar().catch((e) => {
+      console.error("[POSPER]", e);
+      mostrarError(e?.code === "functions/permission-denied" || e?.code === "functions/invalid-argument"
+        ? e.message
+        : "No se pudo abrir el acceso. Revisa tu conexión e intenta de nuevo.");
+    });
+  </script>
+</body>
+</html>

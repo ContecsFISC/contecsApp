@@ -294,6 +294,30 @@
     .posper-modulo:nth-child(3) .posper-modulo-icono { background: linear-gradient(135deg, #980000, #cc0000); }
     .posper-modulo-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
     .posper-modulo-texto { font-size: 13px; line-height: 1.45; color: var(--gris-medio); }
+    /* Acceso sin iniciar sesión: QR con el link de public/acceso-posper.html */
+    .posper-link {
+      display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
+      margin-top: 14px; padding: 20px; border-radius: 18px;
+      background: var(--cx-surface, #fdf7ea); border: 1px solid var(--gris-borde);
+      box-shadow: 0 6px 18px rgba(3,46,35,0.06);
+    }
+    .posper-link[hidden] { display: none; }
+    .posper-link-qr { width: 180px; height: 180px; padding: 10px; border-radius: 12px; background: #fff; border: 1px solid var(--gris-borde); box-sizing: content-box; }
+    .posper-link-qr img, .posper-link-qr canvas { display: block; width: 100%; height: auto; }
+    .posper-link-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
+    .posper-link-texto { font-size: 13px; line-height: 1.5; color: var(--gris-medio); margin: 6px 0 14px; }
+    .posper-link-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+    .posper-link-btn {
+      padding: 10px 16px; border-radius: 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+      color: #fff; background: linear-gradient(135deg, #061b2a, #0b3857); border: 1px solid transparent;
+    }
+    .posper-link-btn.secundario { color: var(--posper-rojo); background: transparent; border-color: rgba(152,0,0,0.35); }
+    .posper-link-btn:disabled { opacity: 0.55; cursor: progress; }
+    .posper-link-estado { min-height: 1.4em; margin-top: 10px; font-size: 12.5px; color: var(--gris-medio); }
+    @media (max-width: 560px) {
+      .posper-link { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .posper-link-acciones { justify-content: center; }
+    }
 
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
@@ -661,7 +685,9 @@
     import { tienePermiso, infoRol } from "../js/core/permisos.js";
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
-    import { db } from "../js/core/firebase-config.js";
+    import { app, db } from "../js/core/firebase-config.js";
+    import { URL_ACCESO_POSPER } from "../js/core/sso-config.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
     import { montarNavbar } from "../js/core/navbar.js?v=20261015.8";
     import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.3";
     import { montarCarrusel } from "../js/core/carrusel-modulos.js?v=20261015.8";
@@ -676,6 +702,69 @@
         return;
       }
       console.error(`[Dashboard] Error en listener ${contexto}:`, error);
+    }
+
+    // QR del link de POSPER sin iniciar sesión (functions/acceso-posper.js).
+    const UID_LINK_POSPER = "posper-link";
+    function iniciarLinkPosper() {
+      const caja = document.getElementById("posper-link");
+      const qr = document.getElementById("posper-link-qr");
+      const estado = document.getElementById("posper-link-estado");
+      const btnCopiar = document.getElementById("posper-link-copiar");
+      const btnRegenerar = document.getElementById("posper-link-regenerar");
+      const pedirLink = httpsCallable(getFunctions(app, "us-central1"), "linkAccesoPosper");
+      const libreria = window.QRCode ? Promise.resolve() : new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = "../js/libs/qrcode.min.js";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.append(script);
+      });
+      let url = "";
+
+      const pintar = async (regenerar) => {
+        const [{ data }] = await Promise.all([pedirLink({ regenerar }), libreria]);
+        url = `${URL_ACCESO_POSPER}#k=${data.clave}`;
+        qr.replaceChildren();
+        new window.QRCode(qr, {
+          text: url, width: 180, height: 180,
+          colorDark: "#061b2a", colorLight: "#ffffff",
+          correctLevel: window.QRCode.CorrectLevel.M,
+        });
+        caja.hidden = false;
+      };
+
+      pintar(false).catch(error => {
+        console.error("[Dashboard] Link de POSPER:", error);
+        caja.hidden = false;
+        btnCopiar.disabled = true;
+        estado.textContent = "No se pudo cargar el QR. Recarga la página para intentarlo de nuevo.";
+      });
+
+      btnCopiar.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          estado.textContent = "Link copiado.";
+        } catch {
+          estado.textContent = url;
+        }
+      });
+
+      btnRegenerar.addEventListener("click", async () => {
+        if (!confirm("¿Generar un link nuevo? El QR actual deja de funcionar y quienes entraron con él pierden el acceso en menos de una hora.")) return;
+        btnRegenerar.disabled = true;
+        estado.textContent = "Generando link nuevo…";
+        try {
+          await pintar(true);
+          btnCopiar.disabled = false;
+          estado.textContent = "Listo: este es el QR nuevo. El anterior ya no abre.";
+        } catch (error) {
+          console.error("[Dashboard] Regenerar link de POSPER:", error);
+          estado.textContent = "No se pudo generar el link nuevo. Intenta de nuevo.";
+        } finally {
+          btnRegenerar.disabled = false;
+        }
+      });
     }
 
     // Una sola lectura por coleccion aunque la pidan la agenda y el resumen.
@@ -1107,7 +1196,21 @@
               <span class="posper-modulo-titulo">Sorteo en vivo</span>
               <span class="posper-modulo-texto">Pantalla para proyectar: el carrete de RFID gira, frena y revela a cada ganador.</span>
             </a>
-          </div>`;
+          </div>
+          <section class="posper-link" id="posper-link" hidden>
+            <div class="posper-link-qr" id="posper-link-qr" role="img" aria-label="Código QR del acceso de POSPER sin iniciar sesión"></div>
+            <div>
+              <span class="posper-link-titulo">Acceso sin iniciar sesión</span>
+              <p class="posper-link-texto">Quien escanee este QR entra a la pestaña POSPER sin cuenta: Lector, Randomizer y Sorteo en vivo. Compártanlo solo con su equipo; si se filtra, generen uno nuevo y el anterior deja de funcionar.</p>
+              <div class="posper-link-acciones">
+                <button type="button" class="posper-link-btn" id="posper-link-copiar">Copiar link</button>
+                <button type="button" class="posper-link-btn secundario" id="posper-link-regenerar">Generar link nuevo</button>
+              </div>
+              <p class="posper-link-estado" id="posper-link-estado" role="status"></p>
+            </div>
+          </section>`;
+        // La sesión abierta con el propio link no ve el QR ni puede cambiarlo.
+        if (usuario.uid !== UID_LINK_POSPER) iniciarLinkPosper();
       }
 
       let dashboardMovilCargado = false;

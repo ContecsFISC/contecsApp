@@ -4,3 +4,5 @@ export const SSO_USER_URL = "https://sso.utp.ac.pa/ms/user";
 export const VALIDAR_TOKEN_SSO_URL =
   "https://us-central1-contecs-fa6e6.cloudfunctions.net/validarTokenSSO";
 export const URL_BASE_PERFIL = "https://contecs-app.vercel.app/public/perfil.html";
+// Link de POSPER sin iniciar sesión (QR del dashboard POSPER); la clave va en #k=.
+export const URL_ACCESO_POSPER = "https://contecs-app.vercel.app/public/acceso-posper.html";

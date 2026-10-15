@@ -67,6 +67,7 @@ const {desbloquearUsuarios, guardarPermisosUsuario, guardarPermisosRol} = requir
 const {registrarVoluntario} = require("./registro-voluntarios");
 const {asegurarTokensPersonal, accederPersonal} = require("./personal");
 const {mapaPublico} = require("./mapa-publico");
+const {linkAccesoPosper, entrarConLinkPosper} = require("./acceso-posper");
 const {ipDelCliente, claveDeLimite} = require("./ip-cliente");
 const {
   CATEGORIAS_REGISTRO,
@@ -1734,6 +1735,35 @@ exports.mapaPublico = onCall(
       } catch (e) {
         console.error("mapaPublico:", e);
         throw new HttpsError("internal", "No se pudo cargar el mapa. Intenta de nuevo.");
+      }
+    },
+);
+
+// Link de POSPER sin iniciar sesión: el dashboard de POSPER pide (o regenera)
+// la clave del QR y public/acceso-posper.html la cambia por una sesión con rol
+// posper. Ver functions/acceso-posper.js.
+exports.linkAccesoPosper = onCall(
+    {region: "us-central1", maxInstances: 5},
+    async (request) => {
+      try {
+        return await linkAccesoPosper(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("linkAccesoPosper:", e);
+        throw new HttpsError("internal", "No se pudo obtener el link de POSPER. Intenta de nuevo.");
+      }
+    },
+);
+
+exports.entrarConLinkPosper = onCall(
+    {region: "us-central1", maxInstances: 5, invoker: "public"},
+    async (request) => {
+      try {
+        return await entrarConLinkPosper(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("entrarConLinkPosper:", e);
+        throw new HttpsError("internal", "No se pudo abrir el acceso de POSPER. Intenta de nuevo.");
       }
     },
 );

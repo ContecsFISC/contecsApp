@@ -243,7 +243,7 @@ export async function cargarUsuario(user) {
       sessionStorage.setItem("uid",    user.uid);
       sessionStorage.setItem("nombre", data.nombre || nombreFallback);
       sessionStorage.setItem("rol",    data.rol || rolFallback);
-      sessionStorage.setItem("email",  user.email);
+      sessionStorage.setItem("email",  user.email || "");
       sessionStorage.setItem("permisosExtra", serializarPermisosExtra(data.permisosExtra));
       await cargarAjustesRol(data.rol || rolFallback);
       return;
@@ -261,7 +261,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("uid",    user.uid);
     sessionStorage.setItem("nombre", nuevoUsuario.nombre);
     sessionStorage.setItem("rol",    rolFallback);
-    sessionStorage.setItem("email",  user.email);
+    sessionStorage.setItem("email",  user.email || "");
     sessionStorage.setItem("permisosExtra", "{}");
     sessionStorage.setItem("ajustesRol", "{}");
   } catch (error) {
@@ -274,7 +274,7 @@ export async function cargarUsuario(user) {
     sessionStorage.setItem("uid",    user.uid);
     sessionStorage.setItem("nombre", nombreFallback);
     sessionStorage.setItem("rol",    rolFallback);
-    sessionStorage.setItem("email",  user.email);
+    sessionStorage.setItem("email",  user.email || "");
     sessionStorage.setItem("permisosExtra", "{}");
     sessionStorage.setItem("ajustesRol", "{}");
     console.warn(
