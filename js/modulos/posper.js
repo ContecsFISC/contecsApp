@@ -189,6 +189,26 @@ document.addEventListener("keydown", e => {
   }
 }, true);
 
+// Si el campo perdió el foco, los lectores que mandan pulsaciones de tecla
+// siguen llegando al documento: se juntan igual en el campo de captura.
+document.addEventListener("keydown", e => {
+  if (e.target === captura || !["qr", "rfid", "prueba"].includes(estado)) return;
+  if (e.target.matches?.("select, textarea, input, button")) return;
+  if (e.key === "Enter" || e.key === "Tab") {
+    if (!captura.value) return;
+    e.preventDefault();
+    terminarLectura(e.key);
+    return;
+  }
+  if (e.key.length !== 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+  e.preventDefault();
+  if (!lectura.inicio) lectura.inicio = performance.now();
+  lectura.metodo = "teclas sin foco";
+  captura.value += e.key;
+  programarFin();
+  enfocarCaptura();
+});
+
 function anotarTeclaEspecial(e) {
   const nombre = `${e.key || "?"}${e.keyCode ? ` (${e.keyCode})` : ""}`;
   if (teclasEspeciales[0] === nombre) return;
@@ -210,7 +230,8 @@ function terminarLectura(terminador) {
   if (!texto) return;
 
   el("diag-metodo").textContent = metodo === "pegado" ? "Pegado"
-    : metodo === "texto sin eventos" ? "Texto escrito sin eventos" : "Emulación de teclado";
+    : metodo === "texto sin eventos" ? "Texto escrito sin eventos"
+    : metodo === "teclas sin foco" ? "Teclas sin foco en el campo" : "Emulación de teclado";
   el("diag-longitud").textContent = String(texto.length);
   el("diag-duracion").textContent = `${duracion} ms`;
   el("diag-terminador").textContent = terminador;
