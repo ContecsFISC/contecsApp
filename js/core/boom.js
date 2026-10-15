@@ -38,11 +38,25 @@ function quitarCapas() {
 }
 
 async function boom(enlace) {
-  enCurso = true;
   const origen = enlace.closest("[data-boom-origen]") || enlace;
   const tono = enlace.dataset.boom || "congreso";
   const nombre = enlace.dataset.boomNombre || enlace.textContent.trim();
-  const href = enlace.href;
+  return boomDesde(origen, { tono, nombre, href: enlace.href });
+}
+
+/**
+ * El mismo boom lanzado desde cualquier elemento (p. ej. una tarjeta del
+ * carrusel). Con `href` navega; con `alCubrir` llama a esa funcion cuando la
+ * pantalla ya esta cubierta y despues la forma se desvanece y deja ver lo que
+ * se haya montado debajo (la vista de una seccion del inicio).
+ */
+export async function boomDesde(origen, { tono = "congreso", nombre = "", href = "", alCubrir = null } = {}) {
+  if (enCurso) return;
+  if (reducido()) {
+    if (alCubrir) alCubrir(); else if (href) location.assign(href);
+    return;
+  }
+  enCurso = true;
 
   // 1. Impulso: el origen se retrae un poco.
   const retraer = origen.animate(
@@ -71,7 +85,7 @@ async function boom(enlace) {
   const forma = capa.firstChild, tinte = forma.firstChild, sello = capa.lastChild;
   Object.assign(forma.style, { left: -R + "px", top: -R + "px", width: W + "px", height: H + "px", borderRadius: R + "px", transform: desde });
   sello.querySelector(".cx-boom__nombre").textContent = nombre;
-  const icono = origen.querySelector(".cx-mod__icono svg")?.cloneNode(true) || iconoDeSeccion(tono);
+  const icono = origen.querySelector("[data-boom-icono] svg, .cx-mod__icono svg")?.cloneNode(true) || iconoDeSeccion(tono);
   if (icono) sello.querySelector(".cx-boom__icono").appendChild(icono);
   document.body.appendChild(capa);
   // La forma toma el lugar del origen en el mismo cuadro: sin parpadeo.
@@ -88,6 +102,17 @@ async function boom(enlace) {
     [{ opacity: 0, transform: "translate3d(-50%,-50%,0) scale(.72)" }, { opacity: 1, transform: "translate3d(-50%,-50%,0) scale(1)" }],
     { duration: 420, delay: T.expandir * 0.38, easing: "cubic-bezier(.2,.9,.25,1.12)", fill: "both" },
   );
+
+  // 3a. Sin navegar: con la pantalla cubierta se monta lo nuevo debajo y la
+  //     forma se desvanece encima (solo opacity).
+  if (alCubrir) {
+    await new Promise(r => setTimeout(r, T.expandir + 160));
+    try { alCubrir(); } catch (error) { console.error(error); }
+    await capa.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 340, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" })
+      .finished.catch(() => {});
+    quitarCapas();
+    return;
+  }
 
   // 3. Casi cubierto: se navega (la red empieza mientras termina la expansion).
   setTimeout(() => location.assign(href), T.expandir * T.navegarAl + T.retraer * 0.2);

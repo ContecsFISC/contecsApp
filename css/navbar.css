@@ -662,6 +662,76 @@
 
 .cx-sheet__logout { background: var(--cx-apricot); color: var(--cx-ink-900); }
 
+/* ───────────────────────── PERFIL (nav.establecerPerfil) ─────────────────────────
+   La cuenta va en la barra: avatar apricot con iniciales, nombre y rol, y un
+   menu con Inicio y Salir. Con perfil, el "Salir" suelto sobra. */
+.cx-nav--perfil .cx-logout,
+.cx-nav--perfil .cx-rail__logout { display: none; }
+
+.cx-bar .cx-perfil {
+  gap: 10px;
+  height: 48px;
+  padding: 0 12px 0 5px;
+  border-radius: var(--cx-radius-pill);
+}
+.cx-perfil__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--cx-apricot), var(--cx-apricot-400));
+  color: var(--cx-ink-900);
+  font: 700 13px/1 var(--cx-font-display);
+  letter-spacing: 0.03em;
+  box-shadow: 0 0 0 2px rgb(248 231 201 / 0.30), 0 6px 14px -6px rgb(0 0 0 / 0.5);
+  transition: transform var(--cx-dur-base) var(--cx-ease-rebote);
+}
+.cx-perfil:hover .cx-perfil__avatar { transform: scale(1.06); }
+.cx-perfil__textos { display: grid; gap: 3px; min-width: 0; max-width: 11.5rem; text-align: left; }
+.cx-perfil__textos b,
+.cx-perfil__textos small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cx-perfil__textos b { font: 600 13.5px/1.1 var(--cx-font); color: var(--cx-champagne-100); }
+.cx-perfil__textos small { font: 500 11.5px/1.1 var(--cx-font); color: rgb(248 231 201 / 0.68); }
+.cx-item--perfil[data-open] .cx-perfil__textos b,
+.cx-perfil:hover .cx-perfil__textos b { color: var(--cx-ink); }
+.cx-item--perfil[data-open] .cx-perfil__textos small,
+.cx-perfil:hover .cx-perfil__textos small { color: var(--cx-text-3); }
+
+/* Menu de la cuenta: cuelga a la derecha de la barra. */
+.cx-bar .cx-item--perfil .cx-menu { left: auto; right: 0; transform-origin: top right; }
+.cx-perfil__menu { min-width: 264px; }
+.cx-perfil__cabeza,
+.cx-sheet__perfil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--cx-line);
+}
+.cx-perfil__avatar--grande { width: 46px; height: 46px; font-size: 16px; box-shadow: 0 8px 18px -8px rgb(3 46 35 / 0.5); }
+.cx-perfil__datos { display: grid; gap: 4px; min-width: 0; }
+.cx-perfil__datos b { font: 700 15px/1.2 var(--cx-font-display); color: var(--cx-ink); overflow-wrap: anywhere; }
+.cx-perfil__datos small { font: 500 12px/1.2 var(--cx-font); color: var(--cx-text-3); }
+.cx-perfil__ico { width: 17px; height: 17px; flex: none; color: var(--cx-ink-500); }
+button.cx-menu__link { width: 100%; border: 0; background: transparent; cursor: pointer; text-align: left; }
+
+/* En el carril: solo el avatar; su menu se abre hacia arriba (data-flip). */
+.cx-rail .cx-item--perfil .cx-item__btn::before { display: none; }
+.cx-rail .cx-perfil__avatar { width: 38px; height: 38px; font-size: 12.5px; }
+
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .cx-perfil__textos { display: none; }
+  .cx-bar .cx-perfil { padding: 0 5px; }
+}
+@media (max-width: 1023.98px) {
+  .cx-perfil__textos, .cx-item--perfil .cx-chevron { display: none; }
+  .cx-bar .cx-perfil { width: 44px; height: 44px; padding: 0; justify-content: center; }
+  .cx-bar .cx-item--perfil .cx-menu { top: calc(100% + 14px); right: -50px; max-width: calc(100vw - 2 * var(--cx-bar-gap)); }
+}
+
 /* ───────────────────────── BOOM (entrar a un modulo, js/core/boom.js) ─────────────────────────
    Una caja fija que solo se escala: el compositor la mueve aunque el hilo
    principal este ocupado. Por encima de todo (navbar 150, modales 200-500). */

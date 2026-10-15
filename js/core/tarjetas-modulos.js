@@ -11,7 +11,7 @@
 // Dos capas por tarjeta: .cx-mod lleva la ENTRADA y .cx-mod__cara la
 // INCLINACION, para que las dos animaciones no se pisen el transform.
 // ═══════════════════════════════════════════════════════════════
-import { iconoSeccion } from "./navbar.js?v=20261015.3";
+import { iconoSeccion } from "./navbar.js?v=20261015.5";
 import { revelarAlEntrar } from "./revelar.js?v=20261015.4";
 
 const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -89,6 +89,22 @@ function brilloAlTocar(rejilla) {
     cara.style.setProperty("--mx", `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
     cara.style.setProperty("--my", `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
   }, { passive: true });
+}
+
+/**
+ * Solo las tarjetas de UNA seccion, en rejilla, con su entrada en cascada
+ * (la vista de seccion del inicio: js/core/vista-seccion.js).
+ */
+export function pintarRejillaSeccion(contenedor, cat) {
+  if (!contenedor || !cat) return;
+  contenedor.replaceChildren();
+  contenedor.classList.add("cx-modulos");
+  const rejilla = nodo("div", "cx-modulos__rejilla");
+  cat.modulos.forEach((mod, i) => rejilla.appendChild(crearTarjeta(cat, mod, i)));
+  contenedor.appendChild(rejilla);
+  if (conRaton.matches) animarInclinacion(rejilla);
+  else brilloAlTocar(rejilla);
+  contenedor.dataset.visto = "true";
 }
 
 /**

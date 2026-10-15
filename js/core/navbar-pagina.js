@@ -10,7 +10,7 @@
 // tienePermiso() de siempre, cuando la sesion de la pagina ya esta lista.
 // En paginas publicas (fuera de /panel/) no hay secciones ni "Salir".
 // ═══════════════════════════════════════════════════════════════
-import { montarNavbar } from "./navbar.js?v=20261015.3";
+import { montarNavbar } from "./navbar.js?v=20261015.5";
 import { CATEGORIAS, categoriasPara } from "./navegacion.js?v=20261015.3";
 
 const raizSitio = new URL("../../", import.meta.url);   // js/core/ -> raiz del sitio
@@ -66,7 +66,7 @@ if (matchMedia("(max-width: 1023.98px)").matches) {
 if (enPanel) {
   // Misma instancia que la pagina (misma URL de modulo): esperarSesionLista()
   // se resuelve cuando el guardRoute() de la pagina termina.
-  const [{ esperarSesionLista, getUsuarioActual }, { tienePermiso }] = await Promise.all([
+  const [{ esperarSesionLista, getUsuarioActual }, { tienePermiso, infoRol }] = await Promise.all([
     import("./auth.js"),
     import("./permisos.js"),
   ]);
@@ -74,5 +74,7 @@ if (enPanel) {
   const usuario = getUsuarioActual();
   if (usuario.uid) {
     nav.establecerCategorias(categoriasPara(usuario, tienePermiso, href => new URL(href, panel).href));
+    // La cuenta en la barra (nombre, rol, Inicio y Salir).
+    nav.establecerPerfil({ nombre: usuario.nombre || "Usuario", rol: infoRol(usuario.rol || "sin_rol")?.label || "" });
   }
 }
