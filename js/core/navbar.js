@@ -262,45 +262,16 @@ export function montarNavbar({
   }
   nav.addEventListener("pointerleave", reposoGlide, { signal });
 
-  // ── Construccion de secciones ─────────────────────────────────
-  categorias.forEach((cat, i) => {
-    const r1 = crearItem(cat, i, "bar");
-    nav.appendChild(r1.item);
-    enlazar(r1);
-    if (r1.item.classList.contains("is-current")) itemActualBarra = r1.item;
-
-    const r2 = crearItem(cat, i, "rail");
-    r2.item.style.setProperty("--i", String(i + 2));
-    carril.appendChild(r2.item);
-    enlazar(r2);
-
-    // Panel movil: bloque por categoria.
-    const grupo = el("div", "cx-sheet__group");
-    const t = el("div", "cx-menu__title");
-    t.textContent = cat.label;
-    grupo.appendChild(t);
-    (cat.modulos || []).forEach((m, j) => {
-      const a = el("a", "cx-menu__link", { href: m.href });
-      a.style.setProperty("--i", String(i * 2 + j));
-      const txt = el("span");
-      txt.textContent = m.label;
-      a.appendChild(txt);
-      if (m.admin) a.appendChild(el("span", "cx-menu__dot"));
-      if (rutaDe(m.href) === rutaActual) { a.classList.add("is-current"); a.setAttribute("aria-current", "page"); }
-      grupo.appendChild(a);
-    });
-    hoja.appendChild(grupo);
-  });
-
-  // Salir en carril y panel movil
-  let botonSalirCarril = null, botonSalirHoja = null;
+  // ── Salir en carril y panel movil ─────────────────────────────
+  // Se crean ANTES de las secciones: estas se insertan siempre delante de ellos.
+  let separadorSalir = null, botonSalirCarril = null, botonSalirHoja = null;
   if (alCerrarSesion) {
-    const s2 = el("div", "cx-rail__sep", { "aria-hidden": "true" });
-    s2.style.setProperty("--i", String(categorias.length + 2));
-    carril.appendChild(s2);
+    separadorSalir = el("div", "cx-rail__sep", { "aria-hidden": "true" });
+    separadorSalir.style.setProperty("--i", "20");
+    carril.appendChild(separadorSalir);
     botonSalirCarril = el("button", "cx-rail__logout", { type: "button", "aria-label": etiquetaSalir, title: etiquetaSalir });
     botonSalirCarril.appendChild(svg("salir"));
-    botonSalirCarril.style.setProperty("--i", String(categorias.length + 3));
+    botonSalirCarril.style.setProperty("--i", "21");
     carril.appendChild(botonSalirCarril);
 
     botonSalirHoja = el("button", "cx-sheet__logout", { type: "button" });
@@ -310,6 +281,54 @@ export function montarNavbar({
     for (const b of [botonSalir, botonSalirCarril, botonSalirHoja]) {
       b.addEventListener("click", () => alCerrarSesion(), { signal });
     }
+  }
+
+  // ── Secciones ─────────────────────────────────────────────────
+  // Se pueden (re)establecer en cualquier momento: el dashboard monta la barra
+  // enseguida y le pasa las categorias cuando los permisos ya estan resueltos.
+  let nodosSecciones = [];
+  function establecerCategorias(lista = []) {
+    cerrar();
+    clearTimeout(temporizador);
+    nodosSecciones.forEach(n => n.remove());
+    nodosSecciones = [];
+    items.length = 0;
+    itemActualBarra = null;
+
+    lista.forEach((cat, i) => {
+      const r1 = crearItem(cat, i, "bar");
+      nav.appendChild(r1.item);
+      enlazar(r1);
+      if (r1.item.classList.contains("is-current")) itemActualBarra = r1.item;
+
+      const r2 = crearItem(cat, i, "rail");
+      r2.item.style.setProperty("--i", String(i + 2));
+      carril.insertBefore(r2.item, separadorSalir);
+      enlazar(r2);
+
+      // Panel movil: bloque por categoria.
+      const grupo = el("div", "cx-sheet__group");
+      const t = el("div", "cx-menu__title");
+      t.textContent = cat.label;
+      grupo.appendChild(t);
+      (cat.modulos || []).forEach((m, j) => {
+        const a = el("a", "cx-menu__link", { href: m.href });
+        a.style.setProperty("--i", String(i * 2 + j));
+        const txt = el("span");
+        txt.textContent = m.label;
+        a.appendChild(txt);
+        if (m.admin) a.appendChild(el("span", "cx-menu__dot"));
+        if (rutaDe(m.href) === rutaActual) { a.classList.add("is-current"); a.setAttribute("aria-current", "page"); }
+        grupo.appendChild(a);
+      });
+      hoja.insertBefore(grupo, botonSalirHoja);
+
+      nodosSecciones.push(r1.item, r2.item, grupo);
+    });
+    // El "Salir" del carril entra despues de la ultima seccion.
+    separadorSalir?.style.setProperty("--i", String(lista.length + 2));
+    botonSalirCarril?.style.setProperty("--i", String(lista.length + 3));
+    reposoGlide();
   }
 
   // ── Panel movil ───────────────────────────────────────────────
@@ -362,18 +381,21 @@ export function montarNavbar({
 
   // ── Montaje ───────────────────────────────────────────────────
   carril.inert = true;
+  establecerCategorias(categorias);
   raiz.append(espaciador, centinela, barra, carril, velo, hoja);
+  // Una pagina puede traer un espaciador estatico para que el contenido no
+  // salte mientras carga el modulo: ya no hace falta.
+  document.getElementById("cx-spacer-previo")?.remove();
   destino.prepend(raiz);
   document.body.classList.add("cx-nav-on");
   observador.observe(centinela);
-  if (itemActualBarra) {
-    // Las fuentes cambian el ancho de los botones: se mide cuando ya cargaron.
-    (document.fonts?.ready ?? Promise.resolve()).then(reposoGlide);
-    addEventListener("resize", reposoGlide, { signal, passive: true });
-  }
+  // Las fuentes cambian el ancho de los botones: se mide cuando ya cargaron.
+  (document.fonts?.ready ?? Promise.resolve()).then(reposoGlide);
+  addEventListener("resize", reposoGlide, { signal, passive: true });
 
   return {
     el: raiz,
+    establecerCategorias,
     destruir() {
       ctl.abort();
       observador.disconnect();

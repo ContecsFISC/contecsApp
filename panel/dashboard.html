@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
   <link rel="stylesheet" href="../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../css/navbar.css?v=20261014.1"/>
   <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
        sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
        solo rozar el enlace. -->
@@ -17,6 +19,9 @@
   { "prefetch": [{ "where": { "href_matches": "/*modulos/*" }, "eagerness": "moderate" }] }
   </script>
   <style>
+    /* Navegacion anterior (topbar + bottom sheet): reemplazada por el navbar v2. */
+    .topbar-legado, #bottom-sheet, #sheet-backdrop { display: none !important; }
+
     /* ══════════ ZONA A — HEADER ══════════ */
     /* ── HERO invertido ──
        Antes: bloque verde oscuro donde lo mas grande era tu propio nombre y
@@ -1045,7 +1050,11 @@
     </filter>
   </svg>
 
-  <div class="topbar">
+  <!-- Navbar v2 (js/core/navbar.js) reemplaza al topbar: este espaciador evita el salto mientras carga el modulo. -->
+  <div class="cx-spacer" id="cx-spacer-previo" aria-hidden="true"></div>
+
+  <!-- Topbar anterior: oculto. Se conserva el DOM porque el script de abajo aun lo referencia por id. -->
+  <div class="topbar topbar-legado" hidden>
     <div class="topbar-brand">
       <h1>CONTECS</h1>
       <img class="topbar-logo" src="../logocontecsheader.png" alt="CONTECS" />
@@ -1179,6 +1188,7 @@
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
+    import { montarNavbar } from "../js/core/navbar.js";
     import {
       doc, getDoc, onSnapshot, collection, query, where, getDocs
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -1190,6 +1200,13 @@
       }
       console.error(`[Dashboard] Error en listener ${contexto}:`, error);
     }
+
+    // Navbar v2: se monta ya (marca + Salir) y recibe las secciones cuando los
+    // permisos estan resueltos, para que la barra no aparezca tarde ni salte.
+    const navbarCx = montarNavbar({
+      marca: { titulo: "CONTECS", logo: "../img/ui/contecs-mark.png", href: "dashboard.html" },
+      alCerrarSesion: cerrarSesion,
+    });
 
     guardRoute();
     await esperarSesionLista();
@@ -1932,6 +1949,12 @@
       const categoriasVisibles = CATEGORIAS
         .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
         .filter(cat => cat.modulos.length > 0);
+
+      navbarCx.establecerCategorias(categoriasVisibles.map(cat => ({
+        id: cat.id,
+        label: cat.label,
+        modulos: cat.modulos.map(m => ({ label: m.label, href: versionarRutaUI(m.href), admin: !!m.admin })),
+      })));
 
       // ══════════ Mobile — bottom sheet: lista de texto limpia,
       // con una flecha que indica que se navega a otra pantalla ══════════
