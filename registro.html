@@ -73,14 +73,13 @@
 
  /* ═══ STEPS — barra de progreso de vidrio, fija al hacer scroll ═══ */
  .steps-wrap {
- background: rgba(255,255,255,0.82);
- backdrop-filter: blur(18px) saturate(1.5);
- -webkit-backdrop-filter: blur(18px) saturate(1.5);
+ /* Casi opaco en vez de blur(18px): al ser sticky se re-difuminaba en cada fotograma del scroll. */
+ background: rgba(255,255,255,0.96);
  border-bottom: 1px solid rgba(0,0,0,0.05);
  border-radius: 0 0 var(--radio) var(--radio);
  padding: 16px 20px; margin-bottom: 26px;
  position: sticky; top: 0; z-index: 50;
- box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+ box-shadow: 0 6px 24px rgba(3,46,35,0.05);
  }
  .steps { display: flex; align-items: center; justify-content: center; max-width: 560px; margin: 0 auto; }
  .step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; position: relative; }
@@ -335,7 +334,7 @@
  border: 2px solid rgba(17,128,102,0.55);
  animation: exitoAnillo 0.9s var(--ease-out) 0.35s both;
  }
- @keyframes exitoPop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+ @keyframes exitoPop { 0% { transform: scale(0.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: none; } }
  @keyframes exitoAnillo { from { transform: scale(1); opacity: 1; } to { transform: scale(1.9); opacity: 0; } }
  .exito-check { width: 42px; height: 42px; stroke: #fff; stroke-width: 3; fill: none;
  stroke-dasharray: 48; stroke-dashoffset: 48;
@@ -358,9 +357,9 @@
  .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
 
  /* ═══ ANIMACIONES ═══ */
- @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
- @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
- @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+ @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+ @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+ @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
 
  .step-panel { display: none; }
  .step-panel.activo { display: block; animation: cardIn 0.4s var(--ease-spring) both; }

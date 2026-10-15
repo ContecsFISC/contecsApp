@@ -540,6 +540,21 @@
   body.cx-nav-on { padding-right: var(--cx-rail-w); }
 }
 
+/* Escritorio estrecho: marca + 7 secciones + Salir no caben a 1024px. Se compacta
+   por tramos en vez de dejar que la barra se desborde por la derecha. */
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .cx-bar { gap: 4px; padding-right: 10px; }
+  .cx-bar__nav { margin-left: 2px; }
+  .cx-item__btn { padding: 0 10px; gap: 0; font-size: 13.5px; }
+  .cx-chevron { display: none; }
+  .cx-brand { padding-right: 6px; }
+  .cx-brand__name { font-size: 16px; }
+  .cx-logout { padding: 0 14px; }
+}
+@media (min-width: 1024px) and (max-width: 1099.98px) {
+  .cx-brand__name { display: none; }
+}
+
 /* ───────────────────────── TABLET / MOVIL ───────────────────────── */
 @media (max-width: 1023.98px) {
   .cx-rail { display: none; }
@@ -621,6 +636,12 @@
   .cx-rail { padding: 8px 6px; gap: 2px; width: 54px; }
   .cx-rail .cx-item, .cx-rail .cx-item__btn, .cx-rail__logout, .cx-rail__brand { width: 40px; height: 40px; }
   .cx-rail .cx-item { height: auto; }
+}
+
+/* ───────────────────────── IMPRESION ───────────────────────── */
+@media print {
+  .cx-nav, .cx-spacer { display: none !important; }
+  body.cx-nav-on { padding-right: 0 !important; }
 }
 
 /* ───────────────────────── MOVIMIENTO REDUCIDO ───────────────────────── */
