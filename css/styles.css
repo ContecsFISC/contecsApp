@@ -861,3 +861,55 @@ button .icono-svg { color: currentColor; }
 /* Estrellas de calificación */
 .icono-estrella.llena { color: var(--amarillo); }
 .icono-estrella.vacia { color: var(--gris-borde); }
+
+/* ═══ UI v2 — capa de scroll, foco y dialogos ═══ */
+/* Scroll suave hacia anclas/"volver arriba" y espacio para la barra flotante. */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--cx-bar-h, 64px) + var(--cx-bar-gap, 12px) * 2 + 8px);
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Barras de desplazamiento finas y tintadas (en lugar del gris del sistema). */
+* { scrollbar-width: thin; scrollbar-color: rgba(6, 78, 59, 0.28) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 78, 59, 0.26);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(6, 78, 59, 0.42); background-clip: padding-box; border: 3px solid transparent; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Seleccion de texto con la paleta. */
+::selection { background: var(--cx-apricot, #ffd6a5); color: var(--cx-ink-900, #032e23); }
+
+/* <dialog> nativos (usuarios, credenciales...): entrada y telon con la paleta.
+   Los estilos propios de cada pagina siguen mandando (cargan despues). */
+dialog { border: 0; box-shadow: var(--cx-shadow-4, 0 8px 16px rgb(3 46 35 / 0.06), 0 28px 64px rgb(3 46 35 / 0.18)); }
+dialog[open] { animation: cxDialogIn 0.3s var(--ease-out) backwards; }
+dialog::backdrop { background: rgb(3 46 35 / 0.42); animation: cxFade 0.22s ease backwards; }
+@keyframes cxDialogIn {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cxFade { from { opacity: 0; } }
+
+/* Telon de los modales propios de cada pagina: mas calido que el negro puro. */
+.modal-overlay { background: rgb(3 46 35 / 0.46); }
+
+/* Botones del sistema: respuesta tactil inmediata y sin recalcular layout. */
+button, .btn, .btn-sm { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* Texto seleccionable en tablas y celdas largas no se corta por el interlineado. */
+td, th { overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  dialog[open], dialog::backdrop { animation: none; }
+}
