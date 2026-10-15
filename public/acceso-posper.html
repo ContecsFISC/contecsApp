@@ -85,7 +85,19 @@
     }
     #captura::placeholder { color: rgba(255,255,255,0.75); }
     #captura:focus { outline: none; border-color: #fff; background: rgba(255,255,255,0.2); }
-    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+    /* Por si el lector escribe el link pero no avisa que terminó (sin Enter). */
+    #btn-entrar {
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--pp-laser);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+    }    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -98,6 +110,7 @@
     <p id="mensaje">Abriendo la pestaña de POSPER en CONTECS 2026.</p>
     <div class="spinner" id="spinner"></div>
     <input id="captura" class="is-hidden" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="Toca aquí y presiona el gatillo" aria-label="Entrada del lector"/>
+    <button id="btn-entrar" class="is-hidden" type="button">Entrar</button>
     <div class="error" id="msg-error" role="alert"></div>
   </main>
 
@@ -120,14 +133,6 @@
     function claveDe(texto) {
       const limpio = String(texto || "").replace(/\s+/g, "");
       return (limpio.match(/[#?&]k=([A-Za-z0-9_-]{43})/i) || limpio.match(/^([A-Za-z0-9_-]{43})$/) || [])[1] || "";
-    }
-
-    function mostrarError(texto) {
-      el("titulo").textContent = "No se pudo entrar";
-      el("mensaje").textContent = "Este acceso es solo para el equipo de POSPER.";
-      el("spinner").classList.add("is-hidden");
-      el("msg-error").textContent = texto;
-      el("msg-error").classList.add("show");
     }
 
     function textoDeError(e) {
@@ -161,16 +166,23 @@
       el("msg-error").textContent = aviso;
       el("msg-error").classList.toggle("show", !!aviso);
       captura.classList.remove("is-hidden");
+      el("btn-entrar").classList.remove("is-hidden");
       captura.value = "";
       captura.focus({ preventScroll: true });
     }
 
-    function terminarLectura() {
+    function terminarLectura(manual = false) {
       clearTimeout(timer);
       const texto = captura.value;
       captura.value = "";
       ultimoValor = "";
-      if (leyendo || !texto.trim()) return;
+      if (leyendo) return;
+      if (!texto.trim()) {
+        // Con el link a la vista pero el campo vacío para la página, el lector
+        // no está escribiendo como teclado (se configura en el equipo).
+        if (manual) esperarLector("La página no recibió el texto del lector. En los ajustes del escáner pon la salida en modo teclado (Scan to Key) y vuelve a intentarlo.");
+        return;
+      }
       const clave = claveDe(texto);
       if (!clave) {
         esperarLector("Eso no es el QR de acceso de POSPER. Escanea el QR de la pestaña QR POSPER.");
@@ -178,6 +190,7 @@
       }
       leyendo = true;
       captura.classList.add("is-hidden");
+      el("btn-entrar").classList.add("is-hidden");
       el("msg-error").classList.remove("show");
       el("titulo").textContent = "Entrando…";
       el("mensaje").textContent = "Abriendo la pestaña de POSPER en CONTECS 2026.";
@@ -188,31 +201,40 @@
       });
     }
 
+    // Algunos lectores mandan el Enter con key "Unidentified" pero keyCode 13.
     captura.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === "Tab") {
+      if (e.key === "Enter" || e.key === "Tab" || e.keyCode === 13) {
         e.preventDefault();
         terminarLectura();
       }
     });
-    captura.addEventListener("input", () => {
+    const programarFin = () => {
       clearTimeout(timer);
       timer = setTimeout(terminarLectura, SILENCIO_FIN_MS);
-    });
+    };
+    captura.addEventListener("input", programarFin);
+    captura.addEventListener("compositionend", programarFin);
+    captura.addEventListener("change", programarFin);
+    el("btn-entrar").addEventListener("click", () => terminarLectura(true));
     // Algunos servicios de escaneo escriben en el campo sin disparar eventos.
     setInterval(() => {
       if (captura.value.trim() && captura.value === ultimoValor) terminarLectura();
       ultimoValor = captura.value;
     }, SILENCIO_FIN_MS);
     // Tocar la pantalla devuelve el foco al campo.
-    document.addEventListener("pointerup", () => {
+    document.addEventListener("pointerup", (e) => {
+      if (e.target.closest("button")) return;
       if (!captura.classList.contains("is-hidden")) captura.focus({ preventScroll: true });
     });
 
     const claveLink = claveDe(window.location.hash);
     if (claveLink) {
+      // La clave no se deja en la barra de direcciones: si falla, la página
+      // queda lista para escanear de nuevo con el gatillo.
+      history.replaceState(null, "", window.location.pathname);
       entrar(claveLink).catch((e) => {
         console.error("[POSPER]", e);
-        mostrarError(textoDeError(e));
+        esperarLector(textoDeError(e));
       });
     } else {
       esperarLector();
