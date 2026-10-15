@@ -86,6 +86,17 @@
   from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.96); }
   to   { opacity: 1; transform: none; }
 }
+/* Movil (data-visto="uno"): cada tarjeta llega al aparecer (js/core/revelar.js
+   pone .is-visto y el escalon en --d). Si el observador no respondiera, la
+   tarjeta aparece igual a los 2.5 s. */
+.cx-modulos[data-visto="uno"] .cx-mod:not(.is-visto) {
+  opacity: 0;
+  animation: cx-mod-tarde 0s linear 2.5s forwards;
+}
+.cx-modulos[data-visto="uno"] .cx-mod.is-visto {
+  animation: cx-mod-llega 0.7s var(--cx-ease-expo) var(--d, 0ms) backwards;
+}
+@keyframes cx-mod-tarde { to { opacity: 1; } }
 
 /* ── Tarjeta: capa VISIBLE (inclinacion, brillo, elevacion) ── */
 .cx-mod__cara {
@@ -218,7 +229,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cx-modulos[data-visto] .cx-mod { animation: none; opacity: 1; }
+  .cx-modulos[data-visto] .cx-mod,
+  .cx-modulos[data-visto="uno"] .cx-mod:not(.is-visto) { animation: none; opacity: 1; }
   .cx-mod__cara, .cx-mod__icono, .cx-mod__ir { transition: none; }
   .cx-mod:hover .cx-mod__cara::before { animation: none; }
+}
+
+@media print {
+  .cx-modulos[data-visto] .cx-mod { opacity: 1 !important; animation: none !important; }
 }
