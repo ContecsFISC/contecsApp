@@ -11,7 +11,7 @@
 // En paginas publicas (fuera de /panel/) no hay secciones ni "Salir".
 // ═══════════════════════════════════════════════════════════════
 import { montarNavbar } from "./navbar.js?v=20261015.3";
-import { categoriasPara } from "./navegacion.js?v=20261015.3";
+import { CATEGORIAS, categoriasPara } from "./navegacion.js?v=20261015.3";
 
 const raizSitio = new URL("../../", import.meta.url);   // js/core/ -> raiz del sitio
 const panel = new URL("panel/", raizSitio);
@@ -45,6 +45,22 @@ if (cabecera && contenido) {
   };
   alinear();
   new ResizeObserver(alinear).observe(contenido);
+}
+
+// Antetitulo de la cabecera en movil (css/movil.css): la seccion del panel a
+// la que pertenece la pagina; si el modulo no esta en el menu, la de su carpeta.
+if (cabecera && enPanel) {
+  const ruta = location.pathname;
+  const carpeta = ruta.match(/\/modulos\/([^/]+)\//)?.[1];
+  const seccion =
+    CATEGORIAS.find(c => c.modulos.some(m => ruta.endsWith("/" + m.href))) ||
+    CATEGORIAS.find(c => c.id === carpeta);
+  if (seccion) cabecera.dataset.cxSeccion = seccion.label;
+}
+
+// Movil y tablet: tarjetas y filas entran en cascada al aparecer.
+if (matchMedia("(max-width: 1023.98px)").matches) {
+  import("./movil-paginas.js?v=20261015.4").then(m => m.iniciarMovilPaginas()).catch(() => {});
 }
 
 if (enPanel) {
