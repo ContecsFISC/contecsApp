@@ -1,0 +1,179 @@
+/* ===========================================================
+   CONTECS — Paginas de modulo en movil y tablet
+   El mismo idioma que el inicio movil (css/dashboard-movil.css):
+   cabecera Emerald tipo hero, tarjetas champagne con sombra en capas y
+   entrada en cascada al aparecer (js/core/movil-paginas.js).
+
+   Va justo despues de navbar.css y ANTES del <style> de cada pagina: lo que
+   una pagina define para si misma sigue mandando. Solo las reglas de la
+   cabecera llevan mas especificidad (body > .topbar) porque styles.css y
+   alguna pagina la achicaban para la barra vieja.
+   Requiere css/tokens.css. Solo se anima transform y opacity.
+   =========================================================== */
+
+@media (max-width: 1023.98px) {
+  /* ── CABECERA: el titulo de la pagina como hero Emerald ──
+     Mismos nodos, ids y listeners: solo cambia como se pinta. POSPER y su
+     randomizer conservan su cabecera de marca (noche + laser). */
+  body > .topbar:not(:has(.pp-h1)) {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    /* Alineada con el contenido: navbar-pagina.js copia el relleno del .container. */
+    width: calc(100% - var(--cabecera-pi, 12px) - var(--cabecera-pd, 12px));
+    max-width: calc(var(--cabecera-ancho, 680px) - var(--cabecera-pi, 12px) - var(--cabecera-pd, 12px));
+    /* El .container ya trae su relleno superior: abajo casi nada. */
+    margin: 12px auto 0;
+    padding: 16px 14px 24px 18px;
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--cx-champagne-100);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgb(255 214 165 / 0.32), transparent 48%),
+      radial-gradient(90% 80% at 0% 100%, rgb(2 31 23 / 0.55), transparent 62%),
+      linear-gradient(150deg, var(--cx-ink-600) 0%, var(--cx-ink) 50%, var(--cx-ink-900) 100%) !important;
+    box-shadow:
+      0 2px 6px rgb(3 46 35 / 0.16),
+      0 22px 44px -14px rgb(3 46 35 / 0.45),
+      inset 0 1px 0 rgb(255 255 255 / 0.10);
+    animation: cxp-llega 0.75s var(--cx-ease-expo) both;
+  }
+  /* Antetitulo: la seccion del panel (navbar-pagina.js pone data-cx-seccion).
+     Ocupa su linea desde el primer pintado, haya o no texto: nada salta. */
+  body > .topbar:not(:has(.pp-h1))::before {
+    content: attr(data-cx-seccion) "\200B";
+    order: -1;
+    flex: 0 0 100%;
+    display: block;
+    font: 700 11px/1.2 var(--cx-font-display);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cx-apricot);
+    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.08s both;
+  }
+  /* El filo apricot queda dentro del hero, bajo el titulo. */
+  body > .topbar:not(:has(.pp-h1))::after {
+    left: 18px;
+    bottom: 13px;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cx-apricot-400), var(--cx-apricot));
+  }
+  body > .topbar:not(:has(.pp-h1)) h1 {
+    flex: 1 1 55%;
+    min-width: 0;
+    font: 700 clamp(21px, 6.2vw, 27px)/1.15 var(--cx-font-display);
+    letter-spacing: -0.025em;
+    color: var(--cx-champagne-100);
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.14s both;
+  }
+  body > .topbar:not(:has(.pp-h1)) > :not(h1) {
+    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.2s both;
+  }
+  /* Volver: circulo de cristal sobre el verde. */
+  body > .topbar:not(:has(.pp-h1)) .btn-volver {
+    border-color: rgb(248 231 201 / 0.22);
+    background: rgb(248 231 201 / 0.12);
+    color: var(--cx-champagne-100);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.10);
+  }
+  body > .topbar:not(:has(.pp-h1)) .btn-volver:hover {
+    background: rgb(248 231 201 / 0.20);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.10);
+  }
+  /* Acciones de la cabecera ("Leer QR", "Mapa"...): pastillas apricot. */
+  body > .topbar:not(:has(.pp-h1)) .btn-qr-scan {
+    border-color: transparent;
+    background: var(--cx-apricot);
+    color: var(--cx-ink-900);
+    box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.45);
+  }
+  body > .topbar:not(:has(.pp-h1)) .btn-qr-scan:hover { background: var(--cx-champagne-100); }
+  body > .topbar:not(:has(.pp-h1)) .topbar-link { color: var(--cx-apricot); }
+  body > .topbar:not(:has(.pp-h1)) .btn-logout { background: var(--cx-apricot); color: var(--cx-ink-900); }
+
+  /* ── TARJETAS: la superficie del inicio movil ── */
+  .card {
+    border: 1px solid var(--cx-border);
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 10px 28px -10px rgb(3 46 35 / 0.16);
+  }
+  .card-title {
+    font-family: var(--cx-font-display);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--cx-ink);
+    border-bottom: 1px solid var(--cx-line);
+  }
+  .seccion-titulo {
+    font: 700 11px/1.2 var(--cx-font-display);
+    letter-spacing: 0.12em;
+    color: var(--cx-apricot-800);
+  }
+
+  /* ── CIFRAS: el numero manda (como las metricas del inicio) ── */
+  :is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) {
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 8px 22px -10px rgb(3 46 35 / 0.18), 0 0 0 1px var(--cx-line);
+  }
+  html :is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) :is(.num, .stat-num, .val, .fondos-stat-valor) {
+    font-family: var(--cx-font-display);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── TABLAS EN TARJETAS (.tabla-cards, por debajo de 600 px) ── */
+  .tabla-cards tbody tr {
+    border-color: var(--cx-border);
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 8px 22px -10px rgb(3 46 35 / 0.16);
+  }
+
+  /* ── ENTRADA AL APARECER ──
+     movil-paginas.js marca .cx-asoma solo en lo que esta por DEBAJO de la
+     pantalla (lo visible al cargar ya tiene su animacion de entrada), y
+     revelar.js pone .is-visto y el escalon --d cuando llega. Si el script no
+     respondiera, el bloque aparece igual a los 2.5 s. */
+  .cx-asoma:not(.is-visto) {
+    opacity: 0;
+    animation: cxp-tarde 0s linear 2.5s forwards;
+  }
+  .cx-asoma.is-visto {
+    animation: cxp-sube 0.7s var(--cx-ease-expo) var(--d, 0ms) backwards;
+  }
+}
+
+/* Tablet: la cabecera respira un poco mas. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  body > .topbar:not(:has(.pp-h1)) { padding: 20px 20px 28px 24px; border-radius: 26px; }
+  body > .topbar:not(:has(.pp-h1))::after { left: 24px; bottom: 15px; }
+}
+
+@keyframes cxp-llega {
+  from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cxp-sube {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cxp-tarde { to { opacity: 1; } }
+
+@media print {
+  .cx-asoma { opacity: 1 !important; animation: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body > .topbar,
+  body > .topbar::before,
+  body > .topbar > *,
+  .cx-asoma { animation: none !important; }
+  .cx-asoma { opacity: 1; }
+}

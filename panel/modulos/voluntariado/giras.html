@@ -15,6 +15,7 @@
  <link rel="stylesheet" href="../../../css/styles.css?v=20261015.3"/>
   <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.3"/>
   <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.3"/>
+  <link rel="stylesheet" href="../../../css/movil.css?v=20261015.4"/>
  <!-- xlsx.full.min.js (930 KB) NO se carga aqui: esta pagina no exporta hojas de
       calculo. Solo voluntarios.html y actividades.html lo necesitan. Cargarlo
       bloqueaba el primer render de la lista de giras, sobre todo en movil. -->
@@ -309,6 +310,8 @@
  .gp-estado.sin-motivo-badge { background:#fef3c7; color:#92400e; border:1px dashed #d97706; }
  @media(max-width:520px) {
  .gp-item { flex-direction:column; align-items:flex-start; gap:4px; }
+ /* El estado con su motivo puede ser largo: que baje de linea y no se salga. */
+ .gp-estado { max-width:100%; white-space:normal; overflow-wrap:anywhere; border-radius:10px; }
  }
  </style>
   <script type="speculationrules">
@@ -505,6 +508,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/voluntarios.js?v=20261014.1"></script>
-  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.3"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.4"></script>
 </body>
 </html>
