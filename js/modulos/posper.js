@@ -1,10 +1,10 @@
 // =============================================
-// CONTECS — POSPER (lector físico EA530)
+// CONTECS — POSPER (lectores físicos EA530, EDA52, EDA51-1, HT330, Memor 12)
 // =============================================
-// El EA530 trae un lector de QR que se dispara con un botón y "teclea" lo
-// que lee en el campo que tenga el foco (emulación de teclado). Esta página
-// mantiene un campo visible con foco permanente (con teclado: sin él la
-// lectura no llega en el EA530), junta lo que escribe el lector y lo procesa:
+// Los equipos de POSPER traen un lector de QR que se dispara con un botón y
+// "teclea" lo que lee en el campo que tenga el foco (emulación de teclado).
+// Esta página mantiene un campo visible con foco permanente (con teclado: sin
+// él la lectura no llega en el EA530), junta lo que escribe el lector y lo procesa:
 //
 //   1. QR de credencial -> marca la ENTRADA en el checkpoint elegido (misma
 //      operación del servidor que lecturaQR.js con cámara). Si ya estaba
@@ -44,6 +44,8 @@ const CLAVE_CONFIG = "posper.config";
 // Sin sufijo Enter, la lectura se da por terminada tras este silencio.
 const SILENCIO_FIN_MS = 600;
 const LONGITUD_MAX_LECTURA = 2048;
+// Equipos que entregó POSPER (solo para el diagnóstico: la lectura es la misma).
+const EQUIPOS_POSPER = /EA530|EDA52|EDA51(?:-\d+)?|HT330|Memor ?12/i;
 
 // config | qr | procesando | pregunta | rfid | anclando | prueba
 let estado = "config";
@@ -594,12 +596,12 @@ async function leerDispositivo() {
   ];
   el("diag-hardware").innerHTML = filas.map(([k, v]) => `<dt>${h(k)}</dt><dd>${h(String(v))}</dd>`).join("");
 
-  const esEa530 = /EA530/i.test(datos.modelo) || /EA530/i.test(ua);
+  const equipo = `${datos.modelo} ${ua}`.match(EQUIPOS_POSPER)?.[0]?.toUpperCase();
   const badge = el("diag-ea530");
-  badge.className = `diag-badge ${esEa530 ? "si" : "no"}`;
-  badge.textContent = esEa530
-    ? "EA530 detectado: usa el gatillo del lector"
-    : "No se detectó un EA530: sirve cualquier lector en modo teclado";
+  badge.className = `diag-badge ${equipo ? "si" : "no"}`;
+  badge.textContent = equipo
+    ? `${equipo} detectado: usa el gatillo del lector`
+    : "Equipo no reconocido: sirve cualquier lector en modo teclado";
 }
 
 window.addEventListener("online", leerDispositivo);
