@@ -9,9 +9,13 @@
 // La cédula es obligatoria: es lo que lleva el QR del voluntario y lo que
 // lee Lectura QR de voluntarios para marcar sus horas.
 
-import { ANIOS, CAMPUS, CARRERAS, FACULTADES, SIGLAS_FACULTAD } from "../core/catalogo-utp.js";
+import {
+  ANIOS_VALIDOS, CAMPUS, CARRERAS, FACULTAD_DE_CARRERA, FACULTADES,
+  normalizarAnio, normalizarCarrera, normalizarCentro, normalizarFacultad,
+} from "../core/catalogo-utp.js";
 import { esCorreoValido } from "../core/correos.js";
 import { cargarLibreria } from "../core/librerias.js";
+import { descargarPlantillaConListas } from "../core/plantilla-excel.js";
 import { leerArchivo, nombrePropio, separarNombreCompleto } from "./importar-participantes.js";
 
 export { leerArchivo };
@@ -104,52 +108,9 @@ export function grupoDe(texto) {
 }
 
 // ── CATÁLOGO UTP ───────────────────────────────────────────────────────────
-// Lleva lo escrito al texto exacto del catálogo (catalogo-utp.js): sin
-// importar tildes ni mayúsculas, y si no es igual, la única opción que lo
-// contiene ("Azuero" → "Centro Regional de Azuero"). Si no hay una sola
-// opción, devuelve el texto tal cual y revisarFilas lo avisa.
-const sinGrado = texto => normalizar(texto).replace(/^(licenciatura|lic|tecnico|tec) (en )?/, "");
-
-function delCatalogo(texto, lista, comparar = normalizar) {
-  const t = comparar(texto);
-  if (!t) return texto;
-  const exacta = lista.find(opcion => comparar(opcion) === t);
-  if (exacta) return exacta;
-  const contienen = lista.filter(opcion => ` ${comparar(opcion)} `.includes(` ${t} `));
-  return contienen.length === 1 ? contienen[0] : texto;
-}
-
-const TODAS_LAS_CARRERAS = Object.values(CARRERAS).flat();
-const FACULTAD_DE_CARRERA = new Map(Object.entries(CARRERAS).flatMap(([facultad, carreras]) => carreras.map(c => [c, facultad])));
-const ORDINALES = { primer: "1", primero: "1", segundo: "2", tercer: "3", tercero: "3", cuarto: "4", quinto: "5" };
-const ROMANOS = { i: "1", ii: "2", iii: "3", iv: "4", v: "5" };
-const ANIOS_VALIDOS = new Set(ANIOS.map(([valor]) => valor));
-
-export function normalizarCentro(texto) {
-  return delCatalogo(texto, CAMPUS);
-}
-
-export function normalizarFacultad(texto) {
-  return SIGLAS_FACULTAD[String(texto || "").trim().toUpperCase()] || delCatalogo(texto, FACULTADES);
-}
-
-// Busca primero entre las carreras de la facultad y, si no está, entre todas.
-export function normalizarCarrera(texto, facultad = "") {
-  const propia = delCatalogo(texto, CARRERAS[facultad] || [], sinGrado);
-  return CARRERAS[facultad]?.includes(propia) ? propia : delCatalogo(texto, TODAS_LAS_CARRERAS, sinGrado);
-}
-
-// "3", "3er año", "Tercer año", "III"… → "3"; "egresada" → "Egresado".
-export function normalizarAnio(texto) {
-  const t = normalizar(texto);
-  if (!t) return "";
-  if (/\begresad/.test(t)) return "Egresado";
-  const digito = t.match(/\b([1-5])(?:er|ro|do|to|o)?\b/);
-  if (digito) return digito[1];
-  const palabras = t.split(" ");
-  const ordinal = palabras.find(p => ORDINALES[p]);
-  return ordinal ? ORDINALES[ordinal] : ROMANOS[palabras[0]] || texto;
-}
+// Los normalizadores viven en catalogo-utp.js (los comparte la importación de
+// participantes); se reexportan para quien ya los tomaba de aquí.
+export { normalizarAnio, normalizarCarrera, normalizarCentro, normalizarFacultad };
 
 // `normalizarHorario` viene de voluntarios.js (Diurno / Vespertino / Nocturno).
 export function armarFilas(filas, filaEncabezado, columnas, {
@@ -270,81 +231,29 @@ const COLUMNAS_PLANTILLA = [
   { titulo: "Motivación", ancho: 40 },
   { titulo: "Grupo", ancho: 22, lista: "Grupos" },
 ];
-const FILAS_PLANTILLA = 1000;
-const letraColumna = n => (n > 26 ? letraColumna(Math.floor((n - 1) / 26)) : "") + String.fromCharCode(65 + ((n - 1) % 26));
 
-// Las opciones viven en la hoja oculta "Listas", cada columna con su nombre de
-// rango. La carrera usa Carreras_1…Carreras_6 según la posición de la facultad
-// elegida en su fila: solo ofrece las carreras de esa facultad.
-export async function descargarPlantilla() {
-  const ExcelJS = await cargarLibreria("ExcelJS", "exceljs.min.js");
-  const libro = new ExcelJS.Workbook();
-  const hoja = libro.addWorksheet("Voluntarios", { views: [{ state: "frozen", ySplit: 1 }] });
-  const ayuda = libro.addWorksheet("Instrucciones");
-  const listas = libro.addWorksheet("Listas", { state: "hidden" });
-
-  [
-    ["Centros", "Centro regional", CAMPUS],
-    ["Facultades", "Facultad", FACULTADES],
-    ["Anios", "Año que cursa", ANIOS.map(([, texto]) => texto)],
-    ["Horarios", "Horario de clases", [...HORARIOS_VALIDOS]],
-    ["Grupos", "Grupo", Object.values(GRUPOS)],
-    ...FACULTADES.map((facultad, i) => [`Carreras_${i + 1}`, facultad, CARRERAS[facultad]]),
-  ].forEach(([nombre, titulo, valores], i) => {
-    const letra = letraColumna(i + 1);
-    listas.getColumn(i + 1).values = [titulo, ...valores];
-    listas.getColumn(i + 1).width = Math.min(70, Math.max(16, ...valores.map(v => v.length + 2)));
-    listas.getCell(`${letra}1`).font = { bold: true };
-    libro.definedNames.add(`Listas!$${letra}$2:$${letra}$${valores.length + 1}`, nombre);
+// Listas desplegables y hoja de instrucciones: js/core/plantilla-excel.js.
+export function descargarPlantilla() {
+  return descargarPlantillaConListas({
+    hoja: "Voluntarios",
+    columnas: COLUMNAS_PLANTILLA,
+    listasExtra: [
+      ["Horarios", "Horario de clases", [...HORARIOS_VALIDOS]],
+      ["Grupos", "Grupo", Object.values(GRUPOS)],
+    ],
+    instrucciones: [
+      ["Nombre, Apellido", "Obligatorio el nombre. Escríbelos como aparecen en la cédula: con ellos se imprime la credencial."],
+      ["Cédula o pasaporte", "Obligatoria. Es lo que lleva el QR del voluntario para marcar sus horas."],
+      ["Correo, Teléfono / WhatsApp", "Opcionales, pero recomendados."],
+      ["Centro regional, Facultad", "Elige de la lista desplegable de la celda."],
+      ["Carrera", "Primero elige la facultad: la lista solo muestra las carreras de esa facultad."],
+      ["Año que cursa", "Elige de la lista: de Primer año a Quinto año, o Egresado."],
+      ["Horario de clases", "Diurno, Vespertino o Nocturno (para no asignarle turnos que choquen con sus clases)."],
+      ["Grupo", "Voluntario o Comité organizador. Si se deja vacío, se usa el que elijas al importar."],
+      ["", "No cambies los títulos de la primera fila. Si pegas datos de otro archivo, al importar se ajustan a las listas y verás un aviso en lo que no se reconozca."],
+    ],
+    archivo: "CONTECS_plantilla_voluntarios.xlsx",
   });
-
-  hoja.columns = COLUMNAS_PLANTILLA.map(c => ({ header: c.titulo, width: c.ancho, ...(c.texto ? { style: { numFmt: "@" } } : {}) }));
-  hoja.getRow(1).height = 22;
-  hoja.getRow(1).eachCell(celda => {
-    celda.font = { bold: true, color: { argb: "FFFFFFFF" } };
-    celda.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF00722E" } };
-    celda.alignment = { vertical: "middle" };
-  });
-  const letraFacultad = letraColumna(COLUMNAS_PLANTILLA.findIndex(c => c.lista === "Facultades") + 1);
-  COLUMNAS_PLANTILLA.forEach((c, i) => {
-    if (!c.lista) return;
-    const letra = letraColumna(i + 1);
-    const esCarrera = c.lista === "Carreras";
-    hoja.dataValidations.add(`${letra}2:${letra}${FILAS_PLANTILLA + 1}`, {
-      type: "list",
-      allowBlank: true,
-      formulae: [esCarrera ? `INDIRECT("Carreras_"&MATCH($${letraFacultad}2,Facultades,0))` : c.lista],
-      showErrorMessage: true,
-      errorStyle: "stop",
-      errorTitle: "Elige de la lista",
-      error: esCarrera ? "Primero elige la facultad y luego una de sus carreras." : `Elige una opción de la lista de ${c.titulo.toLowerCase()}.`,
-    });
-  });
-
-  ayuda.columns = [{ header: "Columna", width: 28 }, { header: "Qué escribir", width: 100 }];
-  ayuda.getRow(1).font = { bold: true };
-  ayuda.addRows([
-    ["Nombre, Apellido", "Obligatorio el nombre. Escríbelos como aparecen en la cédula: con ellos se imprime la credencial."],
-    ["Cédula o pasaporte", "Obligatoria. Es lo que lleva el QR del voluntario para marcar sus horas."],
-    ["Correo, Teléfono / WhatsApp", "Opcionales, pero recomendados."],
-    ["Centro regional, Facultad", "Elige de la lista desplegable de la celda."],
-    ["Carrera", "Primero elige la facultad: la lista solo muestra las carreras de esa facultad."],
-    ["Año que cursa", "Elige de la lista: de Primer año a Quinto año, o Egresado."],
-    ["Horario de clases", "Diurno, Vespertino o Nocturno (para no asignarle turnos que choquen con sus clases)."],
-    ["Grupo", "Voluntario o Comité organizador. Si se deja vacío, se usa el que elijas al importar."],
-    ["", "No cambies los títulos de la primera fila. Si pegas datos de otro archivo, al importar se ajustan a las listas y verás un aviso en lo que no se reconozca."],
-  ]);
-  ayuda.getColumn(2).alignment = { wrapText: true, vertical: "top" };
-
-  const buffer = await libro.xlsx.writeBuffer();
-  const url = URL.createObjectURL(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "CONTECS_plantilla_voluntarios.xlsx";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // Una fila por persona del archivo: importada o el motivo por el que no.

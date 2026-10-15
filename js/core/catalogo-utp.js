@@ -108,3 +108,61 @@ export const ANIOS = [
   ["1", "Primer año"], ["2", "Segundo año"], ["3", "Tercer año"],
   ["4", "Cuarto año"], ["5", "Quinto año"], ["Egresado", "Egresado"],
 ];
+
+// ── NORMALIZAR ─────────────────────────────────────────────────────────────
+// Lleva lo escrito al texto exacto del catálogo: sin importar tildes ni
+// mayúsculas, y si no es igual, la única opción que lo contiene ("Azuero" →
+// "Centro Regional de Azuero"). Si no hay una sola opción, devuelve el texto
+// tal cual y quien importa lo avisa. Lo usan la importación de voluntarios y
+// la de participantes, y la normalización de los participantes inscritos.
+const normalizar = texto => String(texto || "")
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const sinGrado = texto => normalizar(texto).replace(/^(licenciatura|lic|tecnico|tec) (en )?/, "");
+
+function delCatalogo(texto, lista, comparar = normalizar) {
+  const t = comparar(texto);
+  if (!t) return texto;
+  const exacta = lista.find(opcion => comparar(opcion) === t);
+  if (exacta) return exacta;
+  const contienen = lista.filter(opcion => ` ${comparar(opcion)} `.includes(` ${t} `));
+  return contienen.length === 1 ? contienen[0] : texto;
+}
+
+export const TODAS_LAS_CARRERAS = Object.values(CARRERAS).flat();
+export const FACULTAD_DE_CARRERA = new Map(Object.entries(CARRERAS).flatMap(([facultad, carreras]) => carreras.map(c => [c, facultad])));
+export const ANIOS_VALIDOS = new Set(ANIOS.map(([valor]) => valor));
+const ORDINALES = { primer: "1", primero: "1", segundo: "2", tercer: "3", tercero: "3", cuarto: "4", quinto: "5" };
+const ROMANOS = { i: "1", ii: "2", iii: "3", iv: "4", v: "5" };
+
+export function normalizarCentro(texto) {
+  return delCatalogo(texto, CAMPUS);
+}
+
+export function normalizarFacultad(texto) {
+  return SIGLAS_FACULTAD[String(texto || "").trim().toUpperCase()] || delCatalogo(texto, FACULTADES);
+}
+
+// Busca primero entre las carreras de la facultad y, si no está, entre todas.
+export function normalizarCarrera(texto, facultad = "") {
+  const propia = delCatalogo(texto, CARRERAS[facultad] || [], sinGrado);
+  return CARRERAS[facultad]?.includes(propia) ? propia : delCatalogo(texto, TODAS_LAS_CARRERAS, sinGrado);
+}
+
+// "3", "3er año", "Tercer año", "III"… → "3"; "egresada" → "Egresado".
+export function normalizarAnio(texto) {
+  const t = normalizar(texto);
+  if (!t) return "";
+  if (/\begresad/.test(t)) return "Egresado";
+  const digito = t.match(/\b([1-5])(?:er|ro|do|to|o)?\b/);
+  if (digito) return digito[1];
+  const palabras = t.split(" ");
+  const ordinal = palabras.find(p => ORDINALES[p]);
+  return ordinal ? ORDINALES[ordinal] : ROMANOS[palabras[0]] || texto;
+}
+
+// "3" → "Tercer año"; lo que no es del catálogo, tal cual.
+export function textoAnio(valor) {
+  return ANIOS.find(([v]) => v === valor)?.[1] || valor || "";
+}

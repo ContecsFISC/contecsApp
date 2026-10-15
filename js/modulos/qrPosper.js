@@ -54,6 +54,9 @@ btnRegenerar.addEventListener("click", async () => {
   } catch (error) {
     console.error("[QR POSPER] Regenerar link:", error);
     estado.textContent = "No se pudo generar el link nuevo. Intenta de nuevo.";
+    // La clave pudo cambiar aunque la respuesta fallara: se vuelve a pintar la
+    // vigente para que el QR en pantalla no quede viejo.
+    await pintar(false).catch(e => console.error("[QR POSPER] Releer link:", e));
   } finally {
     btnRegenerar.disabled = false;
   }

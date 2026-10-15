@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T18:20:05.810625+00:00**
+- Generado: **2026-10-15T18:49:12.617140+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `ad46d0f0161ad07c…`
-- Archivos analizados: **257**
-- Relaciones internas tipadas: **1130**
-- Símbolos detectados: **6492**
-- Llamadas detectadas: **14107**
-- IDs DOM definidos: **1168**
+- Huella del proyecto: `cd5fb0b5f201e702…`
+- Archivos analizados: **259**
+- Relaciones internas tipadas: **1152**
+- Símbolos detectados: **6530**
+- Llamadas detectadas: **14205**
+- IDs DOM definidos: **1180**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **28**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**18,930 tokens** · leer primero
-- `GraphCompleto.json` — ~**89,988 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**158,816 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
+- `GraphCompacto.json` — ~**19,358 tokens** · leer primero
+- `GraphCompleto.json` — ~**91,625 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**161,226 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.0%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,8 +35,8 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 365.7 (conexiones: 181, 369 lineas)
-- `panel/dashboard.html` — riesgo 138.9 (conexiones: 62, 1495 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 116.6 (conexiones: 47, 2256 lineas)
+- `panel/dashboard.html` — riesgo 139.0 (conexiones: 62, 1498 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 126.2 (conexiones: 51, 2423 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
 - `manifest.json` — riesgo 92.3 (conexiones: 46, 34 lineas)
@@ -55,7 +55,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `js/core/auth.js` — grado 181 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
 - `panel/dashboard.html` — grado 62 | exporta: (sin exports detectados)
 - `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
-- `panel/modulos/congreso/modulos_participantes.html` — grado 47 | exporta: (sin exports detectados)
+- `panel/modulos/congreso/modulos_participantes.html` — grado 51 | exporta: (sin exports detectados)
 - `apple-touch-icon.png` — grado 46 | exporta: (sin exports detectados)
 - `favicon.ico` — grado 46 | exporta: (sin exports detectados)
 - `manifest.json` — grado 46 | exporta: (sin exports detectados)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -412,7 +412,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `limites_registro` — regla explícita · 0 operaciones detectadas
 - `mermas` — regla explícita · 3 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 7 operaciones detectadas
+- `participantes` — regla explícita · 9 operaciones detectadas
 - `productos` — regla explícita · 19 operaciones detectadas
 - `publico` — regla explícita · 0 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
@@ -426,8 +426,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 363
-- `imports`: 309
+- `calls_imported_symbol`: 377
+- `imports`: 317
 - `loads_asset`: 164
 - `loads_stylesheet`: 147
 - `loads_script`: 79
@@ -460,7 +460,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 37 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 16 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 22 archivo(s)
+- `node:assert/strict` — usado en 23 archivo(s)
 - `node:crypto` — usado en 1 archivo(s)
 - `node:module` — usado en 3 archivo(s)
 - `path` — usado en 2 archivo(s)

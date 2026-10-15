@@ -79,6 +79,9 @@ export const PERMISOS = {
   // Debe reflejar ROLES_ELIMINAR_PARTICIPANTES en functions/eliminaciones.js.
   eliminar_participantes: ["ceo", "junta_principal"],
   exportar_participantes: ["ceo", "junta_principal"],
+  // Llevar centro, facultad, carrera y año de los inscritos al catálogo UTP
+  // (js/core/catalogo-utp.js). Solo cambia esos datos de camposExtra.
+  normalizar_participantes: ["ceo"],
   // Las credenciales llevan el QR con el token de acceso de cada participante
   // (la clave de su perfil), por eso van con los mismos roles que exportar.
   imprimir_credenciales:  ["ceo", "junta_principal"],

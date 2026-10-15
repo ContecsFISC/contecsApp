@@ -7,8 +7,13 @@
 // lista y se avisa de lo que el servidor va a rechazar, para verlo antes de
 // enviar. El servidor vuelve a validar todo.
 
+import {
+  ANIOS_VALIDOS, CAMPUS, CARRERAS, FACULTAD_DE_CARRERA, FACULTADES,
+  normalizarAnio, normalizarCarrera, normalizarCentro, normalizarFacultad,
+} from "../core/catalogo-utp.js";
 import { esCorreoValido } from "../core/correos.js";
 import { cargarLibreria } from "../core/librerias.js";
+import { descargarPlantillaConListas } from "../core/plantilla-excel.js";
 
 // Debe coincidir con CATEGORIAS_IMPORTABLES y los precios de
 // CATEGORIAS_REGISTRO en functions/registro.js. "colegio" no se importa:
@@ -138,6 +143,56 @@ export async function leerArchivo(archivo) {
   }).filter(hoja => hoja.filas.some(fila => fila.some(Boolean)));
 }
 
+// ── CATÁLOGO UTP ───────────────────────────────────────────────────────────
+// Centro regional, facultad, carrera y año con el mismo texto que voluntarios
+// (js/core/catalogo-utp.js). El año va en todas las categorías ("1"…"5" o
+// "Egresado"); centro, facultad y carrera solo en las de la UTP: la carrera
+// de un estudiante externo no es del catálogo UTP y se deja como viene.
+export const CATEGORIAS_UTP = new Set(["estudiante_utp", "academico_utp"]);
+
+// Académico UTP puede elegir esta unidad en registro.html, además de las facultades.
+export const ADMINISTRACION_CENTRAL = "Administración Central";
+
+const recortar = texto => String(texto ?? "").trim();
+
+// Devuelve solo los campos que cambian: { campo: valorNuevo }. No toca nada
+// más del participante (código, token del QR, pago, asistencias…).
+export function normalizarDatosUtp(camposExtra, categoria) {
+  const ex = camposExtra || {};
+  const nuevo = {};
+  if (recortar(ex.anio)) nuevo.anio = normalizarAnio(recortar(ex.anio));
+  if (CATEGORIAS_UTP.has(categoria)) {
+    if (recortar(ex.centro)) nuevo.centro = normalizarCentro(recortar(ex.centro));
+    let facultad = recortar(ex.facultad);
+    if (facultad) {
+      facultad = normalizar(facultad) === normalizar(ADMINISTRACION_CENTRAL) ? ADMINISTRACION_CENTRAL : normalizarFacultad(facultad);
+      nuevo.facultad = facultad;
+    }
+    if (recortar(ex.carrera)) {
+      nuevo.carrera = normalizarCarrera(recortar(ex.carrera), facultad);
+      if (!facultad && FACULTAD_DE_CARRERA.has(nuevo.carrera)) nuevo.facultad = FACULTAD_DE_CARRERA.get(nuevo.carrera);
+    }
+  }
+  return Object.fromEntries(Object.entries(nuevo).filter(([campo, valor]) => valor !== ex[campo]));
+}
+
+// Lo que quedó fuera del catálogo después de normalizar: se guarda tal cual.
+export function avisosDatosUtp(camposExtra, categoria) {
+  const ex = camposExtra || {};
+  const avisos = [];
+  if (ex.anio && !ANIOS_VALIDOS.has(ex.anio)) avisos.push(`Año "${ex.anio}" no reconocido`);
+  if (!CATEGORIAS_UTP.has(categoria)) return avisos;
+  if (ex.centro && !CAMPUS.includes(ex.centro)) avisos.push(`Centro regional "${ex.centro}" no reconocido`);
+  if (ex.facultad && ex.facultad !== ADMINISTRACION_CENTRAL && !FACULTADES.includes(ex.facultad)) {
+    avisos.push(`Facultad "${ex.facultad}" no reconocida`);
+  }
+  if (ex.carrera && !FACULTAD_DE_CARRERA.has(ex.carrera)) avisos.push(`Carrera "${ex.carrera}" no reconocida`);
+  else if (ex.carrera && CARRERAS[ex.facultad] && !CARRERAS[ex.facultad].includes(ex.carrera)) {
+    avisos.push(`La carrera "${ex.carrera}" no es de la ${ex.facultad}`);
+  }
+  return avisos;
+}
+
 // ── FILAS ──────────────────────────────────────────────────────────────────
 const PARTICULAS = new Set(["de", "del", "la", "las", "los", "y", "da", "van", "von"]);
 
@@ -179,7 +234,8 @@ export function separarNombreCompleto(texto) {
 
 // Convierte las filas de datos (las que van después del encabezado) en las
 // filas que entiende el servidor. `fila` es el número de fila en Excel.
-export function armarFilas(filas, filaEncabezado, columnas, { corregirMayusculas = true, primeraFila = 1 } = {}) {
+// `categoria` (la del lote) decide qué datos de la UTP se normalizan.
+export function armarFilas(filas, filaEncabezado, columnas, { corregirMayusculas = true, primeraFila = 1, categoria = "" } = {}) {
   const ajustar = texto => (corregirMayusculas ? nombrePropio(texto) : texto);
   const tiene = destino => columnas.includes(destino);
   return filas.slice(filaEncabezado + 1).flatMap((celdas, i) => {
@@ -201,6 +257,7 @@ export function armarFilas(filas, filaEncabezado, columnas, { corregirMayusculas
       const texto = valor(clave);
       if (texto) camposExtra[clave] = clave === "correo-inst" ? texto.toLowerCase() : texto;
     });
+    Object.assign(camposExtra, normalizarDatosUtp(camposExtra, categoria));
     return [{
       fila: primeraFila + filaEncabezado + i + 1,
       nombre: ajustar(nombre),
@@ -209,6 +266,7 @@ export function armarFilas(filas, filaEncabezado, columnas, { corregirMayusculas
       correo: valor("correo").toLowerCase(),
       telefono: valor("telefono"),
       camposExtra,
+      categoria,
     }];
   });
 }
@@ -245,6 +303,7 @@ export function revisarFilas(filas, inscritos) {
     if (!f.cedula) avisos.push("Sin cédula");
     if (!f.correo) avisos.push("Sin correo: no recibirá el correo de aprobación");
     if (!f.telefono) avisos.push("Sin teléfono");
+    avisosDatosUtp(f.camposExtra, f.categoria).forEach(aviso => avisos.push(`${aviso}: se guarda tal cual`));
     const estado = errores.length ? "error" : avisos.length ? "aviso" : "ok";
     return { ...f, estado, notas: errores.length ? errores : avisos };
   });
@@ -256,18 +315,40 @@ export function filaParaServidor({ fila, nombre, apellido, cedula, correo, telef
 }
 
 // ── EXCEL ──────────────────────────────────────────────────────────────────
+// Centro, facultad, carrera y año con las listas del catálogo UTP, como la
+// plantilla de voluntarios (js/core/plantilla-excel.js). Facultad y carrera
+// aceptan otro texto con un aviso: la de un estudiante externo no está en la
+// lista. detectarColumnas reconoce todos los títulos.
 const COLUMNAS_PLANTILLA = [
-  "Nombre", "Apellido", "Cédula", "Correo", "Correo institucional", "Teléfono",
-  "Centro regional", "Facultad", "Carrera", "Año que cursa", "Universidad / institución",
+  { titulo: "Nombre", ancho: 18 },
+  { titulo: "Apellido", ancho: 18 },
+  { titulo: "Cédula", ancho: 18, texto: true },
+  { titulo: "Correo", ancho: 28 },
+  { titulo: "Correo institucional", ancho: 28 },
+  { titulo: "Teléfono", ancho: 16, texto: true },
+  { titulo: "Centro regional", ancho: 42, lista: "Centros" },
+  { titulo: "Facultad", ancho: 48, lista: "Facultades", libre: true },
+  { titulo: "Carrera", ancho: 62, lista: "Carreras", libre: true },
+  { titulo: "Año que cursa", ancho: 16, lista: "Anios" },
+  { titulo: "Universidad / institución", ancho: 30 },
 ];
 
-export async function descargarPlantilla() {
-  const XLSX = await cargarLibreria("XLSX", "xlsx.full.min.js");
-  const hoja = XLSX.utils.aoa_to_sheet([COLUMNAS_PLANTILLA]);
-  hoja["!cols"] = COLUMNAS_PLANTILLA.map(c => ({ wch: Math.max(14, c.length + 6) }));
-  const libro = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(libro, hoja, "Participantes");
-  XLSX.writeFile(libro, "CONTECS_plantilla_participantes.xlsx");
+export function descargarPlantilla() {
+  return descargarPlantillaConListas({
+    hoja: "Participantes",
+    columnas: COLUMNAS_PLANTILLA,
+    instrucciones: [
+      ["Nombre, Apellido", "Obligatorio el nombre. Escríbelos como aparecen en la cédula: con ellos se imprime la credencial."],
+      ["Cédula, Correo", "Al menos uno de los dos. Sin correo, la persona no recibe el correo con su QR."],
+      ["Correo institucional, Teléfono", "Opcionales, pero recomendados."],
+      ["Centro regional", "Elige de la lista desplegable de la celda."],
+      ["Facultad, Carrera", "Primero elige la facultad: la lista de carreras solo muestra las de esa facultad. Para un estudiante externo, escribe su carrera (Excel avisa, pero se puede dejar)."],
+      ["Año que cursa", "Elige de la lista: de Primer año a Quinto año, o Egresado."],
+      ["Universidad / institución", "Solo para externos."],
+      ["", "No cambies los títulos de la primera fila. Si pegas datos de otro archivo, al importar se ajustan a las listas y verás un aviso en lo que no se reconozca."],
+    ],
+    archivo: "CONTECS_plantilla_participantes.xlsx",
+  });
 }
 
 // Una fila por persona de la lista: con su código si entró, o el motivo.

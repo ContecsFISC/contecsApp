@@ -761,6 +761,9 @@
         } catch (error) {
           console.error("[Dashboard] Regenerar link de POSPER:", error);
           estado.textContent = "No se pudo generar el link nuevo. Intenta de nuevo.";
+          // La clave pudo cambiar aunque la respuesta fallara: se vuelve a pintar
+          // la vigente para que el QR en pantalla no quede viejo.
+          await pintar(false).catch(e => console.error("[Dashboard] Releer link de POSPER:", e));
         } finally {
           btnRegenerar.disabled = false;
         }

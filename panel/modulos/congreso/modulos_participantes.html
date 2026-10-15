@@ -567,6 +567,11 @@
  .mi-comunes summary { font-size: 13px; font-weight: 700; color: var(--verde-oscuro); cursor: pointer; }
  .mi-comunes-grid { display: grid; gap: 8px; margin-top: 10px; }
  .mi-comunes-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--gris-texto); }
+ .mi-comunes-grid select:disabled { opacity: 0.6; }
+ /* ── MODAL NORMALIZAR DATOS ── */
+ .mn-cambio { white-space: nowrap; }
+ .mn-antes { color: var(--gris-medio); text-decoration: line-through; }
+ .mn-despues { color: var(--verde-oscuro); font-weight: 700; }
  .mi-columnas { display: flex; flex-direction: column; gap: 6px; }
  .mi-columna {
  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center;
@@ -717,6 +722,7 @@
  <button class="btn btn-outline" id="btn-exportar" style="display:none;">Exportar Excel</button>
  <button class="btn btn-outline" id="btn-credenciales" style="display:none;">Imprimir credenciales</button>
  <button class="btn btn-outline" id="btn-importar" style="display:none;">Importar participantes</button>
+ <button class="btn btn-outline" id="btn-normalizar" style="display:none;">Normalizar datos UTP</button>
  </div>
  </div>
  <div class="tabla-overflow">
@@ -903,6 +909,36 @@
  </div>
 </div>
 
+<!-- MODAL NORMALIZAR DATOS UTP -->
+<div class="modal-amplio-fondo" id="modal-norm" hidden>
+ <div class="modal-amplio" role="dialog" aria-modal="true" aria-labelledby="mn-titulo">
+ <div class="ma-header">
+ <div>
+ <h2 id="mn-titulo">Normalizar datos UTP</h2>
+ <div class="ma-sub">Lleva centro regional, facultad, carrera y año que cursa de los inscritos al mismo formato que voluntarios. Solo cambian esos datos: el código, el QR, el pago y las asistencias quedan igual.</div>
+ </div>
+ <button class="bs-cerrar" type="button" id="mn-cerrar" aria-label="Cerrar">&times;</button>
+ </div>
+ <div class="mi-paso" id="mn-cuerpo">
+ <div id="mn-resumen">Revisando participantes…</div>
+ <div class="mi-tabla-wrap">
+ <table class="mi-tabla">
+ <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Cambios</th><th>Sin reconocer (queda igual)</th></tr></thead>
+ <tbody id="mn-filas"></tbody>
+ </table>
+ </div>
+ <div class="ma-progreso" id="mn-progreso" hidden>
+ <div class="ma-barra"><span id="mn-barra"></span></div>
+ <span class="ma-progreso-txt" id="mn-progreso-txt"></span>
+ </div>
+ </div>
+ <div class="ma-footer">
+ <button type="button" class="btn-grande me-cancelar" id="mn-cancelar">Cerrar</button>
+ <button type="button" class="btn-grande btn-aprobar-grande" id="mn-aplicar" disabled>Aplicar</button>
+ </div>
+ </div>
+</div>
+
 <!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="cerrarSheet()"></div>
 
@@ -929,9 +965,11 @@ import {
 import {
  CATEGORIAS_IMPORTABLES, CAMPOS, CAMPOS_COMUNES, FILAS_POR_LLAMADA, leerArchivo, detectarEncabezado,
  detectarColumnas, armarFilas, revisarFilas, filaParaServidor, descargarPlantilla, descargarResultado,
+ ADMINISTRACION_CENTRAL, normalizarDatosUtp, avisosDatosUtp,
 } from "../../../js/modulos/importar-participantes.js";
+import { ANIOS, CAMPUS, CARRERAS, FACULTADES, textoAnio } from "../../../js/core/catalogo-utp.js";
 import {
- collection, getDocs, doc, updateDoc, getDoc,
+ collection, getDocs, doc, updateDoc, getDoc, writeBatch,
  query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
@@ -1642,7 +1680,7 @@ el("btn-exportar").addEventListener("click", async () => {
  fechaRegistro: aFecha(p.fechaRegistro),
  };
  CAMPOS_EXTRA_EXCEL.forEach(([k]) => {
- fila[`ex_${k}`] = (k === "correo-inst" ? (ex[k] || ex.correoInst) : ex[k]) || "";
+ fila[`ex_${k}`] = (k === "correo-inst" ? (ex[k] || ex.correoInst) : k === "anio" ? textoAnio(ex[k]) : ex[k]) || "";
  });
  extrasNuevos.forEach(k => { fila[`ex_${k}`] = ex[k] ?? ""; });
  ws.addRow(fila);
@@ -1944,8 +1982,27 @@ const imp = { hojas: [], hoja: 0, encabezado: 0, columnas: [], filas: [], exclui
 
 el("mi-categoria").innerHTML = CATEGORIAS_IMPORTABLES
  .map(c => `<option value="${c.clave}">${h(c.nombre)}</option>`).join("");
+// Centro, facultad, carrera y año: listas del catálogo UTP, como en voluntarios.
+// La carrera solo ofrece las de la facultad elegida.
+const opcionesComun = (lista, texto = "— Sin dato común —") =>
+ `<option value="">${texto}</option>` + lista.map(([valor, etiqueta]) => `<option value="${escaparAtributo(valor)}">${h(etiqueta)}</option>`).join("");
+const LISTAS_COMUNES = {
+ centro: CAMPUS.map(v => [v, v]),
+ facultad: [...FACULTADES, ADMINISTRACION_CENTRAL].map(v => [v, v]),
+ anio: ANIOS,
+};
 el("mi-comunes").innerHTML = CAMPOS_COMUNES
- .map(c => `<label>${h(c.etiqueta)}<input type="text" class="ma-input" data-comun="${c.clave}" maxlength="200"/></label>`).join("");
+ .map(c => c.clave === "carrera"
+ ? `<label>${h(c.etiqueta)}<select class="ma-select" data-comun="carrera" disabled>${opcionesComun([], "Primero elige la facultad")}</select></label>`
+ : LISTAS_COMUNES[c.clave]
+ ? `<label>${h(c.etiqueta)}<select class="ma-select" data-comun="${c.clave}">${opcionesComun(LISTAS_COMUNES[c.clave])}</select></label>`
+ : `<label>${h(c.etiqueta)}<input type="text" class="ma-input" data-comun="${c.clave}" maxlength="200"/></label>`).join("");
+el("mi-comunes").querySelector('[data-comun="facultad"]').addEventListener("change", e => {
+ const carreras = CARRERAS[e.target.value];
+ const carrera = el("mi-comunes").querySelector('[data-comun="carrera"]');
+ carrera.innerHTML = carreras ? opcionesComun(carreras.map(v => [v, v])) : opcionesComun([], "Primero elige la facultad");
+ carrera.disabled = !carreras;
+});
 
 function pasoImp(paso) {
  el("mi-paso-archivo").hidden = paso !== "archivo";
@@ -2048,6 +2105,7 @@ function revisarImp() {
  const filas = armarFilas(hoja.filas, imp.encabezado, imp.columnas, {
  corregirMayusculas: el("mi-mayusculas").checked,
  primeraFila: hoja.primeraFila,
+ categoria: el("mi-categoria").value,
  });
  imp.filas = revisarFilas(filas, inscritosImp());
  renderFilasImp();
@@ -2235,7 +2293,11 @@ el("mi-columnas").addEventListener("change", e => {
  revisarImp();
 });
 el("mi-mayusculas").addEventListener("change", revisarImp);
-el("mi-categoria").addEventListener("change", mostrarPrecioImp);
+el("mi-categoria").addEventListener("change", () => {
+ mostrarPrecioImp();
+ // La categoría decide qué datos UTP se normalizan en las filas.
+ if (imp.hojas.length) revisarImp();
+});
 el("mi-filas").addEventListener("change", e => {
  const fila = Number(e.target.dataset.fila);
  if (!fila) return;
@@ -2246,6 +2308,111 @@ el("mi-filas").addEventListener("change", e => {
 });
 
 if (usuarioTienePermiso("importar_participantes")) el("btn-importar").style.display = "";
+
+// ── NORMALIZAR DATOS UTP DE LOS INSCRITOS ─────────────────────────────────
+// Misma regla que la importación (normalizarDatosUtp en
+// importar-participantes.js). Se escribe campo por campo
+// ("camposExtra.centro"…): el resto del documento (código, token del QR,
+// pago, asistencias, RFID) no se toca, y como el estado del pago no cambia
+// no se reenvía ningún correo.
+const norm = { cambios: [], tarea: false };
+const CAMPOS_NORM = { centro: "Centro", facultad: "Facultad", carrera: "Carrera", anio: "Año" };
+const LOTE_NORM = 200;
+
+async function abrirNormalizar() {
+ if (!usuarioTienePermiso("normalizar_participantes")) return;
+ norm.cambios = [];
+ el("mn-resumen").textContent = "Revisando participantes…";
+ el("mn-filas").innerHTML = "";
+ el("mn-progreso").hidden = true;
+ el("mn-aplicar").disabled = true;
+ el("mn-aplicar").textContent = "Aplicar";
+ el("modal-norm").hidden = false;
+ try {
+ // Todos, también los que no tienen fecha de registro (orderBy los dejaría fuera).
+ const snap = await getDocs(collection(fireDb, "participantes"));
+ const revisados = snap.docs.map(d => {
+ const p = d.data();
+ const cambios = normalizarDatosUtp(p.camposExtra, p.categoria);
+ return { id: d.id, p, cambios, avisos: avisosDatosUtp({ ...(p.camposExtra || {}), ...cambios }, p.categoria) };
+ });
+ norm.cambios = revisados.filter(r => Object.keys(r.cambios).length);
+ const sinReconocer = revisados.filter(r => r.avisos.length).length;
+ const mostrar = revisados.filter(r => Object.keys(r.cambios).length || r.avisos.length);
+ el("mn-resumen").innerHTML = `<div class="mi-chips">
+ <span class="mi-chip ok">${norm.cambios.length} con cambios</span>
+ <span class="mi-chip aviso">${sinReconocer} con datos sin reconocer (quedan igual)</span>
+ <span class="mi-chip">${revisados.length} revisados</span>
+ </div>`;
+ el("mn-filas").innerHTML = mostrar.length
+ ? mostrar.map(({ p, cambios, avisos }) => `<tr>
+ <td style="white-space:nowrap;">${h(p.codigo || "—")}</td>
+ <td>${h([p.nombre, p.apellido].filter(Boolean).join(" ") || p.nombreCompleto || "—")}</td>
+ <td style="white-space:nowrap;">${h(p.categoriaNombre || CATEGORIA_LABELS[p.categoria] || p.categoria || "—")}</td>
+ <td>${Object.entries(cambios).map(([campo, valor]) => `<div class="mn-cambio">${h(CAMPOS_NORM[campo])}: <span class="mn-antes">${h(p.camposExtra?.[campo] || "")}</span> → <span class="mn-despues">${h(campo === "anio" ? textoAnio(valor) : valor)}</span></div>`).join("") || "—"}</td>
+ <td class="mi-notas">${h(avisos.join(" · ") || "—")}</td>
+ </tr>`).join("")
+ : `<tr><td colspan="5"><div class="empty-state"><div class="es-txt">Todos los datos ya están en el formato del catálogo.</div></div></td></tr>`;
+ el("mn-aplicar").disabled = !norm.cambios.length;
+ el("mn-aplicar").textContent = `Aplicar a ${norm.cambios.length} participante${norm.cambios.length !== 1 ? "s" : ""}`;
+ } catch (err) {
+ console.error("[Normalizar participantes]", err);
+ el("mn-resumen").innerHTML = `<div class="ma-error">No se pudieron leer los participantes: ${h(err.message)}</div>`;
+ }
+}
+
+async function aplicarNormalizar() {
+ if (!norm.cambios.length || norm.tarea || !usuarioTienePermiso("normalizar_participantes")) return;
+ const total = norm.cambios.length;
+ if (!confirm(`Se actualizarán centro, facultad, carrera y año de ${total} participante${total !== 1 ? "s" : ""}. El resto de sus datos y su QR no cambian. ¿Continuar?`)) return;
+ norm.tarea = true;
+ el("mn-aplicar").disabled = true;
+ el("mn-cancelar").disabled = true;
+ el("mn-progreso").hidden = false;
+ let hechos = 0;
+ const avance = () => {
+ el("mn-barra").style.width = `${Math.round(hechos / total * 100)}%`;
+ el("mn-progreso-txt").textContent = `Actualizando ${hechos} de ${total}…`;
+ };
+ avance();
+ try {
+ for (let i = 0; i < total; i += LOTE_NORM) {
+ const lote = writeBatch(fireDb);
+ norm.cambios.slice(i, i + LOTE_NORM).forEach(({ id, cambios }) => {
+ lote.update(doc(fireDb, "participantes", id),
+ Object.fromEntries(Object.entries(cambios).map(([campo, valor]) => [`camposExtra.${campo}`, valor])));
+ });
+ await lote.commit();
+ hechos = Math.min(total, i + LOTE_NORM);
+ avance();
+ }
+ el("mn-progreso-txt").textContent = `Listo: ${total} participante${total !== 1 ? "s" : ""} actualizado${total !== 1 ? "s" : ""}.`;
+ norm.cambios = [];
+ el("mn-aplicar").textContent = "Aplicado";
+ await cargar();
+ } catch (err) {
+ console.error("[Normalizar participantes]", err);
+ el("mn-progreso-txt").textContent = `Se actualizaron ${hechos} de ${total}. Error: ${err.message}. Vuelve a abrir "Normalizar datos UTP" para seguir con el resto.`;
+ } finally {
+ norm.tarea = false;
+ el("mn-cancelar").disabled = false;
+ }
+}
+
+function cerrarNormalizar() {
+ if (norm.tarea) return;
+ el("modal-norm").hidden = true;
+}
+
+el("btn-normalizar").addEventListener("click", abrirNormalizar);
+el("mn-aplicar").addEventListener("click", aplicarNormalizar);
+el("mn-cerrar").addEventListener("click", cerrarNormalizar);
+el("mn-cancelar").addEventListener("click", cerrarNormalizar);
+el("modal-norm").addEventListener("click", e => { if (e.target === el("modal-norm")) cerrarNormalizar(); });
+document.addEventListener("keydown", e => {
+ if (e.key === "Escape" && !el("modal-norm").hidden) cerrarNormalizar();
+});
+if (usuarioTienePermiso("normalizar_participantes")) el("btn-normalizar").style.display = "";
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();

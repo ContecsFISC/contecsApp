@@ -576,31 +576,20 @@ const BACHILLERES = [
  "Otro",
 ];
 
-const CAMPUS = [
- "Campus Central Dr. Victor Levi Sasso (Panama)",
- "Centro Regional de Azuero", "Centro Regional de Bocas del Toro",
- "Centro Regional de Chiriqui", "Centro Regional de Cocle",
- "Centro Regional de Colon", "Centro Regional de Panama Oeste",
- "Centro Regional de Veraguas",
-];
-const FACULTADES = [
- "Facultad de Ingenieria de Sistemas Computacionales",
- "Facultad de Ciencias y Tecnologia", "Facultad de Ingenieria Civil",
- "Facultad de Ingenieria Electrica", "Facultad de Ingenieria Industrial",
- "Facultad de Ingenieria Mecanica",
-];
-const SEMESTRES = [
- "1er año",
- "2do año",
- "3er año",
- "4to año",
- "5to año",
-];
+// Centro regional, facultad, carrera y año: el catálogo UTP de
+// js/core/catalogo-utp.js, el mismo del registro de voluntarios y de la
+// importación de participantes. Así llegan con el mismo texto que normaliza
+// "Normalizar datos UTP" en Participantes. Se carga antes de pintar el paso 2.
+let UTP = null;
+const catalogoUtp = import('./js/core/catalogo-utp.js').then(m => { UTP = m; return m; });
+// Académico UTP puede elegir esta unidad además de las facultades
+// (ADMINISTRACION_CENTRAL en js/modulos/importar-participantes.js).
+const ADMINISTRACION_CENTRAL = "Administración Central";
 
 // ─── HELPERS HTML ─────────────────────────────────────────────────────────────
 const fg = (label, req, inner) => `<div class="form-group"><label>${label}${req ? ' <span class="req">*</span>' : ''}</label>${inner}</div>`;
 const inp = (id, type, ph, extra='') => `<input type="${type}" id="${id}" placeholder="${ph}" ${extra}/>`;
-const sel = (id, opts, ph='Selecciona') => `<select id="${id}"><option value="">${ph}</option>${opts.map(o=>`<option>${o}</option>`).join('')}</select>`;
+const sel = (id, opts, ph='Selecciona') => `<select id="${id}"><option value="">${ph}</option>${opts.map(o=>Array.isArray(o) ? `<option value="${o[0]}">${o[1]}</option>` : `<option>${o}</option>`).join('')}</select>`;
 const row = (...fields) => `<div class="form-row">${fields.join('')}</div>`;
 
 // Campos comunes de identidad para todas las categorías normales
@@ -627,10 +616,10 @@ const FORMULARIOS = {
  ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
  ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
  ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
- ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
- ${fg('Facultad', true, sel('ex-facultad', FACULTADES, 'Selecciona tu facultad'))}
- ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Ingenieria de Sistemas'))}
- ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
+ ${fg('Centro Regional', true, sel('ex-centro', UTP.CAMPUS, 'Selecciona tu campus'))}
+ ${fg('Facultad', true, sel('ex-facultad', UTP.FACULTADES, 'Selecciona tu facultad'))}
+ ${fg('Carrera', true, sel('ex-carrera', [], 'Primero selecciona tu facultad'))}
+ ${fg('Año que cursas', true, sel('ex-anio', UTP.ANIOS, 'Selecciona tu año'))}
  </div>`,
 
  estudiante_externo: () => `
@@ -640,7 +629,7 @@ const FORMULARIOS = {
  ${fg('Universidad o institución', true, inp('ex-universidad', 'text', 'Ej: Universidad de Panama'))}
  ${fg('Correo institucional', true, inp('ex-correo-inst', 'email', 'nombre@universidad.ac.pa'))}
  ${fg('Carrera', true, inp('ex-carrera', 'text', 'Ej: Informatica'))}
- ${fg('Año que cursas', true, sel('ex-anio', SEMESTRES, 'Selecciona tu año'))}
+ ${fg('Año que cursas', true, sel('ex-anio', UTP.ANIOS, 'Selecciona tu año'))}
  </div>`,
 
  academico_utp: () => `
@@ -654,8 +643,8 @@ const FORMULARIOS = {
  ${fg('Correo GMAIL', true, inp('inp-correo', 'email', 'nombre@gmail.com', 'autocomplete="email"'))}
  ${fg('Correo institucional UTP', true, inp('ex-correo-inst', 'email', 'nombre@utp.ac.pa'))}
  ${fg('Teléfono', true, inp('inp-telefono', 'tel', 'Ej: 6000-0000', 'autocomplete="tel"'))}
- ${fg('Centro Regional', true, sel('ex-centro', CAMPUS, 'Selecciona tu campus'))}
- ${fg('Facultad o unidad', true, sel('ex-facultad', [...FACULTADES, 'Administracion Central'], 'Selecciona'))}
+ ${fg('Centro Regional', true, sel('ex-centro', UTP.CAMPUS, 'Selecciona tu campus'))}
+ ${fg('Facultad o unidad', true, sel('ex-facultad', [...UTP.FACULTADES, ADMINISTRACION_CENTRAL], 'Selecciona'))}
  ${fg('Rol que desempeñas', true, sel('ex-rol', ['Profesor', 'Administrativo', 'Investigador']))}
  ${fg('Departamento o área', false, inp('ex-departamento', 'text', 'Ej: Departamento de Informatica'))}
  </div>`,
@@ -773,6 +762,18 @@ function renderFormulario() {
  el('colegio-precio-box').classList.add('visible');
  // Agregar un estudiante inicial
  agregarEstudiante();
+ }
+
+ // Carrera según la facultad elegida (solo donde la carrera es lista: Estudiante UTP)
+ const carrera = el('ex-carrera');
+ if (carrera?.tagName === 'SELECT') {
+ carrera.disabled = true;
+ el('ex-facultad').addEventListener('change', e => {
+ const carreras = UTP.CARRERAS[e.target.value];
+ carrera.innerHTML = `<option value="">${carreras ? 'Selecciona tu carrera' : 'Primero selecciona tu facultad'}</option>`
+ + (carreras || []).map(c => `<option>${c}</option>`).join('');
+ carrera.disabled = !carreras;
+ });
  }
 
  // Conectar validación inline del campo GMAIL para categorías UTP
@@ -1030,8 +1031,15 @@ function conectarValidacionGmail() {
  });
 }
 
-el('btn-paso1').addEventListener('click', () => {
+el('btn-paso1').addEventListener('click', async () => {
  if (!categoriaSeleccionada) { mostrarAlerta('error', 'Selecciona tu categoría de participante.'); return; }
+ try {
+ await catalogoUtp;
+ } catch (e) {
+ console.error('[Registro] Catálogo UTP:', e);
+ mostrarAlerta('error', 'No se pudo cargar el formulario. Revisa tu conexión y recarga la página.');
+ return;
+ }
  renderFormulario();
  irAPaso(2);
 });

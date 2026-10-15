@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-15T18:20:05.810625+00:00",
-  "project_fingerprint": "ad46d0f0161ad07cc57decc41242dcc15bf2b09c59d4bf0a615cebc1260d973d",
+  "generated_at": "2026-10-15T18:49:12.617140+00:00",
+  "project_fingerprint": "cd5fb0b5f201e70200cf17e1d034a3addfebefc29af11d5af074f6b116edebd8",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,17 +21,17 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 257,
-    "total_edges": 1130,
+    "total_files": 259,
+    "total_edges": 1152,
     "total_orphans": 83,
     "total_cycles": 0,
     "total_external_packages": 34,
     "total_firestore_collections": 39,
     "total_cloud_functions": 28,
     "total_possible_implicit_links": 5,
-    "total_symbols": 6492,
-    "total_function_calls": 14107,
-    "total_dom_ids": 1168,
+    "total_symbols": 6530,
+    "total_function_calls": 14205,
+    "total_dom_ids": 1180,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -39,14 +39,10 @@
   "git": {
     "available": true,
     "branch": "main",
-    "head": "2f7dd41d357783b74c9417aa8bccd6c3fb0add07",
+    "head": "2ca1c9aafede9088ca1fa187e0c17992e63f2861",
     "changed_files": [
       {
-        "file": "js/core/navbar-pagina.js",
-        "status": " M"
-      },
-      {
-        "file": "js/core/navegacion.js",
+        "file": "js/core/catalogo-utp.js",
         "status": " M"
       },
       {
@@ -54,19 +50,43 @@
         "status": " M"
       },
       {
-        "file": "panel/dashboard.html",
+        "file": "js/modulos/importar-participantes.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/importar-voluntarios.js",
         "status": " M"
       },
       {
         "file": "js/modulos/qrPosper.js",
-        "status": "??"
+        "status": " M"
+      },
+      {
+        "file": "panel/dashboard.html",
+        "status": " M"
+      },
+      {
+        "file": "panel/modulos/congreso/modulos_participantes.html",
+        "status": " M"
       },
       {
         "file": "panel/modulos/congreso/qrPosper.html",
+        "status": " M"
+      },
+      {
+        "file": "registro.html",
+        "status": " M"
+      },
+      {
+        "file": "functions/test/importar-participantes.test.mjs",
+        "status": "??"
+      },
+      {
+        "file": "js/core/plantilla-excel.js",
         "status": "??"
       }
     ],
-    "changed_count": 6
+    "changed_count": 11
   },
   "domains": [
     {
@@ -87,7 +107,7 @@
       "collections": [
         "usuarios"
       ],
-      "average_risk": 30.5,
+      "average_risk": 30.7,
       "diagnostics": 0
     },
     {
@@ -154,7 +174,7 @@
     },
     {
       "name": "functions",
-      "file_count": 52,
+      "file_count": 53,
       "key_files": [
         "functions/index.js",
         "functions/permisos.js",
@@ -201,7 +221,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 8.2,
+      "average_risk": 8.1,
       "diagnostics": 0
     },
     {
@@ -235,7 +255,7 @@
     },
     {
       "name": "js",
-      "file_count": 66,
+      "file_count": 67,
       "key_files": [
         "js/core/auth.js",
         "js/core/seguridad.js",
@@ -278,7 +298,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 35.7,
+      "average_risk": 36.3,
       "diagnostics": 1
     },
     {
@@ -312,7 +332,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 39.1,
+      "average_risk": 39.4,
       "diagnostics": 0
     },
     {
@@ -342,17 +362,17 @@
     },
     {
       "label": "panel/dashboard.html",
-      "risk_score": 138.9,
+      "risk_score": 139.0,
       "degree": 62,
       "in_cycle": false,
-      "loc": 1495
+      "loc": 1498
     },
     {
       "label": "panel/modulos/congreso/modulos_participantes.html",
-      "risk_score": 116.6,
-      "degree": 47,
+      "risk_score": 126.2,
+      "degree": 51,
       "in_cycle": false,
-      "loc": 2256
+      "loc": 2423
     },
     {
       "label": "js/core/seguridad.js",
@@ -1141,6 +1161,12 @@
       "purpose": "Reglas por fila de la importación de listas de profesores: qué se exige, qué se limpia y cómo se detectan las filas repetidas dentro del lote. No necesita emulador: normalizarFila "
     },
     {
+      "file": "functions/test/importar-participantes.test.mjs",
+      "risk": 2.6,
+      "relations": 1,
+      "purpose": "Datos UTP de participantes (js/modulos/importar-participantes.js): centro, facultad, carrera y año al texto del catálogo, como en voluntarios. node functions/test/importar-particip"
+    },
+    {
       "file": "functions/test/importar-voluntarios.test.mjs",
       "risk": 2.7,
       "relations": 1,
@@ -1368,15 +1394,30 @@
     },
     {
       "file": "js/core/catalogo-utp.js",
-      "risk": 5.1,
-      "relations": 2,
+      "risk": 31.7,
+      "relations": 15,
       "purpose": "============================================= CONTECS — Campus, facultades y carreras de la UTP ============================================= Una sola lista para el registro públic",
       "exports": [
         "ANIOS",
+        "ANIOS_VALIDOS",
         "CAMPUS",
         "CARRERAS",
         "FACULTADES",
-        "SIGLAS_FACULTAD"
+        "FACULTAD_DE_CARRERA",
+        "SIGLAS_FACULTAD",
+        "TODAS_LAS_CARRERAS",
+        "normalizarAnio",
+        "normalizarCarrera",
+        "normalizarCentro",
+        "normalizarFacultad"
+      ],
+      "key_neighbors": [
+        "js/core/plantilla-excel.js",
+        "js/modulos/importar-participantes.js",
+        "js/modulos/importar-voluntarios.js",
+        "panel/modulos/congreso/modulos_participantes.html",
+        "public/registro-voluntarios.html",
+        "registro.html"
       ]
     },
     {
@@ -1463,11 +1504,18 @@
     },
     {
       "file": "js/core/librerias.js",
-      "risk": 16.2,
-      "relations": 8,
+      "risk": 20.2,
+      "relations": 10,
       "purpose": "============================================= CONTECS — Carga diferida de librerías de js/libs ============================================= Las librerías pesadas (jsPDF, JSZip, Sh",
       "exports": [
         "cargarLibreria"
+      ],
+      "key_neighbors": [
+        "js/core/plantilla-excel.js",
+        "js/modulos/credenciales.js",
+        "js/modulos/gestorCredenciales.js",
+        "js/modulos/importar-participantes.js",
+        "js/modulos/importar-voluntarios.js"
       ]
     },
     {
@@ -1619,7 +1667,7 @@
     },
     {
       "file": "js/core/permisos.js",
-      "risk": 59.8,
+      "risk": 59.9,
       "relations": 28,
       "purpose": "============================================= CONTECS — Sistema de Roles y Permisos =============================================",
       "exports": [
@@ -1646,6 +1694,15 @@
         "js/modulos/usuarios.js",
         "js/modulos/voluntarios.js",
         "panel/dashboard.html"
+      ]
+    },
+    {
+      "file": "js/core/plantilla-excel.js",
+      "risk": 14.8,
+      "relations": 7,
+      "purpose": "============================================= CONTECS — Plantilla de Excel con listas desplegables ============================================= La usan las plantillas de voluntari",
+      "exports": [
+        "descargarPlantillaConListas"
       ]
     },
     {
@@ -1995,26 +2052,29 @@
     },
     {
       "file": "js/modulos/importar-participantes.js",
-      "risk": 40.9,
-      "relations": 19,
+      "risk": 61.7,
+      "relations": 29,
       "purpose": "============================================= CONTECS — Importar participantes desde una lista ============================================= Lee el Excel o CSV que manda un profeso",
       "exports": [
+        "ADMINISTRACION_CENTRAL",
         "CAMPOS",
         "CAMPOS_COMUNES",
         "CATEGORIAS_IMPORTABLES",
+        "CATEGORIAS_UTP",
         "FILAS_POR_LLAMADA",
         "armarFilas",
+        "avisosDatosUtp",
         "descargarPlantilla",
         "descargarResultado",
         "detectarColumnas",
-        "detectarEncabezado",
-        "filaParaServidor",
-        "leerArchivo",
-        "nombrePropio"
+        "detectarEncabezado"
       ],
       "key_neighbors": [
+        "functions/test/importar-participantes.test.mjs",
+        "js/core/catalogo-utp.js",
         "js/core/correos.js",
         "js/core/librerias.js",
+        "js/core/plantilla-excel.js",
         "js/modulos/gestorCredenciales.js",
         "js/modulos/importar-voluntarios.js",
         "panel/modulos/congreso/modulos_participantes.html"
@@ -2022,8 +2082,8 @@
     },
     {
       "file": "js/modulos/importar-voluntarios.js",
-      "risk": 23.7,
-      "relations": 10,
+      "risk": 34.8,
+      "relations": 16,
       "purpose": "============================================= CONTECS — Importar voluntarios desde Excel o CSV ============================================= Mismo recorrido que la importación de p",
       "exports": [
         "CAMPOS",
@@ -2044,6 +2104,7 @@
         "js/core/catalogo-utp.js",
         "js/core/correos.js",
         "js/core/librerias.js",
+        "js/core/plantilla-excel.js",
         "js/modulos/importar-participantes.js",
         "js/modulos/voluntarios.js"
       ]
@@ -2422,7 +2483,7 @@
     },
     {
       "file": "panel/dashboard.html",
-      "risk": 138.9,
+      "risk": 139.0,
       "relations": 62,
       "collections": [
         "checkpoints",
@@ -2653,8 +2714,8 @@
     },
     {
       "file": "panel/modulos/congreso/modulos_participantes.html",
-      "risk": 116.6,
-      "relations": 47,
+      "risk": 126.2,
+      "relations": 51,
       "collections": [
         "participantes",
         "usuarios"
@@ -2667,11 +2728,11 @@
         "css/tokens.css",
         "favicon.ico",
         "js/core/auth.js",
+        "js/core/catalogo-utp.js",
         "js/core/firebase-config.js",
         "js/core/navbar-pagina.js",
         "js/core/participantes-api.js",
-        "js/core/seguridad.js",
-        "js/libs/exceljs.min.js"
+        "js/core/seguridad.js"
       ]
     },
     {
@@ -3177,8 +3238,15 @@
     },
     {
       "file": "registro.html",
-      "risk": 19.4,
-      "relations": 4
+      "risk": 21.5,
+      "relations": 5,
+      "key_neighbors": [
+        "apple-touch-icon.png",
+        "favicon.ico",
+        "js/core/catalogo-utp.js",
+        "js/core/participantes-api.js",
+        "manifest.json"
+      ]
     },
     {
       "file": "vercel.json",
@@ -3517,5 +3585,5 @@
       }
     }
   ],
-  "estimated_tokens": 18930
+  "estimated_tokens": 19358
 }
