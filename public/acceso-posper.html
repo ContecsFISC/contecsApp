@@ -69,6 +69,22 @@
     }
     .error.show { display: block; }
     .is-hidden { display: none; }
+    /* Campo que recibe lo que "teclea" el lector físico al leer el QR de acceso
+       (el gatillo no abre links: solo escribe en el campo con foco). */
+    #captura {
+      width: 100%;
+      margin-top: 22px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      text-align: center;
+    }
+    #captura::placeholder { color: rgba(255,255,255,0.75); }
+    #captura:focus { outline: none; border-color: #fff; background: rgba(255,255,255,0.2); }
     @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -81,6 +97,7 @@
     <h1 id="titulo">Entrando…</h1>
     <p id="mensaje">Abriendo la pestaña de POSPER en CONTECS 2026.</p>
     <div class="spinner" id="spinner"></div>
+    <input id="captura" class="is-hidden" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="Toca aquí y presiona el gatillo" aria-label="Entrada del lector"/>
     <div class="error" id="msg-error" role="alert"></div>
   </main>
 
@@ -93,22 +110,35 @@
     import { signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 
-    const clave = new URLSearchParams(window.location.hash.slice(1)).get("k") || "";
+    const el = id => document.getElementById(id);
+    const captura = el("captura");
+    // Sin Enter del lector, la lectura se da por terminada tras este silencio
+    // (igual que en js/modulos/posper.js).
+    const SILENCIO_FIN_MS = 600;
 
-    function mostrarError(texto) {
-      document.getElementById("titulo").textContent = "No se pudo entrar";
-      document.getElementById("mensaje").textContent = "Este acceso es solo para el equipo de POSPER.";
-      document.getElementById("spinner").classList.add("is-hidden");
-      const error = document.getElementById("msg-error");
-      error.textContent = texto;
-      error.classList.add("show");
+    // La clave sale del link (#k=...) o del texto completo que tecleó el lector.
+    function claveDe(texto) {
+      const limpio = String(texto || "").replace(/\s+/g, "");
+      return (limpio.match(/[#?&]k=([A-Za-z0-9_-]{43})/i) || limpio.match(/^([A-Za-z0-9_-]{43})$/) || [])[1] || "";
     }
 
-    async function entrar() {
-      if (!clave) {
-        mostrarError("El link está incompleto. Escanea de nuevo el QR de POSPER.");
-        return;
-      }
+    function mostrarError(texto) {
+      el("titulo").textContent = "No se pudo entrar";
+      el("mensaje").textContent = "Este acceso es solo para el equipo de POSPER.";
+      el("spinner").classList.add("is-hidden");
+      el("msg-error").textContent = texto;
+      el("msg-error").classList.add("show");
+    }
+
+    function textoDeError(e) {
+      // Solo un fallo de red es "revisa tu conexión"; si el servidor respondió,
+      // se muestra lo que dijo.
+      const sinRed = !e?.code || e.code === "functions/unavailable" || e.code === "functions/deadline-exceeded"
+        || e.code === "auth/network-request-failed";
+      return sinRed ? "No se pudo abrir el acceso. Revisa tu conexión e intenta de nuevo." : e.message;
+    }
+
+    async function entrar(clave) {
       const entrarConLink = httpsCallable(getFunctions(app, "us-central1"), "entrarConLinkPosper");
       const { data } = await entrarConLink({ clave });
       await signInWithCustomToken(auth, data.firebaseToken);
@@ -116,16 +146,77 @@
       window.location.replace("../panel/dashboard.html");
     }
 
-    entrar().catch((e) => {
-      console.error("[POSPER]", e);
-      // Solo un fallo de red es "revisa tu conexión"; si el servidor respondió,
-      // se muestra lo que dijo.
-      const sinRed = !e?.code || e.code === "functions/unavailable" || e.code === "functions/deadline-exceeded"
-        || e.code === "auth/network-request-failed";
-      mostrarError(sinRed
-        ? "No se pudo abrir el acceso. Revisa tu conexión e intenta de nuevo."
-        : e.message);
+    // ─── Entrada con el lector físico ─────────────────────────────────────────
+    // El gatillo de los equipos de POSPER no abre links: escribe lo leído en el
+    // campo con foco. Abierta sin #k=, esta página espera esa lectura.
+    let leyendo = false;
+    let timer = null;
+    let ultimoValor = "";
+
+    function esperarLector(aviso = "") {
+      leyendo = false;
+      el("titulo").textContent = "Escanea el QR de acceso";
+      el("mensaje").textContent = "Presiona el gatillo del lector apuntando al QR de POSPER.";
+      el("spinner").classList.add("is-hidden");
+      el("msg-error").textContent = aviso;
+      el("msg-error").classList.toggle("show", !!aviso);
+      captura.classList.remove("is-hidden");
+      captura.value = "";
+      captura.focus({ preventScroll: true });
+    }
+
+    function terminarLectura() {
+      clearTimeout(timer);
+      const texto = captura.value;
+      captura.value = "";
+      ultimoValor = "";
+      if (leyendo || !texto.trim()) return;
+      const clave = claveDe(texto);
+      if (!clave) {
+        esperarLector("Eso no es el QR de acceso de POSPER. Escanea el QR de la pestaña QR POSPER.");
+        return;
+      }
+      leyendo = true;
+      captura.classList.add("is-hidden");
+      el("msg-error").classList.remove("show");
+      el("titulo").textContent = "Entrando…";
+      el("mensaje").textContent = "Abriendo la pestaña de POSPER en CONTECS 2026.";
+      el("spinner").classList.remove("is-hidden");
+      entrar(clave).catch((e) => {
+        console.error("[POSPER]", e);
+        esperarLector(textoDeError(e));
+      });
+    }
+
+    captura.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === "Tab") {
+        e.preventDefault();
+        terminarLectura();
+      }
     });
+    captura.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = setTimeout(terminarLectura, SILENCIO_FIN_MS);
+    });
+    // Algunos servicios de escaneo escriben en el campo sin disparar eventos.
+    setInterval(() => {
+      if (captura.value.trim() && captura.value === ultimoValor) terminarLectura();
+      ultimoValor = captura.value;
+    }, SILENCIO_FIN_MS);
+    // Tocar la pantalla devuelve el foco al campo.
+    document.addEventListener("pointerup", () => {
+      if (!captura.classList.contains("is-hidden")) captura.focus({ preventScroll: true });
+    });
+
+    const claveLink = claveDe(window.location.hash);
+    if (claveLink) {
+      entrar(claveLink).catch((e) => {
+        console.error("[POSPER]", e);
+        mostrarError(textoDeError(e));
+      });
+    } else {
+      esperarLector();
+    }
   </script>
 </body>
 </html>
