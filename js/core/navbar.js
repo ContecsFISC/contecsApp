@@ -19,7 +19,7 @@
 // son transform/opacity en CSS.
 // ═══════════════════════════════════════════════════════════════
 
-import "./boom.js?v=20261015.3"; // transicion "boom" para cualquier <a data-boom>
+import "./boom.js?v=20261015.5"; // transicion "boom" para cualquier <a data-boom>
 
 const ICONOS = {
   congreso:     '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -33,6 +33,7 @@ const ICONOS = {
   chevron:      '<polyline points="6 9 12 15 18 9"/>',
   salir:        '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
   burger:       '<line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>',
+  inicio:       '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
   cerrar:       '<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>',
 };
 
@@ -219,6 +220,8 @@ export function montarNavbar({
 
   function enlazar(registro) {
     const { item, btn, menu } = registro;
+    if (registro.enlazado) return;
+    registro.enlazado = true;
     btn.addEventListener("pointerdown", e => { ultimoPuntero = e.pointerType; }, { signal });
     item.addEventListener("pointerenter", e => {
       if (e.pointerType !== "mouse") return;
@@ -343,6 +346,91 @@ export function montarNavbar({
     reposoGlide();
   }
 
+  // ── Perfil ────────────────────────────────────────────────────
+  // La cuenta vive en la barra: avatar con iniciales, nombre y rol, y un menu
+  // con el nombre completo, Inicio y Salir. En el carril es el avatar (su menu
+  // se abre hacia arriba) y en el panel movil, una cabecera. Cuando hay perfil,
+  // el boton suelto "Salir" de la barra y del carril sobra: vive en el menu.
+  let nodosPerfil = [];
+  function establecerPerfil({ nombre = "", rol = "", inicio = marca.href || "" } = {}) {
+    nodosPerfil.forEach(n => n.remove());
+    nodosPerfil = [];
+    const palabras = String(nombre).trim().split(/\s+/).filter(Boolean);
+    if (!palabras.length) { raiz.classList.remove("cx-nav--perfil"); return; }
+    const apellido = palabras.length >= 4 ? palabras[palabras.length - 2] : palabras[1];
+    const corto = [palabras[0], apellido].filter(Boolean).join(" ");
+    const iniciales = [palabras[0], apellido].filter(Boolean).map(p => p[0]).join("").toUpperCase();
+
+    const avatar = (clase = "cx-perfil__avatar") => {
+      const a = el("span", clase, { "aria-hidden": "true" });
+      a.textContent = iniciales;
+      return a;
+    };
+    const crearMenuPerfil = (idMenu) => {
+      const menu = el("div", "cx-menu cx-perfil__menu", { id: idMenu, role: "menu", "aria-label": "Tu cuenta" });
+      const cab = el("div", "cx-perfil__cabeza");
+      const textos = el("div", "cx-perfil__datos");
+      const n = el("b"); n.textContent = palabras.join(" ");
+      const r = el("small"); r.textContent = rol;
+      textos.append(n, r);
+      cab.append(avatar("cx-perfil__avatar cx-perfil__avatar--grande"), textos);
+      menu.appendChild(cab);
+      let i = 0;
+      if (inicio) {
+        const a = el("a", "cx-menu__link", { href: inicio, role: "menuitem" });
+        a.style.setProperty("--i", String(i++));
+        a.append(svg("inicio", "cx-perfil__ico"), Object.assign(el("span"), { textContent: "Inicio" }));
+        menu.appendChild(a);
+      }
+      if (alCerrarSesion) {
+        const b = el("button", "cx-menu__link cx-perfil__salir", { type: "button", role: "menuitem" });
+        b.style.setProperty("--i", String(i++));
+        b.append(svg("salir", "cx-perfil__ico"), Object.assign(el("span"), { textContent: etiquetaSalir }));
+        b.addEventListener("click", () => alCerrarSesion(), { signal });
+        menu.appendChild(b);
+      }
+      return menu;
+    };
+    const crearItemPerfil = (ubicacion) => {
+      const idMenu = `cx-menu-${ubicacion}-perfil`;
+      const item = el("div", "cx-item cx-item--perfil", { "data-id": "perfil" });
+      const btn = el("button", "cx-item__btn cx-perfil", {
+        type: "button", "aria-haspopup": "menu", "aria-expanded": "false", "aria-controls": idMenu,
+        "aria-label": `Tu cuenta: ${palabras.join(" ")}`, title: palabras.join(" "),
+      });
+      btn.appendChild(avatar());
+      if (ubicacion === "perfil") {
+        const t = el("span", "cx-perfil__textos");
+        const b = el("b"); b.textContent = corto;
+        const s = el("small"); s.textContent = rol;
+        t.append(b, s);
+        btn.append(t, svg("chevron", "cx-chevron"));
+      }
+      const menu = crearMenuPerfil(idMenu);
+      item.append(btn, menu);
+      const registro = { item, btn, menu, ubicacion };
+      enlazar(registro);
+      return registro;
+    };
+
+    const enBarra = crearItemPerfil("perfil");
+    fin.insertBefore(enBarra.item, burger);
+    const enCarril = crearItemPerfil("rail");
+    enCarril.item.style.setProperty("--i", "12");
+    carril.appendChild(enCarril.item);
+
+    const cabHoja = el("div", "cx-sheet__perfil");
+    const datos = el("div", "cx-perfil__datos");
+    const n = el("b"); n.textContent = palabras.join(" ");
+    const r = el("small"); r.textContent = rol;
+    datos.append(n, r);
+    cabHoja.append(avatar("cx-perfil__avatar cx-perfil__avatar--grande"), datos);
+    hoja.prepend(cabHoja);
+
+    nodosPerfil = [enBarra.item, enCarril.item, cabHoja];
+    raiz.classList.add("cx-nav--perfil");
+  }
+
   // ── Panel movil ───────────────────────────────────────────────
   function abrirHoja(si) {
     raiz.dataset.sheet = si ? "open" : "closed";
@@ -409,6 +497,7 @@ export function montarNavbar({
   return {
     el: raiz,
     establecerCategorias,
+    establecerPerfil,
     destruir() {
       ctl.abort();
       observador.disconnect();

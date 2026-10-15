@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
   <link rel="stylesheet" href="../css/styles.css?v=20261015.3"/>
   <link rel="stylesheet" href="../css/tokens.css?v=20261015.3"/>
-  <link rel="stylesheet" href="../css/navbar.css?v=20261015.3"/>
+  <link rel="stylesheet" href="../css/navbar.css?v=20261015.5"/>
   <link rel="stylesheet" href="../css/tarjetas.css?v=20261015.3"/>
   <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
        sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
@@ -537,9 +537,9 @@
 
     body.sheet-open { overflow: hidden; }
 
-    /* ══════════ DASHBOARD MÓVIL — Centro de situación ══════════ */
-    .mobile-dashboard { display: none; }
-
+    /* ══════════ TU AGENDA — Centro de situación ══════════
+       Antes solo en movil; ahora es el lateral derecho del inicio en
+       escritorio (css/inicio.css) y va debajo del carrusel en movil. */
     @media (max-width: 1023px) {
       body {
         background:
@@ -565,19 +565,8 @@
         padding: 14px 12px 44px;
         animation: none;
       }
-      .desktop-dashboard-header,
-      .desktop-dashboard-content { display: none; }
-      body.dashboard-sin-rol .desktop-dashboard-header,
-      body.dashboard-sin-rol .desktop-dashboard-content,
-      body.dashboard-posper .desktop-dashboard-header,
-      body.dashboard-posper .desktop-dashboard-content { display: block; }
-      body.dashboard-sin-rol .mobile-dashboard,
-      body.dashboard-posper .mobile-dashboard { display: none; }
+    }
 
-      .mobile-dashboard {
-        display: block;
-        animation: pageSlideUp 0.45s var(--ease-out) both;
-      }
       .mobile-event-hero {
         position: relative;
         isolation: isolate;
@@ -748,7 +737,6 @@
       .mobile-other-meta { margin-top:2px; font-size:11px; color:var(--gris-medio); }
       .mobile-empty { padding:20px 16px; text-align:center; font-size:12px; color:var(--gris-medio); }
       .mobile-dashboard-skeleton { animation:pulseSoft 1.25s ease-in-out infinite; }
-    }
 
     @media (max-width: 370px) {
       .mobile-event-hero { padding:18px 16px; border-radius:21px; }
@@ -1033,9 +1021,9 @@
     }
 
   </style>
-  <!-- Dashboard movil: va despues del <style> para mandar sobre el. -->
-  <link rel="stylesheet" href="../css/dashboard-movil.css?v=20261015.3"/>
-  <!-- Antes de pintar: los bloques del inicio movil esperan a js/core/revelar.js para entrar en cascada. -->
+  <!-- Inicio (saludo, carrusel de secciones, vista de seccion y agenda): va despues del <style> para mandar sobre el. -->
+  <link rel="stylesheet" href="../css/inicio.css?v=20261015.5"/>
+  <!-- Antes de pintar: los bloques de la agenda esperan a js/core/revelar.js para entrar en cascada. -->
   <script>document.documentElement.classList.add("cx-revela");</script>
 </head>
 
@@ -1079,7 +1067,31 @@
   </div>
 
   <div class="container" id="main-container">
-    <main class="mobile-dashboard" id="mobile-dashboard" aria-label="Resumen operativo de CONTECS">
+   <div class="cx-inicio">
+    <main class="cx-inicio__principal" id="cx-inicio-principal">
+      <!-- Saludo (el perfil vive en el navbar). -->
+      <header class="cx-inicio__cabecera">
+        <p class="cx-inicio__fecha" id="cx-inicio-fecha"></p>
+        <h1 class="cx-inicio__saludo" id="cx-inicio-saludo">Hola</h1>
+      </header>
+
+      <!-- Carrusel 3D de secciones (js/core/carrusel-modulos.js): mismas secciones y permisos que el navbar.
+           Entrar a una abre su vista con sus modulos (js/core/vista-seccion.js). -->
+      <section class="cx-bloque cx-bloque--modulos" id="cx-bloque-modulos" aria-labelledby="cx-titulo-modulos" hidden>
+        <h2 class="cx-bloque__titulo" id="cx-titulo-modulos">Módulos</h2>
+        <div class="cx-carrusel" id="cx-carrusel"></div>
+      </section>
+
+      <div id="contenido-principal" class="desktop-dashboard-content"></div>
+    </main>
+
+    <!-- Tu agenda: el evento, hoy, el programa, lo que requiere atencion y lo que viene. -->
+    <aside class="cx-agenda" id="cx-agenda" aria-labelledby="cx-agenda-titulo">
+      <div class="cx-agenda__cabeza">
+        <h2 class="cx-agenda__titulo" id="cx-agenda-titulo">Tu agenda</h2>
+        <span class="cx-agenda__nota" id="cx-agenda-nota"></span>
+      </div>
+    <div class="mobile-dashboard" id="mobile-dashboard" role="region" aria-label="Resumen operativo de CONTECS">
       <section class="mobile-event-hero mobile-dashboard-skeleton" id="mobile-event-hero">
         <div class="mobile-hero-user">
           <div>
@@ -1139,46 +1151,11 @@
         </div>
         <div class="mobile-other-events" id="mobile-other-events"></div>
       </section>
-    </main>
-
-    <!-- ZONA A — Header -->
-    <div class="header-a desktop-dashboard-header">
-      <div class="saludo">Bienvenido,</div>
-      <div class="nombre" id="nombre-usuario">...</div>
-      <div class="subtitulo-espacio">Tu espacio CONTECS</div>
-      <div class="pills">
-        <span class="rol-pill"  id="rol-label">...</span>
-        <span class="badge-verificado" id="badge-verificado" title="Cuenta verificada">
-          <svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg">
-            <g class="bv-body">
-              <circle cx="16" cy="14" r="8.5"/>
-              <circle cx="26" cy="14" r="4.3"/>
-              <circle cx="24.1" cy="19.9" r="4.3"/>
-              <circle cx="19.1" cy="23.5" r="4.3"/>
-              <circle cx="12.9" cy="23.5" r="4.3"/>
-              <circle cx="7.9" cy="19.9" r="4.3"/>
-              <circle cx="6" cy="14" r="4.3"/>
-              <circle cx="7.9" cy="8.1" r="4.3"/>
-              <circle cx="12.9" cy="4.5" r="4.3"/>
-              <circle cx="19.1" cy="4.5" r="4.3"/>
-              <circle cx="24.1" cy="8.1" r="4.3"/>
-              <path d="M11.3 21.4 L7.1 33.6 L16 29.3 L13.7 23.5 Z"/>
-              <path d="M20.7 21.4 L24.9 33.6 L16 29.3 L18.3 23.5 Z"/>
-            </g>
-            <path class="bv-check" d="M11.8 14.2 L14.8 17.2 L20.3 10.6" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-      </div>
-      <div class="cuenta-regresiva" id="cuenta-regresiva-wrap">
-        <span class="cr-label">CONTECS 2026 en</span>
-        <span class="cr-valor" id="cr-valor">Cargando...</span>
-      </div>
     </div>
-
-    <!-- Tarjetas de modulos (js/core/tarjetas-modulos.js): mismas secciones y permisos que el navbar. -->
-    <section class="cx-modulos" id="cx-modulos" aria-label="Tus módulos" hidden></section>
-
-    <div id="contenido-principal" class="desktop-dashboard-content"></div>
+      <!-- Actividades de hoy y proximos dias (escritorio, ZONA C del script). -->
+      <div class="cx-agenda__extra" id="cx-agenda-extra"></div>
+    </aside>
+   </div>
   </div>
 
   <!-- Bottom sheet — módulos por categoría, filtrados por rol (mobile) -->
@@ -1204,9 +1181,10 @@
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
-    import { montarNavbar } from "../js/core/navbar.js?v=20261015.3";
+    import { montarNavbar } from "../js/core/navbar.js?v=20261015.5";
     import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.3";
-    import { pintarTarjetasModulos } from "../js/core/tarjetas-modulos.js?v=20261015.4";
+    import { montarCarrusel } from "../js/core/carrusel-modulos.js?v=20261015.5";
+    import { entrarASeccion, iniciarVistas } from "../js/core/vista-seccion.js?v=20261015.5";
     import {
       doc, getDoc, onSnapshot, collection, query, where, getDocs
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -1218,6 +1196,13 @@
       }
       console.error(`[Dashboard] Error en listener ${contexto}:`, error);
     }
+
+    // Una sola lectura por coleccion aunque la pidan la agenda y el resumen.
+    const lecturas = new Map();
+    const leerColeccion = nombre => {
+      if (!lecturas.has(nombre)) lecturas.set(nombre, getDocs(collection(db, nombre)));
+      return lecturas.get(nombre);
+    };
 
     // Navbar v2: se monta ya (marca + Salir) y recibe las secciones cuando los
     // permisos estan resueltos, para que la barra no aparezca tarde ni salte.
@@ -1233,13 +1218,36 @@
     const rol     = usuario.rol || "sin_rol";
     const info    = infoRol(rol);
 
-    document.getElementById("nombre-usuario").textContent = usuario.nombre || "Usuario";
-    document.getElementById("rol-label").textContent      = info.label || "Sin rol";
+    // El perfil vive en el navbar (avatar, nombre, rol, Inicio y Salir).
+    navbarCx.establecerPerfil({ nombre: usuario.nombre || "Usuario", rol: info.label || "Sin rol", inicio: "dashboard.html" });
 
-    // Badge dorado exclusivo para el rol CEO
-    if (String(rol).toLowerCase() === "ceo") {
-      document.getElementById("badge-verificado").classList.add("badge-verificado--ceo");
-    }
+    // ── Saludo: la fecha y "Buenos dias, <nombre>" palabra por palabra ──
+    (() => {
+      const ahora = new Date();
+      const h = ahora.getHours();
+      const saludo = h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches";
+      const nombre = String(usuario.nombre || "").trim().split(/\s+/)[0] || "";
+      const texto = nombre ? `${saludo}, ${nombre}` : saludo;
+      document.getElementById("cx-inicio-fecha").textContent =
+        ahora.toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      const h1 = document.getElementById("cx-inicio-saludo");
+      h1.setAttribute("aria-label", texto);
+      h1.replaceChildren();
+      // La cascada completa nunca pasa de 0.35 s, tenga las palabras que tenga.
+      const palabras = texto.split(/\s+/);
+      const natural = Math.max(palabras.length - 1, 0) * 0.05;
+      const factor = natural > 0.35 ? 0.35 / natural : 1;
+      palabras.forEach((p, i) => {
+        const span = document.createElement("span");
+        span.className = "cx-palabra";
+        span.setAttribute("aria-hidden", "true");
+        span.style.animationDelay = `${(0.2 + i * 0.05 * factor).toFixed(3)}s`;
+        span.textContent = p;
+        h1.append(span, i < palabras.length - 1 ? " " : "");
+      });
+      document.getElementById("cx-agenda-nota").textContent =
+        ahora.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
+    })();
 
     document.getElementById("mobile-user-name").textContent = usuario.nombre || "Usuario";
     document.getElementById("mobile-role-label").textContent = info.label || "Sin rol";
@@ -1517,7 +1525,7 @@
       renderAgendaMovil(checkpointsHoy);
 
       const participantesPromise = tienePermiso(rol, "ver_participantes", usuario.permisosExtra, usuario.ajustesRol)
-        ? getDocs(collection(db, "participantes")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "participantes dashboard móvil"); return null; })
+        ? leerColeccion("participantes").then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "participantes dashboard móvil"); return null; })
         : Promise.resolve(null);
       const productosPromise = tienePermiso(rol, "ver_inventario", usuario.permisosExtra, usuario.ajustesRol)
         ? getDocs(collection(db, "productos")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))).catch(error => { manejarErrorSnapshot(error, "productos dashboard móvil"); return null; })
@@ -1527,37 +1535,7 @@
       renderAlertasMovil(participantes, productos, checkpoints, principal);
     }
 
-    // ── Cuenta regresiva al evento (19 de octubre de 2026) — siempre visible en Zona A ──
-    const calcularCuentaRegresiva = () => {
-      const ahora = new Date();
-      const evento = new Date(2026, 9, 19, 0, 0, 0);
-      const diferencia = evento - ahora;
-      const el = document.getElementById("cr-valor");
-
-      if (diferencia > 0) {
-        const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-        const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
-        const dd = (n) => String(n).padStart(2, "0");
-        // El contador es grande: la granularidad se gana con la cercania.
-        // A semanas vista los segundos son ruido que tiembla cada segundo;
-        // el ultimo dia si emocionan. Los ceros fijan el ancho.
-        if (dias > 0) {
-          el.textContent = `${dias}d ${dd(horas)}h ${dd(minutos)}m`;
-        } else if (horas > 0) {
-          el.textContent = `${dd(horas)}h ${dd(minutos)}m ${dd(segundos)}s`;
-        } else {
-          el.textContent = `${dd(minutos)}m ${dd(segundos)}s`;
-        }
-      } else if (diferencia >= -86400000) {
-        el.textContent = "¡Evento en curso!";
-      } else {
-        el.textContent = "Evento pasado";
-      }
-    };
-    calcularCuentaRegresiva();
-    setInterval(calcularCuentaRegresiva, 1000);
+    // La cuenta regresiva vive en la tarjeta del evento de "Tu agenda".
 
     // ── Luz especular: alimenta --mx/--my de cada tarjeta con la posicion
     //    del cursor. Un solo listener delegado y coalescido via rAF: como
@@ -1618,7 +1596,7 @@
       const esPosper = rol === "posper";
       if (esPosper) {
         document.body.classList.add("dashboard-posper");
-        document.querySelector(".subtitulo-espacio").textContent = "Patrocinador oficial de CONTECS 2026";
+        document.querySelector(".subtitulo-espacio")?.replaceChildren("Patrocinador oficial de CONTECS 2026");
         const icono = trazo => `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${trazo}</svg>`;
         contenido.innerHTML = `
           <section class="posper-hero">
@@ -1664,9 +1642,10 @@
           manejarErrorSnapshot(error, "dashboard móvil");
         });
       };
+      // "Tu agenda" se ve en todos los anchos: lateral derecho en escritorio y
+      // debajo del carrusel en movil.
       const mediaDashboardMovil = window.matchMedia("(max-width: 1023px)");
-      if (mediaDashboardMovil.matches) iniciarDashboardMovil();
-      mediaDashboardMovil.addEventListener?.("change", e => { if (e.matches) iniciarDashboardMovil(); });
+      iniciarDashboardMovil();
 
       // El dashboard clásico se conserva intacto para laptop. En teléfono se
       // evita cargar sus consultas duplicadas porque ya existe el resumen móvil.
@@ -1714,7 +1693,7 @@
           id: "widget-inscripciones",
           init: async (valEl) => {
             try {
-              const snap = await getDocs(collection(db, "participantes"));
+              const snap = await leerColeccion("participantes");
               let pendientes = 0;
               snap.forEach(d => {
                 const estado = d.data().pago?.estado;
@@ -1746,15 +1725,19 @@
         ].filter(w => tienePermiso(rol, w.permiso, usuario.permisosExtra, usuario.ajustesRol));
 
         if (widgetsDef.length > 0) {
+        const bloqueResumen = document.createElement("section");
+        bloqueResumen.className = "cx-bloque cx-bloque--resumen";
+        bloqueResumen.setAttribute("aria-labelledby", "cx-titulo-resumen");
+        bloqueResumen.innerHTML = `<h2 class="cx-bloque__titulo" id="cx-titulo-resumen">Resumen</h2>`;
         const widgetsEl = document.createElement("div");
         widgetsEl.className = "widgets-grid";
-        widgetsEl.style.marginBottom = "16px";
         widgetsEl.innerHTML = widgetsDef.map(w => `
           <div class="widget-card">
             <div class="widget-label">${w.label}</div>
             <div class="widget-valor" id="${w.id}">Cargando...</div>
           </div>`).join("");
-        contenido.appendChild(widgetsEl);
+        bloqueResumen.appendChild(widgetsEl);
+        contenido.appendChild(bloqueResumen);
         widgetsDef.forEach(w => w.init(document.getElementById(w.id)));
         }
 
@@ -1768,24 +1751,26 @@
         };
 
         if (tienePermiso(rol, "ver_calendario", usuario.permisosExtra, usuario.ajustesRol)) {
+        // Va en "Tu agenda" (lateral derecho), debajo del resumen del evento.
+        const agendaExtra = document.getElementById("cx-agenda-extra");
         const tituloAgenda = document.createElement("div");
         tituloAgenda.className = "agenda-hoy-titulo";
-        tituloAgenda.textContent = "Hoy";
-        contenido.appendChild(tituloAgenda);
+        tituloAgenda.textContent = "Tus actividades de hoy";
+        agendaExtra.appendChild(tituloAgenda);
 
         const hoyWrap = document.createElement("div");
         hoyWrap.id = "agenda-hoy";
         hoyWrap.innerHTML = `<div class="sin-eventos">Cargando agenda...</div>`;
-        contenido.appendChild(hoyWrap);
+        agendaExtra.appendChild(hoyWrap);
 
         const tituloProximos = document.createElement("div");
         tituloProximos.className = "agenda-proximos-titulo";
         tituloProximos.textContent = "Próximos días";
-        contenido.appendChild(tituloProximos);
+        agendaExtra.appendChild(tituloProximos);
 
         const eventosWrap = document.createElement("div");
         eventosWrap.className = "eventos-lista";
-        contenido.appendChild(eventosWrap);
+        agendaExtra.appendChild(eventosWrap);
 
         (async () => {
           try {
@@ -1906,7 +1891,14 @@
         modulos: cat.modulos.map(m => ({ label: m.label, href: versionarRutaUI(m.href), admin: !!m.admin })),
       }));
       navbarCx.establecerCategorias(categoriasNav);
-      pintarTarjetasModulos(document.getElementById("cx-modulos"), categoriasNav);
+
+      // Carrusel 3D de secciones: entrar a una abre su vista con sus modulos
+      // (o lleva directo al modulo si la seccion tiene uno solo).
+      if (categoriasNav.length && !esPosper) {
+        document.getElementById("cx-bloque-modulos").hidden = false;
+        montarCarrusel(document.getElementById("cx-carrusel"), categoriasNav, { alElegir: entrarASeccion });
+        iniciarVistas(categoriasNav, document.getElementById("main-container"));
+      }
 
       // ══════════ Mobile — bottom sheet: lista de texto limpia,
       // con una flecha que indica que se navega a otra pantalla ══════════
