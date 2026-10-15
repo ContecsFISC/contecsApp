@@ -12,10 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
-  <link rel="stylesheet" href="../css/styles.css?v=20261015.2"/>
-  <link rel="stylesheet" href="../css/tokens.css?v=20261015.2"/>
-  <link rel="stylesheet" href="../css/navbar.css?v=20261015.2"/>
-  <link rel="stylesheet" href="../css/tarjetas.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../css/styles.css?v=20261015.3"/>
+  <link rel="stylesheet" href="../css/tokens.css?v=20261015.3"/>
+  <link rel="stylesheet" href="../css/navbar.css?v=20261015.3"/>
+  <link rel="stylesheet" href="../css/tarjetas.css?v=20261015.3"/>
   <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
        sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
        solo rozar el enlace. -->
@@ -1033,6 +1033,10 @@
     }
 
   </style>
+  <!-- Dashboard movil: va despues del <style> para mandar sobre el. -->
+  <link rel="stylesheet" href="../css/dashboard-movil.css?v=20261015.3"/>
+  <!-- Antes de pintar: los bloques del inicio movil esperan a js/core/revelar.js para entrar en cascada. -->
+  <script>document.documentElement.classList.add("cx-revela");</script>
 </head>
 
 <body>
@@ -1189,14 +1193,20 @@
   </div>
 
   <script type="module">
+    // Entrada en cascada de los bloques del inicio movil (no depende de la sesion).
+    import { revelarAlEntrar } from "../js/core/revelar.js?v=20261015.3";
+    revelarAlEntrar(document.querySelectorAll(".mobile-dashboard > .mobile-section"), { paso: 90 });
+  </script>
+
+  <script type="module">
     import { guardRoute, esperarSesionLista, getUsuarioActual, cerrarSesion } from "../js/core/auth.js";
     import { tienePermiso, infoRol } from "../js/core/permisos.js";
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
-    import { montarNavbar } from "../js/core/navbar.js?v=20261015.2";
-    import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.2";
-    import { pintarTarjetasModulos } from "../js/core/tarjetas-modulos.js?v=20261015.2";
+    import { montarNavbar } from "../js/core/navbar.js?v=20261015.3";
+    import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.3";
+    import { pintarTarjetasModulos } from "../js/core/tarjetas-modulos.js?v=20261015.3";
     import {
       doc, getDoc, onSnapshot, collection, query, where, getDocs
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -1879,7 +1889,7 @@
       }
 
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
-      const UI_VERSION = "20261015.2";
+      const UI_VERSION = "20261015.3";
       const versionarRutaUI = ruta => `${ruta}${ruta.includes("?") ? "&" : "?"}v=${UI_VERSION}`;
       // CATEGORIAS vive en js/core/navegacion.js (la comparten el dashboard y el navbar de cada pagina).
 

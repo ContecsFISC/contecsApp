@@ -19,7 +19,7 @@
 // son transform/opacity en CSS.
 // ═══════════════════════════════════════════════════════════════
 
-import "./boom.js?v=20261015.2"; // transicion "boom" para cualquier <a data-boom>
+import "./boom.js?v=20261015.3"; // transicion "boom" para cualquier <a data-boom>
 
 const ICONOS = {
   congreso:     '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -317,7 +317,11 @@ export function montarNavbar({
       // Panel movil: bloque por categoria.
       const grupo = el("div", "cx-sheet__group");
       const t = el("div", "cx-menu__title");
-      t.textContent = cat.label;
+      const ico = el("span", "cx-sheet__ico", { "aria-hidden": "true" });
+      ico.style.setProperty("--tono-fondo", `var(--cx-tono-${cat.id}-fondo, var(--cx-ink))`);
+      ico.style.setProperty("--tono-tinta", `var(--cx-tono-${cat.id}-tinta, var(--cx-champagne))`);
+      ico.appendChild(svg(cat.id));
+      t.append(ico, document.createTextNode(cat.label));
       grupo.appendChild(t);
       (cat.modulos || []).forEach((m, j) => {
         const a = el("a", "cx-menu__link", { href: m.href, "data-boom": cat.id || "", "data-boom-nombre": m.label });

@@ -11,10 +11,13 @@
 // Dos capas por tarjeta: .cx-mod lleva la ENTRADA y .cx-mod__cara la
 // INCLINACION, para que las dos animaciones no se pisen el transform.
 // ═══════════════════════════════════════════════════════════════
-import { iconoSeccion } from "./navbar.js?v=20261015.2";
+import { iconoSeccion } from "./navbar.js?v=20261015.3";
+import { revelarAlEntrar } from "./revelar.js?v=20261015.3";
 
 const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const conRaton = matchMedia("(hover: hover) and (pointer: fine)");
+// Movil y tablet: rejilla de mosaicos; cada tarjeta entra cuando se ve.
+const angosto = matchMedia("(max-width: 1023.98px)");
 
 function nodo(etiqueta, clase, texto) {
   const n = document.createElement(etiqueta);
@@ -76,6 +79,18 @@ function animarInclinacion(rejilla) {
   });
 }
 
+/** En pantallas tactiles el brillo nace donde cae el dedo (lo enciende :active). */
+function brilloAlTocar(rejilla) {
+  rejilla.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse") return;
+    const cara = e.target.closest(".cx-mod__cara");
+    if (!cara) return;
+    const r = cara.getBoundingClientRect();
+    cara.style.setProperty("--mx", `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
+    cara.style.setProperty("--my", `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
+  }, { passive: true });
+}
+
 /**
  * Pinta (o vuelve a pintar) las tarjetas dentro de `contenedor`.
  * @param contenedor elemento vacio de la pagina
@@ -109,6 +124,14 @@ export function pintarTarjetasModulos(contenedor, categorias = []) {
     grupo.append(titulo, rejilla);
     contenedor.appendChild(grupo);
     if (conRaton.matches) animarInclinacion(rejilla);
+    else brilloAlTocar(rejilla);
+  }
+
+  // Movil: la lista es larga, asi que cada tarjeta llega al aparecer en pantalla.
+  if (angosto.matches) {
+    contenedor.dataset.visto = "uno";
+    revelarAlEntrar(contenedor.querySelectorAll(".cx-mod"), { paso: 55 });
+    return;
   }
 
   // Entrada escalonada cuando la seccion se ve (no animar lo que esta fuera de pantalla).
