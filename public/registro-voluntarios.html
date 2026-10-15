@@ -5,6 +5,9 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+ <link rel="manifest" href="../manifest.webmanifest"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>II CONTECS 2026 — Registro de voluntarios</title>
  <meta name="description" content="Regístrate como voluntario del II CONTECS 2026."/>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -12,9 +15,9 @@
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <style>
  :root {
- --verde: #00722e; --verde-oscuro: #045223; --verde-claro: #39b54a; --verde-fondo: #e9f6ee;
- --gris-texto: #1d1d1f; --gris-suave: #f5f5f7; --gris-borde: #e3e3e6; --gris-medio: #86868b;
- --rojo: #d0342c; --rojo-fondo: #fdf0ef; --amarillo: #a87400; --amarillo-fondo: #fff3cc;
+ --verde: #064e3b; --verde-oscuro: #053f30; --verde-claro: #118066; --verde-fondo: #e4f1ec;
+ --gris-texto: #10241d; --gris-suave: #fbfaf6; --gris-borde: #e8e5dc; --gris-medio: #5e6f67;
+ --rojo: #cd332b; --rojo-fondo: #fdf0ef; --amarillo: #9f5e18; --amarillo-fondo: #fff1dc;
  --radio: 14px; --radio-sm: 10px;
  --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
  --fuente-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
@@ -24,12 +27,12 @@
  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
  body { font-family: var(--fuente); background: var(--gris-suave); color: var(--gris-texto); min-height: 100vh; font-size: 15px; line-height: 1.5; }
  body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
- background: radial-gradient(560px circle at 12% -8%, rgba(57,181,74,0.10), transparent 60%), radial-gradient(640px circle at 105% 30%, rgba(0,114,46,0.07), transparent 62%); }
+ background: radial-gradient(560px circle at 12% -8%, rgba(17,128,102,0.10), transparent 60%), radial-gradient(640px circle at 105% 30%, rgba(6,78,59,0.07), transparent 62%); }
 
- .hero { background: radial-gradient(620px circle at 50% -160px, rgba(57,181,74,0.55), transparent 68%), linear-gradient(165deg, #033f1b 0%, var(--verde-oscuro) 45%, var(--verde) 100%);
+ .hero { background: radial-gradient(620px circle at 50% -160px, rgba(17,128,102,0.55), transparent 68%), linear-gradient(165deg, #032e23 0%, var(--verde-oscuro) 45%, var(--verde) 100%);
  padding: 40px 20px 54px; text-align: center; color: #fff; }
  .hero-logo { width: 78px; height: 78px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
- box-shadow: 0 0 0 10px rgba(255,255,255,0.07), 0 0 60px rgba(57,181,74,0.45); }
+ box-shadow: 0 0 0 10px rgba(255,255,255,0.07), 0 0 60px rgba(17,128,102,0.45); }
  .hero h1 { font-family: var(--fuente-display); font-size: 30px; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }
  .hero p { font-size: 15px; opacity: .9; }
  .hero-badge { display: inline-block; margin-top: 12px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); font-size: 12px; font-weight: 600; }
@@ -46,7 +49,7 @@
  width: 100%; padding: 11px 13px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
  font: 500 15px var(--fuente); color: var(--gris-texto); background: #fff; transition: border-color .2s, box-shadow .2s; }
  .campo textarea { resize: vertical; min-height: 76px; }
- .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(6,78,59,0.12); }
  .campo select:disabled { background: var(--gris-suave); color: var(--gris-medio); cursor: not-allowed; }
  .campo input.invalido { border-color: var(--rojo); }
  .ayuda { font-size: 12px; color: var(--gris-medio); }
@@ -58,10 +61,10 @@
  .horario strong { font-size: 14px; }
  .horario small { font-size: 12px; color: var(--gris-medio); }
  .horario:has(input:checked) { border-color: var(--verde); background: var(--verde-fondo); }
- .horario:has(input:focus-visible) { box-shadow: 0 0 0 4px rgba(0,114,46,0.18); }
+ .horario:has(input:focus-visible) { box-shadow: 0 0 0 4px rgba(6,78,59,0.18); }
  .check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--gris-texto); cursor: pointer; }
  .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--verde); flex-shrink: 0; }
- .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radio-sm); background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); color: #fff; font: 700 15px var(--fuente); cursor: pointer; box-shadow: 0 4px 14px rgba(0,114,46,0.25); }
+ .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radio-sm); background: linear-gradient(135deg, var(--verde) 0%, var(--verde-claro) 100%); color: #fff; font: 700 15px var(--fuente); cursor: pointer; box-shadow: 0 4px 14px rgba(6,78,59,0.25); }
  .btn:disabled { opacity: .6; cursor: wait; }
  .alerta { display: none; padding: 12px 14px; border-radius: var(--radio-sm); font-size: 14px; font-weight: 600; margin-bottom: 14px; }
  .alerta.error { display: block; background: var(--rojo-fondo); color: var(--rojo); }
