@@ -9,6 +9,21 @@
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS 2026 — Mi Credencial</title>
+ <script>
+ // Algunos lectores de POSPER abren en el navegador la URL que leen en vez de
+ // escribirla en la página. Si este equipo está escaneando en posper.html
+ // (marca "posper.escaneando" de js/modulos/posper.js, vigente 12 h), la
+ // credencial vuelve allá para registrar la asistencia en lugar de mostrar el perfil.
+ (function () {
+   try {
+     var marca = Number(localStorage.getItem("posper.escaneando"));
+     var q = new URLSearchParams(location.search);
+     if (marca && Date.now() - marca < 12 * 60 * 60 * 1000 && q.get("c") && q.get("t")) {
+       location.replace("../panel/modulos/congreso/posper.html#lectura=" + encodeURIComponent(location.href));
+     }
+   } catch (e) { /* sin almacenamiento: se muestra el perfil */ }
+ })();
+ </script>
  <script src="../js/libs/qrcode.min.js"></script>
  <style>
  :root {

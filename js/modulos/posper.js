@@ -41,6 +41,9 @@ const ejecutarOperacionQr = httpsCallable(
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 const CLAVE_CONFIG = "posper.config";
+// Marca que este equipo está escaneando: si su lector abre en el navegador el
+// link de una credencial, public/perfil.html la devuelve aquí (#lectura=...).
+const CLAVE_ESCANEANDO = "posper.escaneando";
 // Sin sufijo Enter, la lectura se da por terminada tras este silencio.
 const SILENCIO_FIN_MS = 600;
 const LONGITUD_MAX_LECTURA = 2048;
@@ -99,8 +102,16 @@ function nombreDe(p) {
   return p?.nombreCompleto || [p?.nombre, p?.apellido].filter(Boolean).join(" ") || "Participante";
 }
 
+function marcarEscaneando(activo) {
+  try {
+    if (activo) localStorage.setItem(CLAVE_ESCANEANDO, String(Date.now()));
+    else localStorage.removeItem(CLAVE_ESCANEANDO);
+  } catch (_) { /* sin almacenamiento: el perfil se abre como siempre */ }
+}
+
 function esperarQr(sub) {
   estado = "qr";
+  marcarEscaneando(true);
   participanteActual = null;
   el("btn-cancelar-rfid").style.display = "none";
   pantalla("esperando", "ESCANEA EL QR",
@@ -564,6 +575,7 @@ function elegirCheckpoint() {
 
 function irAConfig() {
   estado = "config";
+  marcarEscaneando(false);
   cerrarPregunta();
   el("btn-cancelar-rfid").style.display = "none";
   el("config-form").style.display = "block";
@@ -663,9 +675,17 @@ document.addEventListener("visibilitychange", () => {
 esperarSesionLista().then(() => {
   if (esCeo()) el("ceo-todos").style.display = "flex";
 });
+// Credencial que devolvió public/perfil.html (el lector la abrió en el navegador).
+const lecturaPendiente = new URLSearchParams(window.location.hash.slice(1)).get("lectura") || "";
+if (lecturaPendiente) history.replaceState(null, "", window.location.pathname + window.location.search);
+
 sincronizarReloj().then(() => {
   leerDispositivo();
   return cargarEventos();
+}).then(() => {
+  if (!lecturaPendiente) return;
+  if (estado === "qr") return procesarLectura(lecturaPendiente);
+  alerta("aviso", "Elige el evento y el checkpoint y vuelve a escanear la credencial.");
 }).catch(e => {
   console.error("POSPER: error cargando eventos:", e);
   alerta("error", "No se pudieron cargar los eventos: " + (e.message || e));
