@@ -118,9 +118,13 @@
 
     entrar().catch((e) => {
       console.error("[POSPER]", e);
-      mostrarError(e?.code === "functions/permission-denied" || e?.code === "functions/invalid-argument"
-        ? e.message
-        : "No se pudo abrir el acceso. Revisa tu conexión e intenta de nuevo.");
+      // Solo un fallo de red es "revisa tu conexión"; si el servidor respondió,
+      // se muestra lo que dijo.
+      const sinRed = !e?.code || e.code === "functions/unavailable" || e.code === "functions/deadline-exceeded"
+        || e.code === "auth/network-request-failed";
+      mostrarError(sinRed
+        ? "No se pudo abrir el acceso. Revisa tu conexión e intenta de nuevo."
+        : e.message);
     });
   </script>
 </body>
