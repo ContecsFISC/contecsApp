@@ -56,6 +56,9 @@
   /* backwards, no both: una animacion que retiene su ultimo fotograma pisaria
      el transform del estado acoplado y la barra nunca se iria. */
   animation: cx-bar-in var(--cx-dur-slow) var(--cx-ease-out) backwards;
+  /* Mismo nombre que .topbar de las paginas de modulo (styles.css): al navegar
+     entre dashboard y modulo la barra se queda quieta en vez de parpadear. */
+  view-transition-name: cx-bar;
 }
 /* Sombra de "ya hay contenido debajo": capa aparte que solo cambia de opacidad
    (animar box-shadow repinta cada frame; animar opacity no). */
@@ -471,6 +474,50 @@
 .cx-rail__logout svg { width: 20px; height: 20px; }
 .cx-rail__logout:hover { background: var(--cx-ink); color: var(--cx-champagne); }
 .cx-rail__logout:active { transform: scale(0.92); }
+
+/* Boton generico del carril (lo usa el carril mini de las paginas de modulo).
+   El efecto va en el svg: el boton ya anima su ENTRADA con transform. */
+.cx-rail__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--cx-text-2);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--cx-dur-fast) ease, color var(--cx-dur-fast) ease;
+}
+.cx-rail__btn svg { width: 21px; height: 21px; transition: transform var(--cx-dur-base) var(--cx-ease-spring); }
+.cx-rail__btn:hover { background: var(--cx-champagne-300); color: var(--cx-ink); }
+.cx-rail__btn:hover svg { transform: scale(1.14); }
+.cx-rail__btn:active svg { transform: scale(0.9); }
+
+/* Carril mini: el nombre de la pagina asoma a la izquierda al pasar el cursor. */
+.cx-nav--mini .cx-rail::before {
+  content: attr(data-titulo);
+  position: absolute;
+  top: 12px;
+  right: calc(100% + 14px);
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: var(--cx-radius-sm);
+  background: var(--cx-ink);
+  color: var(--cx-champagne);
+  font: 600 12.5px/1.25 var(--cx-font);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--cx-shadow-3);
+  opacity: 0;
+  transform: translate3d(8px, 0, 0);
+  pointer-events: none;
+  transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-base) var(--cx-ease-out);
+}
+.cx-nav--mini .cx-rail:hover::before { opacity: 1; transform: translate3d(0, 0, 0); }
 
 /* ───────────────────────── PANEL MOVIL ───────────────────────── */
 .cx-sheet,

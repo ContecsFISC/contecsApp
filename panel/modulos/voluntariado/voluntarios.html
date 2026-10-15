@@ -10,6 +10,8 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/jszip.min.js"></script>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
@@ -33,10 +35,6 @@
  .tab-panel { display:none; }
  .tab-panel.active { display:block; }
 
- .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
- .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
-
-
  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
  .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--verde-claro); }
  .stat-mini .num { font-size:26px; font-weight:700; color:var(--verde-oscuro); }
@@ -52,7 +50,6 @@
  .tipo-gira { background:#fff3cd; color:#856404; border:1px solid #ffc107; }
  .tipo-venta { background:#fde8e8; color:#c81e1e; border:1px solid #f98080; }
 
-
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
  .modal-box { background:#fff; border-radius:16px; padding:28px 24px; max-width:420px; width:100%; position:relative; animation:modalBounceUp 0.35s var(--ease-spring,ease) both; max-height:90vh; overflow-y:auto; }
@@ -66,21 +63,6 @@
  .stats-grid { grid-template-columns:1fr 1fr; }
  .tab-btn { font-size:10px; padding:7px 4px; min-width:50px; }
  }
- 
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco, #fff);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  /* ── Importar voluntarios (mismo recorrido que Participantes) ── */
  .iv-card { padding:0; overflow:hidden; border:2px solid var(--verde-claro); }
  .iv-paso { display:flex; flex-direction:column; gap:14px; padding:20px; }
@@ -582,5 +564,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/voluntarios.js?v=20261014.1"></script>
+  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

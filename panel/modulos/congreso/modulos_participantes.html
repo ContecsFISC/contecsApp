@@ -10,6 +10,8 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/exceljs.min.js" defer></script>
  <script type="module">
@@ -628,21 +630,6 @@
  from { opacity: 0; transform: translateY(10px); }
  to { opacity: 1; transform: translateY(0); }
  }
- 
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco, #fff);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  @media(max-width:600px) {
    .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
    .stat-card { min-width:0; padding:13px 8px; border-radius:14px; }
@@ -2259,5 +2246,6 @@ if (usuarioTienePermiso("importar_participantes")) el("btn-importar").style.disp
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();
 </script>
+  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

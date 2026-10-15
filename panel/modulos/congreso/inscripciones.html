@@ -10,6 +10,8 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
  <script src="../../../js/libs/jspdf.umd.min.js"></script>
@@ -36,12 +38,8 @@
  .tab-panel { display:none; }
  .tab-panel.active { display:block; }
 
- .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
- .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
-
  .checkpoint-tag { display:inline-flex; align-items:center; gap:6px; background:var(--verde-fondo); border:1px solid var(--verde-claro); border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:var(--verde-oscuro); }
  .checkpoint-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
-
 
  .tabla-asistencia th,.tabla-asistencia td { font-size:12px; padding:8px 10px; text-align:center; white-space:nowrap; color:var(--verde-claro); }
  .tabla-asistencia th { background:var(--verde-fondo); color:var(--verde-oscuro); border-bottom:2px solid var(--verde-oscuro); }
@@ -118,7 +116,6 @@
  .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--verde-claro); }
  .stat-mini .num { font-size:26px; font-weight:700; color:var(--verde-oscuro); }
  .stat-mini .lbl { font-size:12px; color:var(--gris-medio); margin-top:4px; }
-
 
  .card-title { color: var(--verde-oscuro); }
 
@@ -206,21 +203,6 @@
  .btn-qr-scan { padding-inline:8px; }
  .stats-grid { grid-template-columns:1fr; }
  }
- 
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco, #fff);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  </style>
   <script type="speculationrules">
   { "prefetch": [{ "where": { "href_matches": "/*panel/*" }, "eagerness": "moderate" }] }
@@ -619,5 +601,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/inscripciones.js?v=20261014.1"></script>
+  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>
