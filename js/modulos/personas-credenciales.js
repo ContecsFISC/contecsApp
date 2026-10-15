@@ -44,8 +44,21 @@ export function personaParticipante(p) {
 }
 
 // ── Voluntarios y comité organizador ───────────────────────────────────────
-// El QR es la cédula (campo `id`): lo que lee Lectura QR de voluntarios para
-// marcar horas, así que el comité organizador también registra las suyas.
+// Con token (functions/personal.js) el QR abre su perfil
+// (public/perfil-personal.html); Lectura QR de voluntarios saca de ese enlace
+// el documento para marcar horas, así que el comité también registra las
+// suyas. Sin token el QR es la cédula (campo `id`), como antes.
+// Misma URL que la constante de public/perfil-personal.html.
+const URL_BASE_PERFIL_PERSONAL = "https://contecs-app.vercel.app/public/perfil-personal.html";
+
+export function qrPersonal(v) {
+  const docId = v._docId || v.docId || "";
+  if (docId && v.token) {
+    return `${URL_BASE_PERFIL_PERSONAL}?id=${encodeURIComponent(docId)}&t=${encodeURIComponent(v.token)}`;
+  }
+  return String(v.id || "").trim();
+}
+
 // La clave usa el documento, no el grupo: si alguien pasa de voluntario a
 // comité, conserva su historial de impresión.
 export function personaVoluntario(v) {
@@ -57,7 +70,7 @@ export function personaVoluntario(v) {
     cedula: "", // ya va en la etiqueta bajo el QR
     cred: {
       tema: comite ? "comite" : "voluntario",
-      qr: cedula,
+      qr: cedula ? qrPersonal(v) : "",
       codigo: cedula,
       etiqueta: comite ? "Comité organizador" : "Voluntario",
       cabecera: comite ? "COMITÉ ORGANIZADOR" : "VOLUNTARIADO",

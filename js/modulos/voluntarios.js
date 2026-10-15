@@ -1,6 +1,6 @@
 import { db, auth } from "../core/firebase-config.js";
 import {
-  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc,
   query, where, orderBy, serverTimestamp, writeBatch,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getUsuarioActual, aplicarPermisosDom, usuarioTienePermiso } from "../core/auth.js";
@@ -87,6 +87,9 @@ function nombreCompletoVol(v) {
 }
 
 let actividades       = [];
+// Eventos del congreso con los turnos de voluntarios de cada día
+// (turnos_congreso/{eventoId}): { id, nombre, fecha, dias, turnos }.
+let congresos         = [];
 let giras             = [];
 let ventas            = [];
 let voluntarios       = [];
@@ -334,6 +337,27 @@ async function cargarActividades() {
   renderFiltroActividades();
 }
 
+async function cargarCongresos() {
+  const [eventos, turnosDocs] = await Promise.all([
+    leerDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")), "los eventos del congreso"),
+    leerDocs(collection(db, "turnos_congreso"), "los turnos del congreso"),
+  ]);
+  const turnosPorEvento = new Map(turnosDocs.map(t => [t.id, t.turnos || []]));
+  congresos = eventos
+    .filter(ev => ev.estado !== "cancelado")
+    .map(ev => ({
+      id: ev.id,
+      nombre: ev.nombre || "Congreso",
+      fecha: ev.fechaInicio || null,
+      activo: ev.activo,
+      dias: (ev.diasEvento || []).map(d => d.fecha).filter(Boolean).sort(),
+      turnos: turnosPorEvento.get(ev.id) || [],
+    }));
+  renderFiltroActividades();
+}
+
+const etiquetaDiaCongreso = dia => new Date(`${dia}T12:00:00`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long" });
+
 function renderSelectorActividades() {
   const sel = el("sel-actividad");
   if (!sel) return;
@@ -349,13 +373,27 @@ function renderSelectorActividades() {
 function renderFiltroActividades() {
   const sel = el("filtro-actividad");
   if (!sel) return;
+  const actual = sel.value;
   sel.innerHTML = `<option value="">Todas las actividades</option>`;
+  const conTurnos = congresos.filter(c => c.turnos.length);
+  if (conTurnos.length) {
+    const grupo = document.createElement("optgroup");
+    grupo.label = "Congreso";
+    conTurnos.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.nombre;
+      grupo.appendChild(opt);
+    });
+    sel.appendChild(grupo);
+  }
   actividades.forEach(a => {
     const opt = document.createElement("option");
     opt.value = a.id;
     opt.textContent = a.nombre;
     sel.appendChild(opt);
   });
+  if ([...sel.options].some(o => o.value === actual)) sel.value = actual;
 }
 
 function renderTablaActividades() {
@@ -1324,12 +1362,14 @@ const ETIQUETAS = { 1: "Necesita mejora", 2: "Regular", 3: "Bueno", 4: "Muy buen
 
 function resolverAsistencia(a) {
   const vol   = voluntarios.find(v => v._docId === a.voluntarioId);
-  const act   = actividades.find(x => x.id === a.actividadId);
+  const congreso = a.origen === "congreso";
+  const act   = congreso ? congresos.find(x => x.id === a.actividadId) : actividades.find(x => x.id === a.actividadId);
   const turno = act?.turnos?.find(t => t.id === a.turnoId);
+  const dia   = congreso ? (a.dia || turno?.dia) : null;
   return {
     nomVol:   vol?.nombre   || "—",
-    nomAct:   act?.nombre   || "—",
-    nomTurno: turno?.nombre || "—",
+    nomAct:   act ? (congreso ? `${act.nombre} (Congreso)` : act.nombre) : (congreso ? "Congreso" : "—"),
+    nomTurno: turno ? `${turno.nombre}${dia ? ` · ${etiquetaDiaCongreso(dia)}` : ""}` : "—",
     area:     act?.area     || "",
   };
 }
@@ -1361,11 +1401,11 @@ el("filtro-actividad")?.addEventListener("change", async () => {
   const selTurno = el("filtro-turno");
   selTurno.innerHTML = `<option value="">Todos los turnos</option>`;
   if (actId) {
-    const a = actividades.find(x => x.id === actId);
+    const a = actividades.find(x => x.id === actId) || congresos.find(x => x.id === actId);
     (a?.turnos || []).forEach(t => {
       const opt = document.createElement("option");
       opt.value       = t.id;
-      opt.textContent = `${t.nombre} (${t.horaInicio}–${t.horaFin})`;
+      opt.textContent = `${t.dia ? `${etiquetaDiaCongreso(t.dia)} · ` : ""}${t.nombre} (${t.horaInicio}–${t.horaFin})`;
       selTurno.appendChild(opt);
     });
   }
@@ -2744,21 +2784,46 @@ el("btn-exportar-asignaciones")?.addEventListener("click", () => {
 // ════════════════════════════════════════════════════════════
 
 function coleccionPorTipo(tipo) {
+  if (tipo === "congreso")  return "turnos_congreso";
   if (tipo === "actividad") return "actividades_voluntarios";
   if (tipo === "gira")      return "giras_voluntarios";
   return "actividades_ventas";
 }
 
 function eventosPorTipo(tipo) {
+  if (tipo === "congreso")  return congresos;
   if (tipo === "actividad") return actividades;
   if (tipo === "gira")      return giras;
   return ventas;
 }
 
 async function recargarEventosPorTipo(tipo) {
-  if (tipo === "actividad")      await cargarActividades();
+  if (tipo === "congreso")       await cargarCongresos();
+  else if (tipo === "actividad") await cargarActividades();
   else if (tipo === "gira")      await cargarGiras();
   else                           await cargarVentas();
+}
+
+// turnos_congreso puede no existir todavía: se crea con merge. Las demás
+// colecciones guardan los turnos en el propio documento del evento.
+function guardarTurnosEvt(tipo, eventoId, turnos) {
+  const ref = doc(db, coleccionPorTipo(tipo), eventoId);
+  const datos = { turnos, actualizadoEn: serverTimestamp() };
+  return tipo === "congreso" ? setDoc(ref, datos, { merge: true }) : updateDoc(ref, datos);
+}
+
+function renderDiasCongresoEvt() {
+  const tipo = el("turno-evt-tipo").value;
+  const wrap = el("turno-evt-dia-wrap");
+  const sel = el("turno-evt-dia");
+  const congreso = tipo === "congreso" ? congresos.find(e => e.id === el("turno-evt-evento").value) : null;
+  wrap.style.display = congreso ? "" : "none";
+  if (!congreso) return;
+  const actual = sel.value;
+  sel.innerHTML = congreso.dias.length
+    ? congreso.dias.map(d => `<option value="${escaparAtributo(d)}">${h(etiquetaDiaCongreso(d))}</option>`).join("")
+    : `<option value="">El evento no tiene días configurados</option>`;
+  if (congreso.dias.includes(actual)) sel.value = actual;
 }
 
 function renderTurnosEvt() {
@@ -2780,9 +2845,15 @@ function renderTurnosEvt() {
     const hh = Math.floor(min / 60), mm = min % 60;
     return ` · ${hh ? `${hh} h` : ""}${hh && mm ? " " : ""}${mm ? `${mm} min` : ""}`;
   };
+  // En el congreso los turnos van agrupados por día.
+  let diaPrevio = null;
   lista.innerHTML = [...turnos]
-    .sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio)))
-    .map(t => `
+    .sort((a, b) => `${a.dia || ""} ${a.horaInicio}`.localeCompare(`${b.dia || ""} ${b.horaInicio}`))
+    .map(t => {
+      const cabecera = tipo === "congreso" && t.dia !== diaPrevio
+        ? `<div class="turnos-dia">${h(t.dia ? etiquetaDiaCongreso(t.dia) : "Sin día")}</div>` : "";
+      diaPrevio = t.dia;
+      return `${cabecera}
     <div class="turno-chip">
       <div class="t-info">
         <div class="t-nombre">${h(t.nombre)}</div>
@@ -2790,7 +2861,8 @@ function renderTurnosEvt() {
       </div>
       <button type="button" class="t-quitar" title="Quitar turno" aria-label="Quitar ${escaparAtributo(t.nombre)}"
         onclick="eliminarTurnoEvt('${escaparAtributo(tipo)}','${escaparAtributo(eventoId)}','${escaparAtributo(t.id)}')">&times;</button>
-    </div>`).join("");
+    </div>`;
+    }).join("");
 }
 
 el("turno-evt-tipo")?.addEventListener("change", () => {
@@ -2817,6 +2889,7 @@ el("turno-evt-tipo")?.addEventListener("change", () => {
   sel.disabled = false;
   el("turno-evt-lista").innerHTML = "";
   el("turno-evt-form").style.display = "none";
+  renderDiasCongresoEvt();
 });
 
 el("turno-evt-evento")?.addEventListener("change", () => {
@@ -2827,6 +2900,7 @@ el("turno-evt-evento")?.addEventListener("change", () => {
     return;
   }
   renderTurnosEvt();
+  renderDiasCongresoEvt();
   el("turno-evt-form").style.display = "block";
 });
 
@@ -2851,20 +2925,25 @@ el("btn-add-turno-evt")?.addEventListener("click", async () => {
 
   const evento = eventosPorTipo(tipo).find(e => e.id === eventoId);
   const turnos = [...(evento?.turnos || [])];
-  if (turnos.some(t => t.nombre.toLowerCase() === nombre.toLowerCase())) {
-    mostrarAlerta("error", "Ya existe un turno con ese nombre en este evento."); return;
+  // Congreso: cada día tiene sus turnos; nombre y horario se comparan solo
+  // con los del mismo día.
+  const dia = tipo === "congreso" ? el("turno-evt-dia").value : null;
+  if (tipo === "congreso" && !dia) { mostrarAlerta("error", "Elige el día del congreso."); return; }
+  const delMismoDia = turnos.filter(t => (t.dia || null) === dia);
+  if (delMismoDia.some(t => t.nombre.toLowerCase() === nombre.toLowerCase())) {
+    mostrarAlerta("error", dia ? "Ya existe un turno con ese nombre ese día." : "Ya existe un turno con ese nombre en este evento."); return;
   }
 
   // Validar que no se superponga con turnos existentes
   const nuevoTurno = { horaInicio: inicio, horaFin: fin };
-  const choque = turnos.find(t => turnosSuperpuestos(nuevoTurno, t));
+  const choque = delMismoDia.find(t => turnosSuperpuestos(nuevoTurno, t));
   if (choque) {
     mostrarAlerta("error", `El horario ${inicio}–${fin} se superpone con el turno "${choque.nombre}" (${choque.horaInicio}–${choque.horaFin}).`); return;
   }
 
-  turnos.push({ id: `t_${Date.now()}`, nombre, horaInicio: inicio, horaFin: fin });
+  turnos.push({ id: `t_${Date.now()}`, ...(dia ? { dia } : {}), nombre, horaInicio: inicio, horaFin: fin });
   try {
-    await updateDoc(doc(db, coleccionPorTipo(tipo), eventoId), { turnos, actualizadoEn: serverTimestamp() });
+    await guardarTurnosEvt(tipo, eventoId, turnos);
     await recargarEventosPorTipo(tipo);
     renderTurnosEvt();
     el("turno-evt-nombre").value = el("turno-evt-inicio").value = el("turno-evt-fin").value = "";
@@ -2877,7 +2956,7 @@ window.eliminarTurnoEvt = async function(tipo, eventoId, turnoId) {
   const evento = eventosPorTipo(tipo).find(e => e.id === eventoId);
   const turnos = (evento?.turnos || []).filter(t => t.id !== turnoId);
   try {
-    await updateDoc(doc(db, coleccionPorTipo(tipo), eventoId), { turnos, actualizadoEn: serverTimestamp() });
+    await guardarTurnosEvt(tipo, eventoId, turnos);
     await recargarEventosPorTipo(tipo);
     renderTurnosEvt();
     mostrarAlerta("success", "Turno eliminado.");
@@ -3215,6 +3294,7 @@ const necesitaVoluntarios  = !!(el("tabla-voluntarios-body") || el("asig-volunta
 const necesitaGiras        = !!(el("tabla-giras-body") || el("asig-tipo") || el("turno-evt-tipo"));
 const necesitaVentas       = !!(el("asig-evento") || el("turno-evt-tipo"));
 const necesitaSolicitudes  = !!el("act-nombre");
+const necesitaCongresos    = !!(el("turno-evt-tipo") || el("filtro-actividad"));
 
 const tareasIniciales = [
   necesitaActividades && cargarActividades(),
@@ -3222,6 +3302,7 @@ const tareasIniciales = [
   necesitaGiras       && cargarGiras(),
   necesitaVentas      && cargarVentas(),
   necesitaSolicitudes && cargarSolicitudesAutocomplete(),
+  necesitaCongresos   && cargarCongresos(),
 ].filter(Boolean);
 
 Promise.all(tareasIniciales).then(() => {

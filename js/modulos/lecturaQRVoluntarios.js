@@ -20,8 +20,10 @@ const ejecutarOperacionQr = httpsCallable(
 
 let scanner          = null;
 let escaneando       = false;
-let actividadActiva  = null;
+let actividadActiva  = null;   // con origen "congreso" es el evento y sus turnos por día
 let turnoActivo      = null;
+let diaActivo        = null;   // solo congreso: "2026-10-19"
+const congresos      = new Map(); // eventoId -> { id, nombre, origen, turnos, dias }
 let voluntarioActual = null;
 let asistenciaActual = null;
 let modoActual       = null;   // "entrada" | "salida" | "completo"
@@ -63,44 +65,116 @@ function fmtHora(ts) {
 }
 
 // ─── Cargar actividades ───────────────────────────────────────────────────────
+// El congreso va primero: sus turnos (uno por día) se crean en Voluntariado →
+// Turnos y viven en turnos_congreso/{eventoId}.
+async function cargarCongresos() {
+  const [eventos, turnosDocs] = await Promise.all([
+    getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc"))),
+    getDocs(collection(db, "turnos_congreso")),
+  ]);
+  const turnosPorEvento = new Map(turnosDocs.docs.map(d => [d.id, d.data().turnos || []]));
+  eventos.docs.forEach(d => {
+    const ev = d.data();
+    const turnos = turnosPorEvento.get(d.id) || [];
+    if (!turnos.length || ev.activo === false || ev.estado === "cancelado") return;
+    const dias = [...new Set([...(ev.diasEvento || []).map(x => x.fecha), ...turnos.map(t => t.dia)].filter(Boolean))].sort();
+    congresos.set(d.id, { id: d.id, nombre: ev.nombre || "Congreso", origen: "congreso", turnos, dias });
+  });
+}
+
 async function cargarActividades() {
+  const sel = el("sel-actividad-qr");
+  try {
+    await cargarCongresos();
+    if (congresos.size) {
+      const grupo = document.createElement("optgroup");
+      grupo.label = "Congreso";
+      congresos.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = `congreso:${c.id}`;
+        opt.textContent = c.nombre;
+        grupo.appendChild(opt);
+      });
+      sel.appendChild(grupo);
+    }
+  } catch (e) {
+    alerta("warning", "No se pudieron cargar los turnos del congreso: " + e.message);
+  }
   try {
     const snap = await getDocs(query(collection(db, "actividades_voluntarios"), orderBy("creadoEn", "desc")));
-    const sel  = el("sel-actividad-qr");
+    const grupo = document.createElement("optgroup");
+    grupo.label = "Actividades de voluntariado";
     snap.docs.forEach(d => {
       const a   = d.data();
       const opt = document.createElement("option");
       opt.value       = d.id;
       opt.textContent = `${a.nombre}${a.activo ? "" : " (inactiva)"}`;
-      sel.appendChild(opt);
+      grupo.appendChild(opt);
     });
+    if (grupo.children.length) sel.appendChild(grupo);
   } catch (e) {
     alerta("error", "No se pudieron cargar las actividades.");
   }
 }
 
+const hoy = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Panama", year: "numeric", month: "2-digit", day: "2-digit",
+}).format(new Date());
+const etiquetaDia = dia => new Date(`${dia}T12:00:00`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long" });
+
 el("sel-actividad-qr").addEventListener("change", async () => {
-  const id = el("sel-actividad-qr").value;
-  if (!id) {
-    actividadActiva = turnoActivo = null;
+  const valor = el("sel-actividad-qr").value;
+  actividadActiva = turnoActivo = diaActivo = null;
+  el("sesion-activa").textContent = "";
+  el("dia-section").style.display = "none";
+  if (!valor) {
     el("turno-section").style.display = "none";
-    el("sesion-activa").textContent = "";
     return;
   }
-  const snap = await getDoc(doc(db, "actividades_voluntarios", id));
-  if (!snap.exists()) return;
-  actividadActiva = { id, ...snap.data() };
-  turnoActivo = null;
+  if (valor.startsWith("congreso:")) {
+    actividadActiva = congresos.get(valor.slice("congreso:".length)) || null;
+    if (!actividadActiva) return;
+    // Por defecto el día de hoy; si hoy no hay congreso, el primero.
+    diaActivo = actividadActiva.dias.includes(hoy()) ? hoy() : actividadActiva.dias[0] || null;
+    renderDias();
+    el("dia-section").style.display = "block";
+  } else {
+    const snap = await getDoc(doc(db, "actividades_voluntarios", valor));
+    if (!snap.exists()) return;
+    actividadActiva = { id: valor, ...snap.data() };
+  }
   renderTurnos();
   el("turno-section").style.display = "block";
-  el("sesion-activa").textContent = "";
 });
+
+function renderDias() {
+  const grid = el("dias-grid");
+  grid.innerHTML = actividadActiva.dias.map(dia => {
+    const activo = dia === diaActivo;
+    return `<button type="button" class="btn btn-sm ${activo ? "btn-primary" : "btn-outline"}" data-dia="${escaparAtributo(dia)}" style="width:auto;text-transform:capitalize;">${h(etiquetaDia(dia))}${dia === hoy() ? " · hoy" : ""}</button>`;
+  }).join("");
+  grid.querySelectorAll("[data-dia]").forEach(b => b.addEventListener("click", () => {
+    diaActivo = b.dataset.dia;
+    turnoActivo = null;
+    el("sesion-activa").textContent = "";
+    renderDias();
+    renderTurnos();
+  }));
+}
+
+// Turnos de la actividad o, en el congreso, los del día elegido.
+function turnosVisibles() {
+  const turnos = actividadActiva?.turnos || [];
+  if (actividadActiva?.origen !== "congreso") return turnos;
+  return turnos.filter(t => t.dia === diaActivo)
+    .sort((a, b) => String(a.horaInicio).localeCompare(String(b.horaInicio)));
+}
 
 function renderTurnos() {
   const grid = el("turnos-grid");
-  const turnos = actividadActiva?.turnos || [];
+  const turnos = turnosVisibles();
   if (!turnos.length) {
-    grid.innerHTML = `<p style="color:var(--gris-medio);font-size:13px;">Esta actividad no tiene turnos configurados.</p>`;
+    grid.innerHTML = `<p style="color:var(--gris-medio);font-size:13px;">${actividadActiva?.origen === "congreso" ? "Este día no tiene turnos configurados." : "Esta actividad no tiene turnos configurados."}</p>`;
     return;
   }
   grid.innerHTML = turnos.map(t => `
@@ -128,7 +202,7 @@ window.seleccionarTurno = function(card, id, nombre, horaInicio, horaFin) {
   card.style.background  = "var(--verde-claro)";
   card.style.color       = "#fff";
   turnoActivo = { id, nombre, horaInicio, horaFin };
-  el("sesion-activa").textContent = `Sesión activa: ${actividadActiva.nombre} · ${nombre} (${horaInicio}–${horaFin})`;
+  el("sesion-activa").textContent = `Sesión activa: ${actividadActiva.nombre}${diaActivo ? ` · ${etiquetaDia(diaActivo)}` : ""} · ${nombre} (${horaInicio}–${horaFin})`;
 };
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
@@ -166,7 +240,14 @@ async function onScanExito(valorQR) {
   if (!escaneando) return;
   await scanner.pause(true);
 
-  const qr = String(valorQR ?? "").trim();
+  let qr = String(valorQR ?? "").trim();
+  // Credenciales nuevas: el QR es el enlace del perfil del personal
+  // (perfil-personal.html?id=<doc>&t=<token>); se usa el documento.
+  try {
+    const url = new URL(qr);
+    const docId = url.pathname.endsWith("/perfil-personal.html") ? url.searchParams.get("id") : null;
+    if (docId) qr = docId;
+  } catch { /* no es un enlace: cédula o id de documento */ }
 
   // 1. Buscar en caché local (instantáneo, sin red)
   //    El QR puede contener el campo "id" (cédula) o el Firestore doc ID.
@@ -237,7 +318,7 @@ function mostrarResultado() {
   document.querySelectorAll(".rating-btn").forEach(b => b.classList.remove("selected"));
   ratingSection.style.display = "none";
 
-  infoTurno.textContent = `Actividad: ${actividadActiva.nombre} · Turno: ${turnoActivo.nombre} (${turnoActivo.horaInicio}–${turnoActivo.horaFin})`;
+  infoTurno.textContent = `${actividadActiva.origen === "congreso" ? "Congreso" : "Actividad"}: ${actividadActiva.nombre}${diaActivo ? ` · ${etiquetaDia(diaActivo)}` : ""} · Turno: ${turnoActivo.nombre} (${turnoActivo.horaInicio}–${turnoActivo.horaFin})`;
 
   if (modoActual === "entrada") {
     badge.className   = "estado-badge estado-entrada";
@@ -287,6 +368,7 @@ el("btn-confirmar").addEventListener("click", async () => {
         voluntarioId: voluntarioActual._docId,
         actividadId: actividadActiva.id,
         turnoId: turnoActivo.id,
+        origen: actividadActiva.origen || "actividad",
       });
 
       agregarLog("entrada", voluntarioActual.nombre, turnoActivo.nombre, null);
@@ -299,6 +381,7 @@ el("btn-confirmar").addEventListener("click", async () => {
         voluntarioId: voluntarioActual._docId,
         actividadId: actividadActiva.id,
         turnoId: turnoActivo.id,
+        origen: actividadActiva.origen || "actividad",
         calificacion: ratingSeleccionado,
       });
       const horasGanadas = respuesta.data.horasGanadas;

@@ -8,7 +8,8 @@
 // (colección credenciales_impresas) para no dejar a nadie sin la suya ni
 // imprimir dos veces por error.
 
-import { db } from "../core/firebase-config.js";
+import { app, db } from "../core/firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import {
   collection, doc, getDocs, query, where, orderBy, writeBatch, serverTimestamp, increment,
   addDoc, updateDoc, deleteDoc,
@@ -97,6 +98,22 @@ async function cargarCheckpoints() {
     : [];
 }
 
+// El QR del personal abre su perfil con un token que crea el servidor
+// (functions/personal.js). Si falta alguno se pide antes de armar las
+// credenciales; si la función no responde, esas credenciales llevan la
+// cédula en el QR, como antes, y Lectura QR las sigue leyendo.
+async function asegurarTokensPersonal() {
+  if (!S.voluntarios.some(v => !v.token)) return;
+  try {
+    const fn = httpsCallable(getFunctions(app, "us-central1"), "asegurarTokensPersonal");
+    const { data } = await fn();
+    S.voluntarios.forEach(v => { if (data.tokens?.[v._docId]) v.token = data.tokens[v._docId]; });
+  } catch (err) {
+    console.warn("Credenciales: tokens del personal no disponibles:", err);
+    alerta("warning", "No se pudieron preparar los enlaces de perfil del personal: sus QR llevan solo la cédula.");
+  }
+}
+
 async function cargarTodo() {
   const [participantes, voluntariosDocs, eventos] = await Promise.all([
     leer(collection(db, "participantes"), "los participantes"),
@@ -111,6 +128,7 @@ async function cargarTodo() {
   // En `voluntarios` el campo `id` es la cédula (lo que lleva el QR) y el
   // documento va aparte en _docId.
   S.voluntarios = voluntariosDocs;
+  await asegurarTokensPersonal();
   S.eventos = eventos.filter(ev => ev.estado !== "cancelado" && ev.activo !== false);
   S.evento = S.eventos[0]?.id || "";
   el("cr-evento").innerHTML = S.eventos.length

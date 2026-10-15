@@ -165,6 +165,7 @@
  .turnos-form .btn { height:44px; white-space:nowrap; }
  .turnos-ayuda { display:block; margin-top:8px; color:var(--gris-medio); font-size:12px; }
  .turnos-lista { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:8px; margin-bottom:14px; }
+ .turnos-dia { grid-column:1 / -1; margin:4px 0 0; font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#1a56db; }
  .turnos-vacio { font-size:13px; color:var(--gris-medio); margin:2px 0 12px; }
  .turno-chip { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radio-sm); background:#f3f6ff; border:1px solid #d7e2fd; border-left:4px solid #1a56db; }
  .turno-chip .t-info { flex:1; min-width:0; }
@@ -241,6 +242,7 @@
  <label style="color:#1a56db;">Tipo de evento</label>
  <select id="turno-evt-tipo">
  <option value="">— Selecciona tipo —</option>
+ <option value="congreso">Congreso</option>
  <option value="actividad">Actividad</option>
  <option value="gira">Gira</option>
  <option value="venta">Venta</option>
@@ -255,6 +257,10 @@
  </div>
  <div id="turno-evt-lista" style="margin-bottom:8px;min-height:24px;"></div>
  <div id="turno-evt-form" style="display:none;">
+ <div class="form-groupE" id="turno-evt-dia-wrap" style="display:none;max-width:320px;">
+ <label for="turno-evt-dia" style="color:#1a56db;">Día del congreso</label>
+ <select id="turno-evt-dia"></select>
+ </div>
  <div class="turnos-form">
  <div class="form-groupE t-campo-nombre">
  <label for="turno-evt-nombre" style="color:#1a56db;">Nombre del turno</label>
@@ -575,6 +581,6 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/voluntarios.js"></script>
+<script type="module" src="../../../js/modulos/voluntarios.js?v=20261014.1"></script>
 </body>
 </html>

@@ -65,6 +65,7 @@ const {eliminarEventoOCheckpoint} = require("./eliminar-eventos");
 const {cambiarRolUsuario} = require("./cambio-rol");
 const {desbloquearUsuarios, guardarPermisosUsuario, guardarPermisosRol} = require("./permisos-admin");
 const {registrarVoluntario} = require("./registro-voluntarios");
+const {asegurarTokensPersonal, accederPersonal} = require("./personal");
 const {mapaPublico} = require("./mapa-publico");
 const {ipDelCliente, claveDeLimite} = require("./ip-cliente");
 const {
@@ -973,6 +974,36 @@ exports.accederParticipante = onCall(
         if (e instanceof HttpsError) throw e;
         console.error("accederParticipante:", e);
         throw new HttpsError("internal", "Error al consultar credencial. Intenta de nuevo.");
+      }
+    },
+);
+
+// ─── Perfil del personal (voluntarios y comité organizador) ──────────────────
+// Público como accederParticipante: lo abre el QR de la credencial con el
+// documento y el token del voluntario (functions/personal.js).
+exports.accederPersonal = onCall(
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    async (request) => {
+      try {
+        return await accederPersonal(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("accederPersonal:", e);
+        throw new HttpsError("internal", "Error al consultar el perfil. Intenta de nuevo.");
+      }
+    },
+);
+
+// Módulo Credenciales: crea los tokens que faltan antes de imprimir.
+exports.asegurarTokensPersonal = onCall(
+    {region: "us-central1", maxInstances: 5},
+    async (request) => {
+      try {
+        return await asegurarTokensPersonal(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("asegurarTokensPersonal:", e);
+        throw new HttpsError("internal", "No se pudieron preparar los enlaces de perfil.");
       }
     },
 );

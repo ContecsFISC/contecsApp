@@ -497,6 +497,16 @@ service cloud.firestore {
         || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios');
     }
 
+    // Turnos de los voluntarios en el congreso, uno por día: un doc por
+    // evento (id del evento) con turnos [{id, dia, nombre, horaInicio,
+    // horaFin}]. Se gestionan en Voluntariado → Turnos y los usa Lectura QR
+    // de voluntarios (functions/operaciones-qr.js).
+    match /turnos_congreso/{eventoId} {
+      allow read: if isStaff();
+      allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades'])
+        || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios');
+    }
+
     match /giras_voluntarios/{id} {
       allow read: if isStaff();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras'])
@@ -519,11 +529,13 @@ service cloud.firestore {
     match /voluntarios/{id} {
       allow read: if puedeVerVoluntarios();
       allow create: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
-        && request.resource.data.totalHoras == 0;
+        && request.resource.data.totalHoras == 0
+        && !('token' in request.resource.data);
       // Cambiar el grupo (voluntario ↔ comité organizador) pide además
       // "voluntarios_cambiar_grupo" (js/core/permisos.js): por ahora solo CEO.
+      // El token del perfil del personal solo lo crea asegurarTokensPersonal.
       allow update: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras', 'token'])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['grupo'])
           || permite('voluntarios_cambiar_grupo', ['ceo']));
       allow delete: if permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']);

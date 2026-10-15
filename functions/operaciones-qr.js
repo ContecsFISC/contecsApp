@@ -324,6 +324,15 @@ function buscarTurno(actividad, turnoId) {
   return turno;
 }
 
+// Día de hoy en Panamá ("2026-10-19"), para los turnos del congreso.
+const hoyPanama = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Panama", year: "numeric", month: "2-digit", day: "2-digit",
+}).format(new Date());
+
+// Actividades de voluntariado (actividades_voluntarios) o el congreso: con
+// origen "congreso", actividadId es el evento y sus turnos, uno por día, están
+// en turnos_congreso/{eventoId}. Los ids de turno son únicos, así que el mismo
+// voluntario marca un registro por turno y por día.
 async function asistenciaVoluntario(request) {
   const actorId = await validarActor(request, [
     ["voluntarios_lectura_qr", ROLES_VOLUNTARIADO],
@@ -333,9 +342,12 @@ async function asistenciaVoluntario(request) {
   const actividadId = idValido(data.actividadId, "actividad");
   const turnoId = idValido(data.turnoId, "turno");
   const accion = data.accion === "salida" ? "salida" : "entrada";
+  const congreso = data.origen === "congreso";
   const asistenciaId = `${voluntarioId}_${actividadId}_${turnoId}`;
   const voluntarioRef = db.collection("voluntarios").doc(voluntarioId);
-  const actividadRef = db.collection("actividades_voluntarios").doc(actividadId);
+  const actividadRef = congreso ?
+    db.collection("turnos_congreso").doc(actividadId) :
+    db.collection("actividades_voluntarios").doc(actividadId);
   const asistenciaRef = db.collection("asistencias_voluntarios")
       .doc(asistenciaId);
 
@@ -348,15 +360,22 @@ async function asistenciaVoluntario(request) {
     if (!voluntarioSnap.exists || !actividadSnap.exists) {
       throw new HttpsError("not-found", "Voluntario o actividad no encontrado.");
     }
-    buscarTurno(actividadSnap.data(), turnoId);
+    const turno = buscarTurno(actividadSnap.data(), turnoId);
     if (accion === "entrada") {
       if (asistenciaSnap.exists) {
         throw new HttpsError("already-exists", "La entrada ya fue registrada.");
+      }
+      if (congreso && turno.dia && turno.dia !== hoyPanama()) {
+        throw new HttpsError(
+            "failed-precondition",
+            `Ese turno es del ${turno.dia}: elige un turno de hoy.`,
+        );
       }
       tx.set(asistenciaRef, {
         voluntarioId,
         actividadId,
         turnoId,
+        ...(congreso ? {origen: "congreso", dia: turno.dia || null} : {}),
         horaEntrada: FieldValue.serverTimestamp(),
         horaSalida: null,
         horasGanadas: null,

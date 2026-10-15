@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <meta name="robots" content="noindex"/>
+ <link rel="icon" href="../favicon.ico" sizes="any"/>
+ <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+ <title>CONTECS 2026 — Perfil del personal</title>
+ <script src="../js/libs/qrcode.min.js"></script>
+ <style>
+ /* Colores del grupo (los mismos de la credencial, js/modulos/credenciales.js):
+    voluntario amarillo y comité organizador rojo. */
+ :root {
+ --oscuro: #045223;
+ --principal: #00722e;
+ --claro: #39b54a;
+ --tinte: #e9f6ee;
+ --gris-texto: #1d1d1f;
+ --gris-suave: #f5f5f7;
+ --gris-borde: #e3e3e6;
+ --gris-medio: #6e6e73;
+ --radio: 14px;
+ --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+ }
+ :root[data-grupo="voluntario"] { --oscuro: #7a5200; --principal: #a87400; --claro: #ffcc33; --tinte: #fff3cc; }
+ :root[data-grupo="comite"] { --oscuro: #7f1d1d; --principal: #c62828; --claro: #ef5350; --tinte: #fde7e7; }
+
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body { font-family: var(--fuente); background: var(--gris-suave); color: var(--gris-texto); min-height: 100vh; }
+
+ .estado { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px 16px; text-align: center; }
+ .spinner { width: 38px; height: 38px; border: 4px solid var(--gris-borde); border-top-color: var(--principal); border-radius: 50%; animation: girar .8s linear infinite; }
+ @keyframes girar { to { transform: rotate(360deg); } }
+ .estado p { color: var(--gris-medio); font-size: 14px; max-width: 340px; line-height: 1.6; }
+ .estado h1 { font-size: 18px; }
+
+ .perfil { display: none; }
+ .perfil.visible { display: block; }
+
+ .hero { background: linear-gradient(160deg, var(--oscuro) 0%, var(--principal) 65%, var(--claro) 130%); color: #fff; padding: 32px 16px 56px; text-align: center; }
+ .hero .logo { width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+ .hero .logo img { width: 70px; height: 70px; object-fit: contain; }
+ .hero h1 { font-size: 22px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+ .hero .grupo { display: inline-block; margin-top: 10px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.18); font-size: 12px; font-weight: 800; letter-spacing: 1.5px; }
+ .hero .carrera { margin-top: 10px; font-size: 13px; opacity: .9; }
+
+ .contenedor { max-width: 520px; margin: -36px auto 0; padding: 0 16px 32px; display: flex; flex-direction: column; gap: 14px; }
+ .tarjeta { background: #fff; border-radius: var(--radio); padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+ .tarjeta h2 { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--principal); margin-bottom: 12px; }
+
+ .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+ .stat { background: var(--tinte); border-radius: 12px; padding: 14px; text-align: center; }
+ .stat b { display: block; font-size: 26px; font-weight: 800; color: var(--oscuro); font-variant-numeric: tabular-nums; }
+ .stat span { font-size: 12px; color: var(--gris-medio); }
+
+ .qr { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+ .qr #qr-canvas { padding: 10px; border: 2px solid var(--tinte); border-radius: 12px; background: #fff; }
+ .qr #qr-canvas img, .qr #qr-canvas canvas { display: block; }
+ .qr .cedula { font-family: 'Courier New', monospace; font-weight: 700; font-size: 15px; color: var(--oscuro); letter-spacing: 1px; }
+ .qr small { color: var(--gris-medio); font-size: 12px; text-align: center; line-height: 1.5; }
+
+ .historial { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+ .historial li { border: 1px solid var(--gris-borde); border-left: 4px solid var(--principal); border-radius: 10px; padding: 10px 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+ .historial .act { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+ .historial .tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--tinte); color: var(--oscuro); font-size: 10px; font-weight: 800; letter-spacing: .5px; vertical-align: middle; }
+ .historial .det { grid-column: 1; font-size: 12px; color: var(--gris-medio); line-height: 1.5; }
+ .historial .horas { grid-row: 1 / span 2; grid-column: 2; font-weight: 800; font-size: 15px; color: var(--oscuro); white-space: nowrap; }
+ .historial .curso { color: var(--principal); font-size: 12px; font-weight: 700; }
+ .vacio { color: var(--gris-medio); font-size: 13px; text-align: center; padding: 8px 0; }
+
+ .pie { text-align: center; font-size: 12px; color: var(--gris-medio); line-height: 1.6; padding-top: 6px; }
+ </style>
+</head>
+<body>
+
+<div class="estado" id="cargando">
+ <div class="spinner"></div>
+ <p>Cargando perfil...</p>
+</div>
+
+<div class="estado" id="error" style="display:none;">
+ <h1>No pudimos abrir este perfil</h1>
+ <p id="error-txt">Escanea de nuevo el QR de tu credencial.</p>
+</div>
+
+<div class="perfil" id="perfil">
+ <div class="hero">
+ <div class="logo"><img src="../logocontecs.png" alt="CONTECS"/></div>
+ <h1 id="p-nombre">—</h1>
+ <div class="grupo" id="p-grupo">—</div>
+ <div class="carrera" id="p-carrera"></div>
+ </div>
+
+ <div class="contenedor">
+ <div class="tarjeta">
+ <h2>Mis horas</h2>
+ <div class="stats">
+ <div class="stat"><b id="p-horas">0</b><span>horas acumuladas</span></div>
+ <div class="stat"><b id="p-turnos">0</b><span>turnos completados</span></div>
+ </div>
+ </div>
+
+ <div class="tarjeta qr">
+ <h2>Mi QR</h2>
+ <div id="qr-canvas"></div>
+ <div class="cedula" id="p-cedula"></div>
+ <small>Preséntalo al inicio y al final de cada turno para registrar tus horas.</small>
+ </div>
+
+ <div class="tarjeta">
+ <h2>Mis turnos</h2>
+ <ul class="historial" id="p-historial"></ul>
+ </div>
+
+ <div class="pie">
+ CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
+ Universidad Tecnológica de Panamá
+ </div>
+ </div>
+</div>
+
+<script type="module">
+import { app } from "../js/core/firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+
+// Enlace del perfil: debe coincidir con js/modulos/personas-credenciales.js.
+const URL_BASE_PERFIL_PERSONAL = "https://contecs-app.vercel.app/public/perfil-personal.html";
+
+const el = id => document.getElementById(id);
+const GRUPOS = { voluntario: "VOLUNTARIO", comite: "COMITÉ ORGANIZADOR" };
+const ERRORES = {
+ "invalid-argument": "El enlace del QR no es válido. Escanea de nuevo tu credencial.",
+ "not-found": "No encontramos este perfil. Pide al equipo de CONTECS una credencial nueva.",
+ "unavailable": "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+const zona = { timeZone: "America/Panama" };
+const hora = ms => new Date(ms).toLocaleTimeString("es-PA", { ...zona, hour: "2-digit", minute: "2-digit" });
+const fecha = (dia, ms) => {
+ const d = dia ? new Date(`${dia}T12:00:00-05:00`) : ms ? new Date(ms) : null;
+ return d ? d.toLocaleDateString("es-PA", { ...zona, weekday: "short", day: "numeric", month: "short" }) : "";
+};
+const numHoras = n => (Math.round(n * 100) / 100).toLocaleString("es-PA", { maximumFractionDigits: 2 });
+const horasTxt = n => `${numHoras(n)} h`;
+
+function mostrarError(msg) {
+ el("cargando").style.display = "none";
+ el("error").style.display = "flex";
+ if (msg) el("error-txt").textContent = msg;
+}
+
+function fila(a) {
+ const li = document.createElement("li");
+ const act = document.createElement("div");
+ act.className = "act";
+ act.textContent = a.actividad;
+ if (a.congreso) {
+ const tag = document.createElement("span");
+ tag.className = "tag";
+ tag.textContent = "CONGRESO";
+ act.appendChild(tag);
+ }
+ const det = document.createElement("div");
+ det.className = "det";
+ const turno = [a.turno, a.horario].filter(Boolean).join(" · ");
+ const marcas = a.entrada ? `Entrada ${hora(a.entrada)}${a.salida ? ` · Salida ${hora(a.salida)}` : ""}` : "";
+ det.textContent = [fecha(a.dia, a.entrada), turno, marcas].filter(Boolean).join(" — ");
+ const horas = document.createElement("div");
+ horas.className = "horas";
+ if (a.salida && a.horas != null) {
+ horas.textContent = horasTxt(a.horas);
+ } else {
+ horas.innerHTML = `<span class="curso">En curso</span>`;
+ }
+ li.append(act, horas, det);
+ return li;
+}
+
+function mostrarPerfil(p, id, token) {
+ document.documentElement.dataset.grupo = p.grupo;
+ const nombre = [p.nombre, p.apellido].filter(Boolean).join(" ") || "Personal CONTECS";
+ document.title = `${nombre} — CONTECS 2026`;
+ el("p-nombre").textContent = nombre;
+ el("p-grupo").textContent = GRUPOS[p.grupo] || GRUPOS.voluntario;
+ el("p-carrera").textContent = [p.carrera, p.facultad].filter(Boolean).join(" · ");
+ el("p-horas").textContent = numHoras(p.totalHoras || 0);
+ el("p-turnos").textContent = p.historial.filter(a => a.salida).length;
+ el("p-cedula").textContent = p.cedula;
+
+ // El QR es el enlace de este perfil: es lo que lee Lectura QR de voluntarios.
+ const colorQr = getComputedStyle(document.documentElement).getPropertyValue("--oscuro").trim();
+ new QRCode(el("qr-canvas"), {
+ text: `${URL_BASE_PERFIL_PERSONAL}?id=${encodeURIComponent(id)}&t=${encodeURIComponent(token)}`, width: 196, height: 196,
+ colorDark: colorQr || "#000000", colorLight: "#ffffff",
+ correctLevel: QRCode.CorrectLevel.M,
+ });
+
+ const lista = el("p-historial");
+ if (p.historial.length) p.historial.forEach(a => lista.appendChild(fila(a)));
+ else lista.innerHTML = `<li class="vacio" style="border:0;display:block;">Todavía no tienes turnos registrados.</li>`;
+
+ el("cargando").style.display = "none";
+ el("perfil").classList.add("visible");
+}
+
+async function init() {
+ const params = new URLSearchParams(location.search);
+ const id = params.get("id");
+ const token = params.get("t");
+ if (!id || !token) {
+ mostrarError("Este enlace no trae los datos del perfil. Escanea de nuevo el QR de tu credencial.");
+ return;
+ }
+ try {
+ const fn = httpsCallable(getFunctions(app, "us-central1"), "accederPersonal");
+ const { data } = await fn({ id, token });
+ mostrarPerfil(data, id, token);
+ } catch (err) {
+ // El SDK trae el código como "functions/not-found".
+ const codigo = String(err.code || "").replace(/^functions\//, "");
+ mostrarError(ERRORES[codigo] || "No se pudo cargar el perfil. Intenta de nuevo en unos segundos.");
+ }
+}
+
+init();
+</script>
+</body>
+</html>
