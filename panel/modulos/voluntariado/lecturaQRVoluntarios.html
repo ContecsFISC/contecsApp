@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Escaneo Voluntarios</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script src="../../../js/libs/html5-qrcode.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
@@ -41,7 +41,7 @@
  box-shadow: 0 0 0 9999px rgba(3,46,35,0.4);
  }
 
- .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
+ .info-box { background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--verde-claro); }
  .info-nombre { font-size: 22px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 6px; }
  .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
  .info-fila strong { color: var(--gris-texto); }
@@ -54,7 +54,7 @@
 
  .rating-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-top: 12px; }
  .rating-btn {
- padding: 10px 4px; border: 2px solid var(--gris-borde); background: #fff;
+ padding: 10px 4px; border: 2px solid var(--gris-borde); background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio-sm); cursor: pointer; font-size: 11px; font-weight: 600;
  color: var(--gris-medio); text-align: center; transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, opacity 0.15s, transform 0.15s; line-height: 1.4;
  }
@@ -129,7 +129,7 @@
  <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera al QR del voluntario
  </p>
- <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff1dc;border-radius:8px;font-size:12px;color:#8a4f12;">
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#ffe3c2;border-radius:8px;font-size:12px;color:#8a4f12;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
  </div>
@@ -205,6 +205,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/lecturaQRVoluntarios.js?v=20261014.1"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

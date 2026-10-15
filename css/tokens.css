@@ -15,7 +15,7 @@
   --cx-ink-800: #053f30;
   --cx-ink:     #064e3b;   /* base de marca */
   --cx-ink-600: #0b6a50;
-  --cx-ink-500: #118066;
+  --cx-ink-500: #0f745c;   /* >=4.56:1 como texto sobre todos los fondos champagne */
   --cx-ink-200: #bfdcd2;
   --cx-ink-100: #e4f1ec;
   --cx-ink-50:  #f1f8f5;
@@ -34,13 +34,17 @@
   --cx-apricot-800: #8a4f12;     /* texto sobre champagne/apricot: contraste AA */
 
   /* ── Superficies y texto. El lienzo es un blanco calido, no gris frio. ── */
-  --cx-canvas:  #fbfaf6;
-  --cx-surface: #ffffff;
+  --cx-canvas:  #f8e7c9;   /* fondo de pagina: Champagne */
+  --cx-surface: #fdf7ea;   /* tarjetas, menus, modales: champagne claro */
+  --cx-surface-2: #fefbf4; /* campos de formulario y filas */
   --cx-text:    #10241d;
   --cx-text-2:  #4b5f57;
-  --cx-text-3:  #5e6f67;         /* >= 4.5:1 sobre blanco */
-  --cx-line:        rgba(6, 78, 59, 0.10);
-  --cx-line-strong: rgba(6, 78, 59, 0.18);
+  --cx-text-3:  #5a6a62;         /* >= 4.56:1 sobre champagne, champagne claro y salvia */
+  --cx-line:        rgba(6, 78, 59, 0.12);
+  --cx-line-strong: rgba(6, 78, 59, 0.20);
+  --cx-border:      #e8d5b0;   /* bordes de campos y separadores sobre champagne */
+  --cx-sage:        #e3e8d2;   /* exito/estado suave (antes menta), armoniza con champagne */
+  --cx-apricot-100: #ffe3c2;   /* fondo de avisos */
 
   /* ── Sombras: capas tintadas de tinta verde, nunca negro puro. Cada nivel
         suma una capa cercana (contacto) y una lejana (elevacion). ── */
@@ -70,6 +74,21 @@
         (Inter + Space Grotesk), asi no se suma ninguna descarga de fuentes. ── */
   --cx-font:         'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --cx-font-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+
+  /* ── Tono por seccion del panel (tarjetas de modulos y transicion "boom").
+        Fondo / tinta con contraste >= 4.5:1. ── */
+  --cx-tono-congreso-fondo: #064e3b;     --cx-tono-congreso-tinta: #f8e7c9;
+  --cx-tono-mapa-fondo: #0b6a50;         --cx-tono-mapa-tinta: #fdf7ea;
+  --cx-tono-posper-fondo: #061b2a;       --cx-tono-posper-tinta: #ff6b6b;
+  --cx-tono-finanzas-fondo: #ffd6a5;     --cx-tono-finanzas-tinta: #032e23;
+  --cx-tono-logistica-fondo: #3d6b5c;    --cx-tono-logistica-tinta: #fdf7ea;
+  --cx-tono-voluntariado-fondo: #94592a; --cx-tono-voluntariado-tinta: #fdf7ea;
+  --cx-tono-admin-fondo: #032e23;        --cx-tono-admin-tinta: #ffd6a5;
+
+  /* Curvas tomadas del proyecto de referencia (salida expo y rebote corto). */
+  --cx-ease-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --cx-ease-rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ── Medidas del navbar (las usa navbar.css y, para reservar espacio, cada pagina) ── */
   --cx-bar-h:   64px;

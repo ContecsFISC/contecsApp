@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="../favicon.ico" sizes="any"/>
   <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
-  <link rel="manifest" href="../manifest.webmanifest"/>
+  <link rel="manifest" href="../manifest.json"/>
   <meta name="theme-color" content="#064e3b"/>
   <meta name="apple-mobile-web-app-title" content="CONTECS"/>
   <title>CONTECS — Iniciar Sesión</title>
@@ -17,10 +17,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(160deg, #053f30 0%, #064e3b 60%, #118066 100%);
+      background: linear-gradient(160deg, #053f30 0%, #064e3b 60%, #0f745c 100%);
     }
     .login-box {
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: 20px;
       box-shadow: 0 12px 40px rgba(5,63,48,0.25);
       padding: 44px 32px 40px;
@@ -34,7 +34,7 @@
     }
     .logo-circle {
       width: 76px; height: 76px;
-      background: #ffffff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 14px;
@@ -50,7 +50,7 @@
     }
     .logo-wrap p {
       font-size: 13px;
-      color: #5e6f67;
+      color: #5a6a62;
       margin-bottom: 0;
     }
     .divider {
@@ -65,7 +65,7 @@
       height: 1px;
       background: #e8e5dc;
     }
-    .divider span { font-size: 12px; color: #5e6f67; white-space: nowrap; }
+    .divider span { font-size: 12px; color: #5a6a62; white-space: nowrap; }
     .btn-google {
       display: flex;
       align-items: center;
@@ -73,9 +73,9 @@
       gap: 12px;
       width: 100%;
       padding: 14px 20px;
-      border: 1.5px solid #e8e5dc;
+      border: 1.5px solid var(--cx-border, #e8d5b0);
       border-radius: 10px;
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       font-size: 15px;
       font-weight: 600;
       color: #10241d;
@@ -85,7 +85,7 @@
     }
     .btn-google:hover {
       border-color: #064e3b;
-      background: #fbfaf6;
+      background: var(--cx-champagne-300, #fbf0dc);
       box-shadow: 0 2px 12px rgba(6,78,59,0.12);
     }
     .btn-google:active { transform: scale(0.98); }
@@ -97,9 +97,9 @@
       gap: 12px;
       width: 100%;
       padding: 14px 20px;
-      border: 1.5px solid #e8e5dc;
+      border: 1.5px solid var(--cx-border, #e8d5b0);
       border-radius: 10px;
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       font-size: 15px;
       font-weight: 600;
       color: #10241d;
@@ -125,8 +125,8 @@
       line-height: 1.4;
     }
     .alerta.show { display: block; }
-    .alerta-error  { background: #fdf0ef; color: #cd332b; border-left: 4px solid #cd332b; }
-    .alerta-aviso  { background: #fff1dc; color: #9f5e18; border-left: 4px solid #9f5e18; }
+    .alerta-error  { background: #fdf0ef; color: #c23028; border-left: 4px solid #c23028; }
+    .alerta-aviso  { background: #ffe3c2; color: #8d5315; border-left: 4px solid #8d5315; }
     .nota {
       font-size: 12px;
       color: #aaa;
@@ -177,7 +177,7 @@
     .btn-google:hover, .btn-microsoft:hover { transform: translate3d(0, -1px, 0); }
     .btn-google:active, .btn-microsoft:active { transform: scale(0.98); }
     /* #aaa sobre blanco no llegaba a 3:1 de contraste */
-    .nota { color: #5e6f67; }
+    .nota { color: #5a6a62; }
     @media (prefers-reduced-motion: reduce) { .login-box { animation: none; } }
   </style>
 </head>

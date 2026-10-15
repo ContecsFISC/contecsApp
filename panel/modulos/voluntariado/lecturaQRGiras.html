@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Escaneo Giras</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script src="../../../js/libs/html5-qrcode.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
@@ -25,7 +25,7 @@
  .btn-primary { background: linear-gradient(135deg, #6b3b0a 0%, #8a4f12 55%, #a4682e 100%); box-shadow: 0 4px 12px rgba(138,79,18,0.3); color: #fff; }
  .btn-primary:hover { opacity: 0.88; }
  .btn-outline { color: #8a4f12; border-color: #8a4f12; }
- .btn-outline:hover { background: #fff1dc; color: #8a4f12; }
+ .btn-outline:hover { background: #ffe3c2; color: #8a4f12; }
  .card-title { color: #8a4f12; }
  .container { max-width: 560px; }
 
@@ -41,18 +41,18 @@
  box-shadow: 0 0 0 9999px rgba(3,46,35,0.4);
  }
 
- .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid #f7b878; }
+ .info-box { background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid #f7b878; }
  .info-nombre { font-size: 22px; font-weight: 700; color: #8a4f12; margin-bottom: 6px; }
  .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
  .info-fila strong { color: var(--gris-texto); }
 
  .estado-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
- .estado-entrada { background: #fff1dc; color: #8a4f12; }
+ .estado-entrada { background: #ffe3c2; color: #8a4f12; }
  .estado-salida { background: var(--verde-fondo); color: var(--verde-oscuro); }
 
  /* Advertencia amarilla de pago pendiente — puramente informativa, sin botón */
  .aviso-pago-pendiente {
- background: #fff1dc; border: 1.5px solid #f7b878; border-radius: var(--radio-sm);
+ background: #ffe3c2; border: 1.5px solid #f7b878; border-radius: var(--radio-sm);
  padding: 10px 14px; font-size: 12.5px; color: #8a4f12; margin-top: 10px;
  display: flex; align-items: center; gap: 8px;
  }
@@ -61,10 +61,10 @@
  .tipo-selector { display: flex; gap: 8px; margin-top: 6px; }
  .tipo-btn {
  flex: 1; padding: 10px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde);
- background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gris-medio);
+ background: var(--cx-surface, #fdf7ea); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gris-medio);
  text-align: center; transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, opacity 0.15s, transform 0.15s;
  }
- .tipo-btn.selected.entrada { border-color: #f7b878; background: #fff1dc; color: #8a4f12; }
+ .tipo-btn.selected.entrada { border-color: #f7b878; background: #ffe3c2; color: #8a4f12; }
  .tipo-btn.selected.salida  { border-color: var(--verde-claro); background: var(--verde-fondo); color: var(--verde-oscuro); }
 
  #log-recientes td { font-size: 12px; }
@@ -126,7 +126,7 @@
  <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera a la credencial QR del participante
  </p>
- <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff1dc;border-radius:8px;font-size:12px;color:#8a4f12;">
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#ffe3c2;border-radius:8px;font-size:12px;color:#8a4f12;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
  </div>
@@ -186,6 +186,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/lecturaQRGiras.js"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

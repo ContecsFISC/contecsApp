@@ -19,6 +19,8 @@
 // son transform/opacity en CSS.
 // ═══════════════════════════════════════════════════════════════
 
+import "./boom.js?v=20261015.2"; // transicion "boom" para cualquier <a data-boom>
+
 const ICONOS = {
   congreso:     '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
   mapa:         '<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>',
@@ -50,6 +52,9 @@ function svg(nombre, clase) {
   return el;
 }
 
+/** Icono SVG de una seccion (los mismos del navbar y el carril). */
+export function iconoSeccion(id) { return svg(id); }
+
 function el(etiqueta, clase, atributos) {
   const nodo = document.createElement(etiqueta);
   if (clase) nodo.className = clase;
@@ -72,6 +77,9 @@ export function montarNavbar({
   etiquetaSalir = "Salir",
   destino = document.body,
   umbralAcople = 48,
+  // Las paginas de modulo reservan el alto de la barra con CSS desde el primer
+  // pintado (sin salto al cargar); ahi no hace falta el espaciador en el flujo.
+  conEspaciador = true,
 } = {}) {
   const ctl = new AbortController();
   const { signal } = ctl;
@@ -144,7 +152,7 @@ export function montarNavbar({
     t.textContent = cat.label;
     menu.appendChild(t);
     (cat.modulos || []).forEach((m, i) => {
-      const a = el("a", "cx-menu__link", { href: m.href, role: "menuitem" });
+      const a = el("a", "cx-menu__link", { href: m.href, role: "menuitem", "data-boom": cat.id || "", "data-boom-nombre": m.label });
       a.style.setProperty("--i", String(i));
       const txt = el("span");
       txt.textContent = m.label;
@@ -312,7 +320,7 @@ export function montarNavbar({
       t.textContent = cat.label;
       grupo.appendChild(t);
       (cat.modulos || []).forEach((m, j) => {
-        const a = el("a", "cx-menu__link", { href: m.href });
+        const a = el("a", "cx-menu__link", { href: m.href, "data-boom": cat.id || "", "data-boom-nombre": m.label });
         a.style.setProperty("--i", String(i * 2 + j));
         const txt = el("span");
         txt.textContent = m.label;
@@ -382,7 +390,8 @@ export function montarNavbar({
   // ── Montaje ───────────────────────────────────────────────────
   carril.inert = true;
   establecerCategorias(categorias);
-  raiz.append(espaciador, centinela, barra, carril, velo, hoja);
+  if (conEspaciador) raiz.append(espaciador);
+  raiz.append(centinela, barra, carril, velo, hoja);
   // Una pagina puede traer un espaciador estatico para que el contenido no
   // salte mientras carga el modulo: ya no hace falta.
   document.getElementById("cx-spacer-previo")?.remove();

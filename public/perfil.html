@@ -5,7 +5,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
- <link rel="manifest" href="../manifest.webmanifest"/>
+ <link rel="manifest" href="../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS 2026 — Mi Credencial</title>
@@ -14,16 +14,16 @@
  :root {
  --verde: #064e3b;
  --verde-oscuro: #053f30;
- --verde-claro: #118066;
- --verde-fondo: #e4f1ec;
+ --verde-claro: #0f745c;
+ --verde-fondo: #e3e8d2;
  --gris-texto: #10241d;
- --gris-suave: #fbfaf6;
- --gris-borde: #e8e5dc;
- --gris-medio: #5e6f67;
- --rojo: #cd332b;
+ --gris-suave: #f8e7c9;
+ --gris-borde: #e8d5b0;
+ --gris-medio: #5a6a62;
+ --rojo: #c23028;
  --rojo-fondo: #fdf0ef;
- --amarillo: #9f5e18;
- --amarillo-fondo:#fff1dc;
+ --amarillo: #8d5315;
+ --amarillo-fondo:#ffe3c2;
  --azul: #2471a3;
  --azul-fondo: #eaf4fb;
  --radio: 12px;
@@ -53,7 +53,7 @@
  background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde) 60%, var(--verde-claro) 100%);
  }
  .acceso-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 20px;
  padding: 32px 24px;
  width: 100%;
@@ -67,7 +67,7 @@
  }
  .acceso-logo .logo-circulo {
  width: 80px; height: 80px;
- background: #ffffff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 50%;
  display: flex; align-items: center; justify-content: center;
  margin: 0 auto 12px;
@@ -184,7 +184,7 @@
 
  /* ── CREDENCIAL QR ── */
  .credencial {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 20px;
  box-shadow: 0 8px 32px rgba(3,46,35,0.14);
  overflow: hidden;
@@ -210,7 +210,7 @@
  .qr-contenedor {
  width: 224px; height: 224px;
  padding: 12px;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  overflow: hidden;
  border: 3px solid var(--verde-fondo);
@@ -249,7 +249,7 @@
 
  /* ── CARDS INFO ── */
  .info-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
@@ -427,7 +427,7 @@
 
  <div class="hero-perfil" id="hero-perfil">
  <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
- <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
+ <div style="width:84px;height:84px;background:var(--cx-surface, #fdf7ea);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
  <img src="../logocontecs.png" alt="CONTECS"
  style="width:74px;height:74px;object-fit:contain;"
  onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-size:28px;\'></span>'"/>

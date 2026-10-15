@@ -477,50 +477,6 @@
 .cx-rail__logout:hover { background: var(--cx-ink); color: var(--cx-champagne); }
 .cx-rail__logout:active { transform: scale(0.92); }
 
-/* Boton generico del carril (lo usa el carril mini de las paginas de modulo).
-   El efecto va en el svg: el boton ya anima su ENTRADA con transform. */
-.cx-rail__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 14px;
-  background: transparent;
-  color: var(--cx-text-2);
-  text-decoration: none;
-  cursor: pointer;
-  transition: background var(--cx-dur-fast) ease, color var(--cx-dur-fast) ease;
-}
-.cx-rail__btn svg { width: 21px; height: 21px; transition: transform var(--cx-dur-base) var(--cx-ease-spring); }
-.cx-rail__btn:hover { background: var(--cx-champagne-300); color: var(--cx-ink); }
-.cx-rail__btn:hover svg { transform: scale(1.14); }
-.cx-rail__btn:active svg { transform: scale(0.9); }
-
-/* Carril mini: el nombre de la pagina asoma a la izquierda al pasar el cursor. */
-.cx-nav--mini .cx-rail::before {
-  content: attr(data-titulo);
-  position: absolute;
-  top: 12px;
-  right: calc(100% + 14px);
-  max-width: 260px;
-  padding: 8px 12px;
-  border-radius: var(--cx-radius-sm);
-  background: var(--cx-ink);
-  color: var(--cx-champagne);
-  font: 600 12.5px/1.25 var(--cx-font);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow: var(--cx-shadow-3);
-  opacity: 0;
-  transform: translate3d(8px, 0, 0);
-  pointer-events: none;
-  transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-base) var(--cx-ease-out);
-}
-.cx-nav--mini .cx-rail:hover::before { opacity: 1; transform: translate3d(0, 0, 0); }
-
 /* ───────────────────────── PANEL MOVIL ───────────────────────── */
 .cx-sheet,
 .cx-scrim { display: none; }
@@ -637,6 +593,131 @@
   .cx-rail .cx-item, .cx-rail .cx-item__btn, .cx-rail__logout, .cx-rail__brand { width: 40px; height: 40px; }
   .cx-rail .cx-item { height: auto; }
 }
+
+/* ═══════════════════ TEMA: EMERALD INK · CHAMPAGNE · APRICOT ═══════════════════
+   Barra y carril en Emerald Ink con letras Champagne; menus en champagne claro
+   (lectura comoda); Apricot para lo que importa: seccion actual, subrayado y
+   la accion "Salir". Va al final para mandar sobre los colores base. */
+.cx-bar {
+  background:
+    radial-gradient(120% 240% at 0% 0%, rgb(255 214 165 / 0.18), transparent 44%),
+    linear-gradient(135deg, var(--cx-ink-600) 0%, var(--cx-ink) 46%, var(--cx-ink-900) 100%);
+  color: var(--cx-champagne);
+  box-shadow: 0 2px 6px rgb(3 46 35 / 0.18), 0 14px 36px rgb(3 46 35 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+.cx-bar::after { box-shadow: 0 18px 48px rgb(3 46 35 / 0.36); }
+.cx-brand { color: var(--cx-champagne); }
+.cx-item__btn { color: rgb(248 231 201 / 0.82); }
+.cx-item__btn::before { background: rgb(248 231 201 / 0.13); }
+.cx-item__btn:hover,
+.cx-item[data-open] .cx-item__btn,
+.cx-item.is-current .cx-item__btn { color: var(--cx-champagne-100); }
+.cx-bar :focus-visible,
+.cx-rail :focus-visible { outline-color: var(--cx-apricot); }
+
+.cx-logout {
+  background: var(--cx-apricot);
+  color: var(--cx-ink-900);
+  box-shadow: 0 2px 10px rgb(255 214 165 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.45);
+}
+.cx-logout:hover { background: var(--cx-apricot-100); box-shadow: 0 8px 22px rgb(255 214 165 / 0.32); }
+.cx-burger { background: rgb(248 231 201 / 0.14); color: var(--cx-champagne); }
+
+.cx-menu {
+  background: var(--cx-surface);
+  box-shadow: 0 10px 20px rgb(3 46 35 / 0.12), 0 30px 70px rgb(3 46 35 / 0.28), 0 0 0 1px rgb(6 78 59 / 0.10);
+}
+.cx-menu__link:hover,
+.cx-menu__link:focus-visible { background: var(--cx-champagne); }
+.cx-menu__link:active { background: var(--cx-apricot-100); }
+.cx-menu__link.is-current { background: var(--cx-apricot-100); }
+
+.cx-rail {
+  background:
+    radial-gradient(160% 60% at 50% 0%, rgb(255 214 165 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--cx-ink-600), var(--cx-ink) 42%, var(--cx-ink-900));
+  box-shadow: 0 10px 34px rgb(3 46 35 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+.cx-rail__sep { background: rgb(248 231 201 / 0.18); }
+.cx-rail .cx-item__btn { color: rgb(248 231 201 / 0.78); }
+.cx-rail .cx-item__btn:hover,
+.cx-rail .cx-item[data-open] .cx-item__btn { color: var(--cx-champagne-100); }
+.cx-rail .cx-item.is-current .cx-item__btn { color: var(--cx-apricot); }
+.cx-rail .cx-item.is-current .cx-item__btn::before { background: rgb(255 214 165 / 0.18); }
+.cx-rail .cx-item.is-current::after { background: var(--cx-apricot); }
+.cx-rail__logout { color: rgb(248 231 201 / 0.72); }
+.cx-rail__logout:hover { background: var(--cx-apricot); color: var(--cx-ink-900); }
+
+.cx-sheet__logout { background: var(--cx-apricot); color: var(--cx-ink-900); }
+
+/* ───────────────────────── BOOM (entrar a un modulo, js/core/boom.js) ─────────────────────────
+   Una caja fija que solo se escala: el compositor la mueve aunque el hilo
+   principal este ocupado. Por encima de todo (navbar 150, modales 200-500). */
+.cx-boom { position: fixed; inset: 0; z-index: 900; pointer-events: auto; cursor: progress; contain: strict; }
+.cx-boom__forma {
+  position: absolute;
+  transform-origin: 0 0;
+  background: var(--cx-surface);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.cx-boom__tinte {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(60% 50% at 50% 42%, rgb(255 255 255 / 0.10), transparent 70%),
+    var(--boom-fondo);
+  opacity: 0;
+}
+.cx-boom__sello {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  color: var(--boom-tinta);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+}
+.cx-boom__icono {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: rgb(255 255 255 / 0.10);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 18px 40px rgb(0 0 0 / 0.22);
+}
+.cx-boom__icono svg { width: 46px; height: 46px; stroke-width: 1.7; }
+.cx-boom__nombre {
+  font-family: var(--cx-font-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.cx-boom__carga {
+  position: relative;
+  width: 120px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--boom-tinta) 24%, transparent);
+}
+.cx-boom__carga i {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--boom-tinta);
+  animation: cx-boom-carga 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes cx-boom-carga { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
 
 /* ───────────────────────── IMPRESION ───────────────────────── */
 @media print {

@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Credenciales</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -28,7 +28,7 @@
  .cr-tipo {
    position: relative; display: flex; flex-direction: column; gap: 8px; text-align: left;
    padding: 14px 16px; border-radius: var(--radio); border: 1.5px solid var(--gris-borde);
-   background: #fff; box-shadow: var(--sombra-sm); cursor: pointer; font-family: var(--fuente);
+   background: var(--cx-surface, #fdf7ea); box-shadow: var(--sombra-sm); cursor: pointer; font-family: var(--fuente);
    transition: border-color .2s, box-shadow .2s, transform .15s;
  }
  .cr-tipo:hover { transform: translateY(-1px); box-shadow: var(--sombra-md); }
@@ -47,7 +47,7 @@
  .cr-barra .cr-buscar { flex: 1 1 220px; }
  .cr-input, .cr-select {
    box-sizing: border-box; padding: 9px 12px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
-   font: 13px var(--fuente); color: var(--gris-texto); background: #fff;
+   font: 13px var(--fuente); color: var(--gris-texto); background: var(--cx-surface, #fdf7ea);
  }
  .cr-input:focus, .cr-select:focus { outline: none; border-color: var(--verde); }
  .cr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gris-texto); cursor: pointer; }
@@ -57,7 +57,7 @@
  .cr-letras[hidden] { display: none; }
  .cr-letra {
    min-width: 30px; height: 30px; padding: 0 8px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
-   background: #fff; font: 700 12px var(--fuente); color: var(--gris-texto); cursor: pointer;
+   background: var(--cx-surface, #fdf7ea); font: 700 12px var(--fuente); color: var(--gris-texto); cursor: pointer;
  }
  .cr-letra:hover { border-color: var(--verde); }
  .cr-letra[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
@@ -88,7 +88,7 @@
  .cr-preview-txt { font-size: 11px; color: var(--gris-medio); text-align: center; margin-top: -6px; }
  .cr-campo { display: flex; flex-direction: column; gap: 6px; }
  .cr-label { font-size: 11px; font-weight: 700; color: var(--gris-medio); text-transform: uppercase; letter-spacing: .4px; }
- .cr-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; background: #fff; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); }
+ .cr-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; background: var(--cx-surface, #fdf7ea); border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm); }
  .cr-seg label { position: relative; }
  .cr-seg input { position: absolute; opacity: 0; pointer-events: none; }
  .cr-seg span { display: block; text-align: center; padding: 7px 4px; border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--gris-medio); cursor: pointer; }
@@ -98,10 +98,10 @@
  .cr-botones .btn { width: 100%; }
  .cr-progreso { display: flex; flex-direction: column; gap: 6px; }
  .cr-progreso[hidden], .cr-aviso[hidden] { display: none; }
- .cr-barra-prog { height: 8px; background: #fff; border: 1px solid var(--gris-borde); border-radius: 4px; overflow: hidden; }
+ .cr-barra-prog { height: 8px; background: var(--cx-surface, #fdf7ea); border: 1px solid var(--gris-borde); border-radius: 4px; overflow: hidden; }
  .cr-barra-prog span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde), var(--verde-claro)); transition: width .2s; }
  .cr-progreso-txt { font-size: 12px; font-weight: 600; }
- .cr-aviso { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radio-sm); background: #fff; border: 1.5px solid var(--verde-claro); font-size: 13px; }
+ .cr-aviso { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--radio-sm); background: var(--cx-surface, #fdf7ea); border: 1.5px solid var(--verde-claro); font-size: 13px; }
  .cr-aviso .cr-botones .btn { font-size: 12px; }
  .cr-nota { font-size: 11px; color: var(--gris-medio); line-height: 1.5; }
 
@@ -111,7 +111,7 @@
  .cr-exp-acciones .btn { width: auto; }
  .cr-item .i-acciones { display: flex; gap: 2px; margin-left: 4px; }
  .cr-item .i-acc { width: 26px; height: 26px; border-radius: 6px; border: none; background: transparent; color: var(--gris-medio); cursor: pointer; font-size: 14px; }
- .cr-item .i-acc:hover { background: #fff; color: var(--verde-oscuro); }
+ .cr-item .i-acc:hover { background: var(--cx-surface, #fdf7ea); color: var(--verde-oscuro); }
  .cr-item .i-acc.quitar:hover { color: var(--rojo); }
  .cr-item.con-acciones { grid-template-columns: 22px minmax(0, 1fr) auto auto; }
  .cr-dlg { width: min(520px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: var(--radio-lg); box-shadow: var(--sombra-md); margin: auto; font-family: var(--fuente); }
@@ -270,6 +270,6 @@
 </dialog>
 
 <script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261014.3"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

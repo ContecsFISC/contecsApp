@@ -5,7 +5,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
- <link rel="manifest" href="../manifest.webmanifest"/>
+ <link rel="manifest" href="../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS 2026 — Mi Gira</title>
@@ -14,15 +14,15 @@
  --oro: #8a4f12;
  --oro-oscuro: #6b3b0a;
  --oro-claro: #a4682e;  /* texto blanco encima: >=4.5:1 */
- --oro-fondo: #fff1dc;
+ --oro-fondo: #ffe3c2;
  --gris-texto: #10241d;
- --gris-suave: #fbfaf6;
- --gris-borde: #e8e5dc;
- --gris-medio: #5e6f67;
- --rojo: #cd332b;
+ --gris-suave: #f8e7c9;
+ --gris-borde: #e8d5b0;
+ --gris-medio: #5a6a62;
+ --rojo: #c23028;
  --rojo-fondo: #fdf0ef;
  --verde: #064e3b;
- --verde-fondo: #e4f1ec;
+ --verde-fondo: #e3e8d2;
  --azul: #2471a3;
  --azul-fondo: #eaf4fb;
  --radio: 12px;
@@ -48,7 +48,7 @@
  background: linear-gradient(160deg, var(--oro-oscuro) 0%, var(--oro) 60%, var(--oro-claro) 100%);
  }
  .msg-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 20px;
  padding: 32px 24px;
  width: 100%;
@@ -59,7 +59,7 @@
  }
  .msg-card .logo-circulo {
  width: 80px; height: 80px;
- background: #ffffff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 50%;
  display: flex; align-items: center; justify-content: center;
  margin: 0 auto 16px;
@@ -113,7 +113,7 @@
  }
 
  .info-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
@@ -135,7 +135,7 @@
 
  /* ── QR CREDENCIAL ── */
  .qr-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
@@ -153,7 +153,7 @@
  .qr-canvas-wrap {
  display: inline-flex;
  padding: 12px;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 12px;
  border: 2px solid var(--oro-fondo);
  box-shadow: 0 4px 16px rgba(133,100,4,0.12);
@@ -167,7 +167,7 @@
 
  /* ── CHECKPOINTS ── */
  .checkpoint-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
@@ -278,7 +278,7 @@
 
  <div class="hero-gira">
  <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
- <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
+ <div style="width:84px;height:84px;background:var(--cx-surface, #fdf7ea);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
  <img src="../logocontecs.png" alt="CONTECS"
  style="width:74px;height:74px;object-fit:contain;"
  onerror="this.style.display='none';"/>

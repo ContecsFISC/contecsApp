@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#061b2a"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Randomizer</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -32,7 +32,8 @@
    --pp-degradado: radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%), linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
  }
  /* La barra de POSPER conserva su identidad (azul noche); el texto va en blanco. */
- .topbar { background: var(--pp-noche) !important; color: #fff; }
+ .topbar { background: var(--pp-noche) !important; color: #fff; padding: 14px 20px; border-radius: 18px; box-shadow: 0 14px 34px rgba(6,27,42,0.28); }
+ .topbar::after { left: 20px; bottom: 9px; width: 44px; background: var(--pp-laser); }
  .topbar h1 { color: #fff; }
  .pp-h1 { display: flex; align-items: center; gap: 10px; }
  .pp-logo { position: relative; display: block; flex-shrink: 0; }
@@ -135,6 +136,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/randomizer.js?v=20261008.2"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

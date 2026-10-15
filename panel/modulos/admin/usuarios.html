@@ -5,19 +5,19 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Gestión de Usuarios</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <style>
  .usuario-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 12px;
  box-shadow: 0 2px 8px rgba(3,46,35,0.07);
  padding: 16px;
@@ -25,11 +25,11 @@
  display: flex;
  align-items: center;
  gap: 14px;
- border-left: 3px solid #e8e5dc;
+ border-left: 3px solid var(--cx-border, #e8d5b0);
  transition: border-color 0.2s;
  }
- .usuario-card.con-rol { border-left-color: #118066; }
- .usuario-card.sin-rol { border-left-color: #9f5e18; }
+ .usuario-card.con-rol { border-left-color: #0f745c; }
+ .usuario-card.sin-rol { border-left-color: #8d5315; }
  .foto {
  width: 44px; height: 44px;
  border-radius: 50%;
@@ -44,33 +44,33 @@
  .foto img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
  .info { flex: 1; min-width: 0; }
  .info .nombre { font-size: 14px; font-weight: 600; color: #10241d; }
- .info .email { font-size: 12px; color: #5e6f67; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .info .email { font-size: 12px; color: #5a6a62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
  .rol-select {
  padding: 7px 10px;
- border: 1.5px solid #e8e5dc;
+ border: 1.5px solid var(--cx-border, #e8d5b0);
  border-radius: 8px;
  font-size: 13px;
  font-family: 'Segoe UI', system-ui, sans-serif;
  color: #10241d;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  cursor: pointer;
  transition: border-color 0.15s;
  flex-shrink: 0;
  }
  .rol-select:focus { outline: none; border-color: #064e3b; }
- .guardando { font-size: 12px; color: #118066; margin-top: 2px; display: none; }
+ .guardando { font-size: 12px; color: #0f745c; margin-top: 2px; display: none; }
  .filtros {
  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
  }
  .filtro-btn {
  padding: 6px 14px;
  border-radius: 20px;
- border: 1.5px solid #e8e5dc;
- background: #fff;
+ border: 1.5px solid var(--cx-border, #e8d5b0);
+ background: var(--cx-surface, #fdf7ea);
  font-size: 12px;
  font-weight: 600;
  cursor: pointer;
- color: #5e6f67;
+ color: #5a6a62;
  transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, opacity 0.15s, transform 0.15s;
  }
  .filtro-btn.activo {
@@ -80,7 +80,7 @@
  }
  .contador {
  font-size: 13px;
- color: #5e6f67;
+ color: #5a6a62;
  margin-bottom: 12px;
  }
  .contador strong { color: #064e3b; }
@@ -90,12 +90,12 @@
  }
  .busqueda-bar input, .busqueda-bar select {
  padding: 8px 12px;
- border: 1.5px solid #e8e5dc;
+ border: 1.5px solid var(--cx-border, #e8d5b0);
  border-radius: 8px;
  font-size: 13px;
  font-family: inherit;
  color: #10241d;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  }
  .busqueda-bar[hidden] { display: none; }
  .busqueda-bar input { flex: 1; min-width: 200px; }
@@ -151,7 +151,7 @@
  height: 36px; padding: 0 12px;
  border-radius: 8px;
  border: 1.5px solid var(--gris-borde);
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  color: var(--verde-oscuro);
  font: 600 13px var(--fuente);
  cursor: pointer;
@@ -237,7 +237,7 @@
  .perm-fila .p-vence { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--verde-oscuro); margin-top: 4px; }
  .perm-fila .p-vence input {
  padding: 4px 8px; border: 1.5px solid var(--gris-borde); border-radius: 6px;
- font: 12px var(--fuente); color: var(--gris-texto); background: #fff;
+ font: 12px var(--fuente); color: var(--gris-texto); background: var(--cx-surface, #fdf7ea);
  }
  .perm-tag {
  display: inline-block; padding: 1px 8px; border-radius: 10px;
@@ -261,7 +261,7 @@
  height: 38px; padding: 0 16px;
  border-radius: var(--radio-sm);
  border: 1.5px solid var(--gris-borde);
- background: #fff; color: var(--gris-texto);
+ background: var(--cx-surface, #fdf7ea); color: var(--gris-texto);
  font: 600 13px var(--fuente); cursor: pointer;
  }
  .perm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -333,7 +333,7 @@
 
  <div class="card" id="panel-usuarios" hidden>
  <div class="card-title"> Miembros registrados</div>
- <p style="font-size:13px;color:#5e6f67;margin-bottom:16px;">
+ <p style="font-size:13px;color:#5a6a62;margin-bottom:16px;">
  Cada persona que inicia sesión por primera vez aparece aquí con rol <strong>Sin rol</strong>. Asígnales su comisión con el selector.
  </p>
 
@@ -419,6 +419,6 @@
  </dialog>
 
  <script type="module" src="../../../js/modulos/usuarios.js?v=20261009.1"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

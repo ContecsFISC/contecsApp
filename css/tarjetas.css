@@ -1,0 +1,224 @@
+/* ===========================================================
+   CONTECS — Tarjetas de modulos (js/core/tarjetas-modulos.js)
+   Requiere css/tokens.css. Solo se anima transform y opacity.
+   =========================================================== */
+
+.cx-modulos {
+  max-width: 1128px;
+  margin: 0 auto 28px;
+  padding: 0;
+}
+.cx-modulos[hidden] { display: none; }
+
+.cx-modulos__cabeza {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 6px 4px 16px;
+}
+.cx-modulos__kicker {
+  display: block;
+  font: 700 11px/1 var(--cx-font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cx-apricot-800, #8a4f12);
+}
+.cx-modulos__titulo {
+  margin-top: 6px;
+  font: 700 clamp(22px, 2.4vw, 28px)/1.1 var(--cx-font-display);
+  letter-spacing: -0.02em;
+  color: var(--cx-ink);
+}
+.cx-modulos__cuenta {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--cx-surface);
+  border: 1px solid var(--cx-border);
+  font: 600 12px/1 var(--cx-font);
+  color: var(--cx-text-2);
+  white-space: nowrap;
+}
+
+.cx-modulos__grupo + .cx-modulos__grupo { margin-top: 18px; }
+.cx-modulos__seccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 4px 10px;
+  font: 700 13px/1 var(--cx-font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cx-text-2);
+}
+.cx-modulos__seccion-ico {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--tono-fondo);
+  color: var(--tono-tinta);
+}
+.cx-modulos__seccion-ico svg { width: 15px; height: 15px; }
+
+.cx-modulos__rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+  gap: 12px;
+}
+
+/* ── Tarjeta: capa de ENTRADA ── */
+.cx-mod {
+  position: relative;
+  display: block;
+  border-radius: 18px;
+  color: var(--cx-text);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.cx-modulos[data-visto="false"] .cx-mod { opacity: 0; }
+.cx-modulos[data-visto="true"] .cx-mod {
+  animation: cx-mod-llega 0.7s var(--cx-ease-expo) calc(min(var(--i, 0), 12) * 45ms) backwards;
+}
+@keyframes cx-mod-llega {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Tarjeta: capa VISIBLE (inclinacion, brillo, elevacion) ── */
+.cx-mod__cara {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 84px;
+  padding: 16px 16px 16px 14px;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--cx-surface);
+  border: 1px solid var(--cx-border);
+  box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 6px 18px rgb(3 46 35 / 0.06);
+  transform-style: preserve-3d;
+  transition: transform 0.45s var(--cx-ease-expo);
+}
+/* Mientras sigue al cursor: sin transicion (responde en el mismo fotograma). */
+.cx-mod__cara.is-inclinada { transition: transform 0.08s linear; }
+/* Elevacion: sombra en una capa propia que solo cambia de opacidad. */
+.cx-mod__cara::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 18px 40px rgb(3 46 35 / 0.18);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.cx-mod:hover .cx-mod__cara::after,
+.cx-mod:focus-visible .cx-mod__cara::after { opacity: 1; }
+.cx-mod:focus-visible .cx-mod__cara { box-shadow: 0 0 0 3px var(--cx-apricot); }
+.cx-mod:active .cx-mod__cara { transform: scale(0.98); transition-duration: 0.09s; }
+
+/* Brillo que sigue al cursor (--mx/--my los escribe el JS). */
+.cx-mod__brillo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgb(255 214 165 / 0.42), transparent 62%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.cx-mod:hover .cx-mod__brillo { opacity: 1; }
+
+/* Destello: cruza la tarjeta una vez al pasar el cursor. */
+.cx-mod__cara::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 32%, rgb(255 255 255 / 0.55) 48%, transparent 64%);
+  transform: translateX(-140%);
+}
+.cx-mod:hover .cx-mod__cara::before { animation: cx-destello 0.9s var(--cx-ease-expo) both; }
+@keyframes cx-destello { to { transform: translateX(140%); } }
+
+.cx-mod__icono {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--tono-fondo);
+  color: var(--tono-tinta);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 10px 18px -8px rgb(3 46 35 / 0.45);
+  transition: transform 0.35s var(--cx-ease-rebote);
+}
+.cx-mod__icono svg { width: 23px; height: 23px; }
+.cx-mod:hover .cx-mod__icono { transform: translate3d(0, -2px, 0) scale(1.06); }
+
+.cx-mod__textos { position: relative; z-index: 1; display: grid; gap: 3px; min-width: 0; }
+.cx-mod__nombre {
+  font: 600 15.5px/1.25 var(--cx-font-display);
+  letter-spacing: -0.01em;
+  color: var(--cx-ink);
+  /* Hasta dos lineas: "Gestion de Evento" o "Mapa interactivo 3D" se leen completos. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.cx-mod__seccion { font: 500 12px/1.2 var(--cx-font); color: var(--cx-text-3); }
+
+.cx-mod__ir {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cx-champagne);
+  color: var(--cx-ink);
+  opacity: 0.55;
+  transform: translate3d(-4px, 0, 0);
+  transition: transform 0.35s var(--cx-ease-expo), opacity 0.25s ease, background-color 0.25s ease;
+}
+.cx-mod__ir svg { width: 16px; height: 16px; }
+.cx-mod:hover .cx-mod__ir { opacity: 1; transform: none; background: var(--cx-apricot); }
+
+/* Modulo de administracion: punto apricot en la esquina. */
+.cx-mod__admin {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cx-apricot-600);
+  box-shadow: 0 0 0 3px rgb(255 214 165 / 0.45);
+}
+
+@media (max-width: 600px) {
+  .cx-modulos { margin-bottom: 22px; }
+  .cx-modulos__rejilla { gap: 10px; }
+  .cx-mod__cara { min-height: 72px; padding: 13px 13px 13px 12px; gap: 12px; }
+  .cx-mod__icono { width: 42px; height: 42px; border-radius: 12px; }
+  .cx-mod__ir { width: 28px; height: 28px; opacity: 0.8; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-modulos[data-visto] .cx-mod { animation: none; opacity: 1; }
+  .cx-mod__cara, .cx-mod__icono, .cx-mod__ir { transition: none; }
+  .cx-mod:hover .cx-mod__cara::before { animation: none; }
+}

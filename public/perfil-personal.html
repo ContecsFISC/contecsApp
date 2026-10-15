@@ -6,7 +6,7 @@
  <meta name="robots" content="noindex"/>
  <link rel="icon" href="../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
- <link rel="manifest" href="../manifest.webmanifest"/>
+ <link rel="manifest" href="../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS 2026 — Perfil del personal</title>
@@ -17,16 +17,16 @@
  :root {
  --oscuro: #053f30;
  --principal: #064e3b;
- --claro: #118066;
- --tinte: #e4f1ec;
+ --claro: #0f745c;
+ --tinte: #e3e8d2;
  --gris-texto: #10241d;
- --gris-suave: #fbfaf6;
- --gris-borde: #e8e5dc;
+ --gris-suave: #f8e7c9;
+ --gris-borde: #e8d5b0;
  --gris-medio: #5b6e65;
  --radio: 14px;
  --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
  }
- :root[data-grupo="voluntario"] { --oscuro: #7a5200; --principal: #9f5e18; --claro: #ffcc33; --tinte: #fff1dc; }
+ :root[data-grupo="voluntario"] { --oscuro: #7a5200; --principal: #8d5315; --claro: #ffcc33; --tinte: #ffe3c2; }
  :root[data-grupo="comite"] { --oscuro: #7f1d1d; --principal: #c62828; --claro: #ef5350; --tinte: #fde7e7; }
 
  * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,14 +42,14 @@
  .perfil.visible { display: block; }
 
  .hero { background: linear-gradient(160deg, var(--oscuro) 0%, var(--principal) 65%, var(--claro) 130%); color: #fff; padding: 32px 16px 56px; text-align: center; }
- .hero .logo { width: 80px; height: 80px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(3,46,35,0.2); }
+ .hero .logo { width: 80px; height: 80px; background: var(--cx-surface, #fdf7ea); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 4px 16px rgba(3,46,35,0.2); }
  .hero .logo img { width: 70px; height: 70px; object-fit: contain; }
  .hero h1 { font-size: 22px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
  .hero .grupo { display: inline-block; margin-top: 10px; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.18); font-size: 12px; font-weight: 800; letter-spacing: 1.5px; }
  .hero .carrera { margin-top: 10px; font-size: 13px; opacity: .9; }
 
  .contenedor { max-width: 520px; margin: -36px auto 0; padding: 0 16px 32px; display: flex; flex-direction: column; gap: 14px; }
- .tarjeta { background: #fff; border-radius: var(--radio); padding: 18px; box-shadow: 0 2px 12px rgba(3,46,35,0.06); }
+ .tarjeta { background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); padding: 18px; box-shadow: 0 2px 12px rgba(3,46,35,0.06); }
  .tarjeta h2 { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--principal); margin-bottom: 12px; }
 
  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -58,7 +58,7 @@
  .stat span { font-size: 12px; color: var(--gris-medio); }
 
  .qr { display: flex; flex-direction: column; align-items: center; gap: 10px; }
- .qr #qr-canvas { padding: 10px; border: 2px solid var(--tinte); border-radius: 12px; background: #fff; }
+ .qr #qr-canvas { padding: 10px; border: 2px solid var(--tinte); border-radius: 12px; background: var(--cx-surface, #fdf7ea); }
  .qr #qr-canvas img, .qr #qr-canvas canvas { display: block; }
  .qr .cedula { font-family: 'Courier New', monospace; font-weight: 700; font-size: 15px; color: var(--oscuro); letter-spacing: 1px; }
  .qr small { color: var(--gris-medio); font-size: 12px; text-align: center; line-height: 1.5; }

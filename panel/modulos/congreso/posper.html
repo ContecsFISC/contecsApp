@@ -5,7 +5,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#061b2a"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <meta name="mobile-web-app-capable" content="yes"/>
@@ -14,9 +14,9 @@
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -35,7 +35,8 @@
    --pp-degradado: radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%), linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
  }
  /* La barra de POSPER conserva su identidad (azul noche); el texto va en blanco. */
- .topbar { background: var(--pp-noche) !important; color: #fff; }
+ .topbar { background: var(--pp-noche) !important; color: #fff; padding: 14px 20px; border-radius: 18px; box-shadow: 0 14px 34px rgba(6,27,42,0.28); }
+ .topbar::after { left: 20px; bottom: 9px; width: 44px; background: var(--pp-laser); }
  .topbar h1 { color: #fff; }
  .pp-h1 { display: flex; align-items: center; gap: 10px; }
  .pp-logo { position: relative; display: block; flex-shrink: 0; }
@@ -90,7 +91,7 @@
  .escenario-acciones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
  .escenario-acciones .btn { width: auto; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.5); color: #fff; }
 
- .resultado { margin-top: 16px; background: #fff; border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--pp-laser); }
+ .resultado { margin-top: 16px; background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); padding: 16px; box-shadow: var(--sombra-sm); border-left: 4px solid var(--pp-laser); }
  .resultado-nombre { font-size: 19px; font-weight: 700; color: var(--pp-noche); margin-bottom: 6px; overflow-wrap: anywhere; }
  .resultado-fila { font-size: 13px; color: var(--gris-medio); margin-bottom: 3px; overflow-wrap: anywhere; }
  .resultado-fila strong { color: var(--gris-texto); }
@@ -101,7 +102,7 @@
 
  .pp-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.55); }
  .pp-modal.abierto { display: flex; }
- .pp-modal-caja { width: 100%; max-width: 380px; background: #fff; border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); animation: modalIn var(--dur-vista) var(--ease-spring); }
+ .pp-modal-caja { width: 100%; max-width: 380px; background: var(--cx-surface, #fdf7ea); border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); animation: modalIn var(--dur-vista) var(--ease-spring); }
  @keyframes modalIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
  .pp-modal-titulo { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--pp-noche); margin-bottom: 8px; }
  .pp-modal-texto { font-size: 14px; color: var(--gris-medio); line-height: 1.45; margin-bottom: 20px; overflow-wrap: anywhere; }
@@ -241,6 +242,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/posper.js?v=20261008.1"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

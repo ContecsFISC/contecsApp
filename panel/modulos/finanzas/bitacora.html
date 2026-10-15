@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <link rel="manifest" href="../../../manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Bitácora</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <style>
  /* ── Botón de volver estético ── */
  /* ── TABS ── */
@@ -42,7 +42,7 @@
 
  /* ── CARDS COLAPSABLES ── */
  .bita-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: var(--sombra-sm);
  margin-bottom: 10px;
@@ -133,7 +133,7 @@
  align-items: flex-start;
  gap: 12px;
  padding: 12px 14px;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: var(--radio);
  box-shadow: var(--sombra-sm);
  margin-bottom: 8px;
@@ -184,15 +184,15 @@
  @media (max-width: 800px) { .fondos-resumen { grid-template-columns: repeat(2, 1fr); } }
  @media (max-width: 480px) { .fondos-resumen { grid-template-columns: 1fr; } }
  .fondos-stat {
- background: #fff;
- border: 1px solid #e8e5dc;
+ background: var(--cx-surface, #fdf7ea);
+ border: 1px solid var(--cx-border, #e8d5b0);
  border-radius: 12px;
  padding: 14px 16px;
  }
  .fondos-stat-label {
  font-size: 11px;
  font-weight: 600;
- color: #5e6f67;
+ color: #5a6a62;
  text-transform: uppercase;
  letter-spacing: .5px;
  margin-bottom: 6px;
@@ -207,7 +207,7 @@
  .fondos-seccion-titulo {
  font-size: 11px;
  font-weight: 700;
- color: #5e6f67;
+ color: #5a6a62;
  letter-spacing: 1px;
  text-transform: uppercase;
  margin-bottom: 12px;
@@ -972,6 +972,6 @@
  }
  );
  </script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

@@ -10,30 +10,30 @@
      el literal de respaldo por si una pagina no enlaza tokens.css. */
   --verde:          var(--cx-ink, #064e3b);
   --verde-oscuro:   var(--cx-ink-800, #053f30);
-  --verde-claro:    var(--cx-ink-500, #118066);
+  --verde-claro:    var(--cx-ink-500, #0f745c);
   --topbar-verde:   var(--cx-ink-900, #032e23);
 
   /* Derivados para profundidad */
-  --verde-fondo:    var(--cx-ink-100, #e4f1ec);
+  --verde-fondo:    var(--cx-sage, #e3e8d2);
   --verde-apagado:    #4f8a77;
   --verde-apagado-bg: rgba(255,255,255,0.14);
   --verde-hover:    var(--cx-ink-800, #053f30);
   --verde-sombra:   rgba(6, 78, 59, 0.15);
 
-  /* Neutros calidos: el lienzo es un blanco hueso, no un gris frio. */
+  /* Neutros: el lienzo es Champagne y las superficies champagne claro. */
   --gris-texto:     var(--cx-text, #10241d);
-  --gris-suave:     var(--cx-canvas, #fbfaf6);
-  --gris-borde:     #e8e5dc;
-  --gris-medio:     var(--cx-text-3, #5e6f67);
+  --gris-suave:     var(--cx-canvas, #f8e7c9);
+  --gris-borde:     var(--cx-border, #e8d5b0);
+  --gris-medio:     var(--cx-text-3, #5a6a62);
   --gris-texto-sec: var(--cx-text-2, #4b5f57);  /* usada por el dashboard; nunca se definia */
-  --blanco:         #ffffff;
+  --blanco:         var(--cx-surface, #fdf7ea);  /* superficies (tarjetas) y texto claro sobre tinta */
 
   /* Semanticos — el rojo se reserva para emergencias reales; el trabajo
      pendiente es apricot/ambar. */
-  --rojo:           #cd332b;
+  --rojo:           #c23028;
   --rojo-fondo:     #fdf0ef;
-  --amarillo:       #9f5e18;
-  --amarillo-fondo: #fff1dc;
+  --amarillo:       #8d5315;
+  --amarillo-fondo: var(--cx-apricot-100, #ffe3c2);
   --azul-info:      #2471a3;
 
   /* Marca "Eurus" de .form-groupE: nunca se definio y las reglas caian a los
@@ -203,59 +203,48 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   border-bottom: 1.5px solid var(--gris-borde);
 }
 
-/* ---- TOPBAR (paginas de modulo) ----
-   Barra blanca flotante con LA MISMA geometria que .cx-bar del dashboard
-   (12px de margen, 64px de alto): al navegar, la View Transition la trata como
-   un unico elemento y se queda quieta. Al hacer scroll js/core/ui-shell.js la
-   envia hacia arriba (data-docked) y aparece el carril lateral derecho.
-   Es sticky y sigue en el flujo: acoplarla NO cambia el layout de la pagina. */
+/* ---- CABECERA DE PAGINA (antes "topbar") ----
+   La navegacion ahora es el navbar global (js/core/navbar-pagina.js), fijo
+   arriba y acoplable a la derecha. El .topbar de cada pagina deja de ser una
+   barra: es la cabecera de la pagina (titulo grande + acciones + volver), en
+   el flujo y sin fondo. Sus nodos, ids y listeners no cambian.
+   El hueco del navbar se reserva con CSS desde el primer pintado: al montarse
+   no empuja nada. */
+body:has(> .topbar:not(.topbar-legado)) {
+  padding-top: calc(var(--cx-bar-h, 64px) + var(--cx-bar-gap, 12px) * 2);
+}
 .topbar {
-  position: sticky;
-  top: var(--cx-bar-gap, 12px);
-  z-index: 100;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   min-width: 0;
-  min-height: var(--cx-bar-h, 64px);
-  margin: var(--cx-bar-gap, 12px) var(--cx-bar-gap, 12px) 0;
-  padding: 8px 14px 8px 12px;
-  background: var(--blanco) !important;
+  /* navbar-pagina.js la alinea con el contenido de la pagina (ancho y relleno del .container). */
+  max-width: var(--cabecera-ancho, 1100px);
+  margin: 22px auto 14px;
+  padding: 0 var(--cabecera-pd, 20px) 14px var(--cabecera-pi, 20px);
+  background: transparent !important;
   color: var(--verde);
-  border-radius: var(--radio-lg);
-  box-shadow: var(--cx-shadow-2, 0 2px 4px rgb(3 46 35 / 0.05), 0 8px 24px rgb(3 46 35 / 0.08)), var(--cx-ring, 0 0 0 1px rgba(6, 78, 59, 0.1));
-  transform: translate3d(0, 0, 0);
-  transition:
-    transform 0.42s var(--ease-out),
-    opacity 0.16s ease,
-    visibility 0s linear 0s;
-  /* backwards, no both: una animacion que retiene su ultimo fotograma pisaria
-     el transform del estado acoplado. */
-  animation: topbarIn 0.42s var(--ease-out) backwards;
+  animation: cabeceraIn 0.5s var(--ease-out) backwards;
 }
-@keyframes topbarIn {
-  from { opacity: 0; transform: translate3d(0, -14px, 0); }
+@keyframes cabeceraIn {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
   to   { opacity: 1; transform: none; }
 }
-/* El carril del escritorio reserva su ancho a la derecha de la pagina; la barra
-   lo cruza para quedar a 12px del borde, igual que la del dashboard. */
-@media (min-width: 1024px) {
-  body.cx-nav-on .topbar { margin-right: calc(var(--cx-bar-gap, 12px) - var(--cx-rail-w, 84px)); }
+/* Acento de marca bajo el titulo. */
+.topbar::before { content: none; }
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: var(--cabecera-pi, 20px);
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--cx-apricot-600, #d98a3d), var(--cx-apricot, #ffd6a5));
 }
-/* Acoplada: sube y desaparece; el carril lateral toma su lugar. */
-.topbar[data-docked="true"] {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translate3d(0, calc(-100% - 28px), 0);
-  transition:
-    transform 0.42s var(--ease-out),
-    opacity 0.16s ease,
-    visibility 0s linear 0.42s;
-}
-.topbar::before,
-.topbar::after { content: none; }
 .topbar > * { position: relative; z-index: 1; min-width: 0; }
 .topbar-brand {
   display: flex;
@@ -270,9 +259,10 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 }
 .topbar h1 {
   font-family: var(--fuente-display);
-  font-size: 18px;
+  font-size: clamp(22px, 2.3vw, 30px);
   font-weight: 700;
-  letter-spacing: 0.01em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   color: var(--verde);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -285,6 +275,8 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   text-decoration: none;
 }
 .topbar-link:hover { text-decoration: underline; }
+/* En los mapas la pantalla es del mapa: el navbar ya marca la seccion actual. */
+body:has(.mapa-app) .topbar { display: none; }
 
 /* Navegación de regreso única para todos los módulos. */
 .btn-volver {
@@ -296,9 +288,9 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   min-width: 40px;
   flex: 0 0 40px;
   padding: 0;
-  border: 1px solid var(--cx-line, rgba(6, 78, 59, 0.1));
+  border: 1px solid var(--cx-border, #e8d5b0);
   border-radius: 50%;
-  background: var(--cx-champagne-300, #fbf0dc);
+  background: var(--cx-surface, #fdf7ea);
   color: var(--verde);
   text-decoration: none;
   box-shadow: var(--cx-shadow-1, 0 1px 2px rgb(3 46 35 / 0.06));
@@ -413,7 +405,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   border-radius: var(--radio-sm);
   font-size: 15px;
   font-family: var(--fuente);
-  background: var(--blanco);
+  background: var(--cx-surface-2, #fefbf4);
   color: var(--gris-texto);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -445,7 +437,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   border-radius: var(--radio-sm);
   font-size: 15px;
   font-family: var(--fuente);
-  background: var(--blanco);
+  background: var(--cx-surface-2, #fefbf4);
   color: var(--gris-texto);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -484,7 +476,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 .badge-nivel-4 { background: var(--verde-fondo); color: var(--verde-oscuro); }
 .badge-nivel-3 { background: #d5f5e3; color: #1e8449; }
 .badge-nivel-2 { background: var(--amarillo-fondo); color: var(--amarillo); }
-.badge-nivel-1 { background: #f2f3f4; color: #717d7e; }
+.badge-nivel-1 { background: var(--cx-champagne-300, #fbf0dc); color: #717d7e; }
 .badge-sinrol  { background: var(--rojo-fondo); color: var(--rojo); }
 
 /* ---- SPINNER ---- */
@@ -506,7 +498,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th {
-  background: var(--cx-ink-50, #f1f8f5);
+  background: rgba(6, 78, 59, 0.06);
   color: var(--verde-oscuro);
   font-weight: 600;
   padding: 10px 12px;
@@ -562,19 +554,24 @@ tr:hover td { background: var(--verde-fondo); }
 @media (max-width: 600px) {
   body {
     background:
-      radial-gradient(circle at 88% -5%, rgba(255,214,165,0.34), transparent 32%),
-      linear-gradient(180deg, #f6f1e6 0, var(--gris-suave) 240px);
+      radial-gradient(circle at 88% -5%, rgba(255,214,165,0.55), transparent 34%),
+      linear-gradient(180deg, #f4dcb2 0, var(--gris-suave) 260px);
   }
 
   .topbar {
-    min-height: 58px;
-    padding: 8px max(12px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
-    gap: 12px;
+    margin: 16px auto 10px;
+    padding: 0 max(14px, env(safe-area-inset-right)) 12px max(14px, env(safe-area-inset-left));
+    gap: 10px;
   }
+  .topbar::after { left: max(14px, env(safe-area-inset-left)); width: 44px; }
   .topbar h1 {
-    font-size: clamp(14px, 4.2vw, 17px);
+    font-size: clamp(19px, 5.6vw, 23px);
     line-height: 1.2;
-    letter-spacing: 0.25px;
+    /* En el telefono el titulo puede ocupar dos lineas en vez de cortarse. */
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
   .topbar-brand { min-width: 0; }
   .topbar-logo { height: 28px; }
@@ -784,10 +781,9 @@ tr:hover td { background: var(--verde-fondo); }
    Navegadores sin soporte navegan como siempre, sin fallback que mantener. */
 @view-transition { navigation: auto; }
 
-/* El topbar existe en todas las paginas con el mismo nombre: el navegador lo
-   trata como EL MISMO elemento y lo deja quieto mientras el contenido de
-   abajo transiciona. Es lo que separa "una web" de "una app". */
-.topbar { view-transition-name: cx-bar; }
+/* El navbar (.cx-bar, navbar.css) existe en todas las paginas con el mismo
+   view-transition-name: el navegador lo trata como EL MISMO elemento y lo deja
+   quieto mientras el contenido de abajo transiciona. */
 
 ::view-transition-old(root) {
   animation: vtSalida 0.18s var(--ease-in-out) both;
@@ -873,8 +869,9 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Barras de desplazamiento finas y tintadas (en lugar del gris del sistema). */
-* { scrollbar-width: thin; scrollbar-color: rgba(6, 78, 59, 0.28) transparent; }
+/* Barras de desplazamiento tintadas. Solo con ::-webkit-scrollbar: si se usaran
+   scrollbar-width/scrollbar-color (aunque fuera heredado), Chrome ignoraria las reglas
+   con las que algunas paginas OCULTAN barras internas (pestanas, carruseles). */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb {
   background: rgba(6, 78, 59, 0.26);
@@ -884,6 +881,11 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(6, 78, 59, 0.42); background-clip: padding-box; border: 3px solid transparent; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* Tiras de pestanas: se desplazan en horizontal (dedo/trackpad) sin barras. El
+   subrayado de la pestana activa sobresale 2px y generaba un scroll vertical diminuto. */
+.tabs { scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
 
 /* Seleccion de texto con la paleta. */
 ::selection { background: var(--cx-apricot, #ffd6a5); color: var(--cx-ink-900, #032e23); }

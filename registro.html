@@ -5,16 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
- <link rel="manifest" href="manifest.webmanifest"/>
+ <link rel="manifest" href="manifest.json"/>
  <meta name="theme-color" content="#064e3b"/>
  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>II CONTECS 2026 — Inscripción</title>
  <style>
  :root {
- --verde: #064e3b; --verde-oscuro: #053f30; --verde-claro: #118066;
- --verde-fondo: #e4f1ec; --gris-texto: #10241d; --gris-suave: #fbfaf6;
- --gris-borde: #e8e5dc; --gris-medio: #5e6f67; --rojo: #cd332b;
- --rojo-fondo: #fdf0ef; --amarillo: #9f5e18; --amarillo-fondo: #fff1dc;
+ --verde: #064e3b; --verde-oscuro: #053f30; --verde-claro: #0f745c;
+ --verde-fondo: #e3e8d2; --gris-texto: #10241d; --gris-suave: #f8e7c9;
+ --gris-borde: #e8d5b0; --gris-medio: #5a6a62; --rojo: #c23028;
+ --rojo-fondo: #fdf0ef; --amarillo: #8d5315; --amarillo-fondo: #ffe3c2;
  --azul-info: #2471a3; --radio: 14px; --radio-sm: 10px;
  --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
  --fuente-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
@@ -51,7 +51,7 @@
  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
  }
  .hero-logo {
- width: 84px; height: 84px; background: #ffffff;
+ width: 84px; height: 84px; background: var(--cx-surface, #fdf7ea);
  border: 2px solid rgba(255,255,255,0.9); border-radius: 50%;
  display: flex; align-items: center; justify-content: center;
  margin: 0 auto 18px; position: relative;
@@ -94,7 +94,7 @@
  .step.completado:not(:last-child)::after { background: var(--verde-claro); }
  .step-num {
  width: 32px; height: 32px; border-radius: 50%;
- background: #fff; border: 2px solid var(--gris-borde);
+ background: var(--cx-surface, #fdf7ea); border: 2px solid var(--gris-borde);
  color: var(--gris-medio); font-size: 13px; font-weight: 700;
  font-family: var(--fuente-display);
  display: flex; align-items: center; justify-content: center;
@@ -114,7 +114,7 @@
  /* ═══ CONTAINER Y CARDS ═══ */
  .container { max-width: 640px; margin: 0 auto; padding: 0 16px 60px; }
  .card {
- background: #fff; border-radius: var(--radio); box-shadow: var(--sombra-sm);
+ background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); box-shadow: var(--sombra-sm);
  padding: 26px 22px; margin-bottom: 16px; position: relative;
  animation: cardIn 0.4s var(--ease-spring) both;
  }
@@ -133,7 +133,7 @@
  .form-group input, .form-group select, .form-group textarea {
  width: 100%; padding: 13px 15px; border: 1.5px solid var(--gris-borde);
  border-radius: var(--radio-sm); font-size: 15px; font-family: var(--fuente);
- background: #fff; color: var(--gris-texto);
+ background: var(--cx-surface, #fdf7ea); color: var(--gris-texto);
  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s var(--ease-out);
  -webkit-appearance: none;
  }
@@ -150,7 +150,7 @@
  .cat-card {
  border: 2px solid var(--gris-borde); border-radius: var(--radio);
  padding: 18px 12px 16px; cursor: pointer; text-align: center;
- background: #fff; position: relative; user-select: none;
+ background: var(--cx-surface, #fdf7ea); position: relative; user-select: none;
  transition: border-color 0.2s, background 0.2s, transform 0.22s var(--ease-spring), box-shadow 0.22s;
  }
  .cat-card:hover { border-color: var(--verde-claro); transform: translateY(-3px); box-shadow: var(--sombra-md); }
@@ -179,7 +179,7 @@
  .colegio-opt {
  display: flex; flex-direction: column; align-items: center; justify-content: center;
  gap: 6px; padding: 18px 12px; border-radius: var(--radio-sm);
- border: 2px solid var(--gris-borde); background: #fff; cursor: pointer;
+ border: 2px solid var(--gris-borde); background: var(--cx-surface, #fdf7ea); cursor: pointer;
  transition: background-color 0.22s var(--ease-spring), border-color 0.22s var(--ease-spring), color 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring), opacity 0.22s var(--ease-spring), transform 0.22s var(--ease-spring); user-select: none; text-align: center;
  }
  .colegio-opt:active { transform: scale(0.96); }
@@ -215,7 +215,7 @@
  .pago-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
  .pago-opcion {
  border: 2px solid var(--gris-borde); border-radius: var(--radio);
- padding: 20px 14px; cursor: pointer; text-align: center; background: #fff;
+ padding: 20px 14px; cursor: pointer; text-align: center; background: var(--cx-surface, #fdf7ea);
  transition: border-color 0.2s, background 0.2s, transform 0.22s var(--ease-spring), box-shadow 0.22s;
  user-select: none;
  }
@@ -237,7 +237,7 @@
  .it-fila strong { color: var(--verde-oscuro); min-width: 90px; }
  .info-efectivo { background: var(--amarillo-fondo); border: 1.5px solid #edd9ae; border-radius: var(--radio); padding: 16px; margin-bottom: 16px; }
  .ie-titulo { font-size: 13px; font-weight: 700; color: var(--amarillo); margin-bottom: 8px; }
- .ie-contacto { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: var(--radio-sm); padding: 12px 14px; box-shadow: var(--sombra-sm); }
+ .ie-contacto { display: flex; align-items: center; gap: 12px; background: var(--cx-surface, #fdf7ea); border-radius: var(--radio-sm); padding: 12px 14px; box-shadow: var(--sombra-sm); }
  .ie-avatar { width: 40px; height: 40px; background: var(--amarillo); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0; }
  .ie-nombre { font-size: 14px; font-weight: 700; color: var(--gris-texto); }
  .ie-tel { font-size: 13px; color: var(--gris-medio); margin-top: 2px; }
@@ -245,7 +245,7 @@
  /* ═══ UPLOAD ═══ */
  .upload-zone {
  border: 2px dashed var(--gris-borde); border-radius: var(--radio);
- padding: 30px 20px; text-align: center; cursor: pointer; background: #fff;
+ padding: 30px 20px; text-align: center; cursor: pointer; background: var(--cx-surface, #fdf7ea);
  transition: border-color 0.2s, background 0.2s, transform 0.15s;
  }
  .upload-zone:hover, .upload-zone.dragover { border-color: var(--verde-claro); background: var(--verde-fondo); }
@@ -308,7 +308,7 @@
  .btn-primary:hover::after { transform: translateX(320%) skewX(-16deg); }
  .btn-primary:hover { box-shadow: 0 10px 28px rgba(6,78,59,0.40); transform: translateY(-1px); }
  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
- .btn-outline { background: #fff; border: 1.5px solid var(--gris-borde); color: var(--gris-texto); }
+ .btn-outline { background: var(--cx-surface, #fdf7ea); border: 1.5px solid var(--gris-borde); color: var(--gris-texto); }
  .btn-outline:hover { border-color: var(--verde); color: var(--verde); transform: translateY(-1px); }
  .btn-nav { display: flex; gap: 10px; margin-top: 8px; }
  .btn-nav .btn { flex: 1; }
