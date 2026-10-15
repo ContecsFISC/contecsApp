@@ -12,7 +12,7 @@
 // INCLINACION, para que las dos animaciones no se pisen el transform.
 // ═══════════════════════════════════════════════════════════════
 import { iconoSeccion } from "./navbar.js?v=20261015.3";
-import { revelarAlEntrar } from "./revelar.js?v=20261015.3";
+import { revelarAlEntrar } from "./revelar.js?v=20261015.4";
 
 const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const conRaton = matchMedia("(hover: hover) and (pointer: fine)");
