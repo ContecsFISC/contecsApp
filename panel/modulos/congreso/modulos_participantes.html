@@ -5,16 +5,11 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
- <meta name="theme-color" content="#064e3b"/>
- <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Participantes</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/exceljs.min.js" defer></script>
  <script type="module">
@@ -311,7 +306,7 @@
  display: flex; align-items: center; justify-content: center; gap: 6px;
  }
  .btn-grande:active { transform: scale(0.97); }
- .btn-aprobar-grande { background: linear-gradient(135deg, var(--verde), var(--verde-oscuro)); color: #fff; box-shadow: 0 4px 12px rgba(6,78,59,0.25); }
+ .btn-aprobar-grande { background: linear-gradient(135deg, var(--verde), var(--verde-oscuro)); color: #fff; box-shadow: 0 4px 12px rgba(0,114,46,0.25); }
  .btn-rechazar-grande { background: var(--rojo-fondo); color: var(--rojo); border: 1.5px solid var(--rojo); }
  .btn-aprobar-grande:disabled,
  .btn-rechazar-grande:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -340,7 +335,7 @@
  .modal-eliminar {
  background: #fff;
  border-radius: var(--radio);
- box-shadow: 0 20px 50px rgba(3,46,35,0.25);
+ box-shadow: 0 20px 50px rgba(0,0,0,0.25);
  width: 100%; max-width: 460px;
  padding: 22px 20px 18px;
  border-top: 4px solid var(--rojo);
@@ -385,7 +380,7 @@
  .modal-amplio {
  background: #fff;
  border-radius: var(--radio-lg);
- box-shadow: 0 20px 50px rgba(3,46,35,0.25);
+ box-shadow: 0 20px 50px rgba(0,0,0,0.25);
  width: 100%; max-width: 1060px;
  height: min(780px, calc(100dvh - 32px));
  display: flex; flex-direction: column;
@@ -462,7 +457,7 @@
  background: #fff; border-radius: var(--radio); box-shadow: var(--sombra-sm);
  }
  .mc-preview-lienzo { display: flex; align-items: center; justify-content: center; min-height: 300px; width: 100%; }
- .mc-preview-lienzo canvas { display: block; max-width: 100%; max-height: 330px; width: auto; height: auto; border-radius: 4px; box-shadow: 0 6px 20px rgba(3,46,35,0.16); }
+ .mc-preview-lienzo canvas { display: block; max-width: 100%; max-height: 330px; width: auto; height: auto; border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,0.16); }
  .mc-preview-lienzo.doblada canvas { max-height: 440px; }
  .mc-preview-vacio { font-size: 13px; color: var(--gris-medio); text-align: center; padding: 0 12px; }
  .mc-preview-txt { font-size: 11px; color: var(--gris-medio); text-align: center; }
@@ -631,8 +626,23 @@
 
  @keyframes cardIn {
  from { opacity: 0; transform: translateY(10px); }
- to { opacity: 1; transform: none; }
+ to { opacity: 1; transform: translateY(0); }
  }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
  @media(max-width:600px) {
    .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
    .stat-card { min-width:0; padding:13px 8px; border-radius:14px; }
@@ -2249,6 +2259,5 @@ if (usuarioTienePermiso("importar_participantes")) el("btn-importar").style.disp
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargar();
 </script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

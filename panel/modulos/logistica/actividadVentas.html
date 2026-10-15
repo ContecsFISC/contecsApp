@@ -5,16 +5,11 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
- <meta name="theme-color" content="#064e3b"/>
- <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Actividad Ventas</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
@@ -22,31 +17,46 @@
  await requirePermiso("gestionar_ventas");
  </script>
  <style>
- .btn-primary { background: linear-gradient(135deg, #064e3b 0%, #118066 100%); box-shadow: 0 4px 12px rgba(6,78,59,0.3); }
+ .btn-primary { background: linear-gradient(135deg, #c81e1e 0%, #f05252 100%); box-shadow: 0 4px 12px rgba(200,30,30,0.3); }
  .btn-primary:hover { opacity: 0.88; }
- .btn-outline { color: #064e3b; border-color: #064e3b; }
- .btn-outline:hover { background: #e4f1ec; color: #064e3b; }
- .card-title { color: #064e3b; }
+ .btn-outline { color: #c81e1e; border-color: #c81e1e; }
+ .btn-outline:hover { background: #fde8e8; color: #c81e1e; }
+ .card-title { color: #c81e1e; }
  .container { max-width: 960px; }
 
  .tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:20px; background:#fff; border-radius:var(--radio); padding:6px; box-shadow:var(--sombra-sm); }
  .tab-btn { flex:1; min-width:80px; padding:9px 10px; border:none; background:transparent; border-radius:var(--radio-sm); font-size:13px; font-weight:600; cursor:pointer; color:var(--gris-medio); transition:background 0.2s,color 0.2s; }
- .tab-btn.active { background:#118066; color:#fff; }
- .tab-btn:hover:not(.active) { background:#e4f1ec; color:#064e3b; }
+ .tab-btn.active { background:#f05252; color:#fff; }
+ .tab-btn:hover:not(.active) { background:#fde8e8; color:#c81e1e; }
  .tab-panel { display:none; }
  .tab-panel.active { display:block; }
 
  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
- .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid #118066; }
- .stat-mini .num { font-size:26px; font-weight:700; color:#064e3b; }
+ .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid #f05252; }
+ .stat-mini .num { font-size:26px; font-weight:700; color:#c81e1e; }
  .stat-mini .lbl { font-size:12px; color:var(--gris-medio); margin-top:4px; }
 
- .turno-tag { display:inline-flex; align-items:center; gap:6px; background:#e4f1ec; border:1px solid #bfdcd2; border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:#064e3b; }
- .turno-tag button { background:none; border:none; cursor:pointer; color:#064e3b; font-size:15px; line-height:1; padding:0 2px; }
+ .turno-tag { display:inline-flex; align-items:center; gap:6px; background:#fde8e8; border:1px solid #f98080; border-radius:20px; padding:5px 12px; font-size:13px; margin:4px; color:#c81e1e; }
+ .turno-tag button { background:none; border:none; cursor:pointer; color:#c81e1e; font-size:15px; line-height:1; padding:0 2px; }
 
  @media(max-width:600px) {
  .stats-grid { grid-template-columns:1fr 1fr; }
  }
+ 
+ .btn-volver {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 36px; height: 36px;
+ border-radius: 50%;
+ background: rgba(255,255,255,0.15);
+ border: 1px solid rgba(255,255,255,0.25);
+ color: var(--blanco, #fff);
+ transition: background 0.2s, transform 0.15s;
+ text-decoration: none;
+ }
+ .btn-volver:hover { background: rgba(255,255,255,0.28); }
+ .btn-volver:active { transform: scale(0.92); }
  </style>
   <script type="speculationrules">
   { "prefetch": [{ "where": { "href_matches": "/*panel/*" }, "eagerness": "moderate" }] }
@@ -70,23 +80,23 @@
 
  <!-- TAB CREAR VENTA -->
  <div class="tab-panel active" id="tab-ventas">
- <div class="card" style="border-left:3px solid #118066;">
+ <div class="card" style="border-left:3px solid #f05252;">
  <div class="card-title" id="form-venta-titulo">Crear actividad de venta</div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Nombre de la actividad *</label>
+ <label style="color:#c81e1e;">Nombre de la actividad *</label>
  <input type="text" id="venta-nombre" placeholder="ej. Venta CONTECS — Feria junio 2026"/>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Descripción</label>
+ <label style="color:#c81e1e;">Descripción</label>
  <textarea id="venta-descripcion" rows="2" placeholder="Descripción breve del evento de ventas"></textarea>
  </div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:#064e3b;">Fecha *</label>
+ <label style="color:#c81e1e;">Fecha *</label>
  <input type="date" id="venta-fecha"/>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Tipo de venta *</label>
+ <label style="color:#c81e1e;">Tipo de venta *</label>
  <select id="venta-tipo">
  <option value="">— Selecciona —</option>
  <option>Venta en la Facultad</option>
@@ -98,54 +108,54 @@
  </div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:#064e3b;">Lugar *</label>
+ <label style="color:#c81e1e;">Lugar *</label>
  <input type="text" id="venta-lugar" placeholder="ej. Edificio 3, LOBBY"/>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Voluntarios requeridos</label>
+ <label style="color:#c81e1e;">Voluntarios requeridos</label>
  <input type="number" id="venta-voluntarios-req" placeholder="ej. 5" min="0"/>
  </div>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Colaboración</label>
+ <label style="color:#c81e1e;">Colaboración</label>
  <textarea id="venta-colaboracion" rows="2" placeholder="Empresas o agrupaciones que colaboran (separadas por coma)"></textarea>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Responsables</label>
+ <label style="color:#c81e1e;">Responsables</label>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
  <select id="venta-responsables-sel">
  <option value="">— Cargando usuarios… —</option>
  </select>
  <input type="text" id="venta-responsables-texto" placeholder="ej. María García" style="display:none;"/>
- <button class="btn btn-outline btn-sm" id="btn-add-responsable" style="width:auto;color:#064e3b;border-color:#bfdcd2;">+ Agregar</button>
+ <button class="btn btn-outline btn-sm" id="btn-add-responsable" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Agregar</button>
  </div>
  <div id="venta-responsables-lista" style="min-height:28px;"></div>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Turnos de la venta</label>
+ <label style="color:#c81e1e;">Turnos de la venta</label>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
  <input type="text" id="venta-turno-nombre" placeholder="ej. Turno 1"/>
  <input type="time" id="venta-turno-inicio" title="Hora inicio"/>
  <input type="time" id="venta-turno-fin" title="Hora fin"/>
- <button class="btn btn-outline btn-sm" id="btn-add-turno-venta" style="width:auto;color:#064e3b;border-color:#bfdcd2;">+ Agregar</button>
+ <button class="btn btn-outline btn-sm" id="btn-add-turno-venta" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Agregar</button>
  </div>
  <div id="venta-turnos-lista" style="min-height:32px;"></div>
  <small style="color:var(--gris-medio);font-size:12px;">Ej: Turno 1 — 09:00 a 13:00 · Turno 2 — 13:00 a 17:00</small>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Productos de la venta</label>
+ <label style="color:#c81e1e;">Productos de la venta</label>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;margin-bottom:8px;">
  <select id="venta-productos-sel">
  <option value="">— Cargando productos… —</option>
  </select>
- <button class="btn btn-outline btn-sm" id="btn-add-producto-venta" style="width:auto;color:#064e3b;border-color:#bfdcd2;">+ Agregar</button>
+ <button class="btn btn-outline btn-sm" id="btn-add-producto-venta" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Agregar</button>
  </div>
  <div id="venta-productos-lista" style="min-height:28px;"></div>
  <small style="color:var(--gris-medio);font-size:12px;">Selecciona los productos que se venderán en esta actividad.</small>
  </div>
  <div class="form-groupE">
- <label style="color:#064e3b;">Combos de la venta</label>
- <div style="background:#e4f1ec;border:1px dashed #bfdcd2;border-radius:var(--radio-sm);padding:10px;margin-bottom:8px;">
+ <label style="color:#c81e1e;">Combos de la venta</label>
+ <div style="background:#fde8e8;border:1px dashed #f98080;border-radius:var(--radio-sm);padding:10px;margin-bottom:8px;">
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:4px;">
  <input type="text" id="combo-nombre" placeholder="ej. Combo Vaquera"/>
  <input type="number" id="combo-precio-total" placeholder="Precio combo" min="0" step="0.01"/>
@@ -155,7 +165,7 @@
  <select id="combo-producto-sel">
  <option value="">— Cargando productos… —</option>
  </select>
- <button class="btn btn-outline btn-sm" id="btn-add-item-combo" style="width:auto;color:#064e3b;border-color:#bfdcd2;">+ Producto</button>
+ <button class="btn btn-outline btn-sm" id="btn-add-item-combo" style="width:auto;color:#c81e1e;border-color:#f98080;">+ Producto</button>
  </div>
  <div id="combo-items-lista" style="min-height:24px;margin-bottom:8px;"></div>
  <button class="btn btn-primary btn-sm" id="btn-guardar-combo" style="width:auto;">Guardar combo</button>
@@ -177,7 +187,7 @@
  <div class="stat-mini"><div class="num" id="stat-ventas-activas">—</div><div class="lbl">Activas</div></div>
  <div class="stat-mini"><div class="num" id="stat-vol-req-total">—</div><div class="lbl">Vol. requeridos (total)</div></div>
  </div>
- <div class="card" style="border:2px solid #bfdcd2;">
+ <div class="card" style="border:2px solid #f98080;">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
  <div class="card-title" style="margin:0;">Actividades de venta registradas</div>
  <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -188,17 +198,17 @@
  <div class="tabla-wrap">
  <table>
  <thead><tr>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Nombre</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Fecha</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Tipo</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Lugar</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Vol. req.</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Responsables</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Turnos</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Productos</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Combos</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;">Estado</th>
- <th style="color:#064e3b;border-bottom:2px solid #bfdcd2;"></th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Nombre</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Fecha</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Tipo</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Lugar</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Vol. req.</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Responsables</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Turnos</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Productos</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Combos</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;">Estado</th>
+ <th style="color:#c81e1e;border-bottom:2px solid #f98080;"></th>
  </tr></thead>
  <tbody id="tabla-ventas-body"><tr><td colspan="11" style="text-align:center;color:var(--gris-medio)">Cargando...</td></tr></tbody>
  </table>
@@ -208,6 +218,5 @@
 </div>
 
 <script type="module" src="../../../js/modulos/actividadVentas.js?v=20260817-activity-fix"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

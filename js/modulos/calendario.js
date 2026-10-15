@@ -170,7 +170,7 @@ function verDetalle(id, tipo) {
 
   const cfg = {
     actividad: { label:"Actividad", color:"var(--verde-oscuro)", bg:"var(--verde-fondo)", border:"var(--verde-claro)" },
-    gira:      { label:"Gira",      color:"#8a4f12",             bg:"#fff1dc",            border:"#f7b878" },
+    gira:      { label:"Gira",      color:"#856404",             bg:"#fff3cd",            border:"#ffc107" },
     venta:     { label:"Venta",     color:"#c81e1e",             bg:"#fde8e8",            border:"#f05252" },
   }[tipo];
 
@@ -226,7 +226,7 @@ function verDia(dia, año, mes) {
     ${evts.map(e => {
       const cfg = {
         actividad: { color:"var(--verde-oscuro)", bg:"var(--verde-fondo)" },
-        gira:      { color:"#8a4f12",             bg:"#fff1dc" },
+        gira:      { color:"#856404",             bg:"#fff3cd" },
         venta:     { color:"#c81e1e",             bg:"#fde8e8" },
         reunion:   { color:"#1a56db",             bg:"#eef2ff" },
       }[e.tipo];

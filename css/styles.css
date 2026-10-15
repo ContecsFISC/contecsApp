@@ -4,63 +4,64 @@
    =========================== */
 
 :root {
-  /* Paleta v2 — Emerald Ink · Champagne · Soft Apricot (ver css/tokens.css).
-     Se conservan TODOS los nombres historicos (--verde, --gris-*, ...) para que
-     ninguna pagina ni script cambie: solo cambian los valores. Cada valor lleva
-     el literal de respaldo por si una pagina no enlaza tokens.css. */
-  --verde:          var(--cx-ink, #064e3b);
-  --verde-oscuro:   var(--cx-ink-800, #053f30);
-  --verde-claro:    var(--cx-ink-500, #118066);
-  --topbar-verde:   var(--cx-ink-900, #032e23);
+  /* Paleta principal — el verde es IDENTIDAD, no fondo: vive en el topbar,
+     la accion principal y los acentos de marca. Cuanto menos aparece, mas
+     pesa cada aparicion. */
+  --verde:          #00722e;
+  --verde-oscuro:   #045223;
+  --verde-claro:    #39b54a;
+  --topbar-verde:   #033f1b;
 
   /* Derivados para profundidad */
-  --verde-fondo:    var(--cx-ink-100, #e4f1ec);
-  --verde-apagado:    #4f8a77;
+  --verde-fondo:    #e9f6ee;
+  /* Usados por dashboard (hover de modulos y eventos tipo reunion); estaban
+     referenciados sin definir desde antes del rework — var() vacia. */
+  --verde-apagado:    #4e8c63;
   --verde-apagado-bg: rgba(255,255,255,0.14);
-  --verde-hover:    var(--cx-ink-800, #053f30);
-  --verde-sombra:   rgba(6, 78, 59, 0.15);
+  --verde-hover:    #005f26;
+  --verde-sombra:   rgba(0, 114, 46, 0.15);
 
-  /* Neutros calidos: el lienzo es un blanco hueso, no un gris frio. */
-  --gris-texto:     var(--cx-text, #10241d);
-  --gris-suave:     var(--cx-canvas, #fbfaf6);
-  --gris-borde:     #e8e5dc;
-  --gris-medio:     var(--cx-text-3, #5e6f67);
-  --gris-texto-sec: var(--cx-text-2, #4b5f57);  /* usada por el dashboard; nunca se definia */
+  /* Neutros — grises PUROS. Los anteriores estaban teñidos de verde
+     (#f4f7f5, #8a9e8d...) y contaminaban todo el lienzo; el verde debe
+     venir de los elementos de marca, no del fondo. */
+  --gris-texto:     #1d1d1f;
+  --gris-suave:     #f5f5f7;
+  --gris-borde:     #e3e3e6;
+  --gris-medio:     #86868b;
   --blanco:         #ffffff;
 
-  /* Semanticos — el rojo se reserva para emergencias reales; el trabajo
-     pendiente es apricot/ambar. */
-  --rojo:           #cd332b;
+  /* Semánticos — el rojo se reserva para emergencias reales; el trabajo
+     pendiente ("44 por revisar") es ambar. */
+  --rojo:           #d0342c;
   --rojo-fondo:     #fdf0ef;
-  --amarillo:       #9f5e18;
-  --amarillo-fondo: #fff1dc;
+  --amarillo:       #c47f17;
+  --amarillo-fondo: #fdf6e9;
   --azul-info:      #2471a3;
 
-  /* Marca "Eurus" de .form-groupE: nunca se definio y las reglas caian a los
-     valores por defecto del navegador. Se alinea con el formulario estandar. */
-  --eurus:          var(--verde);
-  --eurus-oscuro:   var(--verde-oscuro);
-
-  /* Sombras — capas tintadas de tinta verde (no negro puro). */
-  --sombra-sm:      var(--cx-shadow-1, 0 1px 2px rgb(3 46 35 / 0.06), 0 2px 8px rgb(3 46 35 / 0.05));
-  --sombra-md:      var(--cx-shadow-2, 0 2px 4px rgb(3 46 35 / 0.05), 0 8px 24px rgb(3 46 35 / 0.08));
-  --sombra-verde:   0 4px 20px rgba(6, 78, 59, 0.2);
+  /* Sombras — difusas, de radio amplio y opacidad baja: profundidad por
+     capas, no por manchones. */
+  --sombra-sm:      0 1px 2px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.05);
+  --sombra-md:      0 2px 4px rgba(0,0,0,0.04), 0 8px 28px rgba(0,0,0,0.08);
+  --sombra-verde:   0 4px 20px rgba(0, 114, 46, 0.16);
   --sombra-eurus:   rgba(0, 6, 114, 0.18);
 
   /* Bordes */
-  --radio:          14px;
-  --radio-sm:       10px;
-  --radio-lg:       20px;
+  --radio:          12px;
+  --radio-sm:       8px;
+  --radio-lg:       16px;
 
   --fuente: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Voz display: numeros grandes, titulos y marca. Tecnica y con caracter —
+     la voz de un congreso de computacion. El cuerpo sigue en Inter. */
   --fuente-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
 
-  /* Animaciones — cortas e interrumpibles; solo transform/opacity. */
-  --ease-spring:    cubic-bezier(0.34, 1.4, 0.64, 1);
-  --ease-out:       cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in-out:    cubic-bezier(0.65, 0, 0.35, 1);
+  /* Animaciones — cortas e interrumpibles. Mas de 400ms se siente lento
+     aunque se vea bonito. Solo transform/opacity: lo demas repinta. */
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
   --dur-tap:        0.09s;   /* respuesta al presionar: inmediata */
-  --dur-control:    0.2s;    /* hover, foco, toggles */
+  --dur-control:    0.22s;   /* hover, foco, toggles */
   --dur-vista:      0.32s;   /* cambios de vista y overlays */
 }
 
@@ -90,7 +91,7 @@ img, svg, video, canvas { max-width: 100%; }
 p, td, th, label, .card-title { overflow-wrap: anywhere; }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 3px solid rgba(17, 128, 102, 0.45);
+  outline: 3px solid rgba(0, 160, 68, 0.42);
   outline-offset: 2px;
 }
 
@@ -110,7 +111,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translateY(0);
   }
 }
 
@@ -122,7 +123,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: scale(1);
   }
 }
 
@@ -134,7 +135,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translateX(0);
   }
 }
 
@@ -147,7 +148,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   }
   to {
     opacity: 1;
-    transform: none;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -161,7 +162,7 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 
 @keyframes mobileSheetReveal {
   from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.985); }
-  to   { opacity: 1; transform: none; }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
 /* Pulso suave para alertas */
@@ -184,10 +185,11 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 .card {
   background: var(--blanco);
   border-radius: var(--radio);
-  box-shadow: var(--sombra-sm), var(--cx-ring, 0 0 0 1px rgba(6, 78, 59, 0.1));
+  box-shadow: var(--sombra-sm);
   padding: 20px;
   margin-bottom: 16px;
-  animation: cardCascade 0.4s var(--ease-out) both;
+  border-left: 3px solid var(--verde-claro);
+  animation: cardCascade 0.4s var(--ease-spring) both;
 }
 .card:nth-child(1) { animation-delay: 0.05s; }
 .card:nth-child(2) { animation-delay: 0.10s; }
@@ -200,60 +202,42 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   color: var(--verde-oscuro);
   margin-bottom: 14px;
   padding-bottom: 10px;
-  border-bottom: 1.5px solid var(--gris-borde);
+  border-bottom: 1.5px solid var(--verde-fondo);
 }
 
-/* ---- TOPBAR (paginas de modulo) ----
-   Barra blanca flotante con LA MISMA geometria que .cx-bar del dashboard
-   (12px de margen, 64px de alto): al navegar, la View Transition la trata como
-   un unico elemento y se queda quieta. Al hacer scroll js/core/ui-shell.js la
-   envia hacia arriba (data-docked) y aparece el carril lateral derecho.
-   Es sticky y sigue en el flujo: acoplarla NO cambia el layout de la pagina. */
+/* ---- TOPBAR ---- */
 .topbar {
-  position: sticky;
-  top: var(--cx-bar-gap, 12px);
-  z-index: 100;
+  /* Vidrio institucional: verde translucido + blur con saturacion. Al hacer
+     scroll, el contenido pasa POR DETRAS difuminado — la señal "premium" mas
+     barata que existe: un backdrop-filter en un elemento sticky. El color
+     solido queda de respaldo para navegadores sin soporte. */
+  background: var(--topbar-verde) !important;
+  color: var(--blanco);
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* Sin isolation:isolate — sticky+z-index ya crean el contexto de apilado,
+     y por spec isolation+backdrop-filter formarian una frontera de backdrop
+     que impediria a las capas de vidrio del menu muestrear la pagina
+     (Chromium lo tolera; otros motores no tienen por que). */
   min-width: 0;
-  min-height: var(--cx-bar-h, 64px);
-  margin: var(--cx-bar-gap, 12px) var(--cx-bar-gap, 12px) 0;
-  padding: 8px 14px 8px 12px;
-  background: var(--blanco) !important;
-  color: var(--verde);
-  border-radius: var(--radio-lg);
-  box-shadow: var(--cx-shadow-2, 0 2px 4px rgb(3 46 35 / 0.05), 0 8px 24px rgb(3 46 35 / 0.08)), var(--cx-ring, 0 0 0 1px rgba(6, 78, 59, 0.1));
-  transform: translate3d(0, 0, 0);
-  transition:
-    transform 0.42s var(--ease-out),
-    opacity 0.16s ease,
-    visibility 0s linear 0s;
-  /* backwards, no both: una animacion que retiene su ultimo fotograma pisaria
-     el transform del estado acoplado. */
-  animation: topbarIn 0.42s var(--ease-out) backwards;
+  box-shadow: none;
 }
-@keyframes topbarIn {
-  from { opacity: 0; transform: translate3d(0, -14px, 0); }
-  to   { opacity: 1; transform: none; }
+@supports (backdrop-filter: blur(1px)) {
+  .topbar {
+    background: rgba(3, 63, 27, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    /* Hilo de luz inferior: el borde del cristal. */
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
+  }
 }
-/* El carril del escritorio reserva su ancho a la derecha de la pagina; la barra
-   lo cruza para quedar a 12px del borde, igual que la del dashboard. */
-@media (min-width: 1024px) {
-  body.cx-nav-on .topbar { margin-right: calc(var(--cx-bar-gap, 12px) - var(--cx-rail-w, 84px)); }
-}
-/* Acoplada: sube y desaparece; el carril lateral toma su lugar. */
-.topbar[data-docked="true"] {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translate3d(0, calc(-100% - 28px), 0);
-  transition:
-    transform 0.42s var(--ease-out),
-    opacity 0.16s ease,
-    visibility 0s linear 0.42s;
-}
+
 .topbar::before,
 .topbar::after { content: none; }
 .topbar > * { position: relative; z-index: 1; min-width: 0; }
@@ -267,89 +251,69 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   height: 30px;
   width: auto;
   display: block;
+  opacity: 1; /* logo a opacidad completa, sin atenuar */
 }
 .topbar h1 {
   font-family: var(--fuente-display);
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--verde);
+  letter-spacing: 1px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .topbar-link {
-  color: var(--verde);
+  color: var(--blanco);
   font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
 }
-.topbar-link:hover { text-decoration: underline; }
 
 /* Navegación de regreso única para todos los módulos. */
 .btn-volver {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  flex: 0 0 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  flex: 0 0 38px;
   padding: 0;
-  border: 1px solid var(--cx-line, rgba(6, 78, 59, 0.1));
+  border: 1px solid rgba(255,255,255,0.3);
   border-radius: 50%;
-  background: var(--cx-champagne-300, #fbf0dc);
-  color: var(--verde);
+  background: rgba(255,255,255,0.16);
+  color: var(--blanco);
   text-decoration: none;
-  box-shadow: var(--cx-shadow-1, 0 1px 2px rgb(3 46 35 / 0.06));
-  transition: transform 0.22s var(--ease-out), background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.17), 0 5px 14px rgba(0,35,14,0.14);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(150%);
+  transition: transform 0.22s var(--ease-out), background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 .btn-volver svg { display: block; width: 20px; height: 20px; }
 .btn-volver:hover {
-  background: var(--cx-champagne, #f8e7c9);
-  box-shadow: var(--cx-shadow-2, 0 2px 4px rgb(3 46 35 / 0.05), 0 8px 24px rgb(3 46 35 / 0.08));
-  transform: translate3d(-2px, 0, 0);
+  background: rgba(255,255,255,0.26);
+  border-color: rgba(255,255,255,0.44);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 7px 18px rgba(0,35,14,0.2);
+  transform: translateX(-2px);
 }
-.btn-volver:active { transform: translate3d(-1px, 0, 0) scale(0.92); }
+.btn-volver:active { transform: translateX(-1px) scale(0.92); }
 .btn-volver:focus-visible {
-  outline: 3px solid rgba(17, 128, 102, 0.5);
+  outline: 3px solid rgba(255,255,255,0.52);
   outline-offset: 2px;
 }
-/* Accion secundaria dentro de la barra (p. ej. "Leer QR"). Antes era blanco
-   translucido para la barra verde; cada pagina lo redefinia. */
-.btn-qr-scan {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: 1px solid var(--cx-line-strong, rgba(6, 78, 59, 0.18));
-  border-radius: 999px;
-  background: var(--cx-champagne-300, #fbf0dc);
-  color: var(--verde);
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s var(--ease-out);
-}
-.btn-qr-scan:hover { background: var(--cx-champagne, #f8e7c9); }
-.btn-qr-scan:active { transform: scale(0.95); }
 .is-hidden { display: none; }
 .fondo-estado { font-size: 18px; }
 .btn-logout {
   flex-shrink: 0;
   margin-left: auto;
-  background: var(--verde);
-  border: 0;
-  color: var(--cx-champagne, #f8e7c9);
-  padding: 9px 18px;
-  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--blanco);
+  padding: 6px 16px;
+  border-radius: 20px;
   font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s var(--ease-out);
+  transition: background 0.2s, transform 0.15s;
 }
-.btn-logout:hover  { background: var(--verde-oscuro); transform: translate3d(0, -1px, 0); }
+.btn-logout:hover  { background: rgba(255,255,255,0.25); }
 .btn-logout:active { transform: scale(0.94); }
 
 /* ---- BOTONES ---- */
@@ -374,12 +338,12 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   transition-duration: 0.08s;
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--cx-ink-600, #0b6a50) 0%, var(--verde) 55%, var(--cx-ink-900, #032e23) 100%);
-  color: var(--cx-champagne-100, #fdf7ea);
-  box-shadow: var(--sombra-verde), inset 0 1px 0 rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-oscuro) 100%);
+  color: var(--blanco);
+  box-shadow: var(--sombra-verde);
 }
 .btn-primary:hover {
-  box-shadow: 0 10px 28px rgba(6,78,59,0.34), inset 0 1px 0 rgba(255,255,255,0.12);
+  box-shadow: 0 8px 24px rgba(0,114,46,0.32);
   transform: translateY(-1px);
 }
 .btn-success  { background: var(--verde-claro); color: var(--blanco); }
@@ -415,14 +379,15 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   font-family: var(--fuente);
   background: var(--blanco);
   color: var(--gris-texto);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--verde);
-  box-shadow: 0 0 0 4px rgba(17,128,102,0.16);
+  box-shadow: 0 0 0 4px rgba(0,114,46,0.12);
+  transform: translateY(-1px);
 }
 
 
@@ -447,14 +412,15 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
   font-family: var(--fuente);
   background: var(--blanco);
   color: var(--gris-texto);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .form-groupE input:focus,
 .form-groupE select:focus,
 .form-groupE textarea:focus {
   outline: none;
   border-color: var(--eurus);
-  box-shadow: 0 0 0 4px rgba(17,128,102,0.16);
+  box-shadow: 0 0 0 4px rgba(17, 0, 114, 0.12);
+  transform: translateY(-1px);
 }
 
 /* ---- ALERTAS ---- */
@@ -506,12 +472,12 @@ button:disabled, input:disabled, select:disabled, textarea:disabled {
 }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th {
-  background: var(--cx-ink-50, #f1f8f5);
+  background: var(--verde-fondo);
   color: var(--verde-oscuro);
   font-weight: 600;
   padding: 10px 12px;
   text-align: left;
-  border-bottom: 2px solid var(--cx-apricot, #ffd6a5);
+  border-bottom: 2px solid var(--verde-claro);
 }
 td { padding: 10px 12px; border-bottom: 1px solid var(--gris-borde); }
 tr:last-child td { border-bottom: none; }
@@ -562,13 +528,13 @@ tr:hover td { background: var(--verde-fondo); }
 @media (max-width: 600px) {
   body {
     background:
-      radial-gradient(circle at 88% -5%, rgba(255,214,165,0.34), transparent 32%),
-      linear-gradient(180deg, #f6f1e6 0, var(--gris-suave) 240px);
+      radial-gradient(circle at 88% -5%, rgba(57,181,74,0.14), transparent 32%),
+      linear-gradient(180deg, #eef7f1 0, var(--gris-suave) 240px);
   }
 
   .topbar {
     min-height: 58px;
-    padding: 8px max(12px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+    padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
     gap: 12px;
   }
   .topbar h1 {
@@ -590,8 +556,10 @@ tr:hover td { background: var(--verde-fondo); }
     min-width: 0;
     padding: 17px 15px;
     margin-bottom: 14px;
+    border-left-width: 0;
+    border-top: 3px solid var(--verde-claro);
     border-radius: 16px;
-    box-shadow: var(--sombra-sm), var(--cx-ring, 0 0 0 1px rgba(6, 78, 59, 0.1));
+    box-shadow: 0 8px 26px rgba(14,55,29,0.075), 0 1px 2px rgba(14,55,29,0.06);
     animation-duration: 0.46s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -629,7 +597,7 @@ tr:hover td { background: var(--verde-fondo); }
     margin-inline: -3px;
     padding: 0 3px 5px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(6,78,59,0.32) transparent;
+    scrollbar-color: rgba(0,114,46,0.32) transparent;
   }
 
   /* Tablas anchas apiladas como tarjetas (ver .tabla-cards arriba). */
@@ -657,7 +625,7 @@ tr:hover td { background: var(--verde-fondo); }
     border-radius: var(--radio);
     padding: 4px 13px;
     margin-bottom: 11px;
-    box-shadow: var(--sombra-sm);
+    box-shadow: 0 2px 8px rgba(14,55,29,0.05);
   }
   .tabla-cards tbody tr:last-child { margin-bottom: 0; }
   .tabla-cards tbody tr:hover td { background: transparent; }
@@ -787,7 +755,7 @@ tr:hover td { background: var(--verde-fondo); }
 /* El topbar existe en todas las paginas con el mismo nombre: el navegador lo
    trata como EL MISMO elemento y lo deja quieto mientras el contenido de
    abajo transiciona. Es lo que separa "una web" de "una app". */
-.topbar { view-transition-name: cx-bar; }
+.topbar { view-transition-name: topbar; }
 
 ::view-transition-old(root) {
   animation: vtSalida 0.18s var(--ease-in-out) both;
@@ -860,55 +828,3 @@ button .icono-svg { color: currentColor; }
 /* Estrellas de calificación */
 .icono-estrella.llena { color: var(--amarillo); }
 .icono-estrella.vacia { color: var(--gris-borde); }
-
-/* ═══ UI v2 — capa de scroll, foco y dialogos ═══ */
-/* Scroll suave hacia anclas/"volver arriba" y espacio para la barra flotante. */
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--cx-bar-h, 64px) + var(--cx-bar-gap, 12px) * 2 + 8px);
-}
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-/* Barras de desplazamiento finas y tintadas (en lugar del gris del sistema). */
-* { scrollbar-width: thin; scrollbar-color: rgba(6, 78, 59, 0.28) transparent; }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb {
-  background: rgba(6, 78, 59, 0.26);
-  border: 3px solid transparent;
-  border-radius: 999px;
-  background-clip: padding-box;
-}
-::-webkit-scrollbar-thumb:hover { background: rgba(6, 78, 59, 0.42); background-clip: padding-box; border: 3px solid transparent; }
-::-webkit-scrollbar-track { background: transparent; }
-
-/* Seleccion de texto con la paleta. */
-::selection { background: var(--cx-apricot, #ffd6a5); color: var(--cx-ink-900, #032e23); }
-
-/* <dialog> nativos (usuarios, credenciales...): entrada y telon con la paleta.
-   Los estilos propios de cada pagina siguen mandando (cargan despues). */
-dialog { border: 0; box-shadow: var(--cx-shadow-4, 0 8px 16px rgb(3 46 35 / 0.06), 0 28px 64px rgb(3 46 35 / 0.18)); }
-dialog[open] { animation: cxDialogIn 0.3s var(--ease-out) backwards; }
-dialog::backdrop { background: rgb(3 46 35 / 0.42); animation: cxFade 0.22s ease backwards; }
-@keyframes cxDialogIn {
-  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.98); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes cxFade { from { opacity: 0; } }
-
-/* Telon de los modales propios de cada pagina: mas calido que el negro puro. */
-.modal-overlay { background: rgb(3 46 35 / 0.46); }
-
-/* Botones del sistema: respuesta tactil inmediata y sin recalcular layout. */
-button, .btn, .btn-sm { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-
-/* Texto seleccionable en tablas y celdas largas no se corta por el interlineado. */
-td, th { overflow-wrap: anywhere; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  dialog[open], dialog::backdrop { animation: none; }
-}

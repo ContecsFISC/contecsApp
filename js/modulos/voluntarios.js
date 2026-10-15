@@ -1506,10 +1506,10 @@ function renderTablaGiras() {
         ? `<span style="display:block;width:100%;font-size:11.5px;color:var(--gris-medio);line-height:1.4;">${h(g.descripcion)}</span>`
         : "",
       g.colaboracion
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#fbfaf6;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#f5f5f7;color:var(--gris-medio);padding:2px 8px;border-radius:8px;">${h(g.colaboracion)}</span>`
         : "",
       numParticipantes
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fff1dc;color:#8a4f12;padding:3px 8px;border-radius:8px;">
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
              ${numParticipantes} participante${numParticipantes === 1 ? "" : "s"}
            </span>`
@@ -1530,7 +1530,7 @@ function renderTablaGiras() {
            </span>`
         : "",
       numNotificados
-        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#e4f1ec;color:#0b6a50;padding:3px 8px;border-radius:8px;">
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#e9f6ee;color:#1a7a3f;padding:3px 8px;border-radius:8px;">
              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
              ${numNotificados} notificado${numNotificados === 1 ? "" : "s"}
            </span>`
@@ -1545,10 +1545,10 @@ function renderTablaGiras() {
       ["Lugar", h(g.lugar || "—")],
       g.coordinador?.nombre ? ["Coordinador", `${h(g.coordinador.nombre)}${g.coordinador.tipo ? ` (${g.coordinador.tipo === "profesor" ? "Profesor" : "Staff"})` : ""}`] : null,
       g.coordinador?.telefono ? ["Tel. coordinador", h(g.coordinador.telefono)] : null,
-      ["Voluntarios req.", g.voluntariosReq ? `<strong style="color:#8a4f12">${h(g.voluntariosReq)}</strong>` : "—"],
+      ["Voluntarios req.", g.voluntariosReq ? `<strong style="color:#856404">${h(g.voluntariosReq)}</strong>` : "—"],
       ["Cupo", g.cupo ? `<strong style="color:#1a56db;">${g.cupo}</strong>` : "—"],
       (g.turnos || []).length
-        ? ["Turnos", (g.turnos || []).map(t => `<span style="font-size:11px;background:#fff1dc;color:#8a4f12;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("")]
+        ? ["Turnos", (g.turnos || []).map(t => `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px;">${h(t.nombre)} ${h(t.horaInicio)}–${h(t.horaFin)}</span>`).join("")]
         : null,
     ].filter(Boolean);
 

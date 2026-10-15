@@ -5,9 +5,6 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
- <link rel="manifest" href="../../../manifest.webmanifest"/>
- <meta name="theme-color" content="#064e3b"/>
- <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <meta name="mobile-web-app-capable" content="yes"/>
  <meta name="apple-mobile-web-app-capable" content="yes"/>
  <title>CONTECS — Lectura de QR</title>
@@ -15,8 +12,6 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/html5-qrcode.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso, usuarioTienePermiso } from "../../../js/core/auth.js";
@@ -69,7 +64,7 @@
  #log-recientes td { font-size: 12px; }
 
  .scanner-overlay { position: relative; min-height: 220px; border-radius: var(--radio); overflow: hidden; background: #101914; }
- .scanner-overlay.activo::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(68vw,260px); aspect-ratio:1; border:3px solid var(--verde-claro); border-radius:16px; pointer-events:none; box-shadow:0 0 0 9999px rgba(3,46,35,0.32),0 0 18px rgba(60,179,113,0.4); }
+ .scanner-overlay.activo::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(68vw,260px); aspect-ratio:1; border:3px solid var(--verde-claro); border-radius:16px; pointer-events:none; box-shadow:0 0 0 9999px rgba(0,0,0,0.32),0 0 18px rgba(60,179,113,0.4); }
  #reader { min-height: 220px; }
  #reader video { width:100% !important; min-height:220px; object-fit:cover; }
  .scanner-estado { margin-top:10px; min-height:20px; text-align:center; font-size:12px; font-weight:600; color:var(--gris-medio); }
@@ -134,7 +129,7 @@
  <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera al QR del participante
  </p>
- <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff1dc;border-radius:8px;font-size:12px;color:#8a4f12;">
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
  </div>
@@ -181,6 +176,5 @@
 </div>
 
 <script type="module" src="../../../js/modulos/lecturaQR.js?v=20261008.1"></script>
-  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

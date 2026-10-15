@@ -83,12 +83,12 @@ function renderUsuarios() {
   const mostrando = filtrados.length !== todosUsuarios.length
     ? ` · mostrando <strong>${filtrados.length}</strong>` : "";
   contador.innerHTML =
-    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#9f5e18" : "#118066"}">${sinRol}</strong> sin rol asignado${mostrando}`;
+    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#c47f17" : "#39b54a"}">${sinRol}</strong> sin rol asignado${mostrando}`;
 
   lista.innerHTML = "";
 
   if (filtrados.length === 0) {
-    lista.innerHTML = `<p style="text-align:center;color:#5e6f67;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
+    lista.innerHTML = `<p style="text-align:center;color:#86868b;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
     return;
   }
 
@@ -111,7 +111,7 @@ function renderUsuarios() {
         ${tieneFoto ? `<img src="${escaparAtributo(fotoSegura)}" alt="${inicial}" referrerpolicy="no-referrer"/>` : inicial}
       </div>
       <div class="info">
-        <div class="nombre">${escaparHtml(usuario.nombre || "Sin nombre")} ${esMismo ? '<span style="font-size:11px;color:#118066;">(tú)</span>' : ""}${!conPermisos && nAjustes ? `<span class="chip-ajustes">· permisos ajustados</span>` : ""}</div>
+        <div class="nombre">${escaparHtml(usuario.nombre || "Sin nombre")} ${esMismo ? '<span style="font-size:11px;color:#39b54a;">(tú)</span>' : ""}${!conPermisos && nAjustes ? `<span class="chip-ajustes">· permisos ajustados</span>` : ""}</div>
         <div class="email">${escaparHtml(usuario.email || "")}</div>
       <div class="guardando" id="guardando-${usuario.id}">Guardado</div>
       </div>
