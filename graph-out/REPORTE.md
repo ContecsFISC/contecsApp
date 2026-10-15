@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T14:40:57.216120+00:00**
+- Generado: **2026-10-15T15:03:45.724386+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `830ed1fbd667572d…`
+- Huella del proyecto: `90994d02809235c2…`
 - Archivos analizados: **252**
 - Relaciones internas tipadas: **1099**
-- Símbolos detectados: **6430**
-- Llamadas detectadas: **14074**
-- IDs DOM definidos: **1163**
+- Símbolos detectados: **6436**
+- Llamadas detectadas: **14083**
+- IDs DOM definidos: **1167**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **26**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**19,185 tokens** · leer primero
-- `GraphCompleto.json` — ~**88,600 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**156,767 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **87.8%** frente al profundo
+- `GraphCompacto.json` — ~**18,527 tokens** · leer primero
+- `GraphCompleto.json` — ~**87,942 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**156,223 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,7 +35,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 349.7 (conexiones: 173, 369 lineas)
-- `panel/dashboard.html` — riesgo 142.5 (conexiones: 61, 2050 lineas)
+- `panel/dashboard.html` — riesgo 142.9 (conexiones: 61, 2089 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 116.6 (conexiones: 47, 2256 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 

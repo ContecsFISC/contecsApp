@@ -406,8 +406,135 @@ html.cx-vista-abierta { overflow: hidden; }
 }
 
 /* ── TU AGENDA (lateral derecho; debajo en movil) ──────────── */
-.cx-agenda { min-width: 0; margin-top: 30px; }
-@media (min-width: 1200px) { .cx-agenda { margin-top: -6px; } }
+.cx-agenda { min-width: 0; margin-top: -6px; }
+.cx-agenda-pill,
+.cx-agenda-velo,
+.cx-agenda__cerrar { display: none; }
+
+/* Pantallas angostas: la agenda es un cajon que sale de la derecha y la abre
+   la pildora "Tu agenda" (como el inicio del proyecto de referencia). La
+   pagina queda para el saludo, el carrusel y el resumen. */
+@media (max-width: 1199.98px) {
+  .cx-agenda {
+    position: fixed;
+    z-index: 160;            /* sobre el navbar (150) */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(380px, 94vw);
+    margin: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(32px + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(circle at 100% 0%, rgb(255 214 165 / 0.55), transparent 22rem),
+      var(--cx-canvas);
+    box-shadow: -30px 0 60px -30px rgb(3 46 35 / 0.6);
+    transform: translate3d(105%, 0, 0);
+    visibility: hidden;
+    transition: transform 0.45s var(--cx-ease-expo), visibility 0s linear 0.45s;
+  }
+  .cx-agenda[data-abierta] {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.45s var(--cx-ease-expo), visibility 0s;
+  }
+  .cx-agenda__cabeza { animation: none; }
+  .cx-agenda__cerrar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    margin: -6px -4px -4px 0;
+    padding: 0;
+    border: 1px solid var(--cx-border);
+    border-radius: 50%;
+    background: var(--cx-surface);
+    color: var(--cx-ink);
+    cursor: pointer;
+    transition: transform 0.18s var(--cx-ease-out), background-color 0.18s ease;
+  }
+  .cx-agenda__cerrar:hover { background: var(--cx-champagne-300); }
+  .cx-agenda__cerrar:active { transform: scale(0.92); }
+  .cx-agenda__cerrar svg { width: 16px; height: 16px; }
+  .cx-agenda__nota { margin-left: auto; }
+
+  .cx-agenda-velo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 155;
+    background: rgb(3 46 35 / 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .cx-agenda-velo[data-abierta] { opacity: 1; pointer-events: auto; }
+  html.cx-agenda-abierta { overflow: hidden; }
+
+  .cx-agenda-pill {
+    display: inline-flex;
+    position: fixed;
+    z-index: 145;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    align-items: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 18px 0 14px;
+    border: 1px solid rgb(255 214 165 / 0.28);
+    border-radius: 999px;
+    background:
+      radial-gradient(120% 200% at 0% 0%, rgb(255 214 165 / 0.22), transparent 55%),
+      linear-gradient(135deg, var(--cx-ink-600), var(--cx-ink) 50%, var(--cx-ink-900));
+    color: var(--cx-champagne-100);
+    font: 600 14px/1 var(--cx-font);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgb(3 46 35 / 0.2), 0 14px 30px -10px rgb(3 46 35 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.10);
+    transition: transform 0.3s var(--cx-ease-expo), opacity 0.25s ease;
+    animation: cxi-pildora 0.7s var(--cx-ease-rebote) 0.7s backwards;
+  }
+  .cx-agenda-pill:hover { transform: translate3d(0, -3px, 0); }
+  .cx-agenda-pill:active { transform: scale(0.95); transition-duration: 0.09s; }
+  .cx-agenda-pill:focus-visible { outline: 3px solid var(--cx-apricot); outline-offset: 3px; }
+  .cx-agenda-pill svg { width: 18px; height: 18px; flex: none; color: var(--cx-apricot); }
+  .cx-agenda-pill b {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--cx-apricot);
+    color: var(--cx-ink-900);
+    font: 700 12px/1 var(--cx-font);
+    box-shadow: 0 0 0 2px var(--cx-canvas);
+  }
+  .cx-agenda-pill b[hidden] { display: none; }
+  /* Con una seccion, el menu o la agenda delante, la pildora se aparta. */
+  html.cx-vista-abierta .cx-agenda-pill,
+  html.cx-sheet-open .cx-agenda-pill,
+  html.cx-agenda-abierta .cx-agenda-pill { opacity: 0; pointer-events: none; transform: translate3d(0, 12px, 0); }
+  /* Aire al final: lo ultimo de la pagina se puede subir por encima de la pildora. */
+  .cx-inicio__principal { padding-bottom: 76px; }
+  body.dashboard-sin-rol .cx-agenda-pill,
+  body.dashboard-posper .cx-agenda-pill { display: none; }
+}
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  /* El carril lateral ocupa el borde derecho: la pildora se queda a su izquierda. */
+  .cx-agenda-pill { right: calc(var(--cx-rail-w) + 8px); }
+}
+@media (max-width: 520px) {
+  .cx-agenda-pill { height: 42px; padding: 0 16px 0 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+}
+@keyframes cxi-pildora {
+  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
 .cx-agenda__cabeza {
   display: flex;
   align-items: flex-end;
@@ -632,6 +759,15 @@ html.cx-revela .mobile-dashboard > .mobile-section:not(.is-visto) {
 
 /* ── RESUMEN (widgets de escritorio) ── */
 .cx-bloque--resumen .widgets-grid { margin-bottom: 0; }
+@media (max-width: 640px) {
+  #contenido-principal .cx-bloque--resumen .widgets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .cx-bloque--resumen .widget-card { padding: 14px 14px 15px; }
+  .cx-bloque--resumen :is(.widget-valor, .widget-alerta) { font-size: 18px; }
+  .cx-bloque--resumen .widget-ok { font-size: 14px; }
+}
+@media (max-width: 330px) {
+  #contenido-principal .cx-bloque--resumen .widgets-grid { grid-template-columns: minmax(0, 1fr); }
+}
 .widget-card {
   border: 1px solid var(--cx-border);
   border-radius: 20px;
@@ -658,7 +794,8 @@ html.cx-revela .mobile-dashboard > .mobile-section:not(.is-visto) {
 @keyframes cxm-por-si-acaso { to { opacity: 1; } }
 
 @media print {
-  .cx-car-controles, .cx-vista { display: none !important; }
+  .cx-car-controles, .cx-vista, .cx-agenda-pill, .cx-agenda-velo, .cx-agenda__cerrar { display: none !important; }
+  .cx-agenda { transform: none !important; visibility: visible !important; width: auto; box-shadow: none; }
   html.cx-revela .mobile-dashboard > .mobile-section { opacity: 1 !important; animation: none !important; }
   .cx-agenda { position: static; max-height: none; overflow: visible; }
 }
@@ -670,7 +807,8 @@ html.cx-revela .mobile-dashboard > .mobile-section:not(.is-visto) {
   .mobile-event-hero, .mobile-event-hero::before, .mobile-event-hero > *,
   .mobile-progress-bar::after,
   .mobile-dashboard > .mobile-section > * { animation: none !important; }
-  .cx-car { transition: none; }
+  .cx-car, .cx-agenda, .cx-agenda-velo, .cx-agenda-pill { transition: none; }
+  .cx-agenda-pill { animation: none !important; }
   html.cx-revela .mobile-dashboard > .mobile-section { opacity: 1; }
   .mobile-event-hero::before { display: none; }
 }
