@@ -14,6 +14,8 @@
    - will-change solo mientras un menu esta abierto, no de forma permanente.
    =========================================================== */
 
+/* Apilamiento: barra y carril (150) quedan por encima de la barra sticky de
+   modulos (100) y por DEBAJO de los modales de las paginas (200+). */
 /* Espacio que ocupaba el topbar en el flujo: la barra es fixed. */
 .cx-spacer {
   height: calc(var(--cx-bar-h) + var(--cx-bar-gap) * 2);
@@ -38,7 +40,7 @@
   left: var(--cx-bar-gap);
   right: var(--cx-bar-gap);
   height: var(--cx-bar-h);
-  z-index: 1000;
+  z-index: 150;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -350,7 +352,7 @@
   position: fixed;
   top: 50%;
   right: 12px;
-  z-index: 1000;
+  z-index: 150;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -550,7 +552,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 998;
+    z-index: 148;
     background: rgb(3 46 35 / 0.34);
     opacity: 0;
     visibility: hidden;
@@ -561,7 +563,7 @@
   .cx-sheet {
     display: block;
     position: fixed;
-    z-index: 999;
+    z-index: 149;
     top: calc(var(--cx-bar-gap) * 2 + var(--cx-bar-h) + 4px);
     left: var(--cx-bar-gap);
     right: var(--cx-bar-gap);

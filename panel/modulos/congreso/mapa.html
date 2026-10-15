@@ -28,7 +28,10 @@
  </script>
  <style>
  body { overflow: hidden; }
- .mapa-app { position: relative; height: calc(100dvh - var(--alto-topbar, 58px)); min-height: 420px; }
+ /* --alto-topbar (mapa.js) mide solo la barra: se resta tambien su margen superior.
+    overflow:clip contiene el panel que se oculta deslizandose fuera (si no, caia en el ancho
+    reservado al carril y quedaba visible). */
+ .mapa-app { position: relative; height: calc(100dvh - var(--alto-topbar, 58px) - var(--cx-bar-gap, 12px)); min-height: 420px; overflow: clip; }
 
  /* Escenario: fondo de estudio para la maqueta */
  .escenario-mapa {
