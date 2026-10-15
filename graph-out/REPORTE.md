@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T00:44:06.570848+00:00**
+- Generado: **2026-10-15T01:51:55.542821+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `f2e090778d7efa42…`
+- Huella del proyecto: `e57d6f6a9d7a05e8…`
 - Archivos analizados: **231**
 - Relaciones internas tipadas: **880**
 - Símbolos detectados: **6144**
-- Llamadas detectadas: **13648**
-- IDs DOM definidos: **1152**
+- Llamadas detectadas: **13649**
+- IDs DOM definidos: **1153**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **26**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**16,567 tokens** · leer primero
-- `GraphCompleto.json` — ~**78,405 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**144,187 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.5%** frente al profundo
+- `GraphCompacto.json` — ~**16,372 tokens** · leer primero
+- `GraphCompleto.json` — ~**78,210 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**144,007 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.6%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
