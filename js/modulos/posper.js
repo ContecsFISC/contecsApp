@@ -132,6 +132,24 @@ const captura = el("captura");
 const lectura = { inicio: 0, metodo: "teclado", timer: null, componiendo: false, ultimoValor: "" };
 const teclasEspeciales = [];
 
+// Teclado en pantalla: visible por defecto porque en el EA530 la lectura no
+// llega sin él; en otros equipos (EDA51-1...) se puede ocultar. Se recuerda
+// por equipo.
+const CLAVE_SIN_TECLADO = "posper.sinTeclado";
+function aplicarTeclado(oculto) {
+  if (oculto) captura.setAttribute("inputmode", "none");
+  else captura.removeAttribute("inputmode");
+  el("chk-sin-teclado").checked = oculto;
+}
+try { aplicarTeclado(localStorage.getItem(CLAVE_SIN_TECLADO) === "1"); } catch (_) { aplicarTeclado(false); }
+el("chk-sin-teclado").addEventListener("change", e => {
+  aplicarTeclado(e.target.checked);
+  try { localStorage.setItem(CLAVE_SIN_TECLADO, e.target.checked ? "1" : "0"); } catch (_) { /* solo esta visita */ }
+  // Re-enfocar para que el cambio de teclado se aplique ya.
+  captura.blur();
+  setTimeout(enfocarCaptura, 80);
+});
+
 function enfocarCaptura() {
   const activo = document.activeElement;
   if (activo && activo !== captura && activo.matches?.("select, textarea, input:not(#captura)")) return;
