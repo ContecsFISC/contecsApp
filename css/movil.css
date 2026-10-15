@@ -43,7 +43,7 @@ body > .topbar:not(:has(.pp-h1))::before {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cx-apricot-800);
-  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.05s both;
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.05s backwards;
 }
 /* Descripcion del modulo (data-cx-descripcion). */
 body > .topbar:not(:has(.pp-h1))::after {
@@ -52,13 +52,17 @@ body > .topbar:not(:has(.pp-h1))::after {
   position: static;
   flex: 0 0 100%;
   width: auto;
-  max-width: 46rem;
+  /* Ocupa la linea entera (las acciones van debajo, no a su lado) pero el
+     texto se queda en una medida comoda de lectura. */
+  max-width: none;
+  box-sizing: border-box;
+  padding-right: max(0px, 100% - 46rem);
   height: auto;
   border-radius: 0;
   background: none;
   font: 400 15px/1.5 var(--cx-font);
   color: var(--cx-text-3);
-  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.3s both;
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.3s backwards;
 }
 body > .topbar:not(:has(.pp-h1)):not([data-cx-descripcion])::after,
 body > .topbar:not(:has(.pp-h1))[data-cx-descripcion=""]::after { display: none; }
@@ -82,7 +86,7 @@ body > .topbar:not(:has(.pp-h1)) h1 {
 /* Las palabras entran de borroso a nitido, en cascada (navbar-pagina.js). */
 .topbar .cx-palabra {
   display: inline-block;
-  animation: cxp-palabra 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cxp-palabra 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* Volver: pastilla con su destino ("Volver al inicio", "Volver a minutas"). */
@@ -101,7 +105,7 @@ body > .topbar:not(:has(.pp-h1)) .btn-volver {
   font: 600 13px/1 var(--cx-font);
   text-decoration: none;
   box-shadow: var(--cx-shadow-1);
-  animation: cxp-sube 0.6s var(--cx-ease-expo) both;
+  animation: cxp-sube 0.6s var(--cx-ease-expo) backwards;
 }
 body > .topbar:not(:has(.pp-h1)) .btn-volver::after { content: attr(title); white-space: nowrap; }
 body > .topbar:not(:has(.pp-h1)) .btn-volver svg { width: 16px; height: 16px; }
@@ -110,7 +114,7 @@ body > .topbar:not(:has(.pp-h1)) .btn-volver:hover { background: var(--cx-champa
 /* Acciones de la cabecera ("Leer QR", "Mapa", "Escanear QR"): pastillas Emerald. */
 body > .topbar:not(:has(.pp-h1)) :is(.btn-qr-scan, .topbar-link, .btn-logout) {
   order: 3;
-  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.36s both;
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.36s backwards;
 }
 body > .topbar:not(:has(.pp-h1)) .btn-qr-scan {
   height: 38px;
@@ -129,6 +133,9 @@ body > .topbar:not(:has(.pp-h1)) .btn-qr-scan:active { transform: scale(0.95); }
   border-radius: 20px;
   box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 10px 28px -10px rgb(3 46 35 / 0.16);
 }
+/* Tarjetas con borde de acento de un solo lado (en el style de la pagina): con
+   el radio grande el borde se curvaba como un arco. Vuelven a su radio original. */
+.card:is([style*="border-left"], [style*="border-top"]) { border-radius: var(--radio, 12px); }
 .card-title {
   font-family: var(--cx-font-display);
   font-size: 16px;

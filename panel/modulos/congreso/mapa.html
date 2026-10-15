@@ -12,10 +12,10 @@
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20261015.3"/>
-  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.3"/>
-  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.5"/>
-  <link rel="stylesheet" href="../../../css/movil.css?v=20261015.7"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/movil.css?v=20261015.8"/>
  <!-- Three.js para la maqueta 3D (si no carga, el mapa usa la vista 2D). -->
  <script type="importmap">
  {
@@ -60,7 +60,7 @@
  .etq3d-vivo { background: var(--c); color: #fff; border-color: transparent; padding: 5px 10px; box-shadow: 0 6px 18px rgba(3,46,35,0.25); }
  .etq3d-finalizado, .etq3d-cancelado { opacity: 0.75; }
  .etq3d-chip { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
- .etq3d-vivo .etq3d-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cx-surface, #fdf7ea); animation: latido 1.2s ease-in-out infinite; }
+ .etq3d-vivo .etq3d-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cx-surface, #ffffff); animation: latido 1.2s ease-in-out infinite; }
  @keyframes latido { 50% { opacity: 0.25; } }
 
  /* Vista 2D */
@@ -121,7 +121,7 @@
  .panel-nombre { font-family: var(--fuente-display); font-size: 22px; font-weight: 700; color: #173024; margin: 8px 40px 2px 0; line-height: 1.15; overflow-wrap: anywhere; }
  .panel-meta { font-size: 12px; color: var(--gris-medio); }
  .panel-cuerpo { overflow-y: auto; padding: 14px 18px 20px; display: grid; gap: 14px; }
- .bloque { background: var(--cx-surface, #fdf7ea); border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.06); }
+ .bloque { background: var(--cx-surface, #ffffff); border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.06); }
  .bloque h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--gris-medio); margin: 0 0 8px; }
  .vivo-titulo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #173024; }
  .badge-vivo { padding: 2px 8px; border-radius: 999px; background: #d32f2f; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
@@ -140,7 +140,7 @@
  .presentes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; max-height: 240px; overflow-y: auto; }
  .presentes li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 8px; background: var(--gris-suave); }
  .presentes small { color: var(--gris-medio); }
- .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: var(--cx-surface, #fdf7ea); border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
+ .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: var(--cx-surface, #ffffff); border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
  .btn-liberar:disabled { opacity: 0.5; }
  .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
  .acts li.con-btn { display: block; padding: 0; border: none; background: none; }
@@ -187,7 +187,7 @@
  }
  .agenda-buscar:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(6,78,59,0.12); }
  .agenda-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
- .agenda-filtros .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--gris-borde); background: var(--cx-surface, #fdf7ea); border-radius: 999px; padding: 4px 10px; font: 600 11px var(--fuente); color: var(--gris-texto); cursor: pointer; }
+ .agenda-filtros .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--gris-borde); background: var(--cx-surface, #ffffff); border-radius: 999px; padding: 4px 10px; font: 600 11px var(--fuente); color: var(--gris-texto); cursor: pointer; }
  .agenda-filtros .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
  .agenda-filtros .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
  .agenda-filtros .chip[aria-pressed="true"] i { box-shadow: 0 0 0 1.5px #fff; }
@@ -204,7 +204,7 @@
  }
  .act-btn:hover { background: #ebf1ed; }
  .act-btn:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
- .act-btn.destacada { box-shadow: 0 0 0 2px var(--c, var(--verde)); background: var(--cx-surface, #fdf7ea); }
+ .act-btn.destacada { box-shadow: 0 0 0 2px var(--c, var(--verde)); background: var(--cx-surface, #ffffff); }
  .act-btn.fin { opacity: 0.6; }
  .act-btn.cancelada .titulo { text-decoration: line-through; }
  .act-btn.sin-salon { cursor: default; }
@@ -287,7 +287,7 @@
  <div id="alerta" class="alerta" style="position:absolute;left:12px;right:12px;top:64px;z-index:7;"></div>
 </div>
 
-<script type="module" src="../../../js/modulos/mapa.js?v=20261014.2"></script>
-  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.7"></script>
+<script type="module" src="../../../js/modulos/mapa.js?v=20261015.8"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

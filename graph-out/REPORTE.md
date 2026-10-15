@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T15:18:48.090778+00:00**
+- Generado: **2026-10-15T17:46:27.611173+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `d3800bf09d3af421…`
+- Huella del proyecto: `c50a9eaa1ea40fee…`
 - Archivos analizados: **252**
 - Relaciones internas tipadas: **1097**
-- Símbolos detectados: **6423**
-- Llamadas detectadas: **13938**
+- Símbolos detectados: **6430**
+- Llamadas detectadas: **13942**
 - IDs DOM definidos: **1159**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**19,098 tokens** · leer primero
-- `GraphCompleto.json` — ~**88,469 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**156,466 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **87.8%** frente al profundo
+- `GraphCompacto.json` — ~**19,294 tokens** · leer primero
+- `GraphCompleto.json` — ~**88,666 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**156,687 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **87.7%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,7 +35,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 349.7 (conexiones: 173, 369 lineas)
-- `panel/dashboard.html` — riesgo 131.9 (conexiones: 59, 1387 lineas)
+- `panel/dashboard.html` — riesgo 131.9 (conexiones: 59, 1392 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 116.6 (conexiones: 47, 2256 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
@@ -44,10 +44,10 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `favicon.ico` — riesgo 88.0 (conexiones: 44, 0 lineas)
 - `js/core/navbar-pagina.js` — riesgo 85.3 (conexiones: 42, 135 lineas)
 - `js/core/firebase-config.js` — riesgo 82.3 (conexiones: 41, 35 lineas)
-- `css/styles.css` — riesgo 81.2 (conexiones: 36, 917 lineas)
+- `css/styles.css` — riesgo 81.2 (conexiones: 36, 922 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
 - `js/modulos/credenciales.js` — riesgo 81.1 (conexiones: 36, 911 lineas)
-- `css/navbar.css` — riesgo 80.2 (conexiones: 36, 819 lineas)
+- `css/navbar.css` — riesgo 80.5 (conexiones: 36, 846 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 76.8 (conexiones: 34, 880 lineas)
 
 ## God nodes (mas conectados) y que exponen
@@ -73,8 +73,8 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 

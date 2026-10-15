@@ -13,7 +13,7 @@
 // Las tarjetas son las SECCIONES ya filtradas por permisos (las mismas del
 // navbar). Elegir la del frente llama a `alElegir(seccion, cara)`.
 // ═══════════════════════════════════════════════════════════════
-import { iconoSeccion } from "./navbar.js?v=20261015.5";
+import { iconoSeccion } from "./navbar.js?v=20261015.8";
 
 const FISICA = { profundidad: 200, giro: 38, espacio: 244, paso: 0.15, visibles: 3, escalaMinima: 0.42 };
 const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;

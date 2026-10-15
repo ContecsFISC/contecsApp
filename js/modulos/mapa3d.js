@@ -91,10 +91,19 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   sol.shadow.bias = -0.0008;
   escena.add(sol);
 
+  // ─── Dibujo a demanda ─────────────────────────────────────────────────────
+  // La escena (sombras + antialias) solo se vuelve a dibujar mientras algo
+  // se mueve: gesto, inercia de la camara, animaciones, salas en vivo o un
+  // cambio pedido por mapa.js. Quieta no gasta GPU ni roba fotogramas.
+  let despiertoHasta = 0;
+  const despertar = (ms = 1500) => { despiertoHasta = Math.max(despiertoHasta, performance.now() + ms); };
+  despertar(2500);
+
   // ─── Animaciones ──────────────────────────────────────────────────────────
   const tweens = new Set();
   function animar(duracion, alAvanzar, { retraso = 0, curva = ease.salida } = {}) {
-    if (reducido || duracion <= 0) { alAvanzar(1); return Promise.resolve(); }
+    if (reducido || duracion <= 0) { alAvanzar(1); despertar(); return Promise.resolve(); }
+    despertar(retraso + duracion + 600);
     return new Promise(resolve => {
       tweens.add({ inicio: performance.now() + retraso, duracion, alAvanzar, curva, resolve });
     });
@@ -347,10 +356,20 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   // ─── Bucle de dibujo ──────────────────────────────────────────────────────
   let corriendo = true;
   let cuadro = 0;
+  let ultimoDibujo = 0;
+  for (const tipo of ["pointerdown", "pointermove", "wheel", "touchstart", "keydown"]) {
+    renderer.domElement.addEventListener(tipo, () => despertar(), { passive: true });
+  }
+  controles.addEventListener("change", () => despertar(600));
   function dibujar(ahora) {
     if (!corriendo) return;
     cuadro = requestAnimationFrame(dibujar);
     if (document.hidden) return;
+    // Quieta: un cuadro de control por segundo (texturas que terminan de llegar).
+    let hayVivas = false;
+    for (const sala of salasPorId.values()) if (sala.vivo) { hayVivas = true; break; }
+    if (!tweens.size && !hayVivas && ahora > despiertoHasta && ahora - ultimoDibujo < 1000) return;
+    ultimoDibujo = ahora;
     avanzarTweens(ahora);
     const pulso = 0.5 + 0.5 * Math.sin(ahora / 420);
     for (const sala of salasPorId.values()) {
@@ -373,6 +392,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   function redimensionar() {
     const { clientWidth: w, clientHeight: h } = contenedor;
     if (!w || !h) return;
+    despertar();
     renderer.setSize(w, h);
     etiquetas.setSize(w, h);
     camara.aspect = w / h;
@@ -507,5 +527,10 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     if (!corriendo) { corriendo = true; redimensionar(); cuadro = requestAnimationFrame(dibujar); }
   }
 
-  return { mostrarPiso, actualizar, seleccionar, marcarAqui, enfocarAqui, reencuadrar, redimensionar, destruir, pausar };
+  // Cualquier cambio que pida mapa.js (piso, estados, seleccion...) despierta el dibujo.
+  const api = { mostrarPiso, actualizar, seleccionar, marcarAqui, enfocarAqui, reencuadrar, redimensionar, destruir, pausar };
+  for (const [nombre, fn] of Object.entries(api)) {
+    api[nombre] = (...args) => { despertar(); return fn(...args); };
+  }
+  return api;
 }

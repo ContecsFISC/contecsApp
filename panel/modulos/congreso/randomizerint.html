@@ -12,7 +12,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20261015.3"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.8"/>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
@@ -89,11 +89,11 @@
  .ri-carrete.girando .ri-rfid { animation: saltoTick 0.12s linear; }
  @keyframes saltoTick { from { transform: translateY(-14px); opacity: 0.4; } to { transform: none; opacity: 1; } }
  .ri-carrete.ganador { border-color: var(--ri-dorado); animation: pulsoGanador 1.4s ease-in-out infinite; }
- .ri-carrete.ganador .ri-nombre { animation: aparecer 0.7s var(--ease-spring) both; }
+ .ri-carrete.ganador .ri-nombre { animation: aparecer 0.7s var(--ease-spring) backwards; }
  @keyframes pulsoGanador { 0%,100% { box-shadow: 0 0 0 6px rgba(255,211,77,0.15), 0 30px 80px rgba(0,0,0,0.55), 0 0 60px rgba(255,211,77,0.35); } 50% { box-shadow: 0 0 0 14px rgba(255,211,77,0.06), 0 30px 80px rgba(0,0,0,0.55), 0 0 110px rgba(255,211,77,0.55); } }
  @keyframes aparecer { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
  .ri-insignia { display: none; margin: 0 auto 12px; padding: 6px 18px; border-radius: 999px; background: var(--ri-dorado); color: #3a2a00; font-weight: 800; letter-spacing: 3px; font-size: clamp(12px, 1.4vw, 16px); width: max-content; }
- .ri-carrete.ganador .ri-insignia { display: block; animation: aparecer 0.5s var(--ease-spring) both; }
+ .ri-carrete.ganador .ri-insignia { display: block; animation: aparecer 0.5s var(--ease-spring) backwards; }
 
  .ri-batir {
    font-family: var(--fuente-display); font-size: clamp(22px, 3.4vw, 38px); font-weight: 700; letter-spacing: 4px;
@@ -112,7 +112,7 @@
 
  .ri-ganadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
  .ri-ganadores:empty { display: none; }
- .ri-g { border-radius: 18px; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,211,77,0.45); text-align: left; animation: aparecer 0.6s var(--ease-spring) both; min-width: 0; }
+ .ri-g { border-radius: 18px; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,211,77,0.45); text-align: left; animation: aparecer 0.6s var(--ease-spring) backwards; min-width: 0; }
  .ri-g-pos { font-size: 12px; font-weight: 800; letter-spacing: 2px; color: var(--ri-dorado); }
  .ri-g-nombre { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; margin-top: 2px; overflow-wrap: anywhere; }
  .ri-g-dato { font-size: 13px; color: var(--ri-suave); overflow-wrap: anywhere; }

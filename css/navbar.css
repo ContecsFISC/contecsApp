@@ -298,7 +298,7 @@
   white-space: nowrap;
   /* Entrada escalonada: cada enlace llega un instante despues del anterior. */
   opacity: 0;
-  transform: translate3d(0, -5px, 0);
+  transform: translate(0, -5px);   /* 2D: sin capa propia por enlace en reposo */
   transition:
     opacity var(--cx-dur-fast) ease,
     transform var(--cx-dur-fast) ease,
@@ -308,7 +308,7 @@
 .cx-item[data-open] .cx-menu__link,
 .cx-nav[data-sheet="open"] .cx-sheet .cx-menu__link {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: none;
   transition:
     opacity var(--cx-dur-base) ease calc(var(--i, 0) * 30ms + 50ms),
     transform 380ms var(--cx-ease-out) calc(var(--i, 0) * 30ms + 50ms),
@@ -329,11 +329,11 @@
   border-right: 2px solid var(--cx-ink-500);
   border-radius: 1px;
   opacity: 0;
-  transform: translate3d(-6px, 0, 0) rotate(45deg);
+  transform: translate(-6px, 0) rotate(45deg);   /* 2D: con 3D cada flecha era una capa aparte */
   transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-base) var(--cx-ease-out);
 }
 .cx-menu__link:hover::after,
-.cx-menu__link:focus-visible::after { opacity: 1; transform: translate3d(0, 0, 0) rotate(45deg); }
+.cx-menu__link:focus-visible::after { opacity: 1; transform: translate(0, 0) rotate(45deg); }
 
 .cx-menu__link.is-current { background: var(--cx-champagne); color: var(--cx-ink); font-weight: 600; }
 
@@ -386,12 +386,12 @@
 /* Cada elemento del carril entra con un pequeno retraso. */
 .cx-rail > * {
   opacity: 0;
-  transform: translate3d(14px, 0, 0);
+  transform: translate(14px, 0);
   transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-fast) ease;
 }
 .cx-nav[data-state="docked"] .cx-rail > * {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: none;
   transition:
     opacity var(--cx-dur-base) ease calc(var(--i, 0) * 38ms + 120ms),
     transform 480ms var(--cx-ease-out) calc(var(--i, 0) * 38ms + 120ms);
@@ -564,6 +564,32 @@
     transition: opacity var(--cx-dur-fast) ease, transform 380ms var(--cx-ease-out), visibility 0s;
   }
   .cx-sheet__group + .cx-sheet__group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--cx-line); }
+  /* En el panel entran los BLOQUES escalonados, no cada enlace: ~35 transiciones
+     sueltas (cada una con su capa) bajaban de 60 fps en telefonos modestos. */
+  .cx-sheet .cx-menu__link,
+  .cx-nav[data-sheet="open"] .cx-sheet .cx-menu__link {
+    opacity: 1;
+    transform: none;
+    transition: background var(--cx-dur-fast) ease, color var(--cx-dur-fast) ease;
+  }
+  .cx-sheet__group {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+    transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-fast) ease;
+  }
+  .cx-nav[data-sheet="open"] .cx-sheet__group {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--cx-dur-base) ease calc(var(--g, 0) * 45ms + 60ms),
+      transform 380ms var(--cx-ease-out) calc(var(--g, 0) * 45ms + 60ms);
+  }
+  .cx-sheet__group:nth-of-type(2) { --g: 1; }
+  .cx-sheet__group:nth-of-type(3) { --g: 2; }
+  .cx-sheet__group:nth-of-type(4) { --g: 3; }
+  .cx-sheet__group:nth-of-type(5) { --g: 4; }
+  .cx-sheet__group:nth-of-type(6) { --g: 5; }
+  .cx-sheet__group:nth-of-type(n+7) { --g: 6; }
   .cx-sheet .cx-menu__title { display: flex; align-items: center; gap: 9px; padding-top: 10px; padding-bottom: 6px; }
   .cx-sheet__ico {
     display: grid;
@@ -596,7 +622,8 @@
   .cx-sheet__logout:active { transform: scale(0.98); }
   .cx-sheet__logout svg { width: 18px; height: 18px; }
 
-  html.cx-sheet-open { overflow: hidden; }
+  /* navbar.js la pone cuando el panel ya entro (no a mitad de la animacion). */
+  html.cx-sheet-fija { overflow: hidden; }
 }
 
 /* Carril en pantallas bajitas: botones mas compactos para que quepa todo. */
@@ -809,7 +836,7 @@ button.cx-menu__link { width: 100%; border: 0; background: transparent; cursor: 
 
 /* ───────────────────────── MOVIMIENTO REDUCIDO ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .cx-bar, .cx-rail, .cx-rail > *, .cx-menu, .cx-menu__link, .cx-sheet, .cx-scrim,
+  .cx-bar, .cx-rail, .cx-rail > *, .cx-menu, .cx-menu__link, .cx-sheet, .cx-sheet__group, .cx-scrim,
   .cx-glide.is-ready, .cx-chevron, .cx-item__btn, .cx-logout {
     animation: none !important;
     transition-duration: 1ms !important;
