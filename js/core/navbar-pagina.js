@@ -10,7 +10,7 @@
 // tienePermiso() de siempre, cuando la sesion de la pagina ya esta lista.
 // En paginas publicas (fuera de /panel/) no hay secciones ni "Salir".
 // ═══════════════════════════════════════════════════════════════
-import { montarNavbar } from "./navbar.js?v=20261015.5";
+import { montarNavbar } from "./navbar.js?v=20261015.8";
 import { CATEGORIAS, categoriasPara } from "./navegacion.js?v=20261015.3";
 
 const raizSitio = new URL("../../", import.meta.url);   // js/core/ -> raiz del sitio

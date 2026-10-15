@@ -9,8 +9,8 @@
 // Una seccion con un solo modulo no necesita vista: el boom lleva al modulo.
 // ═══════════════════════════════════════════════════════════════
 import { boomDesde } from "./boom.js?v=20261015.5";
-import { iconoSeccion } from "./navbar.js?v=20261015.5";
-import { pintarRejillaSeccion } from "./tarjetas-modulos.js?v=20261015.5";
+import { iconoSeccion } from "./navbar.js?v=20261015.8";
+import { pintarRejillaSeccion } from "./tarjetas-modulos.js?v=20261015.8";
 
 let secciones = [];
 let abierta = null;          // { el, id }

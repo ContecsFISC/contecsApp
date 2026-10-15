@@ -12,9 +12,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
-  <link rel="stylesheet" href="../css/styles.css?v=20261015.3"/>
-  <link rel="stylesheet" href="../css/tokens.css?v=20261015.3"/>
-  <link rel="stylesheet" href="../css/navbar.css?v=20261015.5"/>
+  <link rel="stylesheet" href="../css/styles.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../css/tokens.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../css/navbar.css?v=20261015.8"/>
   <link rel="stylesheet" href="../css/tarjetas.css?v=20261015.3"/>
   <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
        sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
@@ -31,7 +31,7 @@
       margin-bottom: 4px;
     }
     .widget-card {
-      background: var(--cx-surface, #fdf7ea);
+      background: var(--cx-surface, #ffffff);
       border-radius: var(--radio);
       padding: 16px;
       box-shadow: var(--sombra-sm);
@@ -115,7 +115,7 @@
 
     /* Eventos de HOY — destacados, más grandes */
     .evento-hoy {
-      background: var(--cx-surface, #fdf7ea);
+      background: var(--cx-surface, #ffffff);
       border-radius: var(--radio);
       padding: 18px 20px;
       box-shadow: var(--sombra-sm);
@@ -123,7 +123,7 @@
       align-items: center;
       gap: 14px;
       margin-bottom: 10px;
-      animation: cardCascade 0.4s var(--ease-spring) both;
+      animation: cardCascade 0.4s var(--ease-spring) backwards;
       border-left: 3px solid var(--verde);
     }
     .evento-hoy .evt-punto { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -139,7 +139,7 @@
       gap: 14px;
       padding: 9px 4px;
       border-bottom: 1px solid var(--gris-borde);
-      animation: cardCascade 0.35s var(--ease-out) both;
+      animation: cardCascade 0.35s var(--ease-out) backwards;
     }
     .eventos-lista .evento-item:last-child { border-bottom: none; }
     /* Bloque de calendario: la fecha se LEE de un vistazo y el color del tipo
@@ -197,13 +197,13 @@
 
     /* ══════════ SIN ROL ══════════ */
     .sin-rol-card {
-      background: var(--cx-surface, #fdf7ea);
+      background: var(--cx-surface, #ffffff);
       border-radius: 16px;
       padding: 32px 24px;
       text-align: center;
       box-shadow: 0 2px 8px rgba(3,46,35,0.07);
       border-top: 4px solid var(--amarillo);
-      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
       animation-delay: 0.1s;
     }
     .sin-rol-card .icono { font-size: 48px; margin-bottom: 12px; }
@@ -236,7 +236,7 @@
         radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%),
         linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
       box-shadow: 0 18px 40px rgba(6,27,42,0.32);
-      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
     }
     .posper-hero::after {
       content: "";
@@ -281,11 +281,11 @@
     .posper-modulo {
       display: flex; flex-direction: column; gap: 6px;
       padding: 20px; border-radius: 18px; text-decoration: none;
-      background: var(--cx-surface, #fdf7ea); color: var(--gris-texto);
+      background: var(--cx-surface, #ffffff); color: var(--gris-texto);
       border: 1px solid var(--gris-borde);
       box-shadow: 0 6px 18px rgba(3,46,35,0.06);
       transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s;
-      animation: fadeScaleIn 0.5s var(--ease-spring) both;
+      animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
     }
     .posper-modulo:hover { transform: translateY(-3px); border-color: #cc0000; box-shadow: 0 14px 30px rgba(6,27,42,0.16); }
     .posper-modulo:active { transform: scale(0.98); }
@@ -304,8 +304,8 @@
     @media (max-width: 1023px) {
       body {
         background:
-          radial-gradient(circle at 88% 4%, rgba(255,214,165,0.40), transparent 24rem),
-          linear-gradient(180deg, #f4dcb2 0, var(--gris-suave) 24rem);
+          radial-gradient(circle at 88% 4%, rgba(255,214,165,0.20), transparent 24rem),
+          linear-gradient(180deg, var(--gris-suave) 0, var(--gris-suave) 24rem);
       }
 
       #main-container {
@@ -400,7 +400,7 @@
       .mobile-hero-progress { margin-top: 18px; }
       .mobile-hero-progress-copy { margin-bottom: 7px; font-size: 10px; color: rgba(255,255,255,0.68); }
       .mobile-progress-track { height: 5px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,0.16); }
-      .mobile-progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#ffd6a5,#fdf7ea); transition:width 0.7s var(--ease-out); }
+      .mobile-progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#ffd6a5,#fff); transition:width 0.7s var(--ease-out); }
 
       .mobile-section { margin-top: 22px; }
       .mobile-section-heading {
@@ -420,7 +420,7 @@
         padding:18px;
         border:1px solid rgba(6,78,59,0.12);
         border-radius:20px;
-        background:rgba(253,247,234,0.96);
+        background:rgba(255,255,255,0.96);
         box-shadow:0 12px 30px rgba(18,52,28,0.08);
       }
       .mobile-now-panel.is-live { border-color:rgba(6,78,59,0.35); }
@@ -444,7 +444,7 @@
         overflow:hidden;
         border:1px solid rgba(6,78,59,0.10);
         border-radius:18px;
-        background:rgba(253,247,234,0.92);
+        background:rgba(255,255,255,0.92);
       }
       .mobile-metric { min-width:0; padding:14px 8px; text-align:center; }
       .mobile-metric + .mobile-metric { border-left:1px solid var(--gris-borde); }
@@ -457,14 +457,14 @@
         overflow:hidden;
         border:1px solid rgba(6,78,59,0.10);
         border-radius:20px;
-        background:rgba(253,247,234,0.94);
+        background:rgba(255,255,255,0.94);
         box-shadow:0 10px 26px rgba(18,52,28,0.055);
       }
       .mobile-timeline-item { position:relative; display:grid; grid-template-columns:48px 18px minmax(0,1fr); gap:8px; padding:14px 15px; }
       .mobile-timeline-item + .mobile-timeline-item { border-top:1px solid rgba(208,219,210,0.7); }
       .mobile-timeline-time { padding-top:1px; font-size:11px; font-weight:700; color:var(--gris-medio); }
       .mobile-timeline-marker { position:relative; display:flex; justify-content:center; }
-      .mobile-timeline-marker::before { content:""; width:8px; height:8px; margin-top:4px; border-radius:50%; border:2px solid var(--gris-borde); background:var(--cx-surface, #fdf7ea); z-index:1; }
+      .mobile-timeline-marker::before { content:""; width:8px; height:8px; margin-top:4px; border-radius:50%; border:2px solid var(--gris-borde); background:var(--cx-surface, #ffffff); z-index:1; }
       .mobile-timeline-item.is-current .mobile-timeline-marker::before { border-color:var(--verde); background:var(--verde); box-shadow:0 0 0 5px rgba(6,78,59,0.10); }
       .mobile-timeline-item.is-complete { opacity:0.54; }
       .mobile-timeline-name { font-size:13px; font-weight:700; color:var(--gris-texto); }
@@ -507,7 +507,7 @@
 
   </style>
   <!-- Inicio (saludo, carrusel de secciones, vista de seccion y agenda): va despues del <style> para mandar sobre el. -->
-  <link rel="stylesheet" href="../css/inicio.css?v=20261015.6"/>
+  <link rel="stylesheet" href="../css/inicio.css?v=20261015.8"/>
   <!-- Antes de pintar: los bloques de la agenda esperan a js/core/revelar.js para entrar en cascada. -->
   <script>document.documentElement.classList.add("cx-revela");</script>
 </head>
@@ -634,6 +634,7 @@
     const velo = document.getElementById("cx-agenda-velo");
     const cerrarAgenda = document.getElementById("cx-agenda-cerrar");
     const cajon = matchMedia("(max-width: 1199.98px)");
+    let bloqueoAgenda = 0;
     const abrirAgenda = si => {
       si = si && cajon.matches;
       if (agenda.hasAttribute("data-abierta") === si) return;
@@ -641,6 +642,10 @@
       velo.toggleAttribute("data-abierta", si);
       pildora.setAttribute("aria-expanded", String(si));
       document.documentElement.classList.toggle("cx-agenda-abierta", si);
+      // El bloqueo del scroll recalcula el layout de toda la pagina: cuando el
+      // cajon ya entro (o ya salio), no a mitad de su animacion.
+      clearTimeout(bloqueoAgenda);
+      bloqueoAgenda = setTimeout(() => document.documentElement.classList.toggle("cx-agenda-fija", si), si ? 470 : 460);
       if (si) { agenda.scrollTop = 0; cerrarAgenda.focus({ preventScroll: true }); }
       else if (agenda.contains(document.activeElement)) pildora.focus({ preventScroll: true });
     };
@@ -657,10 +662,10 @@
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
-    import { montarNavbar } from "../js/core/navbar.js?v=20261015.5";
+    import { montarNavbar } from "../js/core/navbar.js?v=20261015.8";
     import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.3";
-    import { montarCarrusel } from "../js/core/carrusel-modulos.js?v=20261015.5";
-    import { entrarASeccion, iniciarVistas } from "../js/core/vista-seccion.js?v=20261015.5";
+    import { montarCarrusel } from "../js/core/carrusel-modulos.js?v=20261015.8";
+    import { entrarASeccion, iniciarVistas } from "../js/core/vista-seccion.js?v=20261015.8";
     import {
       doc, getDoc, onSnapshot, collection, query, where, getDocs
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";

@@ -15,10 +15,10 @@
  --verde: #064e3b;
  --verde-oscuro: #053f30;
  --verde-claro: #0f745c;
- --verde-fondo: #e3e8d2;
+ --verde-fondo: #e4f1ec;
  --gris-texto: #10241d;
- --gris-suave: #f8e7c9;
- --gris-borde: #e8d5b0;
+ --gris-suave: #fbfaf6;
+ --gris-borde: #e8e5dc;
  --gris-medio: #5a6a62;
  --rojo: #c23028;
  --rojo-fondo: #fdf0ef;
@@ -53,13 +53,13 @@
  background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde) 60%, var(--verde-claro) 100%);
  }
  .acceso-card {
- background: var(--cx-surface, #fdf7ea);
+ background: var(--cx-surface, #ffffff);
  border-radius: 20px;
  padding: 32px 24px;
  width: 100%;
  max-width: 400px;
  box-shadow: 0 20px 60px rgba(3,46,35,0.3);
- animation: fadeScaleIn 0.5s var(--ease-spring) both;
+ animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
  }
  .acceso-logo {
  text-align: center;
@@ -67,7 +67,7 @@
  }
  .acceso-logo .logo-circulo {
  width: 80px; height: 80px;
- background: var(--cx-surface, #fdf7ea);
+ background: var(--cx-surface, #ffffff);
  border-radius: 50%;
  display: flex; align-items: center; justify-content: center;
  margin: 0 auto 12px;
@@ -129,7 +129,7 @@
  color: var(--rojo);
  border-left: 3px solid var(--rojo);
  }
- .acceso-alerta.show { display: block; animation: cardIn 0.3s var(--ease-spring) both; }
+ .acceso-alerta.show { display: block; animation: cardIn 0.3s var(--ease-spring) backwards; }
 
  /* ── PERFIL ── */
  .perfil-wrap { display: none; }
@@ -184,12 +184,12 @@
 
  /* ── CREDENCIAL QR ── */
  .credencial {
- background: var(--cx-surface, #fdf7ea);
+ background: var(--cx-surface, #ffffff);
  border-radius: 20px;
  box-shadow: 0 8px 32px rgba(3,46,35,0.14);
  overflow: hidden;
  margin-bottom: 16px;
- animation: cardIn 0.5s var(--ease-spring) 0.1s both;
+ animation: cardIn 0.5s var(--ease-spring) 0.1s backwards;
  }
  .credencial-header {
  background: linear-gradient(135deg, var(--verde-oscuro), var(--verde));
@@ -210,7 +210,7 @@
  .qr-contenedor {
  width: 224px; height: 224px;
  padding: 12px;
- background: var(--cx-surface, #fdf7ea);
+ background: var(--cx-surface, #ffffff);
  border-radius: var(--radio);
  overflow: hidden;
  border: 3px solid var(--verde-fondo);
@@ -249,12 +249,12 @@
 
  /* ── CARDS INFO ── */
  .info-card {
- background: var(--cx-surface, #fdf7ea);
+ background: var(--cx-surface, #ffffff);
  border-radius: var(--radio);
  box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
  margin-bottom: 14px;
- animation: cardIn 0.5s var(--ease-spring) both;
+ animation: cardIn 0.5s var(--ease-spring) backwards;
  }
  .ic-titulo {
  font-size: 14px;
@@ -281,7 +281,7 @@
  border-radius: var(--radio);
  padding: 18px;
  margin-bottom: 14px;
- animation: cardIn 0.5s var(--ease-spring) 0.2s both;
+ animation: cardIn 0.5s var(--ease-spring) 0.2s backwards;
  }
  .pago-estado-card.pendiente_efectivo { background: var(--amarillo-fondo); border: 1.5px solid #f0c040; }
  .pago-estado-card.comprobante_enviado { background: var(--azul-fondo); border: 1.5px solid #85c1e9; }
@@ -318,7 +318,7 @@
  }
  .loading-box {
  text-align: center;
- animation: fadeIn 0.3s both;
+ animation: fadeIn 0.3s backwards;
  }
  @keyframes spin { to { transform: rotate(360deg); } }
  .spinner-grande {
@@ -427,7 +427,7 @@
 
  <div class="hero-perfil" id="hero-perfil">
  <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
- <div style="width:84px;height:84px;background:var(--cx-surface, #fdf7ea);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
+ <div style="width:84px;height:84px;background:var(--cx-surface, #ffffff);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
  <img src="../logocontecs.png" alt="CONTECS"
  style="width:74px;height:74px;object-fit:contain;"
  onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-size:28px;\'></span>'"/>

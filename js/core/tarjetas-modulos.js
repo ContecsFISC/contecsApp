@@ -11,7 +11,7 @@
 // Dos capas por tarjeta: .cx-mod lleva la ENTRADA y .cx-mod__cara la
 // INCLINACION, para que las dos animaciones no se pisen el transform.
 // ═══════════════════════════════════════════════════════════════
-import { iconoSeccion } from "./navbar.js?v=20261015.5";
+import { iconoSeccion } from "./navbar.js?v=20261015.8";
 import { revelarAlEntrar } from "./revelar.js?v=20261015.4";
 
 const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;

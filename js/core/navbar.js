@@ -272,6 +272,13 @@ export function montarNavbar({
     else glide.style.opacity = "0";
   }
   nav.addEventListener("pointerleave", reposoGlide, { signal });
+  // Medido antes de que cargue la fuente, el subrayado queda corrido y luego
+  // "viaja" a su sitio al cargar la pagina: se recoloca sin transicion.
+  document.fonts?.ready.then(() => {
+    if (signal.aborted || nav.matches(":hover")) return;
+    glide.classList.remove("is-ready");
+    reposoGlide();
+  });
 
   // ── Salir en carril y panel movil ─────────────────────────────
   // Se crean ANTES de las secciones: estas se insertan siempre delante de ellos.
@@ -432,11 +439,17 @@ export function montarNavbar({
   }
 
   // ── Panel movil ───────────────────────────────────────────────
+  // Bloquear el scroll de la pagina (overflow del documento) recalcula el
+  // layout de toda la pagina: se aplica cuando el panel ya entro y se quita
+  // cuando ya salio, nunca en medio de su animacion.
+  let bloqueoHoja = 0;
   function abrirHoja(si) {
     raiz.dataset.sheet = si ? "open" : "closed";
     burger.setAttribute("aria-expanded", String(si));
     burger.setAttribute("aria-label", si ? "Cerrar menú" : "Abrir menú");
     document.documentElement.classList.toggle("cx-sheet-open", si);
+    clearTimeout(bloqueoHoja);
+    bloqueoHoja = setTimeout(() => document.documentElement.classList.toggle("cx-sheet-fija", si), si ? 400 : 260);
   }
   burger.addEventListener("click", () => abrirHoja(raiz.dataset.sheet !== "open"), { signal });
   velo.addEventListener("click", () => abrirHoja(false), { signal });
@@ -502,7 +515,8 @@ export function montarNavbar({
       ctl.abort();
       observador.disconnect();
       clearTimeout(temporizador);
-      document.documentElement.classList.remove("cx-sheet-open");
+      clearTimeout(bloqueoHoja);
+      document.documentElement.classList.remove("cx-sheet-open", "cx-sheet-fija");
       document.body.classList.remove("cx-nav-on");
       raiz.remove();
     },

@@ -34,7 +34,7 @@ import {
   TIPOS_PROGRAMABLES, etiquetaSalon, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
-import { crearVista3D } from "./mapa3d.js";
+import { crearVista3D } from "./mapa3d.js?v=20261015.8";
 
 const el = id => document.getElementById(id);
 const PUBLICO = document.body.dataset.publico === "1";
