@@ -61,6 +61,25 @@ let participanteActual = null;
 let logSesion = [];
 let secuenciaEvento = 0;
 
+// ─── Hora del servidor ──────────────────────────────────────────────────────
+// Los equipos prestados suelen traer la hora o la zona horaria mal: con su
+// reloj, "hoy" o "ahora" no coinciden con los checkpoints y el selector queda
+// vacío. Se usa la hora del encabezado Date del servidor; si no llega, la del equipo.
+let desfaseReloj = 0;
+
+async function sincronizarReloj() {
+  try {
+    const antes = Date.now();
+    const r = await fetch(window.location.href, { method: "HEAD", cache: "no-store" });
+    const servidor = Date.parse(r.headers.get("date") || "");
+    if (!Number.isNaN(servidor)) desfaseReloj = servidor - Math.round((antes + Date.now()) / 2);
+  } catch (_) {
+    // Sin respuesta: se queda el reloj del equipo.
+  }
+}
+
+const ahoraPanama = () => enPanama(new Date(Date.now() + desfaseReloj));
+
 // ─── Alertas y pantalla principal ───────────────────────────────────────────
 function alerta(tipo, msg) {
   const div = el("alerta");
@@ -454,7 +473,7 @@ function etiquetaCheckpoint(cp) {
 function renderCheckpoints(checkpointPreferido = "") {
   const selCp = el("sel-checkpoint");
   const todos = esCeo() && el("chk-todos").checked;
-  const ahora = enPanama();
+  const ahora = ahoraPanama();
   checkpointsHoy = (todos ? checkpoints.filter(estaOperativo) : checkpointsParaEscanear(checkpoints, ahora))
     .sort((a, b) => `${a.dia || ""}${a.horaInicio || ""}`.localeCompare(`${b.dia || ""}${b.horaInicio || ""}`));
 
@@ -583,7 +602,10 @@ async function leerDispositivo() {
   }
 
   const conexion = navigator.connection?.effectiveType;
+  const minutosDesfase = Math.round(desfaseReloj / 60000);
   const filas = [
+    ["Reloj del equipo", Math.abs(minutosDesfase) < 2 ? "En hora"
+      : `Desfasado ${Math.abs(minutosDesfase)} min (${minutosDesfase > 0 ? "atrasado" : "adelantado"}); se usa la hora del servidor`],
     ["Modelo", datos.modelo || "No informado por el navegador"],
     ["Sistema", datos.sistema || "—"],
     ["Arquitectura", datos.arquitectura || "—"],
@@ -620,8 +642,10 @@ document.addEventListener("visibilitychange", () => {
 esperarSesionLista().then(() => {
   if (esCeo()) el("ceo-todos").style.display = "flex";
 });
-leerDispositivo();
-cargarEventos().catch(e => {
+sincronizarReloj().then(() => {
+  leerDispositivo();
+  return cargarEventos();
+}).catch(e => {
   console.error("POSPER: error cargando eventos:", e);
   alerta("error", "No se pudieron cargar los eventos: " + (e.message || e));
 });
