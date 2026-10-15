@@ -5,11 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.json"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Mapa del evento</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <!-- Three.js para la maqueta 3D (si no carga, el mapa usa la vista 2D). -->
  <script type="importmap">
  {
@@ -26,13 +31,16 @@
  </script>
  <style>
  body { overflow: hidden; }
- .mapa-app { position: relative; height: calc(100dvh - var(--alto-topbar, 58px)); min-height: 420px; }
+ /* --alto-topbar (mapa.js) mide solo la barra: se resta tambien su margen superior.
+    overflow:clip contiene el panel que se oculta deslizandose fuera (si no, caia en el ancho
+    reservado al carril y quedaba visible). */
+ .mapa-app { position: relative; height: calc(100dvh - var(--alto-topbar, 58px) - var(--cx-bar-gap, 12px)); min-height: 420px; overflow: clip; }
 
  /* Escenario: fondo de estudio para la maqueta */
  .escenario-mapa {
    position: absolute; inset: 0; overflow: hidden;
    background:
-     radial-gradient(ellipse at 30% 10%, rgba(57,181,74,0.16), transparent 55%),
+     radial-gradient(ellipse at 30% 10%, rgba(17,128,102,0.16), transparent 55%),
      radial-gradient(ellipse at 80% 90%, rgba(21,101,192,0.10), transparent 50%),
      linear-gradient(180deg, #f3f7f4 0%, #e3ece6 100%);
  }
@@ -42,16 +50,16 @@
    pointer-events: auto; display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
    padding: 3px 8px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08);
    background: rgba(255,255,255,0.92); color: #173024; font: 700 11px/1.1 var(--fuente);
-   box-shadow: 0 4px 12px rgba(0,0,0,0.12); cursor: pointer; white-space: nowrap;
+   box-shadow: 0 4px 12px rgba(3,46,35,0.12); cursor: pointer; white-space: nowrap;
    transition: transform .2s var(--ease-out);
  }
  .etq3d:hover { transform: translateY(-2px) scale(1.06); }
  @media (pointer: coarse) { .etq3d { pointer-events: none; } } /* el pellizco pasa al lienzo; mapa3d.js resuelve el toque */
  .etq3d-programado { border-color: var(--c); color: var(--c); }
- .etq3d-vivo { background: var(--c); color: #fff; border-color: transparent; padding: 5px 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+ .etq3d-vivo { background: var(--c); color: #fff; border-color: transparent; padding: 5px 10px; box-shadow: 0 6px 18px rgba(3,46,35,0.25); }
  .etq3d-finalizado, .etq3d-cancelado { opacity: 0.75; }
  .etq3d-chip { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px; }
- .etq3d-vivo .etq3d-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: latido 1.2s ease-in-out infinite; }
+ .etq3d-vivo .etq3d-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cx-surface, #fdf7ea); animation: latido 1.2s ease-in-out infinite; }
  @keyframes latido { 50% { opacity: 0.25; } }
 
  /* Vista 2D */
@@ -72,7 +80,7 @@
  .bano3d svg { display: block; width: 100%; height: 100%; }
  .vista2d .bano2d { pointer-events: none; }
  .aqui3d { pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
- .aqui3d-rotulo { padding: 4px 10px; border-radius: 999px; background: #1a73e8; color: #fff; font: 800 12px/1.1 var(--fuente); box-shadow: 0 6px 16px rgba(0,0,0,0.25); white-space: nowrap; }
+ .aqui3d-rotulo { padding: 4px 10px; border-radius: 999px; background: #1a73e8; color: #fff; font: 800 12px/1.1 var(--fuente); box-shadow: 0 6px 16px rgba(3,46,35,0.25); white-space: nowrap; }
  .aqui3d-punto { width: 16px; height: 16px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; animation: aqui-onda 1.6s ease-out infinite; }
  @keyframes aqui-onda { from { box-shadow: 0 0 0 0 rgba(26,115,232,0.55); } to { box-shadow: 0 0 0 18px rgba(26,115,232,0); } }
  .vista2d .aqui2d text { fill: #1a73e8; font-size: 17px; font-weight: 800; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
@@ -83,11 +91,12 @@
  /* Controles flotantes */
  .controles-mapa { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; pointer-events: none; z-index: 5; }
  .controles-mapa > * { pointer-events: auto; }
- .vidrio { background: rgba(255,255,255,0.82); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 8px 24px rgba(15,40,25,0.12); border-radius: 14px; }
+ /* Sin backdrop-filter: difuminar el mapa 3D que se anima detras obligaba a re-calcular el blur en cada fotograma. */
+ .vidrio { background: rgba(255,255,255,0.94); border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 8px 24px rgba(15,40,25,0.12); border-radius: 14px; }
  .ctrl-grupo { display: flex; gap: 4px; padding: 4px; align-items: center; }
  .ctrl-grupo select { border: none; background: transparent; font: 600 13px var(--fuente); color: var(--verde-oscuro); padding: 6px 8px; max-width: 240px; }
  .chip-btn { border: none; background: transparent; padding: 7px 12px; border-radius: 10px; font: 700 12px var(--fuente); color: var(--gris-medio); cursor: pointer; white-space: nowrap; transition: background .2s, color .2s; }
- .chip-btn:hover { background: rgba(0,114,46,0.08); color: var(--verde-oscuro); }
+ .chip-btn:hover { background: rgba(6,78,59,0.08); color: var(--verde-oscuro); }
  .chip-btn[aria-pressed="true"] { background: var(--verde); color: #fff; }
  .reloj { padding: 8px 12px; font: 700 13px var(--fuente); color: var(--verde-oscuro); display: flex; gap: 8px; align-items: center; }
  .reloj .punto { width: 8px; height: 8px; border-radius: 50%; background: #d32f2f; animation: latido 1.2s ease-in-out infinite; }
@@ -111,7 +120,7 @@
  .panel-nombre { font-family: var(--fuente-display); font-size: 22px; font-weight: 700; color: #173024; margin: 8px 40px 2px 0; line-height: 1.15; overflow-wrap: anywhere; }
  .panel-meta { font-size: 12px; color: var(--gris-medio); }
  .panel-cuerpo { overflow-y: auto; padding: 14px 18px 20px; display: grid; gap: 14px; }
- .bloque { background: #fff; border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.06); }
+ .bloque { background: var(--cx-surface, #fdf7ea); border-radius: 12px; padding: 14px; border: 1px solid rgba(0,0,0,0.06); }
  .bloque h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--gris-medio); margin: 0 0 8px; }
  .vivo-titulo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: #173024; }
  .badge-vivo { padding: 2px 8px; border-radius: 999px; background: #d32f2f; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
@@ -130,7 +139,7 @@
  .presentes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; max-height: 240px; overflow-y: auto; }
  .presentes li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 6px 8px; border-radius: 8px; background: var(--gris-suave); }
  .presentes small { color: var(--gris-medio); }
- .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: #fff; border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
+ .btn-liberar { border: 1px solid var(--rojo); color: var(--rojo); background: var(--cx-surface, #fdf7ea); border-radius: 8px; padding: 4px 8px; font: 700 11px var(--fuente); cursor: pointer; white-space: nowrap; }
  .btn-liberar:disabled { opacity: 0.5; }
  .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
  .acts li.con-btn { display: block; padding: 0; border: none; background: none; }
@@ -154,7 +163,7 @@
    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
  }
  .form-salon input::placeholder { color: var(--gris-medio); opacity: 0.7; font-weight: 400; }
- .form-salon input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); transform: translateY(-1px); }
+ .form-salon input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(6,78,59,0.12); transform: translateY(-1px); }
  .form-salon .btn { margin-top: 4px; }
  @media (max-width: 760px) { .form-salon input { font-size: 16px; } }
  .vacio-mapa { font-size: 13px; color: var(--gris-medio); }
@@ -175,9 +184,9 @@
    border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
    font: 500 13px var(--fuente); color: var(--gris-texto); background: var(--blanco);
  }
- .agenda-buscar:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(0,114,46,0.12); }
+ .agenda-buscar:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 4px rgba(6,78,59,0.12); }
  .agenda-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
- .agenda-filtros .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--gris-borde); background: #fff; border-radius: 999px; padding: 4px 10px; font: 600 11px var(--fuente); color: var(--gris-texto); cursor: pointer; }
+ .agenda-filtros .chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--gris-borde); background: var(--cx-surface, #fdf7ea); border-radius: 999px; padding: 4px 10px; font: 600 11px var(--fuente); color: var(--gris-texto); cursor: pointer; }
  .agenda-filtros .chip[aria-pressed="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
  .agenda-filtros .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
  .agenda-filtros .chip[aria-pressed="true"] i { box-shadow: 0 0 0 1.5px #fff; }
@@ -194,7 +203,7 @@
  }
  .act-btn:hover { background: #ebf1ed; }
  .act-btn:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
- .act-btn.destacada { box-shadow: 0 0 0 2px var(--c, var(--verde)); background: #fff; }
+ .act-btn.destacada { box-shadow: 0 0 0 2px var(--c, var(--verde)); background: var(--cx-surface, #fdf7ea); }
  .act-btn.fin { opacity: 0.6; }
  .act-btn.cancelada .titulo { text-decoration: line-through; }
  .act-btn.sin-salon { cursor: default; }
@@ -278,5 +287,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/mapa.js?v=20261014.2"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

@@ -1,0 +1,736 @@
+/* ===========================================================
+   CONTECS — Navbar v2 (.cx-nav)
+   Barra blanca flotante arriba; al hacer scroll se acopla a un carril
+   en el lateral derecho. Requiere css/tokens.css.
+
+   Reglas de rendimiento (60 fps):
+   - Todo movimiento grande (barra<->carril, menus, subrayado, chevron) es
+     transform/opacity. Nada de top/left/width/height. Las unicas excepciones
+     son color/background (y box-shadow en "Salir") al pasar el cursor por un
+     boton pequeno: repinta ese boton, nunca el layout, y no ocurre al hacer scroll.
+   - Barra y carril son capas fijas que se INTERCAMBIAN; el layout de la
+     pagina no cambia al hacer scroll (el ancho del carril ya esta reservado).
+   - Sin backdrop-filter: es blanco solido con sombra, barato de pintar.
+   - will-change solo mientras un menu esta abierto, no de forma permanente.
+   =========================================================== */
+
+/* Apilamiento: barra y carril (150) quedan por encima de la barra sticky de
+   modulos (100) y por DEBAJO de los modales de las paginas (200+). */
+/* Espacio que ocupaba el topbar en el flujo: la barra es fixed. */
+.cx-spacer {
+  height: calc(var(--cx-bar-h) + var(--cx-bar-gap) * 2);
+  pointer-events: none;
+}
+
+/* Marca invisible: cuando sale de pantalla, la barra se acopla (IntersectionObserver). */
+.cx-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 48px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ───────────────────────── BARRA SUPERIOR ───────────────────────── */
+.cx-bar {
+  position: fixed;
+  top: var(--cx-bar-gap);
+  left: var(--cx-bar-gap);
+  right: var(--cx-bar-gap);
+  height: var(--cx-bar-h);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 16px;
+  background: var(--cx-surface);
+  border-radius: var(--cx-radius-lg);
+  box-shadow: var(--cx-shadow-2), var(--cx-ring);
+  font-family: var(--cx-font);
+  color: var(--cx-text);
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform var(--cx-dur-slow) var(--cx-ease-out),
+    opacity var(--cx-dur-base) ease,
+    visibility 0s linear 0s;
+  /* backwards, no both: una animacion que retiene su ultimo fotograma pisaria
+     el transform del estado acoplado y la barra nunca se iria. */
+  animation: cx-bar-in var(--cx-dur-slow) var(--cx-ease-out) backwards;
+  /* Mismo nombre que .topbar de las paginas de modulo (styles.css): al navegar
+     entre dashboard y modulo la barra se queda quieta en vez de parpadear. */
+  view-transition-name: cx-bar;
+}
+/* Sombra de "ya hay contenido debajo": capa aparte que solo cambia de opacidad
+   (animar box-shadow repinta cada frame; animar opacity no). */
+.cx-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: var(--cx-shadow-4);
+  opacity: 0;
+  transition: opacity var(--cx-dur-base) ease;
+  pointer-events: none;
+}
+.cx-nav[data-scrolled="true"] .cx-bar::after { opacity: 1; }
+
+@keyframes cx-bar-in {
+  from { opacity: 0; transform: translate3d(0, -14px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Acoplado: la barra se va hacia arriba y desaparece. */
+.cx-nav[data-state="docked"] .cx-bar {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, calc(-100% - 28px), 0);
+  transition:
+    transform var(--cx-dur-slow) var(--cx-ease-out),
+    opacity var(--cx-dur-fast) ease,
+    visibility 0s linear var(--cx-dur-slow);
+}
+
+/* Marca */
+.cx-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-right: 10px;
+  color: var(--cx-ink);
+  text-decoration: none;
+  border-radius: var(--cx-radius-sm);
+}
+.cx-brand__mark {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+.cx-brand__name {
+  font-family: var(--cx-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1;
+}
+
+/* Secciones */
+.cx-bar__nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  margin-left: 6px;
+}
+.cx-item { position: relative; display: flex; }
+
+.cx-item__btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--cx-text-2);
+  font: 500 14px/1 var(--cx-font);
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--cx-dur-fast) ease, transform var(--cx-dur-tap) ease;
+}
+/* Fondo de hover como capa que solo hace fade (compositor). */
+.cx-item__btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--cx-champagne-300);
+  opacity: 0;
+  transition: opacity var(--cx-dur-fast) ease;
+}
+.cx-item__btn:hover,
+.cx-item[data-open] .cx-item__btn { color: var(--cx-ink); }
+.cx-item__btn:hover::before,
+.cx-item[data-open] .cx-item__btn::before { opacity: 1; }
+.cx-item__btn:active { transform: scale(0.96); }
+.cx-item.is-current .cx-item__btn { color: var(--cx-ink); font-weight: 600; }
+
+.cx-chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: transform var(--cx-dur-base) var(--cx-ease-out), opacity var(--cx-dur-fast) ease;
+}
+.cx-item[data-open] .cx-chevron { transform: rotate(180deg); opacity: 1; }
+
+/* Subrayado que se desliza entre secciones. Mide 100px y se escala con
+   transform: es la unica forma de "animar el ancho" sin layout. */
+.cx-glide {
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 100px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--cx-apricot-600), var(--cx-apricot));
+  transform-origin: 0 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.cx-glide.is-ready {
+  transition: transform 420ms var(--cx-ease-out), opacity var(--cx-dur-base) ease;
+}
+
+/* Zona derecha */
+.cx-bar__end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.cx-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--cx-radius-pill);
+  background: var(--cx-ink);
+  color: var(--cx-champagne);
+  font: 600 13.5px/1 var(--cx-font);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgb(3 46 35 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  transition: transform var(--cx-dur-fast) var(--cx-ease-out), background var(--cx-dur-fast) ease, box-shadow var(--cx-dur-fast) ease;
+}
+.cx-logout:hover { background: var(--cx-ink-800); transform: translate3d(0, -1px, 0); box-shadow: var(--cx-shadow-2); }
+.cx-logout:active { transform: scale(0.95); transition-duration: var(--cx-dur-tap); }
+.cx-logout svg { width: 16px; height: 16px; }
+
+.cx-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--cx-champagne-300);
+  color: var(--cx-ink);
+  cursor: pointer;
+  transition: transform var(--cx-dur-tap) ease;
+}
+.cx-burger:active { transform: scale(0.92); }
+.cx-burger svg { width: 20px; height: 20px; }
+.cx-burger .cx-burger__x { display: none; }
+.cx-nav[data-sheet="open"] .cx-burger .cx-burger__x { display: block; }
+.cx-nav[data-sheet="open"] .cx-burger .cx-burger__bars { display: none; }
+
+/* ───────────────────────── MENUS DESPLEGABLES ───────────────────────── */
+.cx-menu {
+  position: absolute;
+  z-index: 5;
+  min-width: 232px;
+  padding: 8px;
+  background: var(--cx-surface);
+  border-radius: var(--cx-radius);
+  box-shadow: var(--cx-shadow-4), var(--cx-ring);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, -8px, 0) scale(0.97);
+  transform-origin: top left;
+  transition:
+    opacity var(--cx-dur-fast) ease,
+    transform var(--cx-dur-base) var(--cx-ease-out),
+    visibility 0s linear var(--cx-dur-base);
+}
+.cx-item[data-open] .cx-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: transform, opacity;
+  transition:
+    opacity var(--cx-dur-fast) ease,
+    transform 340ms var(--cx-ease-out),
+    visibility 0s;
+}
+
+/* Menu bajo la barra */
+.cx-bar .cx-menu { top: calc(100% + 12px); left: 0; }
+/* Puente invisible: el cursor puede cruzar el hueco sin cerrar el menu. */
+.cx-bar .cx-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+.cx-bar .cx-menu__title { display: none; }
+
+.cx-menu__title {
+  padding: 6px 12px 8px;
+  font: 700 11px/1 var(--cx-font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cx-text-3);
+}
+
+.cx-menu__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: var(--cx-radius-sm);
+  color: var(--cx-text);
+  font: 500 14px/1.2 var(--cx-font);
+  text-decoration: none;
+  white-space: nowrap;
+  /* Entrada escalonada: cada enlace llega un instante despues del anterior. */
+  opacity: 0;
+  transform: translate3d(0, -5px, 0);
+  transition:
+    opacity var(--cx-dur-fast) ease,
+    transform var(--cx-dur-fast) ease,
+    background var(--cx-dur-fast) ease,
+    color var(--cx-dur-fast) ease;
+}
+.cx-item[data-open] .cx-menu__link,
+.cx-nav[data-sheet="open"] .cx-sheet .cx-menu__link {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity var(--cx-dur-base) ease calc(var(--i, 0) * 30ms + 50ms),
+    transform 380ms var(--cx-ease-out) calc(var(--i, 0) * 30ms + 50ms),
+    background var(--cx-dur-fast) ease,
+    color var(--cx-dur-fast) ease;
+}
+.cx-menu__link:hover,
+.cx-menu__link:focus-visible { background: var(--cx-champagne-300); color: var(--cx-ink); outline: none; }
+.cx-menu__link:active { background: var(--cx-champagne); }
+
+/* Flecha que aparece al pasar el cursor. */
+.cx-menu__link::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-top: 2px solid var(--cx-ink-500);
+  border-right: 2px solid var(--cx-ink-500);
+  border-radius: 1px;
+  opacity: 0;
+  transform: translate3d(-6px, 0, 0) rotate(45deg);
+  transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-base) var(--cx-ease-out);
+}
+.cx-menu__link:hover::after,
+.cx-menu__link:focus-visible::after { opacity: 1; transform: translate3d(0, 0, 0) rotate(45deg); }
+
+.cx-menu__link.is-current { background: var(--cx-champagne); color: var(--cx-ink); font-weight: 600; }
+
+/* Modulos de administracion: punto apricot (lo que antes era .mod-admin). */
+.cx-menu__dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cx-apricot-600);
+  box-shadow: 0 0 0 3px rgb(255 214 165 / 0.45);
+}
+
+/* ───────────────────────── CARRIL LATERAL DERECHO ───────────────────────── */
+.cx-rail {
+  position: fixed;
+  top: 50%;
+  right: 12px;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 60px;
+  padding: 10px 8px;
+  background: var(--cx-surface);
+  border-radius: 24px;
+  box-shadow: var(--cx-shadow-3), var(--cx-ring);
+  font-family: var(--cx-font);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(calc(100% + 28px), -50%, 0);
+  transition:
+    transform var(--cx-dur-slow) var(--cx-ease-out),
+    opacity var(--cx-dur-fast) ease,
+    visibility 0s linear var(--cx-dur-slow);
+}
+.cx-nav[data-state="docked"] .cx-rail {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, -50%, 0);
+  transition:
+    transform 520ms var(--cx-ease-out),
+    opacity var(--cx-dur-base) ease,
+    visibility 0s;
+}
+
+/* Cada elemento del carril entra con un pequeno retraso. */
+.cx-rail > * {
+  opacity: 0;
+  transform: translate3d(14px, 0, 0);
+  transition: opacity var(--cx-dur-fast) ease, transform var(--cx-dur-fast) ease;
+}
+.cx-nav[data-state="docked"] .cx-rail > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity var(--cx-dur-base) ease calc(var(--i, 0) * 38ms + 120ms),
+    transform 480ms var(--cx-ease-out) calc(var(--i, 0) * 38ms + 120ms);
+}
+
+.cx-rail__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+/* El hover va en la imagen: el propio enlace ya anima su entrada con transform. */
+.cx-rail__brand img {
+  display: block;
+  height: 30px;
+  width: auto;
+  transition: transform var(--cx-dur-base) var(--cx-ease-spring);
+}
+.cx-rail__brand:hover img { transform: scale(1.1) rotate(-4deg); }
+
+.cx-rail__sep {
+  width: 28px;
+  height: 1px;
+  margin: 4px 0;
+  background: var(--cx-line-strong);
+}
+
+.cx-rail .cx-item { width: 44px; }
+.cx-rail .cx-item__btn {
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  color: var(--cx-text-2);
+}
+.cx-rail .cx-item__btn svg { width: 21px; height: 21px; }
+.cx-rail .cx-item__btn:hover,
+.cx-rail .cx-item[data-open] .cx-item__btn { color: var(--cx-ink); }
+.cx-rail .cx-item__btn:hover { transform: scale(1.06); }
+.cx-rail .cx-item.is-current .cx-item__btn::before { opacity: 1; background: var(--cx-champagne); }
+/* Marca de seccion actual: barrita apricot pegada al borde. */
+.cx-rail .cx-item.is-current::after {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  width: 4px;
+  height: 18px;
+  border-radius: 4px 0 0 4px;
+  background: var(--cx-apricot-600);
+  transform: translateY(-50%);
+}
+
+/* Menu del carril: se abre hacia la izquierda, sobre el contenido. */
+.cx-rail .cx-menu {
+  top: -8px;
+  right: calc(100% + 16px);
+  transform: translate3d(10px, 0, 0) scale(0.97);
+  transform-origin: top right;
+}
+.cx-rail .cx-item[data-open] .cx-menu { transform: translate3d(0, 0, 0) scale(1); }
+.cx-rail .cx-menu::before { content: ""; position: absolute; top: 0; bottom: 0; right: -18px; width: 18px; }
+/* Cerca del borde inferior el menu crece hacia arriba. */
+.cx-rail .cx-item[data-flip] .cx-menu { top: auto; bottom: -8px; transform-origin: bottom right; }
+
+.cx-rail__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--cx-text-3);
+  cursor: pointer;
+  transition: background var(--cx-dur-fast) ease, color var(--cx-dur-fast) ease, transform var(--cx-dur-tap) ease;
+}
+.cx-rail__logout svg { width: 20px; height: 20px; }
+.cx-rail__logout:hover { background: var(--cx-ink); color: var(--cx-champagne); }
+.cx-rail__logout:active { transform: scale(0.92); }
+
+/* ───────────────────────── PANEL MOVIL ───────────────────────── */
+.cx-sheet,
+.cx-scrim { display: none; }
+
+/* ───────────────────────── FOCO ───────────────────────── */
+.cx-bar :focus-visible,
+.cx-rail :focus-visible,
+.cx-sheet :focus-visible {
+  outline: 2px solid var(--cx-ink-500);
+  outline-offset: 2px;
+}
+
+/* ───────────────────────── ESCRITORIO ───────────────────────── */
+@media (min-width: 1024px) {
+  /* El ancho del carril se reserva SIEMPRE: al acoplarse no se mueve ni se
+     tapa nada, y como el espacio ya existe no hay reflow durante el scroll. */
+  body.cx-nav-on { padding-right: var(--cx-rail-w); }
+}
+
+/* Escritorio estrecho: marca + 7 secciones + Salir no caben a 1024px. Se compacta
+   por tramos en vez de dejar que la barra se desborde por la derecha. */
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .cx-bar { gap: 4px; padding-right: 10px; }
+  .cx-bar__nav { margin-left: 2px; }
+  .cx-item__btn { padding: 0 10px; gap: 0; font-size: 13.5px; }
+  .cx-chevron { display: none; }
+  .cx-brand { padding-right: 6px; }
+  .cx-brand__name { font-size: 16px; }
+  .cx-logout { padding: 0 14px; }
+}
+@media (min-width: 1024px) and (max-width: 1099.98px) {
+  .cx-brand__name { display: none; }
+}
+
+/* ───────────────────────── TABLET / MOVIL ───────────────────────── */
+@media (max-width: 1023.98px) {
+  .cx-rail { display: none; }
+  .cx-bar__nav { display: none; }
+  .cx-burger { display: inline-flex; }
+  .cx-logout { display: none; }
+  .cx-bar { padding: 0 10px 0 14px; }
+
+  .cx-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 148;
+    background: rgb(3 46 35 / 0.34);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--cx-dur-base) ease, visibility 0s linear var(--cx-dur-base);
+  }
+  .cx-nav[data-sheet="open"] .cx-scrim { opacity: 1; visibility: visible; transition: opacity var(--cx-dur-base) ease, visibility 0s; }
+
+  .cx-sheet {
+    display: block;
+    position: fixed;
+    z-index: 149;
+    top: calc(var(--cx-bar-gap) * 2 + var(--cx-bar-h) + 4px);
+    left: var(--cx-bar-gap);
+    right: var(--cx-bar-gap);
+    max-height: calc(100dvh - var(--cx-bar-gap) * 3 - var(--cx-bar-h) - 4px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 10px;
+    background: var(--cx-surface);
+    border-radius: var(--cx-radius-lg);
+    box-shadow: var(--cx-shadow-4), var(--cx-ring);
+    font-family: var(--cx-font);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(0, -14px, 0) scale(0.98);
+    transform-origin: top center;
+    transition:
+      opacity var(--cx-dur-fast) ease,
+      transform var(--cx-dur-base) var(--cx-ease-out),
+      visibility 0s linear var(--cx-dur-base);
+  }
+  .cx-nav[data-sheet="open"] .cx-sheet {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0) scale(1);
+    transition: opacity var(--cx-dur-fast) ease, transform 380ms var(--cx-ease-out), visibility 0s;
+  }
+  .cx-sheet__group + .cx-sheet__group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--cx-line); }
+  .cx-sheet .cx-menu__title { display: block; }
+  .cx-sheet .cx-menu__link { padding: 13px 12px; font-size: 15px; }
+  .cx-sheet__logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 48px;
+    margin-top: 10px;
+    border: 0;
+    border-radius: var(--cx-radius);
+    background: var(--cx-ink);
+    color: var(--cx-champagne);
+    font: 600 15px/1 var(--cx-font);
+    cursor: pointer;
+  }
+  .cx-sheet__logout:active { transform: scale(0.98); }
+  .cx-sheet__logout svg { width: 18px; height: 18px; }
+
+  html.cx-sheet-open { overflow: hidden; }
+}
+
+/* Carril en pantallas bajitas: botones mas compactos para que quepa todo. */
+@media (min-width: 1024px) and (max-height: 700px) {
+  .cx-rail { padding: 8px 6px; gap: 2px; width: 54px; }
+  .cx-rail .cx-item, .cx-rail .cx-item__btn, .cx-rail__logout, .cx-rail__brand { width: 40px; height: 40px; }
+  .cx-rail .cx-item { height: auto; }
+}
+
+/* ═══════════════════ TEMA: EMERALD INK · CHAMPAGNE · APRICOT ═══════════════════
+   Barra y carril en Emerald Ink con letras Champagne; menus en champagne claro
+   (lectura comoda); Apricot para lo que importa: seccion actual, subrayado y
+   la accion "Salir". Va al final para mandar sobre los colores base. */
+.cx-bar {
+  background:
+    radial-gradient(120% 240% at 0% 0%, rgb(255 214 165 / 0.18), transparent 44%),
+    linear-gradient(135deg, var(--cx-ink-600) 0%, var(--cx-ink) 46%, var(--cx-ink-900) 100%);
+  color: var(--cx-champagne);
+  box-shadow: 0 2px 6px rgb(3 46 35 / 0.18), 0 14px 36px rgb(3 46 35 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+.cx-bar::after { box-shadow: 0 18px 48px rgb(3 46 35 / 0.36); }
+.cx-brand { color: var(--cx-champagne); }
+.cx-item__btn { color: rgb(248 231 201 / 0.82); }
+.cx-item__btn::before { background: rgb(248 231 201 / 0.13); }
+.cx-item__btn:hover,
+.cx-item[data-open] .cx-item__btn,
+.cx-item.is-current .cx-item__btn { color: var(--cx-champagne-100); }
+.cx-bar :focus-visible,
+.cx-rail :focus-visible { outline-color: var(--cx-apricot); }
+
+.cx-logout {
+  background: var(--cx-apricot);
+  color: var(--cx-ink-900);
+  box-shadow: 0 2px 10px rgb(255 214 165 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.45);
+}
+.cx-logout:hover { background: var(--cx-apricot-100); box-shadow: 0 8px 22px rgb(255 214 165 / 0.32); }
+.cx-burger { background: rgb(248 231 201 / 0.14); color: var(--cx-champagne); }
+
+.cx-menu {
+  background: var(--cx-surface);
+  box-shadow: 0 10px 20px rgb(3 46 35 / 0.12), 0 30px 70px rgb(3 46 35 / 0.28), 0 0 0 1px rgb(6 78 59 / 0.10);
+}
+.cx-menu__link:hover,
+.cx-menu__link:focus-visible { background: var(--cx-champagne); }
+.cx-menu__link:active { background: var(--cx-apricot-100); }
+.cx-menu__link.is-current { background: var(--cx-apricot-100); }
+
+.cx-rail {
+  background:
+    radial-gradient(160% 60% at 50% 0%, rgb(255 214 165 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--cx-ink-600), var(--cx-ink) 42%, var(--cx-ink-900));
+  box-shadow: 0 10px 34px rgb(3 46 35 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+.cx-rail__sep { background: rgb(248 231 201 / 0.18); }
+.cx-rail .cx-item__btn { color: rgb(248 231 201 / 0.78); }
+.cx-rail .cx-item__btn:hover,
+.cx-rail .cx-item[data-open] .cx-item__btn { color: var(--cx-champagne-100); }
+.cx-rail .cx-item.is-current .cx-item__btn { color: var(--cx-apricot); }
+.cx-rail .cx-item.is-current .cx-item__btn::before { background: rgb(255 214 165 / 0.18); }
+.cx-rail .cx-item.is-current::after { background: var(--cx-apricot); }
+.cx-rail__logout { color: rgb(248 231 201 / 0.72); }
+.cx-rail__logout:hover { background: var(--cx-apricot); color: var(--cx-ink-900); }
+
+.cx-sheet__logout { background: var(--cx-apricot); color: var(--cx-ink-900); }
+
+/* ───────────────────────── BOOM (entrar a un modulo, js/core/boom.js) ─────────────────────────
+   Una caja fija que solo se escala: el compositor la mueve aunque el hilo
+   principal este ocupado. Por encima de todo (navbar 150, modales 200-500). */
+.cx-boom { position: fixed; inset: 0; z-index: 900; pointer-events: auto; cursor: progress; contain: strict; }
+.cx-boom__forma {
+  position: absolute;
+  transform-origin: 0 0;
+  background: var(--cx-surface);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.cx-boom__tinte {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(60% 50% at 50% 42%, rgb(255 255 255 / 0.10), transparent 70%),
+    var(--boom-fondo);
+  opacity: 0;
+}
+.cx-boom__sello {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  color: var(--boom-tinta);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+}
+.cx-boom__icono {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: rgb(255 255 255 / 0.10);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 18px 40px rgb(0 0 0 / 0.22);
+}
+.cx-boom__icono svg { width: 46px; height: 46px; stroke-width: 1.7; }
+.cx-boom__nombre {
+  font-family: var(--cx-font-display);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.cx-boom__carga {
+  position: relative;
+  width: 120px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--boom-tinta) 24%, transparent);
+}
+.cx-boom__carga i {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--boom-tinta);
+  animation: cx-boom-carga 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes cx-boom-carga { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+/* ───────────────────────── IMPRESION ───────────────────────── */
+@media print {
+  .cx-nav, .cx-spacer { display: none !important; }
+  body.cx-nav-on { padding-right: 0 !important; }
+}
+
+/* ───────────────────────── MOVIMIENTO REDUCIDO ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cx-bar, .cx-rail, .cx-rail > *, .cx-menu, .cx-menu__link, .cx-sheet, .cx-scrim,
+  .cx-glide.is-ready, .cx-chevron, .cx-item__btn, .cx-logout {
+    animation: none !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0s !important;
+  }
+}

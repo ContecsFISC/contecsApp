@@ -5,11 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" href="../favicon.ico" sizes="any"/>
   <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+  <link rel="manifest" href="../manifest.json"/>
+  <meta name="theme-color" content="#064e3b"/>
+  <meta name="apple-mobile-web-app-title" content="CONTECS"/>
   <title>CONTECS — Panel Principal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
-  <link rel="stylesheet" href="../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../css/navbar.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../css/tarjetas.css?v=20261015.2"/>
   <!-- Prefetch (no prerender): descarga el HTML del modulo al pasar el cursor,
        sin ejecutar su JS — prerender lanzaria las consultas a Firestore con
        solo rozar el enlace. -->
@@ -17,6 +23,9 @@
   { "prefetch": [{ "where": { "href_matches": "/*modulos/*" }, "eagerness": "moderate" }] }
   </script>
   <style>
+    /* Navegacion anterior (topbar + bottom sheet): reemplazada por el navbar v2. */
+    .topbar-legado, #bottom-sheet, #sheet-backdrop { display: none !important; }
+
     /* ══════════ ZONA A — HEADER ══════════ */
     /* ── HERO invertido ──
        Antes: bloque verde oscuro donde lo mas grande era tu propio nombre y
@@ -123,7 +132,7 @@
       margin-bottom: 4px;
     }
     .widget-card {
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: var(--radio);
       padding: 16px;
       box-shadow: var(--sombra-sm);
@@ -171,7 +180,7 @@
       border-radius: inherit;
       background: radial-gradient(
         320px circle at var(--mx, 50%) var(--my, 50%),
-        rgba(0, 114, 46, 0.055),
+        rgba(6,78,59, 0.055),
         transparent 62%
       );
       opacity: 0;
@@ -182,7 +191,6 @@
     .header-a:hover::before, .header-a:hover::after { opacity: 1; }
     .widget-card {
       transition: transform 0.25s var(--ease-out);
-      will-change: transform;
     }
     .widget-card:hover { transform: translateY(-2px); }
 
@@ -209,7 +217,7 @@
 
     /* Eventos de HOY — destacados, más grandes */
     .evento-hoy {
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: var(--radio);
       padding: 18px 20px;
       box-shadow: var(--sombra-sm);
@@ -302,7 +310,7 @@
     .grid-modulos {
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: var(--radio);
       box-shadow: var(--sombra-sm);
       overflow: hidden;
@@ -339,11 +347,11 @@
 
     /* ══════════ SIN ROL ══════════ */
     .sin-rol-card {
-      background: #fff;
+      background: var(--cx-surface, #fdf7ea);
       border-radius: 16px;
       padding: 32px 24px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      box-shadow: 0 2px 8px rgba(3,46,35,0.07);
       border-top: 4px solid var(--amarillo);
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
       animation-delay: 0.1s;
@@ -423,9 +431,9 @@
     .posper-modulo {
       display: flex; flex-direction: column; gap: 6px;
       padding: 20px; border-radius: 18px; text-decoration: none;
-      background: #fff; color: var(--gris-texto);
+      background: var(--cx-surface, #fdf7ea); color: var(--gris-texto);
       border: 1px solid var(--gris-borde);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 18px rgba(3,46,35,0.06);
       transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s;
       animation: fadeScaleIn 0.5s var(--ease-spring) both;
     }
@@ -485,7 +493,7 @@
       max-height: 78vh;
       background: var(--blanco);
       border-radius: 24px 24px 0 0;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+      box-shadow: 0 -8px 40px rgba(3,46,35,0.18);
       z-index: 201;
       transform: translateY(100%);
       transition: transform 0.38s var(--ease-spring);
@@ -535,8 +543,8 @@
     @media (max-width: 1023px) {
       body {
         background:
-          radial-gradient(circle at 88% 4%, rgba(57,181,74,0.10), transparent 24rem),
-          linear-gradient(180deg, #eef7f0 0, var(--gris-suave) 24rem);
+          radial-gradient(circle at 88% 4%, rgba(255,214,165,0.40), transparent 24rem),
+          linear-gradient(180deg, #f4dcb2 0, var(--gris-suave) 24rem);
       }
 
       body .topbar {
@@ -577,12 +585,12 @@
         min-height: 270px;
         padding: 20px;
         border-radius: 24px;
-        color: #fff;
+        color: #fdf7ea;
         background:
-          radial-gradient(circle at 92% 5%, rgba(126,255,154,0.26), transparent 36%),
+          radial-gradient(circle at 92% 5%, rgba(255,214,165,0.30), transparent 38%),
           radial-gradient(circle at 5% 100%, rgba(0,0,0,0.22), transparent 42%),
-          linear-gradient(145deg, #023d19 0%, #056328 54%, #07823a 100%);
-        box-shadow: 0 18px 42px rgba(4,82,35,0.24);
+          linear-gradient(145deg, #032e23 0%, #064e3b 54%, #0b6a50 100%);
+        box-shadow: 0 18px 42px rgba(5,63,48,0.24);
       }
       .mobile-event-hero::after {
         content: "";
@@ -631,14 +639,14 @@
         font-weight: 800;
         letter-spacing: 0.9px;
         text-transform: uppercase;
-        color: #d8ffe1;
+        color: #ffd6a5;
       }
       .mobile-event-state::before {
         content: "";
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #8dffa6;
+        background: #ffd6a5;
         box-shadow: 0 0 0 5px rgba(141,255,166,0.13);
       }
       .mobile-event-countdown-label { font-size: 10px; color: rgba(255,255,255,0.66); text-transform:uppercase; letter-spacing:0.6px; }
@@ -655,7 +663,7 @@
       .mobile-hero-progress { margin-top: 18px; }
       .mobile-hero-progress-copy { margin-bottom: 7px; font-size: 10px; color: rgba(255,255,255,0.68); }
       .mobile-progress-track { height: 5px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,0.16); }
-      .mobile-progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#8dffa6,#fff); transition:width 0.7s var(--ease-out); }
+      .mobile-progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#ffd6a5,#fdf7ea); transition:width 0.7s var(--ease-out); }
 
       .mobile-section { margin-top: 22px; }
       .mobile-section-heading {
@@ -673,22 +681,22 @@
         position:relative;
         overflow:hidden;
         padding:18px;
-        border:1px solid rgba(0,114,46,0.12);
+        border:1px solid rgba(6,78,59,0.12);
         border-radius:20px;
-        background:rgba(255,255,255,0.94);
+        background:rgba(253,247,234,0.96);
         box-shadow:0 12px 30px rgba(18,52,28,0.08);
       }
-      .mobile-now-panel.is-live { border-color:rgba(0,114,46,0.35); }
+      .mobile-now-panel.is-live { border-color:rgba(6,78,59,0.35); }
       .mobile-now-panel.is-live::before {
         content:"";
         position:absolute;
         top:0; bottom:0; left:0;
         width:4px;
-        background:linear-gradient(180deg,#8dffa6,var(--verde));
+        background:linear-gradient(180deg,#ffd6a5,var(--verde));
       }
       .mobile-now-status { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:var(--verde); }
       .mobile-now-status::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
-      .mobile-now-panel.is-live .mobile-now-status::before { animation:pulseSoft 1.4s ease-in-out infinite; box-shadow:0 0 0 5px rgba(0,114,46,0.10); }
+      .mobile-now-panel.is-live .mobile-now-status::before { animation:pulseSoft 1.4s ease-in-out infinite; box-shadow:0 0 0 5px rgba(6,78,59,0.10); }
       .mobile-now-title { margin-top:10px; font-size:20px; line-height:1.16; color:var(--gris-texto); }
       .mobile-now-meta { margin-top:7px; font-size:12px; color:var(--gris-medio); }
 
@@ -697,9 +705,9 @@
         grid-template-columns:repeat(3,minmax(0,1fr));
         margin-top:12px;
         overflow:hidden;
-        border:1px solid rgba(0,114,46,0.10);
+        border:1px solid rgba(6,78,59,0.10);
         border-radius:18px;
-        background:rgba(255,255,255,0.82);
+        background:rgba(253,247,234,0.92);
       }
       .mobile-metric { min-width:0; padding:14px 8px; text-align:center; }
       .mobile-metric + .mobile-metric { border-left:1px solid var(--gris-borde); }
@@ -710,17 +718,17 @@
       .mobile-alerts,
       .mobile-other-events {
         overflow:hidden;
-        border:1px solid rgba(16,60,29,0.08);
+        border:1px solid rgba(6,78,59,0.10);
         border-radius:20px;
-        background:rgba(255,255,255,0.88);
+        background:rgba(253,247,234,0.94);
         box-shadow:0 10px 26px rgba(18,52,28,0.055);
       }
       .mobile-timeline-item { position:relative; display:grid; grid-template-columns:48px 18px minmax(0,1fr); gap:8px; padding:14px 15px; }
       .mobile-timeline-item + .mobile-timeline-item { border-top:1px solid rgba(208,219,210,0.7); }
       .mobile-timeline-time { padding-top:1px; font-size:11px; font-weight:700; color:var(--gris-medio); }
       .mobile-timeline-marker { position:relative; display:flex; justify-content:center; }
-      .mobile-timeline-marker::before { content:""; width:8px; height:8px; margin-top:4px; border-radius:50%; border:2px solid var(--gris-borde); background:#fff; z-index:1; }
-      .mobile-timeline-item.is-current .mobile-timeline-marker::before { border-color:var(--verde); background:var(--verde); box-shadow:0 0 0 5px rgba(0,114,46,0.10); }
+      .mobile-timeline-marker::before { content:""; width:8px; height:8px; margin-top:4px; border-radius:50%; border:2px solid var(--gris-borde); background:var(--cx-surface, #fdf7ea); z-index:1; }
+      .mobile-timeline-item.is-current .mobile-timeline-marker::before { border-color:var(--verde); background:var(--verde); box-shadow:0 0 0 5px rgba(6,78,59,0.10); }
       .mobile-timeline-item.is-complete { opacity:0.54; }
       .mobile-timeline-name { font-size:13px; font-weight:700; color:var(--gris-texto); }
       .mobile-timeline-meta { margin-top:2px; font-size:11px; color:var(--gris-medio); }
@@ -730,7 +738,7 @@
       .mobile-alert-item + .mobile-alert-item,
       .mobile-other-event + .mobile-other-event { border-top:1px solid rgba(208,219,210,0.7); }
       .mobile-alert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--amarillo); box-shadow:0 0 0 5px rgba(212,133,10,0.10); }
-      .mobile-alert-item.is-ok .mobile-alert-dot { background:var(--verde-claro); box-shadow:0 0 0 5px rgba(57,181,74,0.10); }
+      .mobile-alert-item.is-ok .mobile-alert-dot { background:var(--verde-claro); box-shadow:0 0 0 5px rgba(15,116,92,0.14); }
       .mobile-alert-copy { min-width:0; font-size:12px; color:var(--gris-texto); }
       .mobile-other-date { width:42px; flex-shrink:0; text-align:center; color:var(--verde-oscuro); }
       .mobile-other-day { display:block; font-size:18px; font-weight:800; line-height:1; }
@@ -767,7 +775,7 @@
     /* Al hacer scroll el vidrio ES el efecto: solo se suma una sombra para
        despegarlo del contenido que pasa por debajo. */
     .topbar.is-scrolled {
-      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      box-shadow: 0 6px 24px rgba(3,46,35,0.18);
     }
     .topbar h1 { color: var(--blanco) !important; }
 
@@ -855,7 +863,7 @@
         border: 1px solid rgba(255,255,255,0.22);
         border-top: none;
         border-radius: 0 0 var(--radio) var(--radio);
-        box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+        box-shadow: 0 12px 32px rgba(3,46,35,0.28);
         overflow: hidden; /* contiene el barrido de luz */
         padding: 8px;
         opacity: 0;
@@ -980,7 +988,7 @@
         mix-blend-mode: lighten;
       }
       .td-frost {
-        background: rgba(3, 63, 27, 0.93);
+        background: rgba(3,46,35, 0.93);
         backdrop-filter: blur(36px) saturate(1.7);
         -webkit-backdrop-filter: blur(36px) saturate(1.7);
       }
@@ -1045,7 +1053,11 @@
     </filter>
   </svg>
 
-  <div class="topbar">
+  <!-- Navbar v2 (js/core/navbar.js) reemplaza al topbar: este espaciador evita el salto mientras carga el modulo. -->
+  <div class="cx-spacer" id="cx-spacer-previo" aria-hidden="true"></div>
+
+  <!-- Topbar anterior: oculto. Se conserva el DOM porque el script de abajo aun lo referencia por id. -->
+  <div class="topbar topbar-legado" hidden>
     <div class="topbar-brand">
       <h1>CONTECS</h1>
       <img class="topbar-logo" src="../logocontecsheader.png" alt="CONTECS" />
@@ -1159,6 +1171,9 @@
       </div>
     </div>
 
+    <!-- Tarjetas de modulos (js/core/tarjetas-modulos.js): mismas secciones y permisos que el navbar. -->
+    <section class="cx-modulos" id="cx-modulos" aria-label="Tus módulos" hidden></section>
+
     <div id="contenido-principal" class="desktop-dashboard-content"></div>
   </div>
 
@@ -1179,6 +1194,9 @@
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
     import { db } from "../js/core/firebase-config.js";
+    import { montarNavbar } from "../js/core/navbar.js?v=20261015.2";
+    import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.2";
+    import { pintarTarjetasModulos } from "../js/core/tarjetas-modulos.js?v=20261015.2";
     import {
       doc, getDoc, onSnapshot, collection, query, where, getDocs
     } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -1190,6 +1208,13 @@
       }
       console.error(`[Dashboard] Error en listener ${contexto}:`, error);
     }
+
+    // Navbar v2: se monta ya (marca + Salir) y recibe las secciones cuando los
+    // permisos estan resueltos, para que la barra no aparezca tarde ni salte.
+    const navbarCx = montarNavbar({
+      marca: { titulo: "CONTECS", logo: "../img/ui/contecs-mark-champagne.png", href: "dashboard.html" },
+      alCerrarSesion: cerrarSesion,
+    });
 
     guardRoute();
     await esperarSesionLista();
@@ -1854,77 +1879,9 @@
       }
 
       // ══════════ ZONA D — Módulos agrupados por categoría ══════════
-      const UI_VERSION = "20260906.1";
+      const UI_VERSION = "20261015.2";
       const versionarRutaUI = ruta => `${ruta}${ruta.includes("?") ? "&" : "?"}v=${UI_VERSION}`;
-      const CATEGORIAS = [
-        {
-          id: "congreso", label: "Congreso",
-          modulos: [
-            { label: "Participantes",       href: "modulos/congreso/modulos_participantes.html",    permiso: "ver_participantes" },
-            { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
-            { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
-            { label: "Credenciales",        href: "modulos/congreso/credenciales.html",             permiso: "gestionar_credenciales", admin: true },
-          ],
-        },
-        {
-          // Lo ven todos los roles internos; quién configura salones o libera
-          // asientos lo decide la página con los permisos de siempre. Lectura
-          // QR va aquí para encontrarla rápido el día del evento (Gestión de
-          // Evento también la abre con "Leer QR").
-          id: "mapa", label: "Mapa del evento",
-          modulos: [
-            { label: "Mapa interactivo 3D", href: "modulos/congreso/mapa.html", permiso: "ver_mapa" },
-            { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html", permiso: "lectura_qr" },
-          ],
-        },
-        {
-          // Patrocinador: fuera de Gestión de Eventos, solo POSPER y CEO.
-          id: "posper", label: "POSPER",
-          modulos: [
-            { label: "Lector POSPER",  href: "modulos/congreso/posper.html",        permiso: "acceso_posper" },
-            { label: "Randomizer",     href: "modulos/congreso/randomizer.html",    permiso: "acceso_posper" },
-            { label: "Sorteo en vivo", href: "modulos/congreso/randomizerint.html", permiso: "acceso_posper" },
-          ],
-        },
-        {
-          id: "finanzas", label: "Finanzas",
-          modulos: [
-            { label: "Fondos",     href: "modulos/finanzas/fondos.html",    permiso: "ver_fondos", admin: true },
-            { label: "Ventas",
-              href: "modulos/finanzas/ventaRapida.html",
-              permiso: "acceso_venta_rapida" },
-            { label: "Compras",    href: "modulos/finanzas/compras2.html",  permiso: "registrar_compras", admin: true },
-            { label: "Reportes",   href: "modulos/finanzas/reportes.html",  permiso: "ver_reportes" },
-            { label: "Bitácora",   href: "modulos/finanzas/bitacora.html",  permiso: "ver_bitacora" },
-          ],
-        },
-        {
-          id: "logistica", label: "Logística",
-          modulos: [
-            { label: "Inventario", href: "modulos/logistica/inventario.html", permiso: "ver_inventario" },
-            { label: "Catálogo",   href: "modulos/logistica/catalogo.html",   permiso: "editar_catalogo", admin: true },
-          ],
-        },
-        {
-          id: "voluntariado", label: "Voluntariado",
-          modulos: [
-            { label: "Voluntarios",  href: "modulos/voluntariado/voluntarios.html",  permiso: "gestionar_voluntarios", admin: true },
-            { label: "QR de voluntarios", href: "modulos/voluntariado/lecturaQRVoluntarios.html", permiso: "voluntarios_lectura_qr", salvoSi: "gestionar_voluntarios" },
-            { label: "Actividades",  href: "modulos/voluntariado/actividades.html",  permiso: "gestionar_actividades", admin: true },
-            { label: "Giras",        href: "modulos/voluntariado/giras.html",        permiso: "gestionar_giras", admin: true },
-            { label: "QR de giras",  href: "modulos/voluntariado/lecturaQRGiras.html", permiso: "giras_lectura_qr", salvoSi: "gestionar_giras" },
-            { label: "Calendario",   href: "modulos/voluntariado/calendario.html",   permiso: "ver_calendario", admin: true },
-          ],
-        },
-        {
-          id: "admin", label: "Administración",
-          modulos: [
-            { label: "Usuarios",    href: "modulos/admin/usuarios.html",    permiso: "gestionar_usuarios", admin: true },
-            { label: "Exportar",    href: "modulos/admin/exportar.html",    permiso: "exportar_datos", admin: true },
-            { label: "Secretaria",  href: "modulos/admin/secretaria.html",  permiso: "gestionar_secretaria", admin: true },
-          ],
-        },
-      ];
+      // CATEGORIAS vive en js/core/navegacion.js (la comparten el dashboard y el navbar de cada pagina).
 
       // Solo categorías con al menos un módulo visible para este rol.
       // "salvoSi": el acceso directo sobra si ya se ve el módulo completo.
@@ -1932,6 +1889,14 @@
       const categoriasVisibles = CATEGORIAS
         .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
         .filter(cat => cat.modulos.length > 0);
+
+      const categoriasNav = categoriasVisibles.map(cat => ({
+        id: cat.id,
+        label: cat.label,
+        modulos: cat.modulos.map(m => ({ label: m.label, href: versionarRutaUI(m.href), admin: !!m.admin })),
+      }));
+      navbarCx.establecerCategorias(categoriasNav);
+      pintarTarjetasModulos(document.getElementById("cx-modulos"), categoriasNav);
 
       // ══════════ Mobile — bottom sheet: lista de texto limpia,
       // con una flecha que indica que se navega a otra pantalla ══════════

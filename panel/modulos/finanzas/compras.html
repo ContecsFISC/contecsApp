@@ -5,11 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.json"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Compras</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <style>
  .panel-resumen {
  display: grid;
@@ -18,7 +23,7 @@
  margin-bottom: 16px;
  }
  .resumen-box {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 14px;
  padding: 16px;
  box-shadow: var(--sombra-sm);
@@ -32,7 +37,7 @@
  gap: 10px;
  }
  .venta-card, .ajuste-card {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 14px;
  box-shadow: var(--sombra-sm);
  padding: 14px;
@@ -46,7 +51,7 @@
  .venta-nombre, .ajuste-nombre, .carrito-nombre { font-weight: 700; color: var(--gris-texto); }
  .venta-meta, .ajuste-meta, .carrito-meta { font-size: 12px; color: var(--gris-medio); }
  .carrito-item {
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border-radius: 14px;
  box-shadow: var(--sombra-sm);
  padding: 14px;
@@ -68,7 +73,7 @@
  margin-top: 12px;
  border-radius: 12px;
  overflow: hidden;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  border: 1px solid var(--gris-borde);
  }
  .factura-preview img {
@@ -92,7 +97,7 @@
  .chip-btn {
  border: 1px solid var(--gris-borde);
  border-radius: 999px;
- background: #fff;
+ background: var(--cx-surface, #fdf7ea);
  padding: 7px 12px;
  font-size: 13px;
  cursor: pointer;
@@ -100,20 +105,6 @@
  .chip-danger { border-color: rgba(192,57,43,0.25); color: var(--rojo); }
  .seccion-cat { margin-bottom: 18px; }
  .seccion-cat-titulo { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 10px; }
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  .campo-error {
  display: none;
  color: var(--rojo);
@@ -201,5 +192,6 @@
  </div>
  </div>
  <script type="module" src="../../../js/modulos/compras.js"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

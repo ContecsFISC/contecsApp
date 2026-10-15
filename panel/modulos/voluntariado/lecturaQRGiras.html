@@ -5,11 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.json"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Escaneo Giras</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
- <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.2"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.2"/>
  <script src="../../../js/libs/html5-qrcode.min.js"></script>
  <script type="module">
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
@@ -17,11 +22,11 @@
  await requirePermiso("giras_lectura_qr");
  </script>
  <style>
- .btn-primary { background: linear-gradient(135deg, #856404, #ffc107); box-shadow: 0 4px 12px rgba(133,100,4,0.3); color: #fff; }
+ .btn-primary { background: linear-gradient(135deg, #6b3b0a 0%, #8a4f12 55%, #a4682e 100%); box-shadow: 0 4px 12px rgba(138,79,18,0.3); color: #fff; }
  .btn-primary:hover { opacity: 0.88; }
- .btn-outline { color: #856404; border-color: #856404; }
- .btn-outline:hover { background: #fff3cd; color: #856404; }
- .card-title { color: #856404; }
+ .btn-outline { color: #8a4f12; border-color: #8a4f12; }
+ .btn-outline:hover { background: #ffe3c2; color: #8a4f12; }
+ .card-title { color: #8a4f12; }
  .container { max-width: 560px; }
 
  #reader { width: 100%; border-radius: var(--radio); overflow: hidden; }
@@ -31,24 +36,24 @@
  content: ''; position: absolute; top: 50%; left: 50%;
  transform: translate(-50%,-50%);
  width: 200px; height: 200px;
- border: 3px solid #ffc107; border-radius: 12px;
+ border: 3px solid #f7b878; border-radius: 12px;
  pointer-events: none;
- box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+ box-shadow: 0 0 0 9999px rgba(3,46,35,0.4);
  }
 
- .info-box { background: #fff; border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid #ffc107; }
- .info-nombre { font-size: 22px; font-weight: 700; color: #856404; margin-bottom: 6px; }
+ .info-box { background: var(--cx-surface, #fdf7ea); border-radius: var(--radio); padding: 20px; box-shadow: var(--sombra-sm); border-left: 4px solid #f7b878; }
+ .info-nombre { font-size: 22px; font-weight: 700; color: #8a4f12; margin-bottom: 6px; }
  .info-fila { display: flex; gap: 8px; font-size: 13px; color: var(--gris-medio); margin-bottom: 4px; }
  .info-fila strong { color: var(--gris-texto); }
 
  .estado-badge { display: inline-block; padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
- .estado-entrada { background: #fff3cd; color: #856404; }
+ .estado-entrada { background: #ffe3c2; color: #8a4f12; }
  .estado-salida { background: var(--verde-fondo); color: var(--verde-oscuro); }
 
  /* Advertencia amarilla de pago pendiente — puramente informativa, sin botón */
  .aviso-pago-pendiente {
- background: #fff3cd; border: 1.5px solid #ffc107; border-radius: var(--radio-sm);
- padding: 10px 14px; font-size: 12.5px; color: #856404; margin-top: 10px;
+ background: #ffe3c2; border: 1.5px solid #f7b878; border-radius: var(--radio-sm);
+ padding: 10px 14px; font-size: 12.5px; color: #8a4f12; margin-top: 10px;
  display: flex; align-items: center; gap: 8px;
  }
 
@@ -56,20 +61,20 @@
  .tipo-selector { display: flex; gap: 8px; margin-top: 6px; }
  .tipo-btn {
  flex: 1; padding: 10px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde);
- background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gris-medio);
- text-align: center; transition: all 0.15s;
+ background: var(--cx-surface, #fdf7ea); font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gris-medio);
+ text-align: center; transition: background-color 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, opacity 0.15s, transform 0.15s;
  }
- .tipo-btn.selected.entrada { border-color: #ffc107; background: #fff3cd; color: #856404; }
+ .tipo-btn.selected.entrada { border-color: #f7b878; background: #ffe3c2; color: #8a4f12; }
  .tipo-btn.selected.salida  { border-color: var(--verde-claro); background: var(--verde-fondo); color: var(--verde-oscuro); }
 
  #log-recientes td { font-size: 12px; }
- .log-entrada { color: #856404; font-weight: 600; }
+ .log-entrada { color: #8a4f12; font-weight: 600; }
  .log-salida  { color: var(--verde-oscuro); font-weight: 600; }
 
  @media(max-width:600px) {
    .scanner-overlay { border-radius:14px; overflow:hidden; background:#101914; }
    .scanner-overlay.activo::after { width:min(68vw,220px); height:min(68vw,220px); }
-   .info-box { padding:17px 15px; border-left:0; border-top:3px solid #ffc107; border-radius:16px; }
+   .info-box { padding:17px 15px; border-left:0; border-top:3px solid #f7b878; border-radius:16px; }
    .info-nombre { font-size:19px; line-height:1.25; }
    #log-recientes td { white-space:nowrap; }
  }
@@ -89,24 +94,24 @@
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
  <!-- CONFIGURACIÓN SESIÓN -->
- <div class="card" style="border:2px solid #ffc107;">
+ <div class="card" style="border:2px solid #f7b878;">
  <div class="card-title">Configuración de sesión</div>
  <div class="form-groupE">
- <label style="color:#856404;">Gira</label>
+ <label style="color:#8a4f12;">Gira</label>
  <select id="sel-gira-qr"><option value="">— Selecciona una gira —</option></select>
  </div>
  <div class="form-groupE">
- <label style="color:#856404;">Tipo de checkpoint</label>
+ <label style="color:#8a4f12;">Tipo de checkpoint</label>
  <div class="tipo-selector">
  <button type="button" class="tipo-btn entrada" id="btn-tipo-entrada" onclick="seleccionarTipo('entrada')">Entrada</button>
  <button type="button" class="tipo-btn salida" id="btn-tipo-salida" onclick="seleccionarTipo('salida')">Salida</button>
  </div>
  </div>
- <div id="sesion-activa" style="font-size:13px;color:#856404;font-weight:600;margin-top:4px;"></div>
+ <div id="sesion-activa" style="font-size:13px;color:#8a4f12;font-weight:600;margin-top:4px;"></div>
  </div>
 
  <!-- CÁMARA -->
- <div class="card" style="border-left:2px solid #ffc107;">
+ <div class="card" style="border-left:2px solid #f7b878;">
  <div class="card-title">Escanear QR del participante</div>
  <div class="scanner-overlay">
  <div id="reader"></div>
@@ -121,7 +126,7 @@
  <p style="font-size:12px;color:var(--gris-medio);margin-top:8px;text-align:center;">
    Apunta la cámara trasera a la credencial QR del participante
  </p>
- <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:8px;font-size:12px;color:#856404;">
+ <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#ffe3c2;border-radius:8px;font-size:12px;color:#8a4f12;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
  </div>
  </div>
@@ -165,14 +170,14 @@
  </div>
 
  <!-- LOG SESIÓN -->
- <div class="card" style="margin-top:20px;border:2px solid #ffc107;">
+ <div class="card" style="margin-top:20px;border:2px solid #f7b878;">
  <div class="card-title">Últimos registros de esta sesión</div>
  <div class="tabla-wrap">
  <table>
  <thead><tr>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Participante</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Tipo</th>
- <th style="color:#856404;border-bottom:2px solid #ffc107">Hora</th>
+ <th style="color:#8a4f12;border-bottom:2px solid #f7b878">Participante</th>
+ <th style="color:#8a4f12;border-bottom:2px solid #f7b878">Tipo</th>
+ <th style="color:#8a4f12;border-bottom:2px solid #f7b878">Hora</th>
  </tr></thead>
  <tbody id="log-recientes"><tr><td colspan="3" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr></tbody>
  </table>
@@ -181,5 +186,6 @@
 </div>
 
 <script type="module" src="../../../js/modulos/lecturaQRGiras.js"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.2"></script>
 </body>
 </html>

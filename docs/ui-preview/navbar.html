@@ -1,0 +1,121 @@
+<!doctype html>
+<!-- Banco de pruebas del navbar v2. Vive en docs/ (excluida del hosting de
+     Firebase): no se publica. Servir desde la RAIZ del repo:
+       python -m http.server 5173   ->   /docs/ui-preview/navbar.html -->
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Navbar v2 — banco de pruebas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" />
+  <link rel="stylesheet" href="../../css/tokens.css" />
+  <link rel="stylesheet" href="../../css/navbar.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cx-canvas); color: var(--cx-text); font-family: var(--cx-font); }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 24px 120px; }
+    h1 { font-family: var(--cx-font-display); font-size: 34px; letter-spacing: -0.02em; color: var(--cx-ink); margin: 8px 0 4px; }
+    p.lead { color: var(--cx-text-2); margin: 0 0 28px; max-width: 60ch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .card { background: var(--cx-surface); border-radius: var(--cx-radius); padding: 20px; box-shadow: var(--cx-shadow-1), var(--cx-ring); min-height: 150px; }
+    .card b { font-family: var(--cx-font-display); color: var(--cx-ink); }
+    .card.champ { background: var(--cx-champagne); }
+    .card.apri  { background: var(--cx-apricot); }
+    .card.ink   { background: var(--cx-ink); color: var(--cx-champagne); }
+    .card.ink b { color: var(--cx-champagne); }
+    /* Contenido que llega al borde derecho: debe quedar libre del carril. */
+    .borde { margin-top: 16px; padding: 12px 16px; border-radius: var(--cx-radius-sm); background: var(--cx-ink-100); color: var(--cx-ink); font-weight: 600; text-align: right; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Banco de pruebas — Navbar v2</h1>
+    <p class="lead">Haz scroll: la barra blanca se va y el carril aparece a la derecha sin tapar el contenido. Pasa el cursor por las secciones para ver los desplegables.</p>
+    <div class="grid">
+      <div class="card"><b>Superficie</b><br />Blanco con sombra en capas.</div>
+      <div class="card champ"><b>Champagne</b><br />#F8E7C9</div>
+      <div class="card apri"><b>Soft Apricot</b><br />#FFD6A5</div>
+      <div class="card ink"><b>Emerald Ink</b><br />#064E3B</div>
+    </div>
+    <div class="borde" id="borde">Este texto llega al borde derecho del contenido →</div>
+    <div id="relleno"></div>
+  </main>
+
+  <script type="module">
+    import { montarNavbar } from "../../js/core/navbar.js";
+
+    // Relleno para poder hacer scroll.
+    const relleno = document.getElementById("relleno");
+    for (let i = 1; i <= 24; i++) {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.style.marginTop = "16px";
+      d.innerHTML = `<b>Bloque ${i}</b><br />Contenido de prueba para el scroll.`;
+      relleno.appendChild(d);
+    }
+
+    // Mismas categorias que CATEGORIAS de panel/dashboard.html (ya filtradas).
+    const categorias = [
+      { id: "congreso", label: "Congreso", modulos: [
+        { label: "Participantes", href: "#participantes" },
+        { label: "Gestión de Evento", href: "#gestion", admin: true },
+        { label: "Estadísticas", href: "#estadisticas" },
+        { label: "Credenciales", href: "#credenciales", admin: true } ] },
+      { id: "mapa", label: "Mapa del evento", modulos: [
+        { label: "Mapa interactivo 3D", href: "#mapa" },
+        { label: "Lectura QR", href: "#qr" } ] },
+      { id: "posper", label: "POSPER", modulos: [
+        { label: "Lector POSPER", href: "#posper" },
+        { label: "Randomizer", href: "#randomizer" },
+        { label: "Sorteo en vivo", href: "#sorteo" } ] },
+      { id: "finanzas", label: "Finanzas", modulos: [
+        { label: "Fondos", href: "#fondos", admin: true },
+        { label: "Ventas", href: "#ventas" },
+        { label: "Compras", href: "#compras", admin: true },
+        { label: "Reportes", href: "#reportes" },
+        { label: "Bitácora", href: "#bitacora" } ] },
+      { id: "logistica", label: "Logística", modulos: [
+        { label: "Inventario", href: "#inventario" },
+        { label: "Catálogo", href: "#catalogo", admin: true } ] },
+      { id: "voluntariado", label: "Voluntariado", modulos: [
+        { label: "Voluntarios", href: "#voluntarios", admin: true },
+        { label: "QR de voluntarios", href: "#qrv" },
+        { label: "Actividades", href: "#actividades", admin: true },
+        { label: "Giras", href: "#giras", admin: true },
+        { label: "QR de giras", href: "#qrg" },
+        { label: "Calendario", href: "#calendario", admin: true } ] },
+      { id: "admin", label: "Administración", modulos: [
+        { label: "Usuarios", href: "#usuarios", admin: true },
+        { label: "Exportar", href: "#exportar", admin: true },
+        { label: "Secretaria", href: "#secretaria", admin: true } ] },
+    ];
+
+    window.__nav = montarNavbar({
+      marca: { titulo: "CONTECS", logo: "../../img/ui/contecs-mark.png", href: "#" },
+      categorias,
+      alCerrarSesion: () => console.log("[preview] cerrar sesion"),
+    });
+
+    // Ayudas para capturas automaticas:  ?scroll=700   ?open=finanzas
+    const q = new URLSearchParams(location.search);
+    if (q.has("scroll")) scrollTo(0, Number(q.get("scroll")));
+    // Solo para capturas: fuerza el estado acoplado sin depender del scroll
+    // (tras el primer aviso del IntersectionObserver, que lo devolveria a "top").
+    if (q.get("estado") === "docked") setTimeout(() => {
+      const n = window.__nav.el;
+      n.dataset.state = "docked"; n.dataset.scrolled = "true";
+      n.querySelector(".cx-bar").inert = true; n.querySelector(".cx-rail").inert = false;
+    }, 300);
+    if (q.has("open")) {
+      // Espera a que termine el cambio barra/carril y abre ese menu en la capa visible.
+      setTimeout(() => {
+        if (q.get("open") === "sheet") return document.querySelector(".cx-burger").click();
+        const capa = window.__nav.el.dataset.state === "docked" ? ".cx-rail" : ".cx-bar";
+        document.querySelector(`${capa} .cx-item[data-id="${q.get("open")}"] .cx-item__btn`)?.click();
+      }, 900);
+    }
+  </script>
+</body>
+</html>
