@@ -83,12 +83,12 @@ function renderUsuarios() {
   const mostrando = filtrados.length !== todosUsuarios.length
     ? ` · mostrando <strong>${filtrados.length}</strong>` : "";
   contador.innerHTML =
-    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#a8631a" : "#118066"}">${sinRol}</strong> sin rol asignado${mostrando}`;
+    `<strong>${todosUsuarios.length}</strong> miembros registrados · <strong style="color:${sinRol > 0 ? "#9f5e18" : "#118066"}">${sinRol}</strong> sin rol asignado${mostrando}`;
 
   lista.innerHTML = "";
 
   if (filtrados.length === 0) {
-    lista.innerHTML = `<p style="text-align:center;color:#66786f;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
+    lista.innerHTML = `<p style="text-align:center;color:#5e6f67;padding:24px 0;font-size:14px;">No hay usuarios en esta categoría.</p>`;
     return;
   }
 
