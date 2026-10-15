@@ -1022,7 +1022,7 @@
 
   </style>
   <!-- Inicio (saludo, carrusel de secciones, vista de seccion y agenda): va despues del <style> para mandar sobre el. -->
-  <link rel="stylesheet" href="../css/inicio.css?v=20261015.5"/>
+  <link rel="stylesheet" href="../css/inicio.css?v=20261015.6"/>
   <!-- Antes de pintar: los bloques de la agenda esperan a js/core/revelar.js para entrar en cascada. -->
   <script>document.documentElement.classList.add("cx-revela");</script>
 </head>
@@ -1090,6 +1090,10 @@
       <div class="cx-agenda__cabeza">
         <h2 class="cx-agenda__titulo" id="cx-agenda-titulo">Tu agenda</h2>
         <span class="cx-agenda__nota" id="cx-agenda-nota"></span>
+        <!-- Solo en pantallas angostas, donde la agenda es un cajon. -->
+        <button type="button" class="cx-agenda__cerrar" id="cx-agenda-cerrar" aria-label="Cerrar la agenda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
     <div class="mobile-dashboard" id="mobile-dashboard" role="region" aria-label="Resumen operativo de CONTECS">
       <section class="mobile-event-hero mobile-dashboard-skeleton" id="mobile-event-hero">
@@ -1158,6 +1162,14 @@
    </div>
   </div>
 
+  <!-- Pantallas angostas: la agenda es un cajon que sale de la derecha (como el proyecto de referencia). -->
+  <div class="cx-agenda-velo" id="cx-agenda-velo" aria-hidden="true"></div>
+  <button type="button" class="cx-agenda-pill" id="cx-agenda-pill" aria-controls="cx-agenda" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    Tu agenda
+    <b id="cx-agenda-pill-cuenta" hidden></b>
+  </button>
+
   <!-- Bottom sheet — módulos por categoría, filtrados por rol (mobile) -->
   <div class="sheet-backdrop" id="sheet-backdrop"></div>
   <div class="bottom-sheet" id="bottom-sheet" role="dialog" aria-modal="true" aria-label="Módulos disponibles">
@@ -1173,6 +1185,30 @@
     // Entrada en cascada de los bloques del inicio movil (no depende de la sesion).
     import { revelarAlEntrar } from "../js/core/revelar.js?v=20261015.4";
     revelarAlEntrar(document.querySelectorAll(".mobile-dashboard > .mobile-section"), { paso: 90 });
+
+    // "Tu agenda" como cajon en pantallas angostas: la abre la pildora y la
+    // cierran la X, el velo, Esc o crecer la ventana. Mientras esta abierta, la
+    // pagina de atras no se desplaza.
+    const agenda = document.getElementById("cx-agenda");
+    const pildora = document.getElementById("cx-agenda-pill");
+    const velo = document.getElementById("cx-agenda-velo");
+    const cerrarAgenda = document.getElementById("cx-agenda-cerrar");
+    const cajon = matchMedia("(max-width: 1199.98px)");
+    const abrirAgenda = si => {
+      si = si && cajon.matches;
+      if (agenda.hasAttribute("data-abierta") === si) return;
+      agenda.toggleAttribute("data-abierta", si);
+      velo.toggleAttribute("data-abierta", si);
+      pildora.setAttribute("aria-expanded", String(si));
+      document.documentElement.classList.toggle("cx-agenda-abierta", si);
+      if (si) { agenda.scrollTop = 0; cerrarAgenda.focus({ preventScroll: true }); }
+      else if (agenda.contains(document.activeElement)) pildora.focus({ preventScroll: true });
+    };
+    pildora.addEventListener("click", () => abrirAgenda(true));
+    cerrarAgenda.addEventListener("click", () => abrirAgenda(false));
+    velo.addEventListener("click", () => abrirAgenda(false));
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && agenda.hasAttribute("data-abierta")) abrirAgenda(false); });
+    cajon.addEventListener("change", () => { if (!cajon.matches) abrirAgenda(false); });
   </script>
 
   <script type="module">
@@ -1473,6 +1509,10 @@
       cuposCriticos.slice(0, 2).forEach(cp => alertas.push(`${cp.nombre}: quedan ${cp.cuposDisponibles ?? cp.cupos} cupos`));
       if (evento && !checkpoints.length) alertas.push(`${evento.nombre || "El evento"} todavía no tiene checkpoints configurados`);
 
+      // Cuantas cosas requieren atencion: insignia de la pildora "Tu agenda".
+      const insignia = document.getElementById("cx-agenda-pill-cuenta");
+      if (insignia) { insignia.textContent = String(alertas.length); insignia.hidden = alertas.length === 0; }
+
       const wrap = document.getElementById("mobile-alerts");
       if (!alertas.length) {
         wrap.innerHTML = `<div class="mobile-alert-item is-ok"><span class="mobile-alert-dot"></span><div class="mobile-alert-copy">Todo está bajo control. No hay alertas operativas.</div></div>`;
@@ -1642,14 +1682,13 @@
           manejarErrorSnapshot(error, "dashboard móvil");
         });
       };
-      // "Tu agenda" se ve en todos los anchos: lateral derecho en escritorio y
-      // debajo del carrusel en movil.
-      const mediaDashboardMovil = window.matchMedia("(max-width: 1023px)");
+      // "Tu agenda" en todos los anchos: lateral derecho en escritorio ancho y
+      // cajon (pildora "Tu agenda") en pantallas angostas.
       iniciarDashboardMovil();
 
-      // El dashboard clásico se conserva intacto para laptop. En teléfono se
-      // evita cargar sus consultas duplicadas porque ya existe el resumen móvil.
-      if (!mediaDashboardMovil.matches && !esPosper) {
+      // Resumen (widgets) y actividades de la agenda: igual en movil y en
+      // escritorio. Participantes se lee una sola vez (leerColeccion).
+      if (!esPosper) {
         // ══════════ ZONA B — Widgets de resumen según rol ══════════
         const widgetsDef = [
         {
