@@ -23,107 +23,6 @@
   { "prefetch": [{ "where": { "href_matches": "/*modulos/*" }, "eagerness": "moderate" }] }
   </script>
   <style>
-    /* Navegacion anterior (topbar + bottom sheet): reemplazada por el navbar v2. */
-    .topbar-legado, #bottom-sheet, #sheet-backdrop { display: none !important; }
-
-    /* ══════════ ZONA A — HEADER ══════════ */
-    /* ── HERO invertido ──
-       Antes: bloque verde oscuro donde lo mas grande era tu propio nombre y
-       el dato vivo (la cuenta regresiva al congreso) quedaba enterrado abajo
-       en 16px. Ahora el hero es claro — el verde queda para el topbar y los
-       acentos — y el protagonista es el contador. El DOM no cambia: la
-       inversion es enteramente de grid + tipografia. */
-    .header-a {
-      background: var(--blanco);
-      color: var(--gris-texto);
-      border-radius: var(--radio-lg);
-      padding: 26px 28px;
-      margin-bottom: 20px;
-      box-shadow: var(--sombra-md);
-      position: relative;
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      column-gap: 24px;
-      animation: fadeScaleIn 0.5s var(--ease-spring) both;
-      animation-delay: 0.05s;
-    }
-    .header-a .saludo { grid-column: 1; font-size: 13px; color: var(--gris-medio); }
-    .header-a .nombre {
-      grid-column: 1;
-      font-family: var(--fuente-display);
-      font-size: 21px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin: 2px 0 10px;
-    }
-    /* "Tu espacio CONTECS" no aporta informacion: fuera. */
-    .header-a .subtitulo-espacio { display: none; }
-    .pills { grid-column: 1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .rol-pill {
-      display: inline-block;
-      background: var(--verde-fondo);
-      border: 1px solid transparent;
-      color: var(--verde);
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    /* Badge tipo medalla/certificado — cuerpo blanco (dorado para CEO),
-       check en verde institucional (blanco para CEO). Construido con
-       círculos superpuestos (pétalos) para el borde festoneado + dos
-       cintas colgando abajo, como una medalla de certificación real. */
-    .badge-verificado {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 25px;
-      flex-shrink: 0;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28));
-    }
-    .badge-verificado svg { width: 100%; height: 100%; display: block; }
-    /* Sobre hero claro el cuerpo blanco desaparecia: se invierte. */
-    .badge-verificado .bv-body { fill: var(--verde); }
-    .badge-verificado .bv-check { stroke: #ffffff; }
-
-    /* Variante dorada — exclusiva para el rol CEO */
-    .badge-verificado--ceo { filter: drop-shadow(0 2px 6px rgba(184,134,47,0.55)); }
-    .badge-verificado--ceo .bv-body { fill: #d4af37; }
-    .badge-verificado--ceo .bv-check { stroke: #ffffff; }
-    /* La cuenta regresiva ES el dashboard: columna derecha, tipografia
-       grande y fina, numeros tabulares para que el tic de los segundos no
-       haga bailar el ancho. */
-    .cuenta-regresiva {
-      grid-column: 2;
-      grid-row: 1 / span 3;
-      align-self: center;
-      justify-self: end;
-      text-align: right;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-    }
-    .cuenta-regresiva .cr-label {
-      font-size: 11.5px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--gris-medio);
-    }
-    .cuenta-regresiva .cr-valor {
-      font-family: var(--fuente-display);
-      font-size: 30px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.05;
-      color: var(--verde);
-      font-variant-numeric: tabular-nums;
-    }
-
     /* ══════════ ZONA B — WIDGETS ══════════ */
     .widgets-grid {
       display: grid;
@@ -152,8 +51,8 @@
        tenue. La posicion viaja en --mx/--my, actualizada por JS via rAF.
        Sobre tarjetas blancas la luz blanca es invisible: aqui la luz es
        verde CONTECS — fisica e identidad a la vez. */
-    .widget-card, .header-a { position: relative; }
-    .widget-card::before, .header-a::before {
+    .widget-card { position: relative; }
+    .widget-card::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -173,7 +72,7 @@
       transition: opacity 0.35s var(--ease-out);
       pointer-events: none;
     }
-    .widget-card::after, .header-a::after {
+    .widget-card::after {
       content: "";
       position: absolute;
       inset: 0;
@@ -187,8 +86,7 @@
       transition: opacity 0.35s var(--ease-out);
       pointer-events: none;
     }
-    .widget-card:hover::before, .widget-card:hover::after,
-    .header-a:hover::before, .header-a:hover::after { opacity: 1; }
+    .widget-card:hover::before, .widget-card:hover::after { opacity: 1; }
     .widget-card {
       transition: transform 0.25s var(--ease-out);
     }
@@ -297,54 +195,6 @@
       padding: 6px 2px 2px;
     }
 
-    /* ══════════ ZONA D — MÓDULOS POR CATEGORÍA (lista limpia, sin emojis) ══════════ */
-    .categoria-bloque { margin-bottom: 20px; }
-    .categoria-titulo {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--gris-medio);
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      margin: 0 0 8px 4px;
-    }
-    .grid-modulos {
-      display: flex;
-      flex-direction: column;
-      background: var(--cx-surface, #fdf7ea);
-      border-radius: var(--radio);
-      box-shadow: var(--sombra-sm);
-      overflow: hidden;
-    }
-    .modulo-btn {
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--gris-borde);
-      padding: 14px 16px;
-      text-align: left;
-      cursor: pointer;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      opacity: 0;
-      animation: cardCascade 0.35s var(--ease-out) both;
-      transition: background 0.15s;
-    }
-    .grid-modulos .modulo-btn:last-child { border-bottom: none; }
-    .modulo-btn:hover { background: var(--verde-apagado-bg); }
-    .modulo-btn:active { background: var(--gris-suave); }
-    .modulo-btn .label { font-size: 15px; font-weight: 500; color: var(--gris-texto); }
-    .modulo-btn .chevron { color: var(--gris-medio); font-size: 18px; font-weight: 300; }
-    .modulo-btn.mod-admin .label::after {
-      content: "";
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--verde);
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-
     /* ══════════ SIN ROL ══════════ */
     .sin-rol-card {
       background: var(--cx-surface, #fdf7ea);
@@ -448,95 +298,6 @@
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
     }
-    /* ══════════ Botón menú (abre bottom sheet de módulos) ══════════ */
-    .btn-menu {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 4px;
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 50%;
-      transition: background 0.2s;
-    }
-    .btn-menu:hover { background: rgba(0,0,0,0.05); }
-    .btn-menu span {
-      display: block;
-      width: 18px;
-      height: 2px;
-      border-radius: 2px;
-      background: var(--gris-texto);
-      transition: transform 0.25s var(--ease-out), opacity 0.2s;
-    }
-    .btn-menu[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-    .btn-menu[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-    .btn-menu[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-    /* ══════════ Bottom sheet estilo iOS ══════════ */
-    .sheet-backdrop {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s var(--ease-out);
-      z-index: 200;
-    }
-    .sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
-
-    .bottom-sheet {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      max-height: 78vh;
-      background: var(--blanco);
-      border-radius: 24px 24px 0 0;
-      box-shadow: 0 -8px 40px rgba(3,46,35,0.18);
-      z-index: 201;
-      transform: translateY(100%);
-      transition: transform 0.38s var(--ease-spring);
-      display: flex;
-      flex-direction: column;
-    }
-    .bottom-sheet.is-open { transform: translateY(0); }
-
-    .sheet-handle {
-      width: 38px; height: 4px;
-      background: var(--gris-borde);
-      border-radius: 4px;
-      margin: 10px auto 4px;
-      flex-shrink: 0;
-    }
-    .sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px 14px;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--gris-texto);
-      border-bottom: 1px solid var(--gris-borde);
-      flex-shrink: 0;
-    }
-    .sheet-close {
-      border: none;
-      background: var(--gris-suave);
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      font-size: 13px;
-      color: var(--gris-medio);
-      cursor: pointer;
-    }
-    .sheet-body {
-      overflow-y: auto;
-      padding: 16px 20px 32px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    body.sheet-open { overflow: hidden; }
-
     /* ══════════ TU AGENDA — Centro de situación ══════════
        Antes solo en movil; ahora es el lateral derecho del inicio en
        escritorio (css/inicio.css) y va debajo del carrusel en movil. */
@@ -546,19 +307,6 @@
           radial-gradient(circle at 88% 4%, rgba(255,214,165,0.40), transparent 24rem),
           linear-gradient(180deg, #f4dcb2 0, var(--gris-suave) 24rem);
       }
-
-      body .topbar {
-        position: sticky !important;
-        top: 0;
-        padding: 11px 14px;
-        gap: 10px;
-        /* Sin background aqui: el vidrio de styles.css tambien aplica en
-           movil — este override lo estaba apagando por especificidad. */
-      }
-      .topbar-brand h1 { font-size: 16px; letter-spacing: 1.4px; }
-      body .topbar-logo { height: 24px; }
-      .topbar-right { gap: 7px; }
-      .btn-logout { min-height: 34px; padding: 6px 12px; font-size: 12px; }
 
       #main-container {
         max-width: 560px;
@@ -745,276 +493,13 @@
       .mobile-metric-value { font-size:17px; }
     }
 
-    /* ══════════════════════════════════════════════════════
-       TOPBAR — ahora verde, con el logo y (en escritorio) las
-       opciones de categoría integradas como dropdowns al pasar
-       el mouse. Ya no existe una segunda barra blanca debajo.
-       ══════════════════════════════════════════════════════ */
-    /* Sticky ademas de ancla: un elemento sticky tambien posiciona a sus
-       hijos absolutos, asi que los dropdowns siguen colgando de el. El
-       vidrio (fondo translucido + blur) viene de styles.css; antes esta
-       regla lo apagaba y fijaba position:relative, con lo que el topbar se
-       iba con el scroll y el blur no se veia nunca. */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 200;
-    }
-    /* Al hacer scroll el vidrio ES el efecto: solo se suma una sombra para
-       despegarlo del contenido que pasa por debajo. */
-    .topbar.is-scrolled {
-      box-shadow: 0 6px 24px rgba(3,46,35,0.18);
-    }
-    .topbar h1 { color: var(--blanco) !important; }
-
-    .topbar-brand { display: flex; align-items: center; gap: 10px; }
-    .topbar-logo {
-      height: 26px;
-      width: auto;
-      display: block;
-      object-fit: contain;
-    }
-
-    .topbar-right { display: flex; align-items: center; gap: 10px; }
-
-    .btn-menu span { background: var(--blanco); }
-    .btn-menu:hover { background: rgba(255,255,255,0.12); }
-
-    .btn-logout {
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: var(--blanco);
-    }
-    .btn-logout:hover  { background: rgba(255,255,255,0.24); }
-
-    /* Tabs — ocultas en mobile, viven en el bottom sheet */
-    .topbar-nav { display: none; }
-
     @media (min-width: 1024px) {
-      /* El botón de menú y el bottom sheet son exclusivos de mobile */
-      .btn-menu, .bottom-sheet, .sheet-backdrop { display: none !important; }
-
-      body { background: var(--gris-suave); }
-
-      .topbar {
-        padding: 0 40px;
-        display: flex;
-        align-items: stretch;
-        justify-content: flex-start;
-        gap: 4px;
-      }
-      .topbar-brand { padding: 14px 0; }
-      .topbar-logo { height: 32px; }
-      .topbar-right { padding: 14px 0; margin-left: auto; }
-
-      /* ── Tabs de categoría, integradas en la propia barra verde ── */
-      .topbar-nav {
-        display: flex;
-        align-items: stretch;
-        gap: 2px;
-        margin-left: 12px;
-      }
-      .tab-wrap { position: relative; display: flex; align-items: stretch; }
-      .tab-btn {
-        border: none;
-        background: transparent;
-        padding: 0 16px;
-        font-size: 14px;
-        font-weight: 500;
-        color: rgba(255,255,255,0.92);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        transition: color 0.2s var(--ease-out), background 0.2s var(--ease-out);
-      }
-      .tab-wrap:hover .tab-btn,
-      .tab-wrap:focus-within .tab-btn {
-        color: var(--blanco);
-        background: rgba(255,255,255,0.1);
-      }
-
-      /* ── Dropdown por categoría: se despliega pegado al topbar,
-         mismo tono verde, letras blancas, sin separación visual ── */
-      /* Llega OPACO y desliza — nunca se materializa translucido sobre el
-         contenido. Antes animaba max-height y padding durante 0.45s (layout,
-         repinta cada frame) con el fade desacoplado: a media transicion era
-         un fantasma ilegible sobre el hero. Ahora solo transform/opacity,
-         llegada en 0.18s y salida mas rapida que la entrada. */
-      .tab-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        min-width: 220px;
-        /* El vidrio vive en .td-glass (escarcha + aberracion cromatica);
-           aqui solo queda la forma. */
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.22);
-        border-top: none;
-        border-radius: 0 0 var(--radio) var(--radio);
-        box-shadow: 0 12px 32px rgba(3,46,35,0.28);
-        overflow: hidden; /* contiene el barrido de luz */
-        padding: 8px;
-        opacity: 0;
-        /* visibility ademas de opacity: un panel invisible con
-           backdrop-filter sigue costando GPU; hidden lo saca del
-           compositor. El retraso de 0.13s deja terminar el fade de salida. */
-        visibility: hidden;
-        pointer-events: none;
-        transform: translateY(-8px) scale(0.98);
-        transform-origin: top center;
-        transition:
-          opacity 0.13s var(--ease-in-out),
-          transform 0.13s var(--ease-in-out),
-          visibility 0s linear 0.13s;
-      }
-      .tab-wrap:hover .tab-dropdown,
-      .tab-wrap:focus-within .tab-dropdown {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0) scale(1);
-        pointer-events: auto;
-        transition:
-          opacity 0.18s var(--ease-out),
-          transform 0.22s var(--ease-spring),
-          visibility 0s;
-      }
-
-      /* ── Filo prismatico ──
-         El borde del cristal descompone la luz: un hilo de 1px que recorre
-         el contorno pasando del blanco calido al verde y a un cian frio.
-         Muy tenue — se percibe como calidad, no como arcoiris. */
-      .tab-dropdown::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        padding: 1px;
-        background: linear-gradient(
-          130deg,
-          rgba(255, 245, 220, 0.55) 0%,
-          rgba(120, 235, 160, 0.35) 30%,
-          rgba(120, 210, 255, 0.30) 55%,
-          rgba(255, 255, 255, 0.10) 80%,
-          rgba(200, 160, 255, 0.22) 100%
-        );
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        pointer-events: none;
-      }
-
-      /* ── Barrido prismatico al desplegar ──
-         Una banda de luz diagonal con dispersion cromatica cruza el panel
-         UNA vez al abrirse — el "choque" de la luz entrando al prisma. Se
-         reinicia solo porque el hover re-dispara la animacion. Solo
-         transform/opacity: gratis en GPU. */
-      .tab-dropdown::after {
-        content: "";
-        position: absolute;
-        top: -20%;
-        bottom: -20%;
-        left: 0;
-        width: 55%;
-        background: linear-gradient(
-          105deg,
-          transparent 0%,
-          rgba(160, 255, 200, 0.05) 30%,
-          rgba(255, 255, 255, 0.16) 48%,
-          rgba(255, 250, 230, 0.20) 52%,
-          rgba(140, 220, 255, 0.07) 70%,
-          transparent 100%
-        );
-        transform: translateX(-130%) skewX(-14deg);
-        opacity: 0;
-        pointer-events: none;
-      }
-      .tab-wrap:hover .tab-dropdown::after,
-      .tab-wrap:focus-within .tab-dropdown::after {
-        animation: barridoPrisma 0.7s var(--ease-out) 0.08s 1 both;
-      }
-      @keyframes barridoPrisma {
-        0%   { transform: translateX(-130%) skewX(-14deg); opacity: 0; }
-        18%  { opacity: 1; }
-        100% { transform: translateX(330%) skewX(-14deg); opacity: 0; }
-      }
-      /* ── Optica del cristal ──
-         El punto medio que pedia el equilibrio: escarcha DENSA, pero con el
-         fondo refractado atravesandola. Las dos muestras del fondo van muy
-         subidas de brillo y contraste precisamente porque la tinta de encima
-         es fuerte: lo que sobrevive al filtro es luz descompuesta (franja
-         calida a un lado, fria al otro), nunca texto legible. Con tinta
-         floja el fondo se veia "en plano" y barato; con tinta densa y
-         muestras timidas no se veia nada. Aqui: denso Y refractivo. */
-      .td-ab, .td-frost {
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        pointer-events: none;
-      }
-      /* La lente: desplaza los pixeles del fondo con el campo de curvatura.
-         Va debajo de todo; las muestras cromaticas y la escarcha trabajan
-         sobre el fondo ya doblado. */
-      .td-lente {
-        position: absolute;
-        inset: -24px;
-        border-radius: inherit;
-        pointer-events: none;
-        backdrop-filter: url(#curvatura-espacio);
-        -webkit-backdrop-filter: url(#curvatura-espacio);
-      }
-      .td-ab { inset: -12px; }
-      .td-ab--calida {
-        backdrop-filter: blur(9px) saturate(2.6) hue-rotate(-45deg) brightness(1.35) contrast(1.18);
-        -webkit-backdrop-filter: blur(9px) saturate(2.6) hue-rotate(-45deg) brightness(1.35) contrast(1.18);
-        transform: translateX(3px);
-      }
-      .td-ab--fria {
-        backdrop-filter: blur(9px) saturate(2.6) hue-rotate(45deg) brightness(1.35) contrast(1.18);
-        -webkit-backdrop-filter: blur(9px) saturate(2.6) hue-rotate(45deg) brightness(1.35) contrast(1.18);
-        transform: translateX(-3px);
-        mix-blend-mode: lighten;
-      }
-      .td-frost {
-        background: rgba(3,46,35, 0.93);
-        backdrop-filter: blur(36px) saturate(1.7);
-        -webkit-backdrop-filter: blur(36px) saturate(1.7);
-      }
-
-      /* Las letras del menu por encima de la optica y el barrido. */
-      .tab-dropdown .modulo-btn { position: relative; z-index: 1; }
-      .tab-dropdown .modulo-btn {
-        display: block;
-        padding: 11px 14px;
-        border: none;
-        border-radius: var(--radio-sm);
-        text-decoration: none;
-        color: var(--blanco);
-        white-space: nowrap;
-        opacity: 1;
-        animation: none;
-        transition: background 0.15s var(--ease-out);
-      }
-      .tab-dropdown .modulo-btn:hover { background: rgba(255,255,255,0.14); }
-      .tab-dropdown .modulo-btn { transition: background 0.15s var(--ease-out), transform var(--dur-tap) ease; }
-      .tab-dropdown .modulo-btn:active { transform: scale(0.97); }
-      .tab-dropdown .modulo-btn .label {
-        font-size: 14px;
-        font-weight: 500;
-        color: #ffffff;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.35);
-      }
-
       /* Contenido principal: ancho fluido, aprovecha la pantalla */
       .container {
         max-width: clamp(1040px, 85vw, 1400px);
         margin: 0 auto;
         padding: 40px 48px 64px;
       }
-
-      .header-a { padding: 32px 40px; }
-      .header-a .nombre { font-size: 24px; }
-      .cuenta-regresiva .cr-valor { font-size: 36px; }
 
       .widgets-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .card { padding: 28px; }
@@ -1029,42 +514,8 @@
 
 <body>
 
-  <!-- Campo de curvatura para el vidrio del topbar: un feDisplacementMap
-       alimentado por ruido fractal MUY suave desplaza de verdad los pixeles
-       del fondo — los bordes que pasan detras del panel se curvan, como a
-       traves de una lente. Se aplica via backdrop-filter: url(#...), que es
-       territorio Chromium: donde no exista soporte, la capa simplemente no
-       hace nada y el vidrio queda como esta. -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <filter id="curvatura-espacio" x="-30%" y="-30%" width="160%" height="160%"
-            color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.0028"
-                    numOctaves="1" seed="11" result="campo"/>
-      <feDisplacementMap in="SourceGraphic" in2="campo" scale="48"
-                         xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </svg>
-
   <!-- Navbar v2 (js/core/navbar.js) reemplaza al topbar: este espaciador evita el salto mientras carga el modulo. -->
   <div class="cx-spacer" id="cx-spacer-previo" aria-hidden="true"></div>
-
-  <!-- Topbar anterior: oculto. Se conserva el DOM porque el script de abajo aun lo referencia por id. -->
-  <div class="topbar topbar-legado" hidden>
-    <div class="topbar-brand">
-      <h1>CONTECS</h1>
-      <img class="topbar-logo" src="../logocontecsheader.png" alt="CONTECS" />
-    </div>
-
-    <!-- Tabs de categorías — desktop, se despliegan al pasar el mouse -->
-    <nav class="topbar-nav" id="topbar-nav"></nav>
-
-    <div class="topbar-right">
-      <button class="btn-menu" id="btn-menu" aria-label="Abrir módulos" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <button class="btn-logout" id="btn-logout">Salir</button>
-    </div>
-  </div>
 
   <div class="container" id="main-container">
    <div class="cx-inicio">
@@ -1169,17 +620,6 @@
     Tu agenda
     <b id="cx-agenda-pill-cuenta" hidden></b>
   </button>
-
-  <!-- Bottom sheet — módulos por categoría, filtrados por rol (mobile) -->
-  <div class="sheet-backdrop" id="sheet-backdrop"></div>
-  <div class="bottom-sheet" id="bottom-sheet" role="dialog" aria-modal="true" aria-label="Módulos disponibles">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <span>Módulos</span>
-      <button class="sheet-close" id="sheet-close" aria-label="Cerrar"><img src="../img/iconos/cerrar.svg" class="icono-svg" alt=""/></button>
-    </div>
-    <div class="sheet-body" id="sheet-body"></div>
-  </div>
 
   <script type="module">
     // Entrada en cascada de los bloques del inicio movil (no depende de la sesion).
@@ -1591,7 +1031,7 @@
         objetivo.style.setProperty("--my", `${y - r.top}px`);
       };
       document.addEventListener("pointermove", (ev) => {
-        const objetivo = ev.target.closest?.(".widget-card, .header-a");
+        const objetivo = ev.target.closest?.(".widget-card");
         if (!objetivo) return;
         const habiaPendiente = pendiente !== null;
         pendiente = { objetivo, x: ev.clientX, y: ev.clientY };
@@ -1939,150 +1379,8 @@
         iniciarVistas(categoriasNav, document.getElementById("main-container"));
       }
 
-      // ══════════ Mobile — bottom sheet: lista de texto limpia,
-      // con una flecha que indica que se navega a otra pantalla ══════════
-      const sheetBody = document.getElementById("sheet-body");
-      categoriasVisibles.forEach((cat, idx) => {
-        const bloque = document.createElement("div");
-        bloque.className = "categoria-bloque";
-        bloque.innerHTML = `<div class="categoria-titulo">${cat.label}</div>`;
-        const grid = document.createElement("div");
-        grid.className = "grid-modulos";
-        cat.modulos.forEach((mod, i) => {
-          const a = document.createElement("a");
-          a.href = versionarRutaUI(mod.href);
-          a.className = "modulo-btn" + (mod.admin ? " mod-admin" : "");
-          a.innerHTML = `<span class="label">${mod.label}</span><span class="chevron">›</span>`;
-          a.style.animationDelay = `${0.05 + (idx * 4 + i) * 0.03}s`;
-          grid.appendChild(a);
-        });
-        bloque.appendChild(grid);
-        sheetBody.appendChild(bloque);
-      });
-      if (categoriasVisibles.length === 0) {
-        document.getElementById("btn-menu").style.display = "none";
-      }
-
-      // ══════════ Desktop — topbar-nav (tabs con dropdown al hover) ══════════
-      // El despliegue lo controla el CSS (:hover / :focus-within sobre
-      // .tab-wrap), así que no depende de listeners de click que puedan
-      // fallar: basta con pasar el mouse por la pestaña.
-      const topbarNav = document.getElementById("topbar-nav");
-
-      categoriasVisibles.forEach(cat => {
-        const wrap = document.createElement("div");
-        wrap.className = "tab-wrap";
-
-        const tab = document.createElement("button");
-        tab.type = "button";
-        tab.className = "tab-btn";
-        tab.textContent = cat.label;
-        tab.setAttribute("aria-haspopup", "true");
-        tab.setAttribute("aria-expanded", "false");
-        wrap.appendChild(tab);
-
-        const dropdown = document.createElement("div");
-        dropdown.className = "tab-dropdown";
-        // Optica del cristal en orden de pintado: dos muestras del fondo
-        // desplazadas con el tono rotado en direcciones opuestas (la
-        // refraccion cromatica) y la escarcha densa encima que las funde.
-        // Ver el bloque CSS "Optica del cristal" para la fisica.
-        dropdown.innerHTML = `<div class="td-lente" aria-hidden="true"></div>` +
-          `<div class="td-ab td-ab--calida" aria-hidden="true"></div>` +
-          `<div class="td-ab td-ab--fria" aria-hidden="true"></div>` +
-          `<div class="td-frost" aria-hidden="true"></div>` + cat.modulos
-          .map(m => `<a href="${versionarRutaUI(m.href)}" class="modulo-btn"><span class="label">${m.label}</span></a>`)
-          .join("");
-        wrap.appendChild(dropdown);
-
-        // Mantiene aria-expanded sincronizado para accesibilidad,
-        // sin que el despliegue visual dependa de esto.
-        wrap.addEventListener("mouseenter", () => tab.setAttribute("aria-expanded", "true"));
-        wrap.addEventListener("mouseleave", () => tab.setAttribute("aria-expanded", "false"));
-
-        topbarNav.appendChild(wrap);
-      });
     }
 
-    document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
-
-    // ══════════ Bottom sheet — abrir/cerrar ══════════
-    const btnMenu       = document.getElementById("btn-menu");
-    const sheetEl        = document.getElementById("bottom-sheet");
-    const sheetBackdrop  = document.getElementById("sheet-backdrop");
-    const sheetCloseBtn  = document.getElementById("sheet-close");
-
-    function abrirSheet() {
-      sheetEl.classList.add("is-open");
-      sheetBackdrop.classList.add("is-open");
-      document.body.classList.add("sheet-open");
-      btnMenu.setAttribute("aria-expanded", "true");
-    }
-    function cerrarSheet() {
-      sheetEl.classList.remove("is-open");
-      sheetBackdrop.classList.remove("is-open");
-      document.body.classList.remove("sheet-open");
-      btnMenu.setAttribute("aria-expanded", "false");
-    }
-    btnMenu?.addEventListener("click", () => {
-      sheetEl.classList.contains("is-open") ? cerrarSheet() : abrirSheet();
-    });
-    sheetCloseBtn?.addEventListener("click", cerrarSheet);
-    sheetBackdrop?.addEventListener("click", cerrarSheet);
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") cerrarSheet();
-    });
-
-    // ══════════ Sensación premium al hacer scroll ══════════
-    // 1) Topbar: sombra/blur se intensifican solo cuando hay contenido debajo
-    // 2) Header (Zona A): parallax sutil, se mueve más lento que el resto
-    const topbarEl = document.querySelector(".topbar");
-    const headerAEl = document.querySelector(".header-a");
-    // La animación de entrada (fadeScaleIn) usa fill-mode "both", que retiene
-    // el transform para siempre. La liberamos al terminar para que el
-    // parallax por scroll (más abajo) pueda tomar el control de esa propiedad.
-    if (headerAEl) {
-      headerAEl.addEventListener("animationend", () => {
-        headerAEl.style.animation = "none";
-      }, { once: true });
-    }
-    let tickingScroll = false;
-
-    function onScrollFrame() {
-      const y = window.scrollY;
-      if (topbarEl) topbarEl.classList.toggle("is-scrolled", y > 8);
-      if (headerAEl) headerAEl.style.transform = `translateY(${y * -0.15}px)`;
-      tickingScroll = false;
-    }
-    window.addEventListener("scroll", () => {
-      if (!tickingScroll) {
-        requestAnimationFrame(onScrollFrame);
-        tickingScroll = true;
-      }
-    }, { passive: true });
-
-    // 3) Scroll-reveal: los bloques de eventos y módulos aparecen al
-    // entrar en pantalla, en vez de estar todos animados desde la carga.
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-
-    function observarReveal(selector) {
-      document.querySelectorAll(selector).forEach(el => {
-        if (!el.classList.contains("reveal-on-scroll")) {
-          el.classList.add("reveal-on-scroll");
-          revealObserver.observe(el);
-        }
-      });
-    }
-
-    // Nota: el scroll-reveal de categorías se retiró — los módulos ahora
-    // viven en el bottom sheet, que tiene su propia animación de entrada.
   </script>
 </body>
 </html>

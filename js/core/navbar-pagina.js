@@ -47,8 +47,43 @@ if (cabecera && contenido) {
   new ResizeObserver(alinear).observe(contenido);
 }
 
-// Antetitulo de la cabecera en movil (css/movil.css): la seccion del panel a
-// la que pertenece la pagina; si el modulo no esta en el menu, la de su carpeta.
+// Una linea que explica cada modulo, bajo el titulo (como las paginas del
+// proyecto de referencia). Solo texto de presentacion.
+const DESCRIPCIONES = {
+  "agendarReunion.html":          "Programa una reunión, define su agenda e invita a quienes deben asistir.",
+  "exportar.html":                "Exporta reportes y bitácoras del sistema.",
+  "minutaReunion.html":           "La minuta de la reunión: lo que se trató y lo que se acordó.",
+  "minutas.html":                 "Las reuniones agendadas y sus minutas.",
+  "secretaria.html":              "Minutas, reuniones y calendario de la secretaría.",
+  "usuarios.html":                "Cuentas, roles y permisos de quienes usan el panel.",
+  "credenciales.html":            "Credenciales de participantes, voluntarios, comité y expositores: cuáles faltan y cuáles ya se imprimieron.",
+  "inscripciones.html":           "Eventos, inscritos y asistencia del congreso.",
+  "lecturaQR.html":               "Escanea la credencial para marcar la entrada a cada checkpoint.",
+  "modulos_participantes.html":   "Registrados, pagos y comprobantes de los participantes.",
+  "reportes_estadisticaCont.html":"Actividades, asistencias y horas del congreso.",
+  "bitacora.html":                "Historial de ventas, compras, fondos, inventario y mermas.",
+  "compras.html":                 "Registra las compras de productos y su costo.",
+  "compras2.html":                "Registra las compras de productos y su costo.",
+  "detalleFondo.html":            "Movimientos del fondo: balance, ingresos y egresos.",
+  "fondos.html":                  "Balance del fondo y registro de movimientos, en tiempo real.",
+  "reportes.html":                "Reportes financieros y estadísticas del evento.",
+  "reportes_financieros.html":    "Ventas, compras, ganancia y pérdidas.",
+  "ventaRapida.html":             "Registra las ventas de cada actividad de venta.",
+  "actividadVentas.html":         "Crea actividades de venta y asígnales productos o combos.",
+  "catalogo.html":                "Categorías y productos que se pueden vender.",
+  "inventario.html":              "Existencias de cada producto y alertas de stock bajo o agotado.",
+  "actividades.html":             "Actividades de voluntariado, con sus solicitudes e informes.",
+  "calendario.html":              "Actividades, giras, ventas y reuniones en un solo calendario.",
+  "giras.html":                   "Giras académicas: participantes, cupos y check-in.",
+  "informeActividad.html":        "El informe de una actividad realizada.",
+  "lecturaQRGiras.html":          "Escanea el QR para el check-in y check-out de las giras.",
+  "lecturaQRVoluntarios.html":    "Escanea el QR de los voluntarios para registrar su asistencia.",
+  "solicitudActividad.html":      "Solicita una nueva actividad de voluntariado.",
+  "voluntarios.html":             "Voluntarios, áreas asignadas y asistencias.",
+};
+
+// Cabecera (css/movil.css): antetitulo con la seccion del panel (si el modulo
+// no esta en el menu, la de su carpeta), descripcion y titulo palabra por palabra.
 if (cabecera && enPanel) {
   const ruta = location.pathname;
   const carpeta = ruta.match(/\/modulos\/([^/]+)\//)?.[1];
@@ -56,12 +91,31 @@ if (cabecera && enPanel) {
     CATEGORIAS.find(c => c.modulos.some(m => ruta.endsWith("/" + m.href))) ||
     CATEGORIAS.find(c => c.id === carpeta);
   if (seccion) cabecera.dataset.cxSeccion = seccion.label;
+  const descripcion = DESCRIPCIONES[ruta.split("/").pop()];
+  if (descripcion) cabecera.dataset.cxDescripcion = descripcion;
+
+  // Solo si el titulo es texto plano (POSPER lleva su logo). Si la pagina lo
+  // cambia despues (p. ej. "Minuta — cargando…"), lo reemplaza como siempre.
+  const h1 = cabecera.querySelector("h1");
+  const texto = h1?.textContent.trim();
+  if (h1 && texto && [...h1.childNodes].every(n => n.nodeType === Node.TEXT_NODE)
+      && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const palabras = texto.split(/\s+/);
+    const natural = Math.max(palabras.length - 1, 0) * 0.05;
+    const factor = natural > 0.35 ? 0.35 / natural : 1;
+    h1.replaceChildren();
+    palabras.forEach((p, i) => {
+      const span = document.createElement("span");
+      span.className = "cx-palabra";
+      span.style.animationDelay = `${(0.12 + i * 0.05 * factor).toFixed(3)}s`;
+      span.textContent = p;
+      h1.append(span, i < palabras.length - 1 ? " " : "");
+    });
+  }
 }
 
-// Movil y tablet: tarjetas y filas entran en cascada al aparecer.
-if (matchMedia("(max-width: 1023.98px)").matches) {
-  import("./movil-paginas.js?v=20261015.4").then(m => m.iniciarMovilPaginas()).catch(() => {});
-}
+// Tarjetas y filas entran en cascada al aparecer (en todas las anchuras).
+import("./movil-paginas.js?v=20261015.4").then(m => m.iniciarMovilPaginas()).catch(() => {});
 
 if (enPanel) {
   // Misma instancia que la pagina (misma URL de modulo): esperarSesionLista()

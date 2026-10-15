@@ -1,179 +1,211 @@
 /* ===========================================================
-   CONTECS — Paginas de modulo en movil y tablet
-   El mismo idioma que el inicio (css/inicio.css):
-   cabecera Emerald tipo hero, tarjetas champagne con sombra en capas y
-   entrada en cascada al aparecer (js/core/movil-paginas.js).
+   CONTECS — Paginas de modulo (todas las anchuras)
+   El mismo idioma que el inicio (css/inicio.css) y que las paginas del
+   proyecto de referencia: arriba "Volver", el antetitulo de la seccion, el
+   titulo grande que entra palabra por palabra y una linea que explica el
+   modulo; debajo, tarjetas champagne con sombra en capas que entran en
+   cascada al aparecer (js/core/movil-paginas.js).
 
    Va justo despues de navbar.css y ANTES del <style> de cada pagina: lo que
    una pagina define para si misma sigue mandando. Solo las reglas de la
    cabecera llevan mas especificidad (body > .topbar) porque styles.css y
    alguna pagina la achicaban para la barra vieja.
-   Requiere css/tokens.css. Solo se anima transform y opacity.
+   Mismos nodos, ids y listeners: solo cambia como se pinta. POSPER y su
+   randomizer conservan su cabecera de marca (noche + laser).
+   Requiere css/tokens.css. Solo se anima transform y opacity (y el
+   desenfoque corto de las palabras del titulo).
    =========================================================== */
 
+/* ── CABECERA ─────────────────────────────────────────────────
+   Orden visual (flex con order): Volver · antetitulo · titulo · descripcion ·
+   acciones. Las envolturas de las acciones se disuelven (display: contents)
+   para que cada boton ocupe su sitio sin mover el DOM. */
+body > .topbar:not(:has(.pp-h1)) {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 26px auto 8px;
+  padding: 0 var(--cabecera-pd, 20px) 4px var(--cabecera-pi, 20px);
+  animation: none;
+}
+body > .topbar:not(:has(.pp-h1)) > div:not(.topbar-brand) { display: contents !important; }
+
+/* Antetitulo: la seccion del panel (navbar-pagina.js pone data-cx-seccion).
+   Ocupa su linea desde el primer pintado, haya o no texto: nada salta. */
+body > .topbar:not(:has(.pp-h1))::before {
+  content: attr(data-cx-seccion) "\200B";
+  order: -2;
+  flex: 0 0 100%;
+  display: block;
+  margin-top: 6px;
+  font: 700 11.5px/1.2 var(--cx-font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cx-apricot-800);
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.05s both;
+}
+/* Descripcion del modulo (data-cx-descripcion). */
+body > .topbar:not(:has(.pp-h1))::after {
+  content: attr(data-cx-descripcion);
+  order: 1;
+  position: static;
+  flex: 0 0 100%;
+  width: auto;
+  max-width: 46rem;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  font: 400 15px/1.5 var(--cx-font);
+  color: var(--cx-text-3);
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.3s both;
+}
+body > .topbar:not(:has(.pp-h1)):not([data-cx-descripcion])::after,
+body > .topbar:not(:has(.pp-h1))[data-cx-descripcion=""]::after { display: none; }
+
+body > .topbar:not(:has(.pp-h1)) h1 {
+  order: -1;
+  flex: 0 0 100%;
+  min-width: 0;
+  margin-top: -2px;
+  font: 700 clamp(30px, 3.4vw, 44px)/1.08 var(--cx-font-display);
+  letter-spacing: -0.03em;
+  color: var(--cx-ink);
+  display: block;
+  -webkit-line-clamp: unset;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+/* Las palabras entran de borroso a nitido, en cascada (navbar-pagina.js). */
+.topbar .cx-palabra {
+  display: inline-block;
+  animation: cxp-palabra 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Volver: pastilla con su destino ("Volver al inicio", "Volver a minutas"). */
+body > .topbar:not(:has(.pp-h1)) .btn-volver {
+  order: -3;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  height: 36px;
+  gap: 6px;
+  padding: 0 14px 0 10px;
+  border: 1px solid var(--cx-border);
+  border-radius: 999px;
+  background: var(--cx-surface);
+  color: var(--cx-ink);
+  font: 600 13px/1 var(--cx-font);
+  text-decoration: none;
+  box-shadow: var(--cx-shadow-1);
+  animation: cxp-sube 0.6s var(--cx-ease-expo) both;
+}
+body > .topbar:not(:has(.pp-h1)) .btn-volver::after { content: attr(title); white-space: nowrap; }
+body > .topbar:not(:has(.pp-h1)) .btn-volver svg { width: 16px; height: 16px; }
+body > .topbar:not(:has(.pp-h1)) .btn-volver:hover { background: var(--cx-champagne-300); }
+
+/* Acciones de la cabecera ("Leer QR", "Mapa", "Escanear QR"): pastillas Emerald. */
+body > .topbar:not(:has(.pp-h1)) :is(.btn-qr-scan, .topbar-link, .btn-logout) {
+  order: 3;
+  animation: cxp-sube 0.6s var(--cx-ease-expo) 0.36s both;
+}
+body > .topbar:not(:has(.pp-h1)) .btn-qr-scan {
+  height: 38px;
+  padding: 0 16px;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--cx-ink-600), var(--cx-ink) 55%, var(--cx-ink-900));
+  color: var(--cx-champagne-100);
+  box-shadow: 0 8px 18px -8px rgb(3 46 35 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.10);
+}
+body > .topbar:not(:has(.pp-h1)) .btn-qr-scan:hover { background: var(--cx-ink-800); }
+body > .topbar:not(:has(.pp-h1)) .btn-qr-scan:active { transform: scale(0.95); }
+
+/* ── TARJETAS: la superficie del inicio ── */
+.card {
+  border: 1px solid var(--cx-border);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 10px 28px -10px rgb(3 46 35 / 0.16);
+}
+.card-title {
+  font-family: var(--cx-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--cx-ink);
+  border-bottom: 1px solid var(--cx-line);
+}
+.seccion-titulo {
+  font: 700 11px/1.2 var(--cx-font-display);
+  letter-spacing: 0.12em;
+  color: var(--cx-apricot-800);
+}
+
+/* ── CIFRAS: el numero manda (como las metricas del inicio) ── */
+:is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) {
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 8px 22px -10px rgb(3 46 35 / 0.18), 0 0 0 1px var(--cx-line);
+}
+html :is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) :is(.num, .stat-num, .val, .fondos-stat-valor) {
+  font-family: var(--cx-font-display);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── ENTRADA AL APARECER ──
+   movil-paginas.js marca .cx-asoma solo en lo que esta por DEBAJO de la
+   pantalla (lo visible al cargar ya tiene su animacion de entrada), y
+   revelar.js pone .is-visto y el escalon --d cuando llega. Si el script no
+   respondiera, el bloque aparece igual a los 2.5 s. */
+.cx-asoma:not(.is-visto) {
+  opacity: 0;
+  animation: cxp-tarde 0s linear 2.5s forwards;
+}
+.cx-asoma.is-visto {
+  animation: cxp-sube 0.7s var(--cx-ease-expo) var(--d, 0ms) backwards;
+}
+
 @media (max-width: 1023.98px) {
-  /* ── CABECERA: el titulo de la pagina como hero Emerald ──
-     Mismos nodos, ids y listeners: solo cambia como se pinta. POSPER y su
-     randomizer conservan su cabecera de marca (noche + laser). */
   body > .topbar:not(:has(.pp-h1)) {
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-    /* Alineada con el contenido: navbar-pagina.js copia el relleno del .container. */
-    width: calc(100% - var(--cabecera-pi, 12px) - var(--cabecera-pd, 12px));
-    max-width: calc(var(--cabecera-ancho, 680px) - var(--cabecera-pi, 12px) - var(--cabecera-pd, 12px));
-    /* El .container ya trae su relleno superior: abajo casi nada. */
-    margin: 12px auto 0;
-    padding: 16px 14px 24px 18px;
-    border-radius: 24px;
-    overflow: hidden;
-    isolation: isolate;
-    color: var(--cx-champagne-100);
-    background:
-      radial-gradient(120% 90% at 100% 0%, rgb(255 214 165 / 0.32), transparent 48%),
-      radial-gradient(90% 80% at 0% 100%, rgb(2 31 23 / 0.55), transparent 62%),
-      linear-gradient(150deg, var(--cx-ink-600) 0%, var(--cx-ink) 50%, var(--cx-ink-900) 100%) !important;
-    box-shadow:
-      0 2px 6px rgb(3 46 35 / 0.16),
-      0 22px 44px -14px rgb(3 46 35 / 0.45),
-      inset 0 1px 0 rgb(255 255 255 / 0.10);
-    animation: cxp-llega 0.75s var(--cx-ease-expo) both;
+    margin: 16px auto 0;
+    padding-bottom: 0;
+    gap: 9px;
   }
-  /* Antetitulo: la seccion del panel (navbar-pagina.js pone data-cx-seccion).
-     Ocupa su linea desde el primer pintado, haya o no texto: nada salta. */
-  body > .topbar:not(:has(.pp-h1))::before {
-    content: attr(data-cx-seccion) "\200B";
-    order: -1;
-    flex: 0 0 100%;
-    display: block;
-    font: 700 11px/1.2 var(--cx-font-display);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--cx-apricot);
-    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.08s both;
-  }
-  /* El filo apricot queda dentro del hero, bajo el titulo. */
-  body > .topbar:not(:has(.pp-h1))::after {
-    left: 18px;
-    bottom: 13px;
-    width: 40px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--cx-apricot-400), var(--cx-apricot));
-  }
-  body > .topbar:not(:has(.pp-h1)) h1 {
-    flex: 1 1 55%;
-    min-width: 0;
-    font: 700 clamp(21px, 6.2vw, 27px)/1.15 var(--cx-font-display);
-    letter-spacing: -0.025em;
-    color: var(--cx-champagne-100);
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.14s both;
-  }
-  body > .topbar:not(:has(.pp-h1)) > :not(h1) {
-    animation: cxp-sube 0.7s var(--cx-ease-expo) 0.2s both;
-  }
-  /* Volver: circulo de cristal sobre el verde. */
-  body > .topbar:not(:has(.pp-h1)) .btn-volver {
-    border-color: rgb(248 231 201 / 0.22);
-    background: rgb(248 231 201 / 0.12);
-    color: var(--cx-champagne-100);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.10);
-  }
-  body > .topbar:not(:has(.pp-h1)) .btn-volver:hover {
-    background: rgb(248 231 201 / 0.20);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.10);
-  }
-  /* Acciones de la cabecera ("Leer QR", "Mapa"...): pastillas apricot. */
-  body > .topbar:not(:has(.pp-h1)) .btn-qr-scan {
-    border-color: transparent;
-    background: var(--cx-apricot);
-    color: var(--cx-ink-900);
-    box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.45);
-  }
-  body > .topbar:not(:has(.pp-h1)) .btn-qr-scan:hover { background: var(--cx-champagne-100); }
-  body > .topbar:not(:has(.pp-h1)) .topbar-link { color: var(--cx-apricot); }
-  body > .topbar:not(:has(.pp-h1)) .btn-logout { background: var(--cx-apricot); color: var(--cx-ink-900); }
+  body > .topbar:not(:has(.pp-h1)) h1 { font-size: clamp(27px, 7.6vw, 34px); }
+  body > .topbar:not(:has(.pp-h1))::after { font-size: 14px; }
 
-  /* ── TARJETAS: la superficie del inicio movil ── */
-  .card {
-    border: 1px solid var(--cx-border);
-    border-radius: 20px;
-    box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 10px 28px -10px rgb(3 46 35 / 0.16);
-  }
-  .card-title {
-    font-family: var(--cx-font-display);
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: var(--cx-ink);
-    border-bottom: 1px solid var(--cx-line);
-  }
-  .seccion-titulo {
-    font: 700 11px/1.2 var(--cx-font-display);
-    letter-spacing: 0.12em;
-    color: var(--cx-apricot-800);
-  }
-
-  /* ── CIFRAS: el numero manda (como las metricas del inicio) ── */
-  :is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) {
-    border-radius: 18px;
-    box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 8px 22px -10px rgb(3 46 35 / 0.18), 0 0 0 1px var(--cx-line);
-  }
-  html :is(.stat-mini, .stat-card, .summary-card, .alerta-stat, .fondos-stat) :is(.num, .stat-num, .val, .fondos-stat-valor) {
-    font-family: var(--cx-font-display);
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* ── TABLAS EN TARJETAS (.tabla-cards, por debajo de 600 px) ── */
+  /* Tablas apiladas en tarjetas (.tabla-cards, por debajo de 600 px). */
   .tabla-cards tbody tr {
     border-color: var(--cx-border);
     border-radius: 18px;
     box-shadow: 0 1px 2px rgb(3 46 35 / 0.05), 0 8px 22px -10px rgb(3 46 35 / 0.16);
   }
-
-  /* ── ENTRADA AL APARECER ──
-     movil-paginas.js marca .cx-asoma solo en lo que esta por DEBAJO de la
-     pantalla (lo visible al cargar ya tiene su animacion de entrada), y
-     revelar.js pone .is-visto y el escalon --d cuando llega. Si el script no
-     respondiera, el bloque aparece igual a los 2.5 s. */
-  .cx-asoma:not(.is-visto) {
-    opacity: 0;
-    animation: cxp-tarde 0s linear 2.5s forwards;
-  }
-  .cx-asoma.is-visto {
-    animation: cxp-sube 0.7s var(--cx-ease-expo) var(--d, 0ms) backwards;
-  }
 }
 
-/* Tablet: la cabecera respira un poco mas. */
-@media (min-width: 640px) and (max-width: 1023.98px) {
-  body > .topbar:not(:has(.pp-h1)) { padding: 20px 20px 28px 24px; border-radius: 26px; }
-  body > .topbar:not(:has(.pp-h1))::after { left: 24px; bottom: 15px; }
-}
-
-@keyframes cxp-llega {
-  from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
-  to   { opacity: 1; transform: none; }
-}
 @keyframes cxp-sube {
   from { opacity: 0; transform: translate3d(0, 12px, 0); }
   to   { opacity: 1; transform: none; }
+}
+@keyframes cxp-palabra {
+  from { opacity: 0; filter: blur(8px); transform: translateY(14%); }
+  to   { opacity: 1; filter: blur(0); transform: none; }
 }
 @keyframes cxp-tarde { to { opacity: 1; } }
 
 @media print {
   .cx-asoma { opacity: 1 !important; animation: none !important; }
+  body > .topbar .btn-volver { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   body > .topbar,
   body > .topbar::before,
+  body > .topbar::after,
   body > .topbar > *,
+  body > .topbar .btn-volver,
+  .topbar .cx-palabra,
   .cx-asoma { animation: none !important; }
   .cx-asoma { opacity: 1; }
 }

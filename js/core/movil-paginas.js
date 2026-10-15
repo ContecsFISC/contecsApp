@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// CONTECS — Entrada en cascada de las paginas de modulo (movil y tablet)
+// CONTECS — Entrada en cascada de las paginas de modulo
 //
-// Lo carga navbar-pagina.js solo por debajo de 1024 px. Las tarjetas y filas
+// Lo carga navbar-pagina.js (en todas las anchuras). Las tarjetas y filas
 // que quedan por DEBAJO de la pantalla esperan ocultas (.cx-asoma) y llegan
 // escalonadas cuando el scroll las alcanza (revelar.js). Lo que ya se ve no
 // se toca: ni parpadea al cargar ni cuando la pagina vuelve a pintar su lista.

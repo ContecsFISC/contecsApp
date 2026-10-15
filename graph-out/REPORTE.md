@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T15:03:45.724386+00:00**
+- Generado: **2026-10-15T15:18:48.090778+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `90994d02809235c2…`
+- Huella del proyecto: `d3800bf09d3af421…`
 - Archivos analizados: **252**
-- Relaciones internas tipadas: **1099**
-- Símbolos detectados: **6436**
-- Llamadas detectadas: **14083**
-- IDs DOM definidos: **1167**
+- Relaciones internas tipadas: **1097**
+- Símbolos detectados: **6423**
+- Llamadas detectadas: **13938**
+- IDs DOM definidos: **1159**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **26**
-- Archivos huerfanos: **82**
+- Archivos huerfanos: **83**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**18,527 tokens** · leer primero
-- `GraphCompleto.json` — ~**87,942 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**156,223 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
+- `GraphCompacto.json` — ~**19,098 tokens** · leer primero
+- `GraphCompleto.json` — ~**88,469 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**156,466 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **87.8%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,14 +35,14 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 349.7 (conexiones: 173, 369 lineas)
-- `panel/dashboard.html` — riesgo 142.9 (conexiones: 61, 2089 lineas)
+- `panel/dashboard.html` — riesgo 131.9 (conexiones: 59, 1387 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 116.6 (conexiones: 47, 2256 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
 - `manifest.json` — riesgo 88.3 (conexiones: 44, 34 lineas)
 - `apple-touch-icon.png` — riesgo 88.0 (conexiones: 44, 0 lineas)
 - `favicon.ico` — riesgo 88.0 (conexiones: 44, 0 lineas)
-- `js/core/navbar-pagina.js` — riesgo 84.8 (conexiones: 42, 81 lineas)
+- `js/core/navbar-pagina.js` — riesgo 85.3 (conexiones: 42, 135 lineas)
 - `js/core/firebase-config.js` — riesgo 82.3 (conexiones: 41, 35 lineas)
 - `css/styles.css` — riesgo 81.2 (conexiones: 36, 917 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
@@ -53,7 +53,7 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 ## God nodes (mas conectados) y que exponen
 
 - `js/core/auth.js` — grado 173 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
-- `panel/dashboard.html` — grado 61 | exporta: (sin exports detectados)
+- `panel/dashboard.html` — grado 59 | exporta: (sin exports detectados)
 - `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/modulos/congreso/modulos_participantes.html` — grado 47 | exporta: (sin exports detectados)
 - `apple-touch-icon.png` — grado 44 | exporta: (sin exports detectados)
@@ -124,7 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/combo.svg`
 - `img/iconos/combo_hamburguesa_soda.svg`
 - `img/iconos/combo_pizza_soda.svg`
-- ...y 42 mas
+- ...y 43 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -427,7 +427,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `calls_imported_symbol`: 358
 - `imports`: 298
-- `loads_asset`: 158
+- `loads_asset`: 156
 - `loads_stylesheet`: 143
 - `loads_script`: 76
 - `navigates_to`: 66
