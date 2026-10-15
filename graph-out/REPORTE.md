@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T03:51:51.026462+00:00**
+- Generado: **2026-10-15T06:26:12.765437+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `2e2b07ab570d54b0…`
-- Archivos analizados: **237**
-- Relaciones internas tipadas: **990**
-- Símbolos detectados: **6250**
-- Llamadas detectadas: **13703**
-- IDs DOM definidos: **1158**
+- Huella del proyecto: `62d5f017c490eddc…`
+- Archivos analizados: **246**
+- Relaciones internas tipadas: **1048**
+- Símbolos detectados: **6292**
+- Llamadas detectadas: **13892**
+- IDs DOM definidos: **1159**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **26**
-- Archivos huerfanos: **78**
+- Archivos huerfanos: **82**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**17,481 tokens** · leer primero
-- `GraphCompleto.json` — ~**82,535 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**149,061 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.3%** frente al profundo
+- `GraphCompacto.json` — ~**18,848 tokens** · leer primero
+- `GraphCompleto.json` — ~**86,256 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**153,354 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **87.7%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -34,47 +34,47 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 345.7 (conexiones: 171, 369 lineas)
-- `panel/dashboard.html` — riesgo 123.0 (conexiones: 51, 2105 lineas)
+- `js/core/auth.js` — riesgo 349.7 (conexiones: 173, 369 lineas)
+- `panel/dashboard.html` — riesgo 132.5 (conexiones: 56, 2048 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
-- `panel/modulos/congreso/modulos_participantes.html` — riesgo 112.5 (conexiones: 45, 2252 lineas)
+- `panel/modulos/congreso/modulos_participantes.html` — riesgo 114.5 (conexiones: 46, 2255 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
+- `manifest.json` — riesgo 88.3 (conexiones: 44, 34 lineas)
 - `apple-touch-icon.png` — riesgo 88.0 (conexiones: 44, 0 lineas)
 - `favicon.ico` — riesgo 88.0 (conexiones: 44, 0 lineas)
+- `js/core/navbar-pagina.js` — riesgo 82.6 (conexiones: 41, 63 lineas)
 - `js/core/firebase-config.js` — riesgo 82.3 (conexiones: 41, 35 lineas)
-- `css/styles.css` — riesgo 81.2 (conexiones: 36, 915 lineas)
+- `css/styles.css` — riesgo 81.2 (conexiones: 36, 917 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
 - `js/modulos/credenciales.js` — riesgo 81.1 (conexiones: 36, 911 lineas)
-- `css/navbar.css` — riesgo 78.6 (conexiones: 36, 656 lineas)
-- `css/tokens.css` — riesgo 72.8 (conexiones: 36, 82 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 72.8 (conexiones: 32, 876 lineas)
-- `js/modulos/gestorCredenciales.js` — riesgo 69.5 (conexiones: 31, 747 lineas)
+- `css/navbar.css` — riesgo 79.4 (conexiones: 36, 737 lineas)
+- `panel/modulos/logistica/catalogo.html` — riesgo 74.8 (conexiones: 33, 879 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 171 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
+- `js/core/auth.js` — grado 173 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
 - `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
-- `panel/dashboard.html` — grado 51 | exporta: (sin exports detectados)
-- `panel/modulos/congreso/modulos_participantes.html` — grado 45 | exporta: (sin exports detectados)
+- `panel/dashboard.html` — grado 56 | exporta: (sin exports detectados)
+- `panel/modulos/congreso/modulos_participantes.html` — grado 46 | exporta: (sin exports detectados)
 - `apple-touch-icon.png` — grado 44 | exporta: (sin exports detectados)
 - `favicon.ico` — grado 44 | exporta: (sin exports detectados)
+- `manifest.json` — grado 44 | exporta: (sin exports detectados)
 - `js/core/firebase-config.js` — grado 41 | exporta: analytics, app, auth, db, storage
+- `js/core/navbar-pagina.js` — grado 41 | exporta: (sin exports detectados)
 - `css/navbar.css` — grado 36 | exporta: (sin exports detectados)
 - `css/styles.css` — grado 36 | exporta: (sin exports detectados)
 - `css/tokens.css` — grado 36 | exporta: (sin exports detectados)
 - `js/modulos/credenciales.js` — grado 36 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
-- `js/core/ui-shell.js` — grado 34 | exporta: (sin exports detectados)
 - `js/core/permanencia.js` — grado 33 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, checkpointsParaEscanear, contarValidas, enCurso, enPanama, estaCancelado, estaOperativo
-- `panel/modulos/logistica/catalogo.html` — grado 32 | exporta: (sin exports detectados)
-- `js/modulos/gestorCredenciales.js` — grado 31 | exporta: (sin exports detectados)
+- `panel/modulos/logistica/catalogo.html` — grado 33 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -124,7 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/combo.svg`
 - `img/iconos/combo_hamburguesa_soda.svg`
 - `img/iconos/combo_pizza_soda.svg`
-- ...y 38 mas
+- ...y 42 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -425,10 +425,10 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 346
-- `imports`: 280
-- `loads_asset`: 114
-- `loads_stylesheet`: 108
+- `calls_imported_symbol`: 350
+- `imports`: 289
+- `loads_asset`: 158
+- `loads_stylesheet`: 109
 - `loads_script`: 76
 - `navigates_to`: 66
 
