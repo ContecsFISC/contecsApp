@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <link rel="icon" href="../../../favicon.ico" sizes="any"/>
+ <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.json"/>
+ <meta name="theme-color" content="#061b2a"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
+ <title>CONTECS — QR POSPER</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/movil.css?v=20261015.8"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("qr_posper");
+ </script>
+ <style>
+ /* Colores del sitio de POSPER (patrocinador), como en randomizer.html. */
+ :root {
+   --pp-noche: #061b2a;
+   --pp-azul: #0b3857;
+   --pp-rojo: #980000;
+   --pp-laser: #cc0000;
+ }
+ /* La barra de POSPER conserva su identidad (azul noche); el texto va en blanco. */
+ .topbar { background: var(--pp-noche) !important; color: #fff; padding: 14px 20px; border-radius: 18px; box-shadow: 0 14px 34px rgba(6,27,42,0.28); }
+ .topbar::after { left: 20px; bottom: 9px; width: 44px; background: var(--pp-laser); }
+ .topbar h1 { color: #fff; }
+ .pp-h1 { display: flex; align-items: center; gap: 10px; }
+ .pp-logo { position: relative; display: block; flex-shrink: 0; }
+ .pp-logo img { position: relative; z-index: 1; height: 1.2em; width: auto; display: block; }
+ /* Láser del logo en CSS, igual que en randomizer.html. */
+ .pp-logo::before, .pp-logo::after { content: ""; position: absolute; left: 2%; right: 2.2%; top: 50.6%; height: 7.4%; min-height: 1.5px; background: var(--pp-laser); }
+ .pp-logo::after { right: 84.5%; z-index: 2; }
+ body { background: radial-gradient(circle at 88% -5%, rgba(204,0,0,0.08), transparent 32%), linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 240px); }
+ .container { max-width: 760px; }
+
+ /* Acceso sin iniciar sesión: QR con el link de public/acceso-posper.html
+    (el mismo bloque que estaba en el inicio de POSPER). */
+ .posper-link {
+   display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
+   margin-top: 14px; padding: 20px; border-radius: 18px;
+   background: var(--cx-surface, #fdf7ea); border: 1px solid var(--gris-borde);
+   box-shadow: 0 6px 18px rgba(3,46,35,0.06);
+ }
+ .posper-link[hidden] { display: none; }
+ .posper-link-qr { width: 180px; height: 180px; padding: 10px; border-radius: 12px; background: #fff; border: 1px solid var(--gris-borde); box-sizing: content-box; }
+ .posper-link-qr img, .posper-link-qr canvas { display: block; width: 100%; height: auto; }
+ .posper-link-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
+ .posper-link-texto { font-size: 13px; line-height: 1.5; color: var(--gris-medio); margin: 6px 0 14px; }
+ .posper-link-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+ .posper-link-btn {
+   padding: 10px 16px; border-radius: 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+   color: #fff; background: linear-gradient(135deg, #061b2a, #0b3857); border: 1px solid transparent;
+ }
+ .posper-link-btn.secundario { color: var(--pp-rojo); background: transparent; border-color: rgba(152,0,0,0.35); }
+ .posper-link-btn:disabled { opacity: 0.55; cursor: progress; }
+ .posper-link-estado { min-height: 1.4em; margin-top: 10px; font-size: 12.5px; color: var(--gris-medio); }
+ @media (max-width: 560px) {
+   .posper-link { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+   .posper-link-acciones { justify-content: center; }
+ }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1 class="pp-h1"><span class="pp-logo"><img src="../../../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/></span> QR de acceso</h1>
+ <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container anim-page-in">
+ <section class="posper-link" id="posper-link" hidden>
+   <div class="posper-link-qr" id="posper-link-qr" role="img" aria-label="Código QR del acceso de POSPER sin iniciar sesión"></div>
+   <div>
+     <span class="posper-link-titulo">Acceso sin iniciar sesión</span>
+     <p class="posper-link-texto">Quien escanee este QR entra a la pestaña POSPER sin cuenta: Lector, Randomizer y Sorteo en vivo. Compártanlo solo con su equipo; si se filtra, generen uno nuevo y el anterior deja de funcionar.</p>
+     <div class="posper-link-acciones">
+       <button type="button" class="posper-link-btn" id="posper-link-copiar">Copiar link</button>
+       <button type="button" class="posper-link-btn secundario" id="posper-link-regenerar">Generar link nuevo</button>
+     </div>
+     <p class="posper-link-estado" id="posper-link-estado" role="status"></p>
+   </div>
+ </section>
+</div>
+
+<script src="../../../js/libs/qrcode.min.js"></script>
+<script type="module" src="../../../js/modulos/qrPosper.js?v=20261015.1"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
+</body>
+</html>

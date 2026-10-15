@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T18:12:41.323696+00:00**
+- Generado: **2026-10-15T18:20:05.810625+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `8694af1d6e511a44…`
-- Archivos analizados: **255**
-- Relaciones internas tipadas: **1110**
-- Símbolos detectados: **6484**
-- Llamadas detectadas: **14077**
-- IDs DOM definidos: **1163**
+- Huella del proyecto: `ad46d0f0161ad07c…`
+- Archivos analizados: **257**
+- Relaciones internas tipadas: **1130**
+- Símbolos detectados: **6492**
+- Llamadas detectadas: **14107**
+- IDs DOM definidos: **1168**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **28**
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**18,824 tokens** · leer primero
-- `GraphCompleto.json` — ~**89,006 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**157,600 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**18,930 tokens** · leer primero
+- `GraphCompleto.json` — ~**89,988 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**158,816 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -34,47 +34,47 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 353.7 (conexiones: 175, 369 lineas)
-- `panel/dashboard.html` — riesgo 136.9 (conexiones: 61, 1495 lineas)
+- `js/core/auth.js` — riesgo 365.7 (conexiones: 181, 369 lineas)
+- `panel/dashboard.html` — riesgo 138.9 (conexiones: 62, 1495 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 116.6 (conexiones: 47, 2256 lineas)
 - `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
-- `manifest.json` — riesgo 90.3 (conexiones: 45, 34 lineas)
-- `apple-touch-icon.png` — riesgo 90.0 (conexiones: 45, 0 lineas)
-- `favicon.ico` — riesgo 90.0 (conexiones: 45, 0 lineas)
-- `js/core/navbar-pagina.js` — riesgo 85.3 (conexiones: 42, 135 lineas)
-- `js/core/firebase-config.js` — riesgo 84.3 (conexiones: 42, 35 lineas)
-- `css/styles.css` — riesgo 81.2 (conexiones: 36, 922 lineas)
+- `manifest.json` — riesgo 92.3 (conexiones: 46, 34 lineas)
+- `apple-touch-icon.png` — riesgo 92.0 (conexiones: 46, 0 lineas)
+- `favicon.ico` — riesgo 92.0 (conexiones: 46, 0 lineas)
+- `js/core/navbar-pagina.js` — riesgo 87.3 (conexiones: 43, 135 lineas)
+- `js/core/firebase-config.js` — riesgo 86.3 (conexiones: 43, 35 lineas)
+- `css/styles.css` — riesgo 83.2 (conexiones: 37, 922 lineas)
+- `css/navbar.css` — riesgo 82.5 (conexiones: 37, 846 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
 - `js/modulos/credenciales.js` — riesgo 81.1 (conexiones: 36, 911 lineas)
-- `css/navbar.css` — riesgo 80.5 (conexiones: 36, 846 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 76.8 (conexiones: 34, 880 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 175 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
-- `panel/dashboard.html` — grado 61 | exporta: (sin exports detectados)
+- `js/core/auth.js` — grado 181 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
+- `panel/dashboard.html` — grado 62 | exporta: (sin exports detectados)
 - `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/modulos/congreso/modulos_participantes.html` — grado 47 | exporta: (sin exports detectados)
-- `apple-touch-icon.png` — grado 45 | exporta: (sin exports detectados)
-- `favicon.ico` — grado 45 | exporta: (sin exports detectados)
-- `manifest.json` — grado 45 | exporta: (sin exports detectados)
-- `js/core/firebase-config.js` — grado 42 | exporta: analytics, app, auth, db, storage
-- `js/core/navbar-pagina.js` — grado 42 | exporta: (sin exports detectados)
-- `css/navbar.css` — grado 36 | exporta: (sin exports detectados)
-- `css/styles.css` — grado 36 | exporta: (sin exports detectados)
-- `css/tokens.css` — grado 36 | exporta: (sin exports detectados)
+- `apple-touch-icon.png` — grado 46 | exporta: (sin exports detectados)
+- `favicon.ico` — grado 46 | exporta: (sin exports detectados)
+- `manifest.json` — grado 46 | exporta: (sin exports detectados)
+- `js/core/firebase-config.js` — grado 43 | exporta: analytics, app, auth, db, storage
+- `js/core/navbar-pagina.js` — grado 43 | exporta: (sin exports detectados)
+- `css/navbar.css` — grado 37 | exporta: (sin exports detectados)
+- `css/styles.css` — grado 37 | exporta: (sin exports detectados)
+- `css/tokens.css` — grado 37 | exporta: (sin exports detectados)
 - `js/modulos/credenciales.js` — grado 36 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
+- `css/movil.css` — grado 34 | exporta: (sin exports detectados)
 - `panel/modulos/logistica/catalogo.html` — grado 34 | exporta: (sin exports detectados)
-- `css/movil.css` — grado 33 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -426,12 +426,12 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 359
-- `imports`: 305
-- `loads_asset`: 160
-- `loads_stylesheet`: 143
-- `loads_script`: 76
-- `navigates_to`: 67
+- `calls_imported_symbol`: 363
+- `imports`: 309
+- `loads_asset`: 164
+- `loads_stylesheet`: 147
+- `loads_script`: 79
+- `navigates_to`: 68
 
 ## Paquetes/SDKs externos
 
@@ -451,14 +451,14 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://contecs-app.vercel.app/logocontecs.png` — usado en 4 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
-- `https://fonts.googleapis.com` — usado en 45 archivo(s)
-- `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap` — usado en 45 archivo(s)
-- `https://fonts.gstatic.com` — usado en 45 archivo(s)
+- `https://fonts.googleapis.com` — usado en 46 archivo(s)
+- `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap` — usado en 46 archivo(s)
+- `https://fonts.gstatic.com` — usado en 46 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 6 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 37 archivo(s)
-- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 15 archivo(s)
+- `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 16 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
 - `node:assert/strict` — usado en 22 archivo(s)
 - `node:crypto` — usado en 1 archivo(s)

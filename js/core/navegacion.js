@@ -35,6 +35,7 @@ export const CATEGORIAS = [
       { label: "Lector POSPER",  href: "modulos/congreso/posper.html",        permiso: "acceso_posper" },
       { label: "Randomizer",     href: "modulos/congreso/randomizer.html",    permiso: "acceso_posper" },
       { label: "Sorteo en vivo", href: "modulos/congreso/randomizerint.html", permiso: "acceso_posper" },
+      { label: "QR POSPER",      href: "modulos/congreso/qrPosper.html",      permiso: "qr_posper" },
     ],
   },
   {

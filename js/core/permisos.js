@@ -46,6 +46,9 @@ export const PERMISOS = {
   // Pestaña POSPER del dashboard: posper.html, randomizer.html y
   // randomizerint.html. Debe reflejar ROLES_POSPER en functions/operaciones-qr.js.
   acceso_posper: ["ceo", "posper"],
+  // Micropestaña "QR POSPER" del menú (qrPosper.html): solo CEO. El usuario
+  // POSPER ve el mismo QR en su inicio.
+  qr_posper: ["ceo"],
   // Mapa del evento: lo ven todos los roles internos (el patrocinador solo
   // ve su pestaña). Configurar salones y liberar asientos va con
   // "gestionar_inscripciones", como el resto de Gestión de Eventos.
