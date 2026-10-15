@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-14T23:11:09.512300+00:00**
+- Generado: **2026-10-15T00:19:48.324774+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `affad1685eabab99…`
-- Archivos analizados: **225**
+- Huella del proyecto: `c0a495395cb0fdc8…`
+- Archivos analizados: **229**
 - Relaciones internas tipadas: **872**
-- Símbolos detectados: **5996**
-- Llamadas detectadas: **13443**
+- Símbolos detectados: **6027**
+- Llamadas detectadas: **13474**
 - IDs DOM definidos: **1136**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **38**
 - Cloud Functions detectadas: **24**
-- Archivos huerfanos: **73**
+- Archivos huerfanos: **77**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,9 +19,9 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**16,002 tokens** · leer primero
-- `GraphCompleto.json` — ~**76,950 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**141,644 tokens** · evidencia exhaustiva
+- `GraphCompacto.json` — ~**16,102 tokens** · leer primero
+- `GraphCompleto.json` — ~**77,381 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**142,262 tokens** · evidencia exhaustiva
 - Reducción estimada al empezar por el compacto: **88.7%** frente al profundo
 
 ## Diagnósticos de integridad
@@ -42,9 +42,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `apple-touch-icon.png` — riesgo 86.0 (conexiones: 43, 0 lineas)
 - `favicon.ico` — riesgo 86.0 (conexiones: 43, 0 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
+- `js/modulos/credenciales.js` — riesgo 81.1 (conexiones: 36, 911 lineas)
 - `css/styles.css` — riesgo 80.3 (conexiones: 36, 831 lineas)
 - `js/core/firebase-config.js` — riesgo 80.3 (conexiones: 40, 35 lineas)
-- `js/modulos/credenciales.js` — riesgo 80.1 (conexiones: 36, 813 lineas)
 - `js/modulos/gestorCredenciales.js` — riesgo 69.3 (conexiones: 31, 729 lineas)
 - `js/core/permanencia.js` — riesgo 68.0 (conexiones: 33, 202 lineas)
 - `panel/modulos/logistica/catalogo.html` — riesgo 67.0 (conexiones: 29, 895 lineas)
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -104,6 +104,10 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/test/envios.test.js`
 - `functions/test/permisos-reglas.integration.mjs`
 - `icons/bebida-lata.svg`
+- `img/credenciales/expositor.jpg`
+- `img/credenciales/organizador.jpg`
+- `img/credenciales/participante.jpg`
+- `img/credenciales/voluntario.jpg`
 - `img/iconos/activar.svg`
 - `img/iconos/agua.svg`
 - `img/iconos/bubble_tea.svg`
@@ -120,11 +124,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/combo.svg`
 - `img/iconos/combo_hamburguesa_soda.svg`
 - `img/iconos/combo_pizza_soda.svg`
-- `img/iconos/desactivar.svg`
-- `img/iconos/donut.svg`
-- `img/iconos/dulce.svg`
-- `img/iconos/dulce_alt.svg`
-- ...y 33 mas
+- ...y 37 mas
 
 ## Colecciones de Firestore y quien las usa
 

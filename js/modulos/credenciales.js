@@ -618,7 +618,105 @@ function dibujarDoblada(cara) {
   return hoja;
 }
 
+// ── DISEÑO OFICIAL 2026 (plantillas) ───────────────────────────────────────
+// Los diseños llegan en PDF y se pasan a JPG a 300 ppp en img/credenciales/:
+// una tira de 4 × 10 in con el frente arriba y el reverso (patrocinadores)
+// abajo, ya girado para doblar. Solo queda poner el QR y los datos en el
+// recuadro blanco del frente. Se usan en los tamaños de cara 4 × 5 in; los
+// demás siguen con el diseño dibujado de arriba.
+const PLANTILLAS = {
+  participante: "participante", voluntario: "voluntario", comite: "organizador", expositor: "expositor",
+};
+// Recuadro blanco del frente, en fracción de la cara de 4 × 5 in (medido en
+// los PDF: 28.3–259.4 pt de 288 de ancho, 156.5–249.4 pt de 360 de alto).
+const RECUADRO = { x: 0.0983, y: 0.4347, w: 0.8024, h: 0.2581 };
+const usaPlantilla = tamano => tamano.ancho === 101.6 && tamano.alto === 127;
+
+const plantillas = new Map();
+function plantillaDe(p) {
+  const archivo = PLANTILLAS[p?.cred?.tema] || PLANTILLAS.participante;
+  if (!plantillas.has(archivo)) plantillas.set(archivo, cargarImagen(rutaRaiz(`img/credenciales/${archivo}.jpg`)));
+  return plantillas.get(archivo);
+}
+
+// Filas de texto del recuadro a escala k (1 = tamaño ideal).
+function medirRecuadro(ctx, p, ancho, u, k, conQr) {
+  const tema = temaDe(p);
+  const filas = [];
+  const texto = (valor, { tam, min, peso = 500, lineas = 1, color = C.texto, familia = FUENTE, antes = 0 }) => {
+    valor = String(valor || "").trim();
+    if (!valor) return;
+    const t = ajustarTexto(ctx, valor, { anchoMax: ancho, maxLineas: lineas, tamMax: tam * k * u, tamMin: min * k * u, peso, familia });
+    filas.push({ lineas: t.lineas, font: fuente(peso, t.tam, familia), color, lh: t.tam * 1.2, antes: filas.length ? antes * k * u : 0 });
+  };
+  texto(nombreDe(p), { tam: 5.4, min: 3.2, peso: 800, lineas: 2, color: C.tinta });
+  texto(p.cedula, { tam: 2.9, min: 2.3, antes: 0.5 });
+  // La plantilla ya dice VOLUNTARIO, ORGANIZADOR o EXPOSITOR; a los
+  // participantes se les pone su categoría (Estudiante UTP, Profesional...).
+  if (!p.cred) texto(categoriaDe(p).toLocaleUpperCase("es"), { tam: 2.7, min: 2.2, peso: 700, color: tema.principal, antes: 1.4 });
+  texto(institucionDe(p), { tam: 2.7, min: 2.2, lineas: 2, antes: 1 });
+  if (!conQr && p.cred?.detalle?.length) {
+    texto((p.cred.detalleTitulo || "Expone").toLocaleUpperCase("es"), { tam: 2.5, min: 2.1, peso: 800, color: tema.principal, antes: 1.4 });
+    p.cred.detalle.slice(0, 3).forEach(d => texto(d, { tam: 2.6, min: 2.1, peso: 600, color: C.tinta, antes: 0.4 }));
+  }
+  texto(codigoDe(p), { tam: 3.4, min: 2.4, peso: 700, color: tema.oscuro, familia: FUENTE_CODIGO, antes: 1.4 });
+  const alto = filas.reduce((suma, f) => suma + f.antes + f.lineas.length * f.lh, 0);
+  return { filas, alto };
+}
+
+// QR a la izquierda (zona azul del diseño) y datos a la derecha (zona
+// verde). Sin QR (expositor no inscrito) los datos ocupan todo el recuadro.
+function dibujarRecuadro(ctx, p, W, Hcara) {
+  const u = W / 100;
+  const bx = RECUADRO.x * W, by = RECUADRO.y * Hcara;
+  const bw = RECUADRO.w * W, bh = RECUADRO.h * Hcara;
+  const margen = 2 * u;
+  const lado = bh - 2 * margen;
+  const qr = textoQr(p);
+  if (qr) dibujarQr(ctx, qr, bx + margen, by + margen, lado, temaDe(p).qr);
+
+  const tx = qr ? bx + margen + lado + 3 * u : bx + margen;
+  const ancho = bx + bw - margen - tx;
+  let m;
+  for (let k = 1; k >= 0.6; k -= 0.1) {
+    m = medirRecuadro(ctx, p, ancho, u, k, !!qr);
+    if (m.alto <= lado) break;
+  }
+  let y = by + margen + Math.max(0, (lado - m.alto) / 2);
+  ctx.textAlign = qr ? "left" : "center";
+  ctx.textBaseline = "middle";
+  const x = qr ? tx : tx + ancho / 2;
+  for (const f of m.filas) {
+    y += f.antes;
+    ctx.font = f.font;
+    ctx.fillStyle = f.color;
+    f.lineas.forEach(linea => { ctx.fillText(linea, x, y + f.lh / 2); y += f.lh; });
+  }
+}
+
+async function dibujarConPlantilla(p, tamano, dpi) {
+  const [plantilla] = await Promise.all([plantillaDe(p), prepararRecursos()]);
+  if (!plantilla) return null;
+  const W = Math.round(tamano.ancho / 25.4 * dpi);
+  const Hcara = Math.round(tamano.alto / 25.4 * dpi);
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = tamano.doblez ? Hcara * 2 : Hcara;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  // Doblada: la tira completa (frente y reverso). Una cara: solo el frente.
+  const altoFuente = tamano.doblez ? plantilla.naturalHeight : plantilla.naturalHeight / 2;
+  ctx.drawImage(plantilla, 0, 0, plantilla.naturalWidth, altoFuente, 0, 0, W, canvas.height);
+  dibujarRecuadro(ctx, p, W, Hcara);
+  return canvas;
+}
+
 export async function dibujarCredencial(p, tamano, { dpi = DPI } = {}) {
+  if (usaPlantilla(tamano)) {
+    const lienzo = await dibujarConPlantilla(p, tamano, dpi);
+    if (lienzo) return lienzo;
+    console.warn("Credenciales: no cargó la plantilla, se usa el diseño dibujado.");
+  }
   const cara = await dibujarCara(p, tamano, dpi);
   return tamano.doblez ? dibujarDoblada(cara) : cara;
 }
