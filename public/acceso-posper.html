@@ -132,7 +132,20 @@
     // La clave sale del link (#k=...) o del texto completo que tecleó el lector.
     function claveDe(texto) {
       const limpio = String(texto || "").replace(/\s+/g, "");
-      return (limpio.match(/[#?&]k=([A-Za-z0-9_-]{43})/i) || limpio.match(/^([A-Za-z0-9_-]{43})$/) || [])[1] || "";
+      const exacta = (limpio.match(/[#?&]k=([A-Za-z0-9_-]{43})/i) || limpio.match(/^([A-Za-z0-9_-]{43})$/) || [])[1];
+      return exacta || claveConSimbolosCambiados(limpio);
+    }
+
+    // Un lector que "teclea" con otra distribución de teclado (el HT330) cambia
+    // los símbolos del link (: / - # = _) pero no letras ni números. La clave son
+    // los últimos 43 caracteres; dentro de ella solo puede haber "-" y "_": el
+    // "-" se aprende de cómo llegó "contecs-app" y cualquier otro símbolo es "_".
+    function claveConSimbolosCambiados(limpio) {
+      if (limpio.length < 43 || !/contecs.app.+acceso.posper/i.test(limpio)) return "";
+      const guion = (limpio.match(/contecs(.)app/i) || [])[1] || "-";
+      return [...limpio.slice(-43)]
+        .map(ch => /[A-Za-z0-9]/.test(ch) ? ch : ch === guion ? "-" : "_")
+        .join("");
     }
 
     function textoDeError(e) {
@@ -185,7 +198,9 @@
       }
       const clave = claveDe(texto);
       if (!clave) {
-        esperarLector("Eso no es el QR de acceso de POSPER. Escanea el QR de la pestaña QR POSPER.");
+        // Se muestra el inicio de lo leído (sin la clave) para ver qué cambió el lector.
+        const muestra = texto.trim().length > 60 ? `${texto.trim().slice(0, 60)}…` : texto.trim();
+        esperarLector(`Eso no es el QR de acceso de POSPER. Escanea el QR de la pestaña QR POSPER. Se leyó: "${muestra}"`);
         return;
       }
       leyendo = true;
