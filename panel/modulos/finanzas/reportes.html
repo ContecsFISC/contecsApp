@@ -5,26 +5,17 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Reportes</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
 <style>
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco, #fff);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  .reportes-intro { max-width:520px; margin:0 auto 22px; color:var(--gris-medio); font-size:14px; line-height:1.65; }
  .reportes-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; text-align:left; }
  .reporte-link {
@@ -45,7 +36,7 @@
    transition:transform .22s var(--ease-out),border-color .22s ease,box-shadow .22s ease;
  }
  .reporte-link::after { content:'→'; font-size:20px; font-weight:500; transition:transform .22s var(--ease-out); }
- .reporte-link:hover { transform:translateY(-2px); border-color:var(--verde-claro); box-shadow:0 10px 24px rgba(0,114,46,.12); }
+ .reporte-link:hover { transform:translateY(-2px); border-color:var(--verde-claro); box-shadow:0 10px 24px rgba(6,78,59,.12); }
  .reporte-link:hover::after { transform:translateX(3px); }
  @media(max-width:520px) {
    .reportes-grid { grid-template-columns:minmax(0,1fr); }
@@ -78,5 +69,6 @@
  guardRoute();
  await requirePermiso("ver_reportes");
  </script>
+  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>

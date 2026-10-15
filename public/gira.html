@@ -5,21 +5,24 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../apple-touch-icon.png"/>
+ <link rel="manifest" href="../manifest.webmanifest"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS 2026 — Mi Gira</title>
  <style>
  :root {
- --oro: #856404;
- --oro-oscuro: #5c4403;
- --oro-claro: #c8960a;
- --oro-fondo: #fff3cd;
- --gris-texto: #1d1d1f;
- --gris-suave: #f5f5f7;
- --gris-borde: #e3e3e6;
- --gris-medio: #86868b;
- --rojo: #d0342c;
+ --oro: #8a4f12;
+ --oro-oscuro: #6b3b0a;
+ --oro-claro: #a4682e;  /* texto blanco encima: >=4.5:1 */
+ --oro-fondo: #fff1dc;
+ --gris-texto: #10241d;
+ --gris-suave: #fbfaf6;
+ --gris-borde: #e8e5dc;
+ --gris-medio: #5e6f67;
+ --rojo: #cd332b;
  --rojo-fondo: #fdf0ef;
- --verde: #00722e;
- --verde-fondo: #e9f6ee;
+ --verde: #064e3b;
+ --verde-fondo: #e4f1ec;
  --azul: #2471a3;
  --azul-fondo: #eaf4fb;
  --radio: 12px;
@@ -51,7 +54,7 @@
  width: 100%;
  max-width: 400px;
  text-align: center;
- box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+ box-shadow: 0 20px 60px rgba(3,46,35,0.3);
  animation: fadeScaleIn 0.5s var(--ease-spring) both;
  }
  .msg-card .logo-circulo {
@@ -61,7 +64,7 @@
  display: flex; align-items: center; justify-content: center;
  margin: 0 auto 16px;
  overflow: hidden;
- box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+ box-shadow: 0 4px 16px rgba(3,46,35,0.12);
  }
  .msg-card h1 { font-size: 19px; font-weight: 800; color: var(--oro-oscuro); margin-bottom: 10px; }
  .msg-card p { font-size: 14px; color: var(--gris-medio); line-height: 1.6; }
@@ -112,7 +115,7 @@
  .info-card {
  background: #fff;
  border-radius: var(--radio);
- box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
  margin-bottom: 14px;
  animation: cardIn 0.5s var(--ease-spring) both;
@@ -134,7 +137,7 @@
  .qr-card {
  background: #fff;
  border-radius: var(--radio);
- box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
  margin-bottom: 14px;
  animation: cardIn 0.5s var(--ease-spring) 0.05s both;
@@ -166,7 +169,7 @@
  .checkpoint-card {
  background: #fff;
  border-radius: var(--radio);
- box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+ box-shadow: 0 2px 12px rgba(3,46,35,0.07);
  padding: 20px;
  margin-bottom: 14px;
  animation: cardIn 0.5s var(--ease-spring) 0.1s both;
@@ -224,9 +227,9 @@
  }
  .loading-txt { font-size: 14px; color: var(--gris-medio); }
 
- @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+ @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
- @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+ @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
 
  .footer { text-align: center; padding: 20px 16px 40px; font-size: 12px; color: var(--gris-medio); }
  </style>
@@ -275,7 +278,7 @@
 
  <div class="hero-gira">
  <div style="margin-bottom:12px;position:relative;display:flex;justify-content:center;">
- <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);">
+ <div style="width:84px;height:84px;background:#ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 16px rgba(3,46,35,0.18);">
  <img src="../logocontecs.png" alt="CONTECS"
  style="width:74px;height:74px;object-fit:contain;"
  onerror="this.style.display='none';"/>

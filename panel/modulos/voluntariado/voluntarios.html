@@ -5,11 +5,16 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
  <link rel="icon" href="../../../favicon.ico" sizes="any"/>
  <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.webmanifest"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
  <title>CONTECS — Voluntarios</title>
  <link rel="preconnect" href="https://fonts.googleapis.com"/>
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
  <link rel="stylesheet" href="../../../css/styles.css?v=20260906.1"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261014.1"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261014.1"/>
  <script src="../../../js/libs/qrcode.min.js"></script>
  <script src="../../../js/libs/jszip.min.js"></script>
  <script src="../../../js/libs/xlsx.full.min.js"></script>
@@ -33,10 +38,6 @@
  .tab-panel { display:none; }
  .tab-panel.active { display:block; }
 
- .btn-qr-scan { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:7px 14px; border-radius:20px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:background 0.2s; }
- .btn-qr-scan:hover { background:rgba(255,255,255,0.32); }
-
-
  .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
  .stat-mini { background:#fff; border-radius:var(--radio); padding:16px; text-align:center; box-shadow:var(--sombra-sm); border-bottom:3px solid var(--verde-claro); }
  .stat-mini .num { font-size:26px; font-weight:700; color:var(--verde-oscuro); }
@@ -46,12 +47,11 @@
  .turno-tag button { background:none; border:none; cursor:pointer; color:var(--rojo); font-size:15px; line-height:1; padding:0 2px; }
 
  .horas-badge { display:inline-block; background:var(--verde-fondo); color:var(--verde-oscuro); font-weight:700; padding:3px 10px; border-radius:12px; font-size:13px; }
- .area-badge { display:inline-block; background:#e8f0fe; color:#1a56db; font-weight:600; padding:3px 10px; border-radius:12px; font-size:12px; border:1px solid #c7d9fc; }
+ .area-badge { display:inline-block; background:#e4f1ec; color:#064e3b; font-weight:600; padding:3px 10px; border-radius:12px; font-size:12px; border:1px solid #bfdcd2; }
  .tipo-badge { display:inline-block; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:700; }
  .tipo-actividad { background:var(--verde-fondo); color:var(--verde-oscuro); border:1px solid var(--verde-claro); }
- .tipo-gira { background:#fff3cd; color:#856404; border:1px solid #ffc107; }
+ .tipo-gira { background:#fff1dc; color:#8a4f12; border:1px solid #f7b878; }
  .tipo-venta { background:#fde8e8; color:#c81e1e; border:1px solid #f98080; }
-
 
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
@@ -66,21 +66,6 @@
  .stats-grid { grid-template-columns:1fr 1fr; }
  .tab-btn { font-size:10px; padding:7px 4px; min-width:50px; }
  }
- 
- .btn-volver {
- display: inline-flex;
- align-items: center;
- justify-content: center;
- width: 36px; height: 36px;
- border-radius: 50%;
- background: rgba(255,255,255,0.15);
- border: 1px solid rgba(255,255,255,0.25);
- color: var(--blanco, #fff);
- transition: background 0.2s, transform 0.15s;
- text-decoration: none;
- }
- .btn-volver:hover { background: rgba(255,255,255,0.28); }
- .btn-volver:active { transform: scale(0.92); }
  /* ── Importar voluntarios (mismo recorrido que Participantes) ── */
  .iv-card { padding:0; overflow:hidden; border:2px solid var(--verde-claro); }
  .iv-paso { display:flex; flex-direction:column; gap:14px; padding:20px; }
@@ -165,9 +150,9 @@
  .turnos-form .btn { height:44px; white-space:nowrap; }
  .turnos-ayuda { display:block; margin-top:8px; color:var(--gris-medio); font-size:12px; }
  .turnos-lista { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:8px; margin-bottom:14px; }
- .turnos-dia { grid-column:1 / -1; margin:4px 0 0; font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#1a56db; }
+ .turnos-dia { grid-column:1 / -1; margin:4px 0 0; font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#064e3b; }
  .turnos-vacio { font-size:13px; color:var(--gris-medio); margin:2px 0 12px; }
- .turno-chip { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radio-sm); background:#f3f6ff; border:1px solid #d7e2fd; border-left:4px solid #1a56db; }
+ .turno-chip { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radio-sm); background:#f1f8f5; border:1px solid #cfe3db; border-left:4px solid #064e3b; }
  .turno-chip .t-info { flex:1; min-width:0; }
  .turno-chip .t-nombre { font-weight:700; font-size:13px; color:#173a8a; overflow-wrap:anywhere; }
  .turno-chip .t-hora { font-size:12px; color:#3b5bb5; font-variant-numeric:tabular-nums; }
@@ -223,7 +208,7 @@
  <div class="card-title" style="color:#c81e1e;margin:0;">Eventos con voluntarios pendientes</div>
  <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--gris-medio);">
  <span style="background:var(--verde-fondo);color:var(--verde-oscuro);border:1px solid var(--verde-claro);padding:2px 8px;border-radius:12px;">Actividad</span>
- <span style="background:#fff3cd;color:#856404;border:1px solid #fcd34d;padding:2px 8px;border-radius:12px;">Gira</span>
+ <span style="background:#fff1dc;color:#8a4f12;border:1px solid #fcd34d;padding:2px 8px;border-radius:12px;">Gira</span>
  <span style="background:#fde8e8;color:#c81e1e;border:1px solid #f98080;padding:2px 8px;border-radius:12px;">Venta</span>
  </div>
  </div>
@@ -234,12 +219,12 @@
  </a>
  </div>
  </div>
- <div class="card" style="border-left:3px solid #1a56db;">
- <div class="card-title" style="color:#1a56db;">Gestionar turnos</div>
+ <div class="card" style="border-left:3px solid #064e3b;">
+ <div class="card-title" style="color:#064e3b;">Gestionar turnos</div>
  <p style="font-size:13px;color:var(--gris-medio);margin-bottom:12px;">Selecciona un evento para ver y crear sus turnos. Los turnos creados aquí estarán disponibles al asignar voluntarios.</p>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:#1a56db;">Tipo de evento</label>
+ <label style="color:#064e3b;">Tipo de evento</label>
  <select id="turno-evt-tipo">
  <option value="">— Selecciona tipo —</option>
  <option value="congreso">Congreso</option>
@@ -249,7 +234,7 @@
  </select>
  </div>
  <div class="form-groupE">
- <label style="color:#1a56db;">Evento</label>
+ <label style="color:#064e3b;">Evento</label>
  <select id="turno-evt-evento" disabled>
  <option value="">— Selecciona tipo primero —</option>
  </select>
@@ -258,39 +243,39 @@
  <div id="turno-evt-lista" style="margin-bottom:8px;min-height:24px;"></div>
  <div id="turno-evt-form" style="display:none;">
  <div class="form-groupE" id="turno-evt-dia-wrap" style="display:none;max-width:320px;">
- <label for="turno-evt-dia" style="color:#1a56db;">Día del congreso</label>
+ <label for="turno-evt-dia" style="color:#064e3b;">Día del congreso</label>
  <select id="turno-evt-dia"></select>
  </div>
  <div class="turnos-form">
  <div class="form-groupE t-campo-nombre">
- <label for="turno-evt-nombre" style="color:#1a56db;">Nombre del turno</label>
+ <label for="turno-evt-nombre" style="color:#064e3b;">Nombre del turno</label>
  <input type="text" id="turno-evt-nombre" placeholder="ej. Turno mañana"/>
  </div>
  <div class="form-groupE">
- <label for="turno-evt-inicio" style="color:#1a56db;">Inicio</label>
+ <label for="turno-evt-inicio" style="color:#064e3b;">Inicio</label>
  <input type="time" id="turno-evt-inicio"/>
  </div>
  <div class="form-groupE">
- <label for="turno-evt-fin" style="color:#1a56db;">Fin</label>
+ <label for="turno-evt-fin" style="color:#064e3b;">Fin</label>
  <input type="time" id="turno-evt-fin"/>
  </div>
- <button class="btn btn-outline btn-sm" id="btn-add-turno-evt" style="width:auto;color:#1a56db;border-color:#c7d9fc;">+ Agregar turno</button>
+ <button class="btn btn-outline btn-sm" id="btn-add-turno-evt" style="width:auto;color:#064e3b;border-color:#bfdcd2;">+ Agregar turno</button>
  </div>
  <small class="turnos-ayuda">Ej.: Turno mañana 09:00–13:00 · Turno tarde 13:00–17:00. Los turnos no pueden superponerse.</small>
  </div>
  </div>
 
- <div id="nueva-asignacion" class="card" style="border-left:3px solid #1a56db;">
- <div class="card-title" style="color:#1a56db;">Nueva asignación</div>
+ <div id="nueva-asignacion" class="card" style="border-left:3px solid #064e3b;">
+ <div class="card-title" style="color:#064e3b;">Nueva asignación</div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:#1a56db;">Voluntario *</label>
+ <label style="color:#064e3b;">Voluntario *</label>
  <select id="asig-voluntario">
  <option value="">— Selecciona voluntario —</option>
  </select>
  </div>
  <div class="form-groupE">
- <label style="color:#1a56db;">Área de trabajo *</label>
+ <label style="color:#064e3b;">Área de trabajo *</label>
  <select id="asig-area-trabajo">
  <option value="">— Selecciona área —</option>
  <option>Comunicaciones</option>
@@ -305,7 +290,7 @@
  </div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
  <div class="form-groupE">
- <label style="color:#1a56db;">Tipo de evento *</label>
+ <label style="color:#064e3b;">Tipo de evento *</label>
  <select id="asig-tipo">
  <option value="">— Selecciona tipo —</option>
  <option value="actividad">Actividad</option>
@@ -314,27 +299,27 @@
  </select>
  </div>
  <div class="form-groupE">
- <label style="color:#1a56db;">Evento *</label>
+ <label style="color:#064e3b;">Evento *</label>
  <select id="asig-evento" disabled>
  <option value="">— Selecciona tipo primero —</option>
  </select>
  </div>
  </div>
  <div class="form-groupE">
- <label style="color:#1a56db;">Turno</label>
+ <label style="color:#064e3b;">Turno</label>
  <select id="asig-turno" disabled>
  <option value="">— Sin turno específico —</option>
  </select>
  </div>
  <div style="display:flex;gap:10px;flex-wrap:wrap;">
- <button class="btn btn-primary" id="btn-asignar" style="width:auto;min-width:180px;background:linear-gradient(135deg,#1a56db,#3b82f6);">Asignar voluntario</button>
- <button class="btn btn-outline" id="btn-abrir-grupo" style="width:auto;color:#1a56db;border-color:#c7d9fc;"> Asignar grupo</button>
+ <button class="btn btn-primary" id="btn-asignar" style="width:auto;min-width:180px;background:linear-gradient(135deg,#064e3b,#118066);">Asignar voluntario</button>
+ <button class="btn btn-outline" id="btn-abrir-grupo" style="width:auto;color:#064e3b;border-color:#bfdcd2;"> Asignar grupo</button>
  </div>
  </div>
 
- <div class="card" style="border:2px solid #c7d9fc;">
+ <div class="card" style="border:2px solid #bfdcd2;">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
- <div class="card-title" style="margin:0;color:#1a56db;">Asignaciones registradas</div>
+ <div class="card-title" style="margin:0;color:#064e3b;">Asignaciones registradas</div>
  <div style="display:flex;gap:8px;flex-wrap:wrap;">
  <select id="filtro-asig-tipo" style="padding:7px 10px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font-size:13px;">
  <option value="">Todos los tipos</option>
@@ -358,12 +343,12 @@
  <div class="tabla-wrap">
  <table>
  <thead><tr>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc">Voluntario</th>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc">Área de trabajo</th>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc">Tipo</th>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc">Evento</th>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc">Turno</th>
- <th style="color:#1a56db;border-bottom:2px solid #c7d9fc"></th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2">Voluntario</th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2">Área de trabajo</th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2">Tipo</th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2">Evento</th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2">Turno</th>
+ <th style="color:#064e3b;border-bottom:2px solid #bfdcd2"></th>
  </tr></thead>
  <tbody id="tabla-asignaciones-body"><tr><td colspan="6" style="text-align:center;color:var(--gris-medio)">Sin asignaciones registradas</td></tr></tbody>
  </table>
@@ -525,11 +510,11 @@
 <div class="modal-overlay" id="modal-grupo">
  <div class="modal-box" style="max-width:620px;width:100%;">
  <button class="modal-close" id="modal-grupo-close" type="button" aria-label="Cerrar">&times;</button>
- <div class="modal-title" style="color:#1a56db;"> Asignar grupo de voluntarios</div>
+ <div class="modal-title" style="color:#064e3b;"> Asignar grupo de voluntarios</div>
 
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
  <div class="form-groupE" style="margin:0;">
- <label style="color:#1a56db;font-size:13px;">Tipo de evento *</label>
+ <label style="color:#064e3b;font-size:13px;">Tipo de evento *</label>
  <select id="grupo-tipo">
  <option value="">— Selecciona tipo —</option>
  <option value="actividad">Actividad</option>
@@ -538,7 +523,7 @@
  </select>
  </div>
  <div class="form-groupE" style="margin:0;">
- <label style="color:#1a56db;font-size:13px;">Evento *</label>
+ <label style="color:#064e3b;font-size:13px;">Evento *</label>
  <select id="grupo-evento" disabled>
  <option value="">— Selecciona tipo primero —</option>
  </select>
@@ -546,7 +531,7 @@
  </div>
 <div class="mobile-stack" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
  <div class="form-groupE" style="margin:0;">
- <label style="color:#1a56db;font-size:13px;">Área de trabajo *</label>
+ <label style="color:#064e3b;font-size:13px;">Área de trabajo *</label>
  <select id="grupo-area">
  <option value="">— Selecciona área —</option>
  <option>Comunicaciones</option><option>Logística</option><option>Ventas</option>
@@ -555,32 +540,33 @@
  </select>
  </div>
  <div class="form-groupE" style="margin:0;">
- <label style="color:#1a56db;font-size:13px;">Turno</label>
+ <label style="color:#064e3b;font-size:13px;">Turno</label>
  <select id="grupo-turno" disabled>
  <option value="">— Sin turno específico —</option>
  </select>
  </div>
  </div>
 
- <div id="grupo-info" style="display:none;background:#eef2ff;border:1px solid #c7d9fc;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;color:#1a56db;"></div>
+ <div id="grupo-info" style="display:none;background:#f1f8f5;border:1px solid #bfdcd2;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px;color:#064e3b;"></div>
  <div id="grupo-aviso" style="display:none;background:#fef9c3;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#92400e;"></div>
 
  <div id="grupo-voluntarios-wrap" style="display:none;">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
- <span style="font-size:13px;font-weight:600;color:#1a56db;">Voluntarios disponibles</span>
+ <span style="font-size:13px;font-weight:600;color:#064e3b;">Voluntarios disponibles</span>
  <span id="grupo-contador" style="font-size:12px;color:var(--gris-medio);"></span>
  </div>
- <div id="grupo-voluntarios-lista" style="max-height:240px;overflow-y:auto;border:1.5px solid #c7d9fc;border-radius:10px;padding:6px;"></div>
+ <div id="grupo-voluntarios-lista" style="max-height:240px;overflow-y:auto;border:1.5px solid #bfdcd2;border-radius:10px;padding:6px;"></div>
  </div>
 
  <div style="margin-top:14px;">
  <button class="btn btn-primary" id="btn-confirmar-grupo" disabled
- style="width:100%;background:linear-gradient(135deg,#1a56db,#3b82f6);">Asignar grupo</button>
+ style="width:100%;background:linear-gradient(135deg,#064e3b,#118066);">Asignar grupo</button>
  </div>
  <div id="grupo-progreso" style="display:none;text-align:center;font-size:13px;color:var(--gris-medio);margin-top:8px;"></div>
  </div>
 </div>
 
 <script type="module" src="../../../js/modulos/voluntarios.js?v=20261014.1"></script>
+  <script src="../../../js/core/ui-shell.js" defer></script>
 </body>
 </html>
