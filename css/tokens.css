@@ -1,0 +1,78 @@
+/* ===========================================================
+   CONTECS — Tokens de diseño v2 ("cx")
+   Emerald Ink · Champagne · Soft Apricot
+
+   Todo vive bajo el prefijo --cx-. NO redefine ninguna variable de
+   styles.css (--verde, --rojo, ...): las paginas que no migren siguen
+   viendo exactamente lo mismo. Cada etapa de la modernizacion consume
+   estos tokens; cuando todas migren, styles.css podra apuntar aqui.
+   =========================================================== */
+
+:root {
+  /* ── Emerald Ink: la identidad. Oscuro y profundo, no un verde "pantalla". ── */
+  --cx-ink-950: #021f17;
+  --cx-ink-900: #032e23;
+  --cx-ink-800: #053f30;
+  --cx-ink:     #064e3b;   /* base de marca */
+  --cx-ink-600: #0b6a50;
+  --cx-ink-500: #118066;
+  --cx-ink-200: #bfdcd2;
+  --cx-ink-100: #e4f1ec;
+  --cx-ink-50:  #f1f8f5;
+
+  /* ── Champagne: calidez. Fondos de estado activo y superficies suaves. ── */
+  --cx-champagne:     #f8e7c9;   /* base */
+  --cx-champagne-300: #fbf0dc;
+  --cx-champagne-100: #fdf7ea;
+  --cx-champagne-50:  #fefbf4;
+  --cx-champagne-700: #d9bd8a;   /* bordes sobre champagne */
+
+  /* ── Soft Apricot: el acento. Poco y con intencion (indicadores, avisos). ── */
+  --cx-apricot:     #ffd6a5;     /* base */
+  --cx-apricot-400: #f7b878;
+  --cx-apricot-600: #d98a3d;
+  --cx-apricot-800: #8a4f12;     /* texto sobre champagne/apricot: contraste AA */
+
+  /* ── Superficies y texto. El lienzo es un blanco calido, no gris frio. ── */
+  --cx-canvas:  #fbfaf6;
+  --cx-surface: #ffffff;
+  --cx-text:    #10241d;
+  --cx-text-2:  #4b5f57;
+  --cx-text-3:  #66786f;         /* >= 4.5:1 sobre blanco */
+  --cx-line:        rgba(6, 78, 59, 0.10);
+  --cx-line-strong: rgba(6, 78, 59, 0.18);
+
+  /* ── Sombras: capas tintadas de tinta verde, nunca negro puro. Cada nivel
+        suma una capa cercana (contacto) y una lejana (elevacion). ── */
+  --cx-shadow-1: 0 1px 2px rgb(3 46 35 / 0.06), 0 2px 8px rgb(3 46 35 / 0.05);
+  --cx-shadow-2: 0 2px 4px rgb(3 46 35 / 0.05), 0 8px 24px rgb(3 46 35 / 0.08);
+  --cx-shadow-3: 0 4px 8px rgb(3 46 35 / 0.05), 0 16px 40px rgb(3 46 35 / 0.12);
+  --cx-shadow-4: 0 8px 16px rgb(3 46 35 / 0.06), 0 28px 64px rgb(3 46 35 / 0.18);
+  --cx-ring:     0 0 0 1px var(--cx-line);
+
+  /* ── Radios ── */
+  --cx-radius-sm: 10px;
+  --cx-radius:    14px;
+  --cx-radius-lg: 20px;
+  --cx-radius-pill: 999px;
+
+  /* ── Movimiento. Solo transform/opacity: son las unicas propiedades que el
+        navegador anima en el compositor (60 fps sin tocar el hilo principal). ── */
+  --cx-ease-out:    cubic-bezier(0.22, 1, 0.36, 1);      /* llegada: rapida y suave */
+  --cx-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --cx-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);    /* rebote corto */
+  --cx-dur-tap:     90ms;
+  --cx-dur-fast:    160ms;
+  --cx-dur-base:    240ms;
+  --cx-dur-slow:    420ms;
+
+  /* ── Tipografia: las mismas familias que ya cargan las 43 paginas
+        (Inter + Space Grotesk), asi no se suma ninguna descarga de fuentes. ── */
+  --cx-font:         'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --cx-font-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  /* ── Medidas del navbar (las usa navbar.css y, para reservar espacio, cada pagina) ── */
+  --cx-bar-h:   64px;
+  --cx-bar-gap: 12px;     /* separacion de la barra flotante a los bordes */
+  --cx-rail-w:  84px;     /* carril lateral derecho: ancho reservado */
+}
