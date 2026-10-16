@@ -81,3 +81,20 @@ assert.equal(m.personaParticipante(part[0])._centro, "", "sin dato queda vacío"
 const expUtp = m.personasExpositores({ participantes: [{ ...part[1], camposExtra: { ponencia: "si", centro: "Centro Regional de Veraguas" } }], checkpoints: [] });
 assert.equal(expUtp[0]._centro, "Centro Regional de Veraguas");
 console.log("ok centro y facultad");
+// Docentes del comité organizador: la lista se pega tal como viene en el documento.
+const lineas = [
+  "Docentes:",
+  "• Dr. Tomás Concepción – Asesor Académico",
+  "• Ing. Carlos Rodríguez-Chong – Asesor Académico",
+  "Lic. Juan Gómez\tComité de Giras",
+  "",
+].map(m.leerLineaDocente);
+assert.equal(lineas[0], null, "el encabezado se ignora"); assert.equal(lineas[4], null);
+assert.deepEqual(lineas[1], { titulo: "Dr.", nombreCompleto: "Tomás Concepción", cargo: "Asesor Académico" });
+assert.equal(lineas[2].nombreCompleto, "Carlos Rodríguez-Chong", "el guion del apellido no separa el cargo");
+assert.equal(lineas[3].cargo, "Comité de Giras", "dos columnas de Excel");
+const doc = m.personaDocente({ id: "d1", titulo: "Dr.", nombre: "Tomás", apellido: "Concepción", cargo: "Asesor Académico" });
+assert.equal(doc._tipo, "comite"); assert.equal(doc.nombreCompleto, "Dr. Tomás Concepción");
+assert.equal(doc.cred.qr, ""); assert.deepEqual(doc.cred.detalle, ["Asesor Académico"]);
+assert.equal(m.inicialDe(doc), "T", "va en la letra del nombre, no del título");
+console.log("ok docentes del comité");
