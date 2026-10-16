@@ -348,6 +348,7 @@ function textoFiltros() {
   return [
     opcion("cr-estado"),
     S.tipo === "participante" && opcion("cr-categoria"),
+    ...FILTROS_UTP.map(f => !el(f.id).hidden && opcion(f.id).replace(/ \(\d+\)$/, "")),
     S.tipo === "participante" && el("cr-no-aprobados").checked && "incluye pagos no aprobados",
     S.tipo === "expositor" && opcion("cr-evento"),
     buscar && `búsqueda «${buscar}»`,
@@ -470,15 +471,27 @@ el("cr-listas").addEventListener("click", async () => {
   }
 });
 
+// Centro regional y facultad: el valor del filtro es el texto normalizado
+// (así "Campus central" y "Campus Central" son la misma opción); SIN_DATO
+// junta a quienes no lo tienen.
+const SIN_DATO = "__sin_dato__";
+const valorUtp = texto => normalizar(texto) || SIN_DATO;
+const FILTROS_UTP = [
+  { id: "cr-centro", campo: "_centro", todos: "Todos los centros regionales", sin: "Sin centro regional" },
+  { id: "cr-facultad", campo: "_facultad", todos: "Todas las facultades", sin: "Sin facultad" },
+];
+
 function filtrarSinLetra() {
   const tipo = S.tipo;
   const q = normalizar(el("cr-buscar").value).split(" ").filter(Boolean);
   const estado = el("cr-estado").value;
   const categoria = el("cr-categoria").value;
   const conPendientes = el("cr-no-aprobados").checked;
+  const utp = FILTROS_UTP.map(f => ({ campo: f.campo, valor: el(f.id).hidden ? "" : el(f.id).value })).filter(f => f.valor);
   return S.personas[tipo].filter(p => {
     if (tipo === "participante" && !conPendientes && !p._aprobado) return false;
     if (tipo === "participante" && categoria && p.categoria !== categoria) return false;
+    if (utp.some(f => valorUtp(p[f.campo]) !== f.valor)) return false;
     if (estado === "impresa" && !S.impresas.has(p._clave)) return false;
     if (estado === "pendiente" && S.impresas.has(p._clave)) return false;
     return q.every(t => p._buscar.includes(t));
@@ -504,6 +517,29 @@ function renderFiltros() {
         .map(([v, t]) => `<option value="${escaparAtributo(v)}">${h(t)}</option>`).join("");
     el("cr-categoria").value = cats.has(actual) ? actual : "";
   }
+  // Las opciones (con cuántas personas hay) salen de quienes se listan en este
+  // tipo; si nadie tiene el dato (p. ej. expositores agregados a mano), el
+  // filtro no se muestra.
+  const conPendientes = el("cr-no-aprobados").checked;
+  const base = S.personas[tipo].filter(p => tipo !== "participante" || conPendientes || p._aprobado);
+  FILTROS_UTP.forEach(f => {
+    const sel = el(f.id);
+    const opciones = new Map();
+    base.forEach(p => {
+      const texto = String(p[f.campo] || "").trim();
+      const valor = valorUtp(texto);
+      if (!opciones.has(valor)) opciones.set(valor, { texto: texto || f.sin, n: 0 });
+      opciones.get(valor).n++;
+    });
+    const conDato = [...opciones.keys()].some(v => v !== SIN_DATO);
+    sel.hidden = !conDato;
+    if (!conDato) { sel.value = ""; return; }
+    const actual = sel.value;
+    const orden = [...opciones].sort(([va, a], [vb, b]) => (va === SIN_DATO) - (vb === SIN_DATO) || a.texto.localeCompare(b.texto, "es"));
+    sel.innerHTML = `<option value="">${h(f.todos)}</option>` +
+      orden.map(([v, o]) => `<option value="${escaparAtributo(v)}">${h(o.texto)} (${o.n})</option>`).join("");
+    sel.value = opciones.has(actual) ? actual : "";
+  });
   el("cr-estado").disabled = !S.historialDisponible;
 }
 
@@ -588,12 +624,14 @@ el("cr-limpiar").addEventListener("click", () => {
   actualizarBotones();
 });
 
-["cr-buscar", "cr-estado", "cr-categoria", "cr-no-aprobados"].forEach(id =>
+["cr-buscar", "cr-estado", "cr-categoria", "cr-centro", "cr-facultad", "cr-no-aprobados"].forEach(id =>
   el(id).addEventListener(id === "cr-buscar" ? "input" : "change", () => {
     if (id === "cr-no-aprobados" && !el(id).checked) {
       // Al ocultar los pendientes de pago también salen de la selección.
       S.personas.participante.filter(p => !p._aprobado).forEach(p => S.seleccion.participante.delete(p._clave));
     }
+    // Los conteos de centro y facultad cambian con los pagos no aprobados.
+    if (id === "cr-no-aprobados") renderFiltros();
     renderLista();
     renderPreview();
     actualizarBotones();
