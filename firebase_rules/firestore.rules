@@ -308,6 +308,27 @@ service cloud.firestore {
       allow delete: if permite('gestionar_credenciales', ['ceo']);
     }
 
+    // Docentes del comité organizador, agregados en el módulo Credenciales
+    // (js/modulos/gestorCredenciales.js): título, nombre y cargo o comité.
+    match /comite_docentes/{id} {
+      allow read, delete: if permite('gestionar_credenciales', ['ceo']);
+      allow create, update: if permite('gestionar_credenciales', ['ceo'])
+        && request.resource.data.keys().hasOnly([
+          'titulo', 'nombre', 'apellido', 'cargo',
+          'creadoPor', 'creadoEn', 'actualizadoEn', 'lote'
+        ])
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0
+        && request.resource.data.nombre.size() <= 100
+        && request.resource.data.get('apellido', '') is string
+        && request.resource.data.get('apellido', '').size() <= 100
+        && request.resource.data.get('titulo', '') is string
+        && request.resource.data.get('titulo', '').size() <= 20
+        && request.resource.data.cargo is string
+        && request.resource.data.cargo.size() > 0
+        && request.resource.data.cargo.size() <= 120;
+    }
+
     // RFID anclado desde POSPER — solo Admin SDK (ejecutarOperacionQr)
     match /rfid_participantes/{id} {
       allow read, write: if false;

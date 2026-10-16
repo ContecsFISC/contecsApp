@@ -206,6 +206,16 @@ await prueba("expositores agregados a mano: solo con el módulo Credenciales", a
   await noPuede("ventas-1", "PATCH", "expositores/e-2", ex);
 });
 
+await prueba("docentes del comité: solo con el módulo Credenciales y con cargo", async () => {
+  const d = { titulo: "Dr.", nombre: "Tomás", apellido: "Concepción", cargo: "Asesor Académico", creadoPor: "ceo-1" };
+  await puede("ceo-1", "PATCH", "comite_docentes/d-1", d);
+  await puede("ventas-credenciales", "GET", "comite_docentes/d-1");
+  await noPuede("ventas-1", "GET", "comite_docentes/d-1");
+  await noPuede("ventas-1", "PATCH", "comite_docentes/d-2", d);
+  await noPuede("ceo-1", "PATCH", "comite_docentes/d-3", { ...d, cargo: "" });
+  await noPuede("ceo-1", "PATCH", "comite_docentes/d-4", { ...d, cedula: "8-1-1" });
+});
+
 console.log("\nVoluntarios:\n");
 
 await prueba("cambiar el grupo: solo CEO o a quien se le otorga; lo demás sigue con gestionar_voluntarios", async () => {

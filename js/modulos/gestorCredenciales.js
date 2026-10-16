@@ -22,7 +22,7 @@ import {
 } from "./credenciales.js";
 import {
   TIPOS, personaParticipante, personaVoluntario, personasExpositores, estadoImpresion, normalizar,
-  inicialDe, gruposEquilibrados, cedulaDe, partesCedula,
+  inicialDe, gruposEquilibrados, cedulaDe, partesCedula, personaDocente, leerLineaDocente, nombreOrden,
 } from "./personas-credenciales.js";
 import { leerArchivo, nombrePropio, separarNombreCompleto } from "./importar-participantes.js";
 import { esCorreoValido } from "../core/correos.js";
@@ -38,6 +38,7 @@ const S = {
   eventos: [],
   checkpoints: [],
   expositores: [], // agregados a mano (colección expositores)
+  docentes: [], // docentes del comité organizador (colección comite_docentes)
   evento: "",
   personas: { participante: [], voluntario: [], comite: [], expositor: [] },
   impresas: new Map(), // _clave -> { veces, ultimaEn }
@@ -95,6 +96,16 @@ async function cargarExpositoresManuales() {
   }
 }
 
+async function cargarDocentes() {
+  try {
+    const snap = await getDocs(collection(db, "comite_docentes"));
+    S.docentes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.warn("Credenciales: docentes del comité no disponibles:", err);
+    S.docentes = [];
+  }
+}
+
 async function cargarCheckpoints() {
   S.checkpoints = S.evento
     ? await leer(query(collection(db, "checkpoints"), where("eventoId", "==", S.evento)), "las actividades del evento")
@@ -126,6 +137,7 @@ async function cargarTodo() {
     leer(query(collection(db, "eventos"), orderBy("creadoEn", "desc")), "los eventos"),
     cargarHistorial(),
     cargarExpositoresManuales(),
+    cargarDocentes(),
   ]);
   S.participantes = participantes;
   // En `voluntarios` el campo `id` es la cédula (lo que lleva el QR) y el
@@ -148,7 +160,9 @@ function armarPersonasDesdeDocs() {
   const vols = S.voluntarios.map(personaVoluntario)
     .sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), "es"));
   S.personas.voluntario = vols.filter(p => p._tipo === "voluntario");
-  S.personas.comite = vols.filter(p => p._tipo === "comite");
+  // Comité: los voluntarios marcados como comité y los docentes agregados aquí.
+  S.personas.comite = [...vols.filter(p => p._tipo === "comite"), ...S.docentes.map(personaDocente)]
+    .sort((a, b) => nombreOrden(a).localeCompare(nombreOrden(b), "es"));
   S.personas.expositor = personasExpositores({
     participantes: S.participantes, checkpoints: S.checkpoints, manuales: S.expositores,
   });
@@ -509,6 +523,7 @@ function renderFiltros() {
   el("cr-no-aprobados-wrap").hidden = tipo !== "participante";
   el("cr-evento").hidden = tipo !== "expositor";
   el("cr-exp-acciones").hidden = tipo !== "expositor";
+  el("cr-doc-acciones").hidden = tipo !== "comite";
   if (tipo === "participante") {
     const cats = new Map(S.participantes.filter(p => p.categoria).map(p => [p.categoria, categoriaDe(p)]));
     const actual = el("cr-categoria").value;
@@ -560,7 +575,7 @@ function renderLista() {
       : {
         participante: "Todavía no hay participantes.",
         voluntario: "No hay voluntarios registrados. Se importan en Voluntariado → Voluntarios → Importar.",
-        comite: "Nadie está marcado como comité organizador. Se marca en Voluntariado → Voluntarios (columna Grupo) o con la columna Grupo al importar.",
+        comite: "Nadie en el comité organizador. Los docentes se agregan aquí (+ Agregar docente o Pegar lista); los voluntarios del comité se marcan en Voluntariado → Voluntarios (columna Grupo).",
         expositor: "No hay expositores: se toman de los participantes que marcaron ponencia y de los exponentes de las actividades del evento elegido.",
       }[S.tipo];
     el("cr-items").innerHTML = `<li class="cr-vacio">${h(vacio)}</li>`;
@@ -577,8 +592,10 @@ function renderLista() {
         : est.impresa
           ? `<span class="cr-estado impresa" title="Última: ${escaparAtributo(fechaCorta(est.ultima))}">Impresa${est.veces > 1 ? ` · ${est.veces}×` : ""}</span>`
           : `<span class="cr-estado pendiente">Pendiente</span>`;
-    const acciones = p._origen === "manual"
-      ? `<span class="i-acciones"><button type="button" class="i-acc" data-editar="${escaparAtributo(p._doc.id)}" title="Editar" aria-label="Editar a ${escaparAtributo(nombreDe(p))}">✎</button><button type="button" class="i-acc quitar" data-quitar="${escaparAtributo(p._doc.id)}" title="Quitar" aria-label="Quitar a ${escaparAtributo(nombreDe(p))}">&times;</button></span>`
+    // Los agregados en este módulo (expositores y docentes del comité) se editan y quitan aquí.
+    const de = p._origen === "manual" ? "exp" : p._origen === "docente" ? "doc" : "";
+    const acciones = de
+      ? `<span class="i-acciones"><button type="button" class="i-acc" data-editar="${escaparAtributo(p._doc.id)}" data-de="${de}" title="Editar" aria-label="Editar a ${escaparAtributo(nombreDe(p))}">✎</button><button type="button" class="i-acc quitar" data-quitar="${escaparAtributo(p._doc.id)}" data-de="${de}" title="Quitar" aria-label="Quitar a ${escaparAtributo(nombreDe(p))}">&times;</button></span>`
       : "";
     return `<li class="cr-item${acciones ? " con-acciones" : ""}${p._clave === S.actual ? " actual" : ""}${p._imprimible ? "" : " no-imprimible"}" data-clave="${escaparAtributo(p._clave)}" style="--c:${info.color}">
       <input type="checkbox" value="${escaparAtributo(p._clave)}" ${sel.has(p._clave) ? "checked" : ""} ${p._imprimible ? "" : "disabled"} aria-label="Seleccionar a ${escaparAtributo(nombreDe(p))}"/>
@@ -591,6 +608,8 @@ function renderLista() {
 el("cr-items").addEventListener("click", e => {
   const editar = e.target.closest("[data-editar]");
   const quitar = e.target.closest("[data-quitar]");
+  if (editar?.dataset.de === "doc") { abrirDocente(S.docentes.find(x => x.id === editar.dataset.editar)); return; }
+  if (quitar?.dataset.de === "doc") { quitarDocente(S.docentes.find(x => x.id === quitar.dataset.quitar)); return; }
   if (editar) { abrirExpositor(S.expositores.find(x => x.id === editar.dataset.editar)); return; }
   if (quitar) { quitarExpositor(S.expositores.find(x => x.id === quitar.dataset.quitar)); return; }
   const li = e.target.closest("[data-clave]");
@@ -1000,6 +1019,144 @@ const dropExp = el("expi-drop");
 dropExp.addEventListener("dragover", e => { e.preventDefault(); dropExp.classList.add("encima"); });
 dropExp.addEventListener("dragleave", () => dropExp.classList.remove("encima"));
 dropExp.addEventListener("drop", e => { e.preventDefault(); dropExp.classList.remove("encima"); if (e.dataTransfer.files[0]) leerExcelExpositores(e.dataTransfer.files[0]); });
+// ── Docentes del comité organizador ────────────────────────────────────────
+// No son voluntarios: se agregan aquí (colección `comite_docentes`,
+// firestore.rules: solo con el módulo Credenciales). Su credencial lleva el
+// título y nombre, y el cargo o comité en lugar del QR.
+const dlgDoc = el("dlg-doc");
+let editandoDoc = null;
+const LARGOS_DOC = { titulo: 20, nombre: 100, apellido: 100, cargo: 120 };
+
+// Los cargos ya usados se sugieren al escribir (mismo texto en todas).
+function sugerirCargos() {
+  const cargos = [...new Set(S.docentes.map(d => d.cargo).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+  el("doc-cargos").innerHTML = cargos.map(c => `<option value="${escaparAtributo(c)}"></option>`).join("");
+}
+
+function errorDocente(d) {
+  if (!d.nombre) return "Falta el nombre";
+  if (!d.cargo) return "Falta el cargo o comité";
+  if (Object.entries(LARGOS_DOC).some(([c, max]) => String(d[c] || "").length > max)) return "Algún dato es demasiado largo";
+  if (Object.values(d).some(t => /[<>]/.test(t))) return "No uses los caracteres < o >";
+  return "";
+}
+
+function abrirDocente(d = null) {
+  editandoDoc = d;
+  el("doc-titulo-dlg").textContent = d ? "Editar docente del comité" : "Agregar docente del comité";
+  ["titulo", "nombre", "apellido", "cargo"].forEach(c => { el(`doc-${c}`).value = d?.[c] || ""; });
+  el("doc-error").hidden = true;
+  sugerirCargos();
+  dlgDoc.showModal();
+  setTimeout(() => el(d ? "doc-cargo" : "doc-titulo").focus(), 30);
+}
+
+async function refrescarDocentes() {
+  await cargarDocentes();
+  armarPersonasDesdeDocs();
+  renderTodo();
+}
+
+el("doc-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const datos = {
+    titulo: el("doc-titulo").value.trim(),
+    nombre: nombrePropio(el("doc-nombre").value.trim()),
+    apellido: nombrePropio(el("doc-apellido").value.trim()),
+    cargo: el("doc-cargo").value.trim(),
+  };
+  const error = errorDocente(datos);
+  if (error) { el("doc-error").textContent = `${error}.`; el("doc-error").hidden = false; return; }
+  el("doc-guardar").disabled = true;
+  try {
+    if (editandoDoc) {
+      await updateDoc(doc(db, "comite_docentes", editandoDoc.id), { ...datos, actualizadoEn: serverTimestamp() });
+    } else {
+      await addDoc(collection(db, "comite_docentes"), { ...datos, creadoPor: getUsuarioActual().uid, creadoEn: serverTimestamp() });
+    }
+    dlgDoc.close();
+    alerta("success", [datos.titulo, datos.nombre, datos.apellido].filter(Boolean).join(" ") +
+      (editandoDoc ? " actualizado." : " agregado al comité organizador."));
+    await refrescarDocentes();
+  } catch (err) {
+    el("doc-error").textContent = "No se pudo guardar: " + err.message;
+    el("doc-error").hidden = false;
+  } finally {
+    el("doc-guardar").disabled = false;
+  }
+});
+
+async function quitarDocente(d) {
+  if (!d) return;
+  const nombre = [d.titulo, d.nombre, d.apellido].filter(Boolean).join(" ");
+  if (!confirm(`¿Quitar a ${nombre} del comité organizador? Su credencial ya impresa no se ve afectada.`)) return;
+  try {
+    await deleteDoc(doc(db, "comite_docentes", d.id));
+    alerta("success", `${nombre} ya no está en el comité organizador.`);
+    await refrescarDocentes();
+  } catch (err) {
+    alerta("error", "No se pudo quitar: " + err.message);
+  }
+}
+
+// Pegar la lista tal como viene en el documento del comité, una persona por
+// línea: "Dr. Tomás Concepción – Asesor Académico".
+const dlgDocLista = el("dlg-doc-lista");
+let filasDocentes = [];
+
+function revisarListaDocentes() {
+  const ya = new Set(S.docentes.map(d => normalizar(`${d.nombre} ${d.apellido || ""}`)));
+  const vistos = new Set();
+  filasDocentes = el("docl-texto").value.split(/\r?\n/).map(leerLineaDocente).filter(Boolean).map(l => {
+    const { nombre, apellido } = separarNombreCompleto(nombrePropio(l.nombreCompleto));
+    const fila = { titulo: l.titulo, nombre, apellido, cargo: l.cargo };
+    const clave = normalizar(`${nombre} ${apellido}`);
+    fila.error = errorDocente(fila) || (ya.has(clave) ? "Ya está agregado" : vistos.has(clave) ? "Está repetido en la lista" : "");
+    vistos.add(clave);
+    return fila;
+  });
+  const buenas = filasDocentes.filter(f => !f.error);
+  el("docl-revision").hidden = !filasDocentes.length;
+  el("docl-resumen").textContent = `${buenas.length} para agregar` +
+    (filasDocentes.length > buenas.length ? ` · ${filasDocentes.length - buenas.length} con errores (no se agregan).` : ".");
+  el("docl-filas").innerHTML = filasDocentes.map(f => `<tr class="${f.error ? "error" : ""}">
+    <td>${h([f.titulo, f.nombre, f.apellido].filter(Boolean).join(" ") || "—")}</td><td>${h(f.cargo || "—")}</td><td>${h(f.error || "Lista")}</td></tr>`).join("");
+  el("docl-agregar").disabled = !buenas.length;
+  el("docl-agregar").textContent = buenas.length ? `Agregar ${buenas.length}` : "Agregar";
+}
+
+el("docl-texto").addEventListener("input", revisarListaDocentes);
+
+el("docl-agregar").addEventListener("click", async () => {
+  const buenas = filasDocentes.filter(f => !f.error);
+  if (!buenas.length) return;
+  el("docl-agregar").disabled = true;
+  const lote = `doc_${Date.now().toString(36)}`;
+  const uid = getUsuarioActual().uid;
+  try {
+    const batch = writeBatch(db);
+    buenas.forEach(({ titulo, nombre, apellido, cargo }) =>
+      batch.set(doc(collection(db, "comite_docentes")), { titulo, nombre, apellido, cargo, lote, creadoPor: uid, creadoEn: serverTimestamp() }));
+    await batch.commit();
+    dlgDocLista.close();
+    alerta("success", `${buenas.length} docente${buenas.length !== 1 ? "s" : ""} agregado${buenas.length !== 1 ? "s" : ""} al comité organizador.`);
+    await refrescarDocentes();
+  } catch (err) {
+    el("docl-error").textContent = "No se pudo agregar: " + err.message;
+    el("docl-error").hidden = false;
+    el("docl-agregar").disabled = false;
+  }
+});
+
+el("cr-doc-agregar").addEventListener("click", () => abrirDocente());
+el("cr-doc-lista").addEventListener("click", () => {
+  el("docl-texto").value = "";
+  el("docl-error").hidden = true;
+  revisarListaDocentes();
+  dlgDocLista.showModal();
+  setTimeout(() => el("docl-texto").focus(), 30);
+});
+
 document.querySelectorAll("[data-cerrar]").forEach(b => b.addEventListener("click", () => b.closest("dialog")?.close()));
 
 // ── Inicio ─────────────────────────────────────────────────────────────────

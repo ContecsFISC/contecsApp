@@ -13,6 +13,8 @@
 //   _centro, _facultad  centro regional y facultad (UTP) para los filtros;
 //           vacíos si la persona no los tiene
 //   cred    (todas menos participante) QR, código, etiqueta y tema de color
+//   _orden  (opcional) nombre para ordenar y agrupar por letra cuando el que
+//           se imprime lleva título ("Dr. Tomás…" va en la T)
 
 import { textoQr, tieneCredencial, categoriaDe, nombreDe } from "./credenciales.js";
 
@@ -97,6 +99,59 @@ export function personaVoluntario(v) {
     _imprimible: !!cedula,
     _aviso: cedula ? "" : "Sin cédula: no tiene QR",
   };
+}
+
+// ── Docentes del comité organizador ───────────────────────────────────────
+// Se agregan en el módulo Credenciales (colección `comite_docentes`). No son
+// voluntarios: no marcan horas, así que van sin QR y en su lugar la
+// credencial muestra el cargo o comité que ejercen.
+export function personaDocente(d) {
+  const sinTitulo = [d.nombre, d.apellido].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  const nombre = [d.titulo, sinTitulo].filter(Boolean).join(" ");
+  return {
+    nombre: d.nombre || "", apellido: d.apellido || "", nombreCompleto: nombre,
+    cedula: "",
+    cred: {
+      tema: "comite", qr: "", codigo: "",
+      etiqueta: "Comité organizador", cabecera: "COMITÉ ORGANIZADOR",
+      institucion: "",
+      titulo: "Comité Organizador", subtitulo: "",
+      detalleTitulo: "Cargo", detalle: d.cargo ? [d.cargo] : [],
+    },
+    _clave: `comite_doc_${d.id}`,
+    _tipo: "comite",
+    _orden: sinTitulo,
+    _sub: [d.cargo, "docente"].filter(Boolean).join(" · "),
+    _buscar: normalizar([nombre, d.cargo].join(" ")),
+    _centro: "", _facultad: "",
+    _imprimible: true,
+    _origen: "docente",
+    _doc: d,
+  };
+}
+
+// Una línea de la lista tal como viene en el documento del comité:
+//   "• Dr. Tomás Concepción – Asesor Académico"
+// Separa título, nombre y cargo. El guion que separa el cargo lleva espacios
+// (o es una raya – —): así "Rodríguez-Chong" no se parte. Copiado de Excel,
+// el cargo puede venir en otra columna (tabulador). Null si está vacía o es
+// un encabezado ("Docentes:").
+const RE_TITULO = /^((?:dra?|ing|lic(?:da)?|mgtr|msc|m\.sc|prof(?:a)?|mtr[oa]|arq)\.?)\s+/i;
+export function leerLineaDocente(linea) {
+  const limpia = String(linea || "").replace(/^[\s•·▪◦*\-–—]+|^\d+[.)]\s*/g, "")
+    .replace(/\t+/g, " – ").replace(/\s+/g, " ").trim();
+  if (!limpia || limpia.endsWith(":")) return null;
+  const sep = /\s+[-–—]\s+|\s*[–—]\s*/.exec(limpia);
+  let nombre = sep ? limpia.slice(0, sep.index).trim() : limpia;
+  const cargo = sep ? limpia.slice(sep.index + sep[0].length).trim() : "";
+  let titulo = "";
+  const t = RE_TITULO.exec(nombre);
+  if (t) {
+    titulo = t[1].endsWith(".") ? t[1] : `${t[1]}.`;
+    titulo = titulo.charAt(0).toUpperCase() + titulo.slice(1);
+    nombre = nombre.slice(t[0].length).trim();
+  }
+  return { titulo, nombreCompleto: nombre, cargo };
 }
 
 // ── Expositores ────────────────────────────────────────────────────────────
@@ -253,8 +308,10 @@ const LETRAS = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
 
 // Letra inicial del nombre tal como sale en la lista. Sin tildes (Á → A),
 // pero la Ñ va aparte; lo que no empieza con letra se agrupa en "#".
+export const nombreOrden = p => p._orden || nombreDe(p);
+
 export function inicialDe(p) {
-  const c = nombreDe(p).trim().charAt(0).toUpperCase();
+  const c = nombreOrden(p).trim().charAt(0).toUpperCase();
   if (c === "Ñ") return c;
   const base = c.normalize("NFD").replace(/[̀-ͯ]/g, "");
   return /^[A-Z]$/.test(base) ? base : "#";
@@ -370,7 +427,7 @@ export function gruposEquilibrados(personas, modo, cuantos) {
     unidades.get(u.clave).personas.push(p);
   });
   const lista = [...unidades.values()].sort((a, b) => compararOrden(a.orden, b.orden));
-  const porNombre = (a, b) => nombreDe(a).localeCompare(nombreDe(b), "es");
+  const porNombre = (a, b) => nombreOrden(a).localeCompare(nombreOrden(b), "es");
   lista.forEach(u => u.personas.sort(modo === "cedula" && !u.especial
     ? (a, b) => partesCedula(cedulaDe(a)).asiento - partesCedula(cedulaDe(b)).asiento || porNombre(a, b)
     : porNombre));
