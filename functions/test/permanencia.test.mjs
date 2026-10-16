@@ -17,7 +17,12 @@ import {
   contarValidas,
   ocupacionActual,
   enCurso,
+  efectoDeEntrada,
+  estaOperativo,
 } from "../../js/core/permanencia.js";
+import { createRequire } from "node:module";
+
+const { fueraDeVentana } = createRequire(import.meta.url)("../ventana-checkpoint.js");
 
 let pasadas = 0;
 function prueba(nombre, fn) {
@@ -186,6 +191,91 @@ prueba("liberar el asiento cierra la permanencia en ese momento", () => {
   assert.equal(r.A.minutos, 20);
   assert.equal(r.A.valida, false);
   assert.equal(r.A.cerradaPor, "salida");
+});
+console.log("\nfila para la siguiente (tolerancia de 15 min):\n");
+
+// Conferencias cortas seguidas: la siguiente abre 30 min antes.
+const seguidas = [cp("S1", "09:00", "09:45"), cp("S2", "09:45", "10:30"), cp("S3", "10:00", "11:00")];
+
+prueba("hacer fila hasta 15 min antes de la siguiente no anula la anterior", () => {
+  const r = evaluarPermanencia([
+    { checkpointId: "S1", marcadoEn: a("08:55") },
+    { checkpointId: "S2", marcadoEn: a("09:32") },
+  ], seguidas);
+  assert.equal(r.S1.minutos, 45);
+  assert.equal(r.S1.valida, true);
+  assert.equal(r.S2.valida, true);
+});
+
+prueba("más de 15 min antes sí cuenta como salida", () => {
+  const r = evaluarPermanencia([
+    { checkpointId: "S1", marcadoEn: a("09:00") },
+    { checkpointId: "S2", marcadoEn: a("09:20") },
+  ], seguidas);
+  assert.equal(r.S1.minutos, 20);
+  assert.equal(r.S1.valida, false);
+});
+
+prueba("la tolerancia no regala el resto de una conferencia larga", () => {
+  // A dura 2 h; marcar C (11:00) a las 10:50 cuenta hasta las 11:00 = completa,
+  // pero marcar S3 (10:00) a las 09:50 deja A en 60 de 120 min.
+  const larga = [cp("A", "09:00", "11:00"), cp("C", "11:00", "12:00"), cp("S3", "10:00", "11:00")];
+  const fila = evaluarPermanencia([
+    { checkpointId: "A", marcadoEn: a("09:00") },
+    { checkpointId: "C", marcadoEn: a("10:50") },
+  ], larga);
+  assert.equal(fila.A.minutos, 120);
+  const salto = evaluarPermanencia([
+    { checkpointId: "A", marcadoEn: a("09:00") },
+    { checkpointId: "S3", marcadoEn: a("09:50") },
+  ], larga);
+  assert.equal(salto.A.minutos, 60);
+  assert.equal(salto.A.valida, false);
+});
+
+prueba("si la siguiente ya empezó, sale cuando marca", () => {
+  const r = evaluarPermanencia([
+    { checkpointId: "S1", marcadoEn: a("09:00") },
+    { checkpointId: "S2", marcadoEn: a("09:50") },
+    { checkpointId: "S3", marcadoEn: a("10:05") },
+  ], seguidas);
+  assert.equal(r.S2.minutos, 15);
+  assert.equal(r.S2.valida, false);
+});
+
+console.log("\naviso en el lector:\n");
+
+prueba("avisa qué entrada anula la nueva", () => {
+  const asistencias = { A: { marcadoEn: { toMillis: () => a("09:00") } } };
+  const { anuladas, evaluacion } = efectoDeEntrada(asistencias, "B", cps, a("09:15"));
+  assert.deepEqual(anuladas, ["A"]);
+  assert.equal(evaluacion.A.minutos, 15);
+});
+
+prueba("no avisa si la anterior ya se cumplió o es el control de acceso", () => {
+  assert.deepEqual(efectoDeEntrada({ A: { marcadoEn: a("09:00") } }, "C", cps, a("10:50")).anuladas, []);
+  assert.deepEqual(efectoDeEntrada({ acceso: { marcadoEn: a("08:00") } }, "A", cps, a("09:00")).anuladas, []);
+});
+
+console.log("\nventana del servidor = ventana del lector:\n");
+
+prueba("functions/ventana-checkpoint.js da lo mismo que checkpointsParaEscanear", () => {
+  const conHorario = programa.filter(c => c.horaInicio && estaOperativo(c));
+  for (const dia of [DIA, "2026-10-20"]) {
+    for (let minutos = 7 * 60; minutos <= 17 * 60; minutos += 1) {
+      const ms = msPanama(dia, minutos);
+      const lector = new Set(checkpointsParaEscanear(conHorario, { dia, minutos }).map(c => c.id));
+      for (const c of conHorario) {
+        const servidor = fueraDeVentana(c, ms, { gracia: 0 }) === null;
+        assert.equal(servidor, lector.has(c.id), `${c.id} ${dia} ${minutos}`);
+      }
+    }
+  }
+  // Con la gracia de cierre, una confirmación de 1-2 min tarde todavía entra.
+  assert.equal(fueraDeVentana(programa[0], a("11:02")), null);
+  assert.notEqual(fueraDeVentana(programa[0], a("11:03")), null);
+  // Sin día (documentos antiguos) el servidor no bloquea.
+  assert.equal(fueraDeVentana({ nombre: "Viejo" }, a("03:00")), null);
 });
 
 console.log("\nocupación en vivo:\n");

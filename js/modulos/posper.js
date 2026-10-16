@@ -29,8 +29,10 @@ import { escaparHtml } from "../core/seguridad.js";
 import { extraerCredencialQr } from "../core/credencial-qr.js";
 import { esperarSesionLista, getUsuarioActual } from "../core/auth.js";
 import {
-  enPanama, estaOperativo, checkpointsParaEscanear, proximoCheckpointHoy,
+  estaOperativo, checkpointsParaEscanear, proximoCheckpointHoy,
+  efectoDeEntrada, PERMANENCIA_MINIMA_DEFECTO,
 } from "../core/permanencia.js";
+import { sincronizarReloj, desfaseReloj, ahoraMs, ahoraPanama } from "../core/reloj-servidor.js";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
@@ -50,38 +52,21 @@ const LONGITUD_MAX_LECTURA = 2048;
 // Equipos que entregó POSPER (solo para el diagnóstico: la lectura es la misma).
 const EQUIPOS_POSPER = /EA530|EDA52|EDA51(?:-\d+)?|HT330|Memor ?12/i;
 
-// config | qr | procesando | pregunta | rfid | anclando | prueba
+// config | qr | procesando | mostrando | pregunta | rfid | anclando | prueba
 let estado = "config";
 let eventoActivo = null;
 let checkpoints = [];        // todos los del evento
 let checkpointsHoy = [];     // los que se pueden escanear ahora
 let checkpointSel = null;
-// Solo el CEO puede ver todos los checkpoints del evento (para probar fuera
-// del horario del congreso). Se lee cada vez: la sesión puede terminar de
-// cargarse después de este módulo.
-const esCeo = () => getUsuarioActual().rol === "ceo";
+// El CEO y POSPER pueden ver todos los checkpoints del evento (para probar
+// los equipos fuera del horario del congreso). El servidor también lo revisa
+// (ROLES_PRUEBA_HORARIO en operaciones-qr.js). Se lee cada vez: la sesión
+// puede terminar de cargarse después de este módulo.
+const puedeProbar = () => ["ceo", "posper"].includes(getUsuarioActual().rol);
+const modoPrueba = () => puedeProbar() && el("chk-todos").checked;
 let participanteActual = null;
 let logSesion = [];
 let secuenciaEvento = 0;
-
-// ─── Hora del servidor ──────────────────────────────────────────────────────
-// Los equipos prestados suelen traer la hora o la zona horaria mal: con su
-// reloj, "hoy" o "ahora" no coinciden con los checkpoints y el selector queda
-// vacío. Se usa la hora del encabezado Date del servidor; si no llega, la del equipo.
-let desfaseReloj = 0;
-
-async function sincronizarReloj() {
-  try {
-    const antes = Date.now();
-    const r = await fetch(window.location.href, { method: "HEAD", cache: "no-store" });
-    const servidor = Date.parse(r.headers.get("date") || "");
-    if (!Number.isNaN(servidor)) desfaseReloj = servidor - Math.round((antes + Date.now()) / 2);
-  } catch (_) {
-    // Sin respuesta: se queda el reloj del equipo.
-  }
-}
-
-const ahoraPanama = () => enPanama(new Date(Date.now() + desfaseReloj));
 
 // ─── Alertas y pantalla principal ───────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -221,7 +206,7 @@ document.addEventListener("keydown", e => {
 // Si el campo perdió el foco, los lectores que mandan pulsaciones de tecla
 // siguen llegando al documento: se juntan igual en el campo de captura.
 document.addEventListener("keydown", e => {
-  if (e.target === captura || !["qr", "rfid", "prueba"].includes(estado)) return;
+  if (e.target === captura || !["qr", "mostrando", "rfid", "prueba"].includes(estado)) return;
   if (e.target.matches?.("select, textarea, input, button")) return;
   if (e.key === "Enter" || e.key === "Tab") {
     if (!captura.value) return;
@@ -269,8 +254,21 @@ function terminarLectura(terminador) {
   void procesarLectura(texto);
 }
 
+// El resultado (verde o rojo) se ve un momento, pero no bloquea: si el
+// operador ya dispara a la siguiente credencial, se procesa de una vez.
+let timerResultado = null;
+function volverAQrEn(ms, sub) {
+  estado = "mostrando";
+  clearTimeout(timerResultado);
+  timerResultado = setTimeout(() => { if (estado === "mostrando") esperarQr(sub); }, ms);
+}
+
 async function procesarLectura(texto) {
   switch (estado) {
+    case "mostrando":
+      clearTimeout(timerResultado);
+      estado = "qr";
+      return procesarCredencial(texto);
     case "qr": return procesarCredencial(texto);
     case "rfid": return procesarRfid(texto);
     case "prueba":
@@ -320,6 +318,13 @@ async function procesarCredencial(texto) {
     }
     const participante = await buscarParticipante(credencial);
     const conCupos = TIPO_CON_CUPOS.includes(checkpoint.tipo) && checkpoint.cupos != null;
+    // Qué actividad deja de contar con esta entrada (no se borra nada: la
+    // permanencia se calcula con todas las entradas, js/core/permanencia.js).
+    const { evaluacion, anuladas } = participante.asistencias?.[checkpoint.id]
+      ? { evaluacion: {}, anuladas: [] }
+      : efectoDeEntrada(participante.asistencias, checkpoint.id, checkpoints, ahoraMs(), {
+        porcentajeMinimo: eventoActivo?.permanenciaMinima || PERMANENCIA_MINIMA_DEFECTO,
+      });
 
     let asistencia = "nueva";
     try {
@@ -329,6 +334,7 @@ async function procesarCredencial(texto) {
         checkpointId: checkpoint.id,
         coleccion: "participantes",
         eventoId,
+        modoPrueba: modoPrueba(),
       });
     } catch (e) {
       // Ya marcado antes: igual se le puede anclar el RFID.
@@ -336,16 +342,18 @@ async function procesarCredencial(texto) {
       asistencia = "previa";
     }
 
+    const sinValidez = asistencia === "nueva"
+      ? anuladas.map(id => ({ nombre: checkpoints.find(c => c.id === id)?.nombre || id, ...evaluacion[id] }))
+      : [];
     participanteActual = participante;
-    mostrarParticipante(participante, asistencia);
-    agregarLog(participante, asistencia === "nueva" ? "Entrada" : "Ya estaba", participante.rfid?.serial || "—");
+    mostrarParticipante(participante, asistencia, sinValidez);
+    agregarLog(participante, asistencia === "nueva"
+      ? (sinValidez.length ? `Entrada (anula ${sinValidez.map(s => s.nombre).join(", ")})` : "Entrada")
+      : "Ya estaba", participante.rfid?.serial || "—");
     pantalla("ok", asistencia === "nueva" ? "ENTRADA MARCADA" : "YA REGISTRADO", nombreDe(participante));
     // Un RFID por persona: quien ya tiene uno no vuelve a pasar por la pregunta.
     if (participante.rfid?.serial) {
-      estado = "procesando";
-      setTimeout(() => {
-        if (estado === "procesando") esperarQr(`${nombreDe(participante)} ya tiene el RFID ${participante.rfid.serial}.`);
-      }, 1800);
+      volverAQrEn(1500, `${nombreDe(participante)} ya tiene el RFID ${participante.rfid.serial}.`);
       return;
     }
     preguntarRfid(participante);
@@ -354,11 +362,11 @@ async function procesarCredencial(texto) {
     const msg = e.message || "No se pudo procesar el QR.";
     alerta("error", msg);
     pantalla("error", "QR NO VÁLIDO", msg);
-    setTimeout(() => { if (estado === "procesando") esperarQr(); }, 2500);
+    volverAQrEn(2500);
   }
 }
 
-function mostrarParticipante(p, asistencia) {
+function mostrarParticipante(p, asistencia, sinValidez = []) {
   el("res-nombre").textContent = nombreDe(p);
   el("res-codigo").textContent = p.codigo || "—";
   el("res-cedula").textContent = p.cedula || "—";
@@ -367,6 +375,8 @@ function mostrarParticipante(p, asistencia) {
     asistencia === "nueva"
       ? `<span class="chip chip-ok">Entrada marcada: ${h(checkpointSel.nombre || "")}</span>`
       : `<span class="chip chip-aviso">Ya tenía entrada en ${h(checkpointSel.nombre || "")} (se conserva la primera)</span>`,
+    ...sinValidez.map(s =>
+      `<span class="chip chip-aviso">"${h(s.nombre)}" deja de contar (estuvo ${h(s.minutos)} de ${h(s.duracion)} min)</span>`),
   ];
   el("res-chips").innerHTML = chips.join("");
   if (p.rfid?.serial) mostrarChipRfid(p.rfid.serial);
@@ -513,7 +523,7 @@ async function cargarEventos() {
 
 function etiquetaCheckpoint(cp) {
   const horario = cp.horaInicio && cp.horaFin ? `${cp.horaInicio}–${cp.horaFin}` : "";
-  return [cp.nombre || "Sin nombre", cp.tipo ? cp.tipo.toUpperCase() : "", horario, esCeo() && el("chk-todos").checked ? cp.dia : ""]
+  return [cp.nombre || "Sin nombre", cp.tipo ? cp.tipo.toUpperCase() : "", horario, modoPrueba() ? cp.dia : ""]
     .filter(Boolean).join(" · ");
 }
 
@@ -522,7 +532,7 @@ function etiquetaCheckpoint(cp) {
 // quitan los que terminan.
 function renderCheckpoints(checkpointPreferido = "") {
   const selCp = el("sel-checkpoint");
-  const todos = esCeo() && el("chk-todos").checked;
+  const todos = modoPrueba();
   const ahora = ahoraPanama();
   checkpointsHoy = (todos ? checkpoints.filter(estaOperativo) : checkpointsParaEscanear(checkpoints, ahora))
     .sort((a, b) => `${a.dia || ""}${a.horaInicio || ""}`.localeCompare(`${b.dia || ""}${b.horaInicio || ""}`));
@@ -546,7 +556,7 @@ function renderCheckpoints(checkpointPreferido = "") {
   }
 
   // El checkpoint en uso terminó: se avisa y se vuelve a la configuración.
-  if (checkpointSel && !checkpointsHoy.some(c => c.id === checkpointSel.id) && estado === "qr") {
+  if (checkpointSel && !checkpointsHoy.some(c => c.id === checkpointSel.id) && ["qr", "mostrando"].includes(estado)) {
     alerta("aviso", `"${checkpointSel.nombre || "El checkpoint"}" ya terminó. Elige otro.`);
     checkpointSel = null;
     irAConfig();
@@ -614,7 +624,7 @@ let estadoAntesDePrueba = "config";
 
 el("btn-probar").addEventListener("click", () => {
   if (estado === "prueba") return volverDePrueba();
-  if (!["config", "qr"].includes(estado)) {
+  if (!["config", "qr", "mostrando"].includes(estado)) {
     alerta("aviso", "Termina la lectura en curso antes de probar el lector.");
     return;
   }
@@ -627,7 +637,7 @@ el("btn-probar").addEventListener("click", () => {
 
 function volverDePrueba() {
   el("btn-probar").textContent = "Probar lector (sin registrar)";
-  if (estadoAntesDePrueba === "qr" && checkpointSel) esperarQr();
+  if (["qr", "mostrando"].includes(estadoAntesDePrueba) && checkpointSel) esperarQr();
   else irAConfig();
 }
 
@@ -653,7 +663,7 @@ async function leerDispositivo() {
   }
 
   const conexion = navigator.connection?.effectiveType;
-  const minutosDesfase = Math.round(desfaseReloj / 60000);
+  const minutosDesfase = Math.round(desfaseReloj() / 60000);
   const filas = [
     ["Reloj del equipo", Math.abs(minutosDesfase) < 2 ? "En hora"
       : `Desfasado ${Math.abs(minutosDesfase)} min (${minutosDesfase > 0 ? "atrasado" : "adelantado"}); se usa la hora del servidor`],
@@ -689,9 +699,9 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ─── Init ───────────────────────────────────────────────────────────────────
-// El modo "todos los checkpoints" es solo para que el CEO pruebe.
+// El modo "todos los checkpoints" es solo para que el CEO y POSPER prueben.
 esperarSesionLista().then(() => {
-  if (esCeo()) el("ceo-todos").style.display = "flex";
+  if (puedeProbar()) el("ceo-todos").style.display = "flex";
 });
 // Credencial que devolvió public/perfil.html (el lector la abrió en el navegador).
 const lecturaPendiente = new URLSearchParams(window.location.hash.slice(1)).get("lectura") || "";

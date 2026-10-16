@@ -297,8 +297,48 @@ async function probarLiberarAsiento() {
   })), "not-found");
 }
 
+// Fuera del día/hora del checkpoint no se marca, salvo el modo de prueba del
+// CEO y de POSPER. El Staff no puede saltárselo aunque lo pida.
+async function probarHorario() {
+  await db.collection("checkpoints").doc("ayer-prueba").set({
+    eventoId: "evento-prueba",
+    nombre: "Conferencia de ayer",
+    tipo: "conferencia",
+    dia: "2000-01-01",
+    horaInicio: "09:00",
+    horaFin: "10:00",
+  });
+  await Promise.all([
+    db.collection("participantes").doc("horario-uno")
+        .set(participante("Horario Uno")),
+    db.collection("participantes").doc("horario-dos")
+        .set(participante("Horario Dos")),
+  ]);
+  const datos = {
+    tipo: "asistencia_participante",
+    participanteId: "horario-uno",
+    checkpointId: "ayer-prueba",
+    eventoId: "evento-prueba",
+    coleccion: "participantes",
+  };
+  await rechazaCon(ejecutarOperacionQr(request(datos)), "failed-precondition");
+  await rechazaCon(ejecutarOperacionQr(request({...datos, modoPrueba: true})),
+      "failed-precondition");
+  await rechazaCon(ejecutarOperacionQr(requestPosper(datos)),
+      "failed-precondition");
+  const prueba = await ejecutarOperacionQr(requestPosper({
+    ...datos, modoPrueba: true,
+  }));
+  assert.equal(prueba.ok, true);
+  const ceo = await ejecutarOperacionQr(requestCeo({
+    ...datos, participanteId: "horario-dos", modoPrueba: true,
+  }));
+  assert.equal(ceo.ok, true);
+}
+
 async function main() {
   await prepararDatos();
+  await probarHorario();
   await probarEntradaGeneral();
   await probarTallerConAsistencia();
   await probarUltimoCupoConcurrente();

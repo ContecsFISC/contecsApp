@@ -16,6 +16,10 @@ const OFFSET_PANAMA_MS = 5 * 60 * 60 * 1000;
 // Se puede escanear desde este margen antes del inicio (la gente llega antes).
 export const MARGEN_APERTURA_MIN = 30;
 export const PERMANENCIA_MINIMA_DEFECTO = 75;
+// Quien marca la siguiente actividad hasta 15 min antes de que empiece está
+// haciendo fila: para la anterior cuenta que salió cuando empieza la nueva.
+// Más temprano que eso (o si la nueva ya empezó) sale cuando marca.
+export const TOLERANCIA_FILA_MIN = 15;
 
 // El control de acceso general no es una sesión: registra que la persona
 // llegó al congreso, no tiene "duración" que cumplir y tampoco cierra la
@@ -67,7 +71,8 @@ export function estaOperativo(item) {
 
 // Checkpoints que se pueden escanear en este momento (hora de Panamá): los
 // operativos programados para hoy cuya ventana [inicio - margen, fin] incluye
-// la hora actual. Sin horario cuentan todo el día.
+// la hora actual. Sin horario cuentan todo el día. El servidor revisa lo
+// mismo al guardar (functions/ventana-checkpoint.js).
 export function checkpointsParaEscanear(checkpoints, ahora = enPanama()) {
   return (checkpoints || []).filter(cp => {
     if (!estaOperativo(cp) || cp.dia !== ahora.dia) return false;
@@ -130,7 +135,12 @@ export function evaluarPermanencia(entradas, checkpoints, { porcentajeMinimo = P
   medibles.forEach(({ cp, ms, salidaMs }, i) => {
     const inicio = msPanama(cp.dia, minutosDeHora(cp.horaInicio));
     const fin = msPanama(cp.dia, minutosDeHora(cp.horaFin));
-    const siguiente = medibles[i + 1]?.ms ?? Infinity;
+    const sig = medibles[i + 1];
+    let siguiente = sig?.ms ?? Infinity;
+    if (sig) {
+      const inicioSig = msPanama(sig.cp.dia, minutosDeHora(sig.cp.horaInicio));
+      if (siguiente < inicioSig && inicioSig - siguiente <= TOLERANCIA_FILA_MIN * 60000) siguiente = inicioSig;
+    }
     const salida = Math.min(fin, siguiente, salidaMs);
     const desde = Math.max(ms, inicio);
     const minutos = Math.max(0, Math.floor((salida - desde) / 60000));
@@ -147,6 +157,23 @@ export function evaluarPermanencia(entradas, checkpoints, { porcentajeMinimo = P
   });
 
   return resultado;
+}
+
+/**
+ * Qué pasaría con las entradas de un participante si ahora marca `checkpointId`.
+ * No borra nada: solo sirve para avisar en el lector antes de confirmar.
+ * @param {Record<string, {marcadoEn?: any}>} asistencias  mapa del participante
+ * @returns {{evaluacion: object, anuladas: string[]}}  evaluación con la
+ *   entrada nueva incluida y los checkpoints que dejarían de contar por ella.
+ */
+export function efectoDeEntrada(asistencias, checkpointId, checkpoints, ahoraMs = Date.now(), opciones = {}) {
+  const previas = Object.entries(asistencias || {})
+    .filter(([id]) => id !== checkpointId)
+    .map(([id, a]) => ({ checkpointId: id, marcadoEn: a?.marcadoEn, salidaEn: a?.salidaEn }));
+  const antes = evaluarPermanencia(previas, checkpoints, opciones);
+  const evaluacion = evaluarPermanencia([...previas, { checkpointId, marcadoEn: ahoraMs }], checkpoints, opciones);
+  const anuladas = Object.keys(antes).filter(id => antes[id].valida && !evaluacion[id]?.valida);
+  return { evaluacion, anuladas };
 }
 
 /**

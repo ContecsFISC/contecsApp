@@ -31,6 +31,12 @@
  }
  </script>
  <style>
+ /* Lector: sin animaciones, transiciones ni cambio animado de página. Cada
+    escaneo debe responder al instante, también en celulares de gama baja. */
+ @view-transition { navigation: none; }
+ html { scroll-behavior: auto; }
+ *, *::before, *::after { animation: none !important; transition: none !important; }
+
  .container { max-width: 560px; }
 
  .btn-primary {
@@ -51,7 +57,7 @@
  .info-fila strong { color: var(--gris-texto); }
 
  .cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
- .cp-card { background: var(--verde-fondo); border-radius: var(--radio-sm); padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--verde-oscuro); cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, background 0.2s; }
+ .cp-card { background: var(--verde-fondo); border-radius: var(--radio-sm); padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--verde-oscuro); cursor: pointer; border: 2px solid transparent; }
  .cp-card:hover { border-color: var(--verde-claro); }
  .cp-card.selected { border-color: var(--verde-claro); background: var(--verde-claro); color: #fff; }
  .cp-card.ya-marcado { background: var(--verde-fondo); border-color: var(--verde-claro); color: var(--verde); opacity: 0.7; cursor: default; }
@@ -69,8 +75,10 @@
 
  #log-recientes td { font-size: 12px; }
 
+ /* El recuadro de enfoque lo dibuja la librería (qrbox). No se pone otro
+    encima del video: una sombra gigante sobre la cámara se repinta en cada
+    cuadro y vuelve lento el escaneo. */
  .scanner-overlay { position: relative; min-height: 220px; border-radius: var(--radio); overflow: hidden; background: #101914; }
- .scanner-overlay.activo::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(68vw,260px); aspect-ratio:1; border:3px solid var(--verde-claro); border-radius:16px; pointer-events:none; box-shadow:0 0 0 9999px rgba(3,46,35,0.32),0 0 18px rgba(60,179,113,0.4); }
  #reader { min-height: 220px; }
  #reader video { width:100% !important; min-height:220px; object-fit:cover; }
  .scanner-estado { margin-top:10px; min-height:20px; text-align:center; font-size:12px; font-weight:600; color:var(--gris-medio); }
@@ -99,7 +107,7 @@
  <a href="inscripciones.html" class="btn-volver" title="Volver a eventos" aria-label="Volver a eventos"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
-<div class="container anim-page-in">
+<div class="container">
 
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
@@ -181,7 +189,7 @@
 
 </div>
 
-<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261008.1"></script>
+<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261016.1"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

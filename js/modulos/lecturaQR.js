@@ -11,8 +11,10 @@ import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
 import { extraerCredencialQr } from "../core/credencial-qr.js";
 import { esperarSesionLista, getUsuarioActual } from "../core/auth.js";
 import {
-  enPanama, estaOperativo, checkpointsParaEscanear, proximoCheckpointHoy,
+  estaOperativo, checkpointsParaEscanear, proximoCheckpointHoy,
+  efectoDeEntrada, PERMANENCIA_MINIMA_DEFECTO,
 } from "../core/permanencia.js";
+import { sincronizarReloj, ahoraMs, ahoraPanama } from "../core/reloj-servidor.js";
 
 // Lectura QR con la cámara del celular. Solo registra ENTRADAS: la "salida"
 // de un checkpoint es la entrada al siguiente (ver js/core/permanencia.js).
@@ -43,7 +45,9 @@ let guardandoRegistro = false;
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // Solo el CEO puede ver todos los checkpoints (para probar fuera de horario).
+// El servidor también lo revisa (ROLES_PRUEBA_HORARIO en operaciones-qr.js).
 const esCeo = () => getUsuarioActual().rol === "ceo";
+const modoPrueba = () => esCeo() && el("chk-todos").checked;
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -107,11 +111,12 @@ async function limpiarSeleccionSesion() {
   el("cp-seleccionado").textContent = "";
 }
 
-// Solo los checkpoints de hoy y a esta hora (hora de Panamá). Se recalcula
-// cada minuto: aparecen los que abren y se quitan los que terminan.
+// Solo los checkpoints de hoy y a esta hora (hora de Panamá, con el reloj del
+// servidor). Se recalcula cada minuto: aparecen los que abren y se quitan los
+// que terminan.
 function calcularCheckpointsSesion() {
-  const todos = esCeo() && el("chk-todos").checked;
-  const ahora = enPanama();
+  const todos = modoPrueba();
+  const ahora = ahoraPanama();
   checkpointsSesion = (todos ? checkpointsEvento.filter(estaOperativo) : checkpointsParaEscanear(checkpointsEvento, ahora))
     .sort((a, b) => {
       if (a.dia !== b.dia) return (a.dia || "") < (b.dia || "") ? -1 : 1;
@@ -202,9 +207,12 @@ function crearScanner() {
     throw new Error("La librería de lectura QR no cargó. Recarga la página.");
   }
   if (!scanner) {
-    const config = typeof Html5QrcodeSupportedFormats !== "undefined"
-      ? { formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }
-      : undefined;
+    // Solo QR, y con el lector nativo del navegador (BarcodeDetector) donde
+    // exista: en Android/Chrome decodifica mucho más rápido que el de JS.
+    const config = { experimentalFeatures: { useBarCodeDetectorIfSupported: true } };
+    if (typeof Html5QrcodeSupportedFormats !== "undefined") {
+      config.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+    }
     scanner = new Html5Qrcode("reader", config);
   }
   return scanner;
@@ -409,17 +417,28 @@ function mostrarInfoAsistencia(p) {
 
   el("btn-confirmar-asistencia").textContent = "Confirmar entrada";
 
+  // Las entradas no se borran: si con esta se va de otra actividad antes de
+  // cumplir la permanencia, esa deja de contar (js/core/permanencia.js).
   const cps = checkpointsEvento;
-  const marcados = Object.keys(asis).map(k => {
-    const cp = cps.find(c => c.id === k);
-    return cp ? cp.nombre : k;
-  });
-  el("res-asistencias-actuales").textContent = marcados.length
-    ? `Entradas previas (${marcados.length}/${cps.length}): ${marcados.join(", ")}`
-    : "Sin entradas registradas aún.";
+  const nombreCp = id => cps.find(c => c.id === id)?.nombre || id;
+  const { evaluacion, anuladas } = yaMarcado
+    ? { evaluacion: {}, anuladas: [] }
+    : efectoDeEntrada(asis, checkpointSel.id, cps, ahoraMs(), {
+      porcentajeMinimo: eventoActivo?.permanenciaMinima || PERMANENCIA_MINIMA_DEFECTO,
+    });
+  const marcados = Object.keys(asis).map(k =>
+    evaluacion[k]?.valida === false ? `${nombreCp(k)} (no cuenta)` : nombreCp(k));
+  const aviso = anuladas.map(id => {
+    const r = evaluacion[id];
+    return `Esta entrada deja sin validez "${nombreCp(id)}" (estuvo ${r.minutos} de ${r.duracion} min).`;
+  }).join(" ");
+  el("res-asistencias-actuales").textContent = [
+    aviso,
+    marcados.length ? `Entradas previas (${marcados.length}/${cps.length}): ${marcados.join(", ")}` : "Sin entradas registradas aún.",
+  ].filter(Boolean).join(" ");
 
   el("resultado-box").style.display = "block";
-  el("resultado-box").scrollIntoView({ behavior: "smooth" });
+  el("resultado-box").scrollIntoView({ block: "nearest" });
 }
 
 // ─── Modo Taller (inscripción in-situ con cupos) ──────────────────────────────
@@ -476,7 +495,7 @@ async function mostrarInfoTaller(p, tokenActual) {
   el("btn-confirmar-asistencia").textContent = "Confirmar entrada y cupo";
   el("res-asistencias-actuales").textContent = "";
   el("resultado-box").style.display = "block";
-  el("resultado-box").scrollIntoView({ behavior: "smooth" });
+  el("resultado-box").scrollIntoView({ block: "nearest" });
 }
 
 // ─── Confirmar (entrada o inscripción taller) ─────────────────────────────────
@@ -527,6 +546,7 @@ async function guardarAsistencia({ participante, checkpoint, eventoId, modoTalle
     checkpointId: checkpoint.id,
     coleccion,
     eventoId,
+    modoPrueba: modoPrueba(),
   });
 
   if (conCupos) {
@@ -547,6 +567,7 @@ async function guardarAsistencia({ participante, checkpoint, eventoId, modoTalle
     hora:       new Date().toLocaleTimeString("es-PA", { timeZone: "America/Panama" }),
     tipo:       conCupos ? "taller" : "asistencia",
   });
+  logSesion = logSesion.slice(0, 20);
   renderLog();
 }
 
@@ -568,7 +589,7 @@ function renderLog() {
     tb.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--gris-medio)">Sin registros aún</td></tr>`;
     return;
   }
-  tb.innerHTML = logSesion.slice(0, 20).map(entry => `
+  tb.innerHTML = logSesion.map(entry => `
     <tr>
       <td>${h(entry.nombre)}</td>
       <td>${h(entry.checkpoint)}${entry.tipo === "taller" ? " (taller)" : ""}</td>
@@ -577,7 +598,8 @@ function renderLog() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-cargarEventos().catch(e => {
+// Primero la hora del servidor: con ella se decide qué checkpoints se ofrecen.
+sincronizarReloj().then(cargarEventos).catch(e => {
   console.error("Error cargando eventos para lectura QR:", e);
   alerta("error", "No se pudieron cargar los eventos: " + (e.message || e));
 });

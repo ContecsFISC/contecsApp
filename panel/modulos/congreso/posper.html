@@ -24,6 +24,12 @@
  await requirePermiso("acceso_posper");
  </script>
  <style>
+ /* Lector: sin animaciones, transiciones ni cambio animado de página. Cada
+    lectura debe responder al instante en los equipos de POSPER. */
+ @view-transition { navigation: none; }
+ html { scroll-behavior: auto; }
+ *, *::before, *::after { animation: none !important; transition: none !important; }
+
  /* Colores del sitio de POSPER (patrocinador): azul noche, azul y rojo
     "láser". El verde de éxito y el rojo de error se mantienen para que el
     estado se lea de un vistazo. */
@@ -79,14 +85,12 @@
  .config-resumen { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--pp-azul); font-weight: 600; }
  .config-resumen span { min-width: 0; overflow-wrap: anywhere; }
 
- .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: var(--pp-degradado); box-shadow: 0 8px 28px rgba(6, 27, 42, 0.3); transition: background var(--dur-vista) var(--ease-out); user-select: none; }
+ .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: var(--pp-degradado); box-shadow: 0 8px 28px rgba(6, 27, 42, 0.3); user-select: none; }
  .escenario.rfid { background: linear-gradient(160deg, var(--pp-noche) 0%, #1f6fa3 100%); }
  .escenario.ok { background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); }
  .escenario.error { background: linear-gradient(160deg, #6e1712 0%, var(--rojo) 100%); }
  .escenario.inactivo { background: linear-gradient(160deg, #3a3a3c 0%, #636366 100%); }
  .escenario-icono { width: 86px; height: 86px; border-radius: 22px; border: 3px solid rgba(255,255,255,0.85); display: grid; place-items: center; }
- .escenario.esperando .escenario-icono { animation: pulso 1.6s var(--ease-in-out) infinite; }
- @keyframes pulso { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: 0.75; } }
  .escenario-titulo { font-family: var(--fuente-display); font-size: clamp(28px, 9vw, 44px); font-weight: 700; letter-spacing: 0.5px; line-height: 1.1; }
  .escenario-sub { font-size: 15px; opacity: 0.92; max-width: 420px; line-height: 1.45; overflow-wrap: anywhere; }
  .escenario-acciones { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -103,8 +107,7 @@
 
  .pp-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.55); }
  .pp-modal.abierto { display: flex; }
- .pp-modal-caja { width: 100%; max-width: 380px; background: var(--cx-surface, #ffffff); border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); animation: modalIn var(--dur-vista) var(--ease-spring); }
- @keyframes modalIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+ .pp-modal-caja { width: 100%; max-width: 380px; background: var(--cx-surface, #ffffff); border-radius: var(--radio-lg); padding: 24px 20px; text-align: center; box-shadow: var(--sombra-md); }
  .pp-modal-titulo { font-family: var(--fuente-display); font-size: 28px; font-weight: 700; color: var(--pp-noche); margin-bottom: 8px; }
  .pp-modal-texto { font-size: 14px; color: var(--gris-medio); line-height: 1.45; margin-bottom: 20px; overflow-wrap: anywhere; }
  .pp-modal-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -137,7 +140,7 @@
  <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
 </div>
 
-<div class="container anim-page-in">
+<div class="container">
 
  <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
 
@@ -153,7 +156,7 @@
  <label for="sel-checkpoint">Checkpoint donde se marca la entrada</label>
  <select id="sel-checkpoint" disabled><option value="">— Primero elige el evento —</option></select>
  <div class="cp-aviso" id="cp-aviso" role="status"></div>
- <label class="ceo-todos" id="ceo-todos"><input type="checkbox" id="chk-todos"/> Ver todos los checkpoints del evento (solo CEO, para pruebas)</label>
+ <label class="ceo-todos" id="ceo-todos"><input type="checkbox" id="chk-todos"/> Ver todos los checkpoints del evento (solo CEO y POSPER, para pruebas)</label>
  </div>
  </div>
  <div id="config-resumen" class="config-resumen" style="display:none;">
@@ -243,7 +246,7 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/posper.js?v=20261015.6"></script>
+<script type="module" src="../../../js/modulos/posper.js?v=20261016.1"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

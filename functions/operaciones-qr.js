@@ -7,6 +7,7 @@ const {
 const {idLockRfid, normalizarRfid, serialRfid} = require("./rfid");
 const {usuarioPuede} = require("./permisos");
 const {conAjustesDeRol} = require("./ajustes-rol");
+const {fueraDeVentana} = require("./ventana-checkpoint");
 
 const db = getFirestore();
 // Marcan asistencia: Staff con Lectura QR ("lectura_qr") y el
@@ -28,6 +29,9 @@ const ROLES_VOLUNTARIADO = new Set([
 // quienes pueden armar la lista de una gira son los únicos que pueden
 // marcar sus checkpoints de entrada/salida.
 const ROLES_GIRAS = new Set(["ceo", "junta_principal", "giras"]);
+// Pueden marcar fuera del horario del checkpoint cuando piden el modo de
+// prueba. Debe reflejar puedeProbarFueraDeHorario() en lecturaQR.js y posper.js.
+const ROLES_PRUEBA_HORARIO = new Set(["ceo", "posper"]);
 const ACCESO_CONGRESO = [
   ["lectura_qr", ROLES_LECTURA_QR],
   ["acceso_posper", ROLES_POSPER],
@@ -43,7 +47,7 @@ function idValido(valor, campo) {
 
 // `accesos` es una lista de [permiso, ROLES_*]: basta con cumplir uno. El
 // permiso cuenta los ajustes individuales (functions/permisos.js).
-async function validarActor(request, accesos) {
+async function validarActorConUsuario(request, accesos) {
   if (!request.auth?.uid) {
     throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
   }
@@ -56,7 +60,20 @@ async function validarActor(request, accesos) {
         "No tienes permiso para registrar este escaneo.",
     );
   }
-  return request.auth.uid;
+  return {actorId: request.auth.uid, usuario};
+}
+
+async function validarActor(request, accesos) {
+  return (await validarActorConUsuario(request, accesos)).actorId;
+}
+
+// Solo se marca el día y a la hora del checkpoint (desde 30 min antes). El
+// modo de prueba ("Ver todos los checkpoints") lo pueden usar el CEO y
+// POSPER para probar los equipos fuera del horario del congreso.
+function validarHorario(checkpoint, usuario, modoPrueba) {
+  if (modoPrueba === true && ROLES_PRUEBA_HORARIO.has(usuario?.rol)) return;
+  const motivo = fueraDeVentana(checkpoint);
+  if (motivo) throw new HttpsError("failed-precondition", motivo);
 }
 
 function validarParticipante(participante, coleccion, checkpoint) {
@@ -135,7 +152,8 @@ function datosAsistencia({
 }
 
 async function asistenciaParticipante(request) {
-  const actorId = await validarActor(request, ACCESO_CONGRESO);
+  const {actorId, usuario} =
+    await validarActorConUsuario(request, ACCESO_CONGRESO);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const checkpointId = idValido(data.checkpointId, "checkpoint");
@@ -162,6 +180,7 @@ async function asistenciaParticipante(request) {
     const participante = participanteSnap.data();
     const checkpoint = checkpointSnap.data();
     validarContextoEvento(eventoSnap, checkpoint, eventoId);
+    validarHorario(checkpoint, usuario, data.modoPrueba);
     validarParticipante(participante, coleccion, checkpoint);
     if (asistenciaSnap.exists || participante.asistencias?.[checkpointId]) {
       throw new HttpsError(
@@ -203,7 +222,8 @@ async function asistenciaParticipante(request) {
 }
 
 async function inscripcionTaller(request) {
-  const actorId = await validarActor(request, ACCESO_CONGRESO);
+  const {actorId, usuario} =
+    await validarActorConUsuario(request, ACCESO_CONGRESO);
   const data = request.data || {};
   const participanteId = idValido(data.participanteId, "participante");
   const checkpointId = idValido(data.checkpointId, "checkpoint");
@@ -251,6 +271,7 @@ async function inscripcionTaller(request) {
     const participante = participanteSnap.data();
     const checkpoint = checkpointSnap.data();
     validarContextoEvento(eventoSnap, checkpoint, eventoId);
+    validarHorario(checkpoint, usuario, data.modoPrueba);
     validarParticipante(participante, coleccion, checkpoint);
     if (participante.asistencias?.[checkpointId]) {
       throw new HttpsError(
