@@ -154,8 +154,32 @@ function cargarCorreoNoSeleccionadoGira(vars) {
   };
 }
 
+// Invitación a reservar charlas y talleres (enviarInvitacionCharlas). Lleva
+// a perfil.html sin token: la persona entra con su cédula.
+function cargarCorreoInvitacionCharlas(vars) {
+  const raw = leer("correo-invitacion-charlas.html");
+  const meta = parseMeta(raw);
+  const {nombre, ...resto} = vars || {};
+  const varsHtml = Object.fromEntries(
+      Object.entries(resto).map(([key, value]) => [key, escaparHtml(value)]),
+  );
+  const limpio = String(nombre || "").trim();
+  varsHtml.saludo_html = limpio ?
+    `Hola <strong>${escaparHtml(limpio)}</strong>,` :
+    "Hola,";
+  const htmlContent = aplicarPlantilla(raw, varsHtml);
+
+  return {
+    activo: meta.activo,
+    subject: aplicarPlantilla(meta.subject, resto),
+    htmlContent,
+    textContent: htmlATexto(htmlContent),
+  };
+}
+
 module.exports = {
   aplicarPlantilla,
+  cargarCorreoInvitacionCharlas,
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
   cargarCorreoNoSeleccionadoGira,

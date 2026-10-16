@@ -24,7 +24,9 @@ function prueba(nombre, fn) {
   console.log(`  ok  ${nombre}`);
 }
 
-const AHORA = Date.UTC(2026, 9, 8, 15, 0, 0);
+// tienePermiso() usa el reloj real: con una fecha fija, "mañana" dejaba de
+// ser futuro al pasar ese día.
+const AHORA = Date.now();
 const AYER = AHORA - 24 * 3600 * 1000;
 const MANANA = AHORA + 24 * 3600 * 1000;
 // Como llega de Firestore (Timestamp) y como queda en sessionStorage (ms).

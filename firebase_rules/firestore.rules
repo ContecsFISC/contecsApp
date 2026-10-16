@@ -491,6 +491,20 @@ service cloud.firestore {
     }
 
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
+    // Reservas de charlas (functions/charlas.js): las escribe solo el
+    // servidor. Con nombre del participante: quien ve inscripciones o
+    // estadísticas. El conteo por charla (sin datos personales) lo ve además
+    // el Mapa, también en la pantalla grande.
+    match /reservas_charlas/{id} {
+      allow read: if puedeVerInscripciones();
+      allow create, update, delete: if false;
+    }
+
+    match /reservas_conteo/{id} {
+      allow read: if isStaff() || isPantallaMapa();
+      allow create, update, delete: if false;
+    }
+
     match /inscripciones_checkpoint/{id} {
       allow read: if puedeVerInscripciones() || isLectorQr();
       allow create, update, delete: if false;

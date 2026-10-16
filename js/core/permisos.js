@@ -102,6 +102,9 @@ export const PERMISOS = {
   imprimir_credenciales:  ["ceo", "junta_principal"],
   // Debe reflejar ROLES_IMPORTAR_PARTICIPANTES en functions/importaciones.js.
   importar_participantes: ["ceo", "junta_principal"],
+  // Correo masivo "Elige tus charlas" (máximo 250 al día). Debe reflejar
+  // ROLES_INVITACIONES en functions/index.js.
+  enviar_invitaciones: ["ceo"],
   // Módulo Credenciales: imprimir las de participantes, voluntarios, comité
   // organizador y expositores, y llevar el control de cuáles se imprimieron
   // (colección credenciales_impresas en firestore.rules).
@@ -278,6 +281,8 @@ export const CATALOGO_PERMISOS = [
       { id: "exportar_participantes", label: "Exportar a Excel", detalle: "Descarga la lista completa con datos personales.", requiere: "ver_participantes" },
       { id: "imprimir_credenciales",  label: "Imprimir credenciales", detalle: "Las credenciales llevan el QR de acceso de cada persona.", requiere: "ver_participantes" },
       { id: "importar_participantes", label: "Importar listas", detalle: "Inscribir estudiantes desde el Excel o CSV de un profesor.", requiere: "ver_participantes" },
+      { id: "normalizar_participantes", label: "Normalizar datos UTP", detalle: "Llevar centro, facultad, carrera y año de los inscritos al catálogo UTP.", requiere: "ver_participantes" },
+      { id: "enviar_invitaciones", label: "Invitar a reservar charlas", detalle: "Correo masivo a los inscritos con pago aprobado (máximo 250 al día por el límite de Brevo)." },
     ],
   },
   {

@@ -15,6 +15,7 @@ export const CATEGORIAS = [
       { label: "Gestión de Evento",   href: "modulos/congreso/inscripciones.html",            permiso: "gestionar_inscripciones", admin: true },
       { label: "Estadísticas",        href: "modulos/congreso/reportes_estadisticaCont.html", permiso: "ver_estadisticas_congreso" },
       { label: "Credenciales",        href: "modulos/congreso/credenciales.html",             permiso: "gestionar_credenciales", admin: true },
+      { label: "Invitaciones a charlas", href: "modulos/congreso/invitacionesCharlas.html",  permiso: "enviar_invitaciones", admin: true },
     ],
   },
   {

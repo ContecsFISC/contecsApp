@@ -291,6 +291,31 @@
  .ic-label { color: var(--gris-medio); font-size: 13px; flex-shrink: 0; }
  .ic-valor { font-weight: 600; color: var(--gris-texto); text-align: right; word-break: break-word; }
 
+ /* ── CHARLAS Y TALLERES ── */
+ .charlas-intro { font-size: 13px; color: var(--gris-medio); line-height: 1.55; margin: -4px 0 12px; }
+ .charlas-filtros { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; scrollbar-width: none; }
+ .charlas-filtros::-webkit-scrollbar { display: none; }
+ .charlas-filtros button { flex-shrink: 0; padding: 7px 13px; border-radius: 999px; border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+ .charlas-filtros button[aria-selected="true"] { background: var(--verde); border-color: var(--verde); color: #fff; }
+ .charlas-dia { margin: 14px 0 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--verde-claro); }
+ .charla { border: 1.5px solid var(--gris-borde); border-radius: 14px; padding: 14px; margin-bottom: 10px; background: #fff; }
+ .charla.reservada { border-color: var(--verde-claro); background: #f3faf7; }
+ .charla-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--gris-medio); }
+ .charla-tipo { padding: 3px 9px; border-radius: 999px; background: var(--verde-fondo); color: var(--verde-oscuro); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+ .charla-tipo.taller, .charla-tipo.workshop { background: #fff1e0; color: #8a4f12; }
+ .charla-nombre { margin-top: 8px; font-size: 15.5px; font-weight: 700; line-height: 1.35; color: var(--gris-texto); overflow-wrap: anywhere; }
+ .charla-meta { margin-top: 4px; font-size: 13px; color: var(--gris-medio); line-height: 1.5; overflow-wrap: anywhere; }
+ .charla-pie { margin-top: 12px; display: flex; align-items: center; gap: 12px; }
+ .charla-cupo { flex: 1; min-width: 0; font-size: 12px; color: var(--gris-medio); }
+ .charla-barra { height: 6px; margin-top: 5px; border-radius: 99px; background: #edeae2; overflow: hidden; }
+ .charla-barra span { display: block; height: 100%; border-radius: inherit; background: var(--verde-claro); }
+ .charla-barra.llena span { background: #c2410c; }
+ .btn-reservar { flex-shrink: 0; min-width: 118px; padding: 10px 14px; border-radius: 11px; border: 0; background: var(--verde); color: #fff; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+ .btn-reservar.quitar { background: #fff; color: var(--rojo); border: 1.5px solid #f2c9c5; }
+ .btn-reservar:disabled { opacity: 0.55; cursor: default; }
+ .charlas-vacio { font-size: 13px; color: var(--gris-medio); padding: 8px 0; line-height: 1.5; }
+ .charla-aviso { margin-top: 8px; font-size: 12px; color: var(--rojo); }
+
  /* ── ESTADO PAGO ── */
  .pago-estado-card {
  border-radius: var(--radio);
@@ -409,30 +434,27 @@
  onerror="this.style.display='none';this.parentElement.innerHTML=''"/>
  </div>
  <h1>CONTECS 2026</h1>
- <p>Ingresa tu código para ver tu credencial</p>
+ <p>Entra con tu cédula para ver tu credencial y elegir tus charlas</p>
  </div>
 
  <div class="acceso-alerta" id="acceso-alerta"></div>
 
+ <form id="form-cedula" novalidate>
  <div class="form-group">
- <label>Código de participante</label>
- <input type="text" id="inp-codigo" placeholder="Ej: CTCS-2026-00001"
- style="text-transform:uppercase; font-family:'Courier New',monospace; font-weight:700;"/>
- </div>
- <div class="form-group">
- <label>Código de acceso</label>
- <input type="text" id="inp-token" placeholder="Código recibido en tu correo"
- style="font-family:'Courier New',monospace;"/>
+ <label for="inp-cedula">Cédula</label>
+ <input type="text" id="inp-cedula" name="cedula" placeholder="Ej: 8-123-4567" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go"
+ style="font-family:'Courier New',monospace; font-weight:700; letter-spacing:0.5px;"/>
  </div>
 
- <button class="btn-acceso" id="btn-acceder">
- <span id="btn-acceder-txt">Ver mi credencial</span>
+ <button class="btn-acceso" id="btn-acceder" type="submit">
+ <span id="btn-acceder-txt">Entrar</span>
  <div class="spinner-sm" id="spinner-acceso" style="display:none;"></div>
  </button>
+ </form>
 
  <p style="font-size:12px;color:var(--gris-medio);text-align:center;margin-top:16px;line-height:1.6;">
- ¿Perdiste tu código? Revisa el correo que recibiste al inscribirte.<br/>
- Ambos códigos están en ese correo.
+ Escríbela igual que al inscribirte (con guiones).<br/>
+ Si eres pasaporte, escribe tu número de pasaporte.
  </p>
  </div>
 </div>
@@ -501,6 +523,14 @@
  </div>
  </div>
 
+ <!-- CHARLAS Y TALLERES: reservar asiento -->
+ <div class="info-card charlas-card" id="charlas" style="animation-delay:0.1s;">
+ <div class="ic-titulo">Charlas y talleres</div>
+ <p class="charlas-intro" id="charlas-intro">Reserva las charlas a las que quieres ir: te apartamos un asiento. Si no alcanzas, igual puedes llegar y entrar por orden de llegada mientras haya espacio.</p>
+ <div class="charlas-filtros" id="charlas-filtros" role="tablist" aria-label="Filtrar"></div>
+ <div id="charlas-lista" class="charlas-lista"></div>
+ </div>
+
  <!-- DATOS PERSONALES -->
  <div class="info-card" style="animation-delay:0.15s;">
  <div class="ic-titulo">Mis datos</div>
@@ -534,13 +564,14 @@
  <div class="footer">
  CONTECS 2026 · Facultad de Ingeniería de Sistemas Computacionales<br/>
  Universidad Tecnológica de Panamá
+ <br/><button type="button" id="btn-salir-perfil" style="margin-top:12px;padding:8px 16px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;color:var(--gris-medio);font:inherit;font-size:12px;font-weight:600;cursor:pointer;">Salir (no soy yo)</button>
  </div>
 
  </div>
 </div>
 
 <script type="module">
-import { accederParticipante } from "../js/core/participantes-api.js";
+import { accederConCedula, reservarCharla } from "../js/core/participantes-api.js?v=20261016.1";
 
 // URL base del perfil — debe coincidir con la que usan las Cloud Functions
 const URL_BASE_PERFIL = "https://contecs-app.vercel.app/public/perfil.html";
@@ -584,56 +615,158 @@ const PAGO_ESTADO_INFO = {
  },
 };
 
-// ── AUTO-LOGIN POR URL ──────────────────────────────────────────────────────
+// ── ACCESO ─────────────────────────────────────────────────────────────────
+// Se entra con la cédula. El link ?c=&t= de la credencial (correo de pago
+// aprobado y QR) sigue abriendo el perfil directo. La cédula queda en esta
+// pestaña (sessionStorage) para no volver a escribirla al recargar.
+const CLAVE_CEDULA = "perfil.cedula";
+let identidad = null;   // {cedula} o {codigo, token}: con ella se reserva
+let charlas = [];
+let pagoAprobado = false;
+let filtro = "todas";
+
 async function init() {
  const params = new URLSearchParams(window.location.search);
  const codigoUrl = params.get("c");
  const tokenUrl = params.get("t");
-
- el("loading-wrap").style.display = "none";
+ let guardada = "";
+ try { guardada = sessionStorage.getItem(CLAVE_CEDULA) || ""; } catch (_) { /* sin almacenamiento */ }
 
  if (codigoUrl && tokenUrl) {
- // Llegó desde el link del correo o el QR — intentar acceso directo
- await acceder(codigoUrl.toUpperCase(), tokenUrl);
+ await acceder({ codigo: codigoUrl.toUpperCase(), token: tokenUrl });
+ } else if (guardada) {
+ await acceder({ cedula: guardada });
  } else {
  el("acceso-wrap").style.display = "flex";
  }
+ el("loading-wrap").style.display = "none";
 }
 
-// ── ACCESO ─────────────────────────────────────────────────────────────────
 function mostrarErrorAcceso(msg) {
  el("acceso-alerta").textContent = msg;
  el("acceso-alerta").classList.add("show");
 }
 
-el("btn-acceder").addEventListener("click", async () => {
- const codigo = el("inp-codigo").value.trim().toUpperCase();
- const token = el("inp-token").value.trim();
- if (!codigo || !token) {
- mostrarErrorAcceso("Ingresa tu código de participante y tu código de acceso.");
+el("form-cedula").addEventListener("submit", async e => {
+ e.preventDefault();
+ const cedula = el("inp-cedula").value.trim();
+ if (!cedula) {
+ mostrarErrorAcceso("Escribe tu cédula.");
+ el("inp-cedula").focus();
  return;
  }
+ el("acceso-alerta").classList.remove("show");
  el("btn-acceder").disabled = true;
  el("btn-acceder-txt").style.display = "none";
  el("spinner-acceso").style.display = "block";
- await acceder(codigo, token);
+ await acceder({ cedula });
  el("btn-acceder").disabled = false;
  el("btn-acceder-txt").style.display = "inline";
  el("spinner-acceso").style.display = "none";
 });
 
-el("inp-codigo").addEventListener("keydown", e => { if (e.key === "Enter") el("inp-token").focus(); });
-el("inp-token").addEventListener("keydown", e => { if (e.key === "Enter") el("btn-acceder").click(); });
-
-async function acceder(codigo, token) {
+async function acceder(datos) {
  try {
- const data = await accederParticipante(codigo, token);
- renderPerfil(data);
+ const data = await accederConCedula(datos);
+ identidad = datos;
+ if (datos.cedula) {
+ try { sessionStorage.setItem(CLAVE_CEDULA, datos.cedula); } catch (_) { /* solo esta vez */ }
+ }
+ renderPerfil(data.participante);
+ charlas = data.charlas || [];
+ renderCharlas();
+ if (location.hash === "#charlas") el("charlas").scrollIntoView({ block: "start" });
  } catch (err) {
+ try { sessionStorage.removeItem(CLAVE_CEDULA); } catch (_) { /* nada que borrar */ }
  el("acceso-wrap").style.display = "flex";
  mostrarErrorAcceso(err.message || "Error de conexión. Verifica tu internet e intenta de nuevo.");
  }
 }
+
+el("btn-salir-perfil").addEventListener("click", () => {
+ try { sessionStorage.removeItem(CLAVE_CEDULA); } catch (_) { /* nada que borrar */ }
+ location.replace(location.pathname);
+});
+
+// ── CHARLAS Y TALLERES ─────────────────────────────────────────────────────
+const TIPO_LABEL = { conferencia: "Charla", taller: "Taller", workshop: "Workshop", panel: "Panel" };
+const h = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+function fechaLarga(dia) {
+ if (!dia) return "Sin fecha";
+ const [y, m, d] = dia.split("-").map(Number);
+ return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+}
+
+function renderFiltros() {
+ const opciones = [["todas", "Todas"], ["mias", "Mis reservas"], ...[...new Set(charlas.map(c => c.tipo))].map(t => [t, `${TIPO_LABEL[t] || t}s`])];
+ el("charlas-filtros").innerHTML = opciones.map(([id, label]) =>
+ `<button type="button" role="tab" data-filtro="${h(id)}" aria-selected="${filtro === id}">${h(label)}</button>`).join("");
+}
+
+el("charlas-filtros").addEventListener("click", e => {
+ const b = e.target.closest("[data-filtro]");
+ if (!b) return;
+ filtro = b.dataset.filtro;
+ renderCharlas();
+});
+
+function renderCharlas() {
+ renderFiltros();
+ const lista = el("charlas-lista");
+ const visibles = charlas.filter(c => filtro === "todas" || (filtro === "mias" ? c.reservado : c.tipo === filtro));
+ if (!charlas.length) {
+ lista.innerHTML = `<div class="charlas-vacio">Todavía no hay charlas ni talleres para reservar. Vuelve pronto.</div>`;
+ return;
+ }
+ if (!visibles.length) {
+ lista.innerHTML = `<div class="charlas-vacio">${filtro === "mias" ? "Aún no reservaste ninguna." : "No hay de este tipo."}</div>`;
+ return;
+ }
+ let dia = "";
+ lista.innerHTML = visibles.map(c => {
+ const cabecera = c.dia !== dia ? `<div class="charlas-dia">${h(fechaLarga((dia = c.dia)))}</div>` : "";
+ const llena = c.capacidad != null && c.reservados >= c.capacidad;
+ const pct = c.capacidad ? Math.min(100, Math.round((c.reservados / c.capacidad) * 100)) : 0;
+ const cupo = c.capacidad != null
+ ? `${c.reservados} de ${c.capacidad} asientos apartados<div class="charla-barra${llena ? " llena" : ""}"><span style="width:${pct}%"></span></div>`
+ : `${c.reservados} ${c.reservados === 1 ? "reserva" : "reservas"}`;
+ let boton;
+ if (c.reservado) boton = `<button type="button" class="btn-reservar quitar" data-cp="${h(c.id)}" data-reservar="0"${c.empezo ? " disabled" : ""}>${c.empezo ? "Reservada" : "Quitar reserva"}</button>`;
+ else if (!pagoAprobado) boton = `<button type="button" class="btn-reservar" disabled>Pago pendiente</button>`;
+ else if (llena) boton = `<button type="button" class="btn-reservar" disabled>Sin asientos</button>`;
+ else boton = `<button type="button" class="btn-reservar" data-cp="${h(c.id)}" data-reservar="1">Reservar</button>`;
+ return `${cabecera}<div class="charla${c.reservado ? " reservada" : ""}" data-id="${h(c.id)}">
+ <div class="charla-top"><span class="charla-tipo ${h(c.tipo)}">${h(TIPO_LABEL[c.tipo] || c.tipo)}</span><span>${h([c.horaInicio, c.horaFin].filter(Boolean).join(" – "))}</span></div>
+ <div class="charla-nombre">${h(c.titulo || c.nombre)}</div>
+ <div class="charla-meta">${h([c.exponente, c.salon].filter(Boolean).join(" · "))}</div>
+ ${c.descripcion ? `<div class="charla-meta">${h(c.descripcion)}</div>` : ""}
+ <div class="charla-pie"><div class="charla-cupo">${cupo}</div>${boton}</div>
+ <div class="charla-aviso" hidden></div>
+ </div>`;
+ }).join("");
+}
+
+el("charlas-lista").addEventListener("click", async e => {
+ const boton = e.target.closest("button[data-cp]");
+ if (!boton || boton.disabled || !identidad) return;
+ const checkpointId = boton.dataset.cp;
+ const reservar = boton.dataset.reservar === "1";
+ const aviso = boton.closest(".charla").querySelector(".charla-aviso");
+ boton.disabled = true;
+ boton.textContent = reservar ? "Reservando…" : "Quitando…";
+ aviso.hidden = true;
+ try {
+ const r = await reservarCharla({ identidad, checkpointId, reservar });
+ const c = charlas.find(x => x.id === checkpointId);
+ if (c) { c.reservado = r.reservado; c.reservados = r.reservados; }
+ renderCharlas();
+ } catch (err) {
+ renderCharlas();
+ const tarjeta = el("charlas-lista").querySelector(`.charla[data-id="${CSS.escape(checkpointId)}"] .charla-aviso`);
+ if (tarjeta) { tarjeta.textContent = err.message; tarjeta.hidden = false; }
+ }
+});
 
 // ── RENDER PERFIL ──────────────────────────────────────────────────────────
 function renderPerfil(p) {
@@ -642,7 +775,7 @@ function renderPerfil(p) {
 
  const estadoPago = p.pago?.estado || "pendiente_efectivo";
  const pagoInfo = PAGO_ESTADO_INFO[estadoPago] || PAGO_ESTADO_INFO.pendiente_efectivo;
- const pagoAprobado = estadoPago === "aprobado";
+ pagoAprobado = estadoPago === "aprobado";
 
  // Hero
  el("hp-nombre").textContent = p.nombreCompleto || `${p.nombre} ${p.apellido}`;

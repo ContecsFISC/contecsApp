@@ -55,6 +55,44 @@ export async function accederParticipante(codigo, token) {
   }
 }
 
+const ERRORES_CEDULA = {
+  "invalid-argument": "Escribe tu cédula.",
+  "internal":         "Error del servidor. Intenta de nuevo en unos segundos.",
+  "unavailable":      "Sin conexión. Verifica tu internet e intenta de nuevo.",
+};
+
+// Perfil por cédula (o con el link ?c=&t= de la credencial): `datos` es
+// {cedula} o {codigo, token}. Devuelve {participante, charlas}. Ver
+// functions/charlas.js. "not-found" trae su propio mensaje del servidor.
+export async function accederConCedula(datos) {
+  try {
+    const fn = httpsCallable(functions, "accederConCedula");
+    const result = await fn(datos);
+    return result.data;
+  } catch (error) {
+    const codigo = String(error.code || "").replace("functions/", "");
+    const msg = ["internal", "unavailable"].includes(codigo)
+      ? ERRORES_CEDULA[codigo]
+      : error.message || "Error inesperado. Intenta de nuevo.";
+    throw new Error(msg);
+  }
+}
+
+// Aparta (reservar: true) o libera un asiento en una charla o taller. Los
+// mensajes del servidor ya explican el motivo (lleno, choca con otra, empezó).
+export async function reservarCharla({ identidad, checkpointId, reservar }) {
+  try {
+    const fn = httpsCallable(functions, "reservarCharla");
+    const result = await fn({ ...identidad, checkpointId, reservar });
+    return result.data;
+  } catch (error) {
+    const msg = error.code === "functions/unavailable"
+      ? ERRORES_CEDULA.unavailable
+      : error.message || "No se pudo guardar la reserva. Intenta de nuevo.";
+    throw new Error(msg);
+  }
+}
+
 const ERRORES_CORREO_QR = {
   "unauthenticated":  "Debes iniciar sesión para enviar correos.",
   "permission-denied": "No tienes permiso para enviar este correo.",

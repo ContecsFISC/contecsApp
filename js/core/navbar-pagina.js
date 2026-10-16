@@ -58,6 +58,7 @@ const DESCRIPCIONES = {
   "usuarios.html":                "Cuentas, roles y permisos de quienes usan el panel.",
   "credenciales.html":            "Credenciales de participantes, voluntarios, comité y expositores: cuáles faltan y cuáles ya se imprimieron.",
   "inscripciones.html":           "Eventos, inscritos y asistencia del congreso.",
+  "invitacionesCharlas.html":     "Correo a los inscritos para que reserven sus charlas y talleres (máximo 250 al día).",
   "lecturaQR.html":               "Escanea la credencial para marcar la entrada a cada checkpoint.",
   "modulos_participantes.html":   "Registrados, pagos y comprobantes de los participantes.",
   "reportes_estadisticaCont.html":"Actividades, asistencias y horas del congreso.",
