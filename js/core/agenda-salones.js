@@ -25,6 +25,13 @@ export function letraRotulo(espacio, texto, minimo) {
   return Math.round(Math.max(6, Math.min(base, cabe)) * 10) / 10;
 }
 
+// Salones de coffee break o cafetería (por su rótulo o nombre): en el mapa
+// llevan una taza encima para distinguirlos.
+const RE_CAFE = /coffee|caf[eé]/i;
+export function esSalonCafe(salon) {
+  return RE_CAFE.test(`${salon?.rotulo || ""} ${salon?.nombre || ""}`);
+}
+
 // Tipos del plano donde se pueden programar actividades.
 export const TIPOS_PROGRAMABLES = new Set(["espacio", "vestibulo"]);
 

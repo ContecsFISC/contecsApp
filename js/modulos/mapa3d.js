@@ -43,7 +43,7 @@ function puntos(texto) {
   return String(texto).trim().split(/\s+/).map(par => par.split(",").map(Number));
 }
 
-export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "" }) {
+export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconoCafe = "" }) {
   let THREE, OrbitControls, CSS2DRenderer, CSS2DObject;
   try {
     THREE = await import("three");
@@ -268,6 +268,13 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       div.className = `etq3d etq3d-${estado}`;
       div.style.setProperty("--c", est?.color || "#00722e");
       div.innerHTML = "";
+      // Coffee break: la taza va arriba del rótulo, dentro de la etiqueta.
+      if (est?.icono === "cafe" && iconoCafe) {
+        const icono = document.createElement("span");
+        icono.className = "etq3d-icono";
+        icono.innerHTML = iconoCafe;
+        div.appendChild(icono);
+      }
       const rot = document.createElement("span");
       rot.className = "etq3d-rotulo";
       rot.textContent = est?.rotulo || "";

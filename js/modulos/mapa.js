@@ -31,10 +31,10 @@ import {
   enPanama, enCurso, estaCancelado, estaOperativo, minutosDeHora, ocupacionActual,
 } from "../core/permanencia.js";
 import {
-  ROTULO_MAX, TIPOS_PROGRAMABLES, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
+  ROTULO_MAX, TIPOS_PROGRAMABLES, esSalonCafe, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
-import { crearVista3D } from "./mapa3d.js?v=20261015.8";
+import { crearVista3D } from "./mapa3d.js?v=20261016.1";
 
 const el = id => document.getElementById(id);
 const PUBLICO = document.body.dataset.publico === "1";
@@ -229,6 +229,7 @@ function calcularEstados() {
     } else {
       est = { estado: "libre", rotulo, titulo: nombreSalon(id, salon) };
     }
+    if (esSalonCafe(salon)) est.icono = "cafe";
     resultado.set(id, est);
   }
   return resultado;
@@ -239,7 +240,7 @@ function render() {
   estados = calcularEstados();
   // Lo que se le pasa a la maqueta no lleva objetos de Firestore.
   const paraVista = new Map([...estados].map(([id, e]) => [id, {
-    estado: e.estado, color: e.color, ratio: e.ratio, rotulo: e.rotulo, chip: e.chip, titulo: e.titulo,
+    estado: e.estado, color: e.color, ratio: e.ratio, rotulo: e.rotulo, chip: e.chip, titulo: e.titulo, icono: e.icono,
   }]));
   vista3d?.actualizar(paraVista);
   if (S.vista === "2d") render2D();
@@ -372,6 +373,19 @@ const ICONO_BANO = `<svg viewBox="0 0 24 24" aria-hidden="true">
   </g>
 </svg>`;
 
+// Taza de café para los salones de coffee break (esSalonCafe), encima del
+// rótulo en 2D y dentro de la etiqueta en 3D.
+const ICONO_CAFE = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect width="24" height="24" rx="6" fill="#7a4428"/>
+  <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
+  <g fill="none" stroke="#ffe2bd" stroke-width="1.4" stroke-linecap="round">
+    <path d="M9 3.4c-1 1 1 1.9 0 2.9s1 1.9 0 2.9"/><path d="M12.6 3.4c-1 1 1 1.9 0 2.9s1 1.9 0 2.9"/>
+  </g>
+  <path fill="#fff" d="M4.8 11h11.4v3.6a4.6 4.6 0 0 1-4.6 4.6H9.4a4.6 4.6 0 0 1-4.6-4.6z"/>
+  <path fill="none" stroke="#fff" stroke-width="1.7" d="M16.2 12.3h1.1a2.1 2.1 0 0 1 0 4.2h-1.6"/>
+  <rect x="3.6" y="19.8" width="13.8" height="1.5" rx="0.75" fill="#ffe2bd"/>
+</svg>`;
+
 let v2d = null; // viewBox actual
 function render2D() {
   const piso = PLANOS.find(p => p.id === S.piso);
@@ -397,6 +411,12 @@ function render2D() {
       const est = estados.get(e.id);
       const texto = est.estado === "vivo" ? `${est.rotulo} · ${est.ocupados}${est.capacidad ? `/${est.capacidad}` : ""}` : est.rotulo;
       return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${letraRotulo(e, texto, 10)}">${h(texto)}</text>`;
+    }).join("")}
+    ${piso.espacios.filter(e => estados.get(e.id)?.icono === "cafe").map(e => {
+      // Encima del rótulo, sin salirse del espacio.
+      const lado = Math.min(26, (e.b[2] - e.b[0]) * 0.45, (e.b[3] - e.b[1]) * 0.4);
+      const y = Math.max(e.b[1] + 2, e.l[1] - letraRotulo(e, estados.get(e.id).rotulo, 10) / 2 - 4 - lado);
+      return ICONO_CAFE.replace("<svg ", `<svg class="cafe2d" x="${e.l[0] - lado / 2}" y="${y}" width="${lado}" height="${lado}" `);
     }).join("")}
     ${piso.espacios.filter(e => e.t === "bano").map(e => {
       const [x, y] = e.l || [(e.b[0] + e.b[2]) / 2, (e.b[1] + e.b[3]) / 2];
@@ -1050,7 +1070,7 @@ async function iniciar() {
   renderLeyenda();
   renderPisos();
 
-  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO });
+  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO, iconoCafe: ICONO_CAFE });
   el("cargando-mapa").hidden = true;
   if (vista3d) {
     if (S.aqui) vista3d.marcarAqui(ESPACIOS.get(S.aqui).piso, puntoAqui(ESPACIOS.get(S.aqui)));
