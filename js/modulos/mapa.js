@@ -31,7 +31,7 @@ import {
   enPanama, enCurso, estaCancelado, estaOperativo, minutosDeHora, ocupacionActual,
 } from "../core/permanencia.js";
 import {
-  TIPOS_PROGRAMABLES, etiquetaSalon, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
+  ROTULO_MAX, TIPOS_PROGRAMABLES, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
 import { crearVista3D } from "./mapa3d.js?v=20261015.8";
@@ -396,7 +396,7 @@ function render2D() {
     ${piso.espacios.filter(e => estados.get(e.id)?.rotulo).map(e => {
       const est = estados.get(e.id);
       const texto = est.estado === "vivo" ? `${est.rotulo} · ${est.ocupados}${est.capacidad ? `/${est.capacidad}` : ""}` : est.rotulo;
-      return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${Math.max(e.fs, 10)}">${h(texto)}</text>`;
+      return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${letraRotulo(e, texto, 10)}">${h(texto)}</text>`;
     }).join("")}
     ${piso.espacios.filter(e => e.t === "bano").map(e => {
       const [x, y] = e.l || [(e.b[0] + e.b[2]) / 2, (e.b[1] + e.b[3]) / 2];
@@ -859,7 +859,7 @@ function renderSalon() {
       <form class="form-salon" id="form-salon" novalidate>
         <label>Nombre que verán los asistentes<input id="fs-nombre" maxlength="100" value="${escaparAtributo(salon?.nombre || "")}" placeholder="${escaparAtributo(nombreSalon(id))}"/></label>
         <div class="fila">
-          <label>Rótulo en el plano<input id="fs-rotulo" maxlength="7" value="${escaparAtributo(salon?.rotulo || "")}" placeholder="${escaparAtributo(esp.n || "")}"/></label>
+          <label>Rótulo en el plano<input id="fs-rotulo" maxlength="${ROTULO_MAX}" value="${escaparAtributo(salon?.rotulo || "")}" placeholder="${escaparAtributo(esp.n || "")}"/></label>
           <label>Capacidad<input id="fs-capacidad" type="number" min="1" inputmode="numeric" value="${escaparAtributo(salon?.capacidad || "")}"/></label>
         </div>
         <button class="btn btn-primary btn-sm" type="submit">Guardar salón</button>

@@ -12,6 +12,8 @@ import {
   describirChoque,
   salonDeCheckpoint,
   etiquetaSalon,
+  letraRotulo,
+  ROTULO_MAX,
 } from "../../js/core/agenda-salones.js";
 
 let pasadas = 0;
@@ -91,6 +93,15 @@ prueba("el mensaje dice con qué choca, cuándo y dónde", () => {
 
 prueba("etiqueta sin datos configurados usa el número del plano", () => {
   assert.equal(etiquetaSalon("2-75", undefined), "75 · Salón 75");
+});
+
+prueba("rótulo de hasta 20 caracteres: achica la letra solo si no cabe", () => {
+  assert.equal(ROTULO_MAX, 20);
+  const sala = { fs: 10.5, b: [0, 0, 120, 60] };
+  assert.equal(letraRotulo(sala, "3-301", 10), 10.5, "corto: el tamaño de siempre");
+  const largo = letraRotulo(sala, "Auditorio Principal", 10);
+  assert.ok(largo < 10.5 && largo >= 6, `largo se achica: ${largo}`);
+  assert.equal(letraRotulo({ fs: 6.5, b: [0, 0, 10, 10] }, "x".repeat(20), 9), 6, "nunca menos de 6 px");
 });
 
 console.log(`\n${pasadas} pruebas de salones superadas.\n`);
