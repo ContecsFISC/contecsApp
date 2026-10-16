@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <link rel="icon" href="../../../favicon.ico" sizes="any"/>
+ <link rel="apple-touch-icon" href="../../../apple-touch-icon.png"/>
+ <link rel="manifest" href="../../../manifest.json"/>
+ <meta name="theme-color" content="#064e3b"/>
+ <meta name="apple-mobile-web-app-title" content="CONTECS"/>
+ <title>CONTECS — Invitaciones a charlas</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+ <link rel="stylesheet" href="../../../css/styles.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.8"/>
+  <link rel="stylesheet" href="../../../css/movil.css?v=20261015.8"/>
+ <script type="module">
+ import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ guardRoute();
+ await requirePermiso("enviar_invitaciones");
+ </script>
+ <style>
+ .container { max-width: 640px; }
+ .inv-cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+ .inv-cifra { padding: 14px; border-radius: var(--radio); background: var(--verde-fondo); text-align: center; }
+ .inv-cifra strong { display: block; font-family: var(--fuente-display); font-size: 28px; color: var(--verde-oscuro); }
+ .inv-cifra span { font-size: 12px; color: var(--gris-medio); }
+ .inv-nota { margin-top: 12px; font-size: 13px; color: var(--gris-medio); line-height: 1.55; }
+ .inv-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: flex-end; }
+ .inv-acciones label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--gris-texto); }
+ .inv-acciones input { width: 110px; }
+ .inv-acciones .btn { width: auto; }
+ .inv-resultado { margin-top: 14px; font-size: 13px; line-height: 1.55; white-space: pre-line; }
+ @media (max-width: 480px) { .inv-cifras { grid-template-columns: 1fr 1fr; } }
+ </style>
+</head>
+<body>
+
+<div class="topbar">
+ <h1>Invitaciones a charlas</h1>
+ <a href="../../dashboard.html" class="btn-volver" title="Volver al inicio" aria-label="Volver al inicio"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></a>
+</div>
+
+<div class="container">
+ <div id="alerta" class="alerta" style="margin-bottom:12px;"></div>
+
+ <div class="card">
+ <div class="card-title">Correo "Elige tus charlas y talleres"</div>
+ <div class="inv-cifras">
+ <div class="inv-cifra"><strong id="c-pendientes">—</strong><span>por invitar</span></div>
+ <div class="inv-cifra"><strong id="c-hoy">—</strong><span>enviados hoy</span></div>
+ <div class="inv-cifra"><strong id="c-disponibles">—</strong><span>quedan hoy</span></div>
+ </div>
+ <p class="inv-nota">Va a los inscritos con <strong>pago aprobado</strong> que aún no lo recibieron (cada persona una sola vez). Brevo deja 300 correos al día en total, también los de pago aprobado: por eso la invitación usa como máximo <strong>250 por día</strong>. El correo lleva a su perfil, donde entran con la cédula y reservan.</p>
+ <div class="inv-acciones">
+ <button class="btn btn-outline btn-sm" id="btn-prueba" type="button">Enviarme una prueba</button>
+ <label>Cuántos<input type="number" id="inp-limite" min="1" max="250" value="250"/></label>
+ <button class="btn btn-primary" id="btn-enviar" type="button">Enviar lote</button>
+ </div>
+ <div class="inv-resultado" id="resultado" role="status"></div>
+ </div>
+</div>
+
+<script type="module" src="../../../js/modulos/invitacionesCharlas.js?v=20261016.1"></script>
+  <script type="module" src="../../../js/core/navbar-pagina.js?v=20261016.1"></script>
+</body>
+</html>

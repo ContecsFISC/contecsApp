@@ -10,9 +10,12 @@ const {conAjustesDeRol} = require("./ajustes-rol");
 const {fueraDeVentana} = require("./ventana-checkpoint");
 
 const db = getFirestore();
-// Marcan asistencia: Staff con Lectura QR ("lectura_qr") y el
-// patrocinador desde POSPER ("acceso_posper"); ver ACCESO_CONGRESO.
+// Marcan asistencia: Staff con Lectura QR ("lectura_qr"), el rol Voluntario
+// ("escanear_qr") y el patrocinador desde POSPER ("acceso_posper"); ver
+// ACCESO_CONGRESO.
 const ROLES_LECTURA_QR = new Set(["ceo", "staff_contecs"]);
+// Debe reflejar "escanear_qr" en js/core/permisos.js.
+const ROLES_ESCANEAR_QR = new Set(["ceo", "voluntario"]);
 // Anclan RFID (solo desde POSPER). Debe reflejar "acceso_posper" en
 // js/core/permisos.js.
 const ROLES_POSPER = new Set(["ceo", "posper"]);
@@ -30,10 +33,11 @@ const ROLES_VOLUNTARIADO = new Set([
 // marcar sus checkpoints de entrada/salida.
 const ROLES_GIRAS = new Set(["ceo", "junta_principal", "giras"]);
 // Pueden marcar fuera del horario del checkpoint cuando piden el modo de
-// prueba. Debe reflejar puedeProbarFueraDeHorario() en lecturaQR.js y posper.js.
+// prueba. Debe reflejar esCeo() en lecturaQR.js y puedeProbar() en posper.js.
 const ROLES_PRUEBA_HORARIO = new Set(["ceo", "posper"]);
 const ACCESO_CONGRESO = [
   ["lectura_qr", ROLES_LECTURA_QR],
+  ["escanear_qr", ROLES_ESCANEAR_QR],
   ["acceso_posper", ROLES_POSPER],
 ];
 
@@ -590,6 +594,7 @@ async function anclarRfid(request) {
       return {
         ok: true,
         serial: participante.rfid.serial || serial,
+        completo: participante.rfid.completo || completo,
         yaAnclado: true,
         participanteNombre: nombreParticipante(participante),
       };
@@ -623,6 +628,7 @@ async function anclarRfid(request) {
     return {
       ok: true,
       serial,
+      completo,
       yaAnclado: false,
       participanteNombre: nombreParticipante(participante),
     };

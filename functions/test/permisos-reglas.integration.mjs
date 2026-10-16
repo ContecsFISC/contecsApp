@@ -97,7 +97,9 @@ const USUARIOS = {
   "finanzas-1": { rol: "finanzas" },
   // El último permiso de cada cadena: comprueba que no se agote el límite de
   // 1000 expresiones de Firestore (al agotarse, niega).
+  // acceso_posper va solo por rol: otorgarlo ya no abre nada.
   "ventas-posper": { rol: "ventas", permisosExtra: { acceso_posper: { modo: "otorgar", vence: null } } },
+  "lector-1": { rol: "voluntario" },
   "ventas-estadisticas": { rol: "ventas", permisosExtra: { ver_estadisticas_congreso: { modo: "otorgar", vence: null } } },
   "miembro-liberar": { rol: "miembro", permisosExtra: { liberar_asiento: { modo: "otorgar", vence: null } } },
   "voluntariado-grupo": { rol: "voluntariado", permisosExtra: { voluntarios_cambiar_grupo: { modo: "otorgar", vence: null } } },
@@ -244,8 +246,16 @@ await prueba("asistencias del congreso: además quien ve participantes; el resto
   for (const uid of ["miembro-1", "ventas-1", "voluntariado-1"]) await noPuede(uid, "GET", "asistencias_congreso/ac-1");
 });
 
+await prueba("POSPER no se puede otorgar; el rol Voluntario lee solo lo de Lectura QR", async () => {
+  await noPuede("ventas-posper", "GET", "participantes/p-1");
+  await puede("lector-1", "GET", "participantes/p-1");
+  await puede("lector-1", "GET", "inscripciones_checkpoint/ic-1");
+  await noPuede("lector-1", "GET", "voluntarios/v-1");
+  await noPuede("lector-1", "GET", "asistencias_congreso/ac-1");
+  await noPuede("lector-1", "GET", "fondos/f-1");
+});
+
 await prueba("el último permiso de cada cadena también vale (no se agota el límite de expresiones)", async () => {
-  await puede("ventas-posper", "GET", "participantes/p-1");
   await puede("ventas-estadisticas", "GET", "participantes/p-1");
   await puede("ventas-estadisticas", "GET", "voluntarios/v-1");
   await puede("ventas-estadisticas", "GET", "inscripciones/i-1");

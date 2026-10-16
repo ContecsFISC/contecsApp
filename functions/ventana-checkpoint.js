@@ -58,4 +58,6 @@ function fueraDeVentana(checkpoint, ahoraMs = Date.now(), {gracia = GRACIA_CIERR
   return null;
 }
 
-module.exports = {fueraDeVentana, MARGEN_APERTURA_MIN, GRACIA_CIERRE_MIN};
+module.exports = {
+  fueraDeVentana, enPanama, minutosDeHora, MARGEN_APERTURA_MIN, GRACIA_CIERRE_MIN,
+};

@@ -1,7 +1,7 @@
 "use strict";
 
-// Link de POSPER sin iniciar sesión (public/acceso-posper.html, el QR de la
-// pestaña POSPER del dashboard). El link lleva una clave al azar; quien la
+// Link de POSPER sin iniciar sesión (public/acceso-posper.html, el QR de
+// "QR POSPER", qrPosper.html). El link lleva una clave al azar; quien la
 // tenga entra como la cuenta UID_LINK (rol posper): lo mismo que el usuario
 // POSPER y nada más, así que firestore.rules y operaciones-qr.js no cambian.
 //
@@ -19,7 +19,10 @@ const {conAjustesDeRol} = require("./ajustes-rol");
 
 const db = getFirestore();
 const UID_LINK = "posper-link";
-const NOMBRE_LINK = "POSPER · acceso por link";
+// Así aparece en Usuarios. El nombre anterior se cambia la próxima vez que
+// alguien entra con el link.
+const NOMBRE_LINK = "POSPER";
+const NOMBRE_LINK_ANTERIOR = "POSPER · acceso por link";
 // Mismos roles que "acceso_posper" en js/core/permisos.js.
 const ROLES_POSPER = new Set(["ceo", "posper"]);
 const CLAVE_VALIDA = /^[A-Za-z0-9_-]{43}$/;
@@ -93,6 +96,8 @@ async function entrarConLinkPosper(request) {
         rol: "posper",
         creadoEn: FieldValue.serverTimestamp(),
       });
+    } else if (usuarioSnap.data().nombre === NOMBRE_LINK_ANTERIOR) {
+      tx.update(usuarioRef, {nombre: NOMBRE_LINK});
     }
   });
 

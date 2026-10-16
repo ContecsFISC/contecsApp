@@ -1,17 +1,17 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-16T00:09:30.840910+00:00**
+- Generado: **2026-10-16T23:10:14.943109+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `25ad9c3f351cedc6…`
-- Archivos analizados: **259**
-- Relaciones internas tipadas: **1159**
-- Símbolos detectados: **6676**
-- Llamadas detectadas: **14428**
-- IDs DOM definidos: **1190**
+- Huella del proyecto: `630a496284cf7224…`
+- Archivos analizados: **269**
+- Relaciones internas tipadas: **1202**
+- Símbolos detectados: **6910**
+- Llamadas detectadas: **14843**
+- IDs DOM definidos: **1222**
 - Paquetes externos usados: **34**
-- Colecciones de Firestore detectadas: **39**
-- Cloud Functions detectadas: **28**
-- Archivos huerfanos: **83**
+- Colecciones de Firestore detectadas: **41**
+- Cloud Functions detectadas: **31**
+- Archivos huerfanos: **81**
 - Dependencias circulares: **0**
 - Posibles acoples implicitos (via window.X, sin confirmar): **5**
 
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**19,243 tokens** · leer primero
-- `GraphCompleto.json` — ~**91,856 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**162,740 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.2%** frente al profundo
+- `GraphCompacto.json` — ~**20,125 tokens** · leer primero
+- `GraphCompleto.json` — ~**95,447 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**168,501 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -34,60 +34,58 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
-- `js/core/auth.js` — riesgo 365.7 (conexiones: 181, 369 lineas)
-- `panel/dashboard.html` — riesgo 139.0 (conexiones: 62, 1499 lineas)
+- `js/core/auth.js` — riesgo 371.8 (conexiones: 184, 384 lineas)
+- `panel/dashboard.html` — riesgo 130.8 (conexiones: 59, 1280 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 126.2 (conexiones: 51, 2423 lineas)
 - `js/core/seguridad.js` — riesgo 118.4 (conexiones: 59, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
-- `manifest.json` — riesgo 92.3 (conexiones: 46, 34 lineas)
-- `apple-touch-icon.png` — riesgo 92.0 (conexiones: 46, 0 lineas)
-- `favicon.ico` — riesgo 92.0 (conexiones: 46, 0 lineas)
-- `js/core/navbar-pagina.js` — riesgo 87.3 (conexiones: 43, 135 lineas)
+- `manifest.json` — riesgo 94.3 (conexiones: 47, 34 lineas)
+- `apple-touch-icon.png` — riesgo 94.0 (conexiones: 47, 0 lineas)
+- `favicon.ico` — riesgo 94.0 (conexiones: 47, 0 lineas)
+- `js/core/navbar-pagina.js` — riesgo 89.4 (conexiones: 44, 136 lineas)
 - `js/core/firebase-config.js` — riesgo 86.3 (conexiones: 43, 35 lineas)
+- `css/styles.css` — riesgo 85.2 (conexiones: 38, 922 lineas)
+- `css/navbar.css` — riesgo 84.5 (conexiones: 38, 846 lineas)
 - `js/modulos/gestorCredenciales.js` — riesgo 83.9 (conexiones: 37, 990 lineas)
-- `css/styles.css` — riesgo 83.2 (conexiones: 37, 922 lineas)
-- `js/modulos/credenciales.js` — riesgo 83.2 (conexiones: 37, 921 lineas)
-- `css/navbar.css` — riesgo 82.5 (conexiones: 37, 846 lineas)
+- `js/modulos/credenciales.js` — riesgo 83.3 (conexiones: 37, 926 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
-- `js/core/auth.js` — grado 181 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
-- `panel/dashboard.html` — grado 62 | exporta: (sin exports detectados)
+- `js/core/auth.js` — grado 184 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConCorreo
 - `js/core/seguridad.js` — grado 59 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
+- `panel/dashboard.html` — grado 59 | exporta: (sin exports detectados)
 - `panel/modulos/congreso/modulos_participantes.html` — grado 51 | exporta: (sin exports detectados)
-- `apple-touch-icon.png` — grado 46 | exporta: (sin exports detectados)
-- `favicon.ico` — grado 46 | exporta: (sin exports detectados)
-- `manifest.json` — grado 46 | exporta: (sin exports detectados)
+- `apple-touch-icon.png` — grado 47 | exporta: (sin exports detectados)
+- `favicon.ico` — grado 47 | exporta: (sin exports detectados)
+- `manifest.json` — grado 47 | exporta: (sin exports detectados)
+- `js/core/navbar-pagina.js` — grado 44 | exporta: (sin exports detectados)
 - `js/core/firebase-config.js` — grado 43 | exporta: analytics, app, auth, db, storage
-- `js/core/navbar-pagina.js` — grado 43 | exporta: (sin exports detectados)
-- `css/navbar.css` — grado 37 | exporta: (sin exports detectados)
-- `css/styles.css` — grado 37 | exporta: (sin exports detectados)
-- `css/tokens.css` — grado 37 | exporta: (sin exports detectados)
+- `css/navbar.css` — grado 38 | exporta: (sin exports detectados)
+- `css/styles.css` — grado 38 | exporta: (sin exports detectados)
+- `css/tokens.css` — grado 38 | exporta: (sin exports detectados)
+- `js/core/permanencia.js` — grado 37 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, TOLERANCIA_FILA_MIN, checkpointsParaEscanear, contarValidas, efectoDeEntrada, enCurso, enPanama
 - `js/modulos/credenciales.js` — grado 37 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
 - `js/modulos/gestorCredenciales.js` — grado 37 | exporta: (sin exports detectados)
-- `css/movil.css` — grado 34 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
 ## Cloud Functions detectadas
 
-- `functions/index.js`: accederGiraParticipante, accederParticipante, accederPersonal, asegurarTokensPersonal, cambiarRolUsuario, desbloquearUsuarios, ejecutarOperacionFinanciera, ejecutarOperacionQr, eliminarEventoOCheckpoint, eliminarParticipante, eliminarUsuario, entrarConLinkPosper, enviarCorreoQrParticipante, guardarPermisosRol, guardarPermisosUsuario, importarParticipantes, liberarIdentidadParticipante, linkAccesoPosper, listarParticipantesParaGiras, mapaPublico, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, registrarVoluntario, subirFotoEfectivo, validarTokenSSO
+- `functions/index.js`: accederConCedula, accederGiraParticipante, accederParticipante, accederPersonal, asegurarTokensPersonal, cambiarRolUsuario, desbloquearUsuarios, ejecutarOperacionFinanciera, ejecutarOperacionQr, eliminarEventoOCheckpoint, eliminarParticipante, eliminarUsuario, entrarConLinkPosper, enviarCorreoQrParticipante, enviarInvitacionCharlas, guardarPermisosRol, guardarPermisosUsuario, importarParticipantes, liberarIdentidadParticipante, linkAccesoPosper, listarParticipantesParaGiras, mapaPublico, marcarCheckpointGira, notificarNoSeleccionadosGira, notificarPagoAprobado, notificarParticipantesGira, registrarParticipante, registrarVoluntario, reservarCharla, subirFotoEfectivo, validarTokenSSO
 
 ## Archivos huerfanos
 
 - `.claude/settings.json`
 - `AGENTS.md`
-- `assets/img/fisc-logo.png`
-- `assets/img/utp-logo.png`
 - `docs/Sprint 2 - bitacora_actualizaciones.md`
 - `docs/arreglo-giras-correos.md`
 - `docs/cambios recientes.md`
@@ -98,6 +96,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `firebase_rules/storage.rules`
 - `functions/.eslintrc.js`
 - `functions/package.json`
+- `functions/templates/correo-invitacion-charlas.html`
 - `functions/templates/correo-no-seleccionado-gira.html`
 - `functions/templates/correo-notificacion-gira.html`
 - `functions/templates/correo-pago-aprobado.html`
@@ -124,7 +123,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `img/iconos/combo.svg`
 - `img/iconos/combo_hamburguesa_soda.svg`
 - `img/iconos/combo_pizza_soda.svg`
-- ...y 43 mas
+- `img/iconos/desactivar.svg`
+- ...y 41 mas
 
 ## Colecciones de Firestore y quien las usa
 
@@ -183,6 +183,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/reporteFinancieroExcel.js`
 
 ### `checkpoints`
+- `functions/charlas.js`
 - `functions/eliminaciones.js`
 - `functions/eliminar-eventos.js`
 - `functions/mapa-publico.js`
@@ -192,8 +193,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/gestorCredenciales.js`
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
-- `js/modulos/mapa.js`
-- ...y 3 archivos mas
+- ...y 4 archivos mas
 
 ### `compras`
 - `functions/operaciones-financieras.js`
@@ -205,6 +205,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `config`
 - `functions/acceso-posper.js`
+- `functions/index.js`
 - `functions/permisos-admin.js`
 - `js/core/auth.js`
 - `js/modulos/usuarios.js`
@@ -216,6 +217,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/gestorCredenciales.js`
 
 ### `eventos`
+- `functions/charlas.js`
 - `functions/eliminar-eventos.js`
 - `functions/mapa-publico.js`
 - `functions/operaciones-qr.js`
@@ -225,8 +227,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - `js/modulos/lecturaQRVoluntarios.js`
-- `js/modulos/mapa.js`
-- ...y 5 archivos mas
+- ...y 6 archivos mas
 
 ### `expositores`
 - `js/modulos/gestorCredenciales.js`
@@ -295,6 +296,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `panel/modulos/finanzas/bitacora.html`
 
 ### `participantes`
+- `functions/charlas.js`
 - `functions/eliminaciones.js`
 - `functions/importaciones.js`
 - `functions/index.js`
@@ -304,8 +306,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/test/operaciones-qr.integration.js`
 - `functions/test/permisos-reglas.integration.mjs`
 - `js/modulos/gestorCredenciales.js`
-- `js/modulos/inscripciones.js`
-- ...y 6 archivos mas
+- ...y 7 archivos mas
 
 ### `productos`
 - `functions/operaciones-financieras.js`
@@ -323,6 +324,12 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 ### `publico`
 - `functions/mapa-publico.js`
 
+### `reservas_charlas`
+- `functions/charlas.js`
+
+### `reservas_conteo`
+- `functions/charlas.js`
+
 ### `reuniones`
 - `js/modulos/agendarReunion.js`
 - `js/modulos/minutaReunion.js`
@@ -335,6 +342,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/operaciones-qr.js`
 
 ### `salones`
+- `functions/charlas.js`
 - `functions/mapa-publico.js`
 - `js/core/salones-firestore.js`
 
@@ -360,7 +368,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/operaciones-qr.js`
 - `functions/permisos-admin.js`
 - `functions/personal.js`
-- ...y 15 archivos mas
+- ...y 14 archivos mas
 
 ### `ventas`
 - `functions/operaciones-financieras.js`
@@ -415,54 +423,56 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `participantes` — regla explícita · 9 operaciones detectadas
 - `productos` — regla explícita · 19 operaciones detectadas
 - `publico` — regla explícita · 0 operaciones detectadas
+- `reservas_charlas` — regla explícita · 0 operaciones detectadas
+- `reservas_conteo` — regla explícita · 0 operaciones detectadas
 - `reuniones` — regla explícita · 8 operaciones detectadas
 - `rfid_participantes` — regla explícita · 1 operaciones detectadas
 - `salones` — regla explícita · 3 operaciones detectadas
 - `solicitudes_actividad` — regla explícita · 3 operaciones detectadas
 - `turnos_congreso` — regla explícita · 1 operaciones detectadas
-- `usuarios` — regla explícita · 12 operaciones detectadas
+- `usuarios` — regla explícita · 11 operaciones detectadas
 - `ventas` — regla explícita · 4 operaciones detectadas
 - `voluntarios` — regla explícita · 10 operaciones detectadas
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 383
-- `imports`: 317
-- `loads_asset`: 164
-- `loads_stylesheet`: 147
-- `loads_script`: 79
-- `navigates_to`: 69
+- `calls_imported_symbol`: 403
+- `imports`: 328
+- `loads_asset`: 171
+- `loads_stylesheet`: 153
+- `loads_script`: 81
+- `navigates_to`: 66
 
 ## Paquetes/SDKs externos
 
 - `crypto` — usado en 7 archivo(s)
 - `firebase-admin/app` — usado en 10 archivo(s)
 - `firebase-admin/auth` — usado en 3 archivo(s)
-- `firebase-admin/firestore` — usado en 22 archivo(s)
+- `firebase-admin/firestore` — usado en 23 archivo(s)
 - `firebase-admin/storage` — usado en 2 archivo(s)
 - `firebase-functions/params` — usado en 1 archivo(s)
 - `firebase-functions/v2` — usado en 1 archivo(s)
 - `firebase-functions/v2/core` — usado en 1 archivo(s)
 - `firebase-functions/v2/firestore` — usado en 1 archivo(s)
-- `firebase-functions/v2/https` — usado en 13 archivo(s)
+- `firebase-functions/v2/https` — usado en 14 archivo(s)
 - `fs` — usado en 2 archivo(s)
 - `https` — usado en 2 archivo(s)
 - `https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js` — usado en 2 archivo(s)
-- `https://contecs-app.vercel.app/logocontecs.png` — usado en 4 archivo(s)
+- `https://contecs-app.vercel.app/logocontecs.png` — usado en 5 archivo(s)
 - `https://esm.sh/docx@9` — usado en 3 archivo(s)
 - `https://esm.sh/qrcode@1.5.4` — usado en 1 archivo(s)
-- `https://fonts.googleapis.com` — usado en 46 archivo(s)
-- `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap` — usado en 46 archivo(s)
-- `https://fonts.gstatic.com` — usado en 46 archivo(s)
+- `https://fonts.googleapis.com` — usado en 47 archivo(s)
+- `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap` — usado en 47 archivo(s)
+- `https://fonts.gstatic.com` — usado en 47 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 6 archivo(s)
-- `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 37 archivo(s)
+- `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 36 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 16 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 23 archivo(s)
+- `node:assert/strict` — usado en 24 archivo(s)
 - `node:crypto` — usado en 1 archivo(s)
-- `node:module` — usado en 3 archivo(s)
+- `node:module` — usado en 4 archivo(s)
 - `path` — usado en 2 archivo(s)
 - `readline` — usado en 1 archivo(s)
 - `three` — usado en 1 archivo(s)

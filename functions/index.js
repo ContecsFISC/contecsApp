@@ -10,7 +10,7 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {getStorage} = require("firebase-admin/storage");
 const crypto = require("crypto");
 const https = require("https");
-const {linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
+const {URL_BASE_PERFIL, linkPerfilParticipante, linkGiraParticipante} = require("./qr-participante");
 
 // El proyecto tiene 20 vCPU en total en us-central1 (cuota de Cloud Run que
 // la consola no deja subir). Con 1 vCPU por instancia, 24 funciones no caben
@@ -30,6 +30,7 @@ const {motivoDeEntrada, motivosCrudosDeGira} = require("./giras");
 const {usuarioPuede} = require("./permisos");
 const {conAjustesDeRol} = require("./ajustes-rol");
 const {
+  cargarCorreoInvitacionCharlas,
   cargarCorreoPagoAprobado,
   cargarCorreoNotificacionGira,
   cargarCorreoNoSeleccionadoGira,
@@ -76,6 +77,8 @@ const {
   crearParticipantesUnicos,
 } = require("./registro");
 const {importarParticipantes} = require("./importaciones");
+const {accederConCedula, reservarCharla} = require("./charlas");
+const {enPanama} = require("./ventana-checkpoint");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 // La API key de Brevo YA NO vive en el código fuente (así nunca vuelve a
@@ -942,6 +945,163 @@ exports.registrarParticipante = onCall(
         console.error("registrarParticipante:", e);
         throw new HttpsError("internal", "Error al registrar. Intenta de nuevo en unos segundos.");
       }
+    },
+);
+
+// ─── PERFIL POR CÉDULA Y RESERVA DE CHARLAS (functions/charlas.js) ───────────
+// Públicas como accederParticipante: la persona entra a perfil.html solo con
+// su cédula (o con el link ?c=&t= de su credencial).
+exports.accederConCedula = onCall(
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    async (request) => {
+      try {
+        return await accederConCedula(request, sanitizarParticipante);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("accederConCedula:", e);
+        throw new HttpsError("internal", "Error al consultar tu inscripción. Intenta de nuevo.");
+      }
+    },
+);
+
+exports.reservarCharla = onCall(
+    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    async (request) => {
+      try {
+        return await reservarCharla(request);
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("reservarCharla:", e);
+        throw new HttpsError("internal", "No se pudo guardar la reserva. Intenta de nuevo.");
+      }
+    },
+);
+
+// ─── INVITACIÓN A RESERVAR CHARLAS (correo por lotes) ───────────────────────
+// Brevo permite 300 correos al día en total (también los de pago aprobado):
+// la invitación usa como máximo 250 por día de Panamá, contados en
+// config/cuota_invitaciones. Cada persona la recibe una sola vez
+// (participantes.invitacionCharlas.enviadoEn). Solo CEO ("enviar_invitaciones").
+const MAX_INVITACIONES_DIA = 250;
+const ROLES_INVITACIONES = new Set(["ceo"]);
+const BLOQUEO_INVITACIONES_MS = 10 * 60 * 1000;
+const LINK_CHARLAS = `${URL_BASE_PERFIL}#charlas`;
+
+function invitacionPara(participante) {
+  const nombre = participante.nombreCompleto ||
+    `${participante.nombre || ""} ${participante.apellido || ""}`.trim();
+  const plantilla = cargarCorreoInvitacionCharlas({nombre, link_charlas: LINK_CHARLAS});
+  return {nombre, plantilla};
+}
+
+async function enviarInvitacion(correo, participante) {
+  const {nombre, plantilla} = invitacionPara(participante);
+  if (!plantilla.activo) throw new Error("La plantilla de invitación está desactivada.");
+  return enviarCorreoTransaccional({
+    sender: CORREO_REMITENTE,
+    to: [nombre ? {email: correo, name: nombre} : {email: correo}],
+    subject: plantilla.subject,
+    htmlContent: plantilla.htmlContent,
+    textContent: plantilla.textContent,
+  });
+}
+
+exports.enviarInvitacionCharlas = onCall(
+    {region: "us-central1", maxInstances: 1, timeoutSeconds: 540, secrets: [BREVO_API_KEY], ...CPU_COMPLETA},
+    async (request) => {
+      if (!request.auth?.uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión.");
+      const actorSnap = await db.collection("usuarios").doc(request.auth.uid).get();
+      const actor = await conAjustesDeRol(actorSnap.exists ? actorSnap.data() : null);
+      if (!usuarioPuede(actor, "enviar_invitaciones", ROLES_INVITACIONES)) {
+        throw new HttpsError("permission-denied", "No tienes permiso para enviar invitaciones.");
+      }
+      const modo = ["contar", "prueba", "enviar"].includes(request.data?.modo) ? request.data.modo : "contar";
+      const hoy = enPanama(Date.now()).dia;
+      const cuotaRef = db.collection("config").doc("cuota_invitaciones");
+
+      const aprobados = await db.collection("participantes").where("pago.estado", "==", "aprobado").get();
+      const pendientes = aprobados.docs
+          .filter((d) => d.data().correo && !d.data().invitacionCharlas?.enviadoEn)
+          .sort((a, b) => (a.data().fechaRegistro?.toMillis?.() || 0) - (b.data().fechaRegistro?.toMillis?.() || 0));
+      const cuota = (await cuotaRef.get()).data() || {};
+      const enviadosHoy = cuota.dia === hoy ? Number(cuota.enviados || 0) : 0;
+      const estado = {
+        aprobados: aprobados.size,
+        pendientes: pendientes.length,
+        enviadosHoy,
+        topeDiario: MAX_INVITACIONES_DIA,
+        disponiblesHoy: Math.max(0, MAX_INVITACIONES_DIA - enviadosHoy),
+      };
+      if (modo === "contar") return estado;
+
+      if (modo === "prueba") {
+        const correo = String(actor?.email || "").trim();
+        if (!correo) throw new HttpsError("failed-precondition", "Tu cuenta no tiene correo para la prueba.");
+        if (estado.disponiblesHoy <= 0) throw new HttpsError("resource-exhausted", "Ya se usó el tope de hoy.");
+        await enviarInvitacion(correo, {nombreCompleto: actor?.nombre || ""});
+        await cuotaRef.set({dia: hoy, enviados: enviadosHoy + 1}, {merge: true});
+        return {...estado, prueba: correo, enviadosHoy: enviadosHoy + 1, disponiblesHoy: estado.disponiblesHoy - 1};
+      }
+
+      // modo "enviar": un lote a la vez (un segundo clic no manda doble).
+      const pedido = Math.max(1, Math.min(Number(request.data?.limite) || MAX_INVITACIONES_DIA, MAX_INVITACIONES_DIA));
+      const reservado = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(cuotaRef);
+        const c = snap.data() || {};
+        const usados = c.dia === hoy ? Number(c.enviados || 0) : 0;
+        const bloqueo = c.enviandoEn?.toMillis?.() || 0;
+        if (c.enviando && Date.now() - bloqueo < BLOQUEO_INVITACIONES_MS) {
+          throw new HttpsError("failed-precondition", "Ya se está enviando un lote. Espera a que termine.");
+        }
+        const cupo = Math.min(pedido, MAX_INVITACIONES_DIA - usados, pendientes.length);
+        if (cupo <= 0) {
+          throw new HttpsError("resource-exhausted", pendientes.length ?
+            `Hoy ya se enviaron ${usados} de ${MAX_INVITACIONES_DIA}. Sigue mañana.` :
+            "No queda nadie por invitar.");
+        }
+        tx.set(cuotaRef, {dia: hoy, enviados: usados, enviando: true, enviandoEn: FieldValue.serverTimestamp()}, {merge: true});
+        return {cupo, usados};
+      });
+
+      const lote = pendientes.slice(0, reservado.cupo);
+      let resultados = [];
+      try {
+        resultados = await enLotes(lote, ENVIOS_SIMULTANEOS, async (d) => {
+          const p = d.data();
+          const resp = await enviarInvitacion(p.correo, p);
+          await d.ref.update({
+            "invitacionCharlas.enviadoEn": FieldValue.serverTimestamp(),
+            "invitacionCharlas.brevoId": resp?.messageId || null,
+            "invitacionCharlas.error": null,
+          });
+          return d.id;
+        });
+      } finally {
+        const exitosos = resultados.filter((r) => r?.status === "fulfilled").length;
+        await cuotaRef.set({
+          dia: hoy,
+          enviados: reservado.usados + exitosos,
+          enviando: false,
+          enviandoEn: null,
+          ultimoLoteEn: FieldValue.serverTimestamp(),
+          ultimoLotePor: request.auth.uid,
+        }, {merge: true});
+      }
+
+      const {enviados, errores} = resumirEnvios(resultados, (i) => lote[i].data().correo);
+      await Promise.all(resultados.map((r, i) => r.status === "rejected" ?
+        lote[i].ref.update({"invitacionCharlas.error": String(r.reason?.message || r.reason).slice(0, 300)})
+            .catch(() => {}) :
+        null));
+      console.log(`enviarInvitacionCharlas: ${enviados.length} enviados, ${errores.length} con error`);
+      return {
+        ...estado,
+        enviados: enviados.length,
+        errores: errores.slice(0, 20),
+        enviadosHoy: reservado.usados + enviados.length,
+        disponiblesHoy: Math.max(0, MAX_INVITACIONES_DIA - reservado.usados - enviados.length),
+        pendientes: pendientes.length - enviados.length,
+      };
     },
 );
 

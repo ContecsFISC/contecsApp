@@ -15,10 +15,13 @@ import {
   efectoDeEntrada, PERMANENCIA_MINIMA_DEFECTO,
 } from "../core/permanencia.js";
 import { sincronizarReloj, ahoraMs, ahoraPanama } from "../core/reloj-servidor.js";
+import { crearLectorFisico } from "../core/lector-fisico.js?v=20261016.1";
 
-// Lectura QR con la cámara del celular. Solo registra ENTRADAS: la "salida"
-// de un checkpoint es la entrada al siguiente (ver js/core/permanencia.js).
-// El lector físico EA530 y el RFID viven en POSPER (posper.js).
+// Lectura QR con el lector del equipo (botón lateral: cada lectura marca la
+// entrada sola, js/core/lector-fisico.js) o con la cámara del celular (con
+// "Confirmar entrada"). Solo registra ENTRADAS: la "salida" de un checkpoint
+// es la entrada al siguiente (ver js/core/permanencia.js). Aquí no hay RFID:
+// eso es solo de POSPER (posper.js).
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
@@ -48,6 +51,12 @@ const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 // El servidor también lo revisa (ROLES_PRUEBA_HORARIO en operaciones-qr.js).
 const esCeo = () => getUsuarioActual().rol === "ceo";
 const modoPrueba = () => esCeo() && el("chk-todos").checked;
+// Por equipo: cómo se escanea ("lector" | "camara") y dónde (evento y checkpoint).
+const CLAVE_MODO = "lecturaQR.modo";
+const CLAVE_CONFIG = "lecturaQR.config";
+const leerLocal = (clave, defecto) => { try { return localStorage.getItem(clave) ?? defecto; } catch (_) { return defecto; } };
+const guardarLocal = (clave, valor) => { try { localStorage.setItem(clave, valor); } catch (_) { /* solo esta visita */ } };
+let modo = leerLocal(CLAVE_MODO, "lector") === "camara" ? "camara" : "lector";
 
 // ─── Alerta ──────────────────────────────────────────────────────────────────
 function alerta(tipo, msg) {
@@ -70,10 +79,18 @@ async function cargarEventos() {
     opt.textContent = ev.nombre;
     sel.appendChild(opt);
   });
-  if (eventos.length === 1) {
+  const guardado = configGuardada().eventoId;
+  if (guardado && eventos.some(d => d.id === guardado)) {
+    sel.value = guardado;
+    sel.dispatchEvent(new Event("change"));
+  } else if (eventos.length === 1) {
     sel.value = eventos[0].id;
     sel.dispatchEvent(new Event("change"));
   }
+}
+
+function configGuardada() {
+  try { return JSON.parse(leerLocal(CLAVE_CONFIG, "{}")) || {}; } catch (_) { return {}; }
 }
 
 el("sel-evento-qr").addEventListener("change", async () => {
@@ -97,6 +114,13 @@ el("sel-evento-qr").addEventListener("change", async () => {
 
   renderCheckpoints();
   el("cp-section").style.display = "block";
+  // El checkpoint de la última vez en este equipo, o el único en curso.
+  const guardado = configGuardada();
+  const preferido = (guardado.eventoId === id && checkpointsSesion.find(cp => cp.id === guardado.checkpointId))
+    || (checkpointsSesion.length === 1 ? checkpointsSesion[0] : null);
+  const tarjeta = preferido && [...el("cp-grid").querySelectorAll(".cp-card")].find(c => c.dataset.id === preferido.id);
+  if (tarjeta) await window.seleccionarCP(tarjeta);
+  else pantallaLector();
 });
 
 async function limpiarSeleccionSesion() {
@@ -109,6 +133,7 @@ async function limpiarSeleccionSesion() {
   el("resultado-box").style.display = "none";
   el("res-cupos-wrap").style.display = "none";
   el("cp-seleccionado").textContent = "";
+  pantallaLector();
 }
 
 // Solo los checkpoints de hoy y a esta hora (hora de Panamá, con el reloj del
@@ -185,7 +210,115 @@ window.seleccionarCP = async function(card) {
   if (horario) label += ` · ${horario}`;
   if (modoTaller) label += ` · ${checkpointSel.cuposDisponibles ?? checkpointSel.cupos} cupos disponibles`;
   el("cp-seleccionado").textContent = label;
+  if (checkpointSel) guardarLocal(CLAVE_CONFIG, JSON.stringify({ eventoId: eventoActivo?.id, checkpointId: checkpointSel.id }));
+  pantallaLector();
+  // En los equipos de pantalla chica el recuadro queda bajo la configuración.
+  if (checkpointSel && modo === "lector") el("panel-lector").scrollIntoView({ block: "start" });
 };
+
+// ─── Lector del equipo ───────────────────────────────────────────────────────
+// Cada lectura se registra sola (sin "Confirmar"): el voluntario solo dispara.
+// Si llegan dos seguidas, se procesan en orden.
+const lector = crearLectorFisico({
+  campo: el("captura"),
+  alLeer: texto => {
+    colaLector.push(texto);
+    if (!procesandoLector) void vaciarColaLector();
+  },
+  aceptaTeclasSueltas: () => modo === "lector" && !!checkpointSel,
+  alEmpezar: () => { if (!procesandoLector && checkpointSel) el("lector-sub").textContent = "Leyendo…"; },
+  alFoco: conFoco => el("captura-wrap").classList.toggle("sin-foco", !conFoco),
+});
+const colaLector = [];
+let procesandoLector = false;
+let timerLector = null;
+
+el("chk-teclado").checked = lector.tecladoVisible;
+el("chk-teclado").addEventListener("change", e => lector.mostrarTeclado(e.target.checked));
+
+function lectorPantalla(clase, titulo, sub = "") {
+  el("lector-escenario").className = `lector-escenario ${clase}`;
+  el("lector-titulo").textContent = titulo;
+  el("lector-sub").textContent = sub;
+}
+
+// Pantalla de espera según lo elegido arriba.
+function pantallaLector() {
+  clearTimeout(timerLector);
+  if (!eventoActivo) lectorPantalla("inactivo", "Elige el evento", "Arriba, el evento donde estás escaneando.");
+  else if (!checkpointSel) lectorPantalla("inactivo", "Elige el checkpoint", "Arriba, el checkpoint donde se marca la entrada.");
+  else lectorPantalla("listo", "ESCANEA EL QR", `${checkpointSel.nombre || "Checkpoint"} · presiona el botón lateral apuntando a la credencial.`);
+}
+
+// El resultado se ve un momento; la siguiente lectura no espera a que se quite.
+function resultadoLector(clase, titulo, sub) {
+  lectorPantalla(clase, titulo, sub);
+  clearTimeout(timerLector);
+  timerLector = setTimeout(pantallaLector, clase === "ok" ? 1800 : 3000);
+}
+
+async function vaciarColaLector() {
+  procesandoLector = true;
+  try {
+    while (colaLector.length) await registrarLectura(colaLector.shift());
+  } finally {
+    procesandoLector = false;
+  }
+}
+
+async function registrarLectura(texto) {
+  const checkpoint = checkpointSel;
+  const eventoId = eventoActivo?.id;
+  if (!checkpoint || !eventoId) {
+    resultadoLector("error", "ELIGE EL CHECKPOINT", "Antes de escanear, elige arriba el evento y el checkpoint.");
+    return;
+  }
+  const conCupos = TIPO_CON_CUPOS.includes(checkpoint.tipo) && checkpoint.cupos != null;
+  lectorPantalla("procesando", "Validando…", "Revisando la credencial.");
+  try {
+    const credencial = extraerCredencialQr(texto);
+    const { participante, esNuevoFormato } = await buscarParticipanteQr(credencial);
+    const nombre = participante.nombreCompleto || participante.nombre || "Participante";
+    if (esNuevoFormato && participante.pago?.estado !== "aprobado") {
+      throw new Error(`${nombre} todavía no tiene el pago aprobado.`);
+    }
+    // Si el QR se lee dos veces, vale la primera entrada.
+    if (participante.asistencias?.[checkpoint.id]) {
+      resultadoLector("aviso", "YA REGISTRADO", `${nombre} ya tenía entrada en ${checkpoint.nombre || "este checkpoint"}.`);
+      return;
+    }
+    try {
+      await guardarAsistencia({ participante: { ...participante, esNuevoFormato }, checkpoint, eventoId, modoTaller: conCupos });
+    } catch (e) {
+      if (e.code !== "functions/already-exists") throw e;
+      resultadoLector("aviso", "YA REGISTRADO", `${nombre}: ${e.message}`);
+      return;
+    }
+    resultadoLector("ok", "ENTRADA MARCADA", `${nombre} · ${checkpoint.nombre || "Checkpoint"}`);
+  } catch (e) {
+    console.error("Lectura QR (lector):", e);
+    resultadoLector("error", "NO SE REGISTRÓ", e.message || "No se pudo procesar el código QR.");
+  }
+}
+
+// ─── Lector del equipo o cámara ──────────────────────────────────────────────
+async function aplicarModo(nuevo) {
+  modo = nuevo;
+  guardarLocal(CLAVE_MODO, modo);
+  el("modo-lector").setAttribute("aria-pressed", String(modo === "lector"));
+  el("modo-camara").setAttribute("aria-pressed", String(modo === "camara"));
+  el("panel-lector").hidden = modo !== "lector";
+  el("panel-camara").hidden = modo !== "camara";
+  if (modo === "lector") {
+    if (escaneando || estadoInternoScanner() === 3) await detenerScanner();
+    cerrarResultado();
+    lector.activar(true);
+  } else {
+    lector.activar(false);
+  }
+}
+el("modo-lector").addEventListener("click", () => void aplicarModo("lector"));
+el("modo-camara").addEventListener("click", () => void aplicarModo("camara"));
 
 // ─── Scanner ─────────────────────────────────────────────────────────────────
 function estadoScanner(texto, tipo = "") {
@@ -598,6 +731,8 @@ function renderLog() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+void aplicarModo(modo);
+pantallaLector();
 // Primero la hora del servidor: con ella se decide qué checkpoints se ofrecen.
 sincronizarReloj().then(cargarEventos).catch(e => {
   console.error("Error cargando eventos para lectura QR:", e);

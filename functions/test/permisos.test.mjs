@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import {
-  ROLES, PERMISOS, SUBPERMISOS, CATALOGO_PERMISOS, tienePermiso, rolIncluyePermiso,
+  ROLES, PERMISOS, SUBPERMISOS, CATALOGO_PERMISOS, PERMISOS_SOLO_ROL, tienePermiso, rolIncluyePermiso,
   ajusteDePermiso, ajusteDelRol, admiteAjustes,
 } from "../../js/core/permisos.js";
 
@@ -24,7 +24,9 @@ function prueba(nombre, fn) {
   console.log(`  ok  ${nombre}`);
 }
 
-const AHORA = Date.UTC(2026, 9, 8, 15, 0, 0);
+// tienePermiso() usa el reloj real: con una fecha fija, "mañana" dejaba de
+// ser futuro al pasar ese día.
+const AHORA = Date.now();
 const AYER = AHORA - 24 * 3600 * 1000;
 const MANANA = AHORA + 24 * 3600 * 1000;
 // Como llega de Firestore (Timestamp) y como queda en sessionStorage (ms).
@@ -113,6 +115,53 @@ prueba("el patrocinador POSPER no admite ajustes", () => {
   assert.equal(admiteAjustes("posper"), false);
   assert.equal(tienePermiso("posper", "ver_participantes", extra), false);
   assert.equal(servidorPuede("posper", "ver_participantes", extra), false);
+});
+
+prueba("POSPER y Voluntario quedan en su único módulo", () => {
+  const extra = { ver_participantes: { modo: "otorgar", vence: null } };
+  for (const rol of ["posper", "voluntario"]) {
+    assert.equal(admiteAjustes(rol), false);
+    assert.equal(tienePermiso(rol, "ver_mapa"), false);
+    assert.equal(tienePermiso(rol, "acceso_venta_rapida"), false);
+    assert.equal(tienePermiso(rol, "ver_participantes", extra), false);
+    assert.equal(servidorPuede(rol, "ver_participantes", extra), false);
+  }
+  assert.equal(tienePermiso("posper", "acceso_posper"), true);
+  assert.equal(tienePermiso("posper", "posper_sorteos"), false);
+  assert.equal(tienePermiso("posper", "escanear_qr"), false);
+  assert.equal(tienePermiso("voluntario", "escanear_qr"), true);
+  assert.equal(tienePermiso("voluntario", "acceso_posper"), false);
+  assert.equal(tienePermiso("voluntario", "lectura_qr"), false);
+});
+
+prueba("Modelado (pantalla grande) solo ve el Mapa", () => {
+  const extra = { ver_participantes: { modo: "otorgar", vence: null } };
+  assert.equal(admiteAjustes("modelado"), false);
+  assert.equal(tienePermiso("modelado", "ver_mapa"), true);
+  for (const p of ["acceso_venta_rapida", "liberar_asiento", "evento_salones", "lectura_qr", "escanear_qr", "acceso_posper", "ver_calendario"]) {
+    assert.equal(tienePermiso("modelado", p), false, p);
+  }
+  assert.equal(tienePermiso("modelado", "ver_participantes", extra), false);
+  assert.equal(servidorPuede("modelado", "ver_participantes", extra), false);
+});
+
+prueba("nadie más que POSPER y CEO llega al lector POSPER, ni con ajustes", () => {
+  const extra = { acceso_posper: { modo: "otorgar", vence: null }, escanear_qr: { modo: "otorgar", vence: null } };
+  const delRol = { acceso_posper: { modo: "otorgar" }, liberar_rfid: { modo: "otorgar" } };
+  for (const rol of ["staff_contecs", "junta_principal", "miembro"]) {
+    assert.equal(tienePermiso(rol, "acceso_posper", extra, delRol), false);
+    assert.equal(tienePermiso(rol, "liberar_rfid", extra, delRol), false);
+    assert.equal(tienePermiso(rol, "escanear_qr", extra, delRol), false);
+    assert.equal(servidorPuede(rol, "acceso_posper", extra, AHORA, delRol), false);
+  }
+  const quitar = { acceso_posper: { modo: "quitar" } };
+  assert.equal(tienePermiso("posper", "acceso_posper", quitar), true);
+  assert.equal(tienePermiso("ceo", "acceso_posper", quitar), true);
+});
+
+prueba("panel y servidor tienen los mismos permisos de solo rol", () => {
+  assert.deepEqual([...servidor.PERMISOS_SOLO_ROL].sort(), [...PERMISOS_SOLO_ROL].sort());
+  for (const p of PERMISOS_SOLO_ROL) assert.ok(PERMISOS[p], `${p} no existe`);
 });
 
 prueba("a un CEO no se le puede quitar nada", () => {
@@ -294,9 +343,11 @@ prueba("cada permiso del catálogo existe y su requisito también", () => {
 prueba("todo permiso en uso aparece en el catálogo", () => {
   const ids = new Set(CATALOGO_PERMISOS.flatMap(m => m.permisos.map(p => p.id)));
   assert.deepEqual(Object.keys(SUBPERMISOS).filter(p => !ids.has(p)), []);
-  const fuera = Object.keys(PERMISOS).filter(p => !ids.has(p));
+  const fuera = Object.keys(PERMISOS).filter(p => !ids.has(p) && !PERMISOS_SOLO_ROL.includes(p));
   // Ninguna pantalla usa estos dos hoy (ver comentario del catálogo).
   assert.deepEqual(fuera.sort(), ["aprobar_gastos", "ver_precios"]);
+  // Los de solo rol no se pueden dar ni quitar desde el gestor.
+  for (const p of PERMISOS_SOLO_ROL) assert.ok(!ids.has(p), `${p} es solo por rol`);
 });
 
 prueba("reenviar_credencial conserva a quienes antes reenviaban (ver_participantes)", () => {
