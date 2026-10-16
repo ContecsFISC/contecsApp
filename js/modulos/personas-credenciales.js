@@ -230,6 +230,148 @@ export function personasExpositores({ participantes = [], checkpoints = [], manu
     .sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), "es"));
 }
 
+// ── Grupos para la entrega ─────────────────────────────────────────────────
+// Para repartir las credenciales en mesas: la lista se parte en N grupos
+// seguidos (por nombre A–Z o por cédula) con la cantidad de personas lo más
+// pareja posible. Nunca se parte una letra ni un tomo de cédula: en la mesa
+// basta mirar la inicial o los dos primeros números.
+
+const LETRAS = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+
+// Letra inicial del nombre tal como sale en la lista. Sin tildes (Á → A),
+// pero la Ñ va aparte; lo que no empieza con letra se agrupa en "#".
+export function inicialDe(p) {
+  const c = nombreDe(p).trim().charAt(0).toUpperCase();
+  if (c === "Ñ") return c;
+  const base = c.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return /^[A-Z]$/.test(base) ? base : "#";
+}
+
+// La cédula está en sitios distintos según el tipo de persona.
+export function cedulaDe(p) {
+  const deVoluntario = p._tipo === "voluntario" || p._tipo === "comite" ? p.cred?.codigo : "";
+  return String(p.cedula || deVoluntario || p._doc?.cedula || "").trim();
+}
+
+// Cédula panameña: provincia (1–13) o E/N/PE, a veces con AV/PI, tomo y
+// asiento. Misma lectura que normalizarCedula() de functions/registro-voluntarios.js.
+// Lo que no encaja (pasaportes, cédulas mal escritas) devuelve null.
+export function partesCedula(texto) {
+  const t = String(texto || "").toUpperCase()
+    .replace(/[‐-―−]/g, "-").trim()
+    .replace(/\s*-\s*/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  const m = /^(\d{1,2}|PE|E|N)(?:-(AV|PI))?-(\d{1,4})-(\d{1,6})$/.exec(t);
+  if (!m) return null;
+  const provincia = /^\d+$/.test(m[1]) ? Number(m[1]) : { E: 100, N: 101, PE: 102 }[m[1]];
+  return {
+    prefijo: [/^\d+$/.test(m[1]) ? String(provincia) : m[1], m[2]].filter(Boolean).join("-"),
+    orden: provincia * 3 + ({ AV: 1, PI: 2 }[m[2]] || 0),
+    tomo: Number(m[3]),
+    asiento: Number(m[4]),
+  };
+}
+
+function unidadDe(p, modo) {
+  if (modo === "nombre") {
+    const l = inicialDe(p);
+    return l === "#"
+      ? { clave: "#", orden: [1], etiqueta: "otros", especial: true }
+      : { clave: l, orden: [0, LETRAS.indexOf(l)], etiqueta: l };
+  }
+  const c = partesCedula(cedulaDe(p));
+  if (c) return { clave: `${c.orden}-${c.tomo}`, orden: [0, c.orden, c.tomo], etiqueta: `${c.prefijo}-${c.tomo}`, prefijo: c.prefijo, tomo: c.tomo };
+  return cedulaDe(p)
+    ? { clave: "otro", orden: [1], etiqueta: "pasaportes y otros", especial: true }
+    : { clave: "sin", orden: [2], etiqueta: "sin cédula", especial: true };
+}
+
+const compararOrden = (a, b) => {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const d = (a[i] ?? -1) - (b[i] ?? -1);
+    if (d) return d;
+  }
+  return 0;
+};
+
+// Corta `conteos` (en orden) en `k` tramos seguidos con la menor suma de
+// (tamaño − promedio)²: programación dinámica. Como el costo es convexo, el
+// mejor corte avanza con j y se busca por divide y vencerás: O(k·n·log n).
+// Devuelve dónde termina cada tramo.
+function partir(conteos, k) {
+  const n = conteos.length;
+  const suma = [0];
+  conteos.forEach(c => suma.push(suma[suma.length - 1] + c));
+  const meta = suma[n] / k;
+  let previo = Array(n + 1).fill(Infinity);
+  previo[0] = 0;
+  const desde = [];
+  for (let g = 1; g <= k; g++) {
+    const actual = Array(n + 1).fill(Infinity);
+    const corte = Array(n + 1).fill(0);
+    const resolver = (lo, hi, optLo, optHi) => {
+      if (lo > hi) return;
+      const j = (lo + hi) >> 1;
+      for (let i = optLo; i <= Math.min(j - 1, optHi); i++) {
+        const v = previo[i] + (suma[j] - suma[i] - meta) ** 2;
+        if (v < actual[j]) { actual[j] = v; corte[j] = i; }
+      }
+      resolver(lo, j - 1, optLo, corte[j]);
+      resolver(j + 1, hi, corte[j], optHi);
+    };
+    resolver(g, n - (k - g), g - 1, n - 1);
+    desde.push(corte);
+    previo = actual;
+  }
+  const fines = [n];
+  for (let g = k; g > 1; g--) fines.unshift(desde[g - 1][fines[0]]);
+  return fines;
+}
+
+// Rango que se escribe en el cartel de la mesa. Llega hasta justo antes de
+// donde empieza el grupo siguiente, para que nadie quede entre dos mesas.
+function etiquetaGrupo(modo, unidades, siguiente, primero) {
+  const normales = unidades.filter(u => !u.especial);
+  const especiales = unidades.filter(u => u.especial).map(u => u.etiqueta);
+  let rango = "";
+  if (normales.length) {
+    const a = normales[0], z = normales[normales.length - 1];
+    let inicio = a.etiqueta, fin = z.etiqueta;
+    if (modo === "nombre") {
+      if (primero) inicio = LETRAS[0];
+      fin = siguiente && !siguiente.especial ? LETRAS[LETRAS.indexOf(siguiente.etiqueta) - 1] : LETRAS[LETRAS.length - 1];
+    } else if (siguiente && !siguiente.especial && siguiente.prefijo === z.prefijo) {
+      fin = `${z.prefijo}-${siguiente.tomo - 1}`;
+    }
+    rango = inicio === fin ? inicio : `${inicio}${modo === "nombre" ? "–" : " a "}${fin}`;
+  }
+  return [rango, ...especiales].filter(Boolean).join(" + ");
+}
+
+// grupos: [{ etiqueta, personas }] en orden de entrega; grupoDe: _clave → índice;
+// posicion: _clave → lugar en ese orden (para imprimir la pila ya ordenada).
+export function gruposEquilibrados(personas, modo, cuantos) {
+  const unidades = new Map();
+  personas.forEach(p => {
+    const u = unidadDe(p, modo);
+    if (!unidades.has(u.clave)) unidades.set(u.clave, { ...u, personas: [] });
+    unidades.get(u.clave).personas.push(p);
+  });
+  const lista = [...unidades.values()].sort((a, b) => compararOrden(a.orden, b.orden));
+  const porNombre = (a, b) => nombreDe(a).localeCompare(nombreDe(b), "es");
+  lista.forEach(u => u.personas.sort(modo === "cedula" && !u.especial
+    ? (a, b) => partesCedula(cedulaDe(a)).asiento - partesCedula(cedulaDe(b)).asiento || porNombre(a, b)
+    : porNombre));
+  const k = Math.max(0, Math.min(Math.floor(cuantos) || 1, lista.length));
+  const fines = k ? partir(lista.map(u => u.personas.length), k) : [];
+  const grupos = fines.map((fin, i) => {
+    const suyas = lista.slice(i ? fines[i - 1] : 0, fin);
+    return { etiqueta: etiquetaGrupo(modo, suyas, lista[fin], i === 0), personas: suyas.flatMap(u => u.personas) };
+  });
+  const grupoDe = new Map(), posicion = new Map();
+  grupos.forEach((g, i) => g.personas.forEach(p => { grupoDe.set(p._clave, i); posicion.set(p._clave, posicion.size); }));
+  return { modo, grupos, grupoDe, posicion };
+}
+
 // ── Historial de impresión ─────────────────────────────────────────────────
 // credenciales_impresas/{_clave}: cuántas veces y cuándo se imprimió.
 export function estadoImpresion(persona, impresas) {

@@ -41,3 +41,34 @@ console.log(ex2.map(e => `${e.nombreCompleto || e.nombre} | ${e._origen || "insc
 const pedro = ex2.find(e => e._clave === "expositor_man_m2"); assert.deepEqual(pedro.cred.detalle, ["Ciencia abierta"]); assert.equal(pedro.cred.institucion, "SENACYT");
 assert.equal(ex2.filter(e => e._origen === "externo").length, 1, "Dra. Marta Ruiz sigue como externa (nombre distinto a 'Marta Ruiz')");
 console.log("ok manuales");
+
+// Grupos para la entrega: parejos, sin partir un tomo ni una letra, y sin huecos entre mesas.
+assert.deepEqual(m.partesCedula("8 - 0912 - 1234"), { prefijo: "8", orden: 24, tomo: 912, asiento: 1234 });
+assert.equal(m.partesCedula("pe-12-345").prefijo, "PE");
+assert.equal(m.partesCedula("8-av-12-345").prefijo, "8-AV");
+assert.equal(m.partesCedula("A1234567"), null);
+const gente = [];
+const agregar = (cedula, nombre) => gente.push({ _clave: `k${gente.length}`, _tipo: "participante", nombre, cedula });
+for (let i = 0; i < 6; i++) agregar(`1-7${i}-${i}`, "Ana");
+for (let i = 0; i < 30; i++) agregar(`8-${900 + Math.floor(i / 3)}-${100 - i}`, i % 2 ? "María" : "José");
+for (let i = 0; i < 4; i++) agregar(`E-8-${i}`, "Zoe");
+agregar("A1234567", "Ñandú"); agregar("", "Óscar");
+const porCed = m.gruposEquilibrados(gente, "cedula", 4);
+console.log(porCed.grupos.map(g => `${g.etiqueta}: ${g.personas.length}`).join(" | "));
+assert.equal(porCed.grupos.length, 4);
+assert.equal(porCed.grupos.reduce((s, g) => s + g.personas.length, 0), gente.length);
+assert.ok(Math.max(...porCed.grupos.map(g => g.personas.length)) <= 12, "ningún grupo se dispara");
+const tomos = porCed.grupos.map(g => new Set(g.personas.map(p => p.cedula.split("-").slice(0, 2).join("-"))));
+tomos.forEach((t, i) => tomos.slice(i + 1).forEach(o => [...t].forEach(x => assert.ok(!o.has(x), `tomo ${x} partido`))));
+assert.match(porCed.grupos[0].etiqueta, /^1-70 a /);
+assert.match(porCed.grupos.at(-1).etiqueta, /pasaportes y otros \+ sin cédula$/);
+const enOrden = [...porCed.posicion.keys()].map(k => gente.find(p => p._clave === k).cedula);
+assert.deepEqual(enOrden.slice(0, 3), ["1-70-0", "1-71-1", "1-72-2"], "la pila sale ordenada por cédula");
+const porNom = m.gruposEquilibrados(gente, "nombre", 3);
+console.log(porNom.grupos.map(g => `${g.etiqueta}: ${g.personas.length}`).join(" | "));
+assert.equal(porNom.grupos[0].etiqueta.charAt(0), "A", "la primera mesa arranca en A");
+assert.match(porNom.grupos.at(-1).etiqueta, /–Z$/, "la última mesa llega hasta la Z");
+assert.equal(m.inicialDe({ nombre: "Óscar" }), "O"); assert.equal(m.inicialDe({ nombre: "Ñandú" }), "Ñ"); assert.equal(m.inicialDe({ nombre: "3D" }), "#");
+assert.equal(m.gruposEquilibrados(gente, "nombre", 50).grupos.length, 6, "no hay más grupos que letras");
+assert.equal(m.gruposEquilibrados([], "cedula", 4).grupos.length, 0);
+console.log("ok grupos");

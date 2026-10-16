@@ -884,10 +884,20 @@ export function limpiarImpresion() {
 }
 
 export function imprimirPdf(blob) {
+  return imprimirEnMarco(blob, "Impresión de credenciales", 400);
+}
+
+// Un documento HTML completo (por ejemplo las listas de entrega), por el
+// mismo camino: ahí se elige la impresora normal o "Guardar como PDF".
+export function imprimirHtml(html) {
+  return imprimirEnMarco(new Blob([html], { type: "text/html" }), "Impresión de listas", 150);
+}
+
+function imprimirEnMarco(blob, titulo, espera) {
   limpiarImpresion();
   const url = URL.createObjectURL(blob);
   const iframe = document.createElement("iframe");
-  iframe.title = "Impresión de credenciales";
+  iframe.title = titulo;
   iframe.setAttribute("aria-hidden", "true");
   iframe.style.cssText = "position:fixed;left:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none;";
   impresion = { iframe, url };
@@ -902,7 +912,7 @@ export function imprimirPdf(blob) {
         } catch (err) {
           reject(err);
         }
-      }, 400);
+      }, espera);
     };
     iframe.src = url;
     document.body.appendChild(iframe);

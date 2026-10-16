@@ -15,13 +15,14 @@ import {
   addDoc, updateDoc, deleteDoc,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { esperarSesionLista, getUsuarioActual } from "../core/auth.js";
-import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
+import { escaparAtributo, escaparHtml, neutralizarFormulaHoja } from "../core/seguridad.js";
 import {
   TAMANOS, medidaImpresa, dibujarCredencial, generarPdf, generarZip, generarPng,
-  nombreArchivo, nombreLote, descargarBlob, imprimirPdf, limpiarImpresion, nombreDe, categoriaDe,
+  nombreArchivo, nombreLote, descargarBlob, imprimirPdf, imprimirHtml, limpiarImpresion, nombreDe, categoriaDe,
 } from "./credenciales.js";
 import {
   TIPOS, personaParticipante, personaVoluntario, personasExpositores, estadoImpresion, normalizar,
+  inicialDe, gruposEquilibrados, cedulaDe, partesCedula,
 } from "./personas-credenciales.js";
 import { leerArchivo, nombrePropio, separarNombreCompleto } from "./importar-participantes.js";
 import { esCorreoValido } from "../core/correos.js";
@@ -44,7 +45,9 @@ const S = {
   seleccion: { participante: new Set(), voluntario: new Set(), comite: new Set(), expositor: new Set() },
   actual: null, // _clave de la vista previa
   visibles: [],
-  letra: "", // filtro por letra inicial del nombre ("" = todas)
+  agrupar: "letra", // letra | nombre | cedula (grupos parejos para la entrega)
+  nGrupos: 4,
+  bloque: "", // letra o número de grupo elegido ("" = todas)
   tamano: null,
   tarea: null,
   porMarcar: [], // personas generadas que falta confirmar como impresas
@@ -181,52 +184,291 @@ el("cr-tipos").addEventListener("click", e => {
   if (!b || b.dataset.tipo === S.tipo || S.tarea) return;
   S.tipo = b.dataset.tipo;
   S.actual = null;
-  S.letra = "";
+  S.bloque = "";
   el("cr-buscar").value = "";
   ocultarAviso();
   renderTodo();
 });
 
 // ── Lista ──────────────────────────────────────────────────────────────────
-// Letra inicial del nombre tal como sale en la lista, para imprimir por
-// bloques. Sin tildes (Á → A), pero la Ñ va aparte; lo que no empieza con
-// letra se agrupa en "#".
-function inicial(p) {
-  const c = nombreDe(p).trim().charAt(0).toUpperCase();
-  if (c === "Ñ") return c;
-  const base = c.normalize("NFD").replace(/[̀-ͯ]/g, "");
-  return /^[A-Z]$/.test(base) ? base : "#";
-}
-
+// Para imprimir y entregar por bloques: una letra a la vez, o toda la lista
+// partida en N grupos parejos por nombre o por cédula (uno por mesa).
 const ordenLetras = (a, b) => (a === "#") - (b === "#") || a.localeCompare(b, "es");
+
+const botonBloque = (valor, contenido, n) =>
+  `<button type="button" class="cr-letra" data-bloque="${escaparAtributo(valor)}" aria-pressed="${S.bloque === valor}" title="${n} persona${n !== 1 ? "s" : ""}">${contenido}</button>`;
 
 function renderLetras(base) {
   const cuenta = new Map();
-  base.forEach(p => { const l = inicial(p); cuenta.set(l, (cuenta.get(l) || 0) + 1); });
+  base.forEach(p => { const l = inicialDe(p); cuenta.set(l, (cuenta.get(l) || 0) + 1); });
   const letras = [...cuenta.keys()].sort(ordenLetras);
-  const boton = (valor, texto, n) =>
-    `<button type="button" class="cr-letra" data-letra="${escaparAtributo(valor)}" aria-pressed="${S.letra === valor}" title="${n} persona${n !== 1 ? "s" : ""}">${h(texto)}</button>`;
-  el("cr-letras").hidden = !base.length;
-  el("cr-letras").innerHTML = boton("", "Todas", base.length) +
-    letras.map(l => boton(l, l, cuenta.get(l))).join("");
+  el("cr-letras").innerHTML = botonBloque("", "Todas", base.length) +
+    letras.map(l => botonBloque(l, h(l), cuenta.get(l))).join("");
 }
 
-el("cr-letras").addEventListener("click", e => {
-  const b = e.target.closest("[data-letra]");
-  if (!b || S.tarea) return;
-  S.letra = b.dataset.letra;
+// Los grupos salen de todos los que llevan credencial de este tipo, no de la
+// búsqueda ni del estado: así no se mueven al marcar impresas ni al buscar.
+let memoGrupos = null;
+function gruposDelTipo() {
+  const conPendientes = el("cr-no-aprobados").checked;
+  const clave = `${S.tipo}|${S.nGrupos}|${conPendientes}`;
+  if (memoGrupos?.clave !== clave || memoGrupos.personas !== S.personas[S.tipo]) {
+    const poblacion = S.personas[S.tipo].filter(p => p._imprimible && (S.tipo !== "participante" || conPendientes || p._aprobado));
+    memoGrupos = {
+      clave, personas: S.personas[S.tipo], total: poblacion.length,
+      sinCedula: poblacion.filter(p => !partesCedula(cedulaDe(p))).length,
+      nombre: gruposEquilibrados(poblacion, "nombre", S.nGrupos),
+      cedula: gruposEquilibrados(poblacion, "cedula", S.nGrupos),
+    };
+  }
+  return memoGrupos;
+}
+
+// Con los dos métodos a la vista se decide cuál deja las mesas más parejas.
+function textoComparacion(todos) {
+  if (!todos.total) return "Nadie de este tipo tiene credencial para repartir todavía.";
+  const tam = r => r.grupos.map(g => g.personas.length);
+  const dif = r => Math.max(...tam(r)) - Math.min(...tam(r));
+  const linea = (nombre, r) => `por ${nombre}: ${tam(r).join(" · ")} (diferencia de ${dif(r)}` +
+    `${r.grupos.length < S.nGrupos ? `; solo alcanza para ${r.grupos.length} grupo${r.grupos.length !== 1 ? "s" : ""}` : ""})`;
+  const [ced, nom] = [todos.cedula, todos.nombre];
+  const mejor = ced.grupos.length !== nom.grupos.length ? (ced.grupos.length > nom.grupos.length ? "cedula" : "nombre")
+    : dif(ced) === dif(nom) ? "" : dif(ced) < dif(nom) ? "cedula" : "nombre";
+  return `Con ${S.nGrupos} grupos para ${todos.total} personas (≈${Math.round(todos.total / S.nGrupos)} por mesa) — ` +
+    `${h(linea("cédula", ced))} · ${h(linea("nombre", nom))}. ` +
+    (mejor ? `<b>Queda más parejo por ${mejor === "cedula" ? "cédula" : "nombre"}.</b>` : "<b>Los dos quedan igual de parejos.</b>") +
+    (todos.sinCedula ? ` ${todos.sinCedula} sin cédula panameña (pasaporte, mal escrita o vacía) van al último grupo por cédula.` : "");
+}
+
+function renderGrupos() {
+  const todos = gruposDelTipo();
+  const { grupos } = todos[S.agrupar];
+  el("cr-letras").innerHTML = botonBloque("", "Todas", todos.total) + grupos.map((g, i) =>
+    botonBloque(String(i), `<b>${i + 1}</b> ${h(g.etiqueta)}<span class="g-n">${g.personas.length}</span>`, g.personas.length)).join("");
+  el("cr-comparar").innerHTML = textoComparacion(todos);
+}
+
+// Por cédula, la lista y el PDF salen en orden de cédula: la pila impresa
+// llega a la mesa ya ordenada.
+function ordenEntrega(lista) {
+  if (S.agrupar !== "cedula") return lista;
+  const pos = gruposDelTipo().cedula.posicion;
+  return [...lista].sort((a, b) => (pos.get(a._clave) ?? pos.size) - (pos.get(b._clave) ?? pos.size));
+}
+
+function alCambiarBloque() {
   renderLista();
   renderPreview();
   actualizarBotones();
+}
+
+el("cr-letras").addEventListener("click", e => {
+  const b = e.target.closest("[data-bloque]");
+  if (!b || S.tarea) return;
+  S.bloque = b.dataset.bloque;
+  alCambiarBloque();
+});
+
+el("cr-agrupar").addEventListener("change", () => {
+  S.agrupar = el("cr-agrupar").value;
+  S.bloque = "";
+  alCambiarBloque();
+});
+
+el("cr-ngrupos").addEventListener("change", () => {
+  const n = Math.round(Number(el("cr-ngrupos").value));
+  S.nGrupos = Math.min(30, Math.max(2, Number.isFinite(n) ? n : 4));
+  el("cr-ngrupos").value = S.nGrupos;
+  S.bloque = "";
+  alCambiarBloque();
 });
 
 function filtrar() {
   const base = filtrarSinLetra();
-  // Si la letra elegida ya no tiene a nadie con los otros filtros, vuelve a todas.
-  if (S.letra && !base.some(p => inicial(p) === S.letra)) S.letra = "";
-  renderLetras(base);
-  return S.letra ? base.filter(p => inicial(p) === S.letra) : base;
+  const enGrupos = S.agrupar !== "letra";
+  el("cr-agrupa").hidden = !S.personas[S.tipo].length;
+  el("cr-ngrupos-wrap").hidden = !enGrupos;
+  el("cr-comparar").hidden = !enGrupos;
+  if (!enGrupos) {
+    // Si la letra elegida ya no tiene a nadie con los otros filtros, vuelve a todas.
+    if (S.bloque && !base.some(p => inicialDe(p) === S.bloque)) S.bloque = "";
+    renderLetras(base);
+    return S.bloque ? base.filter(p => inicialDe(p) === S.bloque) : base;
+  }
+  const { grupos, grupoDe } = gruposDelTipo()[S.agrupar];
+  if (S.bloque && !grupos[Number(S.bloque)]) S.bloque = "";
+  renderGrupos();
+  return ordenEntrega(S.bloque ? base.filter(p => grupoDe.get(p._clave) === Number(S.bloque)) : base);
 }
+
+// ── Listas para la entrega ─────────────────────────────────────────────────
+// La hoja que va en cada mesa: nombre, cédula y casillas de entregada y
+// firma. Sale de lo que se ve arriba: el modo (letra o grupos), la letra o el
+// grupo elegido ("Todas" = una sección por letra o una hoja por grupo) y los
+// filtros de búsqueda, estado y categoría. Solo entra quien lleva credencial.
+function seccionesLista() {
+  const base = filtrarSinLetra().filter(p => p._imprimible);
+  if (S.agrupar === "letra") {
+    const letras = S.bloque ? [S.bloque] : [...new Set(base.map(inicialDe))].sort(ordenLetras);
+    return letras.map(l => ({
+      titulo: l === "#" ? "Nombres que no empiezan con letra" : `Letra ${l}`,
+      corto: l,
+      personas: base.filter(p => inicialDe(p) === l),
+    }));
+  }
+  const enBase = new Set(base.map(p => p._clave));
+  const que = S.agrupar === "cedula" ? "cédulas" : "nombres";
+  return gruposDelTipo()[S.agrupar].grupos
+    .map((g, i) => ({
+      i, titulo: `Grupo ${i + 1} — ${que} ${g.etiqueta}`, corto: `${i + 1} — ${g.etiqueta}`,
+      personas: g.personas.filter(p => enBase.has(p._clave)),
+    }))
+    .filter(s => S.bloque === "" || s.i === Number(S.bloque));
+}
+
+// Lo que lleva cada fila de la lista, impresa o en Excel.
+// El código es el del participante (también el expositor inscrito); el
+// personal no tiene, su cred.codigo es la cédula.
+function datosLista(p) {
+  const cedula = cedulaDe(p);
+  const codigo = String(p.codigo || "").trim();
+  // _sub ya trae el código (participantes) o la cédula (voluntarios): no se repiten.
+  const detalle = (p._sub || "").split(" · ").filter(x => x && x !== cedula && x !== codigo).join(" · ");
+  return { nombre: nombreDe(p), cedula, codigo, detalle };
+}
+
+function sufijoLista() {
+  const bloque = !S.bloque ? "" : S.agrupar === "letra" ? `_letra_${S.bloque}` : `_grupo_${Number(S.bloque) + 1}`;
+  return `lista_${S.tipo}_${S.agrupar}${bloque}`;
+}
+
+function textoFiltros() {
+  const opcion = id => el(id).value ? el(id).selectedOptions[0]?.text : "";
+  const buscar = el("cr-buscar").value.trim();
+  return [
+    opcion("cr-estado"),
+    S.tipo === "participante" && opcion("cr-categoria"),
+    S.tipo === "participante" && el("cr-no-aprobados").checked && "incluye pagos no aprobados",
+    S.tipo === "expositor" && opcion("cr-evento"),
+    buscar && `búsqueda «${buscar}»`,
+  ].filter(Boolean);
+}
+
+function htmlListas(secciones) {
+  const info = TIPOS[S.tipo];
+  const total = secciones.reduce((s, x) => s + x.personas.length, 0);
+  const grupos = S.agrupar === "letra" ? 0 : gruposDelTipo()[S.agrupar].grupos.length;
+  const modo = S.agrupar === "letra" ? "Por letra inicial del nombre"
+    : `Grupos por ${S.agrupar === "cedula" ? "cédula" : "nombre"} (${grupos} en total)`;
+  const filtros = textoFiltros();
+  const fecha = new Date().toLocaleString("es-PA", { dateStyle: "medium", timeStyle: "short" });
+  const plural = n => `${n} persona${n !== 1 ? "s" : ""}`;
+  const fila = (p, n) => {
+    const d = datosLista(p);
+    return `<tr><td class="n">${n}</td><td>${h(d.nombre)}</td><td>${h(d.cedula || "—")}</td><td>${h([d.codigo, d.detalle].filter(Boolean).join(" · "))}</td><td class="ok"><span class="caja"></span></td><td class="firma"></td></tr>`;
+  };
+  const seccion = (s, i) => `<section${i && S.agrupar !== "letra" ? ' class="salto"' : ""}><table>
+    <colgroup><col style="width:8mm"/><col style="width:34%"/><col style="width:26mm"/><col/><col style="width:22mm"/><col style="width:34mm"/></colgroup>
+    <thead><tr><th colspan="6" class="titulo">${h(info.nombre)} · ${h(s.titulo)}<span>${plural(s.personas.length)}</span></th></tr>
+    <tr><th>N°</th><th>Nombre</th><th>Cédula</th><th>Detalle</th><th>Entregada</th><th>Firma</th></tr></thead>
+    <tbody>${s.personas.length ? s.personas.map((p, k) => fila(p, k + 1)).join("")
+    : `<tr><td colspan="6" class="vacio">Nadie en este grupo con los filtros actuales.</td></tr>`}</tbody></table></section>`;
+  const nombreDoc = `CONTECS_${sufijoLista()}`;
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>${h(nombreDoc)}</title><style>
+    @page { size: letter; margin: 12mm; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 10pt/1.35 Arial, Helvetica, sans-serif; color: #111; }
+    header { margin-bottom: 5mm; border-bottom: 2px solid #064e3b; padding-bottom: 2mm; }
+    h1 { margin: 0; font-size: 15pt; color: #064e3b; }
+    .meta { font-size: 9pt; color: #444; margin-top: 1mm; }
+    section { margin-bottom: 6mm; }
+    section.salto { break-before: page; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    td { overflow-wrap: anywhere; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
+    th, td { border: 1px solid #9a9a9a; padding: 4px 6px; text-align: left; vertical-align: middle; }
+    th { background: #eef3f0; font-size: 8pt; text-transform: uppercase; }
+    th.titulo { background: #064e3b; color: #fff; font-size: 11pt; text-transform: none; }
+    th.titulo span { float: right; font-weight: normal; }
+    td.n { text-align: right; color: #555; }
+    td.ok { text-align: center; }
+    td.vacio { text-align: center; color: #666; padding: 10px; }
+    .caja { display: inline-block; width: 4mm; height: 4mm; border: 1px solid #333; }
+    </style></head><body>
+    <header><h1>CONTECS — Entrega de credenciales: ${h(info.nombre)}</h1>
+    <div class="meta">${h(modo)} · ${plural(total)}${filtros.length ? ` · ${h(filtros.join(" · "))}` : ""} · ${h(fecha)}</div></header>
+    ${secciones.map(seccion).join("")}
+    </body></html>`;
+}
+
+// La misma lista en Excel. La hoja "Lista" trae a todos con su grupo o letra
+// (para filtrar y ordenar en Excel); con varios grupos, además una hoja por grupo.
+async function descargarExcelListas(secciones) {
+  const XLSX = await cargarLibreria("XLSX", "xlsx.full.min.js");
+  const encabezado = ["N°", "Nombre", "Cédula", "Código", "Detalle", "Entregada", "Firma"];
+  const anchos = [5, 34, 16, 14, 30, 11, 24].map(wch => ({ wch }));
+  const filaDe = (p, n) => { const d = datosLista(p); return [n, d.nombre, d.cedula, d.codigo, d.detalle, "", ""]; };
+  const hoja = (filas, columnas) => {
+    const ws = XLSX.utils.aoa_to_sheet(filas.map(f => f.map(v => (typeof v === "string" ? neutralizarFormulaHoja(v) : v))));
+    ws["!cols"] = columnas;
+    if (filas.length > 1) ws["!autofilter"] = { ref: ws["!ref"] };
+    return ws;
+  };
+  const libro = XLSX.utils.book_new();
+  const todas = [[S.agrupar === "letra" ? "Letra" : "Grupo", ...encabezado],
+    ...secciones.flatMap(s => s.personas.map((p, k) => [s.corto, ...filaDe(p, k + 1)]))];
+  XLSX.utils.book_append_sheet(libro, hoja(todas, [{ wch: S.agrupar === "letra" ? 7 : 30 }, ...anchos]), "Lista");
+  if (S.agrupar !== "letra" && secciones.length > 1) {
+    secciones.forEach(s => XLSX.utils.book_append_sheet(libro,
+      hoja([encabezado, ...s.personas.map((p, k) => filaDe(p, k + 1))], anchos), `Grupo ${s.i + 1}`));
+  }
+  XLSX.writeFile(libro, nombreLote("xlsx", sufijoLista()));
+}
+
+// Lo que va a la lista, o null (con aviso) si no queda nadie.
+function seccionesConGente() {
+  const secciones = seccionesLista();
+  if (secciones.some(s => s.personas.length)) return secciones;
+  alerta("warning", "No hay nadie con credencial en la lista con los filtros actuales.");
+  return null;
+}
+
+el("cr-listas-excel").addEventListener("click", async () => {
+  if (S.tarea) return;
+  const secciones = seccionesConGente();
+  if (!secciones) return;
+  el("cr-listas-excel").disabled = true;
+  try {
+    await descargarExcelListas(secciones);
+  } catch (err) {
+    console.error(err);
+    alerta("error", "No se pudo generar el Excel: " + err.message);
+  } finally {
+    el("cr-listas-excel").disabled = !!S.tarea;
+  }
+});
+
+function actualizarBotonListas() {
+  const b = el("cr-listas");
+  b.disabled = !!S.tarea;
+  el("cr-listas-excel").disabled = !!S.tarea;
+  b.textContent = S.agrupar === "letra"
+    ? S.bloque ? `Imprimir lista de la letra ${S.bloque}` : "Imprimir lista (por letra)"
+    : S.bloque ? `Imprimir lista del grupo ${Number(S.bloque) + 1}` : "Imprimir listas de todos los grupos";
+}
+
+el("cr-listas").addEventListener("click", async () => {
+  if (S.tarea) return;
+  const secciones = seccionesConGente();
+  if (!secciones) return;
+  try {
+    await imprimirHtml(htmlListas(secciones));
+  } catch (err) {
+    console.error(err);
+    alerta("error", "No se pudo abrir la impresión de la lista: " + err.message);
+  }
+});
 
 function filtrarSinLetra() {
   const tipo = S.tipo;
@@ -368,7 +610,7 @@ el("cr-evento").addEventListener("change", async () => {
 let secuenciaPreview = 0;
 function seleccionadas() {
   const sel = S.seleccion[S.tipo];
-  return S.personas[S.tipo].filter(p => p._imprimible && sel.has(p._clave));
+  return ordenEntrega(S.personas[S.tipo].filter(p => p._imprimible && sel.has(p._clave)));
 }
 
 async function renderPreview() {
@@ -411,6 +653,7 @@ function actualizarBotones() {
   el("cr-descargar").disabled = !n || !!S.tarea;
   el("cr-imprimir").textContent = n ? `Imprimir ${n}` : "Imprimir";
   el("cr-descargar").textContent = n ? `Descargar ${n}` : "Descargar";
+  actualizarBotonListas();
 }
 
 async function ejecutarTarea(total, etiqueta, trabajo) {

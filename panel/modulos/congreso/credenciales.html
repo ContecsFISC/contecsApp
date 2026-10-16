@@ -54,10 +54,19 @@
  .cr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gris-texto); cursor: pointer; }
  .cr-check input { width: 16px; height: 16px; accent-color: var(--verde); margin: 0; }
  .cr-check[hidden], .cr-select[hidden] { display: none; }
- .cr-letras { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; border-bottom: 1px solid var(--gris-borde); }
- .cr-letras[hidden] { display: none; }
+ .cr-agrupa { display: flex; flex-direction: column; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--gris-borde); }
+ .cr-agrupa[hidden], .cr-comparar[hidden] { display: none; }
+ .cr-agrupa-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+ .cr-agrupa-ctl .cr-select { padding: 6px 10px; }
+ .cr-num { width: 64px; padding: 6px 8px; }
+ .cr-agrupa-ctl .cr-listas { display: flex; gap: 6px; margin-left: auto; }
+ .cr-agrupa-ctl .cr-listas .btn { width: auto; }
+ .cr-letras { display: flex; flex-wrap: wrap; gap: 4px; }
+ .cr-letra .g-n { font-weight: 600; opacity: .7; margin-left: 4px; font-variant-numeric: tabular-nums; }
+ .cr-comparar { margin: 0; font-size: 12px; color: var(--gris-texto); line-height: 1.5; }
+ .cr-comparar b { color: var(--verde-oscuro); }
  .cr-letra {
-   min-width: 30px; height: 30px; padding: 0 8px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
+   min-width: 30px; min-height: 30px; padding: 0 8px; border: 1.5px solid var(--gris-borde); border-radius: var(--radio-sm);
    background: var(--cx-surface, #ffffff); font: 700 12px var(--fuente); color: var(--gris-texto); cursor: pointer;
  }
  .cr-letra:hover { border-color: var(--verde); }
@@ -181,7 +190,22 @@
  <button type="button" class="btn btn-outline btn-sm" id="cr-exp-importar">Importar Excel</button>
  </div>
  </div>
- <div class="cr-letras" id="cr-letras" role="toolbar" aria-label="Filtrar por letra inicial del nombre" hidden></div>
+ <div class="cr-agrupa" id="cr-agrupa" hidden>
+ <div class="cr-agrupa-ctl">
+ <select class="cr-select" id="cr-agrupar" aria-label="Cómo dividir la lista para la entrega">
+ <option value="letra">Una letra a la vez</option>
+ <option value="nombre">Grupos por nombre (A–Z)</option>
+ <option value="cedula">Grupos por cédula</option>
+ </select>
+ <label class="cr-check" id="cr-ngrupos-wrap" hidden>en <input type="number" class="cr-input cr-num" id="cr-ngrupos" min="2" max="30" value="4" inputmode="numeric"/> grupos o mesas</label>
+ <span class="cr-listas">
+ <button type="button" class="btn btn-outline btn-sm" id="cr-listas" title="Hoja con nombre, cédula y casillas de entregada y firma">Imprimir lista</button>
+ <button type="button" class="btn btn-outline btn-sm" id="cr-listas-excel" title="La misma lista en Excel">Excel</button>
+ </span>
+ </div>
+ <div class="cr-letras" id="cr-letras" role="toolbar" aria-label="Filtrar por letra o grupo"></div>
+ <p class="cr-comparar" id="cr-comparar" aria-live="polite" hidden></p>
+ </div>
  <div class="cr-sel">
  <label class="cr-check"><input type="checkbox" id="cr-todos"/> <span id="cr-todos-txt">Seleccionar todas</span></label>
  <span><span class="cr-sel-num" id="cr-sel-num">0 seleccionadas</span><button type="button" class="cr-link" id="cr-limpiar">Quitar selección</button></span>
@@ -270,7 +294,7 @@
  </div>
 </dialog>
 
-<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261014.3"></script>
+<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261015.11"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

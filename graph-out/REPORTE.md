@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-15T18:49:12.617140+00:00**
+- Generado: **2026-10-16T00:00:27.270691+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `cd5fb0b5f201e702…`
+- Huella del proyecto: `de4dd0fe249ff152…`
 - Archivos analizados: **259**
-- Relaciones internas tipadas: **1152**
-- Símbolos detectados: **6530**
-- Llamadas detectadas: **14205**
-- IDs DOM definidos: **1180**
+- Relaciones internas tipadas: **1159**
+- Símbolos detectados: **6676**
+- Llamadas detectadas: **14425**
+- IDs DOM definidos: **1190**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **39**
 - Cloud Functions detectadas: **28**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**19,358 tokens** · leer primero
-- `GraphCompleto.json` — ~**91,625 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**161,226 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.0%** frente al profundo
+- `GraphCompacto.json` — ~**19,304 tokens** · leer primero
+- `GraphCompleto.json` — ~**91,917 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**162,801 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,26 +35,26 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 365.7 (conexiones: 181, 369 lineas)
-- `panel/dashboard.html` — riesgo 139.0 (conexiones: 62, 1498 lineas)
+- `panel/dashboard.html` — riesgo 139.0 (conexiones: 62, 1499 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 126.2 (conexiones: 51, 2423 lineas)
-- `js/core/seguridad.js` — riesgo 116.4 (conexiones: 58, 40 lineas)
+- `js/core/seguridad.js` — riesgo 118.4 (conexiones: 59, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
 - `manifest.json` — riesgo 92.3 (conexiones: 46, 34 lineas)
 - `apple-touch-icon.png` — riesgo 92.0 (conexiones: 46, 0 lineas)
 - `favicon.ico` — riesgo 92.0 (conexiones: 46, 0 lineas)
 - `js/core/navbar-pagina.js` — riesgo 87.3 (conexiones: 43, 135 lineas)
 - `js/core/firebase-config.js` — riesgo 86.3 (conexiones: 43, 35 lineas)
+- `js/modulos/gestorCredenciales.js` — riesgo 83.9 (conexiones: 37, 990 lineas)
 - `css/styles.css` — riesgo 83.2 (conexiones: 37, 922 lineas)
+- `js/modulos/credenciales.js` — riesgo 83.2 (conexiones: 37, 921 lineas)
 - `css/navbar.css` — riesgo 82.5 (conexiones: 37, 846 lineas)
 - `js/modulos/inscripciones.js` — riesgo 81.2 (conexiones: 30, 2121 lineas)
-- `js/modulos/credenciales.js` — riesgo 81.1 (conexiones: 36, 911 lineas)
-- `panel/modulos/logistica/catalogo.html` — riesgo 76.8 (conexiones: 34, 880 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
 - `js/core/auth.js` — grado 181 | exporta: aplicarPermisosDom, cargarUsuario, cerrarSesion, escucharCambiosDeRol, esperarSesionLista, getUsuarioActual, guardRoute, loginConGoogle
 - `panel/dashboard.html` — grado 62 | exporta: (sin exports detectados)
-- `js/core/seguridad.js` — grado 58 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
+- `js/core/seguridad.js` — grado 59 | exporta: escaparAtributo, escaparHtml, neutralizarFormulaHoja, urlHttpSegura, urlImagenSegura
 - `panel/modulos/congreso/modulos_participantes.html` — grado 51 | exporta: (sin exports detectados)
 - `apple-touch-icon.png` — grado 46 | exporta: (sin exports detectados)
 - `favicon.ico` — grado 46 | exporta: (sin exports detectados)
@@ -64,16 +64,16 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `css/navbar.css` — grado 37 | exporta: (sin exports detectados)
 - `css/styles.css` — grado 37 | exporta: (sin exports detectados)
 - `css/tokens.css` — grado 37 | exporta: (sin exports detectados)
-- `js/modulos/credenciales.js` — grado 36 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
+- `js/modulos/credenciales.js` — grado 37 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
+- `js/modulos/gestorCredenciales.js` — grado 37 | exporta: (sin exports detectados)
 - `css/movil.css` — grado 34 | exporta: (sin exports detectados)
-- `panel/modulos/logistica/catalogo.html` — grado 34 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
@@ -426,12 +426,12 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 377
+- `calls_imported_symbol`: 383
 - `imports`: 317
 - `loads_asset`: 164
 - `loads_stylesheet`: 147
 - `loads_script`: 79
-- `navigates_to`: 68
+- `navigates_to`: 69
 
 ## Paquetes/SDKs externos
 
