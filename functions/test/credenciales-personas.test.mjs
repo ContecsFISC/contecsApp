@@ -96,5 +96,6 @@ assert.equal(lineas[3].cargo, "Comité de Giras", "dos columnas de Excel");
 const doc = m.personaDocente({ id: "d1", titulo: "Dr.", nombre: "Tomás", apellido: "Concepción", cargo: "Asesor Académico" });
 assert.equal(doc._tipo, "comite"); assert.equal(doc.nombreCompleto, "Dr. Tomás Concepción");
 assert.equal(doc.cred.qr, ""); assert.deepEqual(doc.cred.detalle, ["Asesor Académico"]);
+assert.equal(doc.cred.detalleTitulo, "", "el cargo va sin la palabra CARGO"); assert.equal(doc.cred.destacado, true);
 assert.equal(m.inicialDe(doc), "T", "va en la letra del nombre, no del título");
 console.log("ok docentes del comité");

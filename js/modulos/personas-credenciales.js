@@ -116,7 +116,8 @@ export function personaDocente(d) {
       etiqueta: "Comité organizador", cabecera: "COMITÉ ORGANIZADOR",
       institucion: "",
       titulo: "Comité Organizador", subtitulo: "",
-      detalleTitulo: "Cargo", detalle: d.cargo ? [d.cargo] : [],
+      // El cargo va solo, sin rótulo, y con el nombre más grandes (destacado).
+      detalleTitulo: "", detalle: d.cargo ? [d.cargo] : [], destacado: true,
     },
     _clave: `comite_doc_${d.id}`,
     _tipo: "comite",
