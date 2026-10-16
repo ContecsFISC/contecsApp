@@ -77,7 +77,7 @@ const {
   crearParticipantesUnicos,
 } = require("./registro");
 const {importarParticipantes} = require("./importaciones");
-const {accederConCedula, reservarCharla} = require("./charlas");
+const {accederConCedula, identificarParticipante, reservarCharla} = require("./charlas");
 const {enPanama} = require("./ventana-checkpoint");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
@@ -1696,25 +1696,19 @@ exports.accederGiraParticipante = onCall(
         const codigo = String(request.data?.codigo || "").trim().toUpperCase();
         const token = String(request.data?.token || "").trim();
         const giraId = String(request.data?.giraId || "").trim();
+        const cedula = String(request.data?.cedula || "").trim();
 
-        if (!codigo || !token || !giraId) {
+        if (!giraId || (!cedula && (!codigo || !token))) {
           throw new HttpsError("invalid-argument", "Faltan datos para acceder a la información de la gira.");
         }
         if (codigo.length > 30 || token.length > 64 || giraId.length > 200) {
           throw new HttpsError("invalid-argument", "Credenciales inválidas.");
         }
 
-        const snap = await db.collection("participantes")
-            .where("codigo", "==", codigo)
-            .where("token", "==", token)
-            .limit(1)
-            .get();
-        if (snap.empty) {
-          throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste de Giras.");
-        }
-        const participanteSnap = snap.docs[0];
-        const participante = participanteSnap.data();
-        const participanteId = participanteSnap.id;
+        // Con el link del correo (código + token) o solo con la cédula
+        // (functions/charlas.js), como el perfil.
+        const {id: participanteId, data: participante} =
+          await identificarParticipante(cedula ? {cedula} : {codigo, token});
 
         const giraSnap = await db.collection("giras_voluntarios").doc(giraId).get();
         if (!giraSnap.exists) {
@@ -1736,6 +1730,8 @@ exports.accederGiraParticipante = onCall(
             nombreCompleto: participante.nombreCompleto ||
               `${participante.nombre || ""} ${participante.apellido || ""}`.trim(),
             codigo: participante.codigo,
+            // Quien entró con la cédula no trae el token: lo necesita su QR.
+            token: cedula ? participante.token : undefined,
           },
           gira: {
             nombre: gira.nombre || null,

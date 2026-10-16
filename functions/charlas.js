@@ -79,8 +79,9 @@ async function identificarParticipante(datos) {
     docs = snap.docs;
   }
   if (!docs.length) {
-    throw new HttpsError("not-found",
-        "No encontramos una inscripción con esa cédula. Escríbela como al inscribirte (por ejemplo 8-123-4567).");
+    throw new HttpsError("not-found", codigo && token ?
+      "Código o clave incorrectos. Revisa el correo que recibiste al inscribirte." :
+      "No encontramos una inscripción con esa cédula. Escríbela como al inscribirte (por ejemplo 8-123-4567).");
   }
   const elegido = docs.find((d) => d.data().pago?.estado === "aprobado") || docs[0];
   return {id: elegido.id, ref: elegido.ref, data: elegido.data()};

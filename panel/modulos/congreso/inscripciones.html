@@ -89,7 +89,7 @@
  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:200; align-items:center; justify-content:center; padding:16px; }
  .modal-overlay.open { display:flex; }
  /* Eliminar evento o checkpoint: frase escrita (como eliminar participante). */
- .modal-eliminar-fondo { position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); z-index:500; display:flex; align-items:center; justify-content:center; padding:16px; }
+ .modal-eliminar-fondo { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500; display:flex; align-items:center; justify-content:center; padding:16px; }
  .modal-eliminar-fondo[hidden] { display:none; }
  /* .btn y otras clases fijan display: hidden debe ganar dentro del modal. */
  .modal-eliminar [hidden] { display:none !important; }
@@ -584,6 +584,31 @@
  <option value="mixto">Mixto</option>
  </select>
  </div>
+ <details class="cp-ficha" id="cp-ficha" style="margin-top:10px;">
+ <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--verde-oscuro);">Ficha para el Mapa y el perfil (opcional)</summary>
+ <div class="checkpoint-helper" style="margin:6px 0 8px;">Al tocar el salón en el Mapa se ve la foto del exponente, el logo de su empresa, la descripción y los temas. Las imágenes pueden ser un enlace https o una ruta del sitio (img/charlas/...).</div>
+ <div class="form-groupE" style="margin:0 0 8px;">
+ <label style="color:var(--verde-oscuro)">Descripción</label>
+ <textarea id="cp-descripcion" rows="3" maxlength="1200" placeholder="De qué trata la charla o el taller" style="width:100%;padding:10px 12px;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);font:inherit;font-size:14px;box-sizing:border-box;resize:vertical;"></textarea>
+ </div>
+ <div class="form-groupE" style="margin:0 0 8px;">
+ <label style="color:var(--verde-oscuro)">Empresa o institución del exponente</label>
+ <input type="text" id="cp-empresa" maxlength="120" placeholder="ej. POSPER"/>
+ </div>
+ <div class="form-groupE" style="margin:0 0 8px;">
+ <label style="color:var(--verde-oscuro)">Foto del exponente</label>
+ <input type="text" id="cp-foto" maxlength="500" placeholder="https://… o img/charlas/juan-perez.jpg"/>
+ </div>
+ <div class="form-groupE" style="margin:0 0 8px;">
+ <label style="color:var(--verde-oscuro)">Logo de la empresa</label>
+ <input type="text" id="cp-logo" maxlength="500" placeholder="https://… o img/charlas/logo-empresa.png"/>
+ </div>
+ <div class="form-groupE" style="margin:0;">
+ <label style="color:var(--verde-oscuro)">Temas (separados por coma)</label>
+ <input type="text" id="cp-temas" maxlength="300" placeholder="ej. Inteligencia artificial, Ciberseguridad"/>
+ <div class="checkpoint-helper" style="margin-top:4px;">Las charlas con el mismo tema se resaltan juntas en el Mapa al filtrar.</div>
+ </div>
+ </details>
  <div class="form-groupE" id="cp-cupos-section" style="display:none;margin-top:10px;">
  <label style="color:var(--verde-oscuro)">Cupos (inscripción in-situ por QR)</label>
  <input type="number" id="cp-cupos" min="1" placeholder="ej. 30"/>
@@ -604,7 +629,7 @@
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/inscripciones.js?v=20261016.1"></script>
+<script type="module" src="../../../js/modulos/inscripciones.js?v=20261016.2"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>
