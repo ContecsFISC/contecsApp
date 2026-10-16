@@ -19,13 +19,24 @@ export const ROLES = {
   comunicaciones: { label: "Líder de Comunicaciones",color: "#B7950B" },
   staff_contecs:  { label: "Staff CONTECS",          color: "#00722e" },
   miembro:        { label: "Miembro General",        color: "#717D7E" },
-  // Patrocinador del congreso: solo ve su pestaña (POSPER, Randomizer y
-  // Sorteo en vivo). Fuera de "acceso_posper" no tiene ningún permiso.
+  // Patrocinador del congreso: entra directo a su lector (posper.html, QR +
+  // RFID obligatorio). Fuera de "acceso_posper" no tiene ningún permiso.
   posper:         { label: "POSPER · Patrocinador",  color: "#0b2f5c" },
+  // Lector del congreso (cuenta personal de cada voluntario que escanea):
+  // entra directo a Lectura QR con el lector del equipo y solo marca
+  // entradas, sin RFID. Fuera de "escanear_qr" no tiene ningún permiso.
+  voluntario:     { label: "Voluntario · Lector QR", color: "#00722e" },
+  // Pantalla grande del congreso (cuenta compartida): entra directo al Mapa
+  // 3D. Fuera de "ver_mapa" no tiene ningún permiso.
+  modelado:       { label: "Modelado · Pantalla del mapa", color: "#0b6a50" },
 };
 
 // Roles externos: no reciben permisos "para todos" como Ventas.
-const ROLES_EXTERNOS = ["staff_contecs", "posper"];
+const ROLES_EXTERNOS = ["staff_contecs", "posper", "voluntario", "modelado"];
+// Los que solo ven su único módulo (ni el Mapa).
+const ROLES_UN_MODULO = ["posper", "voluntario"];
+// Cuentas compartidas de un solo módulo: no admiten ajustes de permisos.
+const ROLES_FIJOS = [...ROLES_UN_MODULO, "modelado"];
 
 // Permisos por módulo
 // Cada permiso lista los roles que tienen acceso
@@ -43,16 +54,20 @@ export const PERMISOS = {
   // Quien tenga "registrar_ventas" entra a ventas2.html; el resto va a ventaRapida.html.
   acceso_venta_rapida: Object.keys(ROLES).filter(r => !ROLES_EXTERNOS.includes(r)),
 
-  // Pestaña POSPER del dashboard: posper.html, randomizer.html y
-  // randomizerint.html. Debe reflejar ROLES_POSPER en functions/operaciones-qr.js.
+  // Lector POSPER (posper.html): QR + RFID obligatorio. Nadie más lo ve.
+  // Debe reflejar ROLES_POSPER en functions/operaciones-qr.js.
   acceso_posper: ["ceo", "posper"],
-  // Micropestaña "QR POSPER" del menú (qrPosper.html): solo CEO. El usuario
-  // POSPER ve el mismo QR en su inicio.
+  // Randomizer y Sorteo en vivo (randomizer.html, randomizerint.html).
+  posper_sorteos: ["ceo"],
+  // Micropestaña "QR POSPER" del menú (qrPosper.html): solo CEO.
   qr_posper: ["ceo"],
-  // Mapa del evento: lo ven todos los roles internos (el patrocinador solo
-  // ve su pestaña). Configurar salones y liberar asientos va con
+  // Lectura QR para el rol Voluntario (sin el resto de Gestión de Evento).
+  // Debe reflejar ROLES_ESCANEAR_QR en functions/operaciones-qr.js.
+  escanear_qr: ["ceo", "voluntario"],
+  // Mapa del evento: lo ven todos los roles internos (POSPER y Voluntario
+  // solo ven su lector). Configurar salones y liberar asientos va con
   // "gestionar_inscripciones", como el resto de Gestión de Eventos.
-  ver_mapa: Object.keys(ROLES).filter(r => r !== "posper"),
+  ver_mapa: Object.keys(ROLES).filter(r => !ROLES_UN_MODULO.includes(r)),
   // Debe reflejar ROLES_LIBERAR_ASIENTO en functions/operaciones-qr.js.
   liberar_asiento: ["ceo", "staff_contecs"],
   // Botón "Gestionar actividades" del Mapa (lleva a Gestión de Evento, que
@@ -168,12 +183,18 @@ export const SUBPERMISOS = {
 // firebase_rules/firestore.rules: si cambia aquí, cambia allá.
 
 // Solo cuentan para roles internos. "Sin rol" desactiva la cuenta aunque
-// conserve ajustes, el patrocinador queda en su pestaña y el CEO ya tiene todo.
-const ROLES_CON_AJUSTES = Object.keys(ROLES).filter(r => r !== "ceo" && r !== "posper");
+// conserve ajustes, POSPER, Voluntario y Modelado quedan en su único módulo
+// y el CEO ya tiene todo.
+const ROLES_CON_AJUSTES = Object.keys(ROLES).filter(r => r !== "ceo" && !ROLES_FIJOS.includes(r));
 
 export function admiteAjustes(rol) {
   return ROLES_CON_AJUSTES.includes(rol);
 }
+
+// Permisos que van solo por rol: ningún ajuste (de la persona ni del rol) los
+// da ni los quita, y no salen en el gestor de permisos. Así el lector POSPER
+// y lo de RFID no los puede ver nadie más. Copia en functions/permisos.js.
+export const PERMISOS_SOLO_ROL = ["acceso_posper", "posper_sorteos", "qr_posper", "liberar_rfid", "escanear_qr"];
 
 // Firestore Timestamp, Date, milisegundos o { seconds } (lo que quede en
 // sessionStorage) -> milisegundos, o null si no vence.
@@ -188,7 +209,7 @@ export function venceEnMs(vence) {
 
 // "otorgar", "quitar" o null (sin ajuste o ya vencido).
 export function ajusteDePermiso(rol, permiso, extra, ahora = Date.now()) {
-  if (!admiteAjustes(rol)) return null;
+  if (!admiteAjustes(rol) || PERMISOS_SOLO_ROL.includes(permiso)) return null;
   const ajuste = extra?.[permiso];
   if (ajuste?.modo === "quitar") return "quitar";
   if (ajuste?.modo === "otorgar") {
@@ -210,7 +231,7 @@ export function rolIncluyePermiso(rol, permiso) {
 // Ajuste del rol (Usuarios → "Permisos por rol"): config/permisos_roles.roles[rol].
 // `ajustesRol` es el mapa de ESE rol: { permiso: { modo } }.
 export function ajusteDelRol(rol, permiso, ajustesRol) {
-  if (!admiteAjustes(rol)) return null;
+  if (!admiteAjustes(rol) || PERMISOS_SOLO_ROL.includes(permiso)) return null;
   const modo = ajustesRol?.[permiso]?.modo;
   return modo === "otorgar" || modo === "quitar" ? modo : null;
 }
@@ -244,7 +265,8 @@ export function infoRol(rol) {
 // - Los sub-permisos (SUBPERMISOS) siguen al módulo mientras no se ajusten.
 //   Darlos suelto da también la entrada al módulo, salvo los "independiente"
 //   (páginas propias, como Lectura QR).
-// ver_precios y aprobar_gastos no aparecen porque hoy ninguna pantalla los usa.
+// ver_precios y aprobar_gastos no aparecen porque hoy ninguna pantalla los usa,
+// ni los PERMISOS_SOLO_ROL (POSPER, sorteos, RFID y el lector de Voluntario).
 export const CATALOGO_PERMISOS = [
   {
     modulo: "Participantes",
@@ -284,13 +306,6 @@ export const CATALOGO_PERMISOS = [
       { id: "ver_mapa",                  label: "Mapa del evento", detalle: "Ver la maqueta y la ocupación de los salones." },
       { id: "liberar_asiento",           label: "Liberar asientos", detalle: "Desde el Mapa, para quien salió antes.", requiere: "ver_mapa" },
       { id: "mapa_gestionar_actividades", label: "Botón Gestionar actividades", detalle: "En el Mapa, abre Gestión de Evento en el mismo evento. Darlo da también la entrada a Gestión de Evento.", requiere: "gestionar_inscripciones" },
-    ],
-  },
-  {
-    modulo: "POSPER",
-    permisos: [
-      { id: "acceso_posper", label: "POSPER, Randomizer y Sorteo", detalle: "La pestaña del patrocinador." },
-      { id: "liberar_rfid",  label: "Liberar RFID", detalle: "Quitar un RFID asignado por error.", requiere: "acceso_posper" },
     ],
   },
   {

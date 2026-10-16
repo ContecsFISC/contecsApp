@@ -114,8 +114,9 @@ service cloud.firestore {
     // Debe reflejar exactamente "ver_participantes" en js/core/permisos.js.
     // Coordinador SÍ puede ver la lista de participantes; actividades y
     // comunicaciones NO (no tienen ese permiso en el modelo de la app).
-    // Gestión de Evento, Lectura QR, Estadísticas y POSPER también leen la
-    // lista: a quien se le otorgan esos módulos se le abre la lectura.
+    // Gestión de Evento, Lectura QR y Estadísticas también leen la lista: a
+    // quien se le otorgan esos módulos se le abre la lectura. POSPER y el
+    // lector Voluntario van solo por rol (isPosper, isLectorQr).
     function canVerParticipantesDe(s) {
       return permiteDe(s, 'ver_participantes', [
         'ceo', 'junta_principal', 'junta', 'coordinador', 'staff_contecs'
@@ -123,8 +124,7 @@ service cloud.firestore {
         || otorgadoDe(s, 'gestionar_inscripciones')
         || otorgadoDe(s, 'lectura_qr')
         || otorgadoDe(s, 'gestionar_credenciales')
-        || otorgadoDe(s, 'ver_estadisticas_congreso')
-        || otorgadoDe(s, 'acceso_posper');
+        || otorgadoDe(s, 'ver_estadisticas_congreso');
     }
 
     function canVerParticipantes() {
@@ -176,6 +176,21 @@ service cloud.firestore {
     // ejecutarOperacionQr.
     function isPosper() {
       return hasRol(['posper']);
+    }
+
+    // Rol Voluntario ("escanear_qr" en js/core/permisos.js): Lectura QR con
+    // el lector del equipo. Igual que POSPER, solo lee lo que necesita esa
+    // página (participantes, eventos, checkpoints e inscripciones a talleres)
+    // y escribe por ejecutarOperacionQr. No es staff.
+    function isLectorQr() {
+      return hasRol(['voluntario']);
+    }
+
+    // Rol Modelado: la pantalla grande del congreso con el Mapa 3D. Solo lee
+    // lo que dibuja el mapa (eventos, checkpoints, salones y actividades);
+    // la ocupación la toma de mapaPublico, sin datos personales.
+    function isPantallaMapa() {
+      return hasRol(['modelado']);
     }
 
     // Debe reflejar exactamente "aprobar_pagos" en js/core/permisos.js.
@@ -242,7 +257,7 @@ service cloud.firestore {
     // El alta y el acceso público se realizan exclusivamente mediante Cloud
     // Functions (Admin SDK). Nunca se expone la colección completa al browser.
     match /participantes/{docId} {
-      allow read: if canVerParticipantes() || isPosper();
+      allow read: if canVerParticipantes() || isPosper() || isLectorQr();
       allow create: if false;
       allow update: if canAprobarPagosParticipantes()
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
@@ -434,12 +449,12 @@ service cloud.firestore {
 
     // ── Eventos e inscripciones internas ─────────────────────────────────────
     match /eventos/{id} {
-      allow read: if isStaff() || isPosper();
+      allow read: if isStaff() || isPosper() || isLectorQr() || isPantallaMapa();
       allow write: if permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
     match /inscripciones/{id} {
-      allow read: if puedeVerInscripciones();
+      allow read: if puedeVerInscripciones() || isLectorQr();
       allow create, delete: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
       allow update: if permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
@@ -449,7 +464,7 @@ service cloud.firestore {
 
     // Checkpoints detallados del programa (colección separada)
     match /checkpoints/{id} {
-      allow read: if isStaff() || isPosper();
+      allow read: if isStaff() || isPosper() || isLectorQr() || isPantallaMapa();
       allow write: if permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']);
     }
 
@@ -457,7 +472,7 @@ service cloud.firestore {
     // "piso-número", js/data/planos-edificio3.js). Los gestiona quien
     // gestiona checkpoints; los ve todo el staff (el patrocinador no).
     match /salones/{espacioId} {
-      allow read: if isStaff();
+      allow read: if isStaff() || isPantallaMapa();
       allow create, update: if permiteSub('evento_salones', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])
         && espacioId.matches('^[0-9]{1,2}-[0-9]{1,4}$')
         && request.resource.data.keys().hasOnly([
@@ -477,7 +492,7 @@ service cloud.firestore {
 
     // Inscripciones in-situ a talleres por QR (decrementa cupos)
     match /inscripciones_checkpoint/{id} {
-      allow read: if puedeVerInscripciones();
+      allow read: if puedeVerInscripciones() || isLectorQr();
       allow create, update, delete: if false;
     }
 
@@ -492,7 +507,7 @@ service cloud.firestore {
     // modulo panel/modulos/voluntariado/actividades.html: crea, edita, activa,
     // desactiva y elimina actividades, y administra sus turnos.
     match /actividades_voluntarios/{id} {
-      allow read: if isStaff();
+      allow read: if isStaff() || isPantallaMapa();
       allow write: if hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades'])
         || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios');
     }

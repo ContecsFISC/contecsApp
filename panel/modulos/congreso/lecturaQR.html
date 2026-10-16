@@ -18,14 +18,17 @@
   <link rel="stylesheet" href="../../../css/tokens.css?v=20261015.8"/>
   <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.8"/>
   <link rel="stylesheet" href="../../../css/movil.css?v=20261015.8"/>
- <script src="../../../js/libs/html5-qrcode.min.js"></script>
+ <script src="../../../js/libs/html5-qrcode.min.js" defer></script>
  <script type="module">
- import { guardRoute, requirePermiso, usuarioTienePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, usuarioTienePermiso, getUsuarioActual } from "../../../js/core/auth.js";
  guardRoute();
- await requirePermiso("lectura_qr");
+ await requirePermiso("lectura_qr", "escanear_qr");
  // "Volver" lleva a Gestión de Evento; si se entró desde el dashboard (Mapa
  // del evento → Lectura QR) o no se tiene ese módulo, vuelve al dashboard.
- if (/dashboard\.html/.test(document.referrer) || !usuarioTienePermiso("gestionar_inscripciones")) {
+ // El rol Voluntario solo tiene esta página: sin "Volver".
+ if (getUsuarioActual().rol === "voluntario") {
+   document.querySelector(".btn-volver")?.remove();
+ } else if (/dashboard\.html/.test(document.referrer) || !usuarioTienePermiso("gestionar_inscripciones")) {
    const volver = document.querySelector(".btn-volver");
    if (volver) { volver.href = "../../dashboard.html"; volver.title = volver.ariaLabel = "Volver al inicio"; }
  }
@@ -87,6 +90,30 @@
 
  .ceo-todos { display:none; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--gris-medio); }
  .ceo-todos input { width:auto; }
+
+ /* Lector del equipo (botón lateral): cada lectura marca la entrada sola. */
+ .modo-lectura { display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:4px; margin-bottom:14px; border-radius:12px; background:var(--verde-fondo); }
+ .modo-lectura button { padding:10px 8px; border:0; border-radius:9px; background:transparent; color:var(--verde-oscuro); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+ .modo-lectura button[aria-pressed="true"] { background:var(--verde-oscuro); color:#fff; }
+ .lector-escenario { border-radius:var(--radio); min-height:42vh; padding:24px 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; text-align:center; color:#fff; background:#0f5132; user-select:none; }
+ .lector-escenario.inactivo { background:#4a4a4c; }
+ .lector-escenario.procesando { background:#1d4e89; }
+ .lector-escenario.ok { background:#13795b; }
+ .lector-escenario.aviso { background:#9a6700; }
+ .lector-escenario.error { background:#a4161a; }
+ .lector-titulo { font-family:var(--fuente-display); font-size:clamp(26px, 8vw, 40px); font-weight:700; line-height:1.1; }
+ .lector-sub { font-size:15px; opacity:0.92; max-width:420px; line-height:1.45; overflow-wrap:anywhere; }
+ .captura-wrap { width:100%; max-width:380px; }
+ #captura { width:100%; padding:11px 14px; border-radius:var(--radio-sm); border:2px solid rgba(255,255,255,0.55); background:rgba(255,255,255,0.12); font-size:15px; text-align:center; }
+ #captura::placeholder { color:rgba(255,255,255,0.8); }
+ #captura:focus { outline:none; border-color:#fff; }
+ .captura-aviso { display:none; margin-top:6px; font-size:12px; font-weight:700; color:#ffe08a; }
+ .captura-wrap.sin-foco .captura-aviso { display:block; }
+ .lector-escenario.inactivo .captura-wrap { display:none; }
+ .lector-ajustes { margin-top:12px; font-size:12px; color:var(--gris-medio); line-height:1.5; }
+ .lector-ajustes summary { cursor:pointer; font-weight:700; color:var(--verde-oscuro); }
+ .lector-ajustes label { display:flex; align-items:center; gap:8px; margin-top:8px; }
+ .lector-ajustes input { width:auto; }
  @media(max-width:600px) {
    .cp-grid { grid-template-columns:minmax(0,1fr); }
    .cp-card { min-height:54px; display:flex; flex-direction:column; justify-content:center; }
@@ -127,9 +154,31 @@
  <div id="cp-seleccionado" style="font-size:13px;color:var(--verde);font-weight:600;margin-top:4px;"></div>
  </div>
 
- <!-- CÁMARA -->
+ <!-- ESCANEO: lector del equipo o cámara -->
  <div class="card" style="border-left: 2px solid var(--verde-claro);">
  <div class="card-title">Escanear credencial del participante</div>
+ <div class="modo-lectura" role="group" aria-label="Cómo se escanea">
+ <button type="button" id="modo-lector" aria-pressed="true">Lector del equipo</button>
+ <button type="button" id="modo-camara" aria-pressed="false">Cámara</button>
+ </div>
+
+ <div id="panel-lector">
+ <div id="lector-escenario" class="lector-escenario inactivo" role="status" aria-live="polite">
+ <div class="lector-titulo" id="lector-titulo">Elige el checkpoint</div>
+ <div class="lector-sub" id="lector-sub">Arriba, el evento y el checkpoint donde estás escaneando.</div>
+ <div class="captura-wrap" id="captura-wrap">
+ <input id="captura" type="text" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Listo para escanear" aria-label="Entrada del lector"/>
+ <div class="captura-aviso">Toca aquí para reactivar el lector.</div>
+ </div>
+ </div>
+ <details class="lector-ajustes">
+ <summary>Ajustes del lector</summary>
+ Presiona el botón lateral apuntando al QR: la entrada se marca sola. En la app del escáner deja la salida en <strong>teclado</strong> y el sufijo en <strong>Enter</strong>. <strong>HT330:</strong> su teclado físico en modo <strong>123</strong>.
+ <label><input type="checkbox" id="chk-teclado"/> Mostrar el teclado en pantalla en este equipo (solo si con el teclado oculto no lee)</label>
+ </details>
+ </div>
+
+ <div id="panel-camara" hidden>
  <div class="scanner-overlay" id="camara-wrap">
  <div id="reader"></div>
  </div>
@@ -145,6 +194,7 @@
  </p>
  <div id="camara-aviso" style="display:none;margin-top:8px;padding:10px 12px;background:#ffe3c2;border-radius:8px;font-size:12px;color:#8a4f12;">
    Si la cámara no abre, verifica que el navegador tiene permiso para usar la cámara en la configuración de tu dispositivo.
+ </div>
  </div>
  </div>
 
@@ -189,7 +239,7 @@
 
 </div>
 
-<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261016.1"></script>
+<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261016.2"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

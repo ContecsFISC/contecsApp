@@ -9,11 +9,18 @@
 // cambia allá (test/permisos.test.mjs compara este archivo con el del panel).
 
 // Roles internos que admiten ajustes. "sin_rol" desactiva la cuenta aunque
-// conserve ajustes; "posper" (patrocinador) y "ceo" quedan fuera.
+// conserve ajustes; "posper" (patrocinador), "voluntario" (lector QR),
+// "modelado" (pantalla del mapa) y "ceo" quedan fuera.
 const ROLES_CON_AJUSTES = new Set([
   "junta_principal", "junta", "coordinador", "finanzas", "logistica",
   "ventas", "secretario", "actividades", "patrocinios", "investigacion",
   "voluntariado", "giras", "comunicaciones", "staff_contecs", "miembro",
+]);
+
+// Solo por rol: ningún ajuste los da ni los quita. Copia exacta de
+// PERMISOS_SOLO_ROL en js/core/permisos.js (test/permisos.test.mjs lo compara).
+const PERMISOS_SOLO_ROL = new Set([
+  "acceso_posper", "posper_sorteos", "qr_posper", "liberar_rfid", "escanear_qr",
 ]);
 
 // Sub-permisos: sin ajuste propio siguen al permiso de su módulo (con sus
@@ -61,7 +68,10 @@ function venceEnMs(vence) {
 // (permisosExtra; un "otorgar" vencido no cuenta); si no tiene, el del rol
 // (config/permisos_roles, que ajustes-rol.js deja en usuario._ajustesRol).
 function ajusteDePermiso(usuario, permiso, ahora = Date.now()) {
-  if (!usuario || !ROLES_CON_AJUSTES.has(usuario.rol)) return null;
+  if (!usuario || !ROLES_CON_AJUSTES.has(usuario.rol) ||
+      PERMISOS_SOLO_ROL.has(permiso)) {
+    return null;
+  }
   const ajuste = usuario.permisosExtra?.[permiso];
   if (ajuste?.modo === "quitar") return "quitar";
   if (ajuste?.modo === "otorgar") {
@@ -86,6 +96,7 @@ function usuarioPuede(usuario, permiso, rolesBase, ahora = Date.now()) {
 }
 
 module.exports = {
+  PERMISOS_SOLO_ROL,
   ROLES_CON_AJUSTES,
   SUBPERMISOS,
   ajusteDePermiso,

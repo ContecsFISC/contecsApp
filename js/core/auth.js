@@ -1,6 +1,7 @@
 import { auth, db } from "./firebase-config.js";
 import {
   signInWithPopup,
+  signInWithEmailAndPassword,
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged
@@ -291,6 +292,20 @@ export async function loginConGoogle() {
     return result.user;
   } catch (error) {
     manejarErrorAuth(error, "loginConGoogle");
+    throw error;
+  }
+}
+
+// Cuentas compartidas de los lectores del congreso (POSPER y Voluntarios):
+// correo y contraseña de Firebase Auth, sin Google. El rol lo pone el CEO en
+// Usuarios, como a cualquier cuenta.
+export async function loginConCorreo(correo, clave) {
+  try {
+    const result = await signInWithEmailAndPassword(auth, String(correo || "").trim(), String(clave || ""));
+    await cargarUsuario(result.user);
+    return result.user;
+  } catch (error) {
+    manejarErrorAuth(error, "loginConCorreo");
     throw error;
   }
 }

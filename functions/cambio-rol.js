@@ -24,7 +24,7 @@ const ROLES_VALIDOS = new Set([
   "sin_rol", "ceo", "junta_principal", "junta", "coordinador", "finanzas",
   "logistica", "ventas", "secretario", "actividades", "patrocinios",
   "investigacion", "voluntariado", "giras", "comunicaciones", "staff_contecs",
-  "miembro", "posper",
+  "miembro", "posper", "voluntario", "modelado",
 ]);
 // Tras 5 contraseñas equivocadas seguidas, 15 minutos sin poder intentar.
 const MAX_FALLOS = 5;

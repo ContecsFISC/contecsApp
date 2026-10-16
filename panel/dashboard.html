@@ -211,114 +211,6 @@
     .sin-rol-card h3 { font-size: 17px; color: var(--gris-texto); margin-bottom: 8px; }
     .sin-rol-card p  { font-size: 14px; color: var(--gris-medio); line-height: 1.5; }
 
-    /* ══════════ POSPER — patrocinador ══════════
-       Su inicio es solo esta bienvenida y sus tres módulos: nada de
-       balances, agenda ni próximos días. Colores y degradado del sitio de
-       POSPER (azul noche → azul → rojo); la línea roja del hero es el
-       "láser" que cruza su logo. */
-    body.dashboard-posper {
-      --posper-noche: #061b2a;
-      --posper-azul:  #0b3857;
-      --posper-rojo:  #980000;
-      --posper-laser: #cc0000;
-      background: linear-gradient(180deg, #eef2f6 0, var(--gris-suave) 24rem);
-    }
-    body.dashboard-posper .topbar { background: var(--posper-noche) !important; }
-    body.dashboard-posper .rol-pill { background: rgba(204,0,0,0.08); color: var(--posper-rojo); }
-    body.dashboard-posper .badge-verificado .bv-body { fill: var(--posper-azul); }
-    .posper-hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 22px;
-      padding: clamp(24px, 4vw, 40px);
-      color: #fff;
-      background:
-        radial-gradient(circle at 85% 40%, rgba(204,0,0,0.68), transparent 34%),
-        linear-gradient(125deg, #061b2a 0%, #0b3857 55%, #980000 100%);
-      box-shadow: 0 18px 40px rgba(6,27,42,0.32);
-      animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
-    }
-    .posper-hero::after {
-      content: "";
-      position: absolute;
-      right: -60px; bottom: -60px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      border: 28px solid rgba(255,255,255,0.06);
-    }
-    .posper-hero > * { position: relative; z-index: 1; }
-    /* El láser del logo va en CSS (en la captura original salía irregular).
-       Como en el logo de POSPER, cruza por delante del código de barras
-       (.posper-laser, hasta el 15.5 % del ancho) y por detrás de las letras
-       (::after, bajo la imagen); ::before es el reflejo tenue de borde a
-       borde del hero. */
-    .posper-marca { width: clamp(200px, 32vw, 300px); margin-bottom: clamp(18px, 3vw, 26px); }
-    .posper-marca::before {
-      content: "";
-      position: absolute;
-      left: -100vw; right: -100vw; top: 54.3%;
-      height: 2px; margin-top: -1px;
-      background: #ff2a2a;
-      box-shadow: 0 0 12px rgba(255,42,42,0.75);
-      opacity: 0.45;
-      z-index: -1;
-    }
-    .posper-marca::after, .posper-laser {
-      content: "";
-      position: absolute;
-      left: 2%; right: 2.2%; top: 50.6%; height: 7.4%;
-      background: #cc0000;
-      box-shadow: 0 0 8px rgba(255,42,42,0.6);
-    }
-    .posper-laser { right: 84.5%; z-index: 2; }
-    .posper-logo { position: relative; z-index: 1; display: block; width: 100%; height: auto; filter: drop-shadow(0 0 6px rgba(255,42,42,0.35)); }
-    .posper-kicker { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
-    .posper-titulo { font-family: var(--fuente-display); font-size: clamp(30px, 5vw, 46px); font-weight: 700; line-height: 1.05; margin: 8px 0 10px; }
-    .posper-sub { font-size: 15px; line-height: 1.55; max-width: 560px; opacity: 0.92; }
-    .posper-sello { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
-    .posper-sello::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 8px #ff2a2a; }
-    .posper-modulos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 18px; }
-    .posper-modulo {
-      display: flex; flex-direction: column; gap: 6px;
-      padding: 20px; border-radius: 18px; text-decoration: none;
-      background: var(--cx-surface, #ffffff); color: var(--gris-texto);
-      border: 1px solid var(--gris-borde);
-      box-shadow: 0 6px 18px rgba(3,46,35,0.06);
-      transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), border-color 0.18s;
-      animation: fadeScaleIn 0.5s var(--ease-spring) backwards;
-    }
-    .posper-modulo:hover { transform: translateY(-3px); border-color: #cc0000; box-shadow: 0 14px 30px rgba(6,27,42,0.16); }
-    .posper-modulo:active { transform: scale(0.98); }
-    .posper-modulo-icono { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #061b2a, #0b3857); margin-bottom: 6px; }
-    .posper-modulo:nth-child(2) .posper-modulo-icono { background: linear-gradient(135deg, #0b3857, #980000); }
-    .posper-modulo:nth-child(3) .posper-modulo-icono { background: linear-gradient(135deg, #980000, #cc0000); }
-    .posper-modulo-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
-    .posper-modulo-texto { font-size: 13px; line-height: 1.45; color: var(--gris-medio); }
-    /* Acceso sin iniciar sesión: QR con el link de public/acceso-posper.html */
-    .posper-link {
-      display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
-      margin-top: 14px; padding: 20px; border-radius: 18px;
-      background: var(--cx-surface, #fdf7ea); border: 1px solid var(--gris-borde);
-      box-shadow: 0 6px 18px rgba(3,46,35,0.06);
-    }
-    .posper-link[hidden] { display: none; }
-    .posper-link-qr { width: 180px; height: 180px; padding: 10px; border-radius: 12px; background: #fff; border: 1px solid var(--gris-borde); box-sizing: content-box; }
-    .posper-link-qr img, .posper-link-qr canvas { display: block; width: 100%; height: auto; }
-    .posper-link-titulo { font-family: var(--fuente-display); font-size: 19px; font-weight: 700; color: #061b2a; }
-    .posper-link-texto { font-size: 13px; line-height: 1.5; color: var(--gris-medio); margin: 6px 0 14px; }
-    .posper-link-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
-    .posper-link-btn {
-      padding: 10px 16px; border-radius: 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
-      color: #fff; background: linear-gradient(135deg, #061b2a, #0b3857); border: 1px solid transparent;
-    }
-    .posper-link-btn.secundario { color: var(--posper-rojo); background: transparent; border-color: rgba(152,0,0,0.35); }
-    .posper-link-btn:disabled { opacity: 0.55; cursor: progress; }
-    .posper-link-estado { min-height: 1.4em; margin-top: 10px; font-size: 12.5px; color: var(--gris-medio); }
-    @media (max-width: 560px) {
-      .posper-link { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-      .posper-link-acciones { justify-content: center; }
-    }
-
     @media (max-width: 400px) {
       .widgets-grid { grid-template-columns: 1fr; }
     }
@@ -685,11 +577,9 @@
     import { tienePermiso, infoRol } from "../js/core/permisos.js";
     import { usuarioPuedeVerReunion } from "../js/modulos/reuniones-utils.js";
     import { formatearMoneda } from "../js/core/operaciones.js";
-    import { app, db } from "../js/core/firebase-config.js";
-    import { URL_ACCESO_POSPER } from "../js/core/sso-config.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
+    import { db } from "../js/core/firebase-config.js";
     import { montarNavbar } from "../js/core/navbar.js?v=20261015.8";
-    import { CATEGORIAS } from "../js/core/navegacion.js?v=20261015.9";
+    import { CATEGORIAS, INICIO_DE_ROL, puedeVerModulo } from "../js/core/navegacion.js?v=20261016.1";
     import { montarCarrusel } from "../js/core/carrusel-modulos.js?v=20261015.8";
     import { entrarASeccion, iniciarVistas } from "../js/core/vista-seccion.js?v=20261015.8";
     import {
@@ -702,72 +592,6 @@
         return;
       }
       console.error(`[Dashboard] Error en listener ${contexto}:`, error);
-    }
-
-    // QR del link de POSPER sin iniciar sesión (functions/acceso-posper.js).
-    const UID_LINK_POSPER = "posper-link";
-    function iniciarLinkPosper() {
-      const caja = document.getElementById("posper-link");
-      const qr = document.getElementById("posper-link-qr");
-      const estado = document.getElementById("posper-link-estado");
-      const btnCopiar = document.getElementById("posper-link-copiar");
-      const btnRegenerar = document.getElementById("posper-link-regenerar");
-      const pedirLink = httpsCallable(getFunctions(app, "us-central1"), "linkAccesoPosper");
-      const libreria = window.QRCode ? Promise.resolve() : new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "../js/libs/qrcode.min.js";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.append(script);
-      });
-      let url = "";
-
-      const pintar = async (regenerar) => {
-        const [{ data }] = await Promise.all([pedirLink({ regenerar }), libreria]);
-        url = `${URL_ACCESO_POSPER}#k=${data.clave}`;
-        qr.replaceChildren();
-        new window.QRCode(qr, {
-          text: url, width: 180, height: 180,
-          colorDark: "#061b2a", colorLight: "#ffffff",
-          correctLevel: window.QRCode.CorrectLevel.M,
-        });
-        caja.hidden = false;
-      };
-
-      pintar(false).catch(error => {
-        console.error("[Dashboard] Link de POSPER:", error);
-        caja.hidden = false;
-        btnCopiar.disabled = true;
-        estado.textContent = "No se pudo cargar el QR. Recarga la página para intentarlo de nuevo.";
-      });
-
-      btnCopiar.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(url);
-          estado.textContent = "Link copiado.";
-        } catch {
-          estado.textContent = url;
-        }
-      });
-
-      btnRegenerar.addEventListener("click", async () => {
-        if (!confirm("¿Generar un link nuevo? El QR actual deja de funcionar y quienes entraron con él pierden el acceso en menos de una hora.")) return;
-        btnRegenerar.disabled = true;
-        estado.textContent = "Generando link nuevo…";
-        try {
-          await pintar(true);
-          btnCopiar.disabled = false;
-          estado.textContent = "Listo: este es el QR nuevo. El anterior ya no abre.";
-        } catch (error) {
-          console.error("[Dashboard] Regenerar link de POSPER:", error);
-          estado.textContent = "No se pudo generar el link nuevo. Intenta de nuevo.";
-          // La clave pudo cambiar aunque la respuesta fallara: se vuelve a pintar
-          // la vigente para que el QR en pantalla no quede viejo.
-          await pintar(false).catch(e => console.error("[Dashboard] Releer link de POSPER:", e));
-        } finally {
-          btnRegenerar.disabled = false;
-        }
-      });
     }
 
     // Una sola lectura por coleccion aunque la pidan la agenda y el resumen.
@@ -790,6 +614,12 @@
     const usuario = getUsuarioActual();
     const rol     = usuario.rol || "sin_rol";
     const info    = infoRol(rol);
+
+    // POSPER y Voluntario tienen un solo módulo: entran directo a escanear.
+    if (INICIO_DE_ROL[rol]) {
+      window.location.replace(INICIO_DE_ROL[rol]);
+      await new Promise(() => {});
+    }
 
     // El perfil vive en el navbar (avatar, nombre, rol, Inicio y Salir).
     navbarCx.establecerPerfil({ nombre: usuario.nombre || "Usuario", rol: info.label || "Sin rol", inicio: "dashboard.html" });
@@ -1168,58 +998,9 @@
 
     } else {
 
-      // El patrocinador solo ve su bienvenida y su pestaña: sin resumen móvil,
-      // widgets ni agenda (de todos modos no tiene esos permisos).
-      const esPosper = rol === "posper";
-      if (esPosper) {
-        document.body.classList.add("dashboard-posper");
-        document.querySelector(".subtitulo-espacio")?.replaceChildren("Patrocinador oficial de CONTECS 2026");
-        const icono = trazo => `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${trazo}</svg>`;
-        contenido.innerHTML = `
-          <section class="posper-hero">
-            <div class="posper-marca"><img class="posper-logo" src="../img/posper/posper-logo-blanco.png" alt="POSPER" width="448" height="81"/><span class="posper-laser" aria-hidden="true"></span></div>
-            <div class="posper-kicker">CONTECS 2026</div>
-            <h2 class="posper-titulo">¡Bienvenidos, POSPER!</h2>
-            <p class="posper-sub">Gracias por patrocinar los lectores del congreso y por acompañar a los estudiantes de la FISC en esta edición. Desde aquí registran la entrada a las actividades, entregan los RFID y realizan el gran sorteo.</p>
-            <span class="posper-sello">Patrocinador oficial · CONTECS 2026</span>
-          </section>
-          <div class="posper-modulos">
-            <a class="posper-modulo" href="modulos/congreso/posper.html">
-              <span class="posper-modulo-icono">${icono('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>')}</span>
-              <span class="posper-modulo-titulo">Lector POSPER</span>
-              <span class="posper-modulo-texto">Escanea la credencial con el lector de POSPER, marca la entrada al checkpoint en curso y ancla el RFID de cada estudiante.</span>
-            </a>
-            <a class="posper-modulo" href="modulos/congreso/randomizer.html">
-              <span class="posper-modulo-icono">${icono('<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>')}</span>
-              <span class="posper-modulo-titulo">Randomizer</span>
-              <span class="posper-modulo-texto">Lista en vivo de los participantes con RFID y sorteo rápido de ganadores.</span>
-            </a>
-            <a class="posper-modulo" href="modulos/congreso/randomizerint.html">
-              <span class="posper-modulo-icono">${icono('<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>')}</span>
-              <span class="posper-modulo-titulo">Sorteo en vivo</span>
-              <span class="posper-modulo-texto">Pantalla para proyectar: el carrete de RFID gira, frena y revela a cada ganador.</span>
-            </a>
-          </div>
-          <section class="posper-link" id="posper-link" hidden>
-            <div class="posper-link-qr" id="posper-link-qr" role="img" aria-label="Código QR del acceso de POSPER sin iniciar sesión"></div>
-            <div>
-              <span class="posper-link-titulo">Acceso sin iniciar sesión</span>
-              <p class="posper-link-texto">Quien escanee este QR entra a la pestaña POSPER sin cuenta: Lector, Randomizer y Sorteo en vivo. Compártanlo solo con su equipo; si se filtra, generen uno nuevo y el anterior deja de funcionar.</p>
-              <p class="posper-link-texto">Con el gatillo de un lector POSPER: abran primero <strong>contecs-app.vercel.app/public/acceso-posper.html</strong> en el navegador del equipo y escaneen este QR ahí.</p>
-              <div class="posper-link-acciones">
-                <button type="button" class="posper-link-btn" id="posper-link-copiar">Copiar link</button>
-                <button type="button" class="posper-link-btn secundario" id="posper-link-regenerar">Generar link nuevo</button>
-              </div>
-              <p class="posper-link-estado" id="posper-link-estado" role="status"></p>
-            </div>
-          </section>`;
-        // La sesión abierta con el propio link no ve el QR ni puede cambiarlo.
-        if (usuario.uid !== UID_LINK_POSPER) iniciarLinkPosper();
-      }
-
       let dashboardMovilCargado = false;
       const iniciarDashboardMovil = () => {
-        if (dashboardMovilCargado || esPosper) return;
+        if (dashboardMovilCargado) return;
         dashboardMovilCargado = true;
         cargarDashboardMovil().catch(error => {
           document.getElementById("mobile-event-hero").classList.remove("mobile-dashboard-skeleton");
@@ -1240,7 +1021,7 @@
 
       // Resumen (widgets) y actividades de la agenda: igual en movil y en
       // escritorio. Participantes se lee una sola vez (leerColeccion).
-      if (!esPosper) {
+      {
         // ══════════ ZONA B — Widgets de resumen según rol ══════════
         const widgetsDef = [
         {
@@ -1473,7 +1254,7 @@
       // "salvoSi": el acceso directo sobra si ya se ve el módulo completo.
       const puede = p => tienePermiso(rol, p, usuario.permisosExtra, usuario.ajustesRol);
       const categoriasVisibles = CATEGORIAS
-        .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
+        .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puedeVerModulo(m, puede)) }))
         .filter(cat => cat.modulos.length > 0);
 
       const categoriasNav = categoriasVisibles.map(cat => ({
@@ -1485,7 +1266,7 @@
 
       // Carrusel 3D de secciones: entrar a una abre su vista con sus modulos
       // (o lleva directo al modulo si la seccion tiene uno solo).
-      if (categoriasNav.length && !esPosper) {
+      if (categoriasNav.length) {
         document.getElementById("cx-bloque-modulos").hidden = false;
         montarCarrusel(document.getElementById("cx-carrusel"), categoriasNav, { alElegir: entrarASeccion });
         iniciarVistas(categoriasNav, document.getElementById("main-container"));

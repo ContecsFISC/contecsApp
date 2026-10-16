@@ -25,16 +25,17 @@ export const CATEGORIAS = [
     id: "mapa", label: "Mapa del evento",
     modulos: [
       { label: "Mapa interactivo 3D", href: "modulos/congreso/mapa.html", permiso: "ver_mapa" },
-      { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html", permiso: "lectura_qr" },
+      // Staff con Lectura QR o el rol Voluntario (sin RFID).
+      { label: "Lectura QR",          href: "modulos/congreso/lecturaQR.html", permiso: ["lectura_qr", "escanear_qr"] },
     ],
   },
   {
-    // Patrocinador: fuera de Gestión de Eventos, solo POSPER y CEO.
+    // El lector POSPER (QR + RFID) solo lo ven POSPER y el CEO.
     id: "posper", label: "POSPER",
     modulos: [
       { label: "Lector POSPER",  href: "modulos/congreso/posper.html",        permiso: "acceso_posper" },
-      { label: "Randomizer",     href: "modulos/congreso/randomizer.html",    permiso: "acceso_posper" },
-      { label: "Sorteo en vivo", href: "modulos/congreso/randomizerint.html", permiso: "acceso_posper" },
+      { label: "Randomizer",     href: "modulos/congreso/randomizer.html",    permiso: "posper_sorteos" },
+      { label: "Sorteo en vivo", href: "modulos/congreso/randomizerint.html", permiso: "posper_sorteos" },
       { label: "QR POSPER",      href: "modulos/congreso/qrPosper.html",      permiso: "qr_posper" },
     ],
   },
@@ -78,12 +79,26 @@ export const CATEGORIAS = [
   },
 ];
 
+// Roles de un solo módulo: el inicio los lleva directo a él (dashboard.html).
+// Rutas relativas a /panel/.
+export const INICIO_DE_ROL = {
+  posper:     "modulos/congreso/posper.html",
+  voluntario: "modulos/congreso/lecturaQR.html",
+  modelado:   "modulos/congreso/mapa.html",
+};
+
+/** `permiso` puede ser uno o una lista (basta con tener uno). */
+export function puedeVerModulo(modulo, puede) {
+  const algunoDe = p => [].concat(p).some(puede);
+  return algunoDe(modulo.permiso) && !(modulo.salvoSi && algunoDe(modulo.salvoSi));
+}
+
 /** Categorias visibles para el usuario, con rutas resueltas por `resolver`. */
 export function categoriasPara(usuario, tienePermiso, resolver = href => href) {
   const rol = usuario.rol || "sin_rol";
   const puede = p => tienePermiso(rol, p, usuario.permisosExtra, usuario.ajustesRol);
   return CATEGORIAS
-    .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puede(m.permiso) && !(m.salvoSi && puede(m.salvoSi))) }))
+    .map(cat => ({ ...cat, modulos: cat.modulos.filter(m => puedeVerModulo(m, puede)) }))
     .filter(cat => cat.modulos.length > 0)
     .map(cat => ({
       id: cat.id,

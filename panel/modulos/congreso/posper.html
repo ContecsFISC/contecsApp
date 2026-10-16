@@ -19,9 +19,11 @@
   <link rel="stylesheet" href="../../../css/navbar.css?v=20261015.8"/>
   <link rel="stylesheet" href="../../../css/movil.css?v=20261015.8"/>
  <script type="module">
- import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
+ import { guardRoute, requirePermiso, getUsuarioActual } from "../../../js/core/auth.js";
  guardRoute();
  await requirePermiso("acceso_posper");
+ // POSPER solo tiene este módulo: "Volver" no lleva a ningún otro lado.
+ if (getUsuarioActual().rol === "posper") document.querySelector(".btn-volver")?.remove();
  </script>
  <style>
  /* Lector: sin animaciones, transiciones ni cambio animado de página. Cada
@@ -68,9 +70,8 @@
  .btn-outline { color: var(--pp-azul); border-color: var(--pp-azul); }
  .card-title { color: var(--pp-azul); }
 
- /* Campo que recibe lo que "teclea" el lector del EA530. Va visible y con
-    teclado: en el EA530 la lectura entra por el teclado del sistema y, con el
-    teclado oculto (inputmode="none"), no llega a la página. */
+ /* Campo que recibe lo que "teclea" el lector (js/core/lector-fisico.js): sin
+    teclado en pantalla y sin mostrar el texto; solo indica que está listo. */
  .captura-wrap { width: 100%; max-width: 420px; }
  #captura { width: 100%; padding: 12px 14px; border-radius: var(--radio-sm); border: 2px solid rgba(255,255,255,0.55); background: rgba(255,255,255,0.12); color: #fff; font-size: 15px; font-family: var(--fuente); text-align: center; }
  #captura::placeholder { color: rgba(255,255,255,0.75); }
@@ -87,6 +88,8 @@
 
  .escenario { position: relative; border-radius: var(--radio-lg); min-height: 46vh; padding: 28px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; color: #fff; background: var(--pp-degradado); box-shadow: 0 8px 28px rgba(6, 27, 42, 0.3); user-select: none; }
  .escenario.rfid { background: linear-gradient(160deg, var(--pp-noche) 0%, #1f6fa3 100%); }
+ /* RFID obligatorio: borde ámbar para que no se confunda con "escanea el QR". */
+ .escenario.rfid.esperando { box-shadow: inset 0 0 0 6px #ffb703, 0 8px 28px rgba(6, 27, 42, 0.3); }
  .escenario.ok { background: linear-gradient(160deg, var(--verde-oscuro) 0%, var(--verde-claro) 100%); }
  .escenario.error { background: linear-gradient(160deg, #6e1712 0%, var(--rojo) 100%); }
  .escenario.inactivo { background: linear-gradient(160deg, #3a3a3c 0%, #636366 100%); }
@@ -103,7 +106,9 @@
  .chip { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin: 8px 6px 0 0; }
  .chip-ok { background: var(--verde-fondo); color: var(--verde-oscuro); }
  .chip-aviso { background: var(--amarillo-fondo); color: var(--amarillo); }
- .chip-rfid { background: #e7eef4; color: var(--pp-azul); font-family: ui-monospace, Consolas, monospace; }
+ .resultado-rfid { margin-top: 10px; padding: 10px 12px; border-radius: var(--radio-sm); background: #e7eef4; color: var(--pp-azul); font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+ .resultado-rfid strong { display: block; margin-top: 2px; font-family: ui-monospace, Consolas, monospace; font-size: 20px; color: var(--pp-noche); }
+ .resultado-rfid strong.vacio { color: var(--rojo); font-family: var(--fuente); font-size: 16px; }
 
  .pp-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.55); }
  .pp-modal.abierto { display: flex; }
@@ -173,11 +178,11 @@
  <div class="escenario-titulo" id="escenario-titulo">Configura la sesión</div>
  <div class="escenario-sub" id="escenario-sub">Elige el evento y el checkpoint para empezar a escanear.</div>
  <div class="captura-wrap" id="captura-wrap">
- <input id="captura" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Toca aquí y presiona el gatillo" aria-label="Entrada del lector"/>
- <div class="captura-aviso">Toca el campo para reactivar el lector.</div>
+ <input id="captura" type="text" inputmode="none" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Listo para escanear" aria-label="Entrada del lector"/>
+ <div class="captura-aviso">Toca aquí para reactivar el lector.</div>
  </div>
  <div class="escenario-acciones">
- <button class="btn btn-sm" id="btn-cancelar-rfid" type="button" style="display:none;">Cancelar RFID</button>
+ <button class="btn btn-sm" id="btn-sin-rfid" type="button" style="display:none;">Sin RFID</button>
  </div>
  </div>
 
@@ -188,6 +193,7 @@
  <div class="resultado-fila">Cédula: <strong id="res-cedula"></strong></div>
  <div class="resultado-fila">Institución: <strong id="res-universidad"></strong></div>
  <div id="res-chips"></div>
+ <div class="resultado-rfid">RFID anclado<strong id="res-rfid" class="vacio">Sin RFID</strong></div>
  </div>
 
  <!-- REGISTROS DE LA SESIÓN -->
@@ -205,7 +211,7 @@
  <div class="card" style="margin-top:20px;">
  <details class="diag" id="diag">
  <summary>Dispositivo y lector</summary>
- <span id="diag-ea530" class="diag-badge no">Detectando dispositivo...</span>
+ <span id="diag-equipo" class="diag-badge no">Detectando dispositivo...</span>
  <dl class="diag-grid" id="diag-hardware"></dl>
 
  <div class="diag-sub">Disparador del lector</div>
@@ -222,31 +228,31 @@
  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
  <button class="btn btn-outline btn-sm" id="btn-probar" type="button">Probar lector (sin registrar)</button>
  </div>
- <label class="ceo-todos" style="display:flex;"><input type="checkbox" id="chk-sin-teclado"/> Ocultar el teclado en pantalla en este equipo (luego usa "Probar lector": si deja de leer, desmárcalo)</label>
+ <label class="ceo-todos" style="display:flex;"><input type="checkbox" id="chk-teclado"/> Mostrar el teclado en pantalla en este equipo (solo si con el teclado oculto "Probar lector" no lee nada)</label>
  <p class="diag-ayuda">
- La página lee el lector como si fuera un teclado. En cualquiera de los equipos (EA530, EDA52, EDA51-1, HT330, Memor 12), en la app de ajustes del escáner, deja la salida en
- <strong>teclado</strong> (no "broadcast"/intent ni portapapeles) y el sufijo en <strong>Enter</strong>. Si no hay sufijo, la página
- toma la lectura cuando el lector deja de escribir. Prueba rápida: abre cualquier campo de texto en otra app y dispara;
- si ahí tampoco aparece el texto, el problema es la configuración del lector, no la página.
+ La página lee el lector como si fuera un teclado. En cualquiera de los equipos (Memor 12, HT330, EDA51-1, EA530, EDA52), en la app de ajustes del escáner, deja la salida en
+ <strong>teclado</strong> (no "broadcast"/intent ni portapapeles) y el sufijo en <strong>Enter</strong>: con Enter la lectura se registra al instante; sin sufijo, la página
+ espera a que el lector deje de escribir. <strong>HT330:</strong> deja su teclado físico en modo <strong>123</strong> (en modo letras los números llegan como letras).
+ Prueba rápida: abre cualquier campo de texto en otra app y dispara; si ahí tampoco aparece el texto, el problema es la configuración del lector, no la página.
  </p>
  </details>
  </div>
 
 </div>
 
-<!-- ¿CAPTAR RFID? -->
-<div class="pp-modal" id="modal-rfid" role="dialog" aria-modal="true" aria-labelledby="modal-rfid-titulo">
+<!-- RFID OBLIGATORIO: salir sin anclarlo pide confirmación -->
+<div class="pp-modal" id="modal-sin-rfid" role="dialog" aria-modal="true" aria-labelledby="modal-sin-rfid-titulo">
  <div class="pp-modal-caja">
- <div class="pp-modal-titulo" id="modal-rfid-titulo">¿CAPTAR RFID?</div>
- <div class="pp-modal-texto" id="modal-rfid-texto"></div>
+ <div class="pp-modal-titulo" id="modal-sin-rfid-titulo">¿SEGUIR SIN RFID?</div>
+ <div class="pp-modal-texto" id="modal-sin-rfid-texto"></div>
  <div class="pp-modal-botones">
- <button class="btn btn-no" id="btn-rfid-no" type="button">NO</button>
- <button class="btn btn-primary" id="btn-rfid-si" type="button">SÍ</button>
+ <button class="btn btn-no" id="btn-confirmar-sin-rfid" type="button">Sí, sin RFID</button>
+ <button class="btn btn-primary" id="btn-seguir-rfid" type="button">Escanear RFID</button>
  </div>
  </div>
 </div>
 
-<script type="module" src="../../../js/modulos/posper.js?v=20261016.1"></script>
+<script type="module" src="../../../js/modulos/posper.js?v=20261016.2"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>
