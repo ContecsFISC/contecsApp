@@ -654,10 +654,15 @@ function medirRecuadro(ctx, p, ancho, u, k, conQr) {
   // La plantilla ya dice VOLUNTARIO, ORGANIZADOR o EXPOSITOR; a los
   // participantes se les pone su categoría (Estudiante UTP, Profesional...).
   if (!p.cred) texto(categoriaDe(p).toLocaleUpperCase("es"), { tam: 2.7, min: 2.2, peso: 700, color: tema.principal, antes: 1.4 });
-  texto(institucionDe(p), { tam: 2.7, min: 2.2, lineas: 2, antes: 1 });
+  // En la de expositor la empresa y el tema van un poco más grandes, y el
+  // tema sigue en las líneas de abajo (centrado) en vez de cortarse.
+  const expositor = p.cred?.tema === "expositor";
+  texto(institucionDe(p), expositor ? { tam: 3.2, min: 2.5, lineas: 2, antes: 1 } : { tam: 2.7, min: 2.2, lineas: 2, antes: 1 });
   if (!conQr && p.cred?.detalle?.length) {
-    texto((p.cred.detalleTitulo || "Expone").toLocaleUpperCase("es"), { tam: 2.5, min: 2.1, peso: 800, color: tema.principal, antes: 1.4 });
-    p.cred.detalle.slice(0, 3).forEach(d => texto(d, { tam: 2.6, min: 2.1, peso: 600, color: C.tinta, antes: 0.4 }));
+    texto((p.cred.detalleTitulo || "Expone").toLocaleUpperCase("es"), { tam: expositor ? 2.8 : 2.5, min: 2.1, peso: 800, color: tema.principal, antes: 1.4 });
+    p.cred.detalle.slice(0, 3).forEach(d => texto(d, expositor
+      ? { tam: 3.0, min: 2.4, peso: 600, lineas: 3, color: C.tinta, antes: 0.4 }
+      : { tam: 2.6, min: 2.1, peso: 600, color: C.tinta, antes: 0.4 }));
   }
   texto(codigoDe(p), { tam: 3.4, min: 2.4, peso: 700, color: tema.oscuro, familia: FUENTE_CODIGO, antes: 1.4 });
   const alto = filas.reduce((suma, f) => suma + f.antes + f.lineas.length * f.lh, 0);
