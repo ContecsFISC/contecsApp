@@ -13,7 +13,7 @@ import {
 } from "../core/permanencia.js";
 import {
   TIPOS_PROGRAMABLES, buscarChoques, describirChoque, etiquetaSalon, nombrePiso,
-  nombreSalon, rotuloSalon, salonDeCheckpoint,
+  nombreSalon, rotuloSalon, salonDeCheckpoint, letraRotulo, ROTULO_MAX,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon, eliminarSalon } from "../core/salones-firestore.js";
 import { normalizar } from "./personas-credenciales.js";
@@ -2000,8 +2000,10 @@ function renderPlanoSalones() {
       const cls = !programables.has(e.id) ? "no-prog" : e.id === espacioSel ? "sel" : salonesConfig[e.id] ? "conf" : "";
       return `<polygon class="esp ${cls}" points="${e.p}" data-id="${escaparAtributo(e.id)}"><title>${h(salonesConfig[e.id] ? etiquetaSalon(e.id, salonesConfig[e.id]) : `Espacio ${e.n}`)}</title></polygon>`;
     }).join("")}
-    ${piso.espacios.filter(e => programables.has(e.id)).map(e =>
-      `<text x="${e.l[0]}" y="${e.l[1]}" class="${e.id === espacioSel ? "sel" : ""}" font-size="${Math.max(e.fs, 9)}">${h(rotuloSalon(e.id, salonesConfig[e.id]))}</text>`).join("")}
+    ${piso.espacios.filter(e => programables.has(e.id)).map(e => {
+      const texto = rotuloSalon(e.id, salonesConfig[e.id]);
+      return `<text x="${e.l[0]}" y="${e.l[1]}" class="${e.id === espacioSel ? "sel" : ""}" font-size="${letraRotulo(e, texto, 9)}">${h(texto)}</text>`;
+    }).join("")}
   </svg>`;
 }
 
@@ -2019,6 +2021,7 @@ function elegirEspacio(id) {
   const numero = espacioSel.split("-")[1] || "";
   el("sal-nombre").value = s?.nombre || "";
   el("sal-nombre").placeholder = numero ? `Salón ${numero}` : "ej. Auditorio menor";
+  el("sal-rotulo").maxLength = ROTULO_MAX;
   el("sal-rotulo").value = s?.rotulo || "";
   el("sal-rotulo").placeholder = numero || "ej. 3-301";
   el("sal-capacidad").value = s?.capacidad || "";

@@ -54,6 +54,8 @@
  .cr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--gris-texto); cursor: pointer; }
  .cr-check input { width: 16px; height: 16px; accent-color: var(--verde); margin: 0; }
  .cr-check[hidden], .cr-select[hidden] { display: none; }
+ /* Centro y facultad tienen nombres largos: no deben empujar la barra. */
+ #cr-centro, #cr-facultad { flex: 0 1 230px; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
  .cr-agrupa { display: flex; flex-direction: column; gap: 8px; padding: 8px 16px; border-bottom: 1px solid var(--gris-borde); }
  .cr-agrupa[hidden], .cr-comparar[hidden] { display: none; }
  .cr-agrupa-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -186,6 +188,8 @@
  <option value="impresa">Ya impresas</option>
  </select>
  <select class="cr-select" id="cr-categoria" aria-label="Categoría" hidden></select>
+ <select class="cr-select" id="cr-centro" aria-label="Centro regional" hidden></select>
+ <select class="cr-select" id="cr-facultad" aria-label="Facultad" hidden></select>
  <select class="cr-select" id="cr-evento" aria-label="Evento" hidden></select>
  <label class="cr-check" id="cr-no-aprobados-wrap" hidden><input type="checkbox" id="cr-no-aprobados"/> Incluir pagos no aprobados</label>
  <div class="cr-exp-acciones" id="cr-exp-acciones" hidden>
@@ -297,7 +301,7 @@
  </div>
 </dialog>
 
-<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261015.11"></script>
+<script type="module" src="../../../js/modulos/gestorCredenciales.js?v=20261016.1"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

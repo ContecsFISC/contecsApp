@@ -12,7 +12,25 @@
 import { minutosDeHora, estaCancelado } from "./permanencia.js";
 
 export const RE_ESPACIO = /^\d{1,2}-\d{1,4}$/;
-export const ROTULO_MAX = 7;
+// Debe coincidir con `rotulo.size()` de /salones en firebase_rules/firestore.rules.
+export const ROTULO_MAX = 20;
+
+// Tamaño de letra del rótulo en el plano 2D: el de siempre (`minimo` como
+// piso) y, si el texto no cabe a lo ancho del espacio, más chico hasta 6 px.
+// Se estima ≈0.62 em por carácter en negrita.
+export function letraRotulo(espacio, texto, minimo) {
+  const base = Math.max(espacio.fs || 0, minimo);
+  const ancho = espacio.b ? (espacio.b[2] - espacio.b[0]) * 0.92 : Infinity;
+  const cabe = ancho / (Math.max(1, String(texto || "").length) * 0.62);
+  return Math.round(Math.max(6, Math.min(base, cabe)) * 10) / 10;
+}
+
+// Salones de coffee break o cafetería (por su rótulo o nombre): en el mapa
+// llevan una taza encima para distinguirlos.
+const RE_CAFE = /coffee|caf[eé]/i;
+export function esSalonCafe(salon) {
+  return RE_CAFE.test(`${salon?.rotulo || ""} ${salon?.nombre || ""}`);
+}
 
 // Tipos del plano donde se pueden programar actividades.
 export const TIPOS_PROGRAMABLES = new Set(["espacio", "vestibulo"]);

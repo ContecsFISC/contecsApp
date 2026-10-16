@@ -72,3 +72,12 @@ assert.equal(m.inicialDe({ nombre: "Óscar" }), "O"); assert.equal(m.inicialDe({
 assert.equal(m.gruposEquilibrados(gente, "nombre", 50).grupos.length, 6, "no hay más grupos que letras");
 assert.equal(m.gruposEquilibrados([], "cedula", 4).grupos.length, 0);
 console.log("ok grupos");
+// Centro regional y facultad para los filtros del módulo Credenciales.
+const conUtp = m.personaParticipante({ id: "p9", nombre: "Iris", camposExtra: { centro: " Centro Regional de Azuero ", facultad: "Facultad de Ingeniería Civil" } });
+assert.equal(conUtp._centro, "Centro Regional de Azuero"); assert.equal(conUtp._facultad, "Facultad de Ingeniería Civil");
+const volUtp = m.personaVoluntario({ _docId: "d9", nombre: "Ro", id: "8-9-9", centro: "Centro Regional de Coclé", facultad: "Facultad de Ingeniería Eléctrica" });
+assert.equal(volUtp._centro, "Centro Regional de Coclé"); assert.equal(volUtp._facultad, "Facultad de Ingeniería Eléctrica");
+assert.equal(m.personaParticipante(part[0])._centro, "", "sin dato queda vacío");
+const expUtp = m.personasExpositores({ participantes: [{ ...part[1], camposExtra: { ponencia: "si", centro: "Centro Regional de Veraguas" } }], checkpoints: [] });
+assert.equal(expUtp[0]._centro, "Centro Regional de Veraguas");
+console.log("ok centro y facultad");

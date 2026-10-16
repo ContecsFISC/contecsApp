@@ -10,6 +10,8 @@
 //   _tipo   participante | voluntario | comite | expositor
 //   _sub    texto corto para la lista
 //   _buscar texto normalizado para el buscador
+//   _centro, _facultad  centro regional y facultad (UTP) para los filtros;
+//           vacíos si la persona no los tiene
 //   cred    (todas menos participante) QR, código, etiqueta y tema de color
 
 import { textoQr, tieneCredencial, categoriaDe, nombreDe } from "./credenciales.js";
@@ -29,6 +31,14 @@ const slug = texto => normalizar(texto).replace(/[^a-z0-9]+/g, "_").replace(/^_+
 
 const nombreVol = v => [v.nombre, v.apellido].filter(Boolean).join(" ").replace(/\s+/g, " ").trim() || v.id || "Voluntario";
 
+// Centro regional y facultad: en participantes van en camposExtra (registro e
+// importación), en voluntarios en el documento. Los expositores sin
+// inscripción no los tienen.
+const datosUtp = d => ({
+  _centro: String(d?.centro || "").trim(),
+  _facultad: String(d?.facultad || "").trim(),
+});
+
 // ── Participantes ──────────────────────────────────────────────────────────
 // Tal cual: el motor ya sabe dibujarlos. Solo se marca si pueden llevar QR.
 export function personaParticipante(p) {
@@ -38,6 +48,7 @@ export function personaParticipante(p) {
     _tipo: "participante",
     _sub: [p.codigo, categoriaDe(p)].filter(Boolean).join(" · "),
     _buscar: normalizar([nombreDe(p), p.cedula, p.codigo, p.correo].join(" ")),
+    ...datosUtp(p.camposExtra),
     _imprimible: tieneCredencial(p),
     _aprobado: p.pago?.estado === "aprobado",
   };
@@ -82,6 +93,7 @@ export function personaVoluntario(v) {
     _tipo: comite ? "comite" : "voluntario",
     _sub: [cedula, v.carrera, v.horario].filter(Boolean).join(" · "),
     _buscar: normalizar([nombreVol(v), cedula, v.correo, v.carrera].join(" ")),
+    ...datosUtp(v),
     _imprimible: !!cedula,
     _aviso: cedula ? "" : "Sin cédula: no tiene QR",
   };
@@ -168,6 +180,7 @@ export function personasExpositores({ participantes = [], checkpoints = [], manu
         _tipo: "expositor",
         _sub: [p.codigo, suyas.length ? `${suyas.length} actividad${suyas.length !== 1 ? "es" : ""}` : "Ponencia en el registro"].filter(Boolean).join(" · "),
         _buscar: normalizar([nombreDe(p), p.cedula, p.codigo, ...suyas.map(c => c.nombre)].join(" ")),
+        ...datosUtp(p.camposExtra),
         _imprimible: true,
         _origen: "inscrito",
       };
