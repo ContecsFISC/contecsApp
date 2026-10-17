@@ -634,7 +634,12 @@ function elegirSalon(id, { destacar = null } = {}) {
   mostrarPanel("salon");
   if (otro) el("panel-cuerpo").scrollTop = 0;
   if (S.vista === "2d") render2D();
-  if (destacar) el("panel-cuerpo").querySelector(".act-btn.destacada")?.scrollIntoView({ block: "nearest" });
+  // Solo se desplaza el panel (scrollIntoView movía también la página entera).
+  const destacada = destacar && el("panel-cuerpo").querySelector(".act-btn.destacada");
+  if (destacada) {
+    const cuerpo = el("panel-cuerpo");
+    cuerpo.scrollTop += destacada.getBoundingClientRect().top - cuerpo.getBoundingClientRect().top - 12;
+  }
 }
 
 function soltarSalon() {

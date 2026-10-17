@@ -5,23 +5,23 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-16T23:45:09.763918+00:00",
-  "project_fingerprint": "df6813906cf47359b1681595431e505d0beb452d7e3d9f917ada49ad550c1440",
+  "generated_at": "2026-10-17T00:06:18.514563+00:00",
+  "project_fingerprint": "e0c315e574b630d3db51f923fb39c9d02b7aa219d4c786da20a6710d6b8c8296",
   "project": "contecsApp",
   "root": ".",
   "view": "deep",
   "stats": {
     "total_files": 270,
-    "total_edges": 1211,
+    "total_edges": 1212,
     "total_orphans": 81,
     "total_cycles": 0,
     "total_external_packages": 34,
-    "total_firestore_collections": 41,
+    "total_firestore_collections": 42,
     "total_cloud_functions": 31,
     "total_possible_implicit_links": 5,
-    "total_symbols": 7009,
-    "total_function_calls": 15048,
-    "total_dom_ids": 1237,
+    "total_symbols": 7056,
+    "total_function_calls": 15162,
+    "total_dom_ids": 1259,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
@@ -160,6 +160,13 @@
       ]
     },
     {
+      "label": "js/modulos/gestorCredenciales.js",
+      "degree": 38,
+      "in": 1,
+      "out": 37,
+      "exports": []
+    },
+    {
       "label": "js/modulos/credenciales.js",
       "degree": 37,
       "in": 34,
@@ -186,13 +193,6 @@
         "tieneCredencial",
         "validarTamano"
       ]
-    },
-    {
-      "label": "js/modulos/gestorCredenciales.js",
-      "degree": 37,
-      "in": 1,
-      "out": 36,
-      "exports": []
     }
   ],
   "top_risk_files": [
@@ -260,6 +260,13 @@
       "loc": 136
     },
     {
+      "label": "js/modulos/gestorCredenciales.js",
+      "risk_score": 87.8,
+      "degree": 38,
+      "in_cycle": false,
+      "loc": 1185
+    },
+    {
       "label": "js/core/firebase-config.js",
       "risk_score": 86.3,
       "degree": 43,
@@ -279,13 +286,6 @@
       "degree": 38,
       "in_cycle": false,
       "loc": 846
-    },
-    {
-      "label": "js/modulos/gestorCredenciales.js",
-      "risk_score": 84.3,
-      "degree": 37,
-      "in_cycle": false,
-      "loc": 1028
     },
     {
       "label": "js/modulos/inscripciones.js",
@@ -845,6 +845,9 @@
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html"
     ],
+    "comite_docentes": [
+      "js/modulos/gestorCredenciales.js"
+    ],
     "compras": [
       "functions/operaciones-financieras.js",
       "functions/test/permisos-reglas.integration.mjs",
@@ -991,6 +994,7 @@
     ],
     "reservas_conteo": [
       "functions/charlas.js",
+      "functions/eliminar-eventos.js",
       "functions/mapa-publico.js",
       "js/modulos/mapa.js"
     ],
@@ -1145,7 +1149,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "actividades_voluntarios",
-        "line": 1119
+        "line": 1124
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1219,7 +1223,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "asistencias_congreso",
-        "line": 1147
+        "line": 1152
       },
       {
         "file": "js/modulos/reportes_estadisticaCont.js",
@@ -1346,7 +1350,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "checkpoints",
-        "line": 1101
+        "line": 1106
       },
       {
         "file": "js/modulos/posper.js",
@@ -1375,6 +1379,43 @@
         "kind": "read",
         "collection": "checkpoints",
         "line": 905
+      }
+    ],
+    "comite_docentes": [
+      {
+        "file": "js/modulos/gestorCredenciales.js",
+        "operation": "getDocs",
+        "kind": "read",
+        "collection": "comite_docentes",
+        "line": 101
+      },
+      {
+        "file": "js/modulos/gestorCredenciales.js",
+        "operation": "addDoc",
+        "kind": "create",
+        "collection": "comite_docentes",
+        "line": 1075
+      },
+      {
+        "file": "js/modulos/gestorCredenciales.js",
+        "operation": "updateDoc",
+        "kind": "update",
+        "collection": "comite_docentes",
+        "line": 1073
+      },
+      {
+        "file": "js/modulos/gestorCredenciales.js",
+        "operation": "deleteDoc",
+        "kind": "delete",
+        "collection": "comite_docentes",
+        "line": 1094
+      },
+      {
+        "file": "js/modulos/gestorCredenciales.js",
+        "operation": "writeBatch",
+        "kind": "write",
+        "collection": "comite_docentes",
+        "line": 1137
       }
     ],
     "compras": [
@@ -1422,21 +1463,21 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "credenciales_impresas",
-        "line": 67
+        "line": 68
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "getDocs",
         "kind": "read",
         "collection": "credenciales_impresas",
-        "line": 78
+        "line": 79
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "writeBatch",
         "kind": "write",
         "collection": "credenciales_impresas",
-        "line": 785
+        "line": 804
       }
     ],
     "eventos": [
@@ -1494,7 +1535,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "eventos",
-        "line": 1158
+        "line": 1163
       },
       {
         "file": "js/modulos/posper.js",
@@ -1531,35 +1572,35 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "expositores",
-        "line": 90
+        "line": 91
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "addDoc",
         "kind": "create",
         "collection": "expositores",
-        "line": 853
+        "line": 872
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "updateDoc",
         "kind": "update",
         "collection": "expositores",
-        "line": 851
+        "line": 870
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "deleteDoc",
         "kind": "delete",
         "collection": "expositores",
-        "line": 871
+        "line": 890
       },
       {
         "file": "js/modulos/gestorCredenciales.js",
         "operation": "writeBatch",
         "kind": "write",
         "collection": "expositores",
-        "line": 961
+        "line": 980
       },
       {
         "file": "js/modulos/inscripciones.js",
@@ -1989,7 +2030,7 @@
         "operation": "onSnapshot",
         "kind": "listen",
         "collection": "reservas_conteo",
-        "line": 1110
+        "line": 1115
       }
     ],
     "reuniones": [
@@ -2236,7 +2277,7 @@
         "operation": "getDocs",
         "kind": "read",
         "collection": "voluntarios",
-        "line": 123
+        "line": 134
       },
       {
         "file": "js/modulos/lecturaQRVoluntarios.js",
@@ -2308,6 +2349,7 @@
       "cambios_rol",
       "categorias",
       "checkpoints",
+      "comite_docentes",
       "compras",
       "comprobantes",
       "config",
@@ -2435,570 +2477,584 @@
         "file": "firebase_rules/firestore.rules"
       },
       {
+        "collection": "comite_docentes",
+        "operations": "read, delete",
+        "condition": "permite('gestionar_credenciales', ['ceo'])",
+        "line": 314,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
+        "collection": "comite_docentes",
+        "operations": "create, update",
+        "condition": "permite('gestionar_credenciales', ['ceo']) && request.resource.data.keys().hasOnly([ 'titulo', 'nombre', 'apellido', 'cargo', 'creadoPor', 'creadoEn', 'actualizadoEn', 'lote' ]) && request.resource.data.nombre is string && request.resource.",
+        "line": 315,
+        "file": "firebase_rules/firestore.rules"
+      },
+      {
         "collection": "rfid_participantes",
         "operations": "read, write",
         "condition": "false",
-        "line": 313,
+        "line": 334,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "contadores",
         "operations": "read, write",
         "condition": "false",
-        "line": 318,
+        "line": 339,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "identificadores_participantes",
         "operations": "read, write",
         "condition": "false",
-        "line": 323,
+        "line": 344,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "limites_registro",
         "operations": "read, write",
         "condition": "false",
-        "line": 327,
+        "line": 348,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "intentos_cambio_rol",
         "operations": "read, write",
         "condition": "false",
-        "line": 333,
+        "line": 354,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "cambios_rol",
         "operations": "read, write",
         "condition": "false",
-        "line": 336,
+        "line": 357,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "config",
         "operations": "read",
         "condition": "docId == 'permisos_roles' && isStaff()",
-        "line": 341,
+        "line": 362,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "config",
         "operations": "write",
         "condition": "false",
-        "line": 342,
+        "line": 363,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "cambios_permisos",
         "operations": "read, write",
         "condition": "false",
-        "line": 346,
+        "line": 367,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "identificadores_voluntarios",
         "operations": "read, write",
         "condition": "false",
-        "line": 351,
+        "line": 372,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "correos_voluntarios",
         "operations": "read, write",
         "condition": "false",
-        "line": 355,
+        "line": 376,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "publico",
         "operations": "read, write",
         "condition": "false",
-        "line": 361,
+        "line": 382,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 366,
+        "line": 387,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "create",
         "condition": "permiteSub('catalogo_productos', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.keys().hasOnly([ 'nombre', 'precioVenta', 'alertaMinima', 'iconoId', 'categoriaId', 'stock', 'activo', ",
-        "line": 367,
+        "line": 388,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "update",
         "condition": "permiteSub('catalogo_productos', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'nombre', 'iconoId', 'precioVenta', 'alertaMinima', 'activ",
-        "line": 381,
+        "line": 402,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "productos",
         "operations": "delete",
         "condition": "false",
-        "line": 385,
+        "line": 406,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 389,
+        "line": 410,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "categorias",
         "operations": "write",
         "condition": "permiteSub('catalogo_categorias', 'editar_catalogo', ['ceo', 'junta_principal', 'junta', 'ventas', 'logistica'])",
-        "line": 390,
+        "line": 411,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) || otorgadoLecturaFinanciera()",
-        "line": 395,
+        "line": 416,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "create",
         "condition": "false",
-        "line": 399,
+        "line": 420,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "ventas",
         "operations": "update, delete",
         "condition": "false",
-        "line": 400,
+        "line": 421,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) || otorgadoLecturaFinanciera()",
-        "line": 404,
+        "line": 425,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "create",
         "condition": "false",
-        "line": 406,
+        "line": 427,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "update",
         "condition": "(hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) || otorgado('registrar_compras')) && request.resource.data.diff(resource.data).affectedKeys().hasOnly([ 'factura', 'facturaEstado', 'facturaError', 'actualizado",
-        "line": 410,
+        "line": 431,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "compras",
         "operations": "delete",
         "condition": "false",
-        "line": 418,
+        "line": 439,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) || otorgadoLecturaFinanciera()",
-        "line": 422,
+        "line": 443,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "create",
         "condition": "false",
-        "line": 424,
+        "line": 445,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "mermas",
         "operations": "update, delete",
         "condition": "false",
-        "line": 425,
+        "line": 446,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "read",
         "condition": "permite('ver_fondos', ['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 430,
+        "line": 451,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "create, delete",
         "condition": "false",
-        "line": 431,
+        "line": 452,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos",
         "operations": "update",
         "condition": "false",
-        "line": 434,
+        "line": 455,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "read",
         "condition": "permite('ver_fondos', ['ceo', 'junta_principal', 'junta', 'finanzas'])",
-        "line": 438,
+        "line": 459,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "create",
         "condition": "false",
-        "line": 439,
+        "line": 460,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "fondos_entrada",
         "operations": "update, delete",
         "condition": "false",
-        "line": 440,
+        "line": 461,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "read",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'finanzas', 'ventas', 'logistica']) || otorgadoLecturaFinanciera()",
-        "line": 444,
+        "line": 465,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "create",
         "condition": "false",
-        "line": 446,
+        "line": 467,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "movimientos_inventario",
         "operations": "update, delete",
         "condition": "false",
-        "line": 447,
+        "line": 468,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "read",
         "condition": "isStaff() || isPosper() || isLectorQr() || isPantallaMapa()",
-        "line": 452,
+        "line": 473,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "eventos",
         "operations": "write",
         "condition": "permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 453,
+        "line": 474,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "read",
         "condition": "puedeVerInscripciones() || isLectorQr()",
-        "line": 457,
+        "line": 478,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "create, delete",
         "condition": "permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 458,
+        "line": 479,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones",
         "operations": "update",
         "condition": "permite('gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny([ 'asistencias', 'totalAsistencias' ])",
-        "line": 459,
+        "line": 480,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "read",
         "condition": "isStaff() || isPosper() || isLectorQr() || isPantallaMapa()",
-        "line": 467,
+        "line": 488,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "checkpoints",
         "operations": "write",
         "condition": "permiteSub('evento_editar', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 468,
+        "line": 489,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "salones",
         "operations": "read",
         "condition": "isStaff() || isPantallaMapa()",
-        "line": 475,
+        "line": 496,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "salones",
         "operations": "create, update",
         "condition": "permiteSub('evento_salones', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs']) && espacioId.matches('^[0-9]{1,2}-[0-9]{1,4}$') && request.resource.data.keys().hasOnly([ 'espacioId",
-        "line": 476,
+        "line": 497,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "salones",
         "operations": "delete",
         "condition": "permiteSub('evento_salones', 'gestionar_inscripciones', ['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades', 'staff_contecs'])",
-        "line": 490,
+        "line": 511,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reservas_charlas",
         "operations": "read",
         "condition": "puedeVerInscripciones()",
-        "line": 499,
+        "line": 520,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reservas_charlas",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 500,
+        "line": 521,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reservas_conteo",
         "operations": "read",
         "condition": "isStaff() || isPantallaMapa()",
-        "line": 504,
+        "line": 525,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reservas_conteo",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 505,
+        "line": 526,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
         "operations": "read",
         "condition": "puedeVerInscripciones() || isLectorQr()",
-        "line": 509,
+        "line": 530,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "inscripciones_checkpoint",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 510,
+        "line": 531,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_congreso",
         "operations": "read",
         "condition": "puedeVerAsistenciasCongreso()",
-        "line": 515,
+        "line": 536,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_congreso",
         "operations": "create, update, delete",
         "condition": "false",
-        "line": 516,
+        "line": 537,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "read",
         "condition": "isStaff() || isPantallaMapa()",
-        "line": 524,
+        "line": 545,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades']) || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios')",
-        "line": 525,
+        "line": 546,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "turnos_congreso",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 534,
+        "line": 555,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "turnos_congreso",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'actividades']) || otorgado('gestionar_actividades') || otorgado('gestionar_voluntarios')",
-        "line": 535,
+        "line": 556,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 540,
+        "line": 561,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "giras_voluntarios",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'voluntariado', 'giras']) || otorgado('gestionar_giras')",
-        "line": 541,
+        "line": 562,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_giras",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 549,
+        "line": 570,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_giras",
         "operations": "write",
         "condition": "false",
-        "line": 550,
+        "line": 571,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 554,
+        "line": 575,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asignaciones_voluntarios",
         "operations": "write",
         "condition": "permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 555,
+        "line": 576,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "read",
         "condition": "puedeVerVoluntarios()",
-        "line": 559,
+        "line": 580,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "create",
         "condition": "permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']) && request.resource.data.totalHoras == 0 && !('token' in request.resource.data)",
-        "line": 560,
+        "line": 581,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "update",
         "condition": "permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado']) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['totalHoras', 'token']) && (!request.resource.data.diff(resource.data).affectedKeys()",
-        "line": 566,
+        "line": 587,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "voluntarios",
         "operations": "delete",
         "condition": "permite('gestionar_voluntarios', ['ceo', 'junta_principal', 'junta', 'voluntariado'])",
-        "line": 570,
+        "line": 591,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "read",
         "condition": "puedeVerVoluntarios()",
-        "line": 574,
+        "line": 595,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "asistencias_voluntarios",
         "operations": "write",
         "condition": "false",
-        "line": 575,
+        "line": 596,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 580,
+        "line": 601,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "actividades_ventas",
         "operations": "write",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'ventas', 'logistica']) || otorgado('gestionar_ventas')",
-        "line": 581,
+        "line": 602,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 587,
+        "line": 608,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "create",
         "condition": "isStaff()",
-        "line": 588,
+        "line": 609,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "solicitudes_actividad",
         "operations": "update, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']) || otorgado('gestionar_actividades')",
-        "line": 589,
+        "line": 610,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 594,
+        "line": 615,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "create",
         "condition": "isStaff()",
-        "line": 595,
+        "line": 616,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "informes_actividad",
         "operations": "update, delete",
         "condition": "hasRol(['ceo', 'junta_principal', 'junta', 'coordinador', 'actividades']) || otorgado('gestionar_actividades')",
-        "line": 596,
+        "line": 617,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "read",
         "condition": "isStaff()",
-        "line": 602,
+        "line": 623,
         "file": "firebase_rules/firestore.rules"
       },
       {
         "collection": "reuniones",
         "operations": "create, update, delete",
         "condition": "permite('gestionar_secretaria', ['ceo', 'secretario'])",
-        "line": 603,
+        "line": 624,
         "file": "firebase_rules/firestore.rules"
       },
       {
@@ -3154,12 +3210,12 @@
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/actividadVentas.js"
+      "usado_en": "js/modulos/voluntarios.js"
     },
     {
       "variable": "window.XLSX",
       "define_en": "js/libs/xlsx.full.min.js",
-      "usado_en": "js/modulos/voluntarios.js"
+      "usado_en": "js/modulos/actividadVentas.js"
     },
     {
       "variable": "window.eliminarActividad",
@@ -3326,8 +3382,8 @@
       "folder": "css",
       "ext": ".css",
       "kind": "source",
-      "size_bytes": 5058,
-      "loc": 74,
+      "size_bytes": 5089,
+      "loc": 75,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -3337,7 +3393,7 @@
       "degree": 2,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 4.7
+      "risk_score": 4.8
     },
     {
       "id": "css/movil.css",
@@ -3595,8 +3651,8 @@
       "folder": "firebase_rules",
       "ext": ".rules",
       "kind": "source",
-      "size_bytes": 29290,
-      "loc": 612,
+      "size_bytes": 30389,
+      "loc": 633,
       "exports": [],
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────",
       "minified_or_vendor": false,
@@ -3606,7 +3662,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 6.1
+      "risk_score": 6.3
     },
     {
       "id": "firebase_rules/storage.rules",
@@ -3824,8 +3880,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 12110,
-      "loc": 288,
+      "size_bytes": 12840,
+      "loc": 303,
       "exports": [
         "ROLES_ELIMINAR_CON_HISTORIAL",
         "eliminarEventoOCheckpoint",
@@ -3837,6 +3893,7 @@
       "firestore_collections": [
         "checkpoints",
         "eventos",
+        "reservas_conteo",
         "rfid_participantes",
         "usuarios"
       ],
@@ -3845,7 +3902,7 @@
       "degree": 4,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 10.9
+      "risk_score": 11.0
     },
     {
       "id": "functions/giras.js",
@@ -3950,8 +4007,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 92839,
-      "loc": 2107,
+      "size_bytes": 93078,
+      "loc": 2112,
       "exports": [
         "accederConCedula",
         "accederGiraParticipante",
@@ -4230,8 +4287,8 @@
       "folder": "functions",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 6762,
-      "loc": 187,
+      "size_bytes": 6950,
+      "loc": 192,
       "exports": [
         "aplicarPlantilla",
         "cargarCorreoInvitacionCharlas",
@@ -4532,8 +4589,8 @@
       "folder": "functions",
       "ext": ".mjs",
       "kind": "source",
-      "size_bytes": 6988,
-      "loc": 84,
+      "size_bytes": 8137,
+      "loc": 101,
       "exports": [],
       "purpose": "Quién lleva credencial (js/modulos/personas-credenciales.js): voluntarios y comité con su cédula en el QR, expositores inscritos con su QR de acceso, externos y agregados a mano si",
       "minified_or_vendor": false,
@@ -4543,7 +4600,7 @@
       "degree": 1,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 2.8
+      "risk_score": 3.0
     },
     {
       "id": "functions/test/diagnostico-correo.js",
@@ -4850,8 +4907,8 @@
       "folder": "functions",
       "ext": ".mjs",
       "kind": "source",
-      "size_bytes": 18641,
-      "loc": 350,
+      "size_bytes": 19289,
+      "loc": 360,
       "exports": [],
       "purpose": "Permisos individuales contra las reglas reales (firebase_rules/firestore.rules) en el emulador. Es la tercera copia de la regla rol + ajustes (las otras dos se comparan en test/per",
       "minified_or_vendor": false,
@@ -4871,7 +4928,7 @@
       "degree": 0,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 3.5
+      "risk_score": 3.6
     },
     {
       "id": "functions/test/permisos.test.mjs",
@@ -7223,7 +7280,7 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 38527,
+      "size_bytes": 38570,
       "loc": 926,
       "exports": [
         "LIMITES",
@@ -7309,13 +7366,14 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 49971,
-      "loc": 1028,
+      "size_bytes": 57533,
+      "loc": 1185,
       "exports": [],
       "purpose": "============================================= CONTECS — Módulo Credenciales ============================================= Un solo lugar para imprimir las credenciales de participan",
       "minified_or_vendor": false,
       "firestore_collections": [
         "checkpoints",
+        "comite_docentes",
         "credenciales_impresas",
         "eventos",
         "expositores",
@@ -7323,11 +7381,11 @@
         "voluntarios"
       ],
       "in_degree": 1,
-      "out_degree": 36,
-      "degree": 37,
+      "out_degree": 37,
+      "degree": 38,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 84.3
+      "risk_score": 87.8
     },
     {
       "id": "js/modulos/importar-participantes.js",
@@ -7549,8 +7607,8 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 63822,
-      "loc": 1290,
+      "size_bytes": 64055,
+      "loc": 1295,
       "exports": [],
       "purpose": "============================================= CONTECS — Mapa del evento ============================================= Integra la guía de salones (planos del Edificio 3) con Gestión",
       "minified_or_vendor": false,
@@ -7566,7 +7624,7 @@
       "degree": 30,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 72.9
+      "risk_score": 73.0
     },
     {
       "id": "js/modulos/mapa3d.js",
@@ -7638,17 +7696,20 @@
       "folder": "js",
       "ext": ".js",
       "kind": "source",
-      "size_bytes": 18347,
-      "loc": 394,
+      "size_bytes": 21080,
+      "loc": 451,
       "exports": [
         "TIPOS",
         "cedulaDe",
         "estadoImpresion",
         "gruposEquilibrados",
         "inicialDe",
+        "leerLineaDocente",
         "lineaCharla",
+        "nombreOrden",
         "normalizar",
         "partesCedula",
+        "personaDocente",
         "personaParticipante",
         "personaVoluntario",
         "personasExpositores",
@@ -7657,12 +7718,12 @@
       "purpose": "============================================= CONTECS — Quién lleva credencial (módulo Credenciales) ============================================= Convierte participantes, voluntar",
       "minified_or_vendor": false,
       "firestore_collections": [],
-      "in_degree": 11,
+      "in_degree": 12,
       "out_degree": 5,
-      "degree": 16,
+      "degree": 17,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 35.9
+      "risk_score": 38.5
     },
     {
       "id": "js/modulos/posper.js",
@@ -8192,8 +8253,8 @@
       "folder": "panel",
       "ext": ".html",
       "kind": "source",
-      "size_bytes": 22154,
-      "loc": 308,
+      "size_bytes": 25930,
+      "loc": 358,
       "exports": [],
       "purpose": "",
       "minified_or_vendor": false,
@@ -8203,7 +8264,7 @@
       "degree": 13,
       "in_cycle": false,
       "diagnostic_count": 0,
-      "risk_score": 29.1
+      "risk_score": 29.6
     },
     {
       "id": "panel/modulos/congreso/inscripciones.html",
@@ -9073,7 +9134,7 @@
       "target": "functions/permisos.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 23,
+      "line": 25,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -9084,7 +9145,7 @@
       "target": "functions/ajustes-rol.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 24,
+      "line": 26,
       "detail": {
         "symbols": [],
         "dynamic": false
@@ -10966,7 +11027,10 @@
           "inicialDe",
           "gruposEquilibrados",
           "cedulaDe",
-          "partesCedula"
+          "partesCedula",
+          "personaDocente",
+          "leerLineaDocente",
+          "nombreOrden"
         ],
         "dynamic": false
       }
@@ -11789,7 +11853,7 @@
       "target": "js/modulos/credenciales.js",
       "type": "imports",
       "provenance": "extracted",
-      "line": 17,
+      "line": 19,
       "detail": {
         "symbols": [
           "textoQr",
@@ -13259,21 +13323,21 @@
       "target": "panel/dashboard.html",
       "type": "navigates_to",
       "provenance": "extracted",
-      "line": 173
+      "line": 175
     },
     {
       "source": "panel/modulos/congreso/credenciales.html",
       "target": "js/modulos/gestorCredenciales.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 304
+      "line": 354
     },
     {
       "source": "panel/modulos/congreso/credenciales.html",
       "target": "js/core/navbar-pagina.js",
       "type": "loads_script",
       "provenance": "extracted",
-      "line": 305
+      "line": 355
     },
     {
       "source": "panel/modulos/congreso/inscripciones.html",
@@ -16687,7 +16751,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "letraRotulo"
+        "symbol": "etiquetaSalon"
       }
     },
     {
@@ -16697,7 +16761,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "etiquetaSalon"
+        "symbol": "letraRotulo"
       }
     },
     {
@@ -16737,7 +16801,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "esCorreoValido"
+        "symbol": "parsearEntradaCorreo"
       }
     },
     {
@@ -16747,7 +16811,7 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "parsearEntradaCorreo"
+        "symbol": "esCorreoValido"
       }
     },
     {
@@ -16767,7 +16831,17 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "contarValidas"
+        "symbol": "evaluarPermanencia"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "estaOperativo"
       }
     },
     {
@@ -16787,7 +16861,47 @@
       "provenance": "extracted",
       "line": 11,
       "detail": {
-        "symbol": "evaluarPermanencia"
+        "symbol": "enCurso"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "enPanama"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "contarValidas"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "efectoDeEntrada"
+      }
+    },
+    {
+      "source": "functions/test/permanencia.test.mjs",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 11,
+      "detail": {
+        "symbol": "checkpointsParaEscanear"
       }
     },
     {
@@ -16811,53 +16925,13 @@
       }
     },
     {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
+      "source": "functions/test/permisos.test.mjs",
+      "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 11,
+      "line": 12,
       "detail": {
-        "symbol": "checkpointsParaEscanear"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
-        "symbol": "efectoDeEntrada"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
-        "symbol": "enPanama"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
-        "symbol": "estaOperativo"
-      }
-    },
-    {
-      "source": "functions/test/permanencia.test.mjs",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 11,
-      "detail": {
-        "symbol": "enCurso"
+        "symbol": "ajusteDelRol"
       }
     },
     {
@@ -16867,17 +16941,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "admiteAjustes"
-      }
-    },
-    {
-      "source": "functions/test/permisos.test.mjs",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 12,
-      "detail": {
-        "symbol": "tienePermiso"
+        "symbol": "rolIncluyePermiso"
       }
     },
     {
@@ -16897,7 +16961,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "ajusteDelRol"
+        "symbol": "tienePermiso"
       }
     },
     {
@@ -16907,7 +16971,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "rolIncluyePermiso"
+        "symbol": "admiteAjustes"
       }
     },
     {
@@ -16947,16 +17011,6 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
-        "symbol": "admiteAjustes"
-      }
-    },
-    {
-      "source": "js/core/auth.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
-      "detail": {
         "symbol": "venceEnMs"
       }
     },
@@ -16968,6 +17022,16 @@
       "line": 13,
       "detail": {
         "symbol": "tienePermiso"
+      }
+    },
+    {
+      "source": "js/core/auth.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "admiteAjustes"
       }
     },
     {
@@ -16987,7 +17051,7 @@
       "provenance": "extracted",
       "line": 9,
       "detail": {
-        "symbol": "loginConSSO"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -17007,7 +17071,7 @@
       "provenance": "extracted",
       "line": 9,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "loginConSSO"
       }
     },
     {
@@ -17157,7 +17221,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -17167,7 +17231,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -17237,7 +17301,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeGestionarMinuta"
+        "symbol": "usuarioPuedeVerReunion"
       }
     },
     {
@@ -17247,7 +17311,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "usuarioPuedeVerReunion"
+        "symbol": "usuarioPuedeGestionarMinuta"
       }
     },
     {
@@ -17307,7 +17371,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -17317,17 +17381,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/compras.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -17338,6 +17392,16 @@
       "line": 2,
       "detail": {
         "symbol": "getIconoHTML"
+      }
+    },
+    {
+      "source": "js/modulos/compras.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -17397,7 +17461,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -17407,17 +17471,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/compras2.js",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -17438,6 +17492,16 @@
       "line": 2,
       "detail": {
         "symbol": "crearProducto"
+      }
+    },
+    {
+      "source": "js/modulos/compras2.js",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -17497,7 +17561,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -17517,7 +17581,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -17557,7 +17621,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -17567,7 +17631,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -17587,17 +17651,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/fondo.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 3,
-      "detail": {
-        "symbol": "registrarMovimientoFondo"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -17618,6 +17672,16 @@
       "line": 3,
       "detail": {
         "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "js/modulos/fondo.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 3,
+      "detail": {
+        "symbol": "registrarMovimientoFondo"
       }
     },
     {
@@ -17657,7 +17721,7 @@
       "provenance": "extracted",
       "line": 18,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -17667,97 +17731,7 @@
       "provenance": "extracted",
       "line": 18,
       "detail": {
-        "symbol": "escaparAtributo"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "nombreArchivo"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "generarPng"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "imprimirHtml"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "generarPdf"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "medidaImpresa"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "nombreDe"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "imprimirPdf"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "descargarBlob"
-      }
-    },
-    {
-      "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 19,
-      "detail": {
-        "symbol": "dibujarCredencial"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -17777,7 +17751,7 @@
       "provenance": "extracted",
       "line": 19,
       "detail": {
-        "symbol": "nombreLote"
+        "symbol": "medidaImpresa"
       }
     },
     {
@@ -17792,12 +17766,92 @@
     },
     {
       "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/personas-credenciales.js",
+      "target": "js/modulos/credenciales.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 23,
+      "line": 19,
       "detail": {
-        "symbol": "cedulaDe"
+        "symbol": "generarPng"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "nombreDe"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "generarPdf"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "nombreLote"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "nombreArchivo"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "descargarBlob"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "imprimirPdf"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "imprimirHtml"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
+      "detail": {
+        "symbol": "dibujarCredencial"
       }
     },
     {
@@ -17817,7 +17871,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "normalizar"
+        "symbol": "partesCedula"
       }
     },
     {
@@ -17827,7 +17881,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "inicialDe"
+        "symbol": "cedulaDe"
       }
     },
     {
@@ -17847,7 +17901,17 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "partesCedula"
+        "symbol": "inicialDe"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/personas-credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 23,
+      "detail": {
+        "symbol": "nombreOrden"
       }
     },
     {
@@ -17862,12 +17926,12 @@
     },
     {
       "source": "js/modulos/gestorCredenciales.js",
-      "target": "js/modulos/importar-participantes.js",
+      "target": "js/modulos/personas-credenciales.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 27,
+      "line": 23,
       "detail": {
-        "symbol": "nombrePropio"
+        "symbol": "normalizar"
       }
     },
     {
@@ -17878,6 +17942,16 @@
       "line": 27,
       "detail": {
         "symbol": "leerArchivo"
+      }
+    },
+    {
+      "source": "js/modulos/gestorCredenciales.js",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 27,
+      "detail": {
+        "symbol": "nombrePropio"
       }
     },
     {
@@ -17917,16 +17991,6 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "normalizarFacultad"
-      }
-    },
-    {
-      "source": "js/modulos/importar-participantes.js",
-      "target": "js/core/catalogo-utp.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
-      "detail": {
         "symbol": "normalizarCentro"
       }
     },
@@ -17937,7 +18001,7 @@
       "provenance": "extracted",
       "line": 10,
       "detail": {
-        "symbol": "normalizarAnio"
+        "symbol": "normalizarFacultad"
       }
     },
     {
@@ -17948,6 +18012,16 @@
       "line": 10,
       "detail": {
         "symbol": "normalizarCarrera"
+      }
+    },
+    {
+      "source": "js/modulos/importar-participantes.js",
+      "target": "js/core/catalogo-utp.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "normalizarAnio"
       }
     },
     {
@@ -17987,16 +18061,6 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "normalizarFacultad"
-      }
-    },
-    {
-      "source": "js/modulos/importar-voluntarios.js",
-      "target": "js/core/catalogo-utp.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 12,
-      "detail": {
         "symbol": "normalizarCentro"
       }
     },
@@ -18007,7 +18071,7 @@
       "provenance": "extracted",
       "line": 12,
       "detail": {
-        "symbol": "normalizarAnio"
+        "symbol": "normalizarFacultad"
       }
     },
     {
@@ -18018,6 +18082,16 @@
       "line": 12,
       "detail": {
         "symbol": "normalizarCarrera"
+      }
+    },
+    {
+      "source": "js/modulos/importar-voluntarios.js",
+      "target": "js/core/catalogo-utp.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 12,
+      "detail": {
+        "symbol": "normalizarAnio"
       }
     },
     {
@@ -18057,7 +18131,7 @@
       "provenance": "extracted",
       "line": 19,
       "detail": {
-        "symbol": "nombrePropio"
+        "symbol": "separarNombreCompleto"
       }
     },
     {
@@ -18067,7 +18141,7 @@
       "provenance": "extracted",
       "line": 19,
       "detail": {
-        "symbol": "separarNombreCompleto"
+        "symbol": "nombrePropio"
       }
     },
     {
@@ -18087,7 +18161,7 @@
       "provenance": "extracted",
       "line": 4,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -18097,7 +18171,7 @@
       "provenance": "extracted",
       "line": 4,
       "detail": {
-        "symbol": "aplicarPermisosDom"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -18108,16 +18182,6 @@
       "line": 9,
       "detail": {
         "symbol": "iconoImg"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/seguridad.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 10,
-      "detail": {
-        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -18138,6 +18202,16 @@
       "line": 10,
       "detail": {
         "symbol": "escaparHtml"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/seguridad.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 10,
+      "detail": {
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -18177,27 +18251,17 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
+        "symbol": "nombrePiso"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
         "symbol": "nombreSalon"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 14,
-      "detail": {
-        "symbol": "rotuloSalon"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/agenda-salones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 14,
-      "detail": {
-        "symbol": "letraRotulo"
       }
     },
     {
@@ -18217,7 +18281,7 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
-        "symbol": "nombrePiso"
+        "symbol": "letraRotulo"
       }
     },
     {
@@ -18247,7 +18311,27 @@
       "provenance": "extracted",
       "line": 14,
       "detail": {
+        "symbol": "rotuloSalon"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 14,
+      "detail": {
         "symbol": "salonDeCheckpoint"
+      }
+    },
+    {
+      "source": "js/modulos/inscripciones.js",
+      "target": "js/core/salones-firestore.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 18,
+      "detail": {
+        "symbol": "eliminarSalon"
       }
     },
     {
@@ -18268,16 +18352,6 @@
       "line": 18,
       "detail": {
         "symbol": "guardarSalon"
-      }
-    },
-    {
-      "source": "js/modulos/inscripciones.js",
-      "target": "js/core/salones-firestore.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 18,
-      "detail": {
-        "symbol": "eliminarSalon"
       }
     },
     {
@@ -18347,6 +18421,26 @@
       "provenance": "extracted",
       "line": 13,
       "detail": {
+        "symbol": "checkpointsParaEscanear"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
+        "symbol": "efectoDeEntrada"
+      }
+    },
+    {
+      "source": "js/modulos/lecturaQR.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 13,
+      "detail": {
         "symbol": "estaOperativo"
       }
     },
@@ -18362,22 +18456,12 @@
     },
     {
       "source": "js/modulos/lecturaQR.js",
-      "target": "js/core/permanencia.js",
+      "target": "js/core/reloj-servidor.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 13,
+      "line": 17,
       "detail": {
-        "symbol": "checkpointsParaEscanear"
-      }
-    },
-    {
-      "source": "js/modulos/lecturaQR.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 13,
-      "detail": {
-        "symbol": "efectoDeEntrada"
+        "symbol": "ahoraPanama"
       }
     },
     {
@@ -18398,16 +18482,6 @@
       "line": 17,
       "detail": {
         "symbol": "ahoraMs"
-      }
-    },
-    {
-      "source": "js/modulos/lecturaQR.js",
-      "target": "js/core/reloj-servidor.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 17,
-      "detail": {
-        "symbol": "ahoraPanama"
       }
     },
     {
@@ -18467,16 +18541,6 @@
       "provenance": "extracted",
       "line": 28,
       "detail": {
-        "symbol": "aplicarPermisosDom"
-      }
-    },
-    {
-      "source": "js/modulos/mapa.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 28,
-      "detail": {
         "symbol": "esperarSesionLista"
       }
     },
@@ -18487,7 +18551,7 @@
       "provenance": "extracted",
       "line": 28,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -18502,42 +18566,22 @@
     },
     {
       "source": "js/modulos/mapa.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 28,
+      "detail": {
+        "symbol": "usuarioTienePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/mapa.js",
       "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 30,
       "detail": {
         "symbol": "minutosDeHora"
-      }
-    },
-    {
-      "source": "js/modulos/mapa.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 30,
-      "detail": {
-        "symbol": "ocupacionActual"
-      }
-    },
-    {
-      "source": "js/modulos/mapa.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 30,
-      "detail": {
-        "symbol": "enPanama"
-      }
-    },
-    {
-      "source": "js/modulos/mapa.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 30,
-      "detail": {
-        "symbol": "estaCancelado"
       }
     },
     {
@@ -18562,32 +18606,32 @@
     },
     {
       "source": "js/modulos/mapa.js",
-      "target": "js/core/agenda-salones.js",
+      "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 33,
+      "line": 30,
       "detail": {
-        "symbol": "nombreSalon"
+        "symbol": "estaCancelado"
       }
     },
     {
       "source": "js/modulos/mapa.js",
-      "target": "js/core/agenda-salones.js",
+      "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 33,
+      "line": 30,
       "detail": {
-        "symbol": "rotuloSalon"
+        "symbol": "enPanama"
       }
     },
     {
       "source": "js/modulos/mapa.js",
-      "target": "js/core/agenda-salones.js",
+      "target": "js/core/permanencia.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 33,
+      "line": 30,
       "detail": {
-        "symbol": "letraRotulo"
+        "symbol": "ocupacionActual"
       }
     },
     {
@@ -18607,7 +18651,37 @@
       "provenance": "extracted",
       "line": 33,
       "detail": {
+        "symbol": "nombreSalon"
+      }
+    },
+    {
+      "source": "js/modulos/mapa.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 33,
+      "detail": {
+        "symbol": "letraRotulo"
+      }
+    },
+    {
+      "source": "js/modulos/mapa.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 33,
+      "detail": {
         "symbol": "esSalonCafe"
+      }
+    },
+    {
+      "source": "js/modulos/mapa.js",
+      "target": "js/core/agenda-salones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 33,
+      "detail": {
+        "symbol": "rotuloSalon"
       }
     },
     {
@@ -18667,7 +18741,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "formatearDuracion"
+        "symbol": "resolverInvitados"
       }
     },
     {
@@ -18677,7 +18751,7 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "resolverInvitados"
+        "symbol": "formatearDuracion"
       }
     },
     {
@@ -18697,7 +18771,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "urlHttpSegura"
+        "symbol": "escaparHtml"
       }
     },
     {
@@ -18707,7 +18781,7 @@
       "provenance": "extracted",
       "line": 7,
       "detail": {
-        "symbol": "escaparHtml"
+        "symbol": "urlHttpSegura"
       }
     },
     {
@@ -18745,17 +18819,7 @@
       "target": "js/modulos/credenciales.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
-      "detail": {
-        "symbol": "nombreDe"
-      }
-    },
-    {
-      "source": "js/modulos/personas-credenciales.js",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 17,
+      "line": 19,
       "detail": {
         "symbol": "tieneCredencial"
       }
@@ -18765,7 +18829,17 @@
       "target": "js/modulos/credenciales.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 19,
+      "detail": {
+        "symbol": "categoriaDe"
+      }
+    },
+    {
+      "source": "js/modulos/personas-credenciales.js",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 19,
       "detail": {
         "symbol": "textoQr"
       }
@@ -18775,9 +18849,9 @@
       "target": "js/modulos/credenciales.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 19,
       "detail": {
-        "symbol": "categoriaDe"
+        "symbol": "nombreDe"
       }
     },
     {
@@ -18817,26 +18891,6 @@
       "provenance": "extracted",
       "line": 32,
       "detail": {
-        "symbol": "estaOperativo"
-      }
-    },
-    {
-      "source": "js/modulos/posper.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 32,
-      "detail": {
-        "symbol": "proximoCheckpointHoy"
-      }
-    },
-    {
-      "source": "js/modulos/posper.js",
-      "target": "js/core/permanencia.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 32,
-      "detail": {
         "symbol": "checkpointsParaEscanear"
       }
     },
@@ -18852,12 +18906,32 @@
     },
     {
       "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 32,
+      "detail": {
+        "symbol": "estaOperativo"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
+      "target": "js/core/permanencia.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 32,
+      "detail": {
+        "symbol": "proximoCheckpointHoy"
+      }
+    },
+    {
+      "source": "js/modulos/posper.js",
       "target": "js/core/reloj-servidor.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
       "line": 36,
       "detail": {
-        "symbol": "desfaseReloj"
+        "symbol": "ahoraPanama"
       }
     },
     {
@@ -18887,7 +18961,7 @@
       "provenance": "extracted",
       "line": 36,
       "detail": {
-        "symbol": "ahoraPanama"
+        "symbol": "desfaseReloj"
       }
     },
     {
@@ -18997,7 +19071,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -19007,7 +19081,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -19027,47 +19101,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "admiteAjustes"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "ajusteDePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "rolIncluyePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/usuarios.js",
-      "target": "js/core/permisos.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 2,
-      "detail": {
-        "symbol": "infoRol"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -19087,7 +19121,27 @@
       "provenance": "extracted",
       "line": 2,
       "detail": {
-        "symbol": "venceEnMs"
+        "symbol": "infoRol"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "rolIncluyePermiso"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "ajusteDePermiso"
       }
     },
     {
@@ -19102,12 +19156,22 @@
     },
     {
       "source": "js/modulos/usuarios.js",
-      "target": "js/core/seguridad.js",
+      "target": "js/core/permisos.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 6,
+      "line": 2,
       "detail": {
-        "symbol": "escaparHtml"
+        "symbol": "venceEnMs"
+      }
+    },
+    {
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/permisos.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 2,
+      "detail": {
+        "symbol": "admiteAjustes"
       }
     },
     {
@@ -19127,17 +19191,17 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "urlImagenSegura"
+        "symbol": "escaparHtml"
       }
     },
     {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/auth.js",
+      "source": "js/modulos/usuarios.js",
+      "target": "js/core/seguridad.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 1,
+      "line": 6,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "urlImagenSegura"
       }
     },
     {
@@ -19157,6 +19221,16 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
+        "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 1,
+      "detail": {
         "symbol": "getUsuarioActual"
       }
     },
@@ -19167,7 +19241,7 @@
       "provenance": "extracted",
       "line": 1,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "usuarioTienePermiso"
       }
     },
     {
@@ -19227,16 +19301,6 @@
       "provenance": "extracted",
       "line": 6,
       "detail": {
-        "symbol": "registrarVentaConMerma"
-      }
-    },
-    {
-      "source": "js/modulos/ventaRapida.js",
-      "target": "js/core/operaciones.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
         "symbol": "registrarVenta"
       }
     },
@@ -19248,6 +19312,26 @@
       "line": 6,
       "detail": {
         "symbol": "formatearMoneda"
+      }
+    },
+    {
+      "source": "js/modulos/ventaRapida.js",
+      "target": "js/core/operaciones.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "registrarVentaConMerma"
+      }
+    },
+    {
+      "source": "js/modulos/voluntarios.js",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 6,
+      "detail": {
+        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -19268,16 +19352,6 @@
       "line": 6,
       "detail": {
         "symbol": "usuarioTienePermiso"
-      }
-    },
-    {
-      "source": "js/modulos/voluntarios.js",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 6,
-      "detail": {
-        "symbol": "aplicarPermisosDom"
       }
     },
     {
@@ -19307,7 +19381,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarNoSeleccionadosGira"
+        "symbol": "notificarParticipantesGira"
       }
     },
     {
@@ -19317,7 +19391,7 @@
       "provenance": "extracted",
       "line": 8,
       "detail": {
-        "symbol": "notificarParticipantesGira"
+        "symbol": "notificarNoSeleccionadosGira"
       }
     },
     {
@@ -19407,7 +19481,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "neutralizarFormulaHoja"
+        "symbol": "escaparAtributo"
       }
     },
     {
@@ -19417,7 +19491,7 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
-        "symbol": "escaparAtributo"
+        "symbol": "neutralizarFormulaHoja"
       }
     },
     {
@@ -19557,7 +19631,7 @@
       "provenance": "extracted",
       "line": 20,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -19567,16 +19641,6 @@
       "provenance": "extracted",
       "line": 20,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/admin/exportar.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 41,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -19591,11 +19655,11 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutaReunion.html",
+      "source": "panel/modulos/admin/exportar.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 20,
+      "line": 41,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -19611,7 +19675,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/minutas.html",
+      "source": "panel/modulos/admin/minutaReunion.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -19631,7 +19695,7 @@
       }
     },
     {
-      "source": "panel/modulos/admin/secretaria.html",
+      "source": "panel/modulos/admin/minutas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -19651,7 +19715,7 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/credenciales.html",
+      "source": "panel/modulos/admin/secretaria.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -19671,11 +19735,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/inscripciones.html",
+      "source": "panel/modulos/congreso/credenciales.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 23,
+      "line": 20,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -19691,11 +19755,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/invitacionesCharlas.html",
+      "source": "panel/modulos/congreso/inscripciones.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 20,
+      "line": 23,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -19711,13 +19775,13 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/lecturaQR.html",
+      "source": "panel/modulos/congreso/invitacionesCharlas.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 23,
+      "line": 20,
       "detail": {
-        "symbol": "usuarioTienePermiso"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -19728,6 +19792,16 @@
       "line": 23,
       "detail": {
         "symbol": "requirePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/lecturaQR.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 23,
+      "detail": {
+        "symbol": "guardRoute"
       }
     },
     {
@@ -19747,6 +19821,16 @@
       "provenance": "extracted",
       "line": 23,
       "detail": {
+        "symbol": "usuarioTienePermiso"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/mapa.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 30,
+      "detail": {
         "symbol": "guardRoute"
       }
     },
@@ -19761,11 +19845,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/mapa.html",
+      "source": "panel/modulos/congreso/modulos_participantes.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 30,
+      "line": 22,
       "detail": {
         "symbol": "guardRoute"
       }
@@ -19778,16 +19862,6 @@
       "line": 22,
       "detail": {
         "symbol": "requirePermiso"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 22,
-      "detail": {
-        "symbol": "guardRoute"
       }
     },
     {
@@ -19807,7 +19881,7 @@
       "provenance": "extracted",
       "line": 956,
       "detail": {
-        "symbol": "eliminarParticipante"
+        "symbol": "importarParticipantes"
       }
     },
     {
@@ -19827,7 +19901,7 @@
       "provenance": "extracted",
       "line": 956,
       "detail": {
-        "symbol": "importarParticipantes"
+        "symbol": "eliminarParticipante"
       }
     },
     {
@@ -19847,27 +19921,7 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "nombreArchivo"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 958,
-      "detail": {
-        "symbol": "generarPng"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 958,
-      "detail": {
-        "symbol": "nombreDe"
+        "symbol": "categoriaDe"
       }
     },
     {
@@ -19897,7 +19951,27 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "tieneCredencial"
+        "symbol": "generarZip"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 958,
+      "detail": {
+        "symbol": "generarPng"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 958,
+      "detail": {
+        "symbol": "nombreDe"
       }
     },
     {
@@ -19917,7 +19991,7 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "limpiarImpresion"
+        "symbol": "nombreLote"
       }
     },
     {
@@ -19927,17 +20001,7 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "imprimirPdf"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 958,
-      "detail": {
-        "symbol": "textoQr"
+        "symbol": "nombreArchivo"
       }
     },
     {
@@ -19957,6 +20021,26 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
+        "symbol": "imprimirPdf"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 958,
+      "detail": {
+        "symbol": "limpiarImpresion"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/credenciales.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 958,
+      "detail": {
         "symbol": "dibujarCredencial"
       }
     },
@@ -19967,7 +20051,7 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "categoriaDe"
+        "symbol": "textoQr"
       }
     },
     {
@@ -19977,87 +20061,7 @@
       "provenance": "extracted",
       "line": 958,
       "detail": {
-        "symbol": "nombreLote"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/credenciales.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 958,
-      "detail": {
-        "symbol": "generarZip"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "detectarColumnas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "descargarResultado"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "descargarPlantilla"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "revisarFilas"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "detectarEncabezado"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "leerArchivo"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/modulos_participantes.html",
-      "target": "js/modulos/importar-participantes.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 962,
-      "detail": {
-        "symbol": "normalizarDatosUtp"
+        "symbol": "tieneCredencial"
       }
     },
     {
@@ -20077,7 +20081,77 @@
       "provenance": "extracted",
       "line": 962,
       "detail": {
+        "symbol": "descargarResultado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
         "symbol": "armarFilas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "detectarColumnas"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "normalizarDatosUtp"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "descargarPlantilla"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "leerArchivo"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "detectarEncabezado"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/modulos_participantes.html",
+      "target": "js/modulos/importar-participantes.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 962,
+      "detail": {
+        "symbol": "revisarFilas"
       }
     },
     {
@@ -20107,7 +20181,7 @@
       "provenance": "extracted",
       "line": 22,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20117,17 +20191,7 @@
       "provenance": "extracted",
       "line": 22,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/congreso/qrPosper.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 20,
-      "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -20141,7 +20205,7 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/randomizer.html",
+      "source": "panel/modulos/congreso/qrPosper.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -20161,11 +20225,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/randomizerint.html",
+      "source": "panel/modulos/congreso/randomizer.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 17,
+      "line": 20,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20181,11 +20245,11 @@
       }
     },
     {
-      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "source": "panel/modulos/congreso/randomizerint.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 233,
+      "line": 17,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20198,6 +20262,16 @@
       "line": 233,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/congreso/reportes_estadisticaCont.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 233,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20207,7 +20281,7 @@
       "provenance": "extracted",
       "line": 316,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20227,7 +20301,7 @@
       "provenance": "extracted",
       "line": 316,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20267,7 +20341,7 @@
       "provenance": "extracted",
       "line": 69,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20277,16 +20351,6 @@
       "provenance": "extracted",
       "line": 69,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/finanzas/reportes_financieros.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 105,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -20298,6 +20362,16 @@
       "line": 105,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/finanzas/reportes_financieros.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 105,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20317,7 +20391,7 @@
       "provenance": "extracted",
       "line": 21,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20327,7 +20401,7 @@
       "provenance": "extracted",
       "line": 21,
       "detail": {
-        "symbol": "guardRoute"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20337,7 +20411,7 @@
       "provenance": "extracted",
       "line": 447,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20357,77 +20431,7 @@
       "provenance": "extracted",
       "line": 447,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "escucharCategorias"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "estadoStock"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "crearCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "desactivarProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "eliminarCategoria"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "crearProducto"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/catalogo.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 448,
-      "detail": {
-        "symbol": "editarProducto"
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20447,7 +20451,47 @@
       "provenance": "extracted",
       "line": 448,
       "detail": {
-        "symbol": "reactivarProducto"
+        "symbol": "editarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "eliminarCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "estadoStock"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "crearProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "desactivarProducto"
       }
     },
     {
@@ -20467,7 +20511,37 @@
       "provenance": "extracted",
       "line": 448,
       "detail": {
+        "symbol": "reactivarProducto"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
         "symbol": "escucharProductosPorCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "crearCategoria"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/catalogo.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 448,
+      "detail": {
+        "symbol": "escucharCategorias"
       }
     },
     {
@@ -20497,7 +20571,7 @@
       "provenance": "extracted",
       "line": 339,
       "detail": {
-        "symbol": "getUsuarioActual"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20507,17 +20581,7 @@
       "provenance": "extracted",
       "line": 339,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/logistica/inventario.html",
-      "target": "js/modulos/catalogo.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 340,
-      "detail": {
-        "symbol": "escucharCategorias"
+        "symbol": "getUsuarioActual"
       }
     },
     {
@@ -20542,6 +20606,16 @@
     },
     {
       "source": "panel/modulos/logistica/inventario.html",
+      "target": "js/modulos/catalogo.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 340,
+      "detail": {
+        "symbol": "escucharCategorias"
+      }
+    },
+    {
+      "source": "panel/modulos/logistica/inventario.html",
       "target": "js/core/operaciones.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -20557,7 +20631,7 @@
       "provenance": "extracted",
       "line": 21,
       "detail": {
-        "symbol": "requirePermiso"
+        "symbol": "guardRoute"
       }
     },
     {
@@ -20567,16 +20641,6 @@
       "provenance": "extracted",
       "line": 21,
       "detail": {
-        "symbol": "guardRoute"
-      }
-    },
-    {
-      "source": "panel/modulos/voluntariado/calendario.html",
-      "target": "js/core/auth.js",
-      "type": "calls_imported_symbol",
-      "provenance": "extracted",
-      "line": 20,
-      "detail": {
         "symbol": "requirePermiso"
       }
     },
@@ -20591,11 +20655,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/giras.html",
+      "source": "panel/modulos/voluntariado/calendario.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 23,
+      "line": 20,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20611,11 +20675,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/informeActividad.html",
+      "source": "panel/modulos/voluntariado/giras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 20,
+      "line": 23,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20631,11 +20695,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
+      "source": "panel/modulos/voluntariado/informeActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 21,
+      "line": 20,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20651,7 +20715,7 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
+      "source": "panel/modulos/voluntariado/lecturaQRGiras.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
@@ -20671,11 +20735,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/solicitudActividad.html",
+      "source": "panel/modulos/voluntariado/lecturaQRVoluntarios.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 20,
+      "line": 21,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20691,11 +20755,11 @@
       }
     },
     {
-      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "source": "panel/modulos/voluntariado/solicitudActividad.html",
       "target": "js/core/auth.js",
       "type": "calls_imported_symbol",
       "provenance": "extracted",
-      "line": 23,
+      "line": 20,
       "detail": {
         "symbol": "requirePermiso"
       }
@@ -20708,6 +20772,16 @@
       "line": 23,
       "detail": {
         "symbol": "guardRoute"
+      }
+    },
+    {
+      "source": "panel/modulos/voluntariado/voluntarios.html",
+      "target": "js/core/auth.js",
+      "type": "calls_imported_symbol",
+      "provenance": "extracted",
+      "line": 23,
+      "detail": {
+        "symbol": "requirePermiso"
       }
     },
     {
@@ -20804,18 +20878,14 @@
   "git": {
     "available": true,
     "branch": "mapa-charlas-fluidez",
-    "head": "95b822ce58fff9424d7623b8ad18cf7dc8f0dcd6",
+    "head": "1308dd5b8e79f514b6bd366654c35f657954e45f",
     "changed_files": [
       {
-        "file": "css/inicio.css",
+        "file": "css/mapa-charlas.css",
         "status": " M"
       },
       {
-        "file": "css/movil.css",
-        "status": " M"
-      },
-      {
-        "file": "functions/charlas.js",
+        "file": "functions/eliminar-eventos.js",
         "status": " M"
       },
       {
@@ -20823,87 +20893,15 @@
         "status": " M"
       },
       {
-        "file": "functions/mapa-publico.js",
-        "status": " M"
-      },
-      {
-        "file": "functions/personal.js",
-        "status": " M"
-      },
-      {
-        "file": "js/core/carrusel-modulos.js",
-        "status": " M"
-      },
-      {
-        "file": "js/core/participantes-api.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/informeActividad.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/inscripciones.js",
+        "file": "functions/plantillas.js",
         "status": " M"
       },
       {
         "file": "js/modulos/mapa.js",
         "status": " M"
-      },
-      {
-        "file": "js/modulos/mapa3d.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/reportes_estadisticaCont.js",
-        "status": " M"
-      },
-      {
-        "file": "js/modulos/voluntarios.js",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/inscripciones.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/mapa.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/modulos_participantes.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/congreso/reportes_estadisticaCont.html",
-        "status": " M"
-      },
-      {
-        "file": "panel/modulos/voluntariado/giras.html",
-        "status": " M"
-      },
-      {
-        "file": "public/gira.html",
-        "status": " M"
-      },
-      {
-        "file": "public/mapa.html",
-        "status": " M"
-      },
-      {
-        "file": "public/perfil-personal.html",
-        "status": " M"
-      },
-      {
-        "file": "registro.html",
-        "status": " M"
-      },
-      {
-        "file": "css/mapa-charlas.css",
-        "status": "??"
       }
     ],
-    "changed_count": 24
+    "changed_count": 5
   },
   "ai_usage": {
     "read_last": true,
@@ -21138,67 +21136,67 @@
     "functions/eliminar-eventos.js": {
       "architectural_calls": {
         "docsDonde": [
-          59,
-          8
+          61,
+          9
         ],
         "eliminarEventoOCheckpoint": [
-          239,
+          254,
           1
         ],
         "enLotes": [
-          64,
+          66,
           4
         ],
         "fraseConfirmacion": [
-          55,
+          57,
           2
         ],
         "idValido": [
-          37,
+          39,
           2
         ],
         "limpiarParticipantes": [
-          201,
+          214,
           2
         ],
         "marcar": [
-          93,
-          3
+          97,
+          4
         ],
         "rastroCheckpoint": [
-          74,
+          76,
           3
         ],
         "rastroDeCheckpoint": [
-          115,
+          127,
           2
         ],
         "rastroDeEvento": [
-          126,
+          138,
           2
         ],
         "rastroVacio": [
-          103,
+          114,
           3
         ],
         "resumen": [
-          168,
+          180,
           2
         ],
         "slug": [
-          47,
+          49,
           2
         ],
         "soltarRfids": [
-          226,
+          241,
           2
         ],
         "tieneHistorial": [
-          249,
+          264,
           1
         ],
         "validarPermiso": [
-          183,
+          196,
           4
         ]
       }
@@ -21298,7 +21296,7 @@
     "functions/index.js": {
       "architectural_calls": {
         "accederConCedula": [
-          958,
+          963,
           1
         ],
         "aplicarLimiteRegistro": [
@@ -21314,7 +21312,7 @@
           2
         ],
         "claveNoSeleccionado": [
-          1368,
+          1373,
           3
         ],
         "consultarUsuarioSSO": [
@@ -21322,7 +21320,7 @@
           2
         ],
         "eliminarParticipante": [
-          1875,
+          1880,
           1
         ],
         "enLotes": [
@@ -21330,15 +21328,15 @@
           4
         ],
         "enPanama": [
-          1019,
+          1024,
           1
         ],
         "enviarCorreoNoSeleccionadoGira": [
-          1374,
+          1379,
           2
         ],
         "enviarCorreoNotificacionGira": [
-          1296,
+          1301,
           2
         ],
         "enviarCorreoPagoAprobado": [
@@ -21350,11 +21348,11 @@
           5
         ],
         "enviarInvitacion": [
-          997,
+          1002,
           3
         ],
         "esCorreoValido": [
-          1310,
+          1315,
           2
         ],
         "esErrorPasajeroBrevo": [
@@ -21374,19 +21372,19 @@
           2
         ],
         "formatearFechaGira": [
-          1274,
+          1279,
           4
         ],
         "formatearHoraGira": [
-          1288,
+          1293,
           3
         ],
         "importarParticipantes": [
-          2034,
+          2039,
           1
         ],
         "invitacionPara": [
-          990,
+          995,
           2
         ],
         "marcarCheckpointGira": [
@@ -21394,7 +21392,7 @@
           1
         ],
         "motivosDeGira": [
-          1524,
+          1529,
           2
         ],
         "normalizarCamposExtra": [
@@ -21418,7 +21416,7 @@
           4
         ],
         "reservarCharla": [
-          971,
+          976,
           1
         ],
         "resumirEnvios": [
@@ -21798,19 +21796,19 @@
           9
         ],
         "cargarCorreoInvitacionCharlas": [
-          159,
+          164,
           1
         ],
         "cargarCorreoNoSeleccionadoGira": [
-          120,
+          125,
           1
         ],
         "cargarCorreoNotificacionGira": [
-          71,
+          76,
           1
         ],
         "cargarCorreoPagoAprobado": [
-          55,
+          60,
           1
         ],
         "escaparHtml": [
@@ -21830,7 +21828,7 @@
           5
         ],
         "textoAParrafosHtml": [
-          99,
+          104,
           3
         ]
       }
@@ -22367,7 +22365,7 @@
         ],
         "noPuede": [
           134,
-          48
+          52
         ],
         "preparar": [
           113,
@@ -22375,11 +22373,11 @@
         ],
         "prueba": [
           23,
-          32
+          33
         ],
         "puede": [
           135,
-          40
+          42
         ],
         "token": [
           30,
@@ -25638,640 +25636,752 @@
     },
     "js/modulos/gestorCredenciales.js": {
       "architectural_calls": {
+        "abrirDocente": [
+          611,
+          3
+        ],
         "abrirExpositor": [
-          594,
+          613,
           3
         ],
         "actualizarBotonListas": [
-          453,
+          467,
           2
         ],
         "actualizarBotones": [
-          262,
+          276,
           9
         ],
         "alCambiarBloque": [
-          259,
+          273,
           4
         ],
         "alProgresar": [
-          707,
+          726,
           1
         ],
         "alerta": [
-          56,
-          15
+          57,
+          19
         ],
         "armarPersonasDesdeDocs": [
-          141,
-          4
+          153,
+          5
         ],
         "asegurarTokensPersonal": [
-          108,
+          119,
           2
         ],
         "botonBloque": [
-          205,
+          219,
           4
         ],
         "cargarCheckpoints": [
-          98,
+          109,
+          3
+        ],
+        "cargarDocentes": [
+          99,
           3
         ],
         "cargarExpositoresManuales": [
-          88,
+          89,
           3
         ],
         "cargarHistorial": [
-          76,
+          77,
           3
         ],
         "cargarLibreria": [
-          409,
+          423,
           2
         ],
         "cargarTodo": [
-          120,
+          131,
           2
         ],
         "categoriaDe": [
-          513,
+          528,
           1
         ],
         "cedulaDe": [
-          219,
+          233,
           2
         ],
         "columnasExp": [
-          893,
+          912,
           3
         ],
         "cuentaTipo": [
-          163,
+          177,
           2
         ],
         "datosLista": [
-          332,
+          346,
           3
         ],
         "descargarBlob": [
-          735,
+          754,
           4
         ],
         "descargarExcelListas": [
-          408,
-          2
-        ],
-        "dibujarCredencial": [
-          665,
-          1
-        ],
-        "dif": [
-          232,
-          2
-        ],
-        "ejecutarTarea": [
-          697,
-          3
-        ],
-        "el": [
-          57,
-          127
-        ],
-        "esCorreoValido": [
-          845,
-          2
-        ],
-        "escaparAtributo": [
-          138,
-          9
-        ],
-        "esperarSesionLista": [
-          1018,
-          1
-        ],
-        "estadoImpresion": [
-          573,
-          1
-        ],
-        "fechaCorta": [
-          501,
-          2
-        ],
-        "fila": [
-          375,
-          1
-        ],
-        "filaDe": [
-          425,
-          1
-        ],
-        "filtrar": [
-          286,
-          2
-        ],
-        "filtrarSinLetra": [
-          287,
-          3
-        ],
-        "formato": [
-          731,
-          1
-        ],
-        "generarPdf": [
-          734,
-          3
-        ],
-        "generarPng": [
-          734,
-          1
-        ],
-        "generarZip": [
-          739,
-          1
-        ],
-        "getUsuarioActual": [
-          782,
-          3
-        ],
-        "gruposDelTipo": [
-          212,
-          6
-        ],
-        "gruposEquilibrados": [
-          220,
-          2
-        ],
-        "hoja": [
           422,
           2
         ],
+        "dibujarCredencial": [
+          684,
+          1
+        ],
+        "dif": [
+          246,
+          2
+        ],
+        "ejecutarTarea": [
+          716,
+          3
+        ],
+        "el": [
+          58,
+          162
+        ],
+        "errorDocente": [
+          1036,
+          3
+        ],
+        "esCorreoValido": [
+          864,
+          2
+        ],
+        "escaparAtributo": [
+          150,
+          10
+        ],
+        "esperarSesionLista": [
+          1175,
+          1
+        ],
+        "estadoImpresion": [
+          588,
+          1
+        ],
+        "fechaCorta": [
+          515,
+          2
+        ],
+        "fila": [
+          389,
+          1
+        ],
+        "filaDe": [
+          439,
+          1
+        ],
+        "filtrar": [
+          300,
+          2
+        ],
+        "filtrarSinLetra": [
+          301,
+          3
+        ],
+        "formato": [
+          750,
+          1
+        ],
+        "generarPdf": [
+          753,
+          3
+        ],
+        "generarPng": [
+          753,
+          1
+        ],
+        "generarZip": [
+          758,
+          1
+        ],
+        "getUsuarioActual": [
+          801,
+          5
+        ],
+        "gruposDelTipo": [
+          226,
+          6
+        ],
+        "gruposEquilibrados": [
+          234,
+          2
+        ],
+        "hoja": [
+          436,
+          2
+        ],
         "htmlListas": [
-          358,
+          372,
           2
         ],
         "imprimirHtml": [
-          467,
+          481,
           1
         ],
         "imprimirPdf": [
-          751,
+          770,
           1
         ],
         "inicialDe": [
-          203,
+          217,
           4
         ],
         "iniciar": [
-          1017,
+          1174,
           2
         ],
         "leer": [
-          65,
+          66,
           4
         ],
         "leerArchivo": [
-          907,
+          926,
           1
         ],
         "leerExcelExpositores": [
-          904,
+          923,
           3
         ],
         "leerTamano": [
-          683,
+          702,
           2
         ],
         "linea": [
-          238,
+          252,
           1
         ],
         "medidaImpresa": [
-          671,
+          690,
           1
         ],
         "neutralizarFormulaHoja": [
-          414,
+          428,
           1
         ],
         "nombreArchivo": [
-          735,
+          754,
           1
         ],
         "nombreDe": [
-          147,
+          159,
           9
         ],
         "nombreLote": [
-          427,
+          441,
           4
         ],
+        "nombreOrden": [
+          165,
+          1
+        ],
         "nombrePropio": [
-          837,
-          5
+          856,
+          8
         ],
         "normCol": [
-          896,
+          915,
           1
         ],
         "normalizar": [
-          478,
-          5
+          492,
+          7
         ],
         "ocultarAviso": [
-          189,
+          203,
           4
         ],
         "opcion": [
-          349,
+          363,
           4
         ],
         "ordenEntrega": [
-          253,
+          267,
           3
         ],
         "partesCedula": [
-          219,
+          233,
           1
         ],
         "personasExpositores": [
-          152,
+          166,
           1
         ],
         "plural": [
-          373,
+          387,
           2
         ],
         "preguntarSiSeImprimieron": [
-          742,
+          761,
           3
         ],
-        "quitarExpositor": [
-          595,
+        "quitarDocente": [
+          612,
           2
         ],
+        "quitarExpositor": [
+          614,
+          2
+        ],
+        "refrescarDocentes": [
+          1054,
+          4
+        ],
         "refrescarExpositores": [
-          828,
+          847,
           4
         ],
         "renderFiltros": [
-          506,
+          520,
           3
         ],
         "renderGrupos": [
-          243,
+          257,
           2
         ],
         "renderLetras": [
-          201,
+          215,
           2
         ],
         "renderLista": [
-          260,
+          274,
           7
         ],
         "renderPreview": [
-          261,
+          275,
           8
         ],
         "renderTipos": [
-          169,
+          183,
           2
         ],
         "renderTodo": [
-          190,
-          6
+          204,
+          7
+        ],
+        "revisarListaDocentes": [
+          1107,
+          2
         ],
         "seccionesConGente": [
-          431,
+          445,
           3
         ],
         "seccionesLista": [
-          309,
+          323,
           2
         ],
         "seleccionadas": [
-          649,
+          668,
           5
         ],
         "separarNombreCompleto": [
-          921,
-          1
+          940,
+          2
         ],
         "sufijoLista": [
-          340,
+          354,
           3
         ],
+        "sugerirCargos": [
+          1031,
+          2
+        ],
         "tam": [
-          232,
+          246,
           1
         ],
         "textoComparacion": [
-          228,
+          242,
           2
         ],
         "textoFiltros": [
-          345,
+          359,
           2
         ],
         "v": [
-          919,
+          938,
           4
         ],
         "valorUtp": [
-          494,
+          508,
           2
         ]
       },
       "dom": {
         "ids": {
           "alerta": [
-            57
+            58
           ],
           "cr-agrupa": [
-            289
+            303
           ],
           "cr-agrupar": [
-            272,
-            273
+            286,
+            287
           ],
           "cr-aviso": [
-            769,
-            773
+            788,
+            792
           ],
           "cr-aviso-no": [
-            777
+            796
           ],
           "cr-aviso-si": [
-            778,
-            781,
-            809
+            797,
+            800,
+            828
           ],
           "cr-aviso-txt": [
-            768
+            787
           ],
           "cr-barra": [
-            704,
-            720
+            723,
+            739
           ],
           "cr-buscar": [
-            188,
-            347,
-            486
+            202,
+            361,
+            500
           ],
           "cr-cancelar": [
-            726
-          ],
-          "cr-categoria": [
-            488,
-            508,
-            514,
-            515,
-            518
-          ],
-          "cr-comparar": [
-            248,
-            291
-          ],
-          "cr-descargar": [
-            691,
-            693,
-            728
-          ],
-          "cr-estado": [
-            487,
-            543
-          ],
-          "cr-evento": [
-            137,
-            510,
-            640,
-            641
-          ],
-          "cr-exp-acciones": [
-            511
-          ],
-          "cr-exp-agregar": [
-            988
-          ],
-          "cr-exp-importar": [
-            989
-          ],
-          "cr-imprimir": [
-            690,
-            692,
             745
           ],
+          "cr-categoria": [
+            502,
+            522,
+            529,
+            530,
+            533
+          ],
+          "cr-comparar": [
+            262,
+            305
+          ],
+          "cr-descargar": [
+            710,
+            712,
+            747
+          ],
+          "cr-doc-acciones": [
+            526
+          ],
+          "cr-doc-agregar": [
+            1151
+          ],
+          "cr-doc-lista": [
+            1152
+          ],
+          "cr-estado": [
+            501,
+            558
+          ],
+          "cr-evento": [
+            149,
+            524,
+            659,
+            660
+          ],
+          "cr-exp-acciones": [
+            525
+          ],
+          "cr-exp-agregar": [
+            1007
+          ],
+          "cr-exp-importar": [
+            1008
+          ],
+          "cr-imprimir": [
+            709,
+            711,
+            764
+          ],
           "cr-items": [
-            566,
-            572,
-            591,
-            607
+            581,
+            587,
+            608,
+            626
           ],
           "cr-letras": [
-            205,
-            246,
-            265
+            219,
+            260,
+            279
           ],
           "cr-limpiar": [
-            620
+            639
           ],
           "cr-listas": [
-            454,
-            462
+            468,
+            476
           ],
           "cr-listas-excel": [
-            438,
-            442,
-            449,
-            456
+            452,
+            456,
+            463,
+            470
           ],
           "cr-ngrupos": [
-            278,
-            279,
-            281
+            292,
+            293,
+            295
           ],
           "cr-ngrupos-wrap": [
-            290
+            304
           ],
           "cr-no-aprobados": [
-            213,
-            352,
-            489,
-            523
+            227,
+            366,
+            503,
+            538
           ],
           "cr-no-aprobados-wrap": [
-            509
+            523
           ],
           "cr-nota": [
-            1012
+            1169
           ],
           "cr-preview": [
-            658,
-            1025
+            677,
+            1182
           ],
           "cr-preview-txt": [
-            661,
-            672
+            680,
+            691
           ],
           "cr-progreso": [
-            702,
-            719
+            721,
+            738
           ],
           "cr-progreso-txt": [
-            705
+            724
           ],
           "cr-sel-num": [
-            555
+            570
           ],
           "cr-tamano": [
-            680,
-            682,
-            683
+            699,
+            701,
+            702
           ],
           "cr-tipos": [
-            170,
-            182
+            184,
+            196
           ],
           "cr-todos": [
-            552,
-            553,
-            612
+            567,
+            568,
+            631
           ],
           "cr-todos-txt": [
-            554
+            569
+          ],
+          "dlg-doc": [
+            1026
+          ],
+          "dlg-doc-lista": [
+            1104
           ],
           "dlg-exp": [
-            816
+            835
           ],
           "dlg-exp-imp": [
-            880
+            899
+          ],
+          "doc-apellido": [
+            1065
+          ],
+          "doc-cargo": [
+            1066
+          ],
+          "doc-cargos": [
+            1033
+          ],
+          "doc-error": [
+            1048,
+            1069,
+            1082,
+            1083
+          ],
+          "doc-form": [
+            1060
+          ],
+          "doc-guardar": [
+            1070,
+            1085
+          ],
+          "doc-nombre": [
+            1064
+          ],
+          "doc-titulo": [
+            1063
+          ],
+          "doc-titulo-dlg": [
+            1046
+          ],
+          "docl-agregar": [
+            1124,
+            1125,
+            1130,
+            1133,
+            1147
+          ],
+          "docl-error": [
+            1145,
+            1146,
+            1154
+          ],
+          "docl-filas": [
+            1122
+          ],
+          "docl-resumen": [
+            1120
+          ],
+          "docl-revision": [
+            1119
+          ],
+          "docl-texto": [
+            1110,
+            1128,
+            1153,
+            1157
           ],
           "exp-apellido": [
-            838
+            857
           ],
           "exp-cedula": [
-            841
-          ],
-          "exp-correo": [
-            842
-          ],
-          "exp-error": [
-            823,
-            847,
-            859,
             860
           ],
+          "exp-correo": [
+            861
+          ],
+          "exp-error": [
+            842,
+            866,
+            878,
+            879
+          ],
           "exp-form": [
-            834
+            853
           ],
           "exp-guardar": [
-            848,
-            862
+            867,
+            881
           ],
           "exp-institucion": [
-            839
+            858
           ],
           "exp-nombre": [
-            825,
-            837
+            844,
+            856
           ],
           "exp-tema": [
-            840
+            859
           ],
           "exp-titulo": [
-            821
+            840
           ],
           "expi-archivo": [
-            991,
-            998
+            1010,
+            1017
           ],
           "expi-drop": [
-            999
+            1018
           ],
           "expi-error": [
-            905,
-            946,
-            947,
-            972,
-            973,
-            992
+            924,
+            965,
+            966,
+            991,
+            992,
+            1011
           ],
           "expi-filas": [
-            939
+            958
           ],
           "expi-importar": [
-            943,
-            944,
-            949,
-            953,
-            956,
-            974,
-            994,
-            995
+            962,
+            963,
+            968,
+            972,
+            975,
+            993,
+            1013,
+            1014
           ],
           "expi-plantilla": [
-            978
+            997
           ],
           "expi-resumen": [
-            938
+            957
           ],
           "expi-revision": [
-            942,
-            948,
-            993
+            961,
+            967,
+            1012
           ]
         },
         "selectors": {
           "[data-cerrar]": [
-            1003
+            1160
           ],
           "input[name=cr-formato]:checked": [
-            686
+            705
           ]
         }
       },
       "events_listened": {
         "change": [
-          272,
-          278,
-          612,
-          640,
-          683,
-          998
+          286,
+          292,
+          631,
+          659,
+          702,
+          1017
         ],
         "click": [
-          182,
-          265,
-          438,
-          462,
-          591,
-          620,
-          726,
-          728,
+          196,
+          279,
+          452,
+          476,
+          608,
+          639,
           745,
-          777,
-          778,
-          953,
-          978,
-          988,
-          989,
-          1003
+          747,
+          764,
+          796,
+          797,
+          972,
+          997,
+          1007,
+          1008,
+          1130,
+          1151,
+          1152,
+          1160
         ],
         "dragleave": [
-          1001
+          1020
         ],
         "dragover": [
-          1000
+          1019
         ],
         "drop": [
-          1002
+          1021
+        ],
+        "input": [
+          1128
         ],
         "pagehide": [
-          1027
+          1184
         ],
         "submit": [
-          834
+          853,
+          1060
         ]
       }
     },
@@ -28458,7 +28568,7 @@
     "js/modulos/mapa.js": {
       "architectural_calls": {
         "FILTRO_VACIO": [
-          855,
+          860,
           2
         ],
         "actividadVoluntariado": [
@@ -28474,7 +28584,7 @@
           3
         ],
         "ajustarAlto": [
-          1205,
+          1210,
           3
         ],
         "alerta": [
@@ -28486,7 +28596,7 @@
           2
         ],
         "aplicarPermisosDom": [
-          1237,
+          1242,
           1
         ],
         "avanceCharla": [
@@ -28506,11 +28616,11 @@
           5
         ],
         "cargarEventos": [
-          1157,
+          1162,
           2
         ],
         "cargarPublico": [
-          1180,
+          1185,
           3
         ],
         "cerrarPanel": [
@@ -28522,11 +28632,11 @@
           2
         ],
         "chip": [
-          770,
+          775,
           8
         ],
         "claveTipo": [
-          745,
+          750,
           2
         ],
         "coincideFiltro": [
@@ -28534,7 +28644,7 @@
           3
         ],
         "crearVista3D": [
-          1249,
+          1254,
           1
         ],
         "diasDelEvento": [
@@ -28547,7 +28657,7 @@
         ],
         "el": [
           131,
-          68
+          69
         ],
         "elegirDiaInicial": [
           415,
@@ -28566,7 +28676,7 @@
           12
         ],
         "entreComillas": [
-          710,
+          715,
           3
         ],
         "esAncho": [
@@ -28594,31 +28704,31 @@
           3
         ],
         "escucharReservas": [
-          1109,
+          1114,
           2
         ],
         "escucharSalones": [
-          1265,
+          1270,
           1
         ],
         "escucharVoluntariado": [
-          1118,
+          1123,
           2
         ],
         "esperarSesionLista": [
-          1230,
+          1235,
           1
         ],
         "estaCancelado": [
-          664,
+          669,
           1
         ],
         "estaOperativo": [
-          1003,
+          1008,
           1
         ],
         "estadoActividad": [
-          663,
+          668,
           3
         ],
         "etiquetaDia": [
@@ -28626,7 +28736,7 @@
           4
         ],
         "etiquetaDiaLarga": [
-          684,
+          689,
           2
         ],
         "fechaPanama": [
@@ -28638,7 +28748,7 @@
           5
         ],
         "filtrarPorTema": [
-          834,
+          839,
           2
         ],
         "filtrosActivos": [
@@ -28646,11 +28756,11 @@
           2
         ],
         "getUsuarioActual": [
-          1231,
+          1236,
           1
         ],
         "guardarSalon": [
-          1062,
+          1067,
           1
         ],
         "hex": [
@@ -28658,27 +28768,27 @@
           5
         ],
         "horaDe": [
-          995,
+          1000,
           1
         ],
         "htmlActividad": [
-          695,
+          700,
           2
         ],
         "htmlAsientos": [
-          889,
+          894,
           3
         ],
         "htmlAvance": [
-          932,
+          937,
           2
         ],
         "htmlFicha": [
-          910,
+          915,
           3
         ],
         "htmlPorDia": [
-          725,
+          730,
           3
         ],
         "imagenDe": [
@@ -28686,11 +28796,11 @@
           3
         ],
         "iniciales": [
-          917,
+          922,
           1
         ],
         "iniciar": [
-          1228,
+          1233,
           2
         ],
         "iniciarArrastre": [
@@ -28698,7 +28808,7 @@
           2
         ],
         "iniciarKiosco": [
-          1214,
+          1219,
           2
         ],
         "iniciarPinza": [
@@ -28706,7 +28816,7 @@
           2
         ],
         "leer": [
-          1142,
+          1147,
           1
         ],
         "letraRotulo": [
@@ -28730,7 +28840,7 @@
           4
         ],
         "nombrePiso": [
-          707,
+          712,
           3
         ],
         "nombreSalon": [
@@ -28738,11 +28848,11 @@
           10
         ],
         "normalizar": [
-          746,
+          751,
           5
         ],
         "ocupacionActual": [
-          976,
+          981,
           1
         ],
         "ocupadosPorCheckpoint": [
@@ -28750,7 +28860,7 @@
           2
         ],
         "ordenarActividades": [
-          802,
+          807,
           3
         ],
         "pintar": [
@@ -28774,7 +28884,7 @@
           8
         ],
         "renderAgenda": [
-          794,
+          799,
           2
         ],
         "renderDias": [
@@ -28782,7 +28892,7 @@
           8
         ],
         "renderFiltrosAgenda": [
-          762,
+          767,
           2
         ],
         "renderLeyenda": [
@@ -28802,7 +28912,7 @@
           2
         ],
         "renderSalon": [
-          943,
+          948,
           2
         ],
         "rotuloSalon": [
@@ -28818,11 +28928,11 @@
           2
         ],
         "soltarSalon": [
-          640,
+          645,
           3
         ],
         "temasDe": [
-          746,
+          751,
           2
         ],
         "terminado": [
@@ -28838,11 +28948,11 @@
           8
         ],
         "tocar": [
-          1225,
+          1230,
           1
         ],
         "usuarioTienePermiso": [
-          1234,
+          1239,
           2
         ],
         "voluntariadoVisible": [
@@ -28857,22 +28967,22 @@
       "dom": {
         "ids": {
           "agenda-buscar": [
-            836,
-            842,
-            845,
-            856,
-            1218
+            841,
+            847,
+            850,
+            861,
+            1223
           ],
           "agenda-filtros": [
-            790,
-            791,
-            818
+            795,
+            796,
+            823
           ],
           "agenda-meta": [
-            799
+            804
           ],
           "agenda-titulo": [
-            798
+            803
           ],
           "alerta": [
             131
@@ -28884,15 +28994,15 @@
           "btn-3d": [
             374,
             397,
-            1256
+            1261
           ],
           "btn-agenda": [
             612,
-            659
+            664
           ],
           "btn-aqui": [
             382,
-            1244
+            1249
           ],
           "btn-encuadre": [
             376
@@ -28908,27 +29018,27 @@
             614
           ],
           "cargando-mapa": [
-            1250,
-            1287
+            1255,
+            1292
           ],
           "dias": [
             341,
             351
           ],
           "escenario-mapa": [
-            1249
+            1254
           ],
           "form-salon": [
-            1041
+            1046
           ],
           "fs-capacidad": [
-            1066
+            1071
           ],
           "fs-nombre": [
-            1064
+            1069
           ],
           "fs-rotulo": [
-            1065
+            1070
           ],
           "leyenda": [
             325
@@ -28937,36 +29047,37 @@
             611
           ],
           "panel-cerrar": [
-            657
+            662
           ],
           "panel-cuerpo": [
             616,
             635,
-            637,
-            812,
-            846,
-            853,
-            1040,
-            1047,
-            1051,
-            1055,
-            1077
+            638,
+            640,
+            817,
+            851,
+            858,
+            1045,
+            1052,
+            1056,
+            1060,
+            1082
           ],
           "panel-meta": [
-            956
+            961
           ],
           "panel-nombre": [
-            954
+            959
           ],
           "panel-rotulo": [
-            953
+            958
           ],
           "panel-salon": [
             609,
             610
           ],
           "panel-volver": [
-            658
+            663
           ],
           "pisos": [
             347,
@@ -28981,13 +29092,13 @@
           "sel-evento": [
             411,
             412,
-            1165,
-            1168,
-            1193,
-            1196
+            1170,
+            1173,
+            1198,
+            1201
           ],
           "topbar": [
-            1206
+            1211
           ],
           "vista2d": [
             399,
@@ -28997,19 +29108,19 @@
         },
         "selectors": {
           ".act-btn.destacada": [
-            637
+            638
           ],
           ".asiento.por-llenar": [
-            1051
+            1056
           ],
           ".mapa3d-lienzo, .mapa3d-etiquetas": [
             400
           ],
           "button[type=submit]": [
-            1059
+            1064
           ],
           "span": [
-            1081
+            1086
           ],
           "svg": [
             506
@@ -29017,16 +29128,16 @@
         },
         "generated_ids": {
           "form-salon": [
-            1026
+            1031
           ],
           "fs-capacidad": [
-            1030
+            1035
           ],
           "fs-nombre": [
-            1027
+            1032
           ],
           "fs-rotulo": [
-            1029
+            1034
           ]
         }
       },
@@ -29041,21 +29152,21 @@
           375,
           376,
           382,
-          657,
-          658,
-          659,
-          818,
-          853,
-          1077
+          662,
+          663,
+          664,
+          823,
+          858,
+          1082
         ],
         "input": [
-          842
+          847
         ],
         "keydown": [
-          660
+          665
         ],
         "pagehide": [
-          1289
+          1294
         ],
         "pointercancel": [
           583
@@ -29070,10 +29181,10 @@
           582
         ],
         "resize": [
-          1208
+          1213
         ],
         "submit": [
-          1055
+          1060
         ],
         "wheel": [
           584
@@ -29391,99 +29502,111 @@
     "js/modulos/personas-credenciales.js": {
       "architectural_calls": {
         "categoriaDe": [
-          49,
+          51,
           1
         ],
         "cedulaDe": [
-          264,
+          321,
           4
         ],
         "compararOrden": [
-          372,
+          429,
           1
         ],
         "diaCorto": [
-          115,
+          170,
           2
         ],
         "estadoImpresion": [
-          390,
+          447,
           1
         ],
         "etiquetaGrupo": [
-          345,
+          402,
           2
         ],
         "gruposEquilibrados": [
-          365,
+          422,
           1
         ],
         "inicialDe": [
-          256,
-          2
-        ],
-        "lineaCharla": [
-          122,
-          1
-        ],
-        "nombreDe": [
-          50,
-          6
-        ],
-        "nombreVol": [
-          80,
-          2
-        ],
-        "normalizar": [
-          30,
-          10
-        ],
-        "partesCedula": [
-          272,
-          3
-        ],
-        "partir": [
           313,
           2
         ],
+        "leerLineaDocente": [
+          140,
+          1
+        ],
+        "lineaCharla": [
+          177,
+          1
+        ],
+        "nombreDe": [
+          52,
+          5
+        ],
+        "nombreOrden": [
+          314,
+          2
+        ],
+        "nombreVol": [
+          82,
+          2
+        ],
+        "normalizar": [
+          32,
+          11
+        ],
+        "partesCedula": [
+          329,
+          3
+        ],
+        "partir": [
+          370,
+          2
+        ],
+        "personaDocente": [
+          108,
+          1
+        ],
         "personaParticipante": [
-          44,
+          46,
           1
         ],
         "personaVoluntario": [
-          75,
+          77,
           1
         ],
         "personasExpositores": [
-          130,
+          185,
           1
         ],
         "porNombre": [
-          375,
+          432,
           1
         ],
         "qrPersonal": [
-          65,
+          67,
           2
         ],
         "resolver": [
-          331,
+          388,
           3
         ],
         "slug": [
-          234,
+          289,
           1
         ],
         "textoQr": [
-          170,
+          225,
           1
         ],
         "tieneCredencial": [
-          52,
+          54,
           2
         ],
         "unidadDe": [
-          287,
+          344,
           2
         ]
       }
@@ -33920,374 +34043,506 @@
       "html": {
         "ids": {
           "alerta": [
-            177
-          ],
-          "cr-agrupa": [
-            200
-          ],
-          "cr-agrupar": [
-            202
-          ],
-          "cr-aviso": [
-            243
-          ],
-          "cr-aviso-no": [
-            246
-          ],
-          "cr-aviso-si": [
-            247
-          ],
-          "cr-aviso-txt": [
-            244
-          ],
-          "cr-barra": [
-            239
-          ],
-          "cr-buscar": [
-            184
-          ],
-          "cr-cancelar": [
-            241
-          ],
-          "cr-categoria": [
-            190
-          ],
-          "cr-centro": [
-            191
-          ],
-          "cr-comparar": [
-            214
-          ],
-          "cr-descargar": [
-            235
-          ],
-          "cr-estado": [
-            185
-          ],
-          "cr-evento": [
-            193
-          ],
-          "cr-exp-acciones": [
-            195
-          ],
-          "cr-exp-agregar": [
-            196
-          ],
-          "cr-exp-importar": [
-            197
-          ],
-          "cr-facultad": [
-            192
-          ],
-          "cr-imprimir": [
-            236
-          ],
-          "cr-items": [
-            220
-          ],
-          "cr-letras": [
-            213
-          ],
-          "cr-limpiar": [
-            218
-          ],
-          "cr-listas": [
-            209
-          ],
-          "cr-listas-excel": [
-            210
-          ],
-          "cr-ngrupos": [
-            207
-          ],
-          "cr-ngrupos-wrap": [
-            207
-          ],
-          "cr-no-aprobados": [
-            194
-          ],
-          "cr-no-aprobados-wrap": [
-            194
-          ],
-          "cr-nota": [
-            250
-          ],
-          "cr-preview": [
-            224
-          ],
-          "cr-preview-txt": [
-            225
-          ],
-          "cr-progreso": [
-            238
-          ],
-          "cr-progreso-txt": [
-            240
-          ],
-          "cr-sel-num": [
-            218
-          ],
-          "cr-tamano": [
-            226
-          ],
-          "cr-tipos": [
             179
           ],
-          "cr-todos": [
-            217
+          "cr-agrupa": [
+            206
           ],
-          "cr-todos-txt": [
-            217
+          "cr-agrupar": [
+            208
           ],
-          "dlg-exp": [
+          "cr-aviso": [
+            249
+          ],
+          "cr-aviso-no": [
+            252
+          ],
+          "cr-aviso-si": [
+            253
+          ],
+          "cr-aviso-txt": [
+            250
+          ],
+          "cr-barra": [
+            245
+          ],
+          "cr-buscar": [
+            186
+          ],
+          "cr-cancelar": [
+            247
+          ],
+          "cr-categoria": [
+            192
+          ],
+          "cr-centro": [
+            193
+          ],
+          "cr-comparar": [
+            220
+          ],
+          "cr-descargar": [
+            241
+          ],
+          "cr-doc-acciones": [
+            197
+          ],
+          "cr-doc-agregar": [
+            198
+          ],
+          "cr-doc-lista": [
+            199
+          ],
+          "cr-estado": [
+            187
+          ],
+          "cr-evento": [
+            195
+          ],
+          "cr-exp-acciones": [
+            201
+          ],
+          "cr-exp-agregar": [
+            202
+          ],
+          "cr-exp-importar": [
+            203
+          ],
+          "cr-facultad": [
+            194
+          ],
+          "cr-imprimir": [
+            242
+          ],
+          "cr-items": [
+            226
+          ],
+          "cr-letras": [
+            219
+          ],
+          "cr-limpiar": [
+            224
+          ],
+          "cr-listas": [
+            215
+          ],
+          "cr-listas-excel": [
+            216
+          ],
+          "cr-ngrupos": [
+            213
+          ],
+          "cr-ngrupos-wrap": [
+            213
+          ],
+          "cr-no-aprobados": [
+            196
+          ],
+          "cr-no-aprobados-wrap": [
+            196
+          ],
+          "cr-nota": [
             256
           ],
-          "dlg-exp-imp": [
-            281
+          "cr-preview": [
+            230
           ],
-          "exp-apellido": [
+          "cr-preview-txt": [
+            231
+          ],
+          "cr-progreso": [
+            244
+          ],
+          "cr-progreso-txt": [
+            246
+          ],
+          "cr-sel-num": [
+            224
+          ],
+          "cr-tamano": [
+            232
+          ],
+          "cr-tipos": [
+            181
+          ],
+          "cr-todos": [
+            223
+          ],
+          "cr-todos-txt": [
+            223
+          ],
+          "dlg-doc": [
+            311
+          ],
+          "dlg-doc-lista": [
+            334
+          ],
+          "dlg-exp": [
             262
           ],
-          "exp-cedula": [
-            267
+          "dlg-exp-imp": [
+            287
           ],
-          "exp-correo": [
+          "doc-apellido": [
+            319
+          ],
+          "doc-cargo": [
+            320
+          ],
+          "doc-cargos": [
+            322
+          ],
+          "doc-error": [
+            324
+          ],
+          "doc-form": [
+            312
+          ],
+          "doc-guardar": [
+            328
+          ],
+          "doc-nombre": [
+            317
+          ],
+          "doc-titulo": [
+            316
+          ],
+          "doc-titulo-dlg": [
+            313
+          ],
+          "doc-titulos": [
+            321
+          ],
+          "docl-agregar": [
+            349
+          ],
+          "docl-error": [
+            341
+          ],
+          "docl-filas": [
+            344
+          ],
+          "docl-resumen": [
+            343
+          ],
+          "docl-revision": [
+            342
+          ],
+          "docl-texto": [
+            339
+          ],
+          "docl-titulo": [
+            336
+          ],
+          "exp-apellido": [
             268
           ],
+          "exp-cedula": [
+            273
+          ],
+          "exp-correo": [
+            274
+          ],
           "exp-error": [
-            271
+            277
           ],
           "exp-form": [
-            257
+            263
           ],
           "exp-guardar": [
-            275
+            281
           ],
           "exp-institucion": [
-            264
+            270
           ],
           "exp-nombre": [
-            261
+            267
           ],
           "exp-tema": [
-            265
+            271
           ],
           "exp-titulo": [
-            258
+            264
           ],
           "expi-archivo": [
-            286
-          ],
-          "expi-drop": [
-            285
-          ],
-          "expi-error": [
-            291
-          ],
-          "expi-filas": [
-            294
-          ],
-          "expi-importar": [
-            299
-          ],
-          "expi-plantilla": [
-            290
-          ],
-          "expi-resumen": [
-            293
-          ],
-          "expi-revision": [
             292
           ],
+          "expi-drop": [
+            291
+          ],
+          "expi-error": [
+            297
+          ],
+          "expi-filas": [
+            300
+          ],
+          "expi-importar": [
+            305
+          ],
+          "expi-plantilla": [
+            296
+          ],
+          "expi-resumen": [
+            299
+          ],
+          "expi-revision": [
+            298
+          ],
           "expi-titulo": [
-            283
+            289
           ]
         }
       },
       "dom": {
         "generated_ids": {
           "alerta": [
-            177
-          ],
-          "cr-agrupa": [
-            200
-          ],
-          "cr-agrupar": [
-            202
-          ],
-          "cr-aviso": [
-            243
-          ],
-          "cr-aviso-no": [
-            246
-          ],
-          "cr-aviso-si": [
-            247
-          ],
-          "cr-aviso-txt": [
-            244
-          ],
-          "cr-barra": [
-            239
-          ],
-          "cr-buscar": [
-            184
-          ],
-          "cr-cancelar": [
-            241
-          ],
-          "cr-categoria": [
-            190
-          ],
-          "cr-centro": [
-            191
-          ],
-          "cr-comparar": [
-            214
-          ],
-          "cr-descargar": [
-            235
-          ],
-          "cr-estado": [
-            185
-          ],
-          "cr-evento": [
-            193
-          ],
-          "cr-exp-acciones": [
-            195
-          ],
-          "cr-exp-agregar": [
-            196
-          ],
-          "cr-exp-importar": [
-            197
-          ],
-          "cr-facultad": [
-            192
-          ],
-          "cr-imprimir": [
-            236
-          ],
-          "cr-items": [
-            220
-          ],
-          "cr-letras": [
-            213
-          ],
-          "cr-limpiar": [
-            218
-          ],
-          "cr-listas": [
-            209
-          ],
-          "cr-listas-excel": [
-            210
-          ],
-          "cr-ngrupos": [
-            207
-          ],
-          "cr-ngrupos-wrap": [
-            207
-          ],
-          "cr-no-aprobados": [
-            194
-          ],
-          "cr-no-aprobados-wrap": [
-            194
-          ],
-          "cr-nota": [
-            250
-          ],
-          "cr-preview": [
-            224
-          ],
-          "cr-preview-txt": [
-            225
-          ],
-          "cr-progreso": [
-            238
-          ],
-          "cr-progreso-txt": [
-            240
-          ],
-          "cr-sel-num": [
-            218
-          ],
-          "cr-tamano": [
-            226
-          ],
-          "cr-tipos": [
             179
           ],
-          "cr-todos": [
-            217
+          "cr-agrupa": [
+            206
           ],
-          "cr-todos-txt": [
-            217
+          "cr-agrupar": [
+            208
           ],
-          "dlg-exp": [
+          "cr-aviso": [
+            249
+          ],
+          "cr-aviso-no": [
+            252
+          ],
+          "cr-aviso-si": [
+            253
+          ],
+          "cr-aviso-txt": [
+            250
+          ],
+          "cr-barra": [
+            245
+          ],
+          "cr-buscar": [
+            186
+          ],
+          "cr-cancelar": [
+            247
+          ],
+          "cr-categoria": [
+            192
+          ],
+          "cr-centro": [
+            193
+          ],
+          "cr-comparar": [
+            220
+          ],
+          "cr-descargar": [
+            241
+          ],
+          "cr-doc-acciones": [
+            197
+          ],
+          "cr-doc-agregar": [
+            198
+          ],
+          "cr-doc-lista": [
+            199
+          ],
+          "cr-estado": [
+            187
+          ],
+          "cr-evento": [
+            195
+          ],
+          "cr-exp-acciones": [
+            201
+          ],
+          "cr-exp-agregar": [
+            202
+          ],
+          "cr-exp-importar": [
+            203
+          ],
+          "cr-facultad": [
+            194
+          ],
+          "cr-imprimir": [
+            242
+          ],
+          "cr-items": [
+            226
+          ],
+          "cr-letras": [
+            219
+          ],
+          "cr-limpiar": [
+            224
+          ],
+          "cr-listas": [
+            215
+          ],
+          "cr-listas-excel": [
+            216
+          ],
+          "cr-ngrupos": [
+            213
+          ],
+          "cr-ngrupos-wrap": [
+            213
+          ],
+          "cr-no-aprobados": [
+            196
+          ],
+          "cr-no-aprobados-wrap": [
+            196
+          ],
+          "cr-nota": [
             256
           ],
-          "dlg-exp-imp": [
-            281
+          "cr-preview": [
+            230
           ],
-          "exp-apellido": [
+          "cr-preview-txt": [
+            231
+          ],
+          "cr-progreso": [
+            244
+          ],
+          "cr-progreso-txt": [
+            246
+          ],
+          "cr-sel-num": [
+            224
+          ],
+          "cr-tamano": [
+            232
+          ],
+          "cr-tipos": [
+            181
+          ],
+          "cr-todos": [
+            223
+          ],
+          "cr-todos-txt": [
+            223
+          ],
+          "dlg-doc": [
+            311
+          ],
+          "dlg-doc-lista": [
+            334
+          ],
+          "dlg-exp": [
             262
           ],
-          "exp-cedula": [
-            267
+          "dlg-exp-imp": [
+            287
           ],
-          "exp-correo": [
+          "doc-apellido": [
+            319
+          ],
+          "doc-cargo": [
+            320
+          ],
+          "doc-cargos": [
+            322
+          ],
+          "doc-error": [
+            324
+          ],
+          "doc-form": [
+            312
+          ],
+          "doc-guardar": [
+            328
+          ],
+          "doc-nombre": [
+            317
+          ],
+          "doc-titulo": [
+            316
+          ],
+          "doc-titulo-dlg": [
+            313
+          ],
+          "doc-titulos": [
+            321
+          ],
+          "docl-agregar": [
+            349
+          ],
+          "docl-error": [
+            341
+          ],
+          "docl-filas": [
+            344
+          ],
+          "docl-resumen": [
+            343
+          ],
+          "docl-revision": [
+            342
+          ],
+          "docl-texto": [
+            339
+          ],
+          "docl-titulo": [
+            336
+          ],
+          "exp-apellido": [
             268
           ],
+          "exp-cedula": [
+            273
+          ],
+          "exp-correo": [
+            274
+          ],
           "exp-error": [
-            271
+            277
           ],
           "exp-form": [
-            257
+            263
           ],
           "exp-guardar": [
-            275
+            281
           ],
           "exp-institucion": [
-            264
+            270
           ],
           "exp-nombre": [
-            261
+            267
           ],
           "exp-tema": [
-            265
+            271
           ],
           "exp-titulo": [
-            258
+            264
           ],
           "expi-archivo": [
-            286
-          ],
-          "expi-drop": [
-            285
-          ],
-          "expi-error": [
-            291
-          ],
-          "expi-filas": [
-            294
-          ],
-          "expi-importar": [
-            299
-          ],
-          "expi-plantilla": [
-            290
-          ],
-          "expi-resumen": [
-            293
-          ],
-          "expi-revision": [
             292
           ],
+          "expi-drop": [
+            291
+          ],
+          "expi-error": [
+            297
+          ],
+          "expi-filas": [
+            300
+          ],
+          "expi-importar": [
+            305
+          ],
+          "expi-plantilla": [
+            296
+          ],
+          "expi-resumen": [
+            299
+          ],
+          "expi-revision": [
+            298
+          ],
           "expi-titulo": [
-            283
+            289
           ]
         }
       }
@@ -44059,7 +44314,7 @@
       "TIPOS": [
         [
           "js/modulos/personas-credenciales.js",
-          19,
+          21,
           "variable",
           true
         ]
@@ -44234,10 +44489,18 @@
           false
         ]
       ],
+      "abrirDocente": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1044,
+          "function",
+          false
+        ]
+      ],
       "abrirExpositor": [
         [
           "js/modulos/gestorCredenciales.js",
-          819,
+          838,
           "function",
           false
         ]
@@ -44503,7 +44766,7 @@
       "actualizarBotonListas": [
         [
           "js/modulos/gestorCredenciales.js",
-          453,
+          467,
           "function",
           false
         ]
@@ -44511,7 +44774,7 @@
       "actualizarBotones": [
         [
           "js/modulos/gestorCredenciales.js",
-          688,
+          707,
           "function",
           false
         ]
@@ -44871,7 +45134,7 @@
       "ajustarAlto": [
         [
           "js/modulos/mapa.js",
-          1205,
+          1210,
           "function",
           false
         ]
@@ -44941,7 +45204,7 @@
       "alCambiarBloque": [
         [
           "js/modulos/gestorCredenciales.js",
-          259,
+          273,
           "function",
           false
         ]
@@ -45009,7 +45272,7 @@
       "alProgresar": [
         [
           "js/modulos/gestorCredenciales.js",
-          703,
+          722,
           "function",
           false
         ],
@@ -45051,7 +45314,7 @@
       "alerta": [
         [
           "js/modulos/gestorCredenciales.js",
-          56,
+          57,
           "function",
           false
         ],
@@ -45309,7 +45572,7 @@
       "armarPersonasDesdeDocs": [
         [
           "js/modulos/gestorCredenciales.js",
-          145,
+          157,
           "function",
           false
         ]
@@ -45331,7 +45594,7 @@
         ],
         [
           "js/modulos/gestorCredenciales.js",
-          108,
+          119,
           "function",
           false
         ]
@@ -45613,7 +45876,7 @@
       "botonBloque": [
         [
           "js/modulos/gestorCredenciales.js",
-          198,
+          212,
           "function",
           false
         ]
@@ -45955,7 +46218,7 @@
       "cargarCheckpoints": [
         [
           "js/modulos/gestorCredenciales.js",
-          98,
+          109,
           "function",
           false
         ]
@@ -45985,7 +46248,7 @@
       "cargarCorreoInvitacionCharlas": [
         [
           "functions/plantillas.js",
-          159,
+          164,
           "function",
           false
         ]
@@ -45993,7 +46256,7 @@
       "cargarCorreoNoSeleccionadoGira": [
         [
           "functions/plantillas.js",
-          120,
+          125,
           "function",
           false
         ]
@@ -46001,7 +46264,7 @@
       "cargarCorreoNotificacionGira": [
         [
           "functions/plantillas.js",
-          71,
+          76,
           "function",
           false
         ]
@@ -46009,7 +46272,7 @@
       "cargarCorreoPagoAprobado": [
         [
           "functions/plantillas.js",
-          55,
+          60,
           "function",
           false
         ]
@@ -46018,6 +46281,14 @@
         [
           "panel/dashboard.html",
           893,
+          "function",
+          false
+        ]
+      ],
+      "cargarDocentes": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          99,
           "function",
           false
         ]
@@ -46059,7 +46330,7 @@
         ],
         [
           "js/modulos/mapa.js",
-          1157,
+          1162,
           "function",
           false
         ],
@@ -46093,7 +46364,7 @@
       "cargarExpositoresManuales": [
         [
           "js/modulos/gestorCredenciales.js",
-          88,
+          89,
           "function",
           false
         ]
@@ -46139,7 +46410,7 @@
       "cargarHistorial": [
         [
           "js/modulos/gestorCredenciales.js",
-          76,
+          77,
           "function",
           false
         ]
@@ -46233,7 +46504,7 @@
       "cargarPublico": [
         [
           "js/modulos/mapa.js",
-          1180,
+          1185,
           "function",
           false
         ]
@@ -46257,7 +46528,7 @@
       "cargarTodo": [
         [
           "js/modulos/gestorCredenciales.js",
-          120,
+          131,
           "function",
           false
         ]
@@ -46351,7 +46622,7 @@
       "cedulaDe": [
         [
           "js/modulos/personas-credenciales.js",
-          264,
+          321,
           "function",
           true
         ]
@@ -46453,7 +46724,7 @@
       "cerrarPanel": [
         [
           "js/modulos/mapa.js",
-          647,
+          652,
           "function",
           false
         ]
@@ -46597,7 +46868,7 @@
       "chip": [
         [
           "js/modulos/mapa.js",
-          767,
+          772,
           "function",
           false
         ]
@@ -46657,7 +46928,7 @@
       "claveNoSeleccionado": [
         [
           "functions/index.js",
-          1368,
+          1373,
           "function",
           false
         ]
@@ -46665,7 +46936,7 @@
       "claveTipo": [
         [
           "js/modulos/mapa.js",
-          677,
+          682,
           "function",
           false
         ]
@@ -46695,7 +46966,7 @@
       "coincideFiltro": [
         [
           "js/modulos/mapa.js",
-          743,
+          748,
           "function",
           false
         ]
@@ -46719,7 +46990,7 @@
       "columnasExp": [
         [
           "js/modulos/gestorCredenciales.js",
-          893,
+          912,
           "function",
           false
         ]
@@ -46763,7 +47034,7 @@
       "compararOrden": [
         [
           "js/modulos/personas-credenciales.js",
-          301,
+          358,
           "function",
           false
         ]
@@ -47071,7 +47342,7 @@
       "cuentaTipo": [
         [
           "js/modulos/gestorCredenciales.js",
-          163,
+          177,
           "function",
           false
         ]
@@ -47095,7 +47366,7 @@
       "datosLista": [
         [
           "js/modulos/gestorCredenciales.js",
-          332,
+          346,
           "function",
           false
         ]
@@ -47103,7 +47374,7 @@
       "datosUtp": [
         [
           "js/modulos/personas-credenciales.js",
-          37,
+          39,
           "function",
           false
         ]
@@ -47173,7 +47444,7 @@
       "descargarExcelListas": [
         [
           "js/modulos/gestorCredenciales.js",
-          408,
+          422,
           "function",
           false
         ]
@@ -47323,7 +47594,7 @@
       "diaCorto": [
         [
           "js/modulos/personas-credenciales.js",
-          115,
+          170,
           "function",
           false
         ]
@@ -47459,7 +47730,7 @@
       "dif": [
         [
           "js/modulos/gestorCredenciales.js",
-          231,
+          245,
           "function",
           false
         ]
@@ -47491,7 +47762,7 @@
       "docsDonde": [
         [
           "functions/eliminar-eventos.js",
-          59,
+          61,
           "function",
           false
         ]
@@ -47601,7 +47872,7 @@
       "ejecutarTarea": [
         [
           "js/modulos/gestorCredenciales.js",
-          697,
+          716,
           "function",
           false
         ]
@@ -47899,7 +48170,7 @@
       "eliminarEventoOCheckpoint": [
         [
           "functions/eliminar-eventos.js",
-          239,
+          254,
           "function",
           false
         ]
@@ -47967,7 +48238,7 @@
       "enLotes": [
         [
           "functions/eliminar-eventos.js",
-          64,
+          66,
           "function",
           false
         ],
@@ -48097,7 +48368,7 @@
       "entreComillas": [
         [
           "js/modulos/mapa.js",
-          690,
+          695,
           "function",
           false
         ]
@@ -48105,7 +48376,7 @@
       "enviarCorreoNoSeleccionadoGira": [
         [
           "functions/index.js",
-          1374,
+          1379,
           "function",
           false
         ]
@@ -48113,7 +48384,7 @@
       "enviarCorreoNotificacionGira": [
         [
           "functions/index.js",
-          1296,
+          1301,
           "function",
           false
         ]
@@ -48145,7 +48416,7 @@
       "enviarInvitacion": [
         [
           "functions/index.js",
-          997,
+          1002,
           "function",
           false
         ]
@@ -48184,6 +48455,14 @@
         [
           "functions/test/envios.test.js",
           52,
+          "function",
+          false
+        ]
+      ],
+      "errorDocente": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1036,
           "function",
           false
         ]
@@ -48389,7 +48668,7 @@
       "escucharAsistencias": [
         [
           "js/modulos/mapa.js",
-          1132,
+          1137,
           "function",
           false
         ]
@@ -48413,7 +48692,7 @@
       "escucharCheckpoints": [
         [
           "js/modulos/mapa.js",
-          1096,
+          1101,
           "function",
           false
         ]
@@ -48437,7 +48716,7 @@
       "escucharReservas": [
         [
           "js/modulos/mapa.js",
-          1109,
+          1114,
           "function",
           false
         ]
@@ -48453,7 +48732,7 @@
       "escucharVoluntariado": [
         [
           "js/modulos/mapa.js",
-          1118,
+          1123,
           "function",
           false
         ]
@@ -48557,7 +48836,7 @@
       "estadoActividad": [
         [
           "js/modulos/mapa.js",
-          663,
+          668,
           "function",
           false
         ]
@@ -48565,7 +48844,7 @@
       "estadoImpresion": [
         [
           "js/modulos/personas-credenciales.js",
-          390,
+          447,
           "function",
           true
         ]
@@ -48675,7 +48954,7 @@
       "etiquetaDiaLarga": [
         [
           "js/modulos/mapa.js",
-          684,
+          689,
           "function",
           false
         ]
@@ -48683,7 +48962,7 @@
       "etiquetaGrupo": [
         [
           "js/modulos/personas-credenciales.js",
-          345,
+          402,
           "function",
           false
         ]
@@ -48779,7 +49058,7 @@
       "expone": [
         [
           "js/modulos/personas-credenciales.js",
-          150,
+          205,
           "function",
           false
         ]
@@ -48865,7 +49144,7 @@
       "fechaCorta": [
         [
           "js/modulos/gestorCredenciales.js",
-          501,
+          515,
           "function",
           false
         ]
@@ -48991,7 +49270,7 @@
       "fila": [
         [
           "js/modulos/gestorCredenciales.js",
-          367,
+          381,
           "function",
           false
         ],
@@ -49011,7 +49290,7 @@
       "filaDe": [
         [
           "js/modulos/gestorCredenciales.js",
-          412,
+          426,
           "function",
           false
         ]
@@ -49059,7 +49338,7 @@
       "filtrar": [
         [
           "js/modulos/gestorCredenciales.js",
-          286,
+          300,
           "function",
           false
         ]
@@ -49075,7 +49354,7 @@
       "filtrarPorTema": [
         [
           "js/modulos/mapa.js",
-          834,
+          839,
           "function",
           false
         ]
@@ -49083,7 +49362,7 @@
       "filtrarSinLetra": [
         [
           "js/modulos/gestorCredenciales.js",
-          484,
+          498,
           "function",
           false
         ]
@@ -49091,7 +49370,7 @@
       "filtrosActivos": [
         [
           "js/modulos/mapa.js",
-          741,
+          746,
           "function",
           false
         ]
@@ -49299,7 +49578,7 @@
       "formatearFechaGira": [
         [
           "functions/index.js",
-          1274,
+          1279,
           "function",
           false
         ]
@@ -49307,7 +49586,7 @@
       "formatearHoraGira": [
         [
           "functions/index.js",
-          1288,
+          1293,
           "function",
           false
         ]
@@ -49331,7 +49610,7 @@
       "formato": [
         [
           "js/modulos/gestorCredenciales.js",
-          686,
+          705,
           "function",
           false
         ]
@@ -49369,7 +49648,7 @@
       "fraseConfirmacion": [
         [
           "functions/eliminar-eventos.js",
-          55,
+          57,
           "function",
           false
         ]
@@ -49593,7 +49872,7 @@
       "gruposDelTipo": [
         [
           "js/modulos/gestorCredenciales.js",
-          212,
+          226,
           "function",
           false
         ]
@@ -49601,7 +49880,7 @@
       "gruposEquilibrados": [
         [
           "js/modulos/personas-credenciales.js",
-          365,
+          422,
           "function",
           true
         ]
@@ -49815,7 +50094,7 @@
       "hoja": [
         [
           "js/modulos/gestorCredenciales.js",
-          413,
+          427,
           "function",
           false
         ]
@@ -49959,7 +50238,7 @@
       "htmlActividad": [
         [
           "js/modulos/mapa.js",
-          695,
+          700,
           "function",
           false
         ]
@@ -49967,7 +50246,7 @@
       "htmlAsientos": [
         [
           "js/modulos/mapa.js",
-          889,
+          894,
           "function",
           false
         ]
@@ -49975,7 +50254,7 @@
       "htmlAvance": [
         [
           "js/modulos/mapa.js",
-          932,
+          937,
           "function",
           false
         ]
@@ -49983,7 +50262,7 @@
       "htmlFicha": [
         [
           "js/modulos/mapa.js",
-          910,
+          915,
           "function",
           false
         ]
@@ -49991,7 +50270,7 @@
       "htmlListas": [
         [
           "js/modulos/gestorCredenciales.js",
-          358,
+          372,
           "function",
           false
         ]
@@ -49999,7 +50278,7 @@
       "htmlPorDia": [
         [
           "js/modulos/mapa.js",
-          725,
+          730,
           "function",
           false
         ]
@@ -50061,7 +50340,7 @@
         ],
         [
           "functions/eliminar-eventos.js",
-          37,
+          39,
           "function",
           false
         ],
@@ -50185,7 +50464,7 @@
       "inicialDe": [
         [
           "js/modulos/personas-credenciales.js",
-          256,
+          313,
           "function",
           true
         ]
@@ -50201,13 +50480,13 @@
       "iniciar": [
         [
           "js/modulos/gestorCredenciales.js",
-          1017,
+          1174,
           "function",
           false
         ],
         [
           "js/modulos/mapa.js",
-          1228,
+          1233,
           "function",
           false
         ]
@@ -50255,7 +50534,7 @@
       "iniciarKiosco": [
         [
           "js/modulos/mapa.js",
-          1214,
+          1219,
           "function",
           false
         ]
@@ -50413,7 +50692,7 @@
       "invitacionPara": [
         [
           "functions/index.js",
-          990,
+          995,
           "function",
           false
         ]
@@ -50503,13 +50782,13 @@
         ],
         [
           "js/modulos/gestorCredenciales.js",
-          65,
+          66,
           "function",
           false
         ],
         [
           "js/modulos/mapa.js",
-          1139,
+          1144,
           "function",
           false
         ],
@@ -50585,7 +50864,7 @@
       "leerExcelExpositores": [
         [
           "js/modulos/gestorCredenciales.js",
-          904,
+          923,
           "function",
           false
         ]
@@ -50604,6 +50883,14 @@
           154,
           "function",
           false
+        ]
+      ],
+      "leerLineaDocente": [
+        [
+          "js/modulos/personas-credenciales.js",
+          140,
+          "function",
+          true
         ]
       ],
       "leerLocal": [
@@ -50665,7 +50952,7 @@
       "leerTamano": [
         [
           "js/modulos/gestorCredenciales.js",
-          682,
+          701,
           "function",
           false
         ]
@@ -50841,7 +51128,7 @@
       "limpiarParticipantes": [
         [
           "functions/eliminar-eventos.js",
-          201,
+          214,
           "function",
           false
         ]
@@ -50879,7 +51166,7 @@
       "linea": [
         [
           "js/modulos/gestorCredenciales.js",
-          232,
+          246,
           "function",
           false
         ]
@@ -50887,7 +51174,7 @@
       "lineaCharla": [
         [
           "js/modulos/personas-credenciales.js",
-          122,
+          177,
           "function",
           true
         ]
@@ -51023,7 +51310,7 @@
       "lugarDe": [
         [
           "js/modulos/mapa.js",
-          672,
+          677,
           "function",
           false
         ]
@@ -51139,7 +51426,7 @@
       "marcar": [
         [
           "functions/eliminar-eventos.js",
-          84,
+          88,
           "function",
           false
         ],
@@ -51593,7 +51880,7 @@
       "motivosDeGira": [
         [
           "functions/index.js",
-          1524,
+          1529,
           "function",
           false
         ]
@@ -51784,6 +52071,14 @@
           true
         ]
       ],
+      "nombreOrden": [
+        [
+          "js/modulos/personas-credenciales.js",
+          311,
+          "function",
+          true
+        ]
+      ],
       "nombreParticipante": [
         [
           "functions/operaciones-qr.js",
@@ -51841,7 +52136,7 @@
       "nombreVol": [
         [
           "js/modulos/personas-credenciales.js",
-          32,
+          34,
           "function",
           false
         ],
@@ -51863,7 +52158,7 @@
       "normCol": [
         [
           "js/modulos/gestorCredenciales.js",
-          892,
+          911,
           "function",
           false
         ]
@@ -51909,7 +52204,7 @@
         ],
         [
           "js/modulos/personas-credenciales.js",
-          26,
+          28,
           "function",
           true
         ],
@@ -52211,7 +52506,7 @@
       "ocultarAviso": [
         [
           "js/modulos/gestorCredenciales.js",
-          772,
+          791,
           "function",
           false
         ]
@@ -52297,7 +52592,7 @@
       "opcion": [
         [
           "js/modulos/gestorCredenciales.js",
-          346,
+          360,
           "function",
           false
         ]
@@ -52343,7 +52638,7 @@
         ],
         [
           "js/modulos/personas-credenciales.js",
-          128,
+          183,
           "function",
           false
         ]
@@ -52351,7 +52646,7 @@
       "ordenCharla": [
         [
           "js/modulos/personas-credenciales.js",
-          127,
+          182,
           "function",
           false
         ]
@@ -52359,7 +52654,7 @@
       "ordenEntrega": [
         [
           "js/modulos/gestorCredenciales.js",
-          253,
+          267,
           "function",
           false
         ]
@@ -52367,7 +52662,7 @@
       "ordenLetras": [
         [
           "js/modulos/gestorCredenciales.js",
-          196,
+          210,
           "function",
           false
         ]
@@ -52375,7 +52670,7 @@
       "ordenarActividades": [
         [
           "js/modulos/mapa.js",
-          679,
+          684,
           "function",
           false
         ]
@@ -52507,7 +52802,7 @@
       "partesCedula": [
         [
           "js/modulos/personas-credenciales.js",
-          272,
+          329,
           "function",
           true
         ]
@@ -52537,7 +52832,7 @@
       "partir": [
         [
           "js/modulos/personas-credenciales.js",
-          313,
+          370,
           "function",
           false
         ]
@@ -52668,10 +52963,18 @@
           false
         ]
       ],
+      "personaDocente": [
+        [
+          "js/modulos/personas-credenciales.js",
+          108,
+          "function",
+          true
+        ]
+      ],
       "personaParticipante": [
         [
           "js/modulos/personas-credenciales.js",
-          44,
+          46,
           "function",
           true
         ]
@@ -52679,7 +52982,7 @@
       "personaVoluntario": [
         [
           "js/modulos/personas-credenciales.js",
-          75,
+          77,
           "function",
           true
         ]
@@ -52687,7 +52990,7 @@
       "personasExpositores": [
         [
           "js/modulos/personas-credenciales.js",
-          130,
+          185,
           "function",
           true
         ]
@@ -52777,7 +53080,7 @@
       "plural": [
         [
           "js/modulos/gestorCredenciales.js",
-          366,
+          380,
           "function",
           false
         ],
@@ -52871,7 +53174,7 @@
       "porNombre": [
         [
           "js/modulos/personas-credenciales.js",
-          373,
+          430,
           "function",
           false
         ],
@@ -52965,7 +53268,7 @@
       "preguntarSiSeImprimieron": [
         [
           "js/modulos/gestorCredenciales.js",
-          765,
+          784,
           "function",
           false
         ]
@@ -53393,7 +53696,7 @@
       "qrPersonal": [
         [
           "js/modulos/personas-credenciales.js",
-          65,
+          67,
           "function",
           true
         ]
@@ -53422,10 +53725,18 @@
           false
         ]
       ],
+      "quitarDocente": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1089,
+          "function",
+          false
+        ]
+      ],
       "quitarExpositor": [
         [
           "js/modulos/gestorCredenciales.js",
-          866,
+          885,
           "function",
           false
         ]
@@ -53471,7 +53782,7 @@
       "rastroCheckpoint": [
         [
           "functions/eliminar-eventos.js",
-          74,
+          76,
           "function",
           false
         ]
@@ -53479,7 +53790,7 @@
       "rastroDeCheckpoint": [
         [
           "functions/eliminar-eventos.js",
-          115,
+          127,
           "function",
           false
         ]
@@ -53487,7 +53798,7 @@
       "rastroDeEvento": [
         [
           "functions/eliminar-eventos.js",
-          126,
+          138,
           "function",
           false
         ]
@@ -53495,7 +53806,7 @@
       "rastroVacio": [
         [
           "functions/eliminar-eventos.js",
-          103,
+          114,
           "function",
           false
         ]
@@ -53694,10 +54005,18 @@
           false
         ]
       ],
+      "refrescarDocentes": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1054,
+          "function",
+          false
+        ]
+      ],
       "refrescarExpositores": [
         [
           "js/modulos/gestorCredenciales.js",
-          828,
+          847,
           "function",
           false
         ]
@@ -53817,7 +54136,7 @@
       "reiniciar": [
         [
           "js/modulos/mapa.js",
-          1216,
+          1221,
           "function",
           false
         ]
@@ -53869,7 +54188,7 @@
       "renderAgenda": [
         [
           "js/modulos/mapa.js",
-          794,
+          799,
           "function",
           false
         ]
@@ -54131,7 +54450,7 @@
       "renderFiltros": [
         [
           "js/modulos/gestorCredenciales.js",
-          506,
+          520,
           "function",
           false
         ],
@@ -54145,7 +54464,7 @@
       "renderFiltrosAgenda": [
         [
           "js/modulos/mapa.js",
-          762,
+          767,
           "function",
           false
         ]
@@ -54199,7 +54518,7 @@
       "renderGrupos": [
         [
           "js/modulos/gestorCredenciales.js",
-          243,
+          257,
           "function",
           false
         ]
@@ -54231,7 +54550,7 @@
       "renderLetras": [
         [
           "js/modulos/gestorCredenciales.js",
-          201,
+          215,
           "function",
           false
         ]
@@ -54247,7 +54566,7 @@
       "renderLista": [
         [
           "js/modulos/gestorCredenciales.js",
-          546,
+          561,
           "function",
           false
         ]
@@ -54353,7 +54672,7 @@
       "renderPanel": [
         [
           "js/modulos/mapa.js",
-          941,
+          946,
           "function",
           false
         ]
@@ -54417,7 +54736,7 @@
       "renderPreview": [
         [
           "js/modulos/gestorCredenciales.js",
-          654,
+          673,
           "function",
           false
         ],
@@ -54523,7 +54842,7 @@
       "renderSalon": [
         [
           "js/modulos/mapa.js",
-          946,
+          951,
           "function",
           false
         ]
@@ -54675,7 +54994,7 @@
       "renderTipos": [
         [
           "js/modulos/gestorCredenciales.js",
-          169,
+          183,
           "function",
           false
         ]
@@ -54683,7 +55002,7 @@
       "renderTodo": [
         [
           "js/modulos/gestorCredenciales.js",
-          1006,
+          1163,
           "function",
           false
         ],
@@ -54827,7 +55146,7 @@
       "resolver": [
         [
           "js/modulos/personas-credenciales.js",
-          324,
+          381,
           "function",
           false
         ]
@@ -54883,7 +55202,7 @@
       "resumen": [
         [
           "functions/eliminar-eventos.js",
-          168,
+          180,
           "function",
           false
         ],
@@ -54968,6 +55287,14 @@
         [
           "js/modulos/voluntarios.js",
           795,
+          "function",
+          false
+        ]
+      ],
+      "revisarListaDocentes": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1107,
           "function",
           false
         ]
@@ -55111,7 +55438,7 @@
       "seccion": [
         [
           "js/modulos/gestorCredenciales.js",
-          371,
+          385,
           "function",
           false
         ],
@@ -55125,7 +55452,7 @@
       "seccionesConGente": [
         [
           "js/modulos/gestorCredenciales.js",
-          431,
+          445,
           "function",
           false
         ]
@@ -55133,7 +55460,7 @@
       "seccionesLista": [
         [
           "js/modulos/gestorCredenciales.js",
-          309,
+          323,
           "function",
           false
         ]
@@ -55149,7 +55476,7 @@
       "seleccionadas": [
         [
           "js/modulos/gestorCredenciales.js",
-          649,
+          668,
           "function",
           false
         ]
@@ -55349,7 +55676,7 @@
       "slug": [
         [
           "functions/eliminar-eventos.js",
-          47,
+          49,
           "function",
           false
         ],
@@ -55361,7 +55688,7 @@
         ],
         [
           "js/modulos/personas-credenciales.js",
-          30,
+          32,
           "function",
           false
         ]
@@ -55411,7 +55738,7 @@
       "soltarRfids": [
         [
           "functions/eliminar-eventos.js",
-          226,
+          241,
           "function",
           false
         ]
@@ -55419,7 +55746,7 @@
       "soltarSalon": [
         [
           "js/modulos/mapa.js",
-          640,
+          645,
           "function",
           false
         ]
@@ -55503,7 +55830,15 @@
       "sufijoLista": [
         [
           "js/modulos/gestorCredenciales.js",
-          340,
+          354,
+          "function",
+          false
+        ]
+      ],
+      "sugerirCargos": [
+        [
+          "js/modulos/gestorCredenciales.js",
+          1031,
           "function",
           false
         ]
@@ -55527,7 +55862,7 @@
       "tam": [
         [
           "js/modulos/gestorCredenciales.js",
-          230,
+          244,
           "function",
           false
         ]
@@ -55647,7 +55982,7 @@
       "textoAParrafosHtml": [
         [
           "functions/plantillas.js",
-          99,
+          104,
           "function",
           false
         ]
@@ -55663,7 +55998,7 @@
       "textoComparacion": [
         [
           "js/modulos/gestorCredenciales.js",
-          228,
+          242,
           "function",
           false
         ]
@@ -55695,7 +56030,7 @@
       "textoFiltros": [
         [
           "js/modulos/gestorCredenciales.js",
-          345,
+          359,
           "function",
           false
         ]
@@ -55757,7 +56092,7 @@
       "tieneHistorial": [
         [
           "functions/eliminar-eventos.js",
-          180,
+          193,
           "function",
           false
         ]
@@ -55839,7 +56174,7 @@
       "tocar": [
         [
           "js/modulos/mapa.js",
-          1223,
+          1228,
           "function",
           false
         ]
@@ -55957,7 +56292,7 @@
       "unidadDe": [
         [
           "js/modulos/personas-credenciales.js",
-          287,
+          344,
           "function",
           false
         ]
@@ -56059,7 +56394,7 @@
       "v": [
         [
           "js/modulos/gestorCredenciales.js",
-          918,
+          937,
           "function",
           false
         ],
@@ -56227,7 +56562,7 @@
       "validarPermiso": [
         [
           "functions/eliminar-eventos.js",
-          183,
+          196,
           "function",
           false
         ]
@@ -56295,7 +56630,7 @@
       "valorUtp": [
         [
           "js/modulos/gestorCredenciales.js",
-          478,
+          492,
           "function",
           false
         ]
@@ -56405,7 +56740,7 @@
       "volverAgenda": [
         [
           "js/modulos/mapa.js",
-          652,
+          657,
           "function",
           false
         ]
@@ -56470,7 +56805,7 @@
       "binary:46628": "assets/img/utp-logo.png",
       "a364ec01f61aedebf8a34101590112ad4609cb558a3ba540b9a50fac4d176180": "css/inicio.css",
       "897c61176d097139f901852458e3c7339ce1fc23272d1d03b42f2b7ceabb9549": "css/login.css",
-      "7f6689c63f50f76ede853fd6e366cb485c2698ce15edd8dab34d1e025e4fd421": "css/mapa-charlas.css",
+      "39155b2202cd21546d18965fc50eeef3498c78246f4c0ff93f91cb427d60bc00": "css/mapa-charlas.css",
       "b308688dede3ca72dafa94f709734d6f9b4ed28b025158616b6c55624eab3cd9": "css/movil.css",
       "eaa53c54ac66a9472029544b313480ababa567bb8956419294a1f4f8853f8659": "css/navbar.css",
       "42d25a856eac15681ffaef2c7a57586ca31f74829d15098580674e1751e68949": "css/styles.css",
@@ -56484,7 +56819,7 @@
       "5592dd13e0207b4c2d51edd84513489b7b7986fd27f90d225e050d1e83ddaff9": "firebase.json",
       "9451aec6321d0934ee118d1baa9b61bc7368a316b0f2a12af30fc4d577080aa7": "firebase_rules/firebase_backup.json",
       "8240340ab3c185c0f81ff9f2ddec42152010910e852f8d1b3a96f3e5bb44c97e": "firebase_rules/firestore.indexes.json",
-      "12e0975d0261cdceef577a6c8a93d467f8af56f5a5606ffdd9d95f96e0328b1e": "firebase_rules/firestore.rules",
+      "16e16df11633eaf969beda93fc0728c3807c9d5975317a30c6fdd5080e691eea": "firebase_rules/firestore.rules",
       "2009ea6fa9d8702af87177d3f8fc663bad57f150c3497ee157df11020723f0ce": "firebase_rules/storage.rules",
       "d133f07094153566c2bd53792bdb37fae1efa7da2552b1df6f4e4b8aece050ab": "functions/.eslintrc.js",
       "924115612e07c93e7407dd114f93d19614ba73ff7336e75f36a0a64ed6d638ec": "functions/acceso-posper.js",
@@ -56493,12 +56828,12 @@
       "3196fa018410f46369ca89e56713e02046474de80cb5dca0e8f82e426f07cba3": "functions/charlas.js",
       "6e43fb88838b572f602a160576c2ce5834380b01a0a5fe5ca745c849f05dd285": "functions/clave-rol.js",
       "87241c81dbcbd9c7d575ff3b44729223db40627d344ca73bde09b25764a70666": "functions/eliminaciones.js",
-      "72158cb726dcfde52c0e5b82afdbd7a7d10ee1e37b756ab7fe31d8a7518428c3": "functions/eliminar-eventos.js",
+      "278b072b46836bb3b9f1e95da9e9099e9d2ebef0d2a09216c2b4c8b4a0e6d393": "functions/eliminar-eventos.js",
       "a31beb45d499b44a3f9a34b6ec3f368132f05d23e378a44cf3351c290d1d373b": "functions/giras.js",
       "e9e79d8ea42b04a40c6d76c517b84cebab296ff425fd2dfdddc9fd78d6b7cd7d": "functions/herramientas/hash-clave-rol.js",
       "3ad06f6552c7b841d6df4fe89eb6a0391eced9e956d9554c64ce4d313164162d": "functions/identidad.js",
       "650b0c4170791c97d893578176a47b56180dbd892db5ddc562a3aa1c49bd3f38": "functions/importaciones.js",
-      "212131e8271779e72668dfc77da7a1fb3a772eaac33055a3e8ab41e419ef0b07": "functions/index.js",
+      "ba3e4077e35b5656176ee23d378f064e32dca3070315fb20e0993b0553eddaeb": "functions/index.js",
       "a403255c6f60410d046d55b2ddb6bb815d3c3e1e36df17bc8f087d1f50b3ed2d": "functions/ip-cliente.js",
       "3d9121876a8aa3cff0544b4b48a7bdb97f7446c8b17d50bf720e71c99b067e01": "functions/mapa-publico.js",
       "2628616b48ce5e280f1be5e9b9149102feefe8cb26ca166a5c0d53e379bff2d3": "functions/operaciones-financieras.js",
@@ -56507,7 +56842,7 @@
       "996f4d592e07fc64d6b3fc8b54bbb841805c9df045939c30287456f5d60be15e": "functions/permisos-admin.js",
       "4e172898c0abaa5ea7aa2144ca9675b23bf152dedef8dfd571e7576ca636f42a": "functions/permisos.js",
       "20141e8971eb2111fe8a93650ebc7e937806f0e1da9783b9ca402df884ee14a8": "functions/personal.js",
-      "630ebda670de79eef8cc11a2fc087d65c769e7333178af5d7280d96427156ce9": "functions/plantillas.js",
+      "127029704bcea197e5c749238d84b6390bda12961c8b70257e197f71ed249e35": "functions/plantillas.js",
       "e0bc0602426312eb1391a7d9177477c7ac22dccadb38f30dbf2154f1ea39d5b6": "functions/qr-participante.js",
       "37ccf3ed46151abf974745135c6b5bfa9cc9f7e13786e228fc55cbf38fb0a44c": "functions/registro-voluntarios.js",
       "02d2ed19d0cfd89ce3a692b08e0eb1d6490b7188d306eae6b1265bdd8d5fb203": "functions/registro.js",
@@ -56521,7 +56856,7 @@
       "c0872a7d24a7df4c9e31062afd1754d53ac4f9fc4549fe4a8382feaabb322f33": "functions/test/cambio-rol.integration.js",
       "5ab8a3157abf9407a1c94687246fe8c69f73f2ee4781903974f712af81916350": "functions/test/charlas.test.js",
       "0258fdc0d7ad6cda242e79eb28a7485b454f69678a841f65712fb05c1a4f261e": "functions/test/correos.test.mjs",
-      "215675775bce579e52fe7d71796ea7e9df63668f5f11209df483532e37a38105": "functions/test/credenciales-personas.test.mjs",
+      "88ccde07cca8d45f25307ba1c3ced21ddb4324d07b0d5e4df181d5b99cfea096": "functions/test/credenciales-personas.test.mjs",
       "e8678b8cbfd929a337e6961a455b22cfddde07a32ac258ea06662d449f8103dd": "functions/test/diagnostico-correo.js",
       "d19b2a84de1aa4b97120e4e96c2d8dbf63154e41dbda5aba981f895dacac08f8": "functions/test/eliminar-eventos.integration.js",
       "4431be38693ec1c4cb977e2ff4a7d15ec5d5eae6eaf4abd96e19ec7e33ef2d00": "functions/test/envios.test.js",
@@ -56537,7 +56872,7 @@
       "552fbcd06d45369d70bdf8d6363bcf6d1f8864416a399e12ddc0fa97ce5d543c": "functions/test/operaciones-qr.integration.js",
       "ac3a55b31e3dead17065baff0437cd98b083021cfa2d97e23d02f8b157fc7707": "functions/test/permanencia.test.mjs",
       "2814f050328ea2f433890a45a7b03c146b1af5f49b350767711317797788096f": "functions/test/permisos-admin.integration.js",
-      "2626ebd05d022b817c6691a6a703ba3cbdcef05f54e8c8bebffe336ddd000859": "functions/test/permisos-reglas.integration.mjs",
+      "2a3f3bff9d6fb7ec010b10525979b3c74117447497273b32e36ebd39e22019ac": "functions/test/permisos-reglas.integration.mjs",
       "26741e40451bc42a433f93342b36a544864d41d1e7d48a026b7850311121923e": "functions/test/permisos.test.mjs",
       "3abe0a05bc36dc2f1bcf87d93722db3650aadd2b2c57d13b7307e1a7d1f27479": "functions/test/plantillas.test.js",
       "43d86e9997bf2c20682041f3eb3c2471d7212df0ef6acab6953fb297d2d73d33": "functions/test/registro-voluntarios.integration.js",
@@ -56652,10 +56987,10 @@
       "39d10f47727d83793a29209713fb6d23436468c4ec5e6746fd49466e88b39d91": "js/modulos/catalogo.js",
       "c7f56eaa279519b8b1e3b234d0e8fad4863741c517bf192cf030ba9f1fc32194": "js/modulos/compras.js",
       "448c62efcd32e5c1a5c6d00b3485d7606a55c05ba5e444f386f163bb5ce121f5": "js/modulos/compras2.js",
-      "38c5fb0ae50c0f913d9d82bb4728fc9ef71cc58b6058f6564b1a1ef6abedf077": "js/modulos/credenciales.js",
+      "9bce2be0c3753bd68591afb6fb93d6c57f79d194c6a67208f0e9e21fbdbf7880": "js/modulos/credenciales.js",
       "bb75ff7e2095db1a88f88daaa8afca3b1946005a51b8d16e87b078f146ba26d6": "js/modulos/detalleFondo.js",
       "79d9d32480de85c5d4328388aeb4540e6870f691fb155d1e0503dcb4688aaf44": "js/modulos/fondo.js",
-      "e2304f8520b5d676ccd8c09eb23210e02079a7d49a5442a39ae6e4426130c4eb": "js/modulos/gestorCredenciales.js",
+      "0e1cd61e965aaa5f5670f28390ede002fbad5d63b3220d4e174ed79bcfd4eb50": "js/modulos/gestorCredenciales.js",
       "3cd6ea9c883ea07056306b8ad914ffbf9333bf4354bdf166062acf15729e80da": "js/modulos/importar-participantes.js",
       "c32d95c67d392466638ef6983ea22db39dcc7f92aa75684e9cd0e0116e2b9c35": "js/modulos/importar-voluntarios.js",
       "509129af9444acd1c01a77c1f18ea61fa91a0379a8ad73f74ef0f67e24b6a30a": "js/modulos/informeActividad.js",
@@ -56664,11 +56999,11 @@
       "9794a2f829279a886106a1a580d64fe1be61aad098d9c3e936397772b231271e": "js/modulos/lecturaQR.js",
       "e65289c54346cab0ca29047d16bd2f3befe58ca82a0e95dd69a0b69642fefccb": "js/modulos/lecturaQRGiras.js",
       "603052364d0e7c5df2dbd74366076a18eea3f25a05c0f0c95e4154d489bbac9f": "js/modulos/lecturaQRVoluntarios.js",
-      "62ebef396cbcd5cf0548f5104218238bdfd7aa3d40fd19a6dc879604d1e32b61": "js/modulos/mapa.js",
+      "c3584da6a039ed5177caf16b6ef16e680bb4874553e525061081b2b8345894af": "js/modulos/mapa.js",
       "0b2fd3e219af49116555f845beba5370482ea62310b6774c312e7962239280c6": "js/modulos/mapa3d.js",
       "645498278a5d6ff339f9682672d445c8278e25613da988ce599b1d433aa145a3": "js/modulos/minutaReunion.js",
       "cee458a762ad45383c21b6c0840ce113d33331c7faedd49f78e23ab617ac11c5": "js/modulos/minutas.js",
-      "e9ee468295f39ee11d8c536ddfb34039f4c3fef0d2da1bd67e76f73dd922b9fb": "js/modulos/personas-credenciales.js",
+      "2d1f832648410d3d27f37589f39f8c2ce2a263344a633f47917a816cd3bf74f5": "js/modulos/personas-credenciales.js",
       "f8939473e600bbe5fb5f6eed43da6b0bb0fa1a6ae1e6b7c47c0a177ee6642f18": "js/modulos/posper.js",
       "c67c616e7c42a8721a3d0e49e7ab95752f7cc7e24d0fd47209f3d0e75f3dcfc6": "js/modulos/qrPosper.js",
       "551a84fd7689c3b32ab31bab79b4e811ed7ce4dcbe32f6e14d249c917678904a": "js/modulos/randomizer.js",
@@ -56693,7 +57028,7 @@
       "f00d24c37283cfe60b863fbe0c64ccf31dee11d1a73340a36b5d5bbc6659de65": "panel/modulos/admin/minutas.html",
       "dfb9fab94c07b88d87c557acdd9de7dadcc50cf4a64f351588c7e07ae4bc0556": "panel/modulos/admin/secretaria.html",
       "50e58e86131a15275360b11f96c59b079344e0c09c0ceb868256e7bf4eb34836": "panel/modulos/admin/usuarios.html",
-      "ca7d0035161bcf610b70f46daa53a66f4a8ec4d952332e82e2655973b962d026": "panel/modulos/congreso/credenciales.html",
+      "ab813f22c87180986954fae35c7c20e6480b5bb4c95f7ccab7ce1fc9a0c31f9e": "panel/modulos/congreso/credenciales.html",
       "bda95137d708a782c175f07f73f8f1ab547d84649176bbf4835bc5fabe7f46b0": "panel/modulos/congreso/inscripciones.html",
       "b5d81cace9f80051381528775cdc7ad6c4338af516e05ce5f37f1f912f026b71": "panel/modulos/congreso/invitacionesCharlas.html",
       "552f7d69bc831115017b62f94633e37d47d843685c93f0cf3aadcc2d76219f58": "panel/modulos/congreso/lecturaQR.html",
@@ -56735,10 +57070,10 @@
     }
   },
   "retention": {
-    "symbols_detected": 7009,
-    "architectural_symbols_retained": 1676,
-    "calls_detected": 15048,
-    "architectural_calls_retained": 8546,
+    "symbols_detected": 7056,
+    "architectural_symbols_retained": 1686,
+    "calls_detected": 15162,
+    "architectural_calls_retained": 8630,
     "policy": "Conserva funciones, clases, exports y llamadas a funciones locales/exportadas; descarta ruido léxico trivial."
   },
   "storage_keys": [
@@ -56793,5 +57128,5 @@
       "change"
     ]
   },
-  "estimated_tokens": 170209
+  "estimated_tokens": 170982
 }

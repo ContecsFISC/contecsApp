@@ -1,15 +1,15 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-16T23:45:09.763918+00:00**
+- Generado: **2026-10-17T00:06:18.514563+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `df6813906cf47359…`
+- Huella del proyecto: `e0c315e574b630d3…`
 - Archivos analizados: **270**
-- Relaciones internas tipadas: **1211**
-- Símbolos detectados: **7009**
-- Llamadas detectadas: **15048**
-- IDs DOM definidos: **1237**
+- Relaciones internas tipadas: **1212**
+- Símbolos detectados: **7056**
+- Llamadas detectadas: **15162**
+- IDs DOM definidos: **1259**
 - Paquetes externos usados: **34**
-- Colecciones de Firestore detectadas: **41**
+- Colecciones de Firestore detectadas: **42**
 - Cloud Functions detectadas: **31**
 - Archivos huerfanos: **81**
 - Dependencias circulares: **0**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**20,552 tokens** · leer primero
-- `GraphCompleto.json` — ~**96,348 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**170,209 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **87.9%** frente al profundo
+- `GraphCompacto.json` — ~**20,332 tokens** · leer primero
+- `GraphCompleto.json` — ~**96,499 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**170,982 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -43,10 +43,10 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `apple-touch-icon.png` — riesgo 94.0 (conexiones: 47, 0 lineas)
 - `favicon.ico` — riesgo 94.0 (conexiones: 47, 0 lineas)
 - `js/core/navbar-pagina.js` — riesgo 89.4 (conexiones: 44, 136 lineas)
+- `js/modulos/gestorCredenciales.js` — riesgo 87.8 (conexiones: 38, 1185 lineas)
 - `js/core/firebase-config.js` — riesgo 86.3 (conexiones: 43, 35 lineas)
 - `css/styles.css` — riesgo 85.2 (conexiones: 38, 922 lineas)
 - `css/navbar.css` — riesgo 84.5 (conexiones: 38, 846 lineas)
-- `js/modulos/gestorCredenciales.js` — riesgo 84.3 (conexiones: 37, 1028 lineas)
 - `js/modulos/inscripciones.js` — riesgo 83.4 (conexiones: 31, 2138 lineas)
 - `js/modulos/credenciales.js` — riesgo 83.3 (conexiones: 37, 926 lineas)
 
@@ -65,16 +65,16 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `css/styles.css` — grado 38 | exporta: (sin exports detectados)
 - `css/tokens.css` — grado 38 | exporta: (sin exports detectados)
 - `js/core/permanencia.js` — grado 38 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, TOLERANCIA_FILA_MIN, checkpointsParaEscanear, contarValidas, efectoDeEntrada, enCurso, enPanama
+- `js/modulos/gestorCredenciales.js` — grado 38 | exporta: (sin exports detectados)
 - `js/modulos/credenciales.js` — grado 37 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
-- `js/modulos/gestorCredenciales.js` — grado 37 | exporta: (sin exports detectados)
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -194,6 +194,9 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `js/modulos/inscripciones.js`
 - `js/modulos/lecturaQR.js`
 - ...y 4 archivos mas
+
+### `comite_docentes`
+- `js/modulos/gestorCredenciales.js`
 
 ### `compras`
 - `functions/operaciones-financieras.js`
@@ -330,6 +333,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ### `reservas_conteo`
 - `functions/charlas.js`
+- `functions/eliminar-eventos.js`
 - `functions/mapa-publico.js`
 - `js/modulos/mapa.js`
 
@@ -403,6 +407,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `cambios_rol` — regla explícita · 0 operaciones detectadas
 - `categorias` — regla explícita · 4 operaciones detectadas
 - `checkpoints` — regla explícita · 13 operaciones detectadas
+- `comite_docentes` — regla explícita · 5 operaciones detectadas
 - `compras` — regla explícita · 4 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
 - `config` — regla explícita · 1 operaciones detectadas
@@ -439,7 +444,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 409
+- `calls_imported_symbol`: 410
 - `imports`: 329
 - `loads_asset`: 171
 - `loads_stylesheet`: 155

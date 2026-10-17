@@ -951,8 +951,13 @@ exports.registrarParticipante = onCall(
 // ─── PERFIL POR CÉDULA Y RESERVA DE CHARLAS (functions/charlas.js) ───────────
 // Públicas como accederParticipante: la persona entra a perfil.html solo con
 // su cédula (o con el link ?c=&t= de su credencial).
+// CPU mínima (gcf_gen1) y hasta 30 instancias: la cuota de CPU de us-central1
+// ya está casi toda en las funciones de CPU completa (lectura QR, mapa, correos)
+// y no admite otra. La primera llamada tras un rato tarda unos segundos.
+const CEDULA_OPCIONES = {region: "us-central1", maxInstances: 30, invoker: "public"};
+
 exports.accederConCedula = onCall(
-    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    CEDULA_OPCIONES,
     async (request) => {
       try {
         return await accederConCedula(request, sanitizarParticipante);
@@ -965,7 +970,7 @@ exports.accederConCedula = onCall(
 );
 
 exports.reservarCharla = onCall(
-    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    CEDULA_OPCIONES,
     async (request) => {
       try {
         return await reservarCharla(request);

@@ -33,6 +33,7 @@ function parseMeta(html) {
 
 function htmlATexto(html) {
   return html
+      .replace(/\r\n?/g, "\n")
       .replace(/<!--[\s\S]*?-->/g, "")
       .replace(/<div[^>]*display:\s*none[^>]*>[\s\S]*?<\/div>/gi, "")
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -43,11 +44,15 @@ function htmlATexto(html) {
       // escapado, y sin esto la version en texto plano del correo mostraba
       // "cupo &lt;30 (empresa &amp; universidad)" en clientes sin HTML.
       .replace(/&nbsp;/g, " ")
+      .replace(/&rarr;/g, "→")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&#39;/g, "'")
       .replace(/&quot;/g, "\"")
       .replace(/&amp;/g, "&")
+      // La sangría del HTML no va en el texto plano.
+      .replace(/[ \t]+$/gm, "")
+      .replace(/^[ \t]+/gm, "")
       .replace(/\n{3,}/g, "\n\n")
       .trim();
 }
