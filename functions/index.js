@@ -1893,8 +1893,10 @@ exports.eliminarParticipante = onCall(
 
 // Mapa público (public/mapa.html, el QR del congreso): agenda, salones y
 // asientos ocupados en conteos, sin iniciar sesión. Ver functions/mapa-publico.js.
+// 4 instancias de 80 llamadas cada una sobran con la caché en memoria (prueba
+// de carga: 600 llamadas en 3 s, p99 0,3 s) y dejan cuota de CPU a la lectura QR.
 exports.mapaPublico = onCall(
-    {region: "us-central1", maxInstances: 10, invoker: "public", ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
+    {region: "us-central1", maxInstances: 4, invoker: "public", ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
     async () => {
       try {
         return await mapaPublico();

@@ -10,13 +10,32 @@
 // responde "ya estaba" en vez de duplicarlo.
 
 const CODIGOS_DE_RED = new Set([
-  "functions/unavailable", "functions/deadline-exceeded", "functions/internal",
+  "functions/unavailable", "functions/deadline-exceeded",
   "unavailable", "deadline-exceeded",
 ]);
 
+// Solo fallas de transporte. Un "internal" con mensaje propio es un error del
+// servidor (no se arregla reintentando); el SDK pone "internal" a secas cuando
+// el fetch ni siquiera llegó.
 export function esErrorDeRed(e) {
-  return CODIGOS_DE_RED.has(e?.code) ||
-    /network|offline|failed to fetch|load failed|timeout/i.test(String(e?.message || ""));
+  if (CODIGOS_DE_RED.has(e?.code)) return true;
+  if (e?.code === "functions/internal" && /^internal$/i.test(String(e?.message || "").trim())) return true;
+  return /network|offline|failed to fetch|load failed|timeout de red/i.test(String(e?.message || ""));
+}
+
+// ¿Hay internet de verdad? (navigator.onLine sigue en true con wifi sin
+// salida a internet). Pide el mapa público, que el servidor responde de su
+// memoria sin leer la base.
+export async function hayConexion() {
+  if (!navigator.onLine) return false;
+  try {
+    const r = await conTiempo(fetch("https://us-central1-contecs-fa6e6.cloudfunctions.net/mapaPublico", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{\"data\":{}}", cache: "no-store",
+    }), 6000);
+    return r.ok;
+  } catch (_) {
+    return false;
+  }
 }
 
 export const MENSAJE_SIN_RED = "Sin conexión con el servidor. Revisa el wifi del equipo y vuelve a escanear.";

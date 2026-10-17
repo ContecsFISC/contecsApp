@@ -9,6 +9,7 @@
 import { enPanama } from "./permanencia.js";
 
 let desfase = 0;
+let programada = false;
 
 export async function sincronizarReloj() {
   try {
@@ -17,7 +18,16 @@ export async function sincronizarReloj() {
     const servidor = Date.parse(r.headers.get("date") || "");
     if (!Number.isNaN(servidor)) desfase = servidor - Math.round((antes + Date.now()) / 2);
   } catch (_) {
-    // Sin respuesta: se queda el reloj del equipo.
+    // Sin respuesta: se queda el último desfase conocido.
+  }
+  // Los equipos pasan el día abierto y Android puede corregir su reloj a
+  // mitad de jornada: se vuelve a medir cada 10 min, al volver la red y al
+  // despertar la pantalla.
+  if (!programada) {
+    programada = true;
+    setInterval(() => void sincronizarReloj(), 10 * 60 * 1000);
+    window.addEventListener("online", () => void sincronizarReloj());
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) void sincronizarReloj(); });
   }
 }
 

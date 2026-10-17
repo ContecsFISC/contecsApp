@@ -1,13 +1,13 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-17T00:06:18.514563+00:00**
+- Generado: **2026-10-17T16:07:44.529508+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `e0c315e574b630d3…`
-- Archivos analizados: **270**
-- Relaciones internas tipadas: **1212**
-- Símbolos detectados: **7056**
-- Llamadas detectadas: **15162**
-- IDs DOM definidos: **1259**
+- Huella del proyecto: `54e960afa5615c54…`
+- Archivos analizados: **273**
+- Relaciones internas tipadas: **1232**
+- Símbolos detectados: **7211**
+- Llamadas detectadas: **15401**
+- IDs DOM definidos: **1260**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **42**
 - Cloud Functions detectadas: **31**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**20,332 tokens** · leer primero
-- `GraphCompleto.json` — ~**96,499 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**170,982 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
+- `GraphCompacto.json` — ~**20,739 tokens** · leer primero
+- `GraphCompleto.json` — ~**97,700 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**173,418 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.0%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -35,7 +35,7 @@ Hallazgos estáticos: deben confirmarse en código cuando intervienen rutas o va
 Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Revisa estos primero.
 
 - `js/core/auth.js` — riesgo 373.8 (conexiones: 185, 384 lineas)
-- `panel/dashboard.html` — riesgo 130.8 (conexiones: 59, 1280 lineas)
+- `panel/dashboard.html` — riesgo 130.6 (conexiones: 59, 1261 lineas)
 - `panel/modulos/congreso/modulos_participantes.html` — riesgo 126.2 (conexiones: 51, 2420 lineas)
 - `js/core/seguridad.js` — riesgo 118.4 (conexiones: 59, 40 lineas)
 - `js/modulos/voluntarios.js` — riesgo 94.7 (conexiones: 30, 3317 lineas)
@@ -43,12 +43,12 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `apple-touch-icon.png` — riesgo 94.0 (conexiones: 47, 0 lineas)
 - `favicon.ico` — riesgo 94.0 (conexiones: 47, 0 lineas)
 - `js/core/navbar-pagina.js` — riesgo 89.4 (conexiones: 44, 136 lineas)
+- `js/core/firebase-config.js` — riesgo 88.3 (conexiones: 44, 35 lineas)
 - `js/modulos/gestorCredenciales.js` — riesgo 87.8 (conexiones: 38, 1185 lineas)
-- `js/core/firebase-config.js` — riesgo 86.3 (conexiones: 43, 35 lineas)
 - `css/styles.css` — riesgo 85.2 (conexiones: 38, 922 lineas)
 - `css/navbar.css` — riesgo 84.5 (conexiones: 38, 846 lineas)
+- `js/modulos/credenciales.js` — riesgo 83.4 (conexiones: 37, 939 lineas)
 - `js/modulos/inscripciones.js` — riesgo 83.4 (conexiones: 31, 2138 lineas)
-- `js/modulos/credenciales.js` — riesgo 83.3 (conexiones: 37, 926 lineas)
 
 ## God nodes (mas conectados) y que exponen
 
@@ -59,22 +59,22 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 - `apple-touch-icon.png` — grado 47 | exporta: (sin exports detectados)
 - `favicon.ico` — grado 47 | exporta: (sin exports detectados)
 - `manifest.json` — grado 47 | exporta: (sin exports detectados)
+- `js/core/firebase-config.js` — grado 44 | exporta: analytics, app, auth, db, storage
 - `js/core/navbar-pagina.js` — grado 44 | exporta: (sin exports detectados)
-- `js/core/firebase-config.js` — grado 43 | exporta: analytics, app, auth, db, storage
 - `css/navbar.css` — grado 38 | exporta: (sin exports detectados)
 - `css/styles.css` — grado 38 | exporta: (sin exports detectados)
 - `css/tokens.css` — grado 38 | exporta: (sin exports detectados)
-- `js/core/permanencia.js` — grado 38 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, TOLERANCIA_FILA_MIN, checkpointsParaEscanear, contarValidas, efectoDeEntrada, enCurso, enPanama
 - `js/modulos/gestorCredenciales.js` — grado 38 | exporta: (sin exports detectados)
+- `js/core/permanencia.js` — grado 37 | exporta: MARGEN_APERTURA_MIN, PERMANENCIA_MINIMA_DEFECTO, TOLERANCIA_FILA_MIN, checkpointsParaEscanear, contarValidas, efectoDeEntrada, enCurso, enPanama
 - `js/modulos/credenciales.js` — grado 37 | exporta: LIMITES, TAMANOS, TEMAS, categoriaDe, codigoDe, descargarBlob, dibujarCredencial, generarPdf
 
 ## 🟡 Posibles acoples implicitos (via variables globales `window.X`)
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
@@ -308,8 +308,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `functions/test/importaciones.integration.js`
 - `functions/test/operaciones-qr.integration.js`
 - `functions/test/permisos-reglas.integration.mjs`
-- `js/modulos/gestorCredenciales.js`
-- ...y 7 archivos mas
+- `js/core/padron.js`
+- ...y 6 archivos mas
 
 ### `productos`
 - `functions/operaciones-financieras.js`
@@ -406,7 +406,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `cambios_permisos` — regla explícita · 0 operaciones detectadas
 - `cambios_rol` — regla explícita · 0 operaciones detectadas
 - `categorias` — regla explícita · 4 operaciones detectadas
-- `checkpoints` — regla explícita · 13 operaciones detectadas
+- `checkpoints` — regla explícita · 9 operaciones detectadas
 - `comite_docentes` — regla explícita · 5 operaciones detectadas
 - `compras` — regla explícita · 4 operaciones detectadas
 - `comprobantes` — regla explícita · 0 operaciones detectadas
@@ -414,7 +414,7 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `contadores` — regla explícita · 0 operaciones detectadas
 - `correos_voluntarios` — regla explícita · 0 operaciones detectadas
 - `credenciales_impresas` — regla explícita · 3 operaciones detectadas
-- `eventos` — regla explícita · 12 operaciones detectadas
+- `eventos` — regla explícita · 10 operaciones detectadas
 - `expositores` — regla explícita · 6 operaciones detectadas
 - `fondos` — regla explícita · 1 operaciones detectadas
 - `fondos_entrada` — regla explícita · 6 operaciones detectadas
@@ -422,13 +422,13 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `identificadores_participantes` — regla explícita · 0 operaciones detectadas
 - `identificadores_voluntarios` — regla explícita · 0 operaciones detectadas
 - `informes_actividad` — regla explícita · 2 operaciones detectadas
-- `inscripciones` — regla explícita · 3 operaciones detectadas
+- `inscripciones` — regla explícita · 2 operaciones detectadas
 - `inscripciones_checkpoint` — regla explícita · 6 operaciones detectadas
 - `intentos_cambio_rol` — regla explícita · 0 operaciones detectadas
 - `limites_registro` — regla explícita · 0 operaciones detectadas
 - `mermas` — regla explícita · 3 operaciones detectadas
 - `movimientos_inventario` — regla explícita · 1 operaciones detectadas
-- `participantes` — regla explícita · 9 operaciones detectadas
+- `participantes` — regla explícita · 8 operaciones detectadas
 - `productos` — regla explícita · 19 operaciones detectadas
 - `publico` — regla explícita · 0 operaciones detectadas
 - `reservas_charlas` — regla explícita · 1 operaciones detectadas
@@ -444,8 +444,8 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
 ## Tipos de relaciones
 
-- `calls_imported_symbol`: 410
-- `imports`: 329
+- `calls_imported_symbol`: 423
+- `imports`: 336
 - `loads_asset`: 171
 - `loads_stylesheet`: 155
 - `loads_script`: 81
@@ -475,10 +475,10 @@ Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js` — usado en 1 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js` — usado en 6 archivo(s)
-- `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 36 archivo(s)
+- `https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js` — usado en 37 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js` — usado en 16 archivo(s)
 - `https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js` — usado en 3 archivo(s)
-- `node:assert/strict` — usado en 24 archivo(s)
+- `node:assert/strict` — usado en 25 archivo(s)
 - `node:crypto` — usado en 1 archivo(s)
 - `node:module` — usado en 4 archivo(s)
 - `path` — usado en 2 archivo(s)

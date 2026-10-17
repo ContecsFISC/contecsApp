@@ -17,6 +17,7 @@ const LEASE_MS = 15 * 1000;
 const OFFSET_PANAMA_MS = 5 * 60 * 60 * 1000;
 // Una actividad cuenta asientos desde que abre la entrada (30 min antes).
 const MARGEN_APERTURA_MS = 30 * 60 * 1000;
+const MAX_ATRAS_MS = 4 * 60 * 60 * 1000;
 
 // ── Copia de js/core/permanencia.js (test/mapa-publico.test.mjs compara) ──
 const TIPOS_SIN_PERMANENCIA = new Set(["congreso"]);
@@ -98,7 +99,12 @@ async function ocupacionDeAbiertas(abiertas, deHoy, hoy, ahora) {
   }
   const medibles = abiertas.filter((cp) => !TIPOS_SIN_PERMANENCIA.has(String(cp.tipo || "").toLowerCase()));
   if (medibles.length) {
-    const desde = Math.min(...medibles.map((cp) => msPanama(hoy, minutosDeHora(cp.horaInicio)))) - MARGEN_APERTURA_MS;
+    // Como mucho 4 h atrás: una actividad de todo el día no debe hacer leer
+    // todas las entradas de la jornada en cada regeneración.
+    const desde = Math.max(
+        Math.min(...medibles.map((cp) => msPanama(hoy, minutosDeHora(cp.horaInicio)))) - MARGEN_APERTURA_MS,
+        ahora - MAX_ATRAS_MS,
+    );
     consultas.push(db.collection("asistencias_congreso").where("marcadoEn", ">=", new Date(desde)).get());
   }
   const porId = new Map();

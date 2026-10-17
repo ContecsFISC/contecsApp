@@ -44,7 +44,7 @@ function puntos(texto) {
   return String(texto).trim().split(/\s+/).map(par => par.split(",").map(Number));
 }
 
-export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconoCafe = "" }) {
+export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconoCafe = "", alPerderContexto = null }) {
   let THREE, OrbitControls, CSS2DRenderer, CSS2DObject;
   try {
     THREE = await import("three");
@@ -75,11 +75,13 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   renderer.setPixelRatio(PR_BASE);
   renderer.domElement.className = "mapa3d-lienzo";
   // Si la GPU pierde el contexto (driver reiniciado, horas encendida), el
-  // lienzo quedaría negro para siempre: se recarga la página.
+  // lienzo quedaría negro: mapa.js pasa a la vista 2D y recarga cuando es
+  // seguro (con internet).
   renderer.domElement.addEventListener("webglcontextlost", e => {
     e.preventDefault();
-    console.warn("Mapa 3D: se perdió el contexto WebGL; se recarga la página.");
-    setTimeout(() => location.reload(), 3000);
+    console.warn("Mapa 3D: se perdió el contexto WebGL.");
+    if (alPerderContexto) alPerderContexto();
+    else setTimeout(() => location.reload(), 3000);
   });
   contenedor.appendChild(renderer.domElement);
 

@@ -90,7 +90,11 @@ function horaDeCaptura(data) {
   if (data.capturadoEn == null) return null;
   const ms = Number(data.capturadoEn);
   const ahora = Date.now();
-  if (!Number.isFinite(ms) || ms > ahora + 2 * 60 * 1000 || ahora - ms > MAX_ATRASO_SIN_CONEXION_MS) {
+  // Un reloj algo adelantado (hasta 15 min) no rechaza la lectura: cuenta como ahora.
+  if (!Number.isFinite(ms) || ms > ahora + 15 * 60 * 1000) {
+    throw new HttpsError("failed-precondition", "La hora de la lectura no es válida: escanéala de nuevo.");
+  }
+  if (ahora - ms > MAX_ATRASO_SIN_CONEXION_MS) {
     throw new HttpsError("failed-precondition",
         "La lectura guardada sin conexión es de hace más de 2 horas: escanéala de nuevo.");
   }

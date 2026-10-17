@@ -69,12 +69,22 @@ export function crearLectorFisico({ campo, alLeer, aceptaTeclasSueltas = () => t
     else campo.setAttribute("inputmode", "none");
   }
 
+  // Solo se cede el foco a donde se escribe a mano (o a un selector abierto).
+  // Casillas y botones no: tras tocarlos, el lector debe seguir escuchando.
   function enfocar() {
     if (!activo) return;
     const actual = document.activeElement;
-    if (actual && actual !== campo && actual.matches?.("select, textarea, input")) return;
+    if (actual && actual !== campo && actual.matches?.("select, textarea, input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit])")) return;
     campo.focus({ preventScroll: true });
   }
+  // Al elegir algo en un selector (evento, checkpoint) o marcar una casilla,
+  // el foco vuelve al lector (si no, las lecturas irían al selector y hasta
+  // podrían cambiar el evento escribiendo sobre él).
+  document.addEventListener("change", e => {
+    if (e.target !== campo && e.target.matches?.("select, input[type=checkbox], input[type=radio]")) {
+      setTimeout(() => { e.target.blur?.(); enfocar(); }, 60);
+    }
+  }, true);
 
   function empezar() {
     if (lectura.inicio) return;

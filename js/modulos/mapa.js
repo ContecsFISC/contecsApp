@@ -1120,7 +1120,14 @@ function escucharCheckpoints() {
   cancelarCheckpoints = onSnapshot(
     query(collection(db, "checkpoints"), where("eventoId", "==", S.evento.id)),
     snap => { S.checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPronto(); },
-    e => { console.error("Mapa: checkpoints:", e); alerta("error", "No se pudieron cargar las actividades."); },
+    e => {
+      // Un error corta la suscripción: se vuelve a abrir sola (si no, el mapa
+      // quedaría congelado horas sin avisar).
+      console.error("Mapa: checkpoints (se reintenta):", e);
+      cancelarCheckpoints = null;
+      const evento = S.evento?.id;
+      setTimeout(() => { if (!cancelarCheckpoints && S.evento?.id === evento) escucharCheckpoints(); }, 15000);
+    },
   );
 }
 
@@ -1129,7 +1136,10 @@ function escucharReservas() {
   return onSnapshot(collection(db, "reservas_conteo"), snap => {
     S.reservas = Object.fromEntries(snap.docs.map(d => [d.id, Number(d.data().reservados || 0)]).filter(([, n]) => n > 0));
     renderPronto();
-  }, e => console.warn("Mapa: reservas:", e));
+  }, e => {
+    console.warn("Mapa: reservas (se reintenta):", e);
+    setTimeout(() => { cancelarReservas = escucharReservas(); }, 30000);
+  });
 }
 
 // Actividades de voluntariado con salón, de cualquier fecha (voluntariadoVisible
@@ -1142,8 +1152,11 @@ function escucharVoluntariado() {
       .map(actividadVoluntariado);
     if (!S.dia) elegirDiaInicial();
     renderDias();
-    render();
-  }, e => console.error("Mapa: voluntariado:", e));
+    renderPronto();
+  }, e => {
+    console.error("Mapa: voluntariado (se reintenta):", e);
+    setTimeout(() => { cancelarVoluntariado = escucharVoluntariado(); }, 30000);
+  });
 }
 
 // Los asientos solo importan "en ese momento": se escuchan las entradas de
@@ -1169,7 +1182,11 @@ function escucharAsistencias() {
       S.asistencias = snap.docs.map(d => d.data()).filter(a => a.eventoId === S.evento?.id);
       renderPronto();
     },
-    e => { console.error("Mapa: asistencias:", e); alerta("error", "No se pudieron cargar los asientos ocupados."); },
+    e => {
+      // Al quedar en null, el reloj de 30 s la vuelve a abrir sola.
+      console.error("Mapa: asistencias (se reintenta):", e);
+      cancelarAsistencias = null;
+    },
   );
 }
 
@@ -1230,6 +1247,27 @@ ajustarAlto();
 // Pantalla grande del congreso (rol Modelado): la usa mucha gente seguida.
 // Tras un rato sin tocarla vuelve sola a la vista general, sin filtros.
 const INACTIVIDAD_KIOSCO_MS = 90 * 1000;
+
+// Recargar sin internet deja la página de error del navegador y la pantalla
+// muerta: antes se comprueba que respondan este sitio y la librería 3D.
+async function recargarSiEsSeguro() {
+  try {
+    const [pagina, libreria] = await Promise.all([
+      fetch(location.href, { method: "HEAD", cache: "no-store" }),
+      fetch("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", { method: "HEAD", cache: "no-store" }),
+    ]);
+    if (pagina.ok && libreria.ok) { location.reload(); return; }
+  } catch (_) { /* sin red */ }
+  setTimeout(() => void recargarSiEsSeguro(), 60 * 1000);
+}
+
+// La GPU perdió el contexto 3D: se sigue en 2D y se recarga en cuanto se pueda.
+function alPerderContexto3D() {
+  vista3d = null;
+  el("btn-3d").disabled = true;
+  cambiarVista("2d");
+  setTimeout(() => void recargarSiEsSeguro(), 5000);
+}
 // Encendida 48 h: cada 6 h, si nadie la toca hace 3 min, se recarga sola para
 // empezar con la memoria limpia (la sesión de Firebase se conserva).
 const RECARGA_KIOSCO_MS = 6 * 60 * 60 * 1000;
@@ -1240,6 +1278,13 @@ function iniciarKiosco() {
   const reiniciar = () => {
     S.filtro = FILTRO_VACIO();
     el("agenda-buscar").value = "";
+    // Vuelve a "hoy" si alguien dejó otro día elegido.
+    const hoy = enPanama().dia;
+    if (S.dia !== hoy && diasDelMapa().includes(hoy)) {
+      S.dia = hoy;
+      renderDias();
+      escucharAsistencias();
+    }
     if (esAncho()) volverAgenda(); else cerrarPanel();
     vista3d?.reencuadrar();
     render();
@@ -1252,9 +1297,7 @@ function iniciarKiosco() {
   ["pointerdown", "keydown", "wheel"].forEach(tipo => document.addEventListener(tipo, tocar, { passive: true }));
   tocar();
   setInterval(() => {
-    if (Date.now() - abiertaDesde > RECARGA_KIOSCO_MS && Date.now() - ultimoToque > 3 * 60 * 1000 && navigator.onLine) {
-      location.reload();
-    }
+    if (Date.now() - abiertaDesde > RECARGA_KIOSCO_MS && Date.now() - ultimoToque > 3 * 60 * 1000) void recargarSiEsSeguro();
   }, 5 * 60 * 1000);
   // Pantalla táctil pública: sin zoom de la página, menú contextual ni selección.
   document.addEventListener("contextmenu", e => e.preventDefault());
@@ -1283,7 +1326,10 @@ async function iniciar() {
   renderLeyenda();
   renderPisos();
 
-  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO, iconoCafe: ICONO_CAFE });
+  vista3d = await crearVista3D(el("escenario-mapa"), {
+    planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO, iconoCafe: ICONO_CAFE,
+    alPerderContexto: alPerderContexto3D,
+  });
   el("cargando-mapa").hidden = true;
   if (vista3d) {
     if (S.aqui) vista3d.marcarAqui(ESPACIOS.get(S.aqui).piso, puntoAqui(ESPACIOS.get(S.aqui)));
@@ -1312,9 +1358,21 @@ async function iniciar() {
   // En pantalla ancha la agenda queda abierta al lado, como en la guía.
   else if (esAncho()) volverAgenda();
 
-  // Lo "en vivo" cambia con la hora: se recalcula cada 30 s.
+  // Lo "en vivo" cambia con la hora: se recalcula cada 30 s. A medianoche, si
+  // se estaba mirando "hoy", el mapa pasa solo al día nuevo (la pantalla
+  // grande pasa la noche encendida).
+  let hoyVisto = enPanama().dia;
   setInterval(() => {
-    if (!PUBLICO && S.dia && S.evento && cancelarAsistencias === null && S.dia === enPanama().dia) escucharAsistencias();
+    const hoy = enPanama().dia;
+    if (hoy !== hoyVisto) {
+      if (S.dia === hoyVisto && diasDelMapa().includes(hoy)) {
+        S.dia = hoy;
+        renderDias();
+        escucharAsistencias();
+      }
+      hoyVisto = hoy;
+    }
+    if (!PUBLICO && S.dia && S.evento && cancelarAsistencias === null && S.dia === hoy) escucharAsistencias();
     render();
   }, 30000);
 }

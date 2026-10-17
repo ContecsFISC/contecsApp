@@ -43,6 +43,14 @@ prueba("la credencial del participante NO es un RFID", () => {
   assert.equal(normalizarRfid("{\"codigo\":\"CT-1\",\"token\":\"x\"}").ok, false);
 });
 
+prueba("un pedazo de credencial (doble disparo, lectura cortada) tampoco", () => {
+  assert.equal(normalizarRfid("https://contecs-app.vercel.app/public/perfil.html?c=CTCS-2026-00012").ok, false);
+  assert.equal(normalizarRfid("CTCS-2026-00012").ok, false);
+  assert.equal(normalizarRfid("&t=0f3a9c").ok, false);
+  // Un RFID que es un enlace de otro sitio sigue valiendo.
+  assert.equal(normalizarRfid("https://tags.example.com/t/9F3A21").ok, true);
+});
+
 prueba("vacío o demasiado corto se rechaza", () => {
   assert.equal(normalizarRfid("").ok, false);
   assert.equal(normalizarRfid(null).ok, false);
