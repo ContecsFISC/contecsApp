@@ -175,16 +175,29 @@ export function montarCarrusel(contenedor, secciones = [], { alElegir = () => {}
 
   tarjetas.forEach((el, i) => {
     // La del frente se inclina hacia el cursor (con zoom) y el brillo la sigue.
+    // Una medición y una escritura por cuadro, no una por evento del ratón.
+    let puntero = null, rafInclinar = 0;
     el.addEventListener("pointermove", e => {
       if (i !== activo || reducido() || eligiendo || e.pointerType !== "mouse" || pista.classList.contains("arrastrando")) return;
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-      el.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
-      el.style.setProperty("--my", (py * 100).toFixed(1) + "%");
-      el.style.transition = "none";
-      el.style.transform = `translate3d(0,0,0) scale(1.06) rotateX(${((0.5 - py) * 14).toFixed(2)}deg) rotateY(${((px - 0.5) * 14).toFixed(2)}deg)`;
+      puntero = { x: e.clientX, y: e.clientY };
+      if (rafInclinar) return;
+      rafInclinar = requestAnimationFrame(() => {
+        rafInclinar = 0;
+        if (!puntero || i !== activo || eligiendo) return;
+        const r = el.getBoundingClientRect();
+        const px = (puntero.x - r.left) / r.width, py = (puntero.y - r.top) / r.height;
+        el.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+        el.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+        el.style.transition = "none";
+        el.style.transform = `translate3d(0,0,0) scale(1.06) rotateX(${((0.5 - py) * 14).toFixed(2)}deg) rotateY(${((px - 0.5) * 14).toFixed(2)}deg)`;
+      });
+    }, { passive: true });
+    el.addEventListener("pointerleave", () => {
+      cancelAnimationFrame(rafInclinar);
+      rafInclinar = 0;
+      puntero = null;
+      if (i === activo && !eligiendo) pintar(true);
     });
-    el.addEventListener("pointerleave", () => { if (i === activo && !eligiendo) pintar(true); });
     el.addEventListener("click", () => {
       if (arrastre.movio || eligiendo) return;
       if (i !== activo) return ir(i);

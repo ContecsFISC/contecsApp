@@ -671,7 +671,7 @@ async function cargarSolicitudesAutocomplete() {
   input.addEventListener("input",  e => renderSugerencias(e.target.value.trim()));
   input.addEventListener("focus",  e => { if (e.target.value.trim()) renderSugerencias(e.target.value.trim()); });
   input.addEventListener("blur",   () => setTimeout(() => { dropdown.style.display = "none"; }, 160));
-  window.addEventListener("scroll", () => { dropdown.style.display = "none"; }, true);
+  window.addEventListener("scroll", () => { if (dropdown.style.display !== "none") dropdown.style.display = "none"; }, { capture: true, passive: true });
 })();
 
 function autorellenarDesdeSolicitud(sol) {

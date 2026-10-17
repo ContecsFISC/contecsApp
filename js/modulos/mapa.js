@@ -25,7 +25,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-functions.js";
 import { escaparAtributo, escaparHtml } from "../core/seguridad.js";
-import { aplicarPermisosDom, esperarSesionLista, usuarioTienePermiso } from "../core/auth.js";
+import { aplicarPermisosDom, esperarSesionLista, getUsuarioActual, usuarioTienePermiso } from "../core/auth.js";
 import { PLANOS } from "../data/planos-edificio3.js";
 import {
   enPanama, enCurso, estaCancelado, estaOperativo, minutosDeHora, ocupacionActual,
@@ -34,7 +34,7 @@ import {
   ROTULO_MAX, TIPOS_PROGRAMABLES, esSalonCafe, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
-import { crearVista3D } from "./mapa3d.js?v=20261016.1";
+import { crearVista3D } from "./mapa3d.js?v=20261016.2";
 
 const el = id => document.getElementById(id);
 const PUBLICO = document.body.dataset.publico === "1";
@@ -57,6 +57,42 @@ const COLOR_FIN = "#9aa3ad";
 const COLOR_CANCELADO = "#e57373";
 const MAX_ASIENTOS_DIBUJADOS = 600;
 
+// ─── Charla en curso: verde al empezar, amarillo a la mitad, rojo al final ──
+// Los últimos MINUTOS_CIERRE el salón queda en rojo: está por terminar y
+// esperando a la siguiente.
+const MINUTOS_CIERRE = 10;
+const RGB_VERDE = [22, 163, 74];
+const RGB_AMARILLO = [234, 179, 8];
+const RGB_NARANJA = [234, 88, 12];
+const RGB_ROJO = [220, 38, 38];
+const hex = rgb => `#${rgb.map(v => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
+const mezclar = (a, b, p) => a.map((v, i) => v + (b[i] - v) * p);
+
+function avanceCharla(cp, ahora) {
+  const ini = minutosDeHora(cp.horaInicio);
+  const fin = minutosDeHora(cp.horaFin);
+  if (ini == null || fin == null || fin <= ini) return null;
+  const restan = fin - ahora.minutos;
+  const p = Math.max(0, Math.min(1, (ahora.minutos - ini) / Math.max(1, fin - ini - MINUTOS_CIERRE)));
+  const cierre = restan <= MINUTOS_CIERRE;
+  const color = cierre ? hex(RGB_ROJO)
+    : p < 0.5 ? hex(mezclar(RGB_VERDE, RGB_AMARILLO, p * 2))
+      : hex(mezclar(RGB_AMARILLO, RGB_NARANJA, (p - 0.5) * 2));
+  return { color, restan: Math.max(0, restan), pct: Math.round(Math.max(0, Math.min(1, (ahora.minutos - ini) / (fin - ini))) * 100), cierre };
+}
+
+// Fotos y logos: una URL completa o una ruta del sitio (img/charlas/...).
+const RAIZ_SITIO = new URL("../../", import.meta.url);
+function imagenDe(ruta) {
+  const r = String(ruta || "").trim();
+  if (!r) return "";
+  if (/^https:\/\//i.test(r)) return r;
+  if (/^[a-z]+:/i.test(r)) return ""; // ni http ni data: ni javascript:
+  return new URL(r.replace(/^\/+/, ""), RAIZ_SITIO).href;
+}
+const iniciales = nombre => String(nombre || "").split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join("").toUpperCase() || "?";
+const temasDe = cp => (Array.isArray(cp?.temas) ? cp.temas.filter(t => typeof t === "string" && t.trim()).map(t => t.trim()) : []);
+
 // Todos los espacios del plano por id.
 const ESPACIOS = new Map(PLANOS.flatMap(p => p.espacios.map(e => [e.id, { ...e, piso: p.id }])));
 
@@ -76,12 +112,18 @@ const S = {
   todosCheckpoints: [], ocupacionPublica: {},
   // Panel: "cerrado", "agenda" o "salon". destacado = actividad elegida en la agenda.
   panel: "cerrado", destacado: null,
-  filtro: { tipo: "todo", dia: "todo", ahora: false, ocultarFin: false, q: [] },
+  filtro: { tipo: "todo", tema: "todo", dia: "todo", ahora: false, ocultarFin: false, q: [] },
+  // checkpointId -> asientos apartados por reserva (reservas_conteo / mapaPublico).
+  reservas: {},
+  // Pantalla grande del congreso (rol Modelado): sin barra y vuelve sola al inicio.
+  kiosco: false,
 };
+const FILTRO_VACIO = () => ({ tipo: "todo", tema: "todo", dia: "todo", ahora: false, ocultarFin: false, q: [] });
 let vista3d = null;
 let cancelarCheckpoints = null;
 let cancelarAsistencias = null;
 let cancelarVoluntariado = null;
+let cancelarReservas = null;
 let estados = new Map();
 
 // ─── Utilidades ─────────────────────────────────────────────────────────────
@@ -195,6 +237,7 @@ function calcularEstados() {
   const ahora = enPanama();
   const ocupacion = ocupadosPorCheckpoint();
   const porSalon = checkpointsPorSalon();
+  const coinciden = salonesQueCoinciden(ahora);
   const resultado = new Map();
 
   for (const [id, esp] of ESPACIOS) {
@@ -213,11 +256,14 @@ function calcularEstados() {
     } else if (vivo) {
       const ocupados = ocupacion.get(vivo.id) || 0;
       const capacidad = salon?.capacidad || 0;
+      // El color dice cuánto lleva la charla (no el tipo): verde, amarillo, rojo.
+      const avance = avanceCharla(vivo, ahora);
+      const etiqueta = avance?.cierre ? "POR TERMINAR" : "EN VIVO";
       est = {
-        estado: "vivo", color: tipoDe(vivo).color, rotulo,
+        estado: "vivo", color: avance?.color || tipoDe(vivo).color, rotulo,
         ratio: capacidad ? ocupados / capacidad : ocupados ? 0.5 : 0.03,
-        chip: capacidad ? `EN VIVO · ${ocupados}/${capacidad}` : `EN VIVO · ${ocupados}`,
-        titulo: `${nombreSalon(id, salon)}: ${vivo.nombre}`, vivo, ocupados, capacidad,
+        chip: capacidad ? `${etiqueta} · ${ocupados}/${capacidad}` : `${etiqueta} · ${ocupados}`,
+        titulo: `${nombreSalon(id, salon)}: ${vivo.nombre}`, vivo, ocupados, capacidad, avance,
       };
     } else if (activos.length) {
       const pendientes = activos.filter(cp => !terminado(cp, ahora));
@@ -230,9 +276,26 @@ function calcularEstados() {
       est = { estado: "libre", rotulo, titulo: nombreSalon(id, salon) };
     }
     if (esSalonCafe(salon)) est.icono = "cafe";
+    if (coinciden) {
+      est.atenuado = !coinciden.has(id);
+      est.resaltado = coinciden.has(id);
+    }
     resultado.set(id, est);
   }
   return resultado;
+}
+
+// Con filtros en la agenda (tema, tipo, búsqueda...), los salones del día del
+// mapa que tienen alguna actividad que coincide; null sin filtros.
+function salonesQueCoinciden(ahora) {
+  if (!filtrosActivos()) return null;
+  const ids = new Set();
+  for (const cp of actividadesMapa()) {
+    if (cp.dia !== S.dia || !coincideFiltro(cp, ahora)) continue;
+    const id = lugarDe(cp);
+    if (id) ids.add(id);
+  }
+  return ids;
 }
 
 // ─── Render general ─────────────────────────────────────────────────────────
@@ -241,6 +304,7 @@ function render() {
   // Lo que se le pasa a la maqueta no lleva objetos de Firestore.
   const paraVista = new Map([...estados].map(([id, e]) => [id, {
     estado: e.estado, color: e.color, ratio: e.ratio, rotulo: e.rotulo, chip: e.chip, titulo: e.titulo, icono: e.icono,
+    atenuado: e.atenuado, resaltado: e.resaltado,
   }]));
   vista3d?.actualizar(paraVista);
   if (S.vista === "2d") render2D();
@@ -263,7 +327,10 @@ function renderLeyenda() {
     ...["conferencia", "taller", "panel", "congreso", ...(PUBLICO ? [] : ["voluntariado"])].map(t => fila(TIPOS[t].color, TIPOS[t].nombre)),
     fila(COLOR_FIN, "Ya terminó"),
     fila(COLOR_CANCELADO, "Cancelada"),
-    `<span style="margin-top:2px;color:var(--gris-medio)">En vivo: el cristal se llena con los asientos ocupados</span>`,
+    `<span style="margin-top:4px;font-weight:700">En vivo</span>`,
+    `<span><i style="background:linear-gradient(90deg,${hex(RGB_VERDE)},${hex(RGB_AMARILLO)},${hex(RGB_NARANJA)})"></i>Empezando → a la mitad</span>`,
+    fila(hex(RGB_ROJO), `Últimos ${MINUTOS_CIERRE} min`),
+    `<span style="color:var(--gris-medio)">El cristal se llena con los asientos ocupados</span>`,
   ].join("");
 }
 
@@ -404,7 +471,7 @@ function render2D() {
       const prog = TIPOS_PROGRAMABLES.has(e.t);
       const est = estados.get(e.id);
       const relleno = !prog ? "rgba(0,0,0,0.05)" : est?.color || "rgba(255,255,255,0.75)";
-      const opacidad = est?.estado === "vivo" ? 0.9 : est?.estado === "programado" ? 0.6 : 0.75;
+      const opacidad = est?.atenuado ? 0.18 : est?.estado === "vivo" ? 0.9 : est?.estado === "programado" ? 0.6 : 0.75;
       return `<polygon class="esp${prog ? " prog" : ""}${e.id === S.sel ? " sel" : ""}${est?.estado === "vivo" ? " vivo" : ""}" points="${e.p}" data-id="${escaparAtributo(e.id)}" fill="${relleno}" fill-opacity="${opacidad}"><title>${h(est?.titulo || "")}</title></polygon>`;
     }).join("")}
     ${piso.espacios.filter(e => estados.get(e.id)?.rotulo).map(e => {
@@ -567,7 +634,12 @@ function elegirSalon(id, { destacar = null } = {}) {
   mostrarPanel("salon");
   if (otro) el("panel-cuerpo").scrollTop = 0;
   if (S.vista === "2d") render2D();
-  if (destacar) el("panel-cuerpo").querySelector(".act-btn.destacada")?.scrollIntoView({ block: "nearest" });
+  // Solo se desplaza el panel (scrollIntoView movía también la página entera).
+  const destacada = destacar && el("panel-cuerpo").querySelector(".act-btn.destacada");
+  if (destacada) {
+    const cuerpo = el("panel-cuerpo");
+    cuerpo.scrollTop += destacada.getBoundingClientRect().top - cuerpo.getBoundingClientRect().top - 12;
+  }
 }
 
 function soltarSalon() {
@@ -641,7 +713,9 @@ function htmlActividad(cp, ahora, { conSalon = true } = {}) {
     : cp.salon ? `${cp.salon} (fuera del plano)` : "Sin salón asignado";
   // El título formal va entre comillas; en voluntariado ese campo es el área.
   const titulo = cp.origen === "voluntariado" ? cp.titulo : entreComillas(cp.titulo);
-  const detalles = [titulo, cp.exponente, conSalon ? lugar : null].filter(Boolean);
+  const quien = [cp.exponente, cp.empresa].filter(Boolean).join(" · ");
+  const apartados = S.reservas[cp.id] || 0;
+  const detalles = [titulo, quien, conSalon ? lugar : null, apartados && est !== "fin" ? `${apartados} ${apartados === 1 ? "asiento apartado" : "asientos apartados"}` : null].filter(Boolean);
   const clases = ["act-btn", est === "fin" ? "fin" : "", est === "cancelada" ? "cancelada" : "", id ? "" : "sin-salon",
     cp.id === S.destacado ? "destacada" : ""].filter(Boolean).join(" ");
   return `<li class="con-btn"><button type="button" class="${clases}" data-cp="${escaparAtributo(cp.id)}" style="--c:${color}">
@@ -668,11 +742,13 @@ function htmlPorDia(lista, ahora, opciones) {
 }
 
 // ─── Agenda ─────────────────────────────────────────────────────────────────
-const filtrosActivos = () => S.filtro.tipo !== "todo" || S.filtro.dia !== "todo" || S.filtro.ahora || S.filtro.ocultarFin || S.filtro.q.length > 0;
+// El día de la agenda no cuenta como filtro para el mapa (el mapa ya muestra un día).
+const filtrosActivos = () => S.filtro.tipo !== "todo" || S.filtro.tema !== "todo" || S.filtro.ahora || S.filtro.ocultarFin || S.filtro.q.length > 0;
 
 function coincideFiltro(cp, ahora) {
   const f = S.filtro;
   if (f.tipo !== "todo" && claveTipo(cp) !== f.tipo) return false;
+  if (f.tema !== "todo" && !temasDe(cp).some(t => normalizar(t) === normalizar(f.tema))) return false;
   if (f.dia !== "todo" && cp.dia !== f.dia) return false;
   const est = estadoActividad(cp, ahora);
   if (f.ahora && est !== "vivo") return false;
@@ -680,7 +756,7 @@ function coincideFiltro(cp, ahora) {
   if (f.q.length) {
     const id = lugarDe(cp);
     const texto = normalizar([
-      cp.nombre, cp.titulo, cp.exponente, tipoDe(cp).nombre,
+      cp.nombre, cp.titulo, cp.exponente, cp.empresa, cp.descripcion, ...temasDe(cp), tipoDe(cp).nombre,
       id ? `${nombreSalon(id, S.salones[id])} salon ${rotuloSalon(id, S.salones[id])}` : cp.salon,
     ].join(" "));
     if (!f.q.every(t => texto.includes(t))) return false;
@@ -698,6 +774,14 @@ function renderFiltrosAgenda(ahora) {
       color ? `<i style="--c:${color}"></i>` : ""}${h(texto)}</button>`;
   let html = chip("tipo", "todo", "Todo", null, f.tipo === "todo")
     + tipos.map(t => chip("tipo", t, TIPOS[t].nombre, TIPOS[t].color, f.tipo === t)).join("");
+  // Temas: charlas relacionadas aunque sean de distintos exponentes. Al elegir
+  // uno, el mapa resalta sus salones y deja tenues los demás.
+  const temas = [...new Map(todas.flatMap(temasDe).map(t => [normalizar(t), t])).values()]
+    .sort((a, b) => a.localeCompare(b, "es"));
+  if (temas.length) {
+    html += `<span class="sep" aria-hidden="true"></span>` + chip("tema", "todo", "Todos los temas", null, f.tema === "todo")
+      + temas.map(t => chip("tema", t, t, null, normalizar(f.tema) === normalizar(t))).join("");
+  }
   if (dias.length > 1) {
     html += `<span class="sep" aria-hidden="true"></span>` + chip("dia", "todo", "Todos los días", null, f.dia === "todo")
       + dias.map(d => chip("dia", d, d === ahora.dia ? "Hoy" : etiquetaDia(d), null, f.dia === d)).join("");
@@ -742,8 +826,22 @@ el("agenda-filtros").addEventListener("click", e => {
   const { grupo, valor } = b.dataset;
   if (grupo === "ahora" || grupo === "ocultarFin") S.filtro[grupo] = !S.filtro[grupo];
   else S.filtro[grupo] = valor;
-  renderAgenda();
+  // Elegir un día en la agenda también lo muestra en el mapa.
+  if (grupo === "dia" && valor !== "todo" && valor !== S.dia && diasDelMapa().includes(valor)) {
+    S.dia = valor;
+    renderDias();
+    escucharAsistencias();
+  }
+  render(); // el mapa resalta los salones que coinciden
 });
+
+// Un tema de la ficha filtra la agenda y el mapa por ese tema.
+function filtrarPorTema(tema) {
+  S.filtro = { ...FILTRO_VACIO(), tema };
+  el("agenda-buscar").value = "";
+  volverAgenda();
+  render();
+}
 
 let tBusqueda = null;
 el("agenda-buscar").addEventListener("input", () => {
@@ -751,19 +849,21 @@ el("agenda-buscar").addEventListener("input", () => {
   tBusqueda = setTimeout(() => {
     S.filtro.q = normalizar(el("agenda-buscar").value).split(/\s+/).filter(Boolean);
     el("panel-cuerpo").scrollTop = 0;
-    renderAgenda();
-  }, 140);
+    render();
+  }, 160);
 });
 
 // Tocar una actividad (en la agenda o en un salón) la muestra en el mapa: su
 // salón, su piso y su día.
 el("panel-cuerpo").addEventListener("click", e => {
   if (e.target.closest("[data-accion='limpiar']")) {
-    S.filtro = { tipo: "todo", dia: "todo", ahora: false, ocultarFin: false, q: [] };
+    S.filtro = FILTRO_VACIO();
     el("agenda-buscar").value = "";
-    renderAgenda();
+    render();
     return;
   }
+  const tema = e.target.closest("[data-tema]");
+  if (tema) { filtrarPorTema(tema.dataset.tema); return; }
   const btn = e.target.closest("[data-cp]");
   if (!btn) return;
   const cp = actividadesMapa().find(x => x.id === btn.dataset.cp);
@@ -788,20 +888,59 @@ el("panel-cuerpo").addEventListener("click", e => {
 // desde el último repintado (si no, cada actualización haría parpadear todo).
 const asientosPrevios = new Map();
 
-function htmlAsientos(capacidad, ocupados, color, clave = "") {
+// `apartados`: asientos reservados desde el perfil. Los que aún no entraron
+// se dibujan punteados después de los ocupados (aproximado: no se sabe si
+// quien entró había reservado).
+function htmlAsientos(capacidad, ocupados, color, clave = "", apartados = 0) {
   if (!capacidad) return `<p class="vacio-mapa">Configura la capacidad del salón para ver sus asientos.</p>`;
   const porAsiento = Math.ceil(capacidad / MAX_ASIENTOS_DIBUJADOS);
   const total = Math.ceil(capacidad / porAsiento);
   const llenos = Math.min(total, Math.ceil(ocupados / porAsiento));
+  const reservados = Math.min(total - llenos, Math.ceil(Math.max(0, apartados - ocupados) / porAsiento));
   const previos = Math.min(asientosPrevios.get(clave) ?? 0, llenos);
   asientosPrevios.set(clave, llenos);
   const asientos = Array.from({ length: total }, (_, i) => {
     if (i < previos) return `<span class="asiento ocupado"></span>`;
     if (i < llenos) return `<span class="asiento por-llenar" style="transition-delay:${reducido ? 0 : Math.min((i - previos) * 18, 900)}ms;"></span>`;
+    if (i < llenos + reservados) return `<span class="asiento apartado"></span>`;
     return `<span class="asiento"></span>`;
   }).join("");
-  return `<div class="asientos" style="--c:${color}" role="img" aria-label="${ocupados} de ${capacidad} asientos ocupados">${asientos}</div>
+  return `<div class="asientos" style="--c:${color}" role="img" aria-label="${ocupados} de ${capacidad} asientos ocupados${apartados ? `, ${apartados} apartados` : ""}">${asientos}</div>
+    ${apartados ? `<div class="leyenda-asientos" style="--c:${color}"><span><i class="o"></i>Ocupado</span><span><i class="a"></i>Apartado (reservó y aún no entra)</span><span><i class="l"></i>Libre</span></div>` : ""}
     ${porAsiento > 1 ? `<p class="asientos-nota">Cada cuadro representa ${porAsiento} asientos.</p>` : ""}`;
+}
+
+// Ficha de una charla: foto del exponente, empresa con su logo, descripción
+// y temas (tocar un tema filtra el mapa por charlas relacionadas).
+function htmlFicha(cp) {
+  const foto = imagenDe(cp.fotoExponente);
+  const logo = imagenDe(cp.logoEmpresa);
+  const temas = temasDe(cp);
+  if (!cp.exponente && !cp.empresa && !cp.descripcion && !foto && !logo && !temas.length) return "";
+  const retrato = foto
+    ? `<img class="ficha-foto" src="${escaparAtributo(foto)}" alt="${escaparAtributo(cp.exponente ? `Foto de ${cp.exponente}` : "Exponente")}" loading="lazy" decoding="async" width="64" height="64"/>`
+    : cp.exponente ? `<span class="ficha-foto iniciales" aria-hidden="true">${h(iniciales(cp.exponente))}</span>` : "";
+  return `<div class="ficha">
+    <div class="ficha-personas">
+      ${retrato}
+      <div class="ficha-quien">
+        ${cp.exponente ? `<div class="ficha-exponente">${h(cp.exponente)}</div>` : ""}
+        ${cp.empresa ? `<div class="ficha-empresa">${h(cp.empresa)}</div>` : ""}
+      </div>
+      ${logo ? `<img class="ficha-logo" src="${escaparAtributo(logo)}" alt="${escaparAtributo(cp.empresa ? `Logo de ${cp.empresa}` : "Logo")}" loading="lazy" decoding="async"/>` : ""}
+    </div>
+    ${cp.descripcion ? `<p class="ficha-desc">${h(cp.descripcion)}</p>` : ""}
+    ${temas.length ? `<div class="ficha-temas" aria-label="Temas">${temas.map(t => `<button type="button" data-tema="${escaparAtributo(t)}">${h(t)}</button>`).join("")}</div>` : ""}
+  </div>`;
+}
+
+function htmlAvance(avance, cp) {
+  if (!avance) return "";
+  const texto = avance.cierre ? `Termina en ${avance.restan} min · esperando la siguiente` : `Quedan ${avance.restan} min`;
+  return `<div class="progreso-charla" style="--c:${avance.color}">
+    <div class="barra"><div style="width:${avance.pct}%"></div></div>
+    <div class="txt"><span>${h(cp.horaInicio || "")} – ${h(cp.horaFin || "")}</span><b>${h(texto)}</b></div>
+  </div>`;
 }
 
 function renderPanel() {
@@ -841,29 +980,42 @@ function renderSalon() {
     const pct = capacidad ? Math.min(100, Math.round(est.ocupados / capacidad * 100)) : 0;
     const presentes = (ocupacionActual(S.asistencias, S.checkpoints).get(cp.id) || [])
       .sort((a, b) => (b.marcadoEn?.toMillis?.() || 0) - (a.marcadoEn?.toMillis?.() || 0));
+    const apartados = S.reservas[cp.id] || 0;
     bloques.push(`<section class="bloque">
       <h3>En vivo ahora</h3>
-      <div class="vivo-titulo"><span class="badge-vivo">EN VIVO</span>${h(cp.nombre || "Actividad")}</div>
-      <div class="panel-meta">${h(tipoDe(cp).nombre)} · ${h(cp.horaInicio || "")}–${h(cp.horaFin || "")}${cp.exponente ? ` · ${h(cp.exponente)}` : ""}</div>
-      <div class="contadores">
+      <div class="vivo-titulo"><span class="badge-vivo" style="background:${est.color}">${est.avance?.cierre ? "POR TERMINAR" : "EN VIVO"}</span>${h(cp.titulo ? entreComillas(cp.titulo) : cp.nombre || "Actividad")}</div>
+      <div class="panel-meta">${h(tipoDe(cp).nombre)}${cp.titulo ? ` · ${h(cp.nombre || "")}` : ""}</div>
+      ${htmlAvance(est.avance, cp)}
+      ${htmlFicha(cp)}
+      <div class="contadores${apartados ? " cuatro" : ""}">
         <div class="contador"><b>${est.ocupados}</b><span>Ocupados</span></div>
+        ${apartados ? `<div class="contador"><b>${apartados}</b><span>Reservaron</span></div>` : ""}
         <div class="contador libres"><b>${libres ?? "—"}</b><span>Disponibles</span></div>
         <div class="contador"><b>${capacidad || "—"}</b><span>Capacidad</span></div>
       </div>
       <div class="barra-ocup${pct >= 100 ? " llena" : ""}"><div style="width:${pct}%"></div></div>
-      ${htmlAsientos(capacidad, est.ocupados, est.color, `${id}|${cp.id}`)}
+      ${htmlAsientos(capacidad, est.ocupados, est.color, `${id}|${cp.id}`, apartados)}
       ${S.liberar ? `<h3 style="margin-top:12px;">Personas en el salón (${presentes.length})</h3>
         ${presentes.length ? `<ul class="presentes">${presentes.map(a => `<li>
           <span>${h(a.participanteNombre || a.participanteCodigo || "Participante")}<br><small>Entró ${h(horaDe(a.marcadoEn))}</small></span>
           <button class="btn-liberar" type="button" data-liberar="${escaparAtributo(`${a.participanteColeccion || "participantes"}|${a.participanteId}|${a.checkpointId}`)}">Liberar asiento</button>
         </li>`).join("")}</ul>` : `<p class="vacio-mapa">Todavía no hay entradas registradas.</p>`}` : ""}
     </section>`);
-  } else if (salon?.capacidad) {
-    bloques.push(`<section class="bloque">
-      <h3>Asientos</h3>
-      <p class="vacio-mapa" style="margin:0 0 10px;">${est.estado === "programado" ? `Sin actividad en este momento. La próxima empieza a las ${h(est.chip || "—")}.` : "Sin actividad en este momento."}</p>
-      ${htmlAsientos(salon.capacidad, 0, "#00722e", `${id}|libre`)}
-    </section>`);
+  } else {
+    // Sin nada en curso: la próxima charla de hoy en este salón, con su ficha
+    // y los asientos que ya se apartaron para ella.
+    const proxima = ordenarActividades(actividadesMapa().filter(cp =>
+      lugarDe(cp) === id && cp.dia === S.dia && estaOperativo(cp) && !terminado(cp, ahora)))[0];
+    const apartados = proxima ? S.reservas[proxima.id] || 0 : 0;
+    if (proxima || salon?.capacidad) {
+      bloques.push(`<section class="bloque">
+        <h3>${proxima ? "Próxima en este salón" : "Asientos"}</h3>
+        ${proxima ? `<div class="vivo-titulo" style="font-size:15px">${h(proxima.titulo ? entreComillas(proxima.titulo) : proxima.nombre || "Actividad")}</div>
+          <div class="panel-meta">${h(tipoDe(proxima).nombre)} · ${h(proxima.horaInicio || "")}–${h(proxima.horaFin || "")}${apartados ? ` · ${apartados} ${apartados === 1 ? "reserva" : "reservas"}` : ""}</div>
+          ${htmlFicha(proxima)}` : `<p class="vacio-mapa" style="margin:0 0 10px;">Sin actividad en este momento.</p>`}
+        ${salon?.capacidad ? `<div style="margin-top:12px">${htmlAsientos(salon.capacidad, 0, proxima ? tipoDe(proxima).color : "#00722e", `${id}|libre`, apartados)}</div>` : ""}
+      </section>`);
+    }
   }
 
   // Todas las actividades del salón en el evento, por día (como la guía).
@@ -958,6 +1110,14 @@ function escucharCheckpoints() {
   );
 }
 
+// Asientos apartados por charla (functions/charlas.js). Solo conteos.
+function escucharReservas() {
+  return onSnapshot(collection(db, "reservas_conteo"), snap => {
+    S.reservas = Object.fromEntries(snap.docs.map(d => [d.id, Number(d.data().reservados || 0)]).filter(([, n]) => n > 0));
+    render();
+  }, e => console.warn("Mapa: reservas:", e));
+}
+
 // Actividades de voluntariado con salón, de cualquier fecha (voluntariadoVisible
 // decide cuáles se muestran). Las desactivadas no salen.
 function escucharVoluntariado() {
@@ -1029,6 +1189,7 @@ async function cargarPublico() {
   S.eventos = (data.eventos || []).filter(estaOperativo);
   S.todosCheckpoints = data.checkpoints || [];
   S.ocupacionPublica = data.ocupacion || {};
+  S.reservas = data.reservas || {};
   if (primeraVez || !S.eventos.some(ev => ev.id === S.evento?.id)) {
     const hoy = enPanama().dia;
     S.evento = S.eventos.find(ev => diasDelEvento(ev).includes(hoy))
@@ -1052,9 +1213,29 @@ function ajustarAlto() {
 window.addEventListener("resize", ajustarAlto);
 ajustarAlto();
 
+// Pantalla grande del congreso (rol Modelado): la usa mucha gente seguida.
+// Tras un rato sin tocarla vuelve sola a la vista general, sin filtros.
+const INACTIVIDAD_KIOSCO_MS = 90 * 1000;
+function iniciarKiosco() {
+  let espera = null;
+  const reiniciar = () => {
+    S.filtro = FILTRO_VACIO();
+    el("agenda-buscar").value = "";
+    if (esAncho()) volverAgenda(); else cerrarPanel();
+    vista3d?.reencuadrar();
+    render();
+  };
+  const tocar = () => { clearTimeout(espera); espera = setTimeout(reiniciar, INACTIVIDAD_KIOSCO_MS); };
+  ["pointerdown", "keydown", "wheel"].forEach(tipo => document.addEventListener(tipo, tocar, { passive: true }));
+  tocar();
+}
+
 async function iniciar() {
   if (!PUBLICO) {
     await esperarSesionLista();
+    S.kiosco = getUsuarioActual().rol === "modelado";
+    document.body.classList.toggle("kiosco", S.kiosco);
+    ajustarAlto();
     S.gestor = usuarioTienePermiso("evento_salones");
     S.liberar = usuarioTienePermiso("liberar_asiento");
     S.verPresentes = puedeVerPresentes();
@@ -1089,7 +1270,9 @@ async function iniciar() {
     escucharSalones(salones => { S.salones = salones; render(); }, e => console.error("Mapa: salones:", e));
     await cargarEventos();
     cancelarVoluntariado = escucharVoluntariado();
+    cancelarReservas = escucharReservas();
   }
+  if (S.kiosco) iniciarKiosco();
 
   // ?salon=3-73 abre ese salón (enlace desde Gestión de Eventos → Salones).
   const pedido = new URLSearchParams(location.search).get("salon");
@@ -1108,4 +1291,4 @@ iniciar().catch(e => {
   console.error("Mapa del evento:", e);
   el("cargando-mapa").textContent = "No se pudo cargar el mapa. Recarga la página.";
 });
-window.addEventListener("pagehide", () => { cancelarCheckpoints?.(); cancelarAsistencias?.(); cancelarVoluntariado?.(); vista3d?.destruir(); });
+window.addEventListener("pagehide", () => { cancelarCheckpoints?.(); cancelarAsistencias?.(); cancelarVoluntariado?.(); cancelarReservas?.(); vista3d?.destruir(); });

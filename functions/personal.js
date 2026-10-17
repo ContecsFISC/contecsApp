@@ -11,6 +11,7 @@ const {HttpsError} = require("firebase-functions/v2/https");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const {usuarioPuede} = require("./permisos");
 const {conAjustesDeRol} = require("./ajustes-rol");
+const {normalizarCedula} = require("./registro-voluntarios");
 
 const db = getFirestore();
 // Debe reflejar "gestionar_credenciales" en js/core/permisos.js: quien
@@ -100,18 +101,46 @@ async function historialDe(voluntarioId) {
   }).sort((x, y) => (y.entrada || 0) - (x.entrada || 0));
 }
 
-async function accederPersonal(request) {
-  const id = String(request.data?.id || "").trim();
-  const token = String(request.data?.token || "").trim();
-  if (!ID_VALIDO.test(id) || !TOKEN_VALIDO.test(token)) {
-    throw new HttpsError("invalid-argument", "El enlace del perfil no es válido.");
+// Solo con la cédula (como el perfil de participantes): el documento del
+// voluntario guarda su cédula normalizada en `id`. Si todavía no tiene token
+// (la credencial no se ha impreso), se le crea para que su QR funcione.
+async function perfilPorCedula(cedula) {
+  const {ok, valor} = normalizarCedula(cedula);
+  if (!ok) throw new HttpsError("invalid-argument", "Esa cédula no es válida. Escríbela como 8-123-4567.");
+  const snap = await db.collection("voluntarios").where("id", "==", valor).limit(1).get();
+  if (snap.empty) {
+    throw new HttpsError("not-found", "No encontramos un voluntario con esa cédula. Escríbela como al registrarte.");
   }
-  const snap = await db.collection("voluntarios").doc(id).get();
-  if (!snap.exists || !mismoToken(snap.data().token, token)) {
-    throw new HttpsError("not-found", "No encontramos este perfil. Pide al equipo de CONTECS una credencial nueva.");
+  const d = snap.docs[0];
+  let token = d.data().token;
+  if (typeof token !== "string" || !TOKEN_VALIDO.test(token)) {
+    token = nuevoToken();
+    await d.ref.update({token, actualizadoEn: FieldValue.serverTimestamp()});
+  }
+  return {snap: d, id: d.id, token};
+}
+
+async function accederPersonal(request) {
+  let snap;
+  let id;
+  let token;
+  if (request.data?.cedula) {
+    ({snap, id, token} = await perfilPorCedula(String(request.data.cedula).slice(0, 40)));
+  } else {
+    id = String(request.data?.id || "").trim();
+    token = String(request.data?.token || "").trim();
+    if (!ID_VALIDO.test(id) || !TOKEN_VALIDO.test(token)) {
+      throw new HttpsError("invalid-argument", "El enlace del perfil no es válido.");
+    }
+    snap = await db.collection("voluntarios").doc(id).get();
+    if (!snap.exists || !mismoToken(snap.data().token, token)) {
+      throw new HttpsError("not-found", "No encontramos este perfil. Pide al equipo de CONTECS una credencial nueva.");
+    }
   }
   const v = snap.data();
   return {
+    docId: id,
+    token,
     nombre: v.nombre || "",
     apellido: v.apellido || "",
     cedula: v.id || "",

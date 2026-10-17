@@ -147,6 +147,28 @@
  </table>
  </div>
 
+ <!-- Reservas desde el perfil vs. quién entró de verdad -->
+ <div class="tabla-card">
+ <h3>Reservas y asistencia por charla</h3>
+ <p style="font-size:12px;color:var(--gris-medio);margin:-4px 0 10px;line-height:1.5;">Reservaron = apartaron asiento desde su perfil. Fueron = de esos, cuántos entraron. Sin reservar = entraron sin haber reservado. La entrada nunca se limita por la reserva.</p>
+ <table>
+ <thead>
+ <tr>
+ <th>Actividad</th>
+ <th>Día</th>
+ <th style="text-align:center">Reservaron</th>
+ <th style="text-align:center">Fueron</th>
+ <th style="text-align:center">No fueron</th>
+ <th style="text-align:center">Sin reservar</th>
+ <th style="text-align:center">Entraron en total</th>
+ </tr>
+ </thead>
+ <tbody id="reservasTableBody">
+ <tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">Cargando…</td></tr>
+ </tbody>
+ </table>
+ </div>
+
  <!-- ═══ VOLUNTARIOS ═══════════════════════════════════════ -->
  <div class="section-title"> Voluntarios</div>
 
@@ -211,7 +233,7 @@
  import { guardRoute, requirePermiso } from "../../../js/core/auth.js";
  guardRoute();
  await requirePermiso("ver_estadisticas_congreso");
- const { default: init } = await import("../../../js/modulos/reportes_estadisticaCont.js");
+ const { default: init } = await import("../../../js/modulos/reportes_estadisticaCont.js?v=20261016.1");
  init();
 </script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>

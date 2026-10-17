@@ -268,7 +268,12 @@
  onerror="this.style.display='none';this.parentElement.innerHTML=''"/>
  </div>
  <h1>CONTECS 2026 — Giras</h1>
- <p>Este enlace no es válido o ya expiró.<br/>Usa el enlace que recibiste en el correo de Giras.</p>
+ <p id="msg-texto">Este enlace no es válido o ya expiró.<br/>Usa el enlace que recibiste en el correo de Giras.</p>
+ <form id="form-cedula-gira" style="display:none;margin-top:14px;text-align:left;" novalidate>
+ <label for="inp-cedula-gira" style="display:block;font-size:13px;font-weight:600;color:var(--gris-texto);margin-bottom:6px;">Cédula</label>
+ <input id="inp-cedula-gira" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ej: 8-123-4567" style="width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid var(--gris-borde);border-radius:10px;font:700 15px 'Courier New',monospace;"/>
+ <button type="submit" style="width:100%;margin-top:12px;padding:13px;border:0;border-radius:10px;background:var(--oro-oscuro);color:#fff;font:700 15px var(--fuente, inherit);cursor:pointer;">Ver mi gira</button>
+ </form>
  <div class="msg-alerta" id="msg-alerta" style="display:none;"></div>
  </div>
 </div>
@@ -394,12 +399,35 @@ function mostrarError(msg) {
  }
 }
 
+// Se entra con el link del correo (?c=&t=&g=) o, con solo la gira (?g=),
+// escribiendo la cédula.
 async function init() {
  const params = new URLSearchParams(window.location.search);
  const codigo = params.get("c");
  const token = params.get("t");
  const giraId = params.get("g");
 
+ if (giraId && !(codigo && token)) {
+ el("loading-wrap").style.display = "none";
+ el("msg-wrap").style.display = "flex";
+ el("msg-texto").textContent = "Escribe tu cédula para ver tu gira y tu credencial.";
+ el("form-cedula-gira").style.display = "block";
+ el("form-cedula-gira").addEventListener("submit", async e => {
+ e.preventDefault();
+ const cedula = el("inp-cedula-gira").value.trim();
+ if (!cedula) return;
+ el("msg-alerta").style.display = "none";
+ try {
+ const data = await accederGiraParticipante(null, null, giraId, cedula);
+ el("msg-wrap").style.display = "none";
+ renderGira(data, data.participante.codigo, data.participante.token);
+ } catch (err) {
+ el("msg-alerta").textContent = err.message || "Error de conexión. Intenta de nuevo.";
+ el("msg-alerta").style.display = "block";
+ }
+ });
+ return;
+ }
  if (!codigo || !token || !giraId) {
  mostrarError(null);
  return;

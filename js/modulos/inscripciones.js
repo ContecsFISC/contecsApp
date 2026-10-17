@@ -1091,6 +1091,12 @@ el("btn-guardar-cp").addEventListener("click", async () => {
     ponenteId:     el("cp-ponente-id").value || null,
     tipoPresencia: el("cp-tipo-presencia").value || null,
     cupos,
+    // Ficha del Mapa y del perfil (mapaPublico la publica tal cual).
+    descripcion:   el("cp-descripcion").value.trim().slice(0, 1200),
+    empresa:       el("cp-empresa").value.trim().slice(0, 120),
+    fotoExponente: el("cp-foto").value.trim().slice(0, 500),
+    logoEmpresa:   el("cp-logo").value.trim().slice(0, 500),
+    temas:         [...new Set(el("cp-temas").value.split(",").map(t => t.trim()).filter(Boolean))].slice(0, 8),
     actualizadoEn: serverTimestamp(),
   };
 
@@ -1234,6 +1240,8 @@ function limpiarFormCp() {
   el("cp-exponente-manual").style.display = "none";
   el("cp-ponente-info").style.display   = "none";
   el("cp-tipo-presencia").value         = "";
+  ["cp-descripcion", "cp-empresa", "cp-foto", "cp-logo", "cp-temas"].forEach(id => { el(id).value = ""; });
+  el("cp-ficha").open = false;
   el("cp-cupos").value      = "";
   el("cp-cupos-section").style.display  = "none";
   el("cp-tipo-ayuda").textContent = "Entrada general: cada QR registra la asistencia del participante al congreso.";
@@ -1258,6 +1266,12 @@ window._editarCp = id => {
   el("cp-hora-inicio").value = cp.horaInicio  || "";
   el("cp-hora-fin").value    = cp.horaFin     || "";
   el("cp-tipo-presencia").value = cp.tipoPresencia || "";
+  el("cp-descripcion").value = cp.descripcion || "";
+  el("cp-empresa").value     = cp.empresa || "";
+  el("cp-foto").value        = cp.fotoExponente || "";
+  el("cp-logo").value        = cp.logoEmpresa || "";
+  el("cp-temas").value       = (cp.temas || []).join(", ");
+  el("cp-ficha").open = Boolean(cp.descripcion || cp.empresa || cp.fotoExponente || cp.logoEmpresa || cp.temas?.length);
 
   // Restaurar ponente
   if (cp.ponenteId && el("cp-ponente-select").querySelector(`option[value="${cp.ponenteId}"]`)) {

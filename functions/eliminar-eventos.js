@@ -8,6 +8,8 @@
 //
 // Qué se borra de un checkpoint:
 //   - asistencias_congreso e inscripciones_checkpoint del checkpoint;
+//   - sus reservas (reservas_charlas, reservas_conteo y reservas.<id> en el
+//     participante);
 //   - la asistencia en el participante (asistencias.<id>), recalculando
 //     totalAsistencias; si no le queda ninguna, se quita estado "presente";
 //   - el checkpoint.
@@ -72,9 +74,11 @@ async function enLotes(operaciones) {
 // Todo lo que cuelga de un checkpoint. `participantes` acumula
 // "coleccion/id" -> Set de checkpoints a quitarle.
 async function rastroCheckpoint(checkpointId, eventoId, rastro) {
-  const [asistencias, talleres, ...conAsistencia] = await Promise.all([
+  const [asistencias, talleres, reservas, ...conAsistencia] = await Promise.all([
     docsDonde("asistencias_congreso", "checkpointId", checkpointId),
     docsDonde("inscripciones_checkpoint", "checkpointId", checkpointId),
+    // Reservas desde el perfil (functions/charlas.js).
+    docsDonde("reservas_charlas", "checkpointId", checkpointId),
     // También quien tenga la asistencia en su documento sin registro central
     // (datos antiguos).
     ...COLECCIONES_PARTICIPANTE.map((col) => db.collection(col)
@@ -97,6 +101,13 @@ async function rastroCheckpoint(checkpointId, eventoId, rastro) {
     rastro.talleres.add(d.ref.path);
     marcar(d.data().participanteColeccion || "participantes", d.data().participanteId);
   });
+  reservas.forEach((d) => {
+    rastro.borrar.set(d.ref.path, d.ref);
+    rastro.reservas.add(d.ref.path);
+    marcar("participantes", d.data().participanteId);
+  });
+  const conteo = db.collection("reservas_conteo").doc(checkpointId);
+  rastro.borrar.set(conteo.path, conteo);
   conAsistencia.forEach((docs, i) => docs.forEach((d) => marcar(COLECCIONES_PARTICIPANTE[i], d.id)));
 }
 
@@ -105,6 +116,7 @@ function rastroVacio() {
     borrar: new Map(), // path -> ref (asistencias, inscripciones, checkpoints, evento...)
     asistencias: new Set(),
     talleres: new Set(),
+    reservas: new Set(),
     participantes: new Map(),
     checkpoints: 0,
     inscripcionesEvento: 0,
@@ -170,6 +182,7 @@ function resumen(rastro) {
     checkpoints: rastro.checkpoints,
     asistencias: rastro.asistencias.size,
     inscripcionesTaller: rastro.talleres.size,
+    reservas: rastro.reservas.size,
     participantesAfectados: [...rastro.participantes.keys()]
         .filter((k) => k.startsWith("participantes/")).length,
     inscripcionesEvento: rastro.inscripcionesEvento,
@@ -177,7 +190,7 @@ function resumen(rastro) {
   };
 }
 
-const tieneHistorial = (r) => r.asistencias > 0 || r.inscripcionesTaller > 0 ||
+const tieneHistorial = (r) => r.asistencias > 0 || r.inscripcionesTaller > 0 || r.reservas > 0 ||
   r.participantesAfectados > 0 || r.inscripcionesEvento > 0 || r.rfids > 0;
 
 async function validarPermiso(request, conHistorial) {
@@ -208,11 +221,13 @@ async function limpiarParticipantes(rastro) {
     const quitar = rastro.participantes.get(claves[i]);
     const asistencias = {...(snap.data().asistencias || {})};
     const cambios = {actualizadoEn: FieldValue.serverTimestamp()};
+    const reservas = snap.data().reservas || {};
     quitar.forEach((cpId) => {
       if (cpId in asistencias) {
         delete asistencias[cpId];
         cambios[`asistencias.${cpId}`] = FieldValue.delete();
       }
+      if (cpId in reservas) cambios[`reservas.${cpId}`] = FieldValue.delete();
     });
     const restantes = Object.keys(asistencias).length;
     cambios.totalAsistencias = restantes;

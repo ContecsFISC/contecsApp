@@ -237,10 +237,11 @@ const ERRORES_ACCESO_GIRA = {
 };
 
 // Página pública public/gira.html — punto 4 del plan de GIRAS.
-export async function accederGiraParticipante(codigo, token, giraId) {
+// Con `cedula` (y sin código ni token) se entra solo con la cédula.
+export async function accederGiraParticipante(codigo, token, giraId, cedula = null) {
   try {
     const fn = httpsCallable(functions, "accederGiraParticipante");
-    const result = await fn({codigo, token, giraId});
+    const result = await fn(cedula ? {cedula, giraId} : {codigo, token, giraId});
     return result.data;
   } catch (error) {
     const msg = ERRORES_ACCESO_GIRA[error.code] || error.message || "Error inesperado. Intenta de nuevo.";

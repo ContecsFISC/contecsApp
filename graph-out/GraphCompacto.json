@@ -5,8 +5,8 @@
     "version": "4.0.0",
     "engine": "stdlib-static-analysis"
   },
-  "generated_at": "2026-10-16T23:10:14.943109+00:00",
-  "project_fingerprint": "630a496284cf7224741a9793d0bbf13214b2466d7ddfdaf0d556f62f7576dfcb",
+  "generated_at": "2026-10-17T00:06:18.514563+00:00",
+  "project_fingerprint": "e0c315e574b630d3db51f923fb39c9d02b7aa219d4c786da20a6710d6b8c8296",
   "project": "contecsApp",
   "view": "compact",
   "ai_usage": {
@@ -21,27 +21,48 @@
     "do_not": "No cargar GraphCompleto/GraphProfundo completos si esta vista y el código relevante bastan."
   },
   "stats": {
-    "total_files": 269,
-    "total_edges": 1202,
+    "total_files": 270,
+    "total_edges": 1212,
     "total_orphans": 81,
     "total_cycles": 0,
     "total_external_packages": 34,
-    "total_firestore_collections": 41,
+    "total_firestore_collections": 42,
     "total_cloud_functions": 31,
     "total_possible_implicit_links": 5,
-    "total_symbols": 6910,
-    "total_function_calls": 14843,
-    "total_dom_ids": 1222,
+    "total_symbols": 7056,
+    "total_function_calls": 15162,
+    "total_dom_ids": 1259,
     "total_diagnostics": 1,
     "errors": 0,
     "warnings": 0
   },
   "git": {
     "available": true,
-    "branch": "lectores-posper-voluntario",
-    "head": "5591c32a0fdf0f1ea0ec3468a9311bd28ca95f7f",
-    "changed_files": [],
-    "changed_count": 0
+    "branch": "mapa-charlas-fluidez",
+    "head": "1308dd5b8e79f514b6bd366654c35f657954e45f",
+    "changed_files": [
+      {
+        "file": "css/mapa-charlas.css",
+        "status": " M"
+      },
+      {
+        "file": "functions/eliminar-eventos.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/index.js",
+        "status": " M"
+      },
+      {
+        "file": "functions/plantillas.js",
+        "status": " M"
+      },
+      {
+        "file": "js/modulos/mapa.js",
+        "status": " M"
+      }
+    ],
+    "changed_count": 5
   },
   "domains": [
     {
@@ -86,7 +107,7 @@
     },
     {
       "name": "css",
-      "file_count": 7,
+      "file_count": 8,
       "key_files": [
         "css/styles.css",
         "css/navbar.css",
@@ -94,10 +115,11 @@
         "css/movil.css",
         "css/inicio.css",
         "css/login.css",
+        "css/mapa-charlas.css",
         "css/tarjetas.css"
       ],
       "collections": [],
-      "average_risk": 48.6,
+      "average_risk": 43.1,
       "diagnostics": 0
     },
     {
@@ -177,7 +199,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 8.2,
+      "average_risk": 8.3,
       "diagnostics": 0
     },
     {
@@ -217,10 +239,10 @@
         "js/core/seguridad.js",
         "js/modulos/voluntarios.js",
         "js/core/navbar-pagina.js",
-        "js/core/firebase-config.js",
         "js/modulos/gestorCredenciales.js",
-        "js/modulos/credenciales.js",
+        "js/core/firebase-config.js",
         "js/modulos/inscripciones.js",
+        "js/modulos/credenciales.js",
         "js/core/permanencia.js",
         "js/modulos/mapa.js"
       ],
@@ -232,6 +254,7 @@
         "asistencias_voluntarios",
         "categorias",
         "checkpoints",
+        "comite_docentes",
         "compras",
         "config",
         "credenciales_impresas",
@@ -246,6 +269,8 @@
         "mermas",
         "participantes",
         "productos",
+        "reservas_charlas",
+        "reservas_conteo",
         "reuniones",
         "salones",
         "solicitudes_actividad",
@@ -254,7 +279,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 36.1,
+      "average_risk": 36.6,
       "diagnostics": 1
     },
     {
@@ -288,7 +313,7 @@
         "ventas",
         "voluntarios"
       ],
-      "average_risk": 38.9,
+      "average_risk": 39.0,
       "diagnostics": 0
     },
     {
@@ -296,23 +321,23 @@
       "file_count": 7,
       "key_files": [
         "public/perfil.html",
+        "public/mapa.html",
         "public/ms/auth.html",
         "public/gira.html",
-        "public/mapa.html",
         "public/acceso-posper.html",
         "public/perfil-personal.html",
         "public/registro-voluntarios.html"
       ],
       "collections": [],
-      "average_risk": 19.1,
+      "average_risk": 19.4,
       "diagnostics": 0
     }
   ],
   "critical_files": [
     {
       "label": "js/core/auth.js",
-      "risk_score": 371.8,
-      "degree": 184,
+      "risk_score": 373.8,
+      "degree": 185,
       "in_cycle": false,
       "loc": 384
     },
@@ -328,7 +353,7 @@
       "risk_score": 126.2,
       "degree": 51,
       "in_cycle": false,
-      "loc": 2423
+      "loc": 2420
     },
     {
       "label": "js/core/seguridad.js",
@@ -373,6 +398,13 @@
       "loc": 136
     },
     {
+      "label": "js/modulos/gestorCredenciales.js",
+      "risk_score": 87.8,
+      "degree": 38,
+      "in_cycle": false,
+      "loc": 1185
+    },
+    {
       "label": "js/core/firebase-config.js",
       "risk_score": 86.3,
       "degree": 43,
@@ -394,11 +426,11 @@
       "loc": 846
     },
     {
-      "label": "js/modulos/gestorCredenciales.js",
-      "risk_score": 83.9,
-      "degree": 37,
+      "label": "js/modulos/inscripciones.js",
+      "risk_score": 83.4,
+      "degree": 31,
       "in_cycle": false,
-      "loc": 990
+      "loc": 2138
     },
     {
       "label": "js/modulos/credenciales.js",
@@ -406,13 +438,6 @@
       "degree": 37,
       "in_cycle": false,
       "loc": 926
-    },
-    {
-      "label": "js/modulos/inscripciones.js",
-      "risk_score": 81.2,
-      "degree": 30,
-      "in_cycle": false,
-      "loc": 2121
     }
   ],
   "files": [
@@ -463,6 +488,11 @@
     {
       "file": "css/login.css",
       "risk": 6.4,
+      "relations": 2
+    },
+    {
+      "file": "css/mapa-charlas.css",
+      "risk": 4.8,
       "relations": 2
     },
     {
@@ -607,7 +637,7 @@
     },
     {
       "file": "firebase_rules/firestore.rules",
-      "risk": 6.1,
+      "risk": 6.3,
       "relations": 0,
       "purpose": "── Helpers ──────────────────────────────────────────────────────────────"
     },
@@ -741,7 +771,7 @@
     },
     {
       "file": "functions/eliminar-eventos.js",
-      "risk": 10.9,
+      "risk": 11.0,
       "relations": 4,
       "purpose": "Borrado definitivo de un evento o de un checkpoint desde Gestión de Evento, con todo su rastro. Existe para limpiar pruebas (un checkpoint de prueba deja asistencias que cuentan pa",
       "exports": [
@@ -753,6 +783,7 @@
       "collections": [
         "checkpoints",
         "eventos",
+        "reservas_conteo",
         "rfid_participantes",
         "usuarios"
       ]
@@ -859,7 +890,7 @@
     },
     {
       "file": "functions/mapa-publico.js",
-      "risk": 5.3,
+      "risk": 5.5,
       "relations": 2,
       "purpose": "Mapa público (public/mapa.html, al que lleva el QR del congreso): cualquiera sin iniciar sesión ve los salones, la agenda y cuántos asientos quedan. Nunca sale quién está dentro: s",
       "exports": [
@@ -872,6 +903,7 @@
         "checkpoints",
         "eventos",
         "publico",
+        "reservas_conteo",
         "salones"
       ]
     },
@@ -970,8 +1002,8 @@
     },
     {
       "file": "functions/personal.js",
-      "risk": 7.3,
-      "relations": 3,
+      "risk": 9.6,
+      "relations": 4,
       "purpose": "Perfil del personal (voluntarios y comité organizador), el equivalente a perfil.html de los participantes. El QR de su credencial abre public/perfil-personal.html?id=<doc de volunt",
       "exports": [
         "accederPersonal",
@@ -1013,8 +1045,8 @@
     },
     {
       "file": "functions/registro-voluntarios.js",
-      "risk": 5.4,
-      "relations": 2,
+      "risk": 7.4,
+      "relations": 3,
       "purpose": "Registro público de voluntarios (public/registro-voluntarios.html). No da acceso al panel ni envía correos ni QR: solo deja al voluntario en `voluntarios` con los datos normalizado",
       "exports": [
         "nombrePropio",
@@ -1085,8 +1117,8 @@
     },
     {
       "file": "functions/test/agenda-salones.test.mjs",
-      "risk": 11.0,
-      "relations": 5,
+      "risk": 13.1,
+      "relations": 6,
       "purpose": "Prueba de los choques de horario por salón (Gestión de Eventos no deja crear un checkpoint en un salón ocupado). Un fallo aquí no rompe nada a la vista: dos actividades quedan en e"
     },
     {
@@ -1112,7 +1144,7 @@
     },
     {
       "file": "functions/test/credenciales-personas.test.mjs",
-      "risk": 2.8,
+      "risk": 3.0,
       "relations": 1,
       "purpose": "Quién lleva credencial (js/modulos/personas-credenciales.js): voluntarios y comité con su cédula en el QR, expositores inscritos con su QR de acceso, externos y agregados a mano si"
     },
@@ -1227,7 +1259,7 @@
     },
     {
       "file": "functions/test/permisos-reglas.integration.mjs",
-      "risk": 3.5,
+      "risk": 3.6,
       "relations": 0,
       "purpose": "Permisos individuales contra las reglas reales (firebase_rules/firestore.rules) en el emulador. Es la tercera copia de la regla rol + ajustes (las otras dos se comparan en test/per",
       "collections": [
@@ -1329,8 +1361,8 @@
     },
     {
       "file": "js/core/agenda-salones.js",
-      "risk": 55.1,
-      "relations": 27,
+      "risk": 63.2,
+      "relations": 31,
       "purpose": "============================================= CONTECS — Salones: nombres y choques de horario ============================================= Un salón es un espacio del plano (id \"pi",
       "exports": [
         "RE_ESPACIO",
@@ -1338,7 +1370,9 @@
         "TIPOS_PROGRAMABLES",
         "buscarChoques",
         "describirChoque",
+        "esSalonCafe",
         "etiquetaSalon",
+        "letraRotulo",
         "nombrePiso",
         "nombreSalon",
         "rotuloSalon",
@@ -1355,8 +1389,8 @@
     },
     {
       "file": "js/core/auth.js",
-      "risk": 371.8,
-      "relations": 184,
+      "risk": 373.8,
+      "relations": 185,
       "exports": [
         "aplicarPermisosDom",
         "cargarUsuario",
@@ -1401,7 +1435,7 @@
     },
     {
       "file": "js/core/carrusel-modulos.js",
-      "risk": 10.1,
+      "risk": 10.2,
       "relations": 4,
       "purpose": "═══════════════════════════════════════════════════════════════ CONTECS — Carrusel 3D de secciones (inicio del panel) Traido del proyecto de referencia (CarruselModulos.jsx) a vani",
       "exports": [
@@ -1680,8 +1714,8 @@
     },
     {
       "file": "js/core/permanencia.js",
-      "risk": 76.3,
-      "relations": 37,
+      "risk": 78.3,
+      "relations": 38,
       "purpose": "============================================= CONTECS — Hora de Panamá, checkpoints escaneables y permanencia ============================================= Lectura QR y POSPER solo",
       "exports": [
         "MARGEN_APERTURA_MIN",
@@ -2087,11 +2121,12 @@
     },
     {
       "file": "js/modulos/gestorCredenciales.js",
-      "risk": 83.9,
-      "relations": 37,
+      "risk": 87.8,
+      "relations": 38,
       "purpose": "============================================= CONTECS — Módulo Credenciales ============================================= Un solo lugar para imprimir las credenciales de participan",
       "collections": [
         "checkpoints",
+        "comite_docentes",
         "credenciales_impresas",
         "eventos",
         "expositores",
@@ -2182,8 +2217,8 @@
     },
     {
       "file": "js/modulos/inscripciones.js",
-      "risk": 81.2,
-      "relations": 30,
+      "risk": 83.4,
+      "relations": 31,
       "collections": [
         "asistencias_congreso",
         "checkpoints",
@@ -2257,14 +2292,15 @@
     },
     {
       "file": "js/modulos/mapa.js",
-      "risk": 62.9,
-      "relations": 26,
+      "risk": 73.0,
+      "relations": 30,
       "purpose": "============================================= CONTECS — Mapa del evento ============================================= Integra la guía de salones (planos del Edificio 3) con Gestión",
       "collections": [
         "actividades_voluntarios",
         "asistencias_congreso",
         "checkpoints",
-        "eventos"
+        "eventos",
+        "reservas_conteo"
       ],
       "key_neighbors": [
         "js/core/agenda-salones.js",
@@ -2281,7 +2317,7 @@
     },
     {
       "file": "js/modulos/mapa3d.js",
-      "risk": 9.4,
+      "risk": 9.6,
       "relations": 2,
       "purpose": "============================================= CONTECS — Mapa del evento: maqueta 3D (Three.js) ============================================= Convierte los planos (js/data/planos-ed",
       "exports": [
@@ -2315,8 +2351,8 @@
     },
     {
       "file": "js/modulos/personas-credenciales.js",
-      "risk": 35.8,
-      "relations": 16,
+      "risk": 38.5,
+      "relations": 17,
       "purpose": "============================================= CONTECS — Quién lleva credencial (módulo Credenciales) ============================================= Convierte participantes, voluntar",
       "exports": [
         "TIPOS",
@@ -2324,13 +2360,13 @@
         "estadoImpresion",
         "gruposEquilibrados",
         "inicialDe",
+        "leerLineaDocente",
         "lineaCharla",
+        "nombreOrden",
         "normalizar",
         "partesCedula",
-        "personaParticipante",
-        "personaVoluntario",
-        "personasExpositores",
-        "qrPersonal"
+        "personaDocente",
+        "personaParticipante"
       ],
       "key_neighbors": [
         "functions/test/credenciales-personas.test.mjs",
@@ -2404,7 +2440,7 @@
     },
     {
       "file": "js/modulos/reportes_estadisticaCont.js",
-      "risk": 9.4,
+      "risk": 9.7,
       "relations": 3,
       "exports": [
         "init"
@@ -2417,6 +2453,7 @@
         "inscripciones",
         "inscripciones_checkpoint",
         "participantes",
+        "reservas_charlas",
         "voluntarios"
       ]
     },
@@ -2711,7 +2748,7 @@
     },
     {
       "file": "panel/modulos/congreso/credenciales.html",
-      "risk": 29.0,
+      "risk": 29.6,
       "relations": 13,
       "key_neighbors": [
         "apple-touch-icon.png",
@@ -2729,7 +2766,7 @@
     },
     {
       "file": "panel/modulos/congreso/inscripciones.html",
-      "risk": 48.1,
+      "risk": 48.4,
       "relations": 21,
       "key_neighbors": [
         "apple-touch-icon.png",
@@ -2785,10 +2822,11 @@
     },
     {
       "file": "panel/modulos/congreso/mapa.html",
-      "risk": 34.9,
-      "relations": 16,
+      "risk": 37.0,
+      "relations": 17,
       "key_neighbors": [
         "apple-touch-icon.png",
+        "css/mapa-charlas.css",
         "css/movil.css",
         "css/navbar.css",
         "css/styles.css",
@@ -2798,8 +2836,7 @@
         "js/core/navbar-pagina.js",
         "js/modulos/mapa.js",
         "manifest.json",
-        "panel/dashboard.html",
-        "panel/modulos/congreso/inscripciones.html"
+        "panel/dashboard.html"
       ]
     },
     {
@@ -2900,7 +2937,7 @@
     },
     {
       "file": "panel/modulos/congreso/reportes_estadisticaCont.html",
-      "risk": 30.2,
+      "risk": 30.4,
       "relations": 14,
       "key_neighbors": [
         "apple-touch-icon.png",
@@ -3290,13 +3327,24 @@
     },
     {
       "file": "public/gira.html",
-      "risk": 19.0,
+      "risk": 19.3,
       "relations": 7
     },
     {
       "file": "public/mapa.html",
-      "risk": 18.9,
-      "relations": 8
+      "risk": 20.9,
+      "relations": 9,
+      "key_neighbors": [
+        "apple-touch-icon.png",
+        "css/mapa-charlas.css",
+        "css/navbar.css",
+        "css/styles.css",
+        "css/tokens.css",
+        "favicon.ico",
+        "js/core/navbar-pagina.js",
+        "js/modulos/mapa.js",
+        "manifest.json"
+      ]
     },
     {
       "file": "public/ms/auth.html",
@@ -3305,7 +3353,7 @@
     },
     {
       "file": "public/perfil-personal.html",
-      "risk": 14.4,
+      "risk": 14.6,
       "relations": 6
     },
     {
@@ -3415,6 +3463,9 @@
       "js/modulos/posper.js",
       "js/modulos/reportes_estadisticaCont.js",
       "panel/dashboard.html"
+    ],
+    "comite_docentes": [
+      "js/modulos/gestorCredenciales.js"
     ],
     "compras": [
       "functions/operaciones-financieras.js",
@@ -3557,10 +3608,14 @@
       "functions/mapa-publico.js"
     ],
     "reservas_charlas": [
-      "functions/charlas.js"
+      "functions/charlas.js",
+      "js/modulos/reportes_estadisticaCont.js"
     ],
     "reservas_conteo": [
-      "functions/charlas.js"
+      "functions/charlas.js",
+      "functions/eliminar-eventos.js",
+      "functions/mapa-publico.js",
+      "js/modulos/mapa.js"
     ],
     "reuniones": [
       "js/modulos/agendarReunion.js",
@@ -3689,5 +3744,5 @@
       }
     }
   ],
-  "estimated_tokens": 20125
+  "estimated_tokens": 20332
 }

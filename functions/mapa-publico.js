@@ -75,12 +75,18 @@ function eventoPublico(id, ev) {
   };
 }
 
+// La ficha de la charla (descripción, empresa, foto del exponente, logo y
+// temas) también es pública: es lo que muestra el Mapa al tocar el salón.
+const texto = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 function checkpointPublico(id, cp) {
   return {
     id, eventoId: cp.eventoId || null, nombre: cp.nombre || "Actividad", titulo: cp.titulo || "",
     tipo: cp.tipo || "otro", dia: cp.dia || null, horaInicio: cp.horaInicio || null, horaFin: cp.horaFin || null,
     salonId: cp.salonId || null, salon: cp.salon || "", exponente: cp.exponente || "",
     estado: cp.estado || null, activo: cp.activo !== false,
+    descripcion: texto(cp.descripcion, 1200), empresa: texto(cp.empresa, 120),
+    fotoExponente: texto(cp.fotoExponente, 500), logoEmpresa: texto(cp.logoEmpresa, 500),
+    temas: Array.isArray(cp.temas) ? cp.temas.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, 40)).filter(Boolean).slice(0, 8) : [],
   };
 }
 
@@ -111,7 +117,15 @@ async function generarMapa() {
     };
   });
   const ocupacion = contarOcupacion(asistencias, checkpoints.filter((cp) => cp.dia === hoy));
-  return {eventos, checkpoints, salones, ocupacion, hoy};
+  // Asientos apartados por charla (reservas desde el perfil, functions/charlas.js).
+  const reservas = {};
+  const conteos = checkpoints.length ?
+    await db.getAll(...checkpoints.map((cp) => db.collection("reservas_conteo").doc(cp.id))) : [];
+  conteos.forEach((snap) => {
+    const n = Number(snap.data()?.reservados || 0);
+    if (n > 0) reservas[snap.id] = n;
+  });
+  return {eventos, checkpoints, salones, ocupacion, reservas, hoy};
 }
 
 async function mapaPublico() {
