@@ -116,24 +116,36 @@ function capacidadDe(cp, salon) {
   return Number.isFinite(capacidad) && capacidad > 0 ? capacidad : null;
 }
 
-// Charlas y talleres que todavía se pueden reservar, de los eventos activos.
-async function charlasReservables(participanteId, reservas) {
+// El programa (eventos activos, sus charlas reservables y salones) cambia
+// poco: se guarda 30 s por instancia. Cientos de personas abren su perfil a
+// la vez después del correo y cada apertura leía unos 150 documentos.
+const PROGRAMA_MS = 30 * 1000;
+let programa = null; // {en, activos, cps, salonDe}
+
+async function leerPrograma() {
+  if (programa && Date.now() - programa.en < PROGRAMA_MS) return programa;
   const eventos = await db().collection("eventos").get();
   const activos = new Map(eventos.docs.filter((d) => !noOperativo(d.data())).map((d) => [d.id, d.data()]));
-  if (!activos.size) return [];
-  const ids = [...activos.keys()].slice(0, 30);
-  const cpSnap = await db().collection("checkpoints").where("eventoId", "in", ids).get();
-  const cps = cpSnap.docs
-      .map((d) => ({id: d.id, ...d.data()}))
-      .filter((cp) => TIPOS_RESERVABLES.has(cp.tipo) && !noOperativo(cp) && (!yaEmpezo(cp) || reservas?.[cp.id]));
-  if (!cps.length) return [];
-
+  let cps = [];
+  if (activos.size) {
+    const ids = [...activos.keys()].slice(0, 30);
+    const cpSnap = await db().collection("checkpoints").where("eventoId", "in", ids).get();
+    cps = cpSnap.docs.map((d) => ({id: d.id, ...d.data()}))
+        .filter((cp) => TIPOS_RESERVABLES.has(cp.tipo) && !noOperativo(cp));
+  }
   const salonIds = [...new Set(cps.map((cp) => cp.salonId).filter((id) => typeof id === "string" && id))];
-  const [salones, conteos] = await Promise.all([
-    salonIds.length ? db().getAll(...salonIds.map((id) => db().collection("salones").doc(id))) : [],
-    db().getAll(...cps.map((cp) => db().collection("reservas_conteo").doc(cp.id))),
-  ]);
-  const salonDe = new Map(salones.filter((s) => s.exists).map((s) => [s.id, s.data()]));
+  const salones = salonIds.length ? await db().getAll(...salonIds.map((id) => db().collection("salones").doc(id))) : [];
+  programa = {en: Date.now(), activos, cps, salonDe: new Map(salones.filter((s) => s.exists).map((s) => [s.id, s.data()]))};
+  return programa;
+}
+
+// Charlas y talleres que todavía se pueden reservar, de los eventos activos.
+async function charlasReservables(participanteId, reservas) {
+  const {activos, cps: todas, salonDe} = await leerPrograma();
+  const cps = todas.filter((cp) => !yaEmpezo(cp) || reservas?.[cp.id]);
+  if (!cps.length) return [];
+  // Los asientos apartados sí se leen siempre al día.
+  const conteos = await db().getAll(...cps.map((cp) => db().collection("reservas_conteo").doc(cp.id)));
 
   return cps.map((cp, i) => {
     const salon = salonDe.get(cp.salonId);
@@ -182,12 +194,17 @@ async function reservarCharla(request) {
   const reservaRef = db().collection("reservas_charlas").doc(`${checkpointId}_${participanteId}`);
   const conteoRef = db().collection("reservas_conteo").doc(checkpointId);
 
+  // El conteo se lee fuera de la transacción y se suma con increment: si se
+  // leyera dentro, todas las reservas de una charla popular competirían por el
+  // mismo documento justo después del correo. Lo peor que pasa en una carrera
+  // es pasarse por uno o dos del cupo, y la reserva no limita la entrada.
+  const reservados = Number((await conteoRef.get()).data()?.reservados || 0);
+
   const resultado = await db().runTransaction(async (tx) => {
-    const [pSnap, cpSnap, reservaSnap, conteoSnap] = await tx.getAll(participanteRef, cpRef, reservaRef, conteoRef);
+    const [pSnap, cpSnap, reservaSnap] = await tx.getAll(participanteRef, cpRef, reservaRef);
     if (!cpSnap.exists) throw new HttpsError("not-found", "Esa charla ya no existe.");
     const p = pSnap.data();
     const cp = {id: checkpointId, ...cpSnap.data()};
-    const reservados = Number(conteoSnap.data()?.reservados || 0);
 
     if (!reservar) {
       if (!reservaSnap.exists) return {reservado: false, reservados};

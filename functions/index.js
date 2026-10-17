@@ -126,8 +126,13 @@ exports.ejecutarOperacionFinanciera = onCall(
     },
 );
 
+// Congreso (48 h, 700+ personas): una instancia siempre encendida en lo que
+// usan los lectores y el mapa, para que ningún escaneo espere un arranque en
+// frío. minInstances no suma a la cuota de CPU (esa la fija maxInstances).
+const SIEMPRE_ENCENDIDA = {minInstances: 1};
+
 exports.ejecutarOperacionQr = onCall(
-    {region: "us-central1", maxInstances: 10, ...CPU_COMPLETA},
+    {region: "us-central1", maxInstances: 10, ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
     async (request) => {
       try {
         return await ejecutarOperacionQr(request);
@@ -954,7 +959,7 @@ exports.registrarParticipante = onCall(
 // CPU mínima (gcf_gen1) y hasta 30 instancias: la cuota de CPU de us-central1
 // ya está casi toda en las funciones de CPU completa (lectura QR, mapa, correos)
 // y no admite otra. La primera llamada tras un rato tarda unos segundos.
-const CEDULA_OPCIONES = {region: "us-central1", maxInstances: 30, invoker: "public"};
+const CEDULA_OPCIONES = {region: "us-central1", maxInstances: 30, invoker: "public", minInstances: 1};
 
 exports.accederConCedula = onCall(
     CEDULA_OPCIONES,
@@ -1889,7 +1894,7 @@ exports.eliminarParticipante = onCall(
 // Mapa público (public/mapa.html, el QR del congreso): agenda, salones y
 // asientos ocupados en conteos, sin iniciar sesión. Ver functions/mapa-publico.js.
 exports.mapaPublico = onCall(
-    {region: "us-central1", maxInstances: 10, invoker: "public", ...CPU_COMPLETA},
+    {region: "us-central1", maxInstances: 10, invoker: "public", ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
     async () => {
       try {
         return await mapaPublico();

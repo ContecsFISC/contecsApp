@@ -34,7 +34,7 @@ import {
   ROTULO_MAX, TIPOS_PROGRAMABLES, esSalonCafe, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
-import { crearVista3D } from "./mapa3d.js?v=20261016.2";
+import { crearVista3D } from "./mapa3d.js?v=20261017.1";
 
 const el = id => document.getElementById(id);
 const PUBLICO = document.body.dataset.publico === "1";
@@ -299,7 +299,21 @@ function salonesQueCoinciden(ahora) {
 }
 
 // ─── Render general ─────────────────────────────────────────────────────────
+// Lo que llega en vivo (cada escaneo del congreso, reservas...) se junta: el
+// mapa se recalcula como mucho una vez cada RENDER_VIVO_MS, no una vez por
+// escaneo (con cientos de entradas por minuto trababa el equipo).
+const RENDER_VIVO_MS = 1500;
+let ultimoRender = 0;
+let renderPendiente = null;
+function renderPronto() {
+  if (renderPendiente) return;
+  const espera = Math.max(0, RENDER_VIVO_MS - (performance.now() - ultimoRender));
+  renderPendiente = setTimeout(() => { renderPendiente = null; render(); }, espera);
+}
+
 function render() {
+  ultimoRender = performance.now();
+  if (renderPendiente) { clearTimeout(renderPendiente); renderPendiente = null; }
   estados = calcularEstados();
   // Lo que se le pasa a la maqueta no lleva objetos de Firestore.
   const paraVista = new Map([...estados].map(([id, e]) => [id, {
@@ -1105,7 +1119,7 @@ function escucharCheckpoints() {
   if (!S.evento) { render(); return; }
   cancelarCheckpoints = onSnapshot(
     query(collection(db, "checkpoints"), where("eventoId", "==", S.evento.id)),
-    snap => { S.checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(); },
+    snap => { S.checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPronto(); },
     e => { console.error("Mapa: checkpoints:", e); alerta("error", "No se pudieron cargar las actividades."); },
   );
 }
@@ -1114,7 +1128,7 @@ function escucharCheckpoints() {
 function escucharReservas() {
   return onSnapshot(collection(db, "reservas_conteo"), snap => {
     S.reservas = Object.fromEntries(snap.docs.map(d => [d.id, Number(d.data().reservados || 0)]).filter(([, n]) => n > 0));
-    render();
+    renderPronto();
   }, e => console.warn("Mapa: reservas:", e));
 }
 
@@ -1153,7 +1167,7 @@ function escucharAsistencias() {
     query(collection(db, "asistencias_congreso"), where("checkpointDia", "==", S.dia)),
     snap => {
       S.asistencias = snap.docs.map(d => d.data()).filter(a => a.eventoId === S.evento?.id);
-      render();
+      renderPronto();
     },
     e => { console.error("Mapa: asistencias:", e); alerta("error", "No se pudieron cargar los asientos ocupados."); },
   );
@@ -1216,8 +1230,13 @@ ajustarAlto();
 // Pantalla grande del congreso (rol Modelado): la usa mucha gente seguida.
 // Tras un rato sin tocarla vuelve sola a la vista general, sin filtros.
 const INACTIVIDAD_KIOSCO_MS = 90 * 1000;
+// Encendida 48 h: cada 6 h, si nadie la toca hace 3 min, se recarga sola para
+// empezar con la memoria limpia (la sesión de Firebase se conserva).
+const RECARGA_KIOSCO_MS = 6 * 60 * 60 * 1000;
 function iniciarKiosco() {
   let espera = null;
+  let ultimoToque = Date.now();
+  const abiertaDesde = Date.now();
   const reiniciar = () => {
     S.filtro = FILTRO_VACIO();
     el("agenda-buscar").value = "";
@@ -1225,9 +1244,22 @@ function iniciarKiosco() {
     vista3d?.reencuadrar();
     render();
   };
-  const tocar = () => { clearTimeout(espera); espera = setTimeout(reiniciar, INACTIVIDAD_KIOSCO_MS); };
+  const tocar = () => {
+    ultimoToque = Date.now();
+    clearTimeout(espera);
+    espera = setTimeout(reiniciar, INACTIVIDAD_KIOSCO_MS);
+  };
   ["pointerdown", "keydown", "wheel"].forEach(tipo => document.addEventListener(tipo, tocar, { passive: true }));
   tocar();
+  setInterval(() => {
+    if (Date.now() - abiertaDesde > RECARGA_KIOSCO_MS && Date.now() - ultimoToque > 3 * 60 * 1000 && navigator.onLine) {
+      location.reload();
+    }
+  }, 5 * 60 * 1000);
+  // Pantalla táctil pública: sin zoom de la página, menú contextual ni selección.
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("gesturestart", e => e.preventDefault());
+  document.addEventListener("dblclick", e => e.preventDefault());
 }
 
 async function iniciar() {

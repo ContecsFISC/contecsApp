@@ -16,6 +16,7 @@ import {
 } from "../core/permanencia.js";
 import { sincronizarReloj, ahoraMs, ahoraPanama } from "../core/reloj-servidor.js";
 import { crearLectorFisico } from "../core/lector-fisico.js?v=20261016.1";
+import { conReintento, conTiempo, esErrorDeRed, mensajeDeError, TIEMPO_MAXIMO_ESCANEO_MS } from "../core/red.js?v=20261017.1";
 
 // Lectura QR con el lector del equipo (botón lateral: cada lectura marca la
 // entrada sola, js/core/lector-fisico.js) o con la cámara del celular (con
@@ -25,10 +26,12 @@ import { crearLectorFisico } from "../core/lector-fisico.js?v=20261016.1";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
-const ejecutarOperacionQr = httpsCallable(
+const operacionQr = httpsCallable(
   getFunctions(app, "us-central1"),
   "ejecutarOperacionQr",
+  { timeout: TIEMPO_MAXIMO_ESCANEO_MS },
 );
+const ejecutarOperacionQr = datos => conReintento(() => operacionQr(datos));
 
 let scanner          = null;
 let escaneando       = false;
@@ -190,6 +193,23 @@ function renderCheckpoints() {
 el("chk-todos").addEventListener("change", renderCheckpoints);
 setInterval(() => { if (eventoActivo) renderCheckpoints(); }, 60000);
 
+// El equipo puede pasar el día entero abierto: cada 3 min se releen los
+// checkpoints del evento (los que se agregan o cambian de hora en Gestión de
+// Evento aparecen sin recargar la página).
+setInterval(async () => {
+  if (!eventoActivo || guardandoRegistro || procesandoLector) return;
+  const id = eventoActivo.id;
+  try {
+    const snap = await getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", id)));
+    if (eventoActivo?.id !== id) return;
+    checkpointsEvento = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (checkpointSel) checkpointSel = checkpointsEvento.find(cp => cp.id === checkpointSel.id) || checkpointSel;
+    renderCheckpoints();
+  } catch (e) {
+    console.warn("Lectura QR: no se pudieron releer los checkpoints:", e);
+  }
+}, 3 * 60 * 1000);
+
 window.seleccionarCP = async function(card) {
   if (guardandoRegistro || card.classList.contains("ya-marcado")) return;
   tokenProcesamiento++;
@@ -274,9 +294,22 @@ async function registrarLectura(texto) {
     return;
   }
   const conCupos = TIPO_CON_CUPOS.includes(checkpoint.tipo) && checkpoint.cupos != null;
+  // Hora del escaneo (reloj del servidor): si no hay internet se guarda con ella.
+  const capturadoEn = ahoraMs();
   lectorPantalla("procesando", "Validando…", "Revisando la credencial.");
+  let credencial;
   try {
-    const credencial = extraerCredencialQr(texto);
+    credencial = extraerCredencialQr(texto);
+  } catch (e) {
+    resultadoLector("error", "QR NO VÁLIDO", e.message || "Ese código no es una credencial de CONTECS.");
+    return;
+  }
+  // Recién se cayó la red: se guarda directo, sin esperar a que falle otra vez.
+  if (!navigator.onLine || sinRed) {
+    guardarSinConexion({ texto, checkpoint, eventoId, conCupos, capturadoEn });
+    return;
+  }
+  try {
     const { participante, esNuevoFormato } = await buscarParticipanteQr(credencial);
     const nombre = participante.nombreCompleto || participante.nombre || "Participante";
     if (esNuevoFormato && participante.pago?.estado !== "aprobado") {
@@ -297,9 +330,92 @@ async function registrarLectura(texto) {
     resultadoLector("ok", "ENTRADA MARCADA", `${nombre} · ${checkpoint.nombre || "Checkpoint"}`);
   } catch (e) {
     console.error("Lectura QR (lector):", e);
-    resultadoLector("error", "NO SE REGISTRÓ", e.message || "No se pudo procesar el código QR.");
+    // Sin internet: la lectura queda en el equipo y se manda sola al volver.
+    // La persona puede pasar; no hay que escanearla de nuevo.
+    if (esErrorDeRed(e) || !navigator.onLine) {
+      sinRed = true;
+      guardarSinConexion({ texto, checkpoint, eventoId, conCupos, capturadoEn });
+      return;
+    }
+    resultadoLector("error", "NO SE REGISTRÓ", mensajeDeError(e, "No se pudo procesar el código QR."));
   }
 }
+
+function guardarSinConexion({ texto, checkpoint, eventoId, conCupos, capturadoEn }) {
+  pendientes.push({ texto, checkpointId: checkpoint.id, checkpointNombre: checkpoint.nombre || "Checkpoint", eventoId, conCupos, capturadoEn });
+  guardarPendientes();
+  resultadoLector("aviso", "GUARDADA SIN CONEXIÓN", "Puede pasar: la entrada se envía sola cuando vuelva el internet.");
+}
+
+// ─── Lecturas guardadas sin conexión ────────────────────────────────────────
+// Quedan en este equipo (localStorage) hasta que el servidor las recibe. Se
+// mandan cada 15 s y al volver la red, con la hora real del escaneo (el
+// servidor las acepta hasta 2 h después, operaciones-qr.js).
+const CLAVE_PENDIENTES = "lecturaQR.pendientes";
+let pendientes = (() => {
+  try { return JSON.parse(leerLocal(CLAVE_PENDIENTES, "[]")) || []; } catch (_) { return []; }
+})();
+let enviandoPendientes = false;
+// Tras un fallo de red, todo se guarda al instante sin intentar (el lector no
+// espera segundos por credencial) hasta que un envío en segundo plano funcione.
+let sinRed = false;
+
+function guardarPendientes() {
+  guardarLocal(CLAVE_PENDIENTES, JSON.stringify(pendientes));
+  const n = pendientes.length;
+  el("pendientes").hidden = !n;
+  el("pendientes").textContent = n
+    ? `${n} ${n === 1 ? "entrada guardada" : "entradas guardadas"} sin conexión: se envían solas cuando vuelva el internet. No cierres esta página.`
+    : "";
+}
+
+async function enviarPendiente(item) {
+  const credencial = extraerCredencialQr(item.texto);
+  const { participante, esNuevoFormato } = await buscarParticipanteQr(credencial, item.eventoId);
+  const nombre = participante.nombreCompleto || participante.nombre || "Participante";
+  try {
+    await ejecutarOperacionQr({
+      tipo: item.conCupos ? "inscripcion_taller" : "asistencia_participante",
+      participanteId: participante.id,
+      checkpointId: item.checkpointId,
+      coleccion: esNuevoFormato ? "participantes" : "inscripciones",
+      eventoId: item.eventoId,
+      capturadoEn: item.capturadoEn,
+    });
+    return { nombre, detalle: `${item.checkpointNombre} (enviada al volver la red)` };
+  } catch (e) {
+    if (e.code === "functions/already-exists") return { nombre, detalle: `${item.checkpointNombre} (ya estaba)` };
+    throw Object.assign(e, { nombre });
+  }
+}
+
+async function enviarPendientes() {
+  if (enviandoPendientes || !pendientes.length || procesandoLector || !navigator.onLine) return;
+  enviandoPendientes = true;
+  try {
+    while (pendientes.length) {
+      const item = pendientes[0];
+      let fila;
+      try {
+        const r = await enviarPendiente(item);
+        fila = { nombre: r.nombre, checkpoint: r.detalle };
+        sinRed = false; // volvió la red
+      } catch (e) {
+        if (esErrorDeRed(e)) break; // sigue sin red: se reintenta luego
+        fila = { nombre: e.nombre || "Lectura sin conexión", checkpoint: `NO SE REGISTRÓ: ${e.message || "error"}` };
+      }
+      pendientes.shift();
+      guardarPendientes();
+      logSesion.unshift({ ...fila, hora: new Date(item.capturadoEn).toLocaleTimeString("es-PA", { timeZone: "America/Panama" }), tipo: "asistencia" });
+      logSesion = logSesion.slice(0, 20);
+      renderLog();
+    }
+  } finally {
+    enviandoPendientes = false;
+  }
+}
+setInterval(() => void enviarPendientes(), 15000);
+window.addEventListener("online", () => setTimeout(() => void enviarPendientes(), 1500));
 
 // ─── Lector del equipo o cámara ──────────────────────────────────────────────
 async function aplicarModo(nuevo) {
@@ -454,12 +570,12 @@ function reanudarScanner(actualizarEstado = true) {
   }
 }
 
-async function buscarParticipanteQr(credencial) {
+async function buscarParticipanteQr(credencial, eventoId = eventoActivo?.id) {
   if (credencial.tipo === "participante") {
-    const snap = await getDocs(query(
+    const snap = await conReintento(() => conTiempo(getDocs(query(
       collection(db, "participantes"),
       where("codigo", "==", credencial.codigo),
-    ));
+    ))));
     if (snap.empty) throw new Error(`QR no reconocido: no hay participante con el código ${credencial.codigo}.`);
     const d = snap.docs[0];
     const participante = { id: d.id, ...d.data() };
@@ -474,7 +590,7 @@ async function buscarParticipanteQr(credencial) {
   const snap = await getDoc(doc(db, "inscripciones", credencial.id));
   if (!snap.exists()) throw new Error("QR no reconocido. Participante no encontrado.");
   const participante = { id: credencial.id, ...snap.data() };
-  if (participante.eventoId !== eventoActivo.id) {
+  if (participante.eventoId !== eventoId) {
     throw new Error("Este QR pertenece a otro evento.");
   }
   return { participante, esNuevoFormato: false };
@@ -507,8 +623,8 @@ async function procesarQrDetectado(rawQR) {
   } catch (e) {
     if (tokenActual !== tokenProcesamiento) return;
     console.error("Error procesando QR:", e);
-    alerta("error", e.message || "No se pudo procesar el código QR.");
-    estadoScanner(e.message || "No se pudo procesar el código QR.", "error");
+    alerta("error", mensajeDeError(e, "No se pudo procesar el código QR."));
+    estadoScanner(mensajeDeError(e, "No se pudo procesar el código QR."), "error");
     reanudarScanner(false);
     setTimeout(() => {
       if (procesandoQR || participanteSel) return;
@@ -655,8 +771,8 @@ el("btn-confirmar-asistencia").addEventListener("click", async () => {
     alerta("error", e.code === "functions/already-exists"
       ? `${e.message} Se conserva la primera entrada.`
       : contexto.modoTaller
-        ? e.message || "Error al inscribir en taller."
-        : "Error al guardar la entrada: " + e.message);
+        ? mensajeDeError(e, "Error al inscribir en taller.")
+        : "Error al guardar la entrada: " + mensajeDeError(e, "intenta de nuevo."));
   } finally {
     bloquearSesion(false);
   }
@@ -733,6 +849,8 @@ function renderLog() {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 void aplicarModo(modo);
 pantallaLector();
+guardarPendientes();
+setTimeout(() => void enviarPendientes(), 4000);
 // Primero la hora del servidor: con ella se decide qué checkpoints se ofrecen.
 sincronizarReloj().then(cargarEventos).catch(e => {
   console.error("Error cargando eventos para lectura QR:", e);
