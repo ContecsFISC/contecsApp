@@ -184,7 +184,7 @@
       padding: 3px 10px;
       border-radius: 20px;
       white-space: nowrap;
-      animation: pulseSoft 1.6s ease-in-out infinite;
+      animation: pulseSoft 1.6s ease-in-out 3;
     }
     /* El estado vacio es una linea discreta, no una seccion entera dedicada
        a decir que no hay nada. */
@@ -349,7 +349,7 @@
       }
       .mobile-now-status { display:flex; align-items:center; gap:7px; font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; color:var(--verde); }
       .mobile-now-status::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
-      .mobile-now-panel.is-live .mobile-now-status::before { animation:pulseSoft 1.4s ease-in-out infinite; box-shadow:0 0 0 5px rgba(6,78,59,0.10); }
+      .mobile-now-panel.is-live .mobile-now-status::before { animation:pulseSoft 1.4s ease-in-out 3; box-shadow:0 0 0 5px rgba(6,78,59,0.10); }
       .mobile-now-title { margin-top:10px; font-size:20px; line-height:1.16; color:var(--gris-texto); }
       .mobile-now-meta { margin-top:7px; font-size:12px; color:var(--gris-medio); }
 
@@ -944,27 +944,8 @@
 
     // La cuenta regresiva vive en la tarjeta del evento de "Tu agenda".
 
-    // ── Luz especular: alimenta --mx/--my de cada tarjeta con la posicion
-    //    del cursor. Un solo listener delegado y coalescido via rAF: como
-    //    mucho una escritura de estilo por frame, cueste lo que cueste el
-    //    pointermove. El efecto visual completo vive en CSS.
-    (() => {
-      let pendiente = null;
-      const aplicarLuz = () => {
-        const { objetivo, x, y } = pendiente;
-        pendiente = null;
-        const r = objetivo.getBoundingClientRect();
-        objetivo.style.setProperty("--mx", `${x - r.left}px`);
-        objetivo.style.setProperty("--my", `${y - r.top}px`);
-      };
-      document.addEventListener("pointermove", (ev) => {
-        const objetivo = ev.target.closest?.(".widget-card");
-        if (!objetivo) return;
-        const habiaPendiente = pendiente !== null;
-        pendiente = { objetivo, x: ev.clientX, y: ev.clientY };
-        if (!habiaPendiente) requestAnimationFrame(aplicarLuz);
-      }, { passive: true });
-    })();
+    // La luz de las tarjetas queda fija (antes seguía al cursor con un
+    // pointermove que medía y repintaba la tarjeta en cada movimiento).
 
     const contenido = document.getElementById("contenido-principal");
 

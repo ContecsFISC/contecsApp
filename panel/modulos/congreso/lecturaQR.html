@@ -110,6 +110,8 @@
  .captura-aviso { display:none; margin-top:6px; font-size:12px; font-weight:700; color:#ffe08a; }
  .captura-wrap.sin-foco .captura-aviso { display:block; }
  .lector-escenario.inactivo .captura-wrap { display:none; }
+ .pendientes { margin-top:10px; padding:10px 12px; border-radius:var(--radio-sm); background:#fff3d6; color:#7a4b00; font-size:13px; font-weight:700; line-height:1.45; }
+ .pendientes[hidden] { display:none; }
  .lector-ajustes { margin-top:12px; font-size:12px; color:var(--gris-medio); line-height:1.5; }
  .lector-ajustes summary { cursor:pointer; font-weight:700; color:var(--verde-oscuro); }
  .lector-ajustes label { display:flex; align-items:center; gap:8px; margin-top:8px; }
@@ -171,6 +173,7 @@
  <div class="captura-aviso">Toca aquí para reactivar el lector.</div>
  </div>
  </div>
+ <div class="pendientes" id="pendientes" role="status" hidden></div>
  <details class="lector-ajustes">
  <summary>Ajustes del lector</summary>
  Presiona el botón lateral apuntando al QR: la entrada se marca sola. En la app del escáner deja la salida en <strong>teclado</strong> y el sufijo en <strong>Enter</strong>. <strong>HT330:</strong> su teclado físico en modo <strong>123</strong>.
@@ -239,7 +242,7 @@
 
 </div>
 
-<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261016.2"></script>
+<script type="module" src="../../../js/modulos/lecturaQR.js?v=20261017.1"></script>
   <script type="module" src="../../../js/core/navbar-pagina.js?v=20261015.8"></script>
 </body>
 </html>

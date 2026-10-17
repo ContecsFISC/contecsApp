@@ -27,12 +27,14 @@ export default async function init() {
 // ═══════════════════════════════════════════════════════════
 
 async function cargarEstadisticasActividades() {
-  const [cpSnap, icSnap, asistSnap, participantesSnap, inscripcionesSnap] = await Promise.all([
+  const [cpSnap, icSnap, asistSnap, participantesSnap, inscripcionesSnap, reservasSnap] = await Promise.all([
     getDocs(query(collection(db, "checkpoints"), orderBy("dia"))),
     getDocs(collection(db, "inscripciones_checkpoint")),
     getDocs(collection(db, "asistencias_congreso")),
     getDocs(collection(db, "participantes")),
     getDocs(collection(db, "inscripciones")),
+    // Reservas desde el perfil (functions/charlas.js). Sin permiso, sin tabla.
+    getDocs(collection(db, "reservas_charlas")).catch(e => { console.warn("Estadísticas: reservas:", e); return { docs: [] }; }),
   ]);
 
   const checkpoints = cpSnap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -157,6 +159,37 @@ async function cargarEstadisticasActividades() {
       <td style="text-align:center;color:var(--gris-medio)">${horas ? horas + "h" : "—"}</td>
     </tr>`;
   }).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--gris-medio)">Sin actividades registradas.</td></tr>`;
+
+  // ── Reservaron / fueron / entraron sin reservar ──
+  const reservasPorCheckpoint = new Map();
+  reservasSnap.docs.forEach(d => {
+    const r = d.data();
+    if (!r.checkpointId || !r.participanteId) return;
+    if (!reservasPorCheckpoint.has(r.checkpointId)) reservasPorCheckpoint.set(r.checkpointId, new Set());
+    reservasPorCheckpoint.get(r.checkpointId).add(String(r.participanteId));
+  });
+  const filas = checkpoints
+    .filter(cp => reservasPorCheckpoint.has(cp.id) || ["conferencia", "taller", "workshop", "panel"].includes(cp.tipo))
+    .map(cp => {
+      const reservaron = reservasPorCheckpoint.get(cp.id) || new Set();
+      const entraron = asistentesPorCheckpoint.get(cp.id) || new Set();
+      const fueron = [...reservaron].filter(id => entraron.has(id)).length;
+      return {
+        cp, reservaron: reservaron.size, fueron, noFueron: reservaron.size - fueron,
+        sinReservar: [...entraron].filter(id => !reservaron.has(id)).length, total: entraron.size,
+      };
+    })
+    .sort((a, b) => (a.cp.dia || "").localeCompare(b.cp.dia || "") || (a.cp.horaInicio || "").localeCompare(b.cp.horaInicio || ""));
+  const pctDe = (n, d) => (d ? ` <small style="color:var(--gris-medio)">(${Math.round(n / d * 100)}%)</small>` : "");
+  document.getElementById("reservasTableBody").innerHTML = filas.map(f => `<tr>
+      <td><strong>${h(f.cp.titulo || f.cp.nombre || "—")}</strong>${f.cp.horaInicio ? `<br><small style="color:var(--gris-medio)">${h(f.cp.horaInicio)}–${h(f.cp.horaFin || "")}</small>` : ""}</td>
+      <td style="white-space:nowrap;font-size:12px">${fmtDiaCorto(f.cp.dia)}</td>
+      <td style="text-align:center;font-weight:700">${f.reservaron}</td>
+      <td style="text-align:center;font-weight:700;color:var(--verde-oscuro)">${f.fueron}${pctDe(f.fueron, f.reservaron)}</td>
+      <td style="text-align:center;color:var(--rojo)">${f.noFueron}</td>
+      <td style="text-align:center">${f.sinReservar}</td>
+      <td style="text-align:center;font-weight:700">${f.total}</td>
+    </tr>`).join("") || `<tr><td colspan="7" style="text-align:center;color:var(--gris-medio)">Todavía no hay charlas ni reservas.</td></tr>`;
 }
 
 // ═══════════════════════════════════════════════════════════

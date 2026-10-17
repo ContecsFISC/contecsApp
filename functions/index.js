@@ -77,7 +77,7 @@ const {
   crearParticipantesUnicos,
 } = require("./registro");
 const {importarParticipantes} = require("./importaciones");
-const {accederConCedula, reservarCharla} = require("./charlas");
+const {accederConCedula, identificarParticipante, reservarCharla} = require("./charlas");
 const {enPanama} = require("./ventana-checkpoint");
 
 // ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
@@ -126,8 +126,13 @@ exports.ejecutarOperacionFinanciera = onCall(
     },
 );
 
+// Congreso (48 h, 700+ personas): una instancia siempre encendida en lo que
+// usan los lectores y el mapa, para que ningún escaneo espere un arranque en
+// frío. minInstances no suma a la cuota de CPU (esa la fija maxInstances).
+const SIEMPRE_ENCENDIDA = {minInstances: 1};
+
 exports.ejecutarOperacionQr = onCall(
-    {region: "us-central1", maxInstances: 10, ...CPU_COMPLETA},
+    {region: "us-central1", maxInstances: 10, ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
     async (request) => {
       try {
         return await ejecutarOperacionQr(request);
@@ -951,8 +956,13 @@ exports.registrarParticipante = onCall(
 // ─── PERFIL POR CÉDULA Y RESERVA DE CHARLAS (functions/charlas.js) ───────────
 // Públicas como accederParticipante: la persona entra a perfil.html solo con
 // su cédula (o con el link ?c=&t= de su credencial).
+// CPU mínima (gcf_gen1) y hasta 30 instancias: la cuota de CPU de us-central1
+// ya está casi toda en las funciones de CPU completa (lectura QR, mapa, correos)
+// y no admite otra. La primera llamada tras un rato tarda unos segundos.
+const CEDULA_OPCIONES = {region: "us-central1", maxInstances: 30, invoker: "public", minInstances: 1};
+
 exports.accederConCedula = onCall(
-    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    CEDULA_OPCIONES,
     async (request) => {
       try {
         return await accederConCedula(request, sanitizarParticipante);
@@ -965,7 +975,7 @@ exports.accederConCedula = onCall(
 );
 
 exports.reservarCharla = onCall(
-    {region: "us-central1", maxInstances: 30, invoker: "public"},
+    CEDULA_OPCIONES,
     async (request) => {
       try {
         return await reservarCharla(request);
@@ -1696,25 +1706,19 @@ exports.accederGiraParticipante = onCall(
         const codigo = String(request.data?.codigo || "").trim().toUpperCase();
         const token = String(request.data?.token || "").trim();
         const giraId = String(request.data?.giraId || "").trim();
+        const cedula = String(request.data?.cedula || "").trim();
 
-        if (!codigo || !token || !giraId) {
+        if (!giraId || (!cedula && (!codigo || !token))) {
           throw new HttpsError("invalid-argument", "Faltan datos para acceder a la información de la gira.");
         }
         if (codigo.length > 30 || token.length > 64 || giraId.length > 200) {
           throw new HttpsError("invalid-argument", "Credenciales inválidas.");
         }
 
-        const snap = await db.collection("participantes")
-            .where("codigo", "==", codigo)
-            .where("token", "==", token)
-            .limit(1)
-            .get();
-        if (snap.empty) {
-          throw new HttpsError("not-found", "Código o clave incorrectos. Revisa el correo que recibiste de Giras.");
-        }
-        const participanteSnap = snap.docs[0];
-        const participante = participanteSnap.data();
-        const participanteId = participanteSnap.id;
+        // Con el link del correo (código + token) o solo con la cédula
+        // (functions/charlas.js), como el perfil.
+        const {id: participanteId, data: participante} =
+          await identificarParticipante(cedula ? {cedula} : {codigo, token});
 
         const giraSnap = await db.collection("giras_voluntarios").doc(giraId).get();
         if (!giraSnap.exists) {
@@ -1736,6 +1740,8 @@ exports.accederGiraParticipante = onCall(
             nombreCompleto: participante.nombreCompleto ||
               `${participante.nombre || ""} ${participante.apellido || ""}`.trim(),
             codigo: participante.codigo,
+            // Quien entró con la cédula no trae el token: lo necesita su QR.
+            token: cedula ? participante.token : undefined,
           },
           gira: {
             nombre: gira.nombre || null,
@@ -1887,8 +1893,10 @@ exports.eliminarParticipante = onCall(
 
 // Mapa público (public/mapa.html, el QR del congreso): agenda, salones y
 // asientos ocupados en conteos, sin iniciar sesión. Ver functions/mapa-publico.js.
+// 4 instancias de 80 llamadas cada una sobran con la caché en memoria (prueba
+// de carga: 600 llamadas en 3 s, p99 0,3 s) y dejan cuota de CPU a la lectura QR.
 exports.mapaPublico = onCall(
-    {region: "us-central1", maxInstances: 10, invoker: "public", ...CPU_COMPLETA},
+    {region: "us-central1", maxInstances: 4, invoker: "public", ...CPU_COMPLETA, ...SIEMPRE_ENCENDIDA},
     async () => {
       try {
         return await mapaPublico();

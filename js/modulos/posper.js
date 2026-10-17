@@ -20,7 +20,7 @@
 
 import { app, db } from "../core/firebase-config.js";
 import {
-  collection, doc, getDoc, getDocs, limit, orderBy, query, where,
+  collection, doc, getDocFromServer, getDocsFromServer, orderBy, query, where,
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 import {
   getFunctions,
@@ -34,14 +34,19 @@ import {
   efectoDeEntrada, PERMANENCIA_MINIMA_DEFECTO,
 } from "../core/permanencia.js";
 import { sincronizarReloj, desfaseReloj, ahoraMs, ahoraPanama } from "../core/reloj-servidor.js";
-import { crearLectorFisico, leerDispositivo } from "../core/lector-fisico.js?v=20261016.1";
+import { crearLectorFisico, leerDispositivo } from "../core/lector-fisico.js?v=20261017.1";
+import { conReintento, conTiempo, mensajeDeError, TIEMPO_MAXIMO_ESCANEO_MS } from "../core/red.js?v=20261017.2";
+import { iniciarPadron, participantePorCodigo } from "../core/padron.js?v=20261017.1";
 
 const el = id => document.getElementById(id);
 const h = escaparHtml;
-const ejecutarOperacionQr = httpsCallable(
+const operacionQr = httpsCallable(
   getFunctions(app, "us-central1"),
   "ejecutarOperacionQr",
+  { timeout: TIEMPO_MAXIMO_ESCANEO_MS },
 );
+// Un corte breve del wifi no pierde el escaneo (js/core/red.js).
+const ejecutarOperacionQr = datos => conReintento(() => operacionQr(datos));
 
 const TIPO_CON_CUPOS = ["taller", "workshop", "gira"];
 const CLAVE_CONFIG = "posper.config";
@@ -174,14 +179,10 @@ async function procesarLectura(texto) {
 
 // ─── Paso 1: credencial -> asistencia ───────────────────────────────────────
 async function buscarParticipante(credencial) {
-  const snap = await getDocs(query(
-    collection(db, "participantes"),
-    where("codigo", "==", credencial.codigo),
-    limit(1),
-  ));
-  if (snap.empty) throw new Error("QR no reconocido. Participante no encontrado.");
-  const d = snap.docs[0];
-  const participante = { id: d.id, ...d.data() };
+  // Del padrón en memoria (js/core/padron.js); si no está, del servidor (sin
+  // red falla con error de red, no con "no encontrado").
+  const participante = await conReintento(() => participantePorCodigo(credencial.codigo));
+  if (!participante) throw new Error("QR no reconocido. Participante no encontrado.");
   // El token es hexadecimal (functions/registro.js): mayúsculas y minúsculas
   // son el mismo valor, y el teclado del equipo puede cambiarlas.
   if (String(participante.token || "").toLowerCase() !== credencial.token.toLowerCase()) {
@@ -234,7 +235,7 @@ async function procesarCredencial(texto) {
       ? anuladas.map(id => ({ nombre: checkpoints.find(c => c.id === id)?.nombre || id, ...evaluacion[id] }))
       : [];
     participanteActual = participante;
-    mostrarParticipante(participante, asistencia, sinValidez);
+    mostrarParticipante(participante, asistencia, sinValidez, checkpoint);
     agregarLog(participante, asistencia === "nueva"
       ? (sinValidez.length ? `Entrada (anula ${sinValidez.map(s => s.nombre).join(", ")})` : "Entrada")
       : "Ya estaba", participante.rfid?.serial || "—");
@@ -248,22 +249,22 @@ async function procesarCredencial(texto) {
     esperarRfid(`${asistencia === "nueva" ? "Entrada marcada" : "Ya tenía entrada"}. Obligatorio: escanea el RFID que se le entrega a ${nombreDe(participante)}.`);
   } catch (e) {
     console.error("POSPER credencial:", e);
-    const msg = e.message || "No se pudo procesar el QR.";
+    const msg = mensajeDeError(e, "No se pudo procesar el QR.");
     alerta("error", msg);
-    pantalla("error", "QR NO VÁLIDO", msg);
+    pantalla("error", /conexión/.test(msg) ? "SIN CONEXIÓN" : "QR NO VÁLIDO", msg);
     volverAQrEn(2500);
   }
 }
 
-function mostrarParticipante(p, asistencia, sinValidez = []) {
+function mostrarParticipante(p, asistencia, sinValidez = [], checkpoint = checkpointSel) {
   el("res-nombre").textContent = nombreDe(p);
   el("res-codigo").textContent = p.codigo || "—";
   el("res-cedula").textContent = p.cedula || "—";
   el("res-universidad").textContent = p.universidad || p.institucion || "—";
   const chips = [
     asistencia === "nueva"
-      ? `<span class="chip chip-ok">Entrada marcada: ${h(checkpointSel.nombre || "")}</span>`
-      : `<span class="chip chip-aviso">Ya tenía entrada en ${h(checkpointSel.nombre || "")} (se conserva la primera)</span>`,
+      ? `<span class="chip chip-ok">Entrada marcada: ${h(checkpoint?.nombre || "")}</span>`
+      : `<span class="chip chip-aviso">Ya tenía entrada en ${h(checkpoint?.nombre || "")} (se conserva la primera)</span>`,
     ...sinValidez.map(s =>
       `<span class="chip chip-aviso">"${h(s.nombre)}" deja de contar (estuvo ${h(s.minutos)} de ${h(s.duracion)} min)</span>`),
   ];
@@ -308,19 +309,28 @@ el("btn-confirmar-sin-rfid").addEventListener("click", () => {
 });
 
 // ─── Paso 3: lectura del RFID -> anclar ─────────────────────────────────────
+// Lo mismo que rechaza el servidor (functions/rfid.js): el enlace del perfil,
+// un código CTCS y los parámetros de la credencial. Un RFID sí puede ser un
+// enlace de otro sitio.
+const pareceCredencial = texto => /perfil\.html|ctcs\W?\d{4}|[?&][ct]=/i.test(String(texto || ""));
+
 async function procesarRfid(texto) {
   const participante = participanteActual;
   if (!participante) return esperarQr();
 
-  // Hasta anclar el RFID no se acepta otra credencial.
+  // Hasta anclar el RFID no se acepta otra credencial, ni un pedazo de ella
+  // (un doble disparo o una lectura cortada deja "…perfil.html?c=CTCS-…"
+  // sin token, que no parece credencial pero tampoco es un RFID).
+  let esCredencial = false;
   try {
-    if (extraerCredencialQr(texto).tipo === "participante") {
-      alerta("error", `Eso es una credencial. Primero el RFID de ${nombreDe(participante)}.`);
-      esperarRfid(`Eso fue una credencial. Escanea el RFID de ${nombreDe(participante)} (obligatorio).`);
-      return;
-    }
+    esCredencial = extraerCredencialQr(texto).tipo === "participante";
   } catch (_) {
-    // No es credencial: es el RFID.
+    // No es credencial completa: se revisa si es un pedazo.
+  }
+  if (esCredencial || pareceCredencial(texto)) {
+    alerta("error", `Eso es una credencial. Primero el RFID de ${nombreDe(participante)}.`);
+    esperarRfid(`Eso fue una credencial. Escanea el RFID de ${nombreDe(participante)} (obligatorio).`);
+    return;
   }
 
   estado = "anclando";
@@ -340,7 +350,7 @@ async function procesarRfid(texto) {
     volverAQrEn(1800, `Último: RFID ${data.serial} → ${nombreDe(participante)}`);
   } catch (e) {
     console.error("POSPER RFID:", e);
-    const msg = e.message || "No se pudo anclar el RFID.";
+    const msg = mensajeDeError(e, "No se pudo anclar el RFID.");
     alerta("error", msg);
     // Si la persona ya tenía otro RFID no hay nada que reintentar.
     if (e.code === "functions/already-exists" && /ya tiene el RFID/.test(msg)) {
@@ -393,7 +403,8 @@ function guardarConfig() {
 }
 
 async function cargarEventos() {
-  const snap = await getDocs(query(collection(db, "eventos"), orderBy("creadoEn", "desc")));
+  // Del servidor: sin red falla (y se avisa) en vez de devolver una lista vacía.
+  const snap = await conReintento(() => conTiempo(getDocsFromServer(query(collection(db, "eventos"), orderBy("creadoEn", "desc")))));
   const sel = el("sel-evento");
   // Cancelados y desactivados no se ofrecen.
   const eventos = snap.docs.filter(d => estaOperativo(d.data()));
@@ -467,8 +478,8 @@ async function elegirEvento(checkpointPreferido = "") {
   if (!id) { eventoActivo = null; checkpoints = []; return; }
 
   const [evSnap, cpSnap] = await Promise.all([
-    getDoc(doc(db, "eventos", id)),
-    getDocs(query(collection(db, "checkpoints"), where("eventoId", "==", id))),
+    conReintento(() => conTiempo(getDocFromServer(doc(db, "eventos", id)))),
+    conReintento(() => conTiempo(getDocsFromServer(query(collection(db, "checkpoints"), where("eventoId", "==", id))))),
   ]);
   if (secuencia !== secuenciaEvento || !evSnap.exists()) return;
   eventoActivo = { id, ...evSnap.data() };
@@ -508,14 +519,34 @@ el("sel-evento").addEventListener("change", () => {
 });
 el("sel-checkpoint").addEventListener("change", elegirCheckpoint);
 el("btn-cambiar-config").addEventListener("click", () => {
-  if (estado === "rfid" || estado === "anclando") {
+  if (estado === "rfid" || estado === "anclando" || estado === "salir-sin-rfid") {
     alerta("aviso", `Termina primero el RFID de ${nombreDe(participanteActual)}.`);
+    return;
+  }
+  if (estado === "procesando") {
+    alerta("aviso", "Espera a que termine la lectura en curso.");
     return;
   }
   irAConfig();
 });
 el("chk-todos").addEventListener("change", () => renderCheckpoints());
 setInterval(() => { if (checkpoints.length) renderCheckpoints(); }, 60000);
+
+// El equipo pasa el día abierto: cada 3 min se releen los checkpoints (los
+// nuevos o con hora cambiada aparecen sin recargar).
+setInterval(async () => {
+  if (!eventoActivo || !["config", "qr", "mostrando"].includes(estado)) return;
+  const id = eventoActivo.id;
+  try {
+    const snap = await conTiempo(getDocsFromServer(query(collection(db, "checkpoints"), where("eventoId", "==", id))));
+    if (eventoActivo?.id !== id) return;
+    checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (checkpointSel) checkpointSel = checkpoints.find(cp => cp.id === checkpointSel.id) || checkpointSel;
+    renderCheckpoints(checkpointSel?.id || "");
+  } catch (e) {
+    console.warn("POSPER: no se pudieron releer los checkpoints:", e);
+  }
+}, 3 * 60 * 1000);
 
 // ─── Prueba del lector ──────────────────────────────────────────────────────
 let estadoAntesDePrueba = "config";
@@ -571,22 +602,29 @@ window.addEventListener("offline", pintarDispositivo);
 
 // ─── Init ───────────────────────────────────────────────────────────────────
 // El modo "todos los checkpoints" es solo para que el CEO y POSPER prueben.
-esperarSesionLista().then(() => {
-  if (puedeProbar()) el("ceo-todos").style.display = "flex";
-});
 // Credencial que devolvió public/perfil.html (el lector la abrió en el navegador).
 const lecturaPendiente = new URLSearchParams(window.location.hash.slice(1)).get("lectura") || "";
 if (lecturaPendiente) history.replaceState(null, "", window.location.pathname + window.location.search);
 
-sincronizarReloj().then(() => {
-  pintarDispositivo();
-  return cargarEventos();
+// Primero la sesión (las lecturas la necesitan) y la hora del servidor. Sin
+// internet se avisa y se reintenta solo cada 15 s.
+function arrancar() {
+  cargarEventos().then(() => {
+    if (!lecturaPendiente) return;
+    if (estado === "qr") return procesarLectura(lecturaPendiente);
+    alerta("aviso", "Elige el evento y el checkpoint y vuelve a escanear la credencial.");
+  }).catch(e => {
+    console.error("POSPER: error cargando eventos:", e);
+    alerta("error", `${mensajeDeError(e, "No se pudieron cargar los eventos.")} Se reintenta en 15 s.`);
+    setTimeout(arrancar, 15000);
+  });
+}
+esperarSesionLista().then(() => {
+  if (puedeProbar()) el("ceo-todos").style.display = "flex";
+  iniciarPadron();
+  return sincronizarReloj();
 }).then(() => {
-  if (!lecturaPendiente) return;
-  if (estado === "qr") return procesarLectura(lecturaPendiente);
-  alerta("aviso", "Elige el evento y el checkpoint y vuelve a escanear la credencial.");
-}).catch(e => {
-  console.error("POSPER: error cargando eventos:", e);
-  alerta("error", "No se pudieron cargar los eventos: " + (e.message || e));
+  pintarDispositivo();
+  arrancar();
 });
 lector.enfocar();

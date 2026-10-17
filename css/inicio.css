@@ -76,8 +76,8 @@ body.dashboard-sin-rol .sin-rol-card {
   animation: cxi-palabra 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 @keyframes cxi-palabra {
-  from { opacity: 0; filter: blur(8px); transform: translateY(14%); }
-  to   { opacity: 1; filter: blur(0); transform: none; }
+  from { opacity: 0; transform: translateY(14%); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* ── BLOQUES ────────────────────────────────────────────────── */
@@ -104,8 +104,6 @@ body.dashboard-sin-rol .sin-rol-card {
   outline: none;
   border-radius: 26px;
   /* Las vecinas se insinuan sin cortarse en seco contra el borde. */
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
 }
 .cx-car-escenario:focus-visible .cx-car.is-activo .cx-car__cara { box-shadow: 0 0 0 3px var(--cx-apricot), 0 24px 44px -14px rgb(3 46 35 / 0.42); }
 .cx-car-resplandor {
@@ -270,8 +268,6 @@ body.dashboard-sin-rol .sin-rol-card {
   .cx-car-escenario {
     height: 282px;
     margin-inline: -4px;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 13%, #000 87%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 13%, #000 87%, transparent 100%);
   }
   .cx-car { width: 236px; height: 182px; margin: -91px 0 0 -118px; }
   .cx-car__descripcion { display: none; }
@@ -627,7 +623,7 @@ html.cx-vista-abierta { overflow: hidden; }
   inset: 0;
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
   transform: translate3d(-100%, 0, 0);
-  animation: cxm-reflejo 2.6s ease-in-out 1.4s infinite;
+  animation: cxm-reflejo 2.6s ease-in-out 1.4s 2;
 }
 @media (min-width: 1200px) {
   .mobile-event-title { font-size: 25px; }

@@ -86,8 +86,13 @@
 </div>
 
 <div class="estado" id="error" style="display:none;">
- <h1>No pudimos abrir este perfil</h1>
+ <h1 id="error-titulo">No pudimos abrir este perfil</h1>
  <p id="error-txt">Escanea de nuevo el QR de tu credencial.</p>
+ <form id="form-cedula" novalidate style="width:100%;max-width:320px;margin-top:14px;text-align:left;">
+ <label for="inp-cedula" style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;">Entra con tu cédula</label>
+ <input id="inp-cedula" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ej: 8-123-4567" style="width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #d6dbd8;border-radius:10px;font:700 15px 'Courier New',monospace;"/>
+ <button type="submit" style="width:100%;margin-top:10px;padding:12px;border:0;border-radius:10px;background:var(--oscuro, #064e3b);color:#fff;font:700 15px inherit;cursor:pointer;">Ver mi perfil</button>
+ </form>
 </div>
 
 <div class="perfil" id="perfil">
@@ -211,23 +216,38 @@ function mostrarPerfil(p, id, token) {
  el("perfil").classList.add("visible");
 }
 
+// Con el QR de la credencial (?id=&t=) o escribiendo la cédula.
+async function entrar(datos) {
+ try {
+ const fn = httpsCallable(getFunctions(app, "us-central1"), "accederPersonal");
+ const { data } = await fn(datos);
+ el("error").style.display = "none";
+ mostrarPerfil(data, data.docId || datos.id, data.token || datos.token);
+ } catch (err) {
+ // El SDK trae el código como "functions/not-found".
+ const codigo = String(err.code || "").replace(/^functions\//, "");
+ mostrarError(datos.cedula ? err.message : ERRORES[codigo] || "No se pudo cargar el perfil. Intenta de nuevo en unos segundos.");
+ }
+}
+
+el("form-cedula").addEventListener("submit", e => {
+ e.preventDefault();
+ const cedula = el("inp-cedula").value.trim();
+ if (cedula) entrar({ cedula });
+});
+
 async function init() {
  const params = new URLSearchParams(location.search);
  const id = params.get("id");
  const token = params.get("t");
  if (!id || !token) {
- mostrarError("Este enlace no trae los datos del perfil. Escanea de nuevo el QR de tu credencial.");
+ el("cargando").style.display = "none";
+ el("error").style.display = "flex";
+ el("error-titulo").textContent = "Tu perfil de CONTECS";
+ el("error-txt").textContent = "Escribe tu cédula para ver tus horas y tu credencial.";
  return;
  }
- try {
- const fn = httpsCallable(getFunctions(app, "us-central1"), "accederPersonal");
- const { data } = await fn({ id, token });
- mostrarPerfil(data, id, token);
- } catch (err) {
- // El SDK trae el código como "functions/not-found".
- const codigo = String(err.code || "").replace(/^functions\//, "");
- mostrarError(ERRORES[codigo] || "No se pudo cargar el perfil. Intenta de nuevo en unos segundos.");
- }
+ await entrar({ id, token });
 }
 
 init();

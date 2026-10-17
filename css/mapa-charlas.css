@@ -1,0 +1,75 @@
+/* ===========================================================
+   CONTECS — Mapa del evento: charlas, filtros y pantalla grande
+   La comparten panel/modulos/congreso/mapa.html y public/mapa.html.
+   =========================================================== */
+
+/* ── Más barato de pintar ─────────────────────────────────────────────
+   Las animaciones infinitas que repintaban en cada cuadro (sombra de
+   "Estás aquí", latido de las etiquetas 3D, opacidad de polígonos SVG)
+   pasan a transform/opacity en una capa propia, o se quitan. */
+.etq3d-vivo .etq3d-chip::before { animation: none; }
+.vista2d .esp.vivo { animation: none; }
+.etq3d { transition: transform .2s var(--ease-out), opacity .3s ease; }
+.aqui3d-punto { position: relative; animation: none; }
+.aqui3d-punto::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%;
+  background: rgba(26, 115, 232, 0.45);
+  animation: aquiOndaBarata 1.6s ease-out infinite;
+}
+@keyframes aquiOndaBarata { from { transform: scale(1); opacity: 0.6; } to { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .aqui3d-punto::after { animation: none; } }
+
+/* ── Filtros: los salones sin coincidencias quedan tenues ─────────── */
+.etq3d-atenuada { opacity: 0.32; }
+.etq3d-resaltada { box-shadow: 0 0 0 2px var(--c, #064e3b), 0 6px 16px rgba(3, 46, 35, 0.22); }
+
+/* ── Charla en curso: cuánto lleva (verde → amarillo → rojo) ──────── */
+.progreso-charla { margin: 10px 0 2px; }
+.progreso-charla .barra { height: 8px; border-radius: 999px; background: var(--gris-suave); overflow: hidden; }
+.progreso-charla .barra > div { height: 100%; border-radius: 999px; background: var(--c, #16a34a); }
+.progreso-charla .txt { display: flex; justify-content: space-between; gap: 8px; margin-top: 5px; font-size: 11.5px; color: var(--gris-medio); }
+.progreso-charla .txt b { color: var(--c, #16a34a); }
+
+/* ── Ficha: exponente, empresa, descripción y temas ───────────────── */
+.ficha { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--gris-suave); }
+.ficha-personas { display: flex; align-items: center; gap: 12px; }
+.ficha-foto {
+  flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+  background: #dfe9e3; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(3, 46, 35, 0.14);
+}
+.ficha-foto.iniciales { display: grid; place-items: center; font: 800 20px var(--fuente-display, var(--fuente)); color: var(--verde-oscuro); }
+.ficha-quien { min-width: 0; flex: 1; }
+.ficha-exponente { font-weight: 800; font-size: 15px; color: #173024; overflow-wrap: anywhere; }
+.ficha-empresa { font-size: 12.5px; color: var(--gris-medio); overflow-wrap: anywhere; }
+.ficha-logo { flex-shrink: 0; max-width: 92px; max-height: 44px; object-fit: contain; border-radius: 6px; background: #fff; padding: 4px; }
+.ficha-desc { margin: 0; font-size: 13px; line-height: 1.55; color: var(--gris-texto); overflow-wrap: anywhere; }
+.ficha-temas { display: flex; flex-wrap: wrap; gap: 5px; }
+.ficha-temas button {
+  border: 1px solid var(--gris-borde); background: #fff; border-radius: 999px; padding: 3px 9px;
+  font: 600 11px var(--fuente); color: var(--verde-oscuro); cursor: pointer;
+}
+.ficha-temas button:hover { border-color: var(--verde); }
+.ficha-sig { margin: 12px 0 0; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gris-medio); }
+
+/* ── Asientos apartados por reserva (aún sin entrar) ──────────────── */
+.asiento.apartado { background: transparent; border: 1.5px dashed var(--c, var(--verde)); }
+.leyenda-asientos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 11px; color: var(--gris-medio); }
+.leyenda-asientos i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; border-radius: 3px; }
+.leyenda-asientos .o { background: var(--c, var(--verde)); }
+.leyenda-asientos .a { border: 1.5px dashed var(--c, var(--verde)); }
+.leyenda-asientos .l { background: #e6efe9; border: 1px solid #cfdcd3; }
+.contadores.cuatro { grid-template-columns: repeat(4, 1fr); }
+
+/* ── Pantalla grande del congreso (rol Modelado) ──────────────────── */
+body.kiosco .cx-nav, body.kiosco .cx-bar, body.kiosco .btn-volver { display: none !important; }
+body.kiosco { padding-top: 0 !important; -webkit-user-select: none; user-select: none; touch-action: manipulation; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+body.kiosco input { -webkit-user-select: text; user-select: text; }
+body.kiosco .mapa-app { height: 100dvh; }
+body.kiosco .etq3d { font-size: 13px; padding: 4px 10px; }
+body.kiosco .panel-salon { width: min(480px, calc(100% - 24px)); }
+body.kiosco .panel-nombre { font-size: 26px; }
+body.kiosco .act-btn .titulo, body.kiosco .ficha-exponente { font-size: 16px; }
+body.kiosco .chip-btn { padding: 10px 16px; font-size: 14px; }
+@media (min-width: 761px) {
+  body.kiosco .mapa-app.con-panel .controles-mapa { right: calc(min(480px, 100% - 24px) + 24px); }
+}

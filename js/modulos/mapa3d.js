@@ -28,6 +28,7 @@ const COLOR_FIJO = { bano: "#9cc7e8", escalera: "#b8c0c8", servicio: "#d5dad6", 
 const COLOR_LIBRE = "#f7faf8";
 
 const COLOR_SEL = "#ffc83d";
+const COLOR_ATENUADO = "#d7ddd9";
 const SALTO_PISO = 9;
 
 const ease = {
@@ -43,7 +44,7 @@ function puntos(texto) {
   return String(texto).trim().split(/\s+/).map(par => par.split(",").map(Number));
 }
 
-export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconos = {} }) {
+export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconos = {}, alPerderContexto = null }) {
   let THREE, OrbitControls, CSS2DRenderer, CSS2DObject;
   try {
     THREE = await import("three");
@@ -54,18 +55,34 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     return null;
   }
 
+  // Barato de dibujar: sin sombras (eran un segundo pase completo por cuadro),
+  // materiales Lambert, antialias solo en pantallas de baja densidad (en las
+  // densas no se nota) y la resolución acotada. En la pantalla grande del
+  // congreso y en celulares de gama baja se mueve fluido.
+  const movil = window.matchMedia("(max-width: 760px)").matches;
+  const dpr = window.devicePixelRatio || 1;
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ antialias: dpr < 1.5, alpha: true, powerPreference: "high-performance" });
   } catch (e) {
     console.warn("Mapa 3D: sin WebGL, se usa la vista 2D.", e);
     return null;
   }
-  const movil = window.matchMedia("(max-width: 760px)").matches;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, movil ? 1.5 : 2));
-  renderer.shadowMap.enabled = !movil;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const PR_BASE = Math.min(dpr, movil ? 1.25 : 1.5);
+  // Tope de píxeles por cuadro: en la pantalla grande (4K) o un monitor
+  // enorme no se dibujan 8 millones de píxeles; se baja la resolución interna.
+  const MAX_PIXELES = 2.6e6;
+  renderer.setPixelRatio(PR_BASE);
   renderer.domElement.className = "mapa3d-lienzo";
+  // Si la GPU pierde el contexto (driver reiniciado, horas encendida), el
+  // lienzo quedaría negro: mapa.js pasa a la vista 2D y recarga cuando es
+  // seguro (con internet).
+  renderer.domElement.addEventListener("webglcontextlost", e => {
+    e.preventDefault();
+    console.warn("Mapa 3D: se perdió el contexto WebGL.");
+    if (alPerderContexto) alPerderContexto();
+    else setTimeout(() => location.reload(), 3000);
+  });
   contenedor.appendChild(renderer.domElement);
 
   const etiquetas = new CSS2DRenderer();
@@ -82,13 +99,9 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   controles.minDistance = 6;
   controles.maxDistance = 90;
 
-  escena.add(new THREE.HemisphereLight("#ffffff", "#c9d8cf", 1.15));
-  const sol = new THREE.DirectionalLight("#ffffff", 1.6);
+  escena.add(new THREE.HemisphereLight("#ffffff", "#c9d8cf", 1.25));
+  const sol = new THREE.DirectionalLight("#ffffff", 1.5);
   sol.position.set(-18, 34, 22);
-  sol.castShadow = !movil;
-  sol.shadow.mapSize.set(1024, 1024);
-  Object.assign(sol.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 90 });
-  sol.shadow.bias = -0.0008;
   escena.add(sol);
 
   // ─── Dibujo a demanda ─────────────────────────────────────────────────────
@@ -132,25 +145,24 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     // Base de la maqueta y la imagen del plano encima.
     const base = new THREE.Mesh(
       new THREE.BoxGeometry(ancho + 1.2, 0.5, alto + 1.2),
-      new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.9 }),
+      new THREE.MeshLambertMaterial({ color: "#ffffff" }),
     );
     base.position.y = -0.26;
-    base.receiveShadow = true;
     grupo.add(base);
 
-    const textura = cargadorTextura.load(plano.imagen);
+    const textura = cargadorTextura.load(plano.imagen, () => despertar(300));
     textura.colorSpace = THREE.SRGBColorSpace;
-    textura.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    textura.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     const suelo = new THREE.Mesh(
       new THREE.PlaneGeometry(ancho, alto),
-      new THREE.MeshStandardMaterial({ map: textura, transparent: true, opacity: 0.5, roughness: 1 }),
+      new THREE.MeshLambertMaterial({ map: textura, transparent: true, opacity: 0.5 }),
     );
     suelo.rotation.x = -Math.PI / 2;
     suelo.position.y = 0.005;
-    suelo.receiveShadow = true;
     grupo.add(suelo);
 
     const salas = new Map();
+    const interactivas = []; // mallas que se pueden tocar (sin baños, escaleras...)
     for (const esp of plano.espacios) {
       const [x1, y1, x2, y2] = esp.b;
       const cx = (x1 + x2) / 2;
@@ -162,16 +174,14 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       // Baños, escaleras y servicios no se programan: solo dan contexto.
       const fijo = !["espacio", "vestibulo"].includes(esp.t);
       const colorInicial = COLOR_FIJO[esp.t] || COLOR_LIBRE;
-      const material = new THREE.MeshStandardMaterial({
-        color: colorInicial, roughness: 0.45, metalness: 0.05, transparent: true, opacity: 0.95,
-        emissive: new THREE.Color("#000000"),
+      const material = new THREE.MeshLambertMaterial({
+        color: colorInicial, transparent: true, opacity: 0.95, emissive: new THREE.Color("#000000"),
       });
       const malla = new THREE.Mesh(geo, material);
       malla.position.set((cx - plano.ancho / 2) * ESCALA, 0, (cy - plano.alto / 2) * ESCALA);
       malla.scale.y = 0.001;
-      malla.castShadow = !fijo;
-      malla.receiveShadow = true;
       malla.userData.espacioId = esp.id;
+      if (!fijo) interactivas.push(malla);
 
       const bordes = new THREE.LineSegments(
         new THREE.EdgesGeometry(geo, 35),
@@ -180,7 +190,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       malla.add(bordes);
 
       // "Líquido" de ocupación dentro del cristal (solo en vivo).
-      const relleno = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: "#00722e", roughness: 0.35, emissive: new THREE.Color("#000000") }));
+      const relleno = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: "#00722e", emissive: new THREE.Color("#000000") }));
       relleno.scale.set(0.9, 0.001, 0.9);
       relleno.visible = false;
       grupo.add(relleno);
@@ -223,7 +233,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
       salasPorId.set(esp.id, sala);
     }
     escena.add(grupo);
-    return { grupo, salas, ancho, alto };
+    return { grupo, salas, interactivas, ancho, alto };
   }
 
   function pisoDe(id) {
@@ -243,7 +253,11 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     const altoNuevo = estado === "fijo" || (estado === "libre" && ALTURAS[sala.tipo] != null && sala.tipo !== "espacio")
       ? (ALTURAS[sala.tipo] ?? 0.4)
       : ALTURAS[estado] ?? ALTURAS.libre;
+    // Con un filtro activo (tema, tipo, búsqueda), los salones que no tienen
+    // actividades que coincidan quedan tenues y casi grises.
+    const atenuado = Boolean(est?.atenuado);
     const colorNuevo = new THREE.Color(est?.color || COLOR_FIJO[sala.tipo] || COLOR_LIBRE);
+    if (atenuado) colorNuevo.lerp(colorTemp.set(COLOR_ATENUADO), 0.75);
     const ratioNuevo = Math.max(0, Math.min(1, est?.ratio ?? 0));
     const vivo = estado === "vivo";
 
@@ -253,19 +267,20 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     sala.alto = altoNuevo;
     sala.ratio = ratioNuevo;
     sala.color.copy(colorNuevo);
-    sala.material.opacity = vivo ? 0.28 : estado === "finalizado" || estado === "cancelado" ? 0.7 : 0.95;
-    sala.material.depthWrite = !vivo;
-    sala.relleno.visible = vivo;
+    sala.atenuado = atenuado;
+    sala.material.opacity = atenuado ? 0.35 : vivo ? 0.28 : estado === "finalizado" || estado === "cancelado" ? 0.7 : 0.95;
+    sala.material.depthWrite = !vivo && !atenuado;
+    sala.relleno.visible = vivo && !atenuado;
     sala.relleno.material.color.copy(colorNuevo);
-    sala.bordes.material.opacity = vivo ? 0.8 : 0.35;
-    sala.bordes.material.color.set(vivo ? colorNuevo : "#2f4a3a");
+    sala.bordes.material.opacity = atenuado ? 0.12 : vivo ? 0.8 : 0.35;
+    sala.bordes.material.color.set(vivo && !atenuado ? colorNuevo : "#2f4a3a");
 
     if (sala.etiqueta) {
       const div = sala.etiqueta.element;
       const mostrar = Boolean(est?.rotulo) && estado !== "fijo";
       sala.etiqueta.visible = mostrar && sala.malla.parent?.visible !== false;
       sala.etiqueta.userData.mostrar = mostrar;
-      div.className = `etq3d etq3d-${estado}`;
+      div.className = `etq3d etq3d-${estado}${atenuado ? " etq3d-atenuada" : ""}${est?.resaltado ? " etq3d-resaltada" : ""}`;
       div.style.setProperty("--c", est?.color || "#00722e");
       div.innerHTML = "";
       // Coffee break, patrocinadores, ferias: el icono va arriba del rótulo, dentro de la etiqueta.
@@ -324,18 +339,31 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     const r = renderer.domElement.getBoundingClientRect();
     puntero.set(((evento.clientX - r.left) / r.width) * 2 - 1, -((evento.clientY - r.top) / r.height) * 2 + 1);
     rayo.setFromCamera(puntero, camara);
-    const mallas = [...pisoActual.salas.values()].filter(s => s.estado !== "fijo").map(s => s.malla);
-    const hit = rayo.intersectObjects(mallas, false)[0];
+    const hit = rayo.intersectObjects(pisoActual.interactivas, false)[0];
     return hit ? salasPorId.get(hit.object.userData.espacioId) : null;
   }
 
-  renderer.domElement.addEventListener("pointermove", e => {
+  // El "hover" se calcula como mucho una vez por cuadro y nunca mientras se
+  // arrastra (girar la maqueta no necesita saber qué salón hay debajo).
+  let ultimoPuntero = null;
+  let hoverPendiente = false;
+  function revisarHover() {
+    hoverPendiente = false;
+    const e = ultimoPuntero;
+    if (!e) return;
     const sala = salaBajo(e);
-    if (sobre && sobre !== sala) sobre.hover = false;
+    if (sala === sobre) return;
+    if (sobre) sobre.hover = false;
     sobre = sala;
     if (sala) sala.hover = true;
     renderer.domElement.style.cursor = sala ? "pointer" : "grab";
-  });
+    despertar(400);
+  }
+  renderer.domElement.addEventListener("pointermove", e => {
+    if (e.buttons || e.pointerType === "touch") return;
+    ultimoPuntero = { clientX: e.clientX, clientY: e.clientY };
+    if (!hoverPendiente) { hoverPendiente = true; requestAnimationFrame(revisarHover); }
+  }, { passive: true });
   renderer.domElement.addEventListener("pointerleave", () => { if (sobre) sobre.hover = false; sobre = null; });
   // En pantallas táctiles las etiquetas no capturan el dedo (CSS) para que la
   // pinza llegue a OrbitControls; un toque sobre una etiqueta se resuelve aquí.
@@ -363,34 +391,34 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
   // ─── Bucle de dibujo ──────────────────────────────────────────────────────
   let corriendo = true;
   let cuadro = 0;
-  let ultimoDibujo = 0;
-  for (const tipo of ["pointerdown", "pointermove", "wheel", "touchstart", "keydown"]) {
+  for (const tipo of ["pointerdown", "wheel", "touchstart", "keydown"]) {
     renderer.domElement.addEventListener(tipo, () => despertar(), { passive: true });
   }
   controles.addEventListener("change", () => despertar(600));
+  // Solo se dibuja mientras algo cambia (gesto, inercia, animación, hover o un
+  // estado nuevo). Las salas en vivo ya no "laten": su color cuenta cuánto
+  // falta y no obliga a redibujar 60 veces por segundo toda la jornada.
   function dibujar(ahora) {
     if (!corriendo) return;
     cuadro = requestAnimationFrame(dibujar);
     if (document.hidden) return;
-    // Quieta: un cuadro de control por segundo (texturas que terminan de llegar).
-    let hayVivas = false;
-    for (const sala of salasPorId.values()) if (sala.vivo) { hayVivas = true; break; }
-    if (!tweens.size && !hayVivas && ahora > despiertoHasta && ahora - ultimoDibujo < 1000) return;
-    ultimoDibujo = ahora;
+    if (!tweens.size && ahora > despiertoHasta) return;
     avanzarTweens(ahora);
-    const pulso = 0.5 + 0.5 * Math.sin(ahora / 420);
-    for (const sala of salasPorId.values()) {
+    let moviendo = false;
+    for (const sala of pisoActual ? pisoActual.salas.values() : []) {
       const elegido = sala === seleccion;
       const objetivo = elegido ? 0.35 : sala.hover ? 0.18 : 0;
-      sala.malla.position.y += (objetivo - sala.malla.position.y) * 0.18;
+      const dy = objetivo - sala.malla.position.y;
+      if (Math.abs(dy) > 0.002) { sala.malla.position.y += dy * 0.2; moviendo = true; } else sala.malla.position.y = objetivo;
       sala.relleno.position.y = sala.malla.position.y;
       if (sala.etiqueta) sala.etiqueta.position.y = sala.malla.scale.y + sala.malla.position.y + 0.35;
       if (sala.icono) sala.icono.position.y = sala.malla.scale.y + sala.malla.position.y + 0.3;
-      const brillo = elegido ? 0.35 : sala.vivo ? 0.12 + 0.22 * pulso : sala.hover ? 0.12 : 0;
+      const brillo = elegido ? 0.35 : sala.atenuado ? 0 : sala.vivo ? 0.2 : sala.hover ? 0.12 : 0;
       sala.material.emissive.copy(elegido ? colorTemp.set(COLOR_SEL) : sala.color).multiplyScalar(brillo);
-      if (sala.vivo) sala.relleno.material.emissive.copy(sala.color).multiplyScalar(0.15 + 0.2 * pulso);
+      if (sala.vivo) sala.relleno.material.emissive.copy(sala.color).multiplyScalar(0.25);
       if (elegido) sala.bordes.material.color.set(COLOR_SEL);
     }
+    if (moviendo) despertar(120);
     controles.update();
     renderer.render(escena, camara);
     etiquetas.render(escena, camara);
@@ -400,6 +428,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     const { clientWidth: w, clientHeight: h } = contenedor;
     if (!w || !h) return;
     despertar();
+    renderer.setPixelRatio(Math.max(0.75, Math.min(PR_BASE, Math.sqrt(MAX_PIXELES / (w * h)))));
     renderer.setSize(w, h);
     etiquetas.setSize(w, h);
     camara.aspect = w / h;

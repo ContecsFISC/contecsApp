@@ -24,7 +24,10 @@ function normalizarRfid(crudo) {
   const texto = String(crudo ?? "").trim();
   if (!texto) return {ok: false, motivo: "La lectura del RFID está vacía."};
 
-  if (/[?&]c=[^&\s]+.*[?&]t=/i.test(texto) || /"codigo"\s*:.*"token"\s*:/i.test(texto)) {
+  // También un pedazo de credencial (doble disparo o lectura cortada:
+  // "…perfil.html?c=CTCS-2026-00012" sin token), que no es un RFID.
+  if (/[?&]c=[^&\s]+.*[?&]t=/i.test(texto) || /"codigo"\s*:.*"token"\s*:/i.test(texto) ||
+      /perfil\.html|ctcs\W?\d{4}|[?&][ct]=/i.test(texto)) {
     return {
       ok: false,
       motivo: "Eso es la credencial del participante, no un RFID. Escanea el RFID.",
