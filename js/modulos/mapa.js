@@ -483,7 +483,7 @@ const ICONO_PATROCINADORES = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <circle cx="12" cy="18.5" r="1.3" fill="#f6c453"/>
 </svg>`;
 
-// Feria de infografías: hoja con gráfico de barras y de torta.
+// Feria de Infografía: hoja con gráfico de barras y de torta.
 const ICONO_INFOGRAFIAS = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <rect width="24" height="24" rx="6" fill="#6a3d9a"/>
   <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
@@ -495,7 +495,7 @@ const ICONO_INFOGRAFIAS = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <rect x="14" y="13.8" width="2" height="4.6" rx="0.4" fill="#2bb3a3"/>
 </svg>`;
 
-// Feria de pósters: póster sobre un caballete.
+// Feria de Pósters: póster sobre un caballete.
 const ICONO_POSTERS = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <rect width="24" height="24" rx="6" fill="#00727a"/>
   <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
@@ -515,8 +515,8 @@ const ICONOS = { cafe: ICONO_CAFE, patrocinadores: ICONO_PATROCINADORES, infogra
 const EN_LOBBY = {
   "2-1": [{ dias: ["2026-10-19", "2026-10-20"], icono: "patrocinadores", texto: "Stand de patrocinadores" }],
   "3-1": [
-    { dias: ["2026-10-19"], icono: "infografias", texto: "Feria de infografías" },
-    { dias: ["2026-10-20"], icono: "posters", texto: "Feria de pósters" },
+    { dias: ["2026-10-19"], icono: "infografias", texto: "Feria de Infografía" },
+    { dias: ["2026-10-20"], icono: "posters", texto: "Feria de Pósters" },
   ],
 };
 const enLobby = id => (EN_LOBBY[id] || []).find(x => x.dias.includes(S.dia)) || null;
