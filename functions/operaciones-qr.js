@@ -74,11 +74,34 @@ async function validarActor(request, accesos) {
 // Solo se marca el día y a la hora del checkpoint (desde 30 min antes). El
 // modo de prueba ("Ver todos los checkpoints") lo pueden usar el CEO y
 // POSPER para probar los equipos fuera del horario del congreso.
-function validarHorario(checkpoint, usuario, modoPrueba) {
+// `capturadoMs`: lectura que el equipo guardó sin conexión; se valida con la
+// hora en que se escaneó.
+function validarHorario(checkpoint, usuario, modoPrueba, capturadoMs = null) {
   if (modoPrueba === true && ROLES_PRUEBA_HORARIO.has(usuario?.rol)) return;
-  const motivo = fueraDeVentana(checkpoint);
+  const motivo = fueraDeVentana(checkpoint, capturadoMs ?? Date.now());
   if (motivo) throw new HttpsError("failed-precondition", motivo);
 }
+
+// Lectura QR guarda en el equipo lo que escanea mientras no hay internet y lo
+// manda al volver (js/modulos/lecturaQR.js). Trae la hora del escaneo; se
+// acepta si es de las últimas 2 horas y no del futuro.
+const MAX_ATRASO_SIN_CONEXION_MS = 2 * 60 * 60 * 1000;
+function horaDeCaptura(data) {
+  if (data.capturadoEn == null) return null;
+  const ms = Number(data.capturadoEn);
+  const ahora = Date.now();
+  // Un reloj algo adelantado (hasta 15 min) no rechaza la lectura: cuenta como ahora.
+  if (!Number.isFinite(ms) || ms > ahora + 15 * 60 * 1000) {
+    throw new HttpsError("failed-precondition", "La hora de la lectura no es válida: escanéala de nuevo.");
+  }
+  if (ahora - ms > MAX_ATRASO_SIN_CONEXION_MS) {
+    throw new HttpsError("failed-precondition",
+        "La lectura guardada sin conexión es de hace más de 2 horas: escanéala de nuevo.");
+  }
+  return Math.min(ms, ahora);
+}
+const marcaDeTiempo = (capturadoMs) =>
+  capturadoMs ? Timestamp.fromMillis(capturadoMs) : FieldValue.serverTimestamp();
 
 function validarParticipante(participante, coleccion, checkpoint) {
   if (coleccion === "participantes" &&
@@ -134,7 +157,7 @@ function nombreParticipante(participante) {
 
 function datosAsistencia({
   actorId, participanteId, participante, coleccion,
-  checkpointId, checkpoint, eventoId, evento,
+  checkpointId, checkpoint, eventoId, evento, capturadoMs = null,
 }) {
   return {
     eventoId,
@@ -150,8 +173,9 @@ function datosAsistencia({
     participanteNombre: nombreParticipante(participante),
     participanteCorreo: participante.correo || null,
     participanteCedula: participante.cedula || null,
-    marcadoEn: FieldValue.serverTimestamp(),
+    marcadoEn: marcaDeTiempo(capturadoMs),
     marcadoPor: actorId,
+    ...(capturadoMs ? {sinConexion: true, registradoEn: FieldValue.serverTimestamp()} : {}),
   };
 }
 
@@ -169,6 +193,7 @@ async function asistenciaParticipante(request) {
   const eventoRef = db.collection("eventos").doc(eventoId);
   const asistenciaRef = db.collection("asistencias_congreso")
       .doc(`${checkpointId}_${coleccion}_${participanteId}`);
+  const capturadoMs = horaDeCaptura(data);
 
   return db.runTransaction(async (tx) => {
     const [participanteSnap, checkpointSnap, eventoSnap, asistenciaSnap] =
@@ -184,7 +209,7 @@ async function asistenciaParticipante(request) {
     const participante = participanteSnap.data();
     const checkpoint = checkpointSnap.data();
     validarContextoEvento(eventoSnap, checkpoint, eventoId);
-    validarHorario(checkpoint, usuario, data.modoPrueba);
+    validarHorario(checkpoint, usuario, data.modoPrueba, capturadoMs);
     validarParticipante(participante, coleccion, checkpoint);
     if (asistenciaSnap.exists || participante.asistencias?.[checkpointId]) {
       throw new HttpsError(
@@ -198,7 +223,7 @@ async function asistenciaParticipante(request) {
     }).length;
     tx.update(participanteRef, {
       [`asistencias.${checkpointId}`]: {
-        marcadoEn: FieldValue.serverTimestamp(),
+        marcadoEn: marcaDeTiempo(capturadoMs),
         marcadoPor: actorId,
         checkpoint: checkpoint.nombre || "Checkpoint",
         eventoId,
@@ -216,6 +241,7 @@ async function asistenciaParticipante(request) {
       checkpoint,
       eventoId,
       evento: eventoSnap.data(),
+      capturadoMs,
     }));
     return {
       ok: true,
@@ -243,6 +269,7 @@ async function inscripcionTaller(request) {
       .doc(`${checkpointId}_${participanteId}`);
   const asistenciaRef = db.collection("asistencias_congreso")
       .doc(`${checkpointId}_${coleccion}_${participanteId}`);
+  const capturadoMs = horaDeCaptura(data);
 
   return db.runTransaction(async (tx) => {
     const [
@@ -275,7 +302,7 @@ async function inscripcionTaller(request) {
     const participante = participanteSnap.data();
     const checkpoint = checkpointSnap.data();
     validarContextoEvento(eventoSnap, checkpoint, eventoId);
-    validarHorario(checkpoint, usuario, data.modoPrueba);
+    validarHorario(checkpoint, usuario, data.modoPrueba, capturadoMs);
     validarParticipante(participante, coleccion, checkpoint);
     if (participante.asistencias?.[checkpointId]) {
       throw new HttpsError(
@@ -313,7 +340,7 @@ async function inscripcionTaller(request) {
     }).length;
     tx.update(participanteRef, {
       [`asistencias.${checkpointId}`]: {
-        marcadoEn: FieldValue.serverTimestamp(),
+        marcadoEn: marcaDeTiempo(capturadoMs),
         marcadoPor: actorId,
         checkpoint: checkpoint.nombre || "Checkpoint",
         eventoId,
@@ -331,6 +358,7 @@ async function inscripcionTaller(request) {
       checkpoint,
       eventoId,
       evento: eventoSnap.data(),
+      capturadoMs,
     }));
     return {
       ok: true,

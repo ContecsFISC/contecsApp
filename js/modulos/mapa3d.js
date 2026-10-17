@@ -44,7 +44,7 @@ function puntos(texto) {
   return String(texto).trim().split(/\s+/).map(par => par.split(",").map(Number));
 }
 
-export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconoCafe = "" }) {
+export async function crearVista3D(contenedor, { planos, alElegir, reducido = false, iconoBano = "", iconoCafe = "", alPerderContexto = null }) {
   let THREE, OrbitControls, CSS2DRenderer, CSS2DObject;
   try {
     THREE = await import("three");
@@ -68,8 +68,21 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     console.warn("Mapa 3D: sin WebGL, se usa la vista 2D.", e);
     return null;
   }
-  renderer.setPixelRatio(Math.min(dpr, movil ? 1.25 : 1.5));
+  const PR_BASE = Math.min(dpr, movil ? 1.25 : 1.5);
+  // Tope de píxeles por cuadro: en la pantalla grande (4K) o un monitor
+  // enorme no se dibujan 8 millones de píxeles; se baja la resolución interna.
+  const MAX_PIXELES = 2.6e6;
+  renderer.setPixelRatio(PR_BASE);
   renderer.domElement.className = "mapa3d-lienzo";
+  // Si la GPU pierde el contexto (driver reiniciado, horas encendida), el
+  // lienzo quedaría negro: mapa.js pasa a la vista 2D y recarga cuando es
+  // seguro (con internet).
+  renderer.domElement.addEventListener("webglcontextlost", e => {
+    e.preventDefault();
+    console.warn("Mapa 3D: se perdió el contexto WebGL.");
+    if (alPerderContexto) alPerderContexto();
+    else setTimeout(() => location.reload(), 3000);
+  });
   contenedor.appendChild(renderer.domElement);
 
   const etiquetas = new CSS2DRenderer();
@@ -415,6 +428,7 @@ export async function crearVista3D(contenedor, { planos, alElegir, reducido = fa
     const { clientWidth: w, clientHeight: h } = contenedor;
     if (!w || !h) return;
     despertar();
+    renderer.setPixelRatio(Math.max(0.75, Math.min(PR_BASE, Math.sqrt(MAX_PIXELES / (w * h)))));
     renderer.setSize(w, h);
     etiquetas.setSize(w, h);
     camara.aspect = w / h;
