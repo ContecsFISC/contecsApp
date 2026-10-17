@@ -1024,17 +1024,27 @@ function renderSalon() {
   const est = estados.get(id) || {};
   const ahora = enPanama();
 
+  // Lobby con stand o feria: el panel dice qué hay ese día, no "Salón 1".
+  const lobby = enLobby(id);
   el("panel-rotulo").textContent = rotuloSalon(id, salon);
-  el("panel-nombre").textContent = nombreSalon(id, salon);
+  el("panel-nombre").textContent = lobby?.texto || nombreSalon(id, salon);
   const aqui = ESPACIOS.get(S.aqui);
   el("panel-meta").textContent = [
     nombrePiso(esp.piso),
-    enLobby(id)?.texto,
-    salon?.capacidad ? `Capacidad: ${salon.capacidad} personas` : "Sin capacidad configurada",
+    lobby ? etiquetaDiaLarga(S.dia) : salon?.capacidad ? `Capacidad: ${salon.capacidad} personas` : "Sin capacidad configurada",
     aqui && aqui.piso !== esp.piso ? `Estás en el ${nombrePiso(aqui.piso).toLowerCase()}` : "",
   ].filter(Boolean).join(" · ");
 
   const bloques = [];
+  if (EN_LOBBY[id]) {
+    bloques.push(`<section class="bloque">
+      <h3>En este lobby</h3>
+      ${EN_LOBBY[id].map(x => `<div class="lobby-dia${x === lobby ? " hoy" : ""}">
+        <span class="lobby-icono">${ICONOS[x.icono]}</span>
+        <span><b>${h(x.texto)}</b><small>${h(x.dias.map(etiquetaDiaLarga).join(" y "))}</small></span>
+      </div>`).join("")}
+    </section>`);
+  }
   if (est.estado === "vivo" && est.vivo.origen === "voluntariado") {
     const cp = est.vivo;
     bloques.push(`<section class="bloque">
@@ -1077,7 +1087,7 @@ function renderSalon() {
     const proxima = ordenarActividades(actividadesMapa().filter(cp =>
       lugarDe(cp) === id && cp.dia === S.dia && estaOperativo(cp) && !terminado(cp, ahora)))[0];
     const apartados = proxima ? S.reservas[proxima.id] || 0 : 0;
-    if (proxima || salon?.capacidad) {
+    if (proxima || (salon?.capacidad && !EN_LOBBY[id])) {
       bloques.push(`<section class="bloque">
         <h3>${proxima ? "Próxima en este salón" : "Asientos"}</h3>
         ${proxima ? `<div class="vivo-titulo" style="font-size:15px">${h(proxima.titulo ? entreComillas(proxima.titulo) : proxima.nombre || "Actividad")}</div>
@@ -1090,7 +1100,7 @@ function renderSalon() {
 
   // Todas las actividades del salón en el evento, por día (como la guía).
   const delSalon = ordenarActividades(actividadesMapa().filter(cp => lugarDe(cp) === id));
-  bloques.push(`<section class="bloque">
+  if (delSalon.length || !EN_LOBBY[id]) bloques.push(`<section class="bloque">
     <h3>Actividades del salón</h3>
     ${delSalon.length ? htmlPorDia(delSalon, ahora, { conSalon: false }) : `<p class="vacio-mapa">No hay actividades programadas en este salón.</p>`}
   </section>`);
