@@ -183,6 +183,13 @@ export function lineaCharla(cp) {
 const ordenCharla = (a, b) => `${a.dia || ""} ${a.horaInicio || ""}`.localeCompare(`${b.dia || ""} ${b.horaInicio || ""}`);
 const operativo = cp => cp && cp.estado !== "cancelado" && cp.activo !== false;
 
+// Una actividad con varios expositores lleva sus nombres en un solo
+// `exponente`: "Ana Ríos y Luis Gómez" o "Ana Ríos, Luis Gómez y Eva Paz".
+export const nombresExponente = texto => String(texto || "")
+  .split(/\s*[,;]\s*|\s+y\s+/i)
+  .map(n => n.replace(/\s+/g, " ").trim())
+  .filter(Boolean);
+
 export function personasExpositores({ participantes = [], checkpoints = [], manuales = [] }) {
   const charlas = checkpoints.filter(operativo).sort(ordenCharla);
   const porId = new Map(participantes.map(p => [p.id, p]));
@@ -193,11 +200,12 @@ export function personasExpositores({ participantes = [], checkpoints = [], manu
     if (cp.ponenteId && porId.has(cp.ponenteId)) {
       if (!charlasDe.has(cp.ponenteId)) charlasDe.set(cp.ponenteId, []);
       charlasDe.get(cp.ponenteId).push(cp);
-    } else if (String(cp.exponente || "").trim()) {
-      const nombre = String(cp.exponente).replace(/\s+/g, " ").trim();
-      const k = normalizar(nombre);
-      if (!externos.has(k)) externos.set(k, { nombre, charlas: [] });
-      externos.get(k).charlas.push(cp);
+    } else {
+      nombresExponente(cp.exponente).forEach(nombre => {
+        const k = normalizar(nombre);
+        if (!externos.has(k)) externos.set(k, { nombre, charlas: [] });
+        externos.get(k).charlas.push(cp);
+      });
     }
   });
 

@@ -12,7 +12,7 @@ import {
   PERMANENCIA_MINIMA_DEFECTO, estaCancelado, evaluarPermanencia, contarValidas,
 } from "../core/permanencia.js";
 import {
-  TIPOS_PROGRAMABLES, buscarChoques, describirChoque, etiquetaSalon, nombrePiso,
+  TIPOS_PROGRAMABLES, buscarChoques, describirChoque, maxAsistibles, etiquetaSalon, nombrePiso,
   nombreSalon, rotuloSalon, salonDeCheckpoint, letraRotulo, ROTULO_MAX,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon, eliminarSalon } from "../core/salones-firestore.js";
@@ -701,19 +701,23 @@ async function cargarCheckpointsEvento(eventoId) {
   actualizarBadgeCheckpoints();
 }
 
+// Mínimo para certificado sugerido: el 60 % de lo que una persona puede
+// asistir (las actividades a la misma hora cuentan una), no del total.
+const minimoSugerido = () => Math.ceil(maxAsistibles(checkpointsEvento) * 0.6);
+
 function actualizarBadgeCheckpoints() {
   const count = checkpointsEvento.length;
   const badge = el("cp-count-badge");
   if (badge) badge.textContent = count > 0 ? ` (${count})` : "";
 
   const minCert = el("ev-min-cert");
-  if (minCert) minCert.value = count > 0 ? Math.ceil(count * 0.6) : "";
+  if (minCert) minCert.value = count > 0 ? minimoSugerido() : "";
 
   const resumen = el("cp-modal-resumen");
   const texto   = el("cp-resumen-texto");
   if (resumen && texto) {
     if (count > 0) {
-      texto.textContent = `${count} checkpoint${count > 1 ? "s" : ""} · Mínimo para certificado: ${Math.ceil(count * 0.6)}`;
+      texto.textContent = `${count} checkpoint${count > 1 ? "s" : ""} · Mínimo para certificado: ${minimoSugerido()}`;
       resumen.style.display = "block";
     } else {
       resumen.style.display = "none";
@@ -779,7 +783,7 @@ function renderVistaCheckpoints() {
     return itemCheckpoint(cp, fmtFechaCorta(cp.dia), hora, tipoCls, cuposStr);
   }).join("");
 
-  texto.textContent    = `${count} checkpoint${count > 1 ? "s" : ""} · Mínimo para certificado: ${Math.ceil(count * 0.6)}`;
+  texto.textContent    = `${count} checkpoint${count > 1 ? "s" : ""} · Mínimo para certificado: ${minimoSugerido()}`;
   resumen.style.display = "block";
 }
 

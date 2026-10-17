@@ -14,6 +14,7 @@ import {
   etiquetaSalon,
   letraRotulo,
   ROTULO_MAX,
+  maxAsistibles,
 } from "../../js/core/agenda-salones.js";
 
 let pasadas = 0;
@@ -102,6 +103,17 @@ prueba("rótulo de hasta 20 caracteres: achica la letra solo si no cabe", () => 
   const largo = letraRotulo(sala, "Auditorio Principal", 10);
   assert.ok(largo < 10.5 && largo >= 6, `largo se achica: ${largo}`);
   assert.equal(letraRotulo({ fs: 6.5, b: [0, 0, 10, 10] }, "x".repeat(20), 9), 6, "nunca menos de 6 px");
+});
+
+prueba("máximo asistible: las paralelas cuentan una, por día", () => {
+  const c = (dia, ini, fin, extra = {}) => ({ dia, horaInicio: ini, horaFin: fin, ...extra });
+  assert.equal(maxAsistibles([
+    c(DIA, "09:00", "10:00"), c(DIA, "09:00", "10:00"), c(DIA, "09:30", "10:30"),
+    c(DIA, "10:00", "11:00"), c(DIA, "10:30", "12:00"),
+    c("2026-10-20", "09:00", "11:00"), c("2026-10-20", "09:45", "10:30"),
+    c("2026-10-20", "13:00", "14:00", { estado: "cancelado" }),
+  ]), 3, "2 el lunes (09–10, 10–11) + 1 el martes");
+  assert.equal(maxAsistibles([]), 0);
 });
 
 console.log(`\n${pasadas} pruebas de salones superadas.\n`);

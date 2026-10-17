@@ -42,6 +42,17 @@ const pedro = ex2.find(e => e._clave === "expositor_man_m2"); assert.deepEqual(p
 assert.equal(ex2.filter(e => e._origen === "externo").length, 1, "Dra. Marta Ruiz sigue como externa (nombre distinto a 'Marta Ruiz')");
 console.log("ok manuales");
 
+// Varios expositores en una misma actividad: cada uno con su credencial.
+assert.deepEqual(m.nombresExponente("Ana Ríos, Luis Gómez y  Eva Paz"), ["Ana Ríos", "Luis Gómez", "Eva Paz"]);
+const ex3 = m.personasExpositores({ checkpoints: [
+  { id: "d1", nombre: "Conferencia de Sala 1.6", dia: "2026-10-19", horaInicio: "16:00", exponente: "Alvaro Monagas y Ricardo Tovar" },
+  { id: "d2", nombre: "Taller 1.1", dia: "2026-10-19", horaInicio: "13:00", exponente: "Ricardo Tovar" },
+], manuales: [{ id: "m3", nombre: "Ricardo", apellido: "Tovar", institucion: "MART" }] });
+assert.equal(ex3.length, 2);
+assert.equal(ex3.find(e => e._clave === "expositor_man_m3").cred.detalle.length, 2, "Tovar suma la charla compartida y su taller");
+assert.equal(ex3.find(e => e._origen === "externo").nombreCompleto, "Alvaro Monagas");
+console.log("ok varios expositores");
+
 // Grupos para la entrega: parejos, sin partir un tomo ni una letra, y sin huecos entre mesas.
 assert.deepEqual(m.partesCedula("8 - 0912 - 1234"), { prefijo: "8", orden: 24, tomo: 912, asiento: 1234 });
 assert.equal(m.partesCedula("pe-12-345").prefijo, "PE");

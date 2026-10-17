@@ -115,6 +115,29 @@ export function buscarChoques(nuevo, otros, salones = {}) {
   });
 }
 
+/**
+ * Cuántos checkpoints puede asistir una sola persona: por día, el máximo de
+ * actividades que no se cruzan (las que van a la misma hora en salones
+ * distintos cuentan una). Los cancelados no cuentan. Es la base del mínimo
+ * para certificado: con actividades en paralelo, el total no es alcanzable.
+ * @param {Array<object>} checkpoints  { dia, horaInicio, horaFin, estado? }
+ */
+export function maxAsistibles(checkpoints) {
+  const porDia = new Map();
+  (checkpoints || []).filter(cp => cp && !estaCancelado(cp)).forEach(cp => {
+    if (!porDia.has(cp.dia)) porDia.set(cp.dia, []);
+    porDia.get(cp.dia).push(rango(cp));
+  });
+  let total = 0;
+  porDia.forEach(rangos => {
+    let libreDesde = -1;
+    rangos.sort((a, b) => a[1] - b[1]).forEach(([ini, fin]) => {
+      if (ini >= libreDesde) { total += 1; libreDesde = fin; }
+    });
+  });
+  return total;
+}
+
 export function describirChoque(cp, salones = {}) {
   const id = salonDeCheckpoint(cp, salones);
   const lugar = id ? etiquetaSalon(id, salones[id]) : cp.salon;

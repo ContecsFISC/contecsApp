@@ -34,7 +34,7 @@ import {
   ROTULO_MAX, TIPOS_PROGRAMABLES, esSalonCafe, etiquetaSalon, letraRotulo, nombrePiso, nombreSalon, rotuloSalon, salonDeCheckpoint,
 } from "../core/agenda-salones.js";
 import { escucharSalones, guardarSalon } from "../core/salones-firestore.js";
-import { crearVista3D } from "./mapa3d.js?v=20261016.1";
+import { crearVista3D } from "./mapa3d.js?v=20261017.1";
 
 const el = id => document.getElementById(id);
 const PUBLICO = document.body.dataset.publico === "1";
@@ -229,7 +229,11 @@ function calcularEstados() {
     } else {
       est = { estado: "libre", rotulo, titulo: nombreSalon(id, salon) };
     }
-    if (esSalonCafe(salon)) est.icono = "cafe";
+    const lobby = enLobby(id);
+    if (lobby) {
+      est.icono = lobby.icono;
+      est.titulo = `${est.titulo} · ${lobby.texto}`;
+    } else if (esSalonCafe(salon)) est.icono = "cafe";
     resultado.set(id, est);
   }
   return resultado;
@@ -386,6 +390,56 @@ const ICONO_CAFE = `<svg viewBox="0 0 24 24" aria-hidden="true">
   <rect x="3.6" y="19.8" width="13.8" height="1.5" rx="0.75" fill="#ffe2bd"/>
 </svg>`;
 
+// Stand de patrocinadores: toldo a rayas sobre un mostrador.
+const ICONO_PATROCINADORES = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect width="24" height="24" rx="6" fill="#9a6a12"/>
+  <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
+  <path fill="#fff" d="M4 5h16l1 4H3z"/>
+  <path fill="#f6c453" d="M7.2 5h3.2l-.4 4H6.4zM13.6 5h3.2l.8 4h-3.2z"/>
+  <path fill="#fff" d="M3 9h18v.8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" opacity="0.85"/>
+  <rect x="5" y="11.8" width="1.4" height="5" fill="#fff"/><rect x="17.6" y="11.8" width="1.4" height="5" fill="#fff"/>
+  <rect x="4" y="16.4" width="16" height="4.2" rx="1" fill="#fff"/>
+  <circle cx="12" cy="18.5" r="1.3" fill="#f6c453"/>
+</svg>`;
+
+// Feria de infografías: hoja con gráfico de barras y de torta.
+const ICONO_INFOGRAFIAS = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect width="24" height="24" rx="6" fill="#6a3d9a"/>
+  <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
+  <rect x="5" y="3.5" width="14" height="17" rx="1.6" fill="#fff"/>
+  <circle cx="12" cy="9" r="3.4" fill="#6a3d9a"/>
+  <path fill="#f2a541" d="M12 9V5.6A3.4 3.4 0 0 1 15.4 9z"/>
+  <rect x="7.2" y="14.8" width="2" height="3.6" rx="0.4" fill="#f2a541"/>
+  <rect x="10.6" y="12.6" width="2" height="5.8" rx="0.4" fill="#6a3d9a"/>
+  <rect x="14" y="13.8" width="2" height="4.6" rx="0.4" fill="#2bb3a3"/>
+</svg>`;
+
+// Feria de pósters: póster sobre un caballete.
+const ICONO_POSTERS = `<svg viewBox="0 0 24 24" aria-hidden="true">
+  <rect width="24" height="24" rx="6" fill="#00727a"/>
+  <rect width="24" height="12" rx="6" fill="#ffffff" opacity="0.08"/>
+  <g stroke="#fff" stroke-width="1.5" stroke-linecap="round"><path d="M12 2.8v2M8.6 16.6 6.4 21.2M15.4 16.6l2.2 4.6M12 16.6v4"/></g>
+  <rect x="5" y="4.6" width="14" height="12" rx="1.2" fill="#fff"/>
+  <rect x="7" y="6.6" width="10" height="2" rx="0.6" fill="#00727a"/>
+  <rect x="7" y="9.8" width="4.4" height="4.8" rx="0.6" fill="#7fd6cf"/>
+  <rect x="12.6" y="9.8" width="4.4" height="1.2" rx="0.6" fill="#9bb5b7"/>
+  <rect x="12.6" y="12" width="4.4" height="1.2" rx="0.6" fill="#9bb5b7"/>
+  <rect x="12.6" y="14.1" width="3" height="0.5" rx="0.25" fill="#9bb5b7"/>
+</svg>`;
+
+const ICONOS = { cafe: ICONO_CAFE, patrocinadores: ICONO_PATROCINADORES, infografias: ICONO_INFOGRAFIAS, posters: ICONO_POSTERS };
+
+// Lo que hay en los lobbies durante el congreso (todo el día, sin checkpoint):
+// lleva su icono encima, como la taza del coffee break.
+const EN_LOBBY = {
+  "2-1": [{ dias: ["2026-10-19", "2026-10-20"], icono: "patrocinadores", texto: "Stand de patrocinadores" }],
+  "3-1": [
+    { dias: ["2026-10-19"], icono: "infografias", texto: "Feria de infografías" },
+    { dias: ["2026-10-20"], icono: "posters", texto: "Feria de pósters" },
+  ],
+};
+const enLobby = id => (EN_LOBBY[id] || []).find(x => x.dias.includes(S.dia)) || null;
+
 let v2d = null; // viewBox actual
 function render2D() {
   const piso = PLANOS.find(p => p.id === S.piso);
@@ -412,11 +466,12 @@ function render2D() {
       const texto = est.estado === "vivo" ? `${est.rotulo} · ${est.ocupados}${est.capacidad ? `/${est.capacidad}` : ""}` : est.rotulo;
       return `<text x="${e.l[0]}" y="${e.l[1]}" class="${est.color && textoSobre(est.color) && est.estado !== "programado" ? "claro" : ""}" font-size="${letraRotulo(e, texto, 10)}">${h(texto)}</text>`;
     }).join("")}
-    ${piso.espacios.filter(e => estados.get(e.id)?.icono === "cafe").map(e => {
+    ${piso.espacios.filter(e => ICONOS[estados.get(e.id)?.icono]).map(e => {
       // Encima del rótulo, sin salirse del espacio.
+      const est = estados.get(e.id);
       const lado = Math.min(26, (e.b[2] - e.b[0]) * 0.45, (e.b[3] - e.b[1]) * 0.4);
-      const y = Math.max(e.b[1] + 2, e.l[1] - letraRotulo(e, estados.get(e.id).rotulo, 10) / 2 - 4 - lado);
-      return ICONO_CAFE.replace("<svg ", `<svg class="cafe2d" x="${e.l[0] - lado / 2}" y="${y}" width="${lado}" height="${lado}" `);
+      const y = Math.max(e.b[1] + 2, e.l[1] - letraRotulo(e, est.rotulo || "", 10) / 2 - 4 - lado);
+      return ICONOS[est.icono].replace("<svg ", `<svg class="icono2d" x="${e.l[0] - lado / 2}" y="${y}" width="${lado}" height="${lado}" `);
     }).join("")}
     ${piso.espacios.filter(e => e.t === "bano").map(e => {
       const [x, y] = e.l || [(e.b[0] + e.b[2]) / 2, (e.b[1] + e.b[3]) / 2];
@@ -821,6 +876,7 @@ function renderSalon() {
   const aqui = ESPACIOS.get(S.aqui);
   el("panel-meta").textContent = [
     nombrePiso(esp.piso),
+    enLobby(id)?.texto,
     salon?.capacidad ? `Capacidad: ${salon.capacidad} personas` : "Sin capacidad configurada",
     aqui && aqui.piso !== esp.piso ? `Estás en el ${nombrePiso(aqui.piso).toLowerCase()}` : "",
   ].filter(Boolean).join(" · ");
@@ -1070,7 +1126,7 @@ async function iniciar() {
   renderLeyenda();
   renderPisos();
 
-  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO, iconoCafe: ICONO_CAFE });
+  vista3d = await crearVista3D(el("escenario-mapa"), { planos: PLANOS, alElegir: elegirSalon, reducido, iconoBano: ICONO_BANO, iconos: ICONOS });
   el("cargando-mapa").hidden = true;
   if (vista3d) {
     if (S.aqui) vista3d.marcarAqui(ESPACIOS.get(S.aqui).piso, puntoAqui(ESPACIOS.get(S.aqui)));
