@@ -1,12 +1,12 @@
 # Mapa de arquitectura — contecsApp
 
-- Generado: **2026-10-17T16:07:44.529508+00:00**
+- Generado: **2026-10-17T19:10:21.984479+00:00**
 - AlphaToolGraph: **v4.0.0** · esquema **4**
-- Huella del proyecto: `54e960afa5615c54…`
+- Huella del proyecto: `6c645763d546ccb8…`
 - Archivos analizados: **273**
 - Relaciones internas tipadas: **1232**
 - Símbolos detectados: **7211**
-- Llamadas detectadas: **15401**
+- Llamadas detectadas: **15400**
 - IDs DOM definidos: **1260**
 - Paquetes externos usados: **34**
 - Colecciones de Firestore detectadas: **42**
@@ -19,10 +19,10 @@
 
 ## Cerebro para IA: tres niveles
 
-- `GraphCompacto.json` — ~**20,739 tokens** · leer primero
-- `GraphCompleto.json` — ~**97,700 tokens** · relaciones exactas
-- `GraphProfundo.json` — ~**173,418 tokens** · evidencia exhaustiva
-- Reducción estimada al empezar por el compacto: **88.0%** frente al profundo
+- `GraphCompacto.json` — ~**20,614 tokens** · leer primero
+- `GraphCompleto.json` — ~**97,575 tokens** · relaciones exactas
+- `GraphProfundo.json` — ~**173,293 tokens** · evidencia exhaustiva
+- Reducción estimada al empezar por el compacto: **88.1%** frente al profundo
 
 ## Diagnósticos de integridad
 
@@ -72,9 +72,9 @@ Combina: cuantas conexiones tiene, si esta metido en un ciclo, y su tamaño. Rev
 
 Esto es HEURISTICO, no certeza — revisalo a ojo antes de asumir que es real:
 
-- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/voluntarios.js`
 - `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/inscripciones.js`
+- `window.XLSX` definida en `js/libs/xlsx.full.min.js`, leida en `js/modulos/actividadVentas.js`
 - `window.eliminarActividad` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 - `window.eliminarGira` definida en `js/modulos/voluntarios.js`, leida en `docs/cambios recientes.md`
 
