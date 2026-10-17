@@ -465,17 +465,24 @@ function dibujarDetalle(ctx, p, x, y, lado, u, tema) {
   const cx = x + lado / 2;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = tema.principal;
-  ctx.font = fuente(800, 3 * u);
-  textoEspaciado(ctx, (p.cred.detalleTitulo || "EXPONE").toLocaleUpperCase("es"), cx, y + 6 * u, 0.3 * u);
+  // Sin rótulo (detalleTitulo "") el detalle usa todo el recuadro.
+  const rotulo = p.cred.detalleTitulo ?? "Expone";
+  if (rotulo) {
+    ctx.fillStyle = tema.principal;
+    ctx.font = fuente(800, 3 * u);
+    textoEspaciado(ctx, rotulo.toLocaleUpperCase("es"), cx, y + 6 * u, 0.3 * u);
+  }
+  const destacado = !!p.cred.destacado;
+  const peso = destacado ? 700 : 600;
+  const arriba = rotulo ? 11 * u : 4 * u;
   const lineas = (p.cred.detalle || []).slice(0, 4);
-  const espacio = (lado - 12 * u) / Math.max(lineas.length, 1);
+  const espacio = (lado - arriba - 1 * u) / Math.max(lineas.length, 1);
   lineas.forEach((texto, i) => {
-    const t = ajustarTexto(ctx, texto, { anchoMax, maxLineas: 2, tamMax: 3.2 * u, tamMin: 2.3 * u, peso: 600 });
+    const t = ajustarTexto(ctx, texto, { anchoMax, maxLineas: destacado ? 3 : 2, tamMax: (destacado ? 4.2 : 3.2) * u, tamMin: 2.3 * u, peso });
     const lh = t.tam * 1.25;
-    const yCentro = y + 11 * u + espacio * (i + 0.5);
+    const yCentro = y + arriba + espacio * (i + 0.5);
     ctx.fillStyle = C.tinta;
-    ctx.font = fuente(600, t.tam);
+    ctx.font = fuente(peso, t.tam);
     t.lineas.forEach((linea, j) => ctx.fillText(linea, cx, yCentro + (j - (t.lineas.length - 1) / 2) * lh));
   });
 }
@@ -649,7 +656,9 @@ function medirRecuadro(ctx, p, ancho, u, k, conQr) {
     const t = ajustarTexto(ctx, valor, { anchoMax: ancho, maxLineas: lineas, tamMax: tam * k * u, tamMin: min * k * u, peso, familia });
     filas.push({ lineas: t.lineas, font: fuente(peso, t.tam, familia), color, lh: t.tam * 1.2, antes: filas.length ? antes * k * u : 0 });
   };
-  texto(nombreDe(p), { tam: 5.4, min: 3.2, peso: 800, lineas: 2, color: C.tinta });
+  // `cred.destacado` (docentes del comité): nombre y cargo más grandes.
+  const destacado = !!p.cred?.destacado;
+  texto(nombreDe(p), { tam: destacado ? 6.2 : 5.4, min: 3.2, peso: 800, lineas: 2, color: C.tinta });
   texto(p.cedula, { tam: 2.9, min: 2.3, antes: 0.5 });
   // La plantilla ya dice VOLUNTARIO, ORGANIZADOR o EXPOSITOR; a los
   // participantes se les pone su categoría (Estudiante UTP, Profesional...).
@@ -659,10 +668,14 @@ function medirRecuadro(ctx, p, ancho, u, k, conQr) {
   const expositor = p.cred?.tema === "expositor";
   texto(institucionDe(p), expositor ? { tam: 3.2, min: 2.5, lineas: 2, antes: 1 } : { tam: 2.7, min: 2.2, lineas: 2, antes: 1 });
   // Sin QR va el detalle (lo que expone un expositor, el cargo de un docente
-  // del comité), grande y en varias líneas centradas si hace falta.
+  // del comité), grande y en varias líneas centradas si hace falta. Con
+  // detalleTitulo "" va sin el rótulo de arriba (EXPONE, TEMA).
   if (!conQr && p.cred?.detalle?.length) {
-    texto((p.cred.detalleTitulo || "Expone").toLocaleUpperCase("es"), { tam: 2.8, min: 2.1, peso: 800, color: tema.principal, antes: 1.4 });
-    p.cred.detalle.slice(0, 3).forEach(d => texto(d, { tam: 3.0, min: 2.4, peso: 600, lineas: 3, color: C.tinta, antes: 0.4 }));
+    const rotulo = p.cred.detalleTitulo ?? "Expone";
+    if (rotulo) texto(rotulo.toLocaleUpperCase("es"), { tam: 2.8, min: 2.1, peso: 800, color: tema.principal, antes: 1.4 });
+    p.cred.detalle.slice(0, 3).forEach(d => texto(d, destacado
+      ? { tam: 3.9, min: 2.6, peso: 700, lineas: 3, color: C.tinta, antes: rotulo ? 0.4 : 1.2 }
+      : { tam: 3.0, min: 2.4, peso: 600, lineas: 3, color: C.tinta, antes: rotulo ? 0.4 : 1.2 }));
   }
   texto(codigoDe(p), { tam: 3.4, min: 2.4, peso: 700, color: tema.oscuro, familia: FUENTE_CODIGO, antes: 1.4 });
   const alto = filas.reduce((suma, f) => suma + f.antes + f.lineas.length * f.lh, 0);
